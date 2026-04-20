@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "HuertoTracker",
+    "slug": "huerto-tracker",
+    "version": "1.0.0",
+    "scheme": "huertotracker",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FAFAF5"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.portfolio.huertotracker"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FAFAF5"
+      },
+      "package": "com.portfolio.huertotracker"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
