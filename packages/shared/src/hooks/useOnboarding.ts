@@ -5,6 +5,7 @@ const ONBOARDING_KEY = '@portfolio/onboarding_completed';
 
 export interface UseOnboardingResult {
   completed: boolean;
+  isLoading: boolean;
   complete: () => Promise<void>;
   reset: () => Promise<void>;
 }
@@ -12,10 +13,12 @@ export interface UseOnboardingResult {
 export function useOnboarding(appKey?: string): UseOnboardingResult {
   const key = appKey ? `${ONBOARDING_KEY}_${appKey}` : ONBOARDING_KEY;
   const [completed, setCompleted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     AsyncStorage.getItem(key).then((value) => {
       setCompleted(value === 'true');
+      setIsLoading(false);
     });
   }, [key]);
 
@@ -29,5 +32,5 @@ export function useOnboarding(appKey?: string): UseOnboardingResult {
     setCompleted(false);
   }, [key]);
 
-  return { completed, complete, reset };
+  return { completed, isLoading, complete, reset };
 }

@@ -1,21 +1,26 @@
+import { useOnboarding } from '@portfolio/shared';
 import { useColors } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 
 export default function TabsLayout() {
+  const { completed, isLoading } = useOnboarding('huerto');
   const colors = useColors();
+
+  if (isLoading) return null;
+  if (!completed) return <Redirect href="/onboarding" />;
 
   return (
     <Tabs
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textDisabled,
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
+          paddingBottom: 4,
         },
-        headerStyle: { backgroundColor: colors.background },
-        headerTintColor: colors.text,
       }}
     >
       <Tabs.Screen
