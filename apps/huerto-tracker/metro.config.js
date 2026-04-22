@@ -7,6 +7,10 @@ const localModules = path.resolve(projectRoot, 'node_modules');
 
 const config = getDefaultConfig(projectRoot);
 
+// @supabase/supabase-js and other modern packages ship .cjs/.mjs builds.
+// Metro only resolves extensions it knows about, so add them here.
+config.resolver.sourceExts = [...config.resolver.sourceExts, 'cjs', 'mjs'];
+
 // Watch all packages in the monorepo
 config.watchFolders = [workspaceRoot];
 

@@ -8,7 +8,8 @@
       "@portfolio/storage": ["../../packages/storage/src/index.ts"],
       "@portfolio/shared": ["../../packages/shared/src/index.ts"],
       "@portfolio/notifications": ["../../packages/notifications/src/index.ts"],
-      "@portfolio/billing": ["../../packages/billing/src/index.ts"]
+      "@portfolio/billing": ["../../packages/billing/src/index.ts"],
+      "@portfolio/supabase": ["../../packages/supabase/src/index.ts"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]

@@ -1,14 +1,41 @@
+import { initSupabase, handleDeepLink } from '@portfolio/supabase';
 import { ThemeProvider, huertoPalette } from '@portfolio/ui';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as Linking from 'expo-linking';
+import React, { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+initSupabase(
+  process.env.EXPO_PUBLIC_SUPABASE_URL!,
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+function DeepLinkHandler() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const sub = Linking.addEventListener('url', ({ url }) => {
+      handleDeepLink(url).then(() => {
+        router.replace('/onboarding');
+      });
+    });
+    return () => sub.remove();
+  }, []);
+
+  return null;
+}
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider palette={huertoPalette}>
         <StatusBar style="auto" />
+        <DeepLinkHandler />
         <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="welcome" />
+          <Stack.Screen name="auth/index" />
+          <Stack.Screen name="auth/magic-sent" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="onboarding" />
           <Stack.Screen
