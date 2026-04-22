@@ -1,5 +1,5 @@
 import { useOnboarding } from '@portfolio/shared';
-import { useColors, useTheme, Card, Button } from '@portfolio/ui';
+import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -31,7 +31,7 @@ export default function SettingsScreen() {
   useFocusEffect(useCallback(() => { gardens.refresh(); }, []));
 
   const s = useMemo(
-    () => makeStyles(colors, spacing, fontSize, fontWeight as Record<string, string>, radii),
+    () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
@@ -61,10 +61,10 @@ export default function SettingsScreen() {
           style: 'destructive',
           onPress: async () => {
             await Promise.all([
-              plants.items.map((p) => plants.remove(p.id)),
-              entries.items.map((e) => entries.remove(e.id)),
-              reminders.items.map((r) => reminders.remove(r.id)),
-              gardens.items.map((g) => gardens.remove(g.id)),
+              ...plants.items.map((p) => plants.remove(p.id)),
+              ...entries.items.map((e) => entries.remove(e.id)),
+              ...reminders.items.map((r) => reminders.remove(r.id)),
+              ...gardens.items.map((g) => gardens.remove(g.id)),
             ]);
             await resetOnboarding();
             router.replace('/onboarding');
@@ -242,7 +242,7 @@ const makeStyles = (
   colors: ReturnType<typeof useColors>,
   spacing: Record<string, number>,
   fontSize: Record<string, number>,
-  fontWeight: Record<string, string>,
+  fontWeight: Theme['fontWeight'],
   radii: Record<string, number>
 ) =>
   StyleSheet.create({

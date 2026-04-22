@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": ["ESNext", "DOM"],
+
     "paths": {
       "@portfolio/ui": ["../../packages/ui/src/index.ts"],
       "@portfolio/storage": ["../../packages/storage/src/index.ts"],

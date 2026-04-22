@@ -1,4 +1,4 @@
-import { useColors, useTheme, Card, EmptyState, StatCard } from '@portfolio/ui';
+import { useColors, useTheme, Card, EmptyState, StatCard, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -40,7 +40,7 @@ export default function DashboardScreen() {
   const activeReminders = reminders.items.filter((r) => r.enabled).length;
 
   const s = useMemo(
-    () => makeStyles(colors, spacing, fontSize, fontWeight as Record<string, string>, radii),
+    () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
@@ -167,7 +167,7 @@ const makeStyles = (
   colors: ReturnType<typeof useColors>,
   spacing: Record<string, number>,
   fontSize: Record<string, number>,
-  fontWeight: Record<string, string>,
+  fontWeight: Theme['fontWeight'],
   radii: Record<string, number>
 ) =>
   StyleSheet.create({

@@ -10,8 +10,5 @@
   "peerDependencies": {
     "react": "*",
     "react-native": "*"
-  },
-  "dependencies": {
-    "@portfolio/storage": "*"
   }
 }

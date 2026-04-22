@@ -1,4 +1,4 @@
-import { useColors, useTheme, Button } from '@portfolio/ui';
+import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
@@ -27,7 +27,7 @@ export default function PaywallScreen() {
   const router = useRouter();
 
   const s = useMemo(
-    () => makeStyles(colors, spacing, fontSize, fontWeight as Record<string, string>, radii),
+    () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
@@ -128,7 +128,7 @@ const makeStyles = (
   colors: ReturnType<typeof useColors>,
   spacing: Record<string, number>,
   fontSize: Record<string, number>,
-  fontWeight: Record<string, string>,
+  fontWeight: Theme['fontWeight'],
   radii: Record<string, number>
 ) =>
   StyleSheet.create({

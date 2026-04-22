@@ -1,5 +1,5 @@
 import { useOnboarding } from '@portfolio/shared';
-import { Button, Card, useColors, useTheme } from '@portfolio/ui';
+import { Button, Card, useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
@@ -73,7 +73,7 @@ export default function OnboardingScreen() {
     }
   }
 
-  const s = styles(colors, spacing, fontSize, fontWeight as Record<string, string>, radii);
+  const s = styles(colors, spacing, fontSize, fontWeight, radii);
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
@@ -300,7 +300,7 @@ const styles = (
   colors: ReturnType<typeof useColors>,
   spacing: Record<string, number>,
   fontSize: Record<string, number>,
-  fontWeight: Record<string, string>,
+  fontWeight: Theme['fontWeight'],
   radii: Record<string, number>
 ) =>
   StyleSheet.create({
