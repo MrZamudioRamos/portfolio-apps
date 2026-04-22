@@ -37,21 +37,6 @@ export default function SettingsScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  function exportData() {
-    const data = {
-      exportedAt: new Date().toISOString(),
-      garden: gardens.items[0],
-      plants: plants.items,
-      diaryEntries: entries.items,
-      reminders: reminders.items,
-    };
-    Alert.alert(
-      'Exportar datos',
-      `Se exportarían ${plants.count} plantas y ${entries.count} entradas de diario.\n\n(Integración completa disponible próximamente)`,
-      [{ text: 'OK' }]
-    );
-  }
-
   function deleteAllData() {
     Alert.alert(
       '¿Eliminar todos los datos?',
@@ -159,17 +144,25 @@ export default function SettingsScreen() {
           <Row icon="journal-outline" label="Entradas de diario" value={String(entries.count)} colors={colors} s={s} />
           <Separator colors={colors} />
           <Row icon="notifications-outline" label="Recordatorios" value={String(reminders.count)} colors={colors} s={s} />
+          <Separator colors={colors} />
+          <RowAction
+            icon="bar-chart-outline"
+            label="Ver estadísticas"
+            colors={colors}
+            s={s}
+            onPress={() => router.push('/stats')}
+          />
         </Card>
 
         {/* ── Datos ── */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>DATOS</Text>
         <Card padded style={s.card}>
           <RowAction
-            icon="download-outline"
-            label="Exportar datos (JSON)"
+            icon="cloud-upload-outline"
+            label="Copia de seguridad"
             colors={colors}
             s={s}
-            onPress={exportData}
+            onPress={() => router.push('/settings/backup')}
           />
           <Separator colors={colors} />
           <RowAction

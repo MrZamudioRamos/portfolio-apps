@@ -129,6 +129,19 @@ export default function DashboardScreen() {
               />
             </View>
 
+            {/* Stats link */}
+            <Pressable
+              onPress={() => router.push('/stats')}
+              style={({ pressed }) => [
+                s.statsLink,
+                { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 },
+              ]}
+            >
+              <Ionicons name="bar-chart-outline" size={16} color={colors.primary} />
+              <Text style={[s.statsLinkText, { color: colors.primary }]}>Ver estadísticas</Text>
+              <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+            </Pressable>
+
             {/* Section title */}
             {plants.count > 0 && (
               <Text style={[s.sectionTitle, { color: colors.text }]}>Mis plantas</Text>
@@ -230,6 +243,18 @@ const makeStyles = (
       borderRadius: radii.full,
     },
     statusText: { fontSize: 10, fontWeight: fontWeight.semibold },
+    statsLink: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginHorizontal: spacing.xl,
+      marginBottom: spacing.xl,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+    },
+    statsLinkText: { flex: 1, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     fab: {
       position: 'absolute',
       bottom: 24,
