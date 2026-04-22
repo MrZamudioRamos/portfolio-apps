@@ -94,6 +94,14 @@ export default function SettingsScreen() {
           />
           <Separator colors={colors} />
           <RowAction
+            icon="map-outline"
+            label="Mapa del huerto"
+            colors={colors}
+            s={s}
+            onPress={() => router.push('/garden/map')}
+          />
+          <Separator colors={colors} />
+          <RowAction
             icon="create-outline"
             label="Editar huerto"
             colors={colors}
@@ -151,6 +159,18 @@ export default function SettingsScreen() {
             colors={colors}
             s={s}
             onPress={() => router.push('/stats')}
+          />
+        </Card>
+
+        {/* ── Notificaciones ── */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>NOTIFICACIONES</Text>
+        <Card padded style={s.card}>
+          <RowAction
+            icon="notifications-outline"
+            label="Alertas estacionales"
+            colors={colors}
+            s={s}
+            onPress={() => router.push('/settings/notifications')}
           />
         </Card>
 

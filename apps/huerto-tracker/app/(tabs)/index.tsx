@@ -96,6 +96,13 @@ export default function DashboardScreen() {
             </View>
           )}
         </View>
+        <Pressable
+          onPress={() => router.push('/garden/map')}
+          style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
+          hitSlop={8}
+        >
+          <Ionicons name="map-outline" size={20} color={colors.primary} />
+        </Pressable>
       </View>
 
       <FlatList
@@ -243,6 +250,14 @@ const makeStyles = (
       borderRadius: radii.full,
     },
     statusText: { fontSize: 10, fontWeight: fontWeight.semibold },
+    mapBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     statsLink: {
       flexDirection: 'row',
       alignItems: 'center',

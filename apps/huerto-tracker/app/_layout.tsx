@@ -29,7 +29,9 @@ export default function RootLayout() {
             options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
           />
           <Stack.Screen name="garden/edit" />
+          <Stack.Screen name="garden/map" />
           <Stack.Screen name="settings/backup" />
+          <Stack.Screen name="settings/notifications" />
           <Stack.Screen name="stats" />
         </Stack>
       </ThemeProvider>
