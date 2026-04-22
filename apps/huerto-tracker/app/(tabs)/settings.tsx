@@ -1,6 +1,7 @@
 import { useOnboarding } from '@portfolio/shared';
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { usePurchases } from '@portfolio/billing';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
@@ -24,6 +25,7 @@ export default function SettingsScreen() {
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
   const reminders = useCollection<GardenReminder>('reminders');
+  const { isPro, activePlan } = usePurchases();
 
   const garden = gardens.items[0];
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
@@ -111,7 +113,7 @@ export default function SettingsScreen() {
             label="Editar huerto"
             colors={colors}
             s={s}
-            onPress={() => router.push('/plant/new')}
+            onPress={() => router.push('/garden/edit')}
           />
         </Card>
 
@@ -120,19 +122,32 @@ export default function SettingsScreen() {
         <Card padded style={s.card}>
           <View style={s.proRow}>
             <View style={s.proInfo}>
-              <View style={[s.freeBadge, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-                <Text style={[s.freeBadgeText, { color: colors.textSecondary }]}>Plan gratuito</Text>
+              <View
+                style={[
+                  s.freeBadge,
+                  isPro
+                    ? { backgroundColor: colors.primary + '18', borderColor: colors.primary }
+                    : { backgroundColor: colors.surfaceAlt, borderColor: colors.border },
+                ]}
+              >
+                <Text style={[s.freeBadgeText, { color: isPro ? colors.primary : colors.textSecondary }]}>
+                  {isPro ? '⭐ Plan Pro' : 'Plan gratuito'}
+                </Text>
               </View>
               <Text style={[s.proDesc, { color: colors.textSecondary }]}>
-                Hasta 5 plantas por huerto
+                {isPro
+                  ? `Suscripción ${activePlan === 'annual' ? 'anual' : 'mensual'} activa`
+                  : 'Hasta 5 plantas por huerto'}
               </Text>
             </View>
-            <Button
-              title="Ver planes"
-              variant="primary"
-              size="sm"
-              onPress={() => router.push('/paywall')}
-            />
+            {!isPro && (
+              <Button
+                title="Ver planes"
+                variant="primary"
+                size="sm"
+                onPress={() => router.push('/paywall')}
+              />
+            )}
           </View>
         </Card>
 

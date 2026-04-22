@@ -24,6 +24,11 @@ export default function RootLayout() {
             name="paywall"
             options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
           />
+          <Stack.Screen
+            name="reminder/new"
+            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+          />
+          <Stack.Screen name="garden/edit" />
         </Stack>
       </ThemeProvider>
     </SafeAreaProvider>

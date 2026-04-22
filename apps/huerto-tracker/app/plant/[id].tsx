@@ -308,7 +308,7 @@ export default function PlantDetailScreen() {
               title="Recordatorio"
               variant="outline"
               size="md"
-              onPress={() => {}}
+              onPress={() => router.push(`/reminder/new?plantId=${id}`)}
               style={{ flex: 1 }}
             />
           </View>
