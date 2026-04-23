@@ -1,18 +1,253 @@
-import { useColors } from '@portfolio/ui';
-import { Text, View } from 'react-native';
+import { useColors, useTheme, Card, EmptyState, type Theme } from '@portfolio/ui';
+import { useCollection } from '@portfolio/storage';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useCallback, useMemo, useState } from 'react';
+import {
+  FlatList,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { formatRelative } from '@portfolio/shared';
+import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
+import { type Plant } from '../../src/models/plant';
+
+const ALL_TYPES: Array<EntryType | 'all'> = [
+  'all', 'watering', 'sowing', 'harvest', 'fertilizing', 'transplant',
+  'pest', 'treatment', 'pruning', 'photo', 'note',
+];
+
+const TYPE_LABEL: Record<EntryType | 'all', string> = {
+  all: 'Todos',
+  watering: 'Riego',
+  sowing: 'Siembra',
+  harvest: 'Cosecha',
+  fertilizing: 'Abono',
+  transplant: 'Trasplante',
+  pest: 'Plaga',
+  treatment: 'Tratamiento',
+  pruning: 'Poda',
+  photo: 'Foto',
+  note: 'Nota',
+};
 
 export default function DiaryScreen() {
   const colors = useColors();
+  const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
+  const router = useRouter();
+
+  const [activeFilter, setActiveFilter] = useState<EntryType | 'all'>('all');
+
+  const entries = useCollection<DiaryEntry>('diary_entries');
+  const plants = useCollection<Plant>('plants');
+
+  useFocusEffect(
+    useCallback(() => {
+      entries.refresh();
+      plants.refresh();
+    }, [])
+  );
+
+  const filtered = useMemo(() => {
+    const sorted = [...entries.items].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    if (activeFilter === 'all') return sorted;
+    return sorted.filter((e) => e.type === activeFilter);
+  }, [entries.items, activeFilter]);
+
+  const plantsById = useMemo(
+    () => Object.fromEntries(plants.items.map((p) => [p.id, p])),
+    [plants.items]
+  );
+
+  const s = useMemo(
+    () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
+    [colors, spacing, fontSize, fontWeight, radii]
+  );
+
+  function renderEntry({ item }: { item: DiaryEntry }) {
+    const config = ENTRY_TYPE_CONFIG[item.type];
+    const plant = item.plantId ? plantsById[item.plantId] : null;
+
+    return (
+      <Card padded style={s.entryCard}>
+        <View style={s.entryRow}>
+          <View style={[s.entryIconBadge, { backgroundColor: config.color + '22' }]}>
+            <Text style={{ fontSize: 22 }}>{config.emoji}</Text>
+          </View>
+          <View style={{ flex: 1, marginLeft: spacing.md }}>
+            <View style={s.entryTitleRow}>
+              <Text style={[s.entryType, { color: colors.text }]}>{config.label}</Text>
+              <Text style={[s.entryDate, { color: colors.textSecondary }]}>
+                {formatRelative(item.date)}
+              </Text>
+            </View>
+            {plant && (
+              <Text style={[s.entryPlant, { color: colors.primary }]}>
+                🌱 {plant.name}
+              </Text>
+            )}
+            {item.notes ? (
+              <Text style={[s.entryNotes, { color: colors.textSecondary }]} numberOfLines={2}>
+                {item.notes}
+              </Text>
+            ) : null}
+            {item.data?.weight || item.data?.units ? (
+              <View style={s.harvestData}>
+                {item.data.weight ? (
+                  <Text style={[s.harvestChip, { color: colors.primary, backgroundColor: colors.surfaceAlt }]}>
+                    ⚖️ {item.data.weight as string} kg
+                  </Text>
+                ) : null}
+                {item.data.units ? (
+                  <Text style={[s.harvestChip, { color: colors.primary, backgroundColor: colors.surfaceAlt }]}>
+                    🔢 {item.data.units as string} uds
+                  </Text>
+                ) : null}
+              </View>
+            ) : null}
+          </View>
+          {item.photoUri ? (
+            <Image source={{ uri: item.photoUri }} style={s.entryThumb} />
+          ) : null}
+        </View>
+      </Card>
+    );
+  }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ fontSize: 32 }}>📔</Text>
-        <Text style={{ fontSize: 20, fontWeight: '600', color: colors.text, marginTop: 8 }}>
-          Diario
-        </Text>
+    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
+      {/* Header */}
+      <View style={s.header}>
+        <Text style={[s.headerTitle, { color: colors.text }]}>Diario</Text>
       </View>
+
+      {/* Filter chips */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={s.filtersContainer}
+        style={s.filtersScroll}
+      >
+        {ALL_TYPES.map((type) => {
+          const isActive = activeFilter === type;
+          return (
+            <Pressable
+              key={type}
+              onPress={() => setActiveFilter(type)}
+              style={[
+                s.filterChip,
+                {
+                  backgroundColor: isActive ? colors.primary : colors.surface,
+                  borderColor: isActive ? colors.primary : colors.border,
+                },
+              ]}
+            >
+              {type !== 'all' && (
+                <Text style={{ fontSize: 13, marginRight: 4 }}>
+                  {ENTRY_TYPE_CONFIG[type as EntryType].emoji}
+                </Text>
+              )}
+              <Text style={[s.filterLabel, { color: isActive ? '#fff' : colors.text }]}>
+                {TYPE_LABEL[type]}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+
+      {/* List */}
+      <FlatList
+        data={filtered}
+        keyExtractor={(item) => item.id}
+        renderItem={renderEntry}
+        contentContainerStyle={s.listContent}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          !entries.loading ? (
+            <EmptyState
+              emoji="📔"
+              title="Tu diario está vacío"
+              description="Registra tu primera actividad: un riego, una siembra o una cosecha."
+              ctaLabel="Nueva entrada"
+              onCta={() => router.push('/entry/new')}
+            />
+          ) : null
+        }
+      />
+
+      {/* FAB */}
+      <Pressable
+        onPress={() => router.push('/entry/new')}
+        style={({ pressed }) => [
+          s.fab,
+          { ...shadows.lg, backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
+        ]}
+      >
+        <Ionicons name="add" size={28} color="#fff" />
+      </Pressable>
     </SafeAreaView>
   );
 }
+
+const makeStyles = (
+  colors: ReturnType<typeof useColors>,
+  spacing: Record<string, number>,
+  fontSize: Record<string, number>,
+  fontWeight: Theme['fontWeight'],
+  radii: Record<string, number>
+) =>
+  StyleSheet.create({
+    container: { flex: 1 },
+    header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.sm },
+    headerTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
+    filtersScroll: { flexGrow: 0 },
+    filtersContainer: {
+      paddingHorizontal: spacing.xl,
+      gap: spacing.sm,
+      paddingBottom: spacing.md,
+    },
+    filterChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: 6,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+    },
+    filterLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    listContent: { paddingHorizontal: spacing.xl, paddingBottom: 100, gap: spacing.sm },
+    entryCard: {},
+    entryRow: { flexDirection: 'row', alignItems: 'flex-start' },
+    entryIconBadge: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    entryTitleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    entryType: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    entryDate: { fontSize: fontSize.xs },
+    entryPlant: { fontSize: fontSize.sm, marginTop: 2, fontWeight: fontWeight.medium },
+    entryNotes: { fontSize: fontSize.sm, marginTop: 4, lineHeight: 18 },
+    harvestData: { flexDirection: 'row', gap: 6, marginTop: spacing.sm },
+    harvestChip: { fontSize: fontSize.xs, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radii.full },
+    entryThumb: { width: 52, height: 52, borderRadius: radii.sm, marginLeft: spacing.sm },
+    fab: {
+      position: 'absolute',
+      bottom: 24,
+      right: 24,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  });
