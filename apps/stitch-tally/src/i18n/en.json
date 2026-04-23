@@ -1,0 +1,65 @@
+{
+  "projects": {
+    "title": "My Projects",
+    "empty_title": "No projects yet",
+    "empty_desc": "Create your first project to start counting.",
+    "new_button": "New project",
+    "rows": "rows",
+    "of": "of",
+    "last_used": "Last used",
+    "free_limit": "Free plan: 2 projects max",
+    "upgrade": "Upgrade to Pro"
+  },
+  "counter": {
+    "row": "Row",
+    "stitch": "Stitch",
+    "reset_confirm": "Reset counter to 0?",
+    "reset_yes": "Reset",
+    "reset_no": "Cancel",
+    "completed_title": "Project complete! 🎉",
+    "completed_desc": "You've finished all {{total}} rows!",
+    "notes_placeholder": "Note for row {{row}}…",
+    "notes_label": "Row notes"
+  },
+  "new_project": {
+    "title": "New Project",
+    "name_label": "Project name",
+    "name_placeholder": "My blanket, hat, etc.",
+    "total_rows_label": "Total rows (optional)",
+    "total_rows_placeholder": "e.g. 120",
+    "craft_label": "Craft type",
+    "color_label": "Yarn color",
+    "create_button": "Create project",
+    "limit_reached": "You've reached the 2-project limit on the free plan."
+  },
+  "stats": {
+    "title": "Stats",
+    "total_rows": "Total rows",
+    "total_projects": "Projects",
+    "streak": "Day streak",
+    "avg_rows": "Avg rows/session",
+    "est_completion": "Est. completion",
+    "no_data": "Keep counting to see your stats!"
+  },
+  "paywall": {
+    "title": "Go Pro",
+    "subtitle": "Unlimited projects and advanced features",
+    "trial": "{{days}}-day free trial",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "best_value": "Best value",
+    "restore": "Restore purchases",
+    "features_free": "Free",
+    "features_pro": "Pro",
+    "continue": "Start free trial"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "pro_badge": "PRO",
+    "settings": "Settings"
+  }
+}

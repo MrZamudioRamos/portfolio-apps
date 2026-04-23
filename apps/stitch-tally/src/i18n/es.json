@@ -1,0 +1,65 @@
+{
+  "projects": {
+    "title": "Mis Proyectos",
+    "empty_title": "Sin proyectos aún",
+    "empty_desc": "Crea tu primer proyecto para empezar a contar.",
+    "new_button": "Nuevo proyecto",
+    "rows": "filas",
+    "of": "de",
+    "last_used": "Último uso",
+    "free_limit": "Plan gratuito: máx. 2 proyectos",
+    "upgrade": "Actualizar a Pro"
+  },
+  "counter": {
+    "row": "Fila",
+    "stitch": "Punto",
+    "reset_confirm": "¿Reiniciar el contador a 0?",
+    "reset_yes": "Reiniciar",
+    "reset_no": "Cancelar",
+    "completed_title": "¡Proyecto terminado! 🎉",
+    "completed_desc": "¡Has completado las {{total}} filas!",
+    "notes_placeholder": "Nota para la fila {{row}}…",
+    "notes_label": "Notas de fila"
+  },
+  "new_project": {
+    "title": "Nuevo Proyecto",
+    "name_label": "Nombre del proyecto",
+    "name_placeholder": "Mi manta, gorro, etc.",
+    "total_rows_label": "Total de filas (opcional)",
+    "total_rows_placeholder": "ej. 120",
+    "craft_label": "Tipo de tejido",
+    "color_label": "Color del hilo",
+    "create_button": "Crear proyecto",
+    "limit_reached": "Has alcanzado el límite de 2 proyectos del plan gratuito."
+  },
+  "stats": {
+    "title": "Estadísticas",
+    "total_rows": "Filas totales",
+    "total_projects": "Proyectos",
+    "streak": "Días seguidos",
+    "avg_rows": "Filas medias/sesión",
+    "est_completion": "Fin estimado",
+    "no_data": "¡Sigue contando para ver tus estadísticas!"
+  },
+  "paywall": {
+    "title": "Hazte Pro",
+    "subtitle": "Proyectos ilimitados y funciones avanzadas",
+    "trial": "{{days}} días de prueba gratis",
+    "weekly": "Semanal",
+    "monthly": "Mensual",
+    "annual": "Anual",
+    "best_value": "Mejor precio",
+    "restore": "Restaurar compras",
+    "features_free": "Gratis",
+    "features_pro": "Pro",
+    "continue": "Empezar prueba gratis"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "confirm": "Confirmar",
+    "pro_badge": "PRO",
+    "settings": "Ajustes"
+  }
+}

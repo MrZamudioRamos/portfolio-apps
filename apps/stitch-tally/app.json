@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "StitchTally",
+    "slug": "stitch-tally",
+    "version": "1.0.0",
+    "scheme": "stitchtally",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFF8FC"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.portfolio.stitchtally"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFF8FC"
+      },
+      "package": "com.portfolio.stitchtally"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
