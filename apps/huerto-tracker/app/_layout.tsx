@@ -5,14 +5,16 @@ import { StatusBar } from 'expo-status-bar';
 import * as Linking from 'expo-linking';
 import React, { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useSyncProvider } from '../src/sync/useSyncProvider';
 
 initSupabase(
   process.env.EXPO_PUBLIC_SUPABASE_URL!,
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-function DeepLinkHandler() {
+function AppServices() {
   const router = useRouter();
+  useSyncProvider();
 
   useEffect(() => {
     const sub = Linking.addEventListener('url', ({ url }) => {
@@ -31,7 +33,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ThemeProvider palette={huertoPalette}>
         <StatusBar style="auto" />
-        <DeepLinkHandler />
+        <AppServices />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="welcome" />
           <Stack.Screen name="auth/index" />

@@ -1,5 +1,7 @@
 import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { useSession } from '@portfolio/supabase';
+import { usePurchases } from '@portfolio/billing';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -35,6 +37,12 @@ export default function NewPlantScreen() {
 
   const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
+  const { isGuest } = useSession();
+  const { isPro } = usePurchases();
+
+  // Tier limits: guest = 3, free registered = 10, pro = unlimited
+  const plantLimit = isGuest ? 3 : isPro ? Infinity : 10;
+  const atLimit = plants.count >= plantLimit;
 
   const [selectedCropId, setSelectedCropId] = useState<string | null>(paramCropId ?? null);
   const [showCropPicker, setShowCropPicker] = useState(!paramCropId);
@@ -79,6 +87,10 @@ export default function NewPlantScreen() {
 
   async function handleSave() {
     if (!selectedCropId || !plantName.trim()) return;
+    if (atLimit) {
+      router.replace('/paywall');
+      return;
+    }
     const gardenId = gardens.items[0]?.id;
     if (!gardenId) return;
     setSaving(true);

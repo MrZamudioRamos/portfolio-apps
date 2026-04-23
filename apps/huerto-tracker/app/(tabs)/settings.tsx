@@ -1,4 +1,5 @@
 import { useOnboarding } from '@portfolio/shared';
+import { useSession, signOut } from '@portfolio/supabase';
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { usePurchases } from '@portfolio/billing';
@@ -26,6 +27,7 @@ export default function SettingsScreen() {
   const entries = useCollection<DiaryEntry>('diary_entries');
   const reminders = useCollection<GardenReminder>('reminders');
   const { isPro, activePlan } = usePurchases();
+  const { isGuest, user } = useSession();
 
   const garden = gardens.items[0];
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
@@ -65,6 +67,51 @@ export default function SettingsScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scrollContent}>
         <Text style={[s.pageTitle, { color: colors.text }]}>Ajustes</Text>
+
+        {/* ── Cuenta ── */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>CUENTA</Text>
+        <Card padded style={s.card}>
+          {isGuest ? (
+            <View style={s.guestRow}>
+              <View style={s.guestInfo}>
+                <Text style={[s.guestTitle, { color: colors.text }]}>Modo invitado</Text>
+                <Text style={[s.guestDesc, { color: colors.textSecondary }]}>
+                  Crea una cuenta para sincronizar tu huerto y no perder tus datos.
+                </Text>
+              </View>
+              <Button
+                title="Iniciar sesión"
+                variant="primary"
+                size="sm"
+                onPress={() => router.push('/auth' as any)}
+              />
+            </View>
+          ) : (
+            <>
+              <Row
+                icon="person-circle-outline"
+                label="Email"
+                value={user?.email ?? '—'}
+                colors={colors}
+                s={s}
+              />
+              <Separator colors={colors} />
+              <RowAction
+                icon="log-out-outline"
+                label="Cerrar sesión"
+                colors={colors}
+                s={s}
+                onPress={() => {
+                  Alert.alert('¿Cerrar sesión?', 'Tus datos locales se conservarán.', [
+                    { text: 'Cancelar', style: 'cancel' },
+                    { text: 'Cerrar sesión', style: 'destructive', onPress: () => signOut() },
+                  ]);
+                }}
+                destructive
+              />
+            </>
+          )}
+        </Card>
 
         {/* ── Mi huerto ── */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>MI HUERTO</Text>
@@ -293,6 +340,10 @@ const makeStyles = (
     },
     rowLabel: { flex: 1, fontSize: fontSize.md },
     rowValue: { fontSize: fontSize.md },
+    guestRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
+    guestInfo: { flex: 1, gap: 2 },
+    guestTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    guestDesc: { fontSize: fontSize.xs, lineHeight: 16 },
     proRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     proInfo: { gap: 4 },
     freeBadge: {
