@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS, CROPS_BY_ID, CATEGORY_CONFIG } from '../../src/data/crops';
 import type { Garden } from '../../src/models/garden';
 import type { CropInfo } from '../../src/data/crops';
+import { getLunarDay, getMonthGardeningProfile } from '../../src/utils/lunar';
 
 const MONTH_NAMES = Array.from({ length: 12 }, (_, i) =>
   new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(2024, i, 1))
@@ -39,6 +40,31 @@ export default function CalendarScreen() {
     () => CROPS.filter((c) => c.sowingMonths[zone]?.includes(month)),
     [zone, month]
   );
+
+  const today = new Date();
+  const isCurrentMonth = month === today.getMonth() + 1 && year === today.getFullYear();
+  const lunar = useMemo(
+    () => isCurrentMonth ? getLunarDay() : null,
+    [isCurrentMonth]
+  );
+  const monthProfile = useMemo(
+    () => getMonthGardeningProfile(year, month),
+    [year, month]
+  );
+
+  const GARDENING_COLORS: Record<string, string> = {
+    frutos: '#E53935',
+    hojas: '#43A047',
+    raices: '#6D4C41',
+    flores: '#8E24AA',
+    descanso: '#757575',
+  };
+  const GARDENING_EMOJI: Record<string, string> = {
+    frutos: '🍅', hojas: '🥬', raices: '🥕', flores: '🌸', descanso: '😴',
+  };
+  const GARDENING_LABEL: Record<string, string> = {
+    frutos: 'Mes de frutos', hojas: 'Mes de hojas', raices: 'Mes de raíces', flores: 'Mes de flores', descanso: 'Mes de descanso',
+  };
 
   function prevMonth() {
     if (month === 1) { setMonth(12); setYear((y) => y - 1); }
@@ -131,6 +157,34 @@ export default function CalendarScreen() {
         </Pressable>
       </View>
 
+      {/* Lunar banner */}
+      <View style={[s.lunarBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+        <View style={s.lunarBannerLeft}>
+          {lunar ? (
+            <>
+              <Text style={s.lunarBannerMoon}>{lunar.phaseEmoji}</Text>
+              <View>
+                <Text style={[s.lunarBannerPhase, { color: colors.text }]}>{lunar.phaseName}</Text>
+                <Text style={[s.lunarBannerDay, { color: colors.textSecondary }]}>Día {lunar.dayInCycle} · {lunar.illumination}% iluminada</Text>
+              </View>
+            </>
+          ) : (
+            <>
+              <Text style={s.lunarBannerMoon}>🌙</Text>
+              <View>
+                <Text style={[s.lunarBannerPhase, { color: colors.text }]}>Perfil lunar del mes</Text>
+                <Text style={[s.lunarBannerDay, { color: colors.textSecondary }]}>Basado en ciclo sinódico</Text>
+              </View>
+            </>
+          )}
+        </View>
+        <View style={[s.lunarBannerBadge, { backgroundColor: GARDENING_COLORS[monthProfile] + '22' }]}>
+          <Text style={[s.lunarBannerBadgeText, { color: GARDENING_COLORS[monthProfile] }]}>
+            {GARDENING_EMOJI[monthProfile]} {GARDENING_LABEL[monthProfile]}
+          </Text>
+        </View>
+      </View>
+
       {/* Subtitle */}
       <Text style={[s.subTitle, { color: colors.textSecondary }]}>
         {availableCrops.length > 0
@@ -182,6 +236,24 @@ const makeStyles = (
     navArrow: { padding: spacing.xs },
     monthName: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
     yearText: { fontSize: fontSize.sm },
+    lunarBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginHorizontal: spacing.xl,
+      marginTop: spacing.md,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      gap: spacing.sm,
+    },
+    lunarBannerLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 },
+    lunarBannerMoon: { fontSize: 24 },
+    lunarBannerPhase: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    lunarBannerDay: { fontSize: fontSize.xs, marginTop: 1 },
+    lunarBannerBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radii.full },
+    lunarBannerBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     subTitle: { paddingHorizontal: spacing.xl, marginTop: spacing.md, marginBottom: spacing.sm, fontSize: fontSize.sm },
     listContent: { paddingHorizontal: spacing.xl, paddingBottom: 40, gap: spacing.md },
     cropCard: { gap: spacing.sm },
