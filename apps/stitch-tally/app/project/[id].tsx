@@ -15,6 +15,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   hapticComplete,
@@ -25,11 +26,74 @@ import {
 } from '../../src/haptics';
 import { CRAFT_CONFIG, type Project } from '../../src/models/project';
 
+// ── Arc progress ring ────────────────────────────────────────────────────────
+function ArcRing({ progress, color, size }: { progress: number; color: string; size: number }) {
+  const stroke = 8;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - Math.min(Math.max(progress, 0), 1));
+  return (
+    <Svg width={size} height={size} style={{ transform: [{ rotate: '-90deg' }] }}>
+      <Circle cx={size / 2} cy={size / 2} r={r} stroke={color + '25'} strokeWidth={stroke} fill="transparent" />
+      <Circle
+        cx={size / 2} cy={size / 2} r={r}
+        stroke={color} strokeWidth={stroke} fill="transparent"
+        strokeDasharray={circ} strokeDashoffset={offset}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+// ── Celebration overlay ──────────────────────────────────────────────────────
+function CelebrationOverlay({ visible, total, yarnColor, onDismiss }: {
+  visible: boolean; total: number; yarnColor: string; onDismiss: () => void;
+}) {
+  const opacity = useRef(new Animated.Value(0)).current;
+  const scale  = useRef(new Animated.Value(0.5)).current;
+
+  useEffect(() => {
+    if (visible) {
+      Animated.parallel([
+        Animated.spring(opacity, { toValue: 1, useNativeDriver: true }),
+        Animated.spring(scale,   { toValue: 1, friction: 5, tension: 80, useNativeDriver: true }),
+      ]).start();
+      const t = setTimeout(onDismiss, 3000);
+      return () => clearTimeout(t);
+    } else {
+      opacity.setValue(0);
+      scale.setValue(0.5);
+    }
+  }, [visible]);
+
+  if (!visible) return null;
+  return (
+    <Pressable onPress={onDismiss} style={StyleSheet.absoluteFill}>
+      <Animated.View style={[StyleSheet.absoluteFill, styles.celebBg, { opacity }]}>
+        <Animated.View style={[styles.celebCard, { transform: [{ scale }] }]}>
+          <Text style={styles.celebEmoji}>🎉</Text>
+          <Text style={[styles.celebTitle, { color: yarnColor }]}>{total} rows!</Text>
+          <Text style={styles.celebSub}>Project complete ✨</Text>
+        </Animated.View>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  celebBg: { backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center' },
+  celebCard: { backgroundColor: '#fff', borderRadius: 28, padding: 40, alignItems: 'center', gap: 8, width: 260 },
+  celebEmoji: { fontSize: 64 },
+  celebTitle: { fontSize: 52, fontWeight: '800' },
+  celebSub: { fontSize: 18, color: '#666' },
+});
+
+// ── Main screen ──────────────────────────────────────────────────────────────
 export default function CounterScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useColors();
-  const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
+  const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { isPro } = usePurchases();
 
@@ -45,14 +109,12 @@ export default function CounterScreen() {
   const [stitchCount, setStitchCount] = useState(project?.stitchCount ?? 0);
   const [showNotes, setShowNotes] = useState(false);
   const [noteText, setNoteText] = useState('');
-  const [celebrated, setCelebrated] = useState(false);
+  const [celebrating, setCelebrating] = useState(false);
 
-  // Animation for the row number on tap
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const flashAnim = useRef(new Animated.Value(0)).current;
-
-  // Track session start
   const sessionStartRow = useRef(project?.currentRow ?? 0);
+  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (project) {
@@ -63,41 +125,27 @@ export default function CounterScreen() {
     }
   }, [project?.id]);
 
-  // Persist changes debounced
-  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const saveProject = useCallback(
-    (row: number, stitch: number) => {
-      if (!project) return;
-      if (saveTimeout.current) clearTimeout(saveTimeout.current);
-      saveTimeout.current = setTimeout(() => {
-        const now = new Date().toISOString();
-        const rowsInSession = row - sessionStartRow.current;
-        const sessions =
-          rowsInSession > 0
-            ? [
-                ...project.sessions,
-                { date: now.split('T')[0], rowsCompleted: rowsInSession },
-              ]
-            : project.sessions;
-        projects.update(project.id, {
-          currentRow: row,
-          stitchCount: stitch,
-          lastUsedAt: now,
-          sessions,
-        });
-      }, 500);
-    },
-    [project, projects]
-  );
+  const saveProject = useCallback((row: number, stitch: number) => {
+    if (!project) return;
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    saveTimeout.current = setTimeout(() => {
+      const now = new Date().toISOString();
+      const rowsInSession = row - sessionStartRow.current;
+      const sessions = rowsInSession > 0
+        ? [...project.sessions, { date: now.split('T')[0], rowsCompleted: rowsInSession }]
+        : project.sessions;
+      projects.update(project.id, { currentRow: row, stitchCount: stitch, lastUsedAt: now, sessions });
+    }, 500);
+  }, [project, projects]);
 
   function animateTap() {
-    scaleAnim.setValue(0.92);
-    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, tension: 300, friction: 10 }).start();
+    scaleAnim.setValue(0.88);
+    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, tension: 350, friction: 8 }).start();
   }
 
   function flashScreen() {
-    flashAnim.setValue(0.25);
-    Animated.timing(flashAnim, { toValue: 0, duration: 400, useNativeDriver: true }).start();
+    flashAnim.setValue(0.18);
+    Animated.timing(flashAnim, { toValue: 0, duration: 500, useNativeDriver: true }).start();
   }
 
   async function increment() {
@@ -112,22 +160,16 @@ export default function CounterScreen() {
     animateTap();
     setNoteText(project?.notes[newRow] ?? '');
 
-    if (isComplete && !celebrated) {
-      setCelebrated(true);
+    if (isComplete && !celebrating) {
+      setCelebrating(true);
       flashScreen();
       await hapticComplete();
-      Alert.alert(
-        t('counter.completed_title'),
-        t('counter.completed_desc', { total }),
-        [{ text: '🎉', style: 'default' }]
-      );
     } else if (isMilestone) {
       flashScreen();
       await hapticMilestone();
     } else {
       await hapticTap();
     }
-
     saveProject(newRow, newStitch);
   }
 
@@ -141,10 +183,10 @@ export default function CounterScreen() {
   }
 
   async function incrementStitch() {
-    const newStitch = stitchCount + 1;
-    setStitchCount(newStitch);
+    const n = stitchCount + 1;
+    setStitchCount(n);
     await hapticTap();
-    saveProject(currentRow, newStitch);
+    saveProject(currentRow, n);
   }
 
   async function resetStitch() {
@@ -157,12 +199,9 @@ export default function CounterScreen() {
     Alert.alert(t('counter.reset_confirm'), '', [
       { text: t('counter.reset_no'), style: 'cancel' },
       {
-        text: t('counter.reset_yes'),
-        style: 'destructive',
+        text: t('counter.reset_yes'), style: 'destructive',
         onPress: async () => {
-          setCurrentRow(0);
-          setStitchCount(0);
-          setCelebrated(false);
+          setCurrentRow(0); setStitchCount(0); setCelebrating(false);
           await hapticReset();
           saveProject(0, 0);
         },
@@ -173,147 +212,151 @@ export default function CounterScreen() {
   function saveNote() {
     if (!project) return;
     const updated = { ...project.notes };
-    if (noteText.trim()) {
-      updated[currentRow] = noteText.trim();
-    } else {
-      delete updated[currentRow];
-    }
+    if (noteText.trim()) updated[currentRow] = noteText.trim();
+    else delete updated[currentRow];
     projects.update(project.id, { notes: updated });
     setShowNotes(false);
   }
 
   const total = project?.totalRows ?? null;
-  const progress = total ? Math.min(currentRow / total, 1) : null;
+  const progress = total ? currentRow / total : null;
   const hasNote = !!(project?.notes[currentRow]);
+  const yarnColor = project?.yarnColor ?? colors.primary;
 
   const s = useMemo(
-    () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
-    [colors, spacing, fontSize, fontWeight, radii]
+    () => makeStyles(colors, spacing, fontSize, fontWeight, radii, yarnColor),
+    [colors, spacing, fontSize, fontWeight, radii, yarnColor]
   );
 
   if (!project) return null;
-
   const craft = CRAFT_CONFIG[project.craftType];
 
   return (
-    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-      {/* Flash overlay for milestone/complete */}
-      <Animated.View
-        pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { backgroundColor: colors.primary, opacity: flashAnim }]}
-      />
+    <SafeAreaView style={s.container}>
+      {/* Yarn-color tint washes over the whole screen */}
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: yarnColor, opacity: 0.06 }]} pointerEvents="none" />
 
-      {/* Top bar */}
+      {/* Milestone flash */}
+      <Animated.View pointerEvents="none"
+        style={[StyleSheet.absoluteFill, { backgroundColor: yarnColor, opacity: flashAnim }]} />
+
+      {/* ── Top bar ── */}
       <View style={s.topBar}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={s.backBtn}>
-          <Text style={[s.backText, { color: colors.primary }]}>←</Text>
+        <Pressable onPress={() => router.back()} hitSlop={14} style={s.backBtn}>
+          <Text style={[s.backArrow, { color: yarnColor }]}>←</Text>
         </Pressable>
         <View style={s.projectMeta}>
           <Text style={s.craftEmoji}>{craft.emoji}</Text>
-          <Text style={[s.projectName, { color: colors.text }]} numberOfLines={1}>
-            {project.name}
-          </Text>
+          <View>
+            <Text style={[s.projectName, { color: colors.text }]} numberOfLines={1}>{project.name}</Text>
+            {total && (
+              <Text style={[s.goalText, { color: colors.textSecondary }]}>
+                {t('projects.of')} {total} {t('projects.rows')}
+              </Text>
+            )}
+          </View>
         </View>
         <View style={s.topActions}>
           {isPro && (
-            <Pressable
-              onPress={() => setShowNotes(true)}
-              hitSlop={12}
-              style={[s.noteBtn, hasNote && { backgroundColor: colors.primary + '22' }]}
-            >
+            <Pressable onPress={() => setShowNotes(true)} hitSlop={12}
+              style={[s.iconBtn, hasNote && { backgroundColor: yarnColor + '22' }]}>
               <Text style={{ fontSize: 18 }}>{hasNote ? '📝' : '✏️'}</Text>
             </Pressable>
           )}
-          <Pressable onPress={confirmReset} hitSlop={12}>
-            <Text style={{ fontSize: 18 }}>↺</Text>
+          <Pressable onPress={confirmReset} hitSlop={12} style={s.iconBtn}>
+            <Text style={[s.iconBtnText, { color: colors.textSecondary }]}>↺</Text>
           </Pressable>
         </View>
       </View>
 
-      {/* Progress bar */}
-      {progress !== null && (
-        <View style={[s.progressBg, { backgroundColor: colors.surfaceAlt }]}>
-          <View style={[s.progressFill, { width: `${progress * 100}%`, backgroundColor: colors.primary }]} />
-        </View>
-      )}
-
-      {/* ── TAP ANYWHERE — the whole area is the button ── */}
-      <Pressable
-        onPress={increment}
-        style={s.tapArea}
-        android_ripple={{ color: colors.primary + '22', borderless: true }}
-      >
-        <View style={s.counterCenter}>
-          <Text style={[s.rowLabel, { color: colors.textSecondary }]}>{t('counter.row')}</Text>
-          <Animated.Text
-            style={[s.rowNumber, { color: colors.primary, transform: [{ scale: scaleAnim }] }]}
-          >
-            {currentRow}
-          </Animated.Text>
-          {total && (
-            <Text style={[s.rowTotal, { color: colors.textSecondary }]}>
-              {t('projects.of')} {total}
-            </Text>
+      {/* ── TAP ZONE — whole center is the button ── */}
+      <Pressable onPress={increment} style={s.tapArea}
+        android_ripple={{ color: yarnColor + '18', borderless: true }}>
+        <View style={s.ringWrapper}>
+          {progress !== null && (
+            <View style={StyleSheet.absoluteFill} pointerEvents="none">
+              <ArcRing progress={progress} color={yarnColor} size={300} />
+            </View>
           )}
+
+          {/* Soft glow disc behind the number */}
+          <View style={[s.glowDisc, { backgroundColor: yarnColor + '12' }]} />
+
+          <View style={s.numberBlock}>
+            <Text style={[s.rowLabel, { color: yarnColor + 'AA' }]}>
+              {t('counter.row').toUpperCase()}
+            </Text>
+            <Animated.Text style={[s.rowNumber, { color: yarnColor, transform: [{ scale: scaleAnim }] }]}>
+              {currentRow}
+            </Animated.Text>
+            {total && (
+              <Text style={[s.rowOf, { color: colors.textDisabled }]}>/ {total}</Text>
+            )}
+          </View>
         </View>
+
+        <Text style={[s.tapHint, { color: colors.textDisabled }]}>tap anywhere to count</Text>
       </Pressable>
 
-      {/* Bottom controls */}
+      {/* ── Bottom bar ── */}
       <View style={[s.bottomBar, { borderTopColor: colors.border }]}>
-        {/* Decrement row */}
-        <Pressable
-          onPress={decrement}
-          disabled={currentRow === 0}
+        {/* −1 row */}
+        <Pressable onPress={decrement} disabled={currentRow === 0}
           style={({ pressed }) => [
-            s.controlBtn,
-            { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed || currentRow === 0 ? 0.4 : 1 },
-          ]}
-        >
-          <Text style={[s.controlBtnText, { color: colors.text }]}>−1 {t('counter.row')}</Text>
+            s.decrementBtn,
+            { borderColor: colors.border, backgroundColor: colors.surface },
+            (pressed || currentRow === 0) && { opacity: 0.35 },
+          ]}>
+          <Text style={[s.decrementText, { color: colors.text }]}>−1</Text>
+          <Text style={[s.decrementSub, { color: colors.textSecondary }]}>{t('counter.row')}</Text>
         </Pressable>
 
         {/* Stitch counter */}
-        <View style={[s.stitchBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[s.stitchLabel, { color: colors.textSecondary }]}>{t('counter.stitch')}</Text>
-          <Text style={[s.stitchCount, { color: colors.text }]}>{stitchCount}</Text>
-          <View style={s.stitchButtons}>
-            <Pressable
-              onPress={resetStitch}
-              hitSlop={6}
-              style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-            >
-              <Text style={[s.stitchBtnText, { color: colors.textSecondary }]}>↺</Text>
+        <View style={[s.stitchPill, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[s.stitchLabel, { color: colors.textSecondary }]}>
+            {t('counter.stitch').toUpperCase()}
+          </Text>
+          <Text style={[s.stitchNum, { color: colors.text }]}>{stitchCount}</Text>
+          <View style={s.stitchRow}>
+            <Pressable onPress={resetStitch} hitSlop={8}
+              style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
+              <Text style={[s.stitchAction, { color: colors.textSecondary }]}>↺</Text>
             </Pressable>
-            <Pressable
-              onPress={incrementStitch}
-              hitSlop={6}
-              style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-            >
-              <Text style={[s.stitchBtnText, { color: colors.primary }]}>+1</Text>
+            <View style={[s.stitchDivider, { backgroundColor: colors.border }]} />
+            <Pressable onPress={incrementStitch} hitSlop={8}
+              style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
+              <Text style={[s.stitchAction, { color: yarnColor }]}>+1</Text>
             </Pressable>
           </View>
         </View>
       </View>
 
-      {/* Notes modal (Pro) */}
+      {/* ── Celebration overlay ── */}
+      <CelebrationOverlay
+        visible={celebrating}
+        total={total ?? currentRow}
+        yarnColor={yarnColor}
+        onDismiss={() => setCelebrating(false)}
+      />
+
+      {/* ── Row notes modal (Pro) ── */}
       <Modal visible={showNotes} animationType="slide" presentationStyle="pageSheet">
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
-          <View style={s.modalHeader}>
+          <View style={[s.modalHeader, { borderBottomColor: colors.border }]}>
             <Text style={[s.modalTitle, { color: colors.text }]}>
               {t('counter.notes_label')} — {t('counter.row')} {currentRow}
             </Text>
             <Pressable onPress={saveNote}>
-              <Text style={[s.modalSave, { color: colors.primary }]}>{t('common.save')}</Text>
+              <Text style={[s.modalSave, { color: yarnColor }]}>{t('common.save')}</Text>
             </Pressable>
           </View>
           <TextInput
-            style={[s.notesInput, { color: colors.text, borderColor: colors.border }]}
+            style={[s.notesInput, { color: colors.text }]}
             placeholder={t('counter.notes_placeholder', { row: currentRow })}
             placeholderTextColor={colors.textDisabled}
             value={noteText}
             onChangeText={setNoteText}
-            multiline
-            autoFocus
+            multiline autoFocus
           />
         </SafeAreaView>
       </Modal>
@@ -326,85 +369,89 @@ const makeStyles = (
   spacing: Record<string, number>,
   fontSize: Record<string, number>,
   fontWeight: Theme['fontWeight'],
-  radii: Record<string, number>
+  radii: Record<string, number>,
+  yarnColor: string,
 ) =>
   StyleSheet.create({
-    container: { flex: 1 },
+    container: { flex: 1, backgroundColor: colors.background },
     topBar: {
       flexDirection: 'row',
       alignItems: 'center',
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.md,
     },
-    backBtn: { paddingRight: spacing.md },
-    backText: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+    backBtn: { marginRight: spacing.sm },
+    backArrow: { fontSize: 28, fontWeight: '300' },
     projectMeta: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    craftEmoji: { fontSize: 20 },
-    projectName: { flex: 1, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
-    topActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-    noteBtn: { padding: 4, borderRadius: radii.sm },
-    progressBg: { height: 3, marginHorizontal: spacing.lg, borderRadius: 2, overflow: 'hidden' },
-    progressFill: { height: '100%', borderRadius: 2 },
-    // The entire center area is tappable
-    tapArea: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
+    craftEmoji: { fontSize: 22 },
+    projectName: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    goalText: { fontSize: fontSize.xs, marginTop: 1 },
+    topActions: { flexDirection: 'row', gap: spacing.sm },
+    iconBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+    iconBtnText: { fontSize: 20 },
+
+    // Tap zone
+    tapArea: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.lg },
+    ringWrapper: { width: 300, height: 300, alignItems: 'center', justifyContent: 'center' },
+    glowDisc: {
+      position: 'absolute',
+      width: 230,
+      height: 230,
+      borderRadius: 115,
     },
-    counterCenter: { alignItems: 'center', gap: spacing.sm },
-    rowLabel: { fontSize: fontSize.lg, fontWeight: fontWeight.medium, letterSpacing: 2, textTransform: 'uppercase' },
-    rowNumber: {
-      fontSize: 120,
-      fontWeight: fontWeight.bold,
-      lineHeight: 130,
-      textAlign: 'center',
-    },
-    rowTotal: { fontSize: fontSize.xl, fontWeight: fontWeight.regular },
+    numberBlock: { alignItems: 'center', gap: 4 },
+    rowLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold, letterSpacing: 3 },
+    rowNumber: { fontSize: 108, fontWeight: '800', lineHeight: 116, letterSpacing: -4 },
+    rowOf: { fontSize: fontSize.lg },
+    tapHint: { fontSize: fontSize.xs, letterSpacing: 1 },
+
+    // Bottom
     bottomBar: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.md,
-      padding: spacing.lg,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
       borderTopWidth: StyleSheet.hairlineWidth,
     },
-    controlBtn: {
+    decrementBtn: {
       flex: 1,
-      height: 52,
-      borderRadius: radii.lg,
+      height: 64,
+      borderRadius: radii.xl ?? 20,
       borderWidth: 1,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    controlBtnText: { fontSize: fontSize.md, fontWeight: fontWeight.medium },
-    stitchBox: {
-      width: 110,
-      height: 80,
-      borderRadius: radii.lg,
+    decrementText: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+    decrementSub: { fontSize: fontSize.xs },
+    stitchPill: {
+      width: 120,
+      height: 64,
+      borderRadius: radii.xl ?? 20,
       borderWidth: 1,
       alignItems: 'center',
       justifyContent: 'center',
       gap: 2,
     },
-    stitchLabel: { fontSize: fontSize.xs, textTransform: 'uppercase', letterSpacing: 1 },
-    stitchCount: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
-    stitchButtons: { flexDirection: 'row', gap: spacing.lg },
-    stitchBtnText: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    stitchLabel: { fontSize: 9, fontWeight: fontWeight.semibold, letterSpacing: 1.5 },
+    stitchNum: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, lineHeight: 26 },
+    stitchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    stitchDivider: { width: 1, height: 12 },
+    stitchAction: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+
+    // Modal
     modalHeader: {
       flexDirection: 'row',
-      alignItems: 'center',
       justifyContent: 'space-between',
+      alignItems: 'center',
       padding: spacing.lg,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.border,
     },
     modalTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     modalSave: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     notesInput: {
-      flex: 1,
-      padding: spacing.lg,
-      fontSize: fontSize.md,
-      lineHeight: 24,
-      textAlignVertical: 'top',
-      borderTopWidth: 0,
+      flex: 1, padding: spacing.lg, fontSize: fontSize.md,
+      lineHeight: 24, textAlignVertical: 'top',
     },
   });
