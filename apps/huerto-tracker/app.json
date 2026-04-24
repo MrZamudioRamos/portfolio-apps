@@ -3,10 +3,13 @@
     "name": "HuertoTracker",
     "slug": "huerto-tracker",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "scheme": "huertotracker",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -14,24 +17,88 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.portfolio.huertotracker"
+      "bundleIdentifier": "com.portfolio.huertotracker",
+      "buildNumber": "1",
+      "minimumOsVersion": "15.1",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Usa la cámara para añadir fotos de tus plantas.",
+        "NSPhotoLibraryUsageDescription": "Accede a la galería para añadir fotos de tus plantas.",
+        "NSLocationWhenInUseUsageDescription": "Usa tu ubicación para mostrar el mapa del huerto.",
+        "UIBackgroundModes": ["remote-notification"]
+      },
+      "entitlements": {
+        "com.apple.developer.applesignin": ["Default"],
+        "aps-environment": "production"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FAFAF5"
       },
-      "package": "com.portfolio.huertotracker"
+      "package": "com.portfolio.huertotracker",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "bundler": "metro"
     },
     "plugins": [
       "expo-router",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "expo-notifications",
+        {
+          "color": "#2D7A3A",
+          "defaultChannel": "default",
+          "sounds": []
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Accede a la galería para añadir fotos de tus plantas.",
+          "cameraPermission": "Usa la cámara para tomar fotos de tus plantas."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "privacyManifests": {
+              "NSPrivacyAccessedAPITypes": [
+                {
+                  "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+                  "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
+                },
+                {
+                  "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
+                  "NSPrivacyAccessedAPITypeReasons": ["C617.1"]
+                },
+                {
+                  "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryDiskSpace",
+                  "NSPrivacyAccessedAPITypeReasons": ["E174.1"]
+                }
+              ]
+            }
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
+      }
     }
   }
 }

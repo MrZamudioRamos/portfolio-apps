@@ -19,6 +19,7 @@ import { getCompanions, getIncompatible } from '../../src/data/companions';
 import { PLANT_STATUS_CONFIG, type Plant, type PlantStatus } from '../../src/models/plant';
 import { ENTRY_TYPE_CONFIG, type DiaryEntry } from '../../src/models/diary-entry';
 import { REMINDER_TYPE_CONFIG, FREQUENCY_LABELS, type GardenReminder } from '../../src/models/reminder';
+import { getPestsForCrop, PEST_STATUS_CONFIG } from '../../src/data/pests';
 
 const ALL_STATUSES: PlantStatus[] = [
   'seedling', 'transplanted', 'growing', 'flowering', 'fruiting', 'harvesting', 'finished',
@@ -42,6 +43,8 @@ export default function PlantDetailScreen() {
   const statusConfig = plant ? PLANT_STATUS_CONFIG[plant.status] : null;
   const companions = crop ? getCompanions(crop.id) : [];
   const incompatibles = crop ? getIncompatible(crop.id) : [];
+  const pestInfo = crop ? getPestsForCrop(crop.id) : [];
+  const currentPestStatus = plant?.pestStatus ?? 'none';
 
   const plantEntries = useMemo(
     () =>
@@ -295,6 +298,83 @@ export default function PlantDetailScreen() {
             </Text>
           )}
 
+          {/* Pest tracker section */}
+          <Text style={[s.sectionTitle, { color: colors.text }]}>Estado de plagas</Text>
+          <Card padded style={{ gap: spacing.md }}>
+            {/* Status selector */}
+            <View style={s.pestStatusRow}>
+              {(['none', 'active', 'treated'] as const).map((status) => {
+                const cfg = PEST_STATUS_CONFIG[status];
+                const isActive = currentPestStatus === status;
+                return (
+                  <Pressable
+                    key={status}
+                    onPress={() => plants.update(id, { pestStatus: status })}
+                    style={[
+                      s.pestStatusChip,
+                      {
+                        backgroundColor: isActive ? cfg.color + '22' : colors.surfaceAlt,
+                        borderColor: isActive ? cfg.color : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={{ fontSize: 16 }}>{cfg.emoji}</Text>
+                    <Text style={[s.pestStatusLabel, { color: isActive ? cfg.color : colors.textSecondary }]}>
+                      {cfg.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            {/* Pest reference for this crop */}
+            {currentPestStatus !== 'none' && pestInfo.length > 0 && (
+              <>
+                <View style={[{ height: StyleSheet.hairlineWidth, backgroundColor: colors.border }]} />
+                <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary, fontWeight: fontWeight.semibold }]}>
+                  PLAGAS FRECUENTES EN {crop?.name.toUpperCase()}
+                </Text>
+                {pestInfo.slice(0, 3).map((pest) => (
+                  <View key={pest.id} style={[s.pestCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+                    <View style={s.pestCardHeader}>
+                      <Text style={s.pestEmoji}>{pest.emoji}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[s.pestName, { color: colors.text }]}>{pest.name}</Text>
+                        <Text style={[s.pestSymptoms, { color: colors.textSecondary }]} numberOfLines={2}>
+                          {pest.symptoms}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={s.treatmentList}>
+                      {pest.treatments.slice(0, 2).map((t, i) => (
+                        <View key={i} style={[s.treatmentRow, { borderTopColor: colors.border }]}>
+                          <View style={[s.treatmentTypeBadge, {
+                            backgroundColor:
+                              t.type === 'organico' ? '#4CAF5022' :
+                              t.type === 'preventivo' ? '#2196F322' : '#FF572222',
+                          }]}>
+                            <Text style={[s.treatmentType, {
+                              color: t.type === 'organico' ? '#2E7D32' :
+                                     t.type === 'preventivo' ? '#1565C0' : '#C62828',
+                            }]}>
+                              {t.type}
+                            </Text>
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={[s.treatmentName, { color: colors.text }]}>{t.name}</Text>
+                            <Text style={[s.treatmentInstructions, { color: colors.textSecondary }]} numberOfLines={2}>
+                              {t.instructions}
+                            </Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                ))}
+              </>
+            )}
+          </Card>
+
           {/* Action buttons */}
           <View style={s.actions}>
             <Button
@@ -436,4 +516,42 @@ const makeStyles = (
     },
     deleteText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     notFound: { textAlign: 'center', marginTop: 80, fontSize: fontSize.lg },
+    pestStatusRow: { flexDirection: 'row', gap: spacing.sm },
+    pestStatusChip: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      gap: 2,
+    },
+    pestStatusLabel: { fontSize: 10, fontWeight: fontWeight.semibold, textAlign: 'center' },
+    pestCard: {
+      borderRadius: radii.md,
+      borderWidth: 1,
+      padding: spacing.md,
+      gap: spacing.sm,
+    },
+    pestCardHeader: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' },
+    pestEmoji: { fontSize: 24, marginTop: 2 },
+    pestName: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    pestSymptoms: { fontSize: fontSize.xs, lineHeight: 16, marginTop: 2 },
+    treatmentList: { gap: spacing.sm },
+    treatmentRow: {
+      flexDirection: 'row',
+      gap: spacing.md,
+      paddingTop: spacing.sm,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      alignItems: 'flex-start',
+    },
+    treatmentTypeBadge: {
+      paddingHorizontal: spacing.xs,
+      paddingVertical: 2,
+      borderRadius: radii.sm,
+      alignSelf: 'flex-start',
+      marginTop: 2,
+    },
+    treatmentType: { fontSize: 9, fontWeight: fontWeight.bold, textTransform: 'uppercase' },
+    treatmentName: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    treatmentInstructions: { fontSize: fontSize.xs, lineHeight: 16, marginTop: 2 },
   });

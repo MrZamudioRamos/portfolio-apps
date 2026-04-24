@@ -211,12 +211,20 @@ export default function CalendarScreen() {
         </View>
       </View>
 
-      {/* Subtitle */}
-      <Text style={[s.subTitle, { color: colors.textSecondary }]}>
-        {availableCrops.length > 0
-          ? `${availableCrops.length} cultivos para sembrar en ${monthName}`
-          : null}
-      </Text>
+      {/* Subtitle + link to companions */}
+      <View style={s.subTitleRow}>
+        <Text style={[s.subTitle, { color: colors.textSecondary, flex: 1, marginBottom: 0 }]}>
+          {availableCrops.length > 0
+            ? `${availableCrops.length} cultivos para sembrar en ${monthName}`
+            : null}
+        </Text>
+        <Pressable
+          onPress={() => router.push('/companions')}
+          style={({ pressed }) => [s.companionsLink, { borderColor: colors.primary, opacity: pressed ? 0.7 : 1 }]}
+        >
+          <Text style={[s.companionsLinkText, { color: colors.primary }]}>🤝 Asociaciones</Text>
+        </Pressable>
+      </View>
 
       <FlatList
         data={availableCrops}
@@ -300,7 +308,22 @@ const makeStyles = (
     lunarBannerDay: { fontSize: fontSize.xs, marginTop: 1 },
     lunarBannerBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radii.full },
     lunarBannerBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
-    subTitle: { paddingHorizontal: spacing.xl, marginTop: spacing.md, marginBottom: spacing.sm, fontSize: fontSize.sm },
+    subTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+      marginTop: spacing.md,
+      marginBottom: spacing.sm,
+      gap: spacing.sm,
+    },
+    subTitle: { fontSize: fontSize.sm },
+    companionsLink: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 3,
+      borderRadius: radii.full,
+      borderWidth: 1,
+    },
+    companionsLinkText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     listContent: { paddingHorizontal: spacing.xl, paddingBottom: 40, gap: spacing.md },
     cropCard: { gap: spacing.sm },
     cropHeader: { flexDirection: 'row', alignItems: 'center' },

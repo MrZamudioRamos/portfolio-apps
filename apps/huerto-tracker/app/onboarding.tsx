@@ -19,6 +19,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CLIMATE_ZONE_CONFIG, PROVINCES, PROVINCE_ZONES } from '../src/data';
 import type { Garden } from '../src/models';
+import { GARDEN_TYPE_CONFIG, type GardenType } from '../src/models/garden';
 
 type Step = 0 | 1 | 2;
 
@@ -34,6 +35,7 @@ export default function OnboardingScreen() {
   const [provinceSearch, setProvinceSearch] = useState('');
   const [showProvincePicker, setShowProvincePicker] = useState(false);
   const [gardenName, setGardenName] = useState('');
+  const [gardenType, setGardenType] = useState<GardenType>('huerto');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -64,6 +66,7 @@ export default function OnboardingScreen() {
         name: gardenName.trim(),
         climateZone,
         province,
+        gardenType,
         ...(photoUri ? { photoUri } : {}),
       });
       await complete();
@@ -179,6 +182,32 @@ export default function OnboardingScreen() {
             <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>
               Dale un nombre a tu espacio de cultivo.
             </Text>
+
+            {/* Garden type selector */}
+            <Text style={[s.inputLabel, { color: colors.textSecondary }]}>¿Qué tipo de espacio tienes?</Text>
+            <View style={s.gardenTypeRow}>
+              {(Object.entries(GARDEN_TYPE_CONFIG) as [GardenType, typeof GARDEN_TYPE_CONFIG[GardenType]][]).map(([key, cfg]) => {
+                const active = gardenType === key;
+                return (
+                  <Pressable
+                    key={key}
+                    onPress={() => setGardenType(key)}
+                    style={[
+                      s.gardenTypeBtn,
+                      {
+                        backgroundColor: active ? colors.primary + '22' : colors.surface,
+                        borderColor: active ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={{ fontSize: 24 }}>{cfg.emoji}</Text>
+                    <Text style={[s.gardenTypeName, { color: active ? colors.primary : colors.textSecondary }]}>
+                      {cfg.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
 
             {/* Photo picker */}
             <Pressable onPress={pickPhoto} style={s.photoPicker}>
@@ -335,6 +364,17 @@ const styles = (
     zoneTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     zoneDesc: { fontSize: fontSize.sm, marginTop: 2 },
     backButton: { paddingVertical: spacing.md, paddingRight: spacing.md },
+    inputLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold, marginBottom: spacing.sm },
+    gardenTypeRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.xl },
+    gardenTypeBtn: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      gap: 4,
+    },
+    gardenTypeName: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
     photoPicker: { alignItems: 'center', marginBottom: spacing.xl },
     photoPlaceholder: {
       width: 100,

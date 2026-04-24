@@ -191,14 +191,17 @@ export default function SettingsScreen() {
           </View>
         </Card>
 
-        {/* ── Estadísticas ── */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>RESUMEN</Text>
+        {/* ── Herramientas ── */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>HERRAMIENTAS</Text>
         <Card padded style={s.card}>
-          <Row icon="leaf-outline" label="Plantas activas" value={String(plants.count)} colors={colors} s={s} />
-          <Separator colors={colors} />
-          <Row icon="journal-outline" label="Entradas de diario" value={String(entries.count)} colors={colors} s={s} />
-          <Separator colors={colors} />
-          <Row icon="notifications-outline" label="Recordatorios" value={String(reminders.count)} colors={colors} s={s} />
+          <RowAction
+            icon="git-network-outline"
+            label="Guía de asociaciones"
+            badge={isPro ? undefined : 'Pro'}
+            colors={colors}
+            s={s}
+            onPress={() => router.push('/companions')}
+          />
           <Separator colors={colors} />
           <RowAction
             icon="bar-chart-outline"
@@ -207,6 +210,16 @@ export default function SettingsScreen() {
             s={s}
             onPress={() => router.push('/stats')}
           />
+        </Card>
+
+        {/* ── Estadísticas ── */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>RESUMEN</Text>
+        <Card padded style={s.card}>
+          <Row icon="leaf-outline" label="Plantas activas" value={String(plants.count)} colors={colors} s={s} />
+          <Separator colors={colors} />
+          <Row icon="journal-outline" label="Entradas de diario" value={String(entries.count)} colors={colors} s={s} />
+          <Separator colors={colors} />
+          <Row icon="notifications-outline" label="Recordatorios" value={String(reminders.count)} colors={colors} s={s} />
         </Card>
 
         {/* ── Notificaciones ── */}
@@ -256,11 +269,19 @@ export default function SettingsScreen() {
           />
           <Separator colors={colors} />
           <RowAction
+            icon="shield-checkmark-outline"
+            label="Política de privacidad"
+            colors={colors}
+            s={s}
+            onPress={() => Linking.openURL('https://mrzamudioramos.github.io/huerto-tracker/privacy-policy.html')}
+          />
+          <Separator colors={colors} />
+          <RowAction
             icon="mail-outline"
             label="Contacto"
             colors={colors}
             s={s}
-            onPress={() => Linking.openURL('mailto:hola@huertotracker.app')}
+            onPress={() => Linking.openURL('mailto:rikkardo22@gmail.com')}
           />
         </Card>
 
@@ -289,7 +310,7 @@ function Row({
 }
 
 function RowAction({
-  icon, label, colors, s, onPress, destructive,
+  icon, label, colors, s, onPress, destructive, badge,
 }: {
   icon: string;
   label: string;
@@ -297,13 +318,20 @@ function RowAction({
   s: ReturnType<typeof makeStyles>;
   onPress: () => void;
   destructive?: boolean;
+  badge?: string;
 }) {
+  const { spacing, fontSize, fontWeight, radii } = useTheme();
   return (
     <Pressable style={({ pressed }) => [s.rowContainer, { opacity: pressed ? 0.6 : 1 }]} onPress={onPress}>
       <Ionicons name={icon as never} size={18} color={destructive ? colors.error : colors.textSecondary} />
       <Text style={[s.rowLabel, { color: destructive ? colors.error : colors.text, flex: 1 }]}>
         {label}
       </Text>
+      {badge && (
+        <View style={{ backgroundColor: colors.primary, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: radii.full, marginRight: spacing.xs }}>
+          <Text style={{ color: '#fff', fontSize: 10, fontWeight: fontWeight.bold }}>⭐ {badge}</Text>
+        </View>
+      )}
       <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />
     </Pressable>
   );

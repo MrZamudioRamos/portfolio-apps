@@ -18,6 +18,7 @@ import type { DiaryEntry, EntryType } from '../models/diary-entry';
 import type { Garden } from '../models/garden';
 import { CROPS_BY_ID } from '../data';
 import type { Plant } from '../models/plant';
+import { getPestsForCrop } from '../data/pests';
 
 interface QuickAction {
   type: EntryType;
@@ -49,6 +50,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
 
   const gardens = useCollection<Garden>('gardens');
   const entries = useCollection<DiaryEntry>('diary_entries');
+  const plants = useCollection<Plant>('plants');
 
   const [selected, setSelected] = useState<QuickAction | null>(null);
   const [note, setNote] = useState('');
@@ -58,6 +60,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
 
   const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
   const gardenId = gardens.items[0]?.id ?? '';
+  const suggestedPests = plant && crop ? getPestsForCrop(crop.id).slice(0, 3) : [];
 
   function reset() {
     setSelected(null);
@@ -87,6 +90,12 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
         ...(note.trim() ? { notes: note.trim() } : {}),
         ...(harvestData ? { data: harvestData } : {}),
       });
+      // Auto-update pestStatus on plant
+      if (selected.type === 'pest') {
+        await plants.update(plant.id, { pestStatus: 'active' });
+      } else if (selected.type === 'treatment' && plant.pestStatus === 'active') {
+        await plants.update(plant.id, { pestStatus: 'treated' });
+      }
       setDone(true);
       setTimeout(() => { handleClose(); }, 900);
     } finally {
@@ -168,6 +177,33 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
                   );
                 })}
               </View>
+
+              {/* Pest suggestions */}
+              {selected?.type === 'pest' && suggestedPests.length > 0 && (
+                <View style={[s.pestSuggestions, { backgroundColor: '#EF535010', borderColor: '#EF5350' }]}>
+                  <Text style={[s.pestSuggestLabel, { color: '#EF5350' }]}>🐛 Plagas frecuentes en {crop?.name}:</Text>
+                  <View style={s.pestChips}>
+                    {suggestedPests.map((p) => (
+                      <Pressable
+                        key={p.id}
+                        onPress={() => setNote((prev) => prev ? prev : p.name)}
+                        style={[s.pestChip, { borderColor: '#EF535066' }]}
+                      >
+                        <Text style={[s.pestChipText, { color: colors.text }]}>{p.emoji} {p.name}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Treatment tip if plant has active pest */}
+              {selected?.type === 'treatment' && plant.pestStatus === 'active' && (
+                <View style={[s.pestSuggestions, { backgroundColor: '#FF980010', borderColor: '#FF9800' }]}>
+                  <Text style={[s.pestSuggestLabel, { color: '#FF9800' }]}>
+                    🧴 Al guardar, la planta pasará a "En tratamiento"
+                  </Text>
+                </View>
+              )}
 
               {/* Extra inputs */}
               {selected?.hasNote && (
@@ -316,6 +352,22 @@ const makeStyles = (
       fontSize: fontSize.md,
       fontWeight: fontWeight.bold,
     },
+    pestSuggestions: {
+      padding: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      gap: spacing.xs,
+    },
+    pestSuggestLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    pestChips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
+    pestChip: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 3,
+      borderRadius: radii.full,
+      borderWidth: 1,
+      backgroundColor: 'transparent',
+    },
+    pestChipText: { fontSize: fontSize.xs },
     doneBox: {
       alignItems: 'center',
       paddingVertical: spacing.xl,

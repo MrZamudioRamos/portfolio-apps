@@ -25,6 +25,7 @@ import type { DiaryEntry } from '../../src/models/diary-entry';
 import { useWeather } from '../../src/hooks/useWeather';
 import { getWeatherLabel } from '../../src/utils/weather';
 import { buildGamificationData } from '../../src/utils/gamification';
+import { PEST_STATUS_CONFIG } from '../../src/data/pests';
 
 export default function DashboardScreen() {
   const colors = useColors();
@@ -50,6 +51,7 @@ export default function DashboardScreen() {
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
   const harvestingCount = plants.items.filter((p) => p.status === 'harvesting').length;
   const activeReminders = reminders.items.filter((r) => r.enabled).length;
+  const activePests = plants.items.filter((p) => p.pestStatus === 'active' || p.pestStatus === 'treated').length;
   const lunar = useMemo(() => getLunarDay(), []);
   const { weather, loading: weatherLoading } = useWeather(garden?.province);
   const streak = useMemo(
@@ -99,6 +101,12 @@ export default function DashboardScreen() {
               <Image source={{ uri: item.photoUri }} style={s.plantPhoto} />
             ) : (
               <Text style={s.plantEmoji}>{crop?.emoji ?? '🌱'}</Text>
+            )}
+            {/* Pest badge */}
+            {item.pestStatus && item.pestStatus !== 'none' && (
+              <View style={[s.pestBadge, { backgroundColor: PEST_STATUS_CONFIG[item.pestStatus].color }]}>
+                <Text style={s.pestBadgeText}>{PEST_STATUS_CONFIG[item.pestStatus].emoji}</Text>
+              </View>
             )}
             {/* Quick log button */}
             <Pressable
@@ -197,6 +205,14 @@ export default function DashboardScreen() {
                 label="Recordatorios"
                 onPress={() => {}}
               />
+              {activePests > 0 && (
+                <StatCard
+                  emoji="🐛"
+                  value={activePests}
+                  label="Con plaga"
+                  onPress={() => {}}
+                />
+              )}
             </View>
 
             {/* Lunar widget */}
@@ -449,6 +465,17 @@ const makeStyles = (
       alignItems: 'center',
       justifyContent: 'center',
     },
+    pestBadge: {
+      position: 'absolute',
+      top: 6,
+      left: 6,
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    pestBadgeText: { fontSize: 12 },
     quickLogBtn: {
       position: 'absolute',
       bottom: 6,

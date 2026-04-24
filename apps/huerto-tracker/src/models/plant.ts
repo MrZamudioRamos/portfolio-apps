@@ -9,6 +9,8 @@ export type PlantStatus =
   | 'harvesting'
   | 'finished';
 
+export type PestStatus = 'none' | 'active' | 'treated';
+
 export interface Plant extends BaseItem {
   gardenId: string;
   cropId: string;
@@ -18,6 +20,7 @@ export interface Plant extends BaseItem {
   transplantDate?: string;
   firstHarvestDate?: string;
   status: PlantStatus;
+  pestStatus?: PestStatus;
   photoUri?: string;
   notes?: string;
 }
