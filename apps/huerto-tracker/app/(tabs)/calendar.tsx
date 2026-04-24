@@ -9,6 +9,8 @@ import { CROPS, CROPS_BY_ID, CATEGORY_CONFIG } from '../../src/data/crops';
 import type { Garden } from '../../src/models/garden';
 import type { CropInfo } from '../../src/data/crops';
 import { getLunarDay, getMonthGardeningProfile } from '../../src/utils/lunar';
+import { isContainerFriendly, getContainerInfo } from '../../src/data/containers';
+import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 
 const MONTH_NAMES = Array.from({ length: 12 }, (_, i) =>
   new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(2024, i, 1))
@@ -29,6 +31,8 @@ export default function CalendarScreen() {
   const gardens = useCollection<Garden>('gardens');
   const garden = gardens.items[0];
   const zone = garden?.climateZone ?? 'mediterranea';
+  const gardenType = garden?.gardenType ?? 'huerto';
+  const isContainer = gardenType !== 'huerto';
 
   useFocusEffect(
     useCallback(() => {
@@ -37,8 +41,11 @@ export default function CalendarScreen() {
   );
 
   const availableCrops = useMemo(
-    () => CROPS.filter((c) => c.sowingMonths[zone]?.includes(month)),
-    [zone, month]
+    () => {
+      const base = CROPS.filter((c) => c.sowingMonths[zone]?.includes(month));
+      return isContainer ? base.filter((c) => isContainerFriendly(c.id)) : base;
+    },
+    [zone, month, isContainer]
   );
 
   const today = new Date();
@@ -116,6 +123,14 @@ export default function CalendarScreen() {
           </View>
         </View>
 
+        {isContainer && getContainerInfo(item.id) && (
+          <View style={[s.containerChip, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
+            <Text style={s.containerChipText}>
+              🪴 Maceta mín. {getContainerInfo(item.id)!.minLiters} L · {getContainerInfo(item.id)!.tip}
+            </Text>
+          </View>
+        )}
+
         <Text style={[s.tipText, { color: colors.textSecondary, borderTopColor: colors.border }]}>
           💡 {item.tips}
         </Text>
@@ -156,6 +171,17 @@ export default function CalendarScreen() {
           <Ionicons name="chevron-forward" size={22} color={colors.primary} />
         </Pressable>
       </View>
+
+      {/* Container mode banner */}
+      {isContainer && (
+        <View style={[s.containerBanner, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
+          <Text style={s.containerBannerEmoji}>{GARDEN_TYPE_CONFIG[gardenType].emoji}</Text>
+          <Text style={[s.containerBannerText, { color: colors.text }]}>
+            <Text style={{ fontWeight: fontWeight.semibold }}>{GARDEN_TYPE_CONFIG[gardenType].label}</Text>
+            {' — Mostrando solo cultivos aptos para contenedores'}
+          </Text>
+        </View>
+      )}
 
       {/* Lunar banner */}
       <View style={[s.lunarBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
@@ -236,6 +262,26 @@ const makeStyles = (
     navArrow: { padding: spacing.xs },
     monthName: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
     yearText: { fontSize: fontSize.sm },
+    containerBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginHorizontal: spacing.xl,
+      marginTop: spacing.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1,
+    },
+    containerBannerEmoji: { fontSize: 20 },
+    containerBannerText: { flex: 1, fontSize: fontSize.xs, lineHeight: 18 },
+    containerChip: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1,
+    },
+    containerChipText: { fontSize: fontSize.xs, lineHeight: 16, color: '#2E7D32' },
     lunarBanner: {
       flexDirection: 'row',
       alignItems: 'center',

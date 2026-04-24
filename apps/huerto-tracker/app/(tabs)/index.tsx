@@ -18,11 +18,13 @@ import type { Garden } from '../../src/models/garden';
 import { PLANT_STATUS_CONFIG, type Plant } from '../../src/models/plant';
 import type { GardenReminder } from '../../src/models/reminder';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
+import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { getLunarDay } from '../../src/utils/lunar';
 import { QuickLogModal } from '../../src/components/QuickLogModal';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import { useWeather } from '../../src/hooks/useWeather';
 import { getWeatherLabel } from '../../src/utils/weather';
+import { buildGamificationData } from '../../src/utils/gamification';
 
 export default function DashboardScreen() {
   const colors = useColors();
@@ -50,6 +52,10 @@ export default function DashboardScreen() {
   const activeReminders = reminders.items.filter((r) => r.enabled).length;
   const lunar = useMemo(() => getLunarDay(), []);
   const { weather, loading: weatherLoading } = useWeather(garden?.province);
+  const streak = useMemo(
+    () => buildGamificationData(plants.items, entries.items).streak,
+    [plants.items, entries.items]
+  );
 
   async function handleWaterAll() {
     const gardenId = garden?.id;
@@ -131,13 +137,27 @@ export default function DashboardScreen() {
           <Text style={[s.headerTitle, { color: colors.text }]} numberOfLines={1}>
             {garden?.name ?? 'Mi Huerto'}
           </Text>
-          {zoneConfig && (
-            <View style={s.zoneBadge}>
-              <Text style={[s.zoneBadgeText, { color: colors.primary }]}>
-                {zoneConfig.emoji} {zoneConfig.label}
-              </Text>
-            </View>
-          )}
+          <View style={s.headerBadgesRow}>
+            {zoneConfig && (
+              <View style={[s.zoneBadge, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+                <Text style={[s.zoneBadgeText, { color: colors.primary }]}>
+                  {zoneConfig.emoji} {zoneConfig.label}
+                </Text>
+              </View>
+            )}
+            {garden?.gardenType && garden.gardenType !== 'huerto' && (
+              <View style={[s.streakBadge, { backgroundColor: '#4CAF5018' }]}>
+                <Text style={[s.streakBadgeText, { color: '#2E7D32' }]}>
+                  {GARDEN_TYPE_CONFIG[garden.gardenType].emoji} {GARDEN_TYPE_CONFIG[garden.gardenType].label}
+                </Text>
+              </View>
+            )}
+            {streak >= 2 && (
+              <View style={[s.streakBadge, { backgroundColor: '#FF6D0022' }]}>
+                <Text style={s.streakBadgeText}>🔥 {streak} días</Text>
+              </View>
+            )}
+          </View>
         </View>
         <Pressable
           onPress={() => router.push('/garden/map')}
@@ -362,17 +382,31 @@ const makeStyles = (
       paddingBottom: spacing.md,
     },
     headerTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
-    zoneBadge: {
+    headerBadgesRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
       marginTop: 2,
+      flexWrap: 'wrap',
+    },
+    zoneBadge: {
       alignSelf: 'flex-start',
-      backgroundColor: colors.surfaceAlt,
       paddingHorizontal: spacing.sm,
       paddingVertical: 2,
       borderRadius: radii.full,
       borderWidth: 1,
-      borderColor: colors.border,
     },
     zoneBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
+    streakBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: radii.full,
+    },
+    streakBadgeText: {
+      fontSize: fontSize.xs,
+      fontWeight: fontWeight.bold,
+      color: '#FF6D00',
+    },
     statsRow: {
       flexDirection: 'row',
       paddingHorizontal: spacing.xl,

@@ -15,7 +15,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PROVINCE_ZONES, CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
-import type { ClimateZone, Garden } from '../../src/models/garden';
+import type { ClimateZone, Garden, GardenType } from '../../src/models/garden';
+import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 
 const ALL_PROVINCES = Object.keys(PROVINCE_ZONES).sort();
 
@@ -28,6 +29,7 @@ export default function GardenEditScreen() {
 
   const [name, setName] = useState(garden?.name ?? '');
   const [province, setProvince] = useState(garden?.province ?? '');
+  const [gardenType, setGardenType] = useState<GardenType>(garden?.gardenType ?? 'huerto');
   const [provinceSearch, setProvinceSearch] = useState('');
   const [showProvinceModal, setShowProvinceModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -65,6 +67,7 @@ export default function GardenEditScreen() {
         name: name.trim(),
         province,
         climateZone: PROVINCE_ZONES[province],
+        gardenType,
       });
       router.back();
     } finally {
@@ -108,6 +111,40 @@ export default function GardenEditScreen() {
           returnKeyType="done"
           maxLength={40}
         />
+
+        {/* Garden type */}
+        <Text style={[s.label, { color: colors.textSecondary }]}>TIPO DE HUERTO</Text>
+        <View style={s.typeRow}>
+          {(Object.entries(GARDEN_TYPE_CONFIG) as [GardenType, typeof GARDEN_TYPE_CONFIG[GardenType]][]).map(([key, cfg]) => {
+            const active = gardenType === key;
+            return (
+              <Pressable
+                key={key}
+                onPress={() => setGardenType(key)}
+                style={[
+                  s.typeBtn,
+                  {
+                    backgroundColor: active ? colors.primary + '22' : colors.surface,
+                    borderColor: active ? colors.primary : colors.border,
+                    flex: 1,
+                  },
+                ]}
+              >
+                <Text style={s.typeEmoji}>{cfg.emoji}</Text>
+                <Text style={[s.typeLabel, { color: active ? colors.primary : colors.textSecondary }]}>
+                  {cfg.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        {gardenType !== 'huerto' && (
+          <View style={[s.typeTip, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+            <Text style={[s.typeTipText, { color: colors.textSecondary }]}>
+              {GARDEN_TYPE_CONFIG[gardenType].emoji} {GARDEN_TYPE_CONFIG[gardenType].description}. El calendario filtrará cultivos aptos para contenedores.
+            </Text>
+          </View>
+        )}
 
         {/* Province */}
         <Text style={[s.label, { color: colors.textSecondary }]}>PROVINCIA</Text>
@@ -246,6 +283,23 @@ const makeStyles = (
       borderWidth: 1,
     },
     zoneText: { fontSize: fontSize.sm, lineHeight: 20 },
+    typeRow: { flexDirection: 'row', gap: spacing.sm },
+    typeBtn: {
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      gap: 3,
+    },
+    typeEmoji: { fontSize: 22 },
+    typeLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
+    typeTip: {
+      marginTop: spacing.sm,
+      padding: spacing.md,
+      borderRadius: radii.md,
+      borderWidth: 1,
+    },
+    typeTipText: { fontSize: fontSize.xs, lineHeight: 18 },
     modal: { flex: 1 },
     modalHeader: {
       flexDirection: 'row',

@@ -10,6 +10,7 @@ import type { DiaryEntry, EntryType } from '../src/models/diary-entry';
 import { ENTRY_TYPE_CONFIG } from '../src/models/diary-entry';
 import type { Plant } from '../src/models/plant';
 import type { Garden } from '../src/models/garden';
+import { buildGamificationData, evaluateBadges, sortBadges, getUnlockedCount, TIER_COLORS } from '../src/utils/gamification';
 
 const MONTH_SHORT = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const BAR_MAX_H = 72;
@@ -46,6 +47,13 @@ export default function StatsScreen() {
   const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
+
+  const gamData = useMemo(
+    () => buildGamificationData(plants.items, entries.items),
+    [plants.items, entries.items]
+  );
+  const badges = useMemo(() => sortBadges(evaluateBadges(gamData)), [gamData]);
+  const unlockedCount = useMemo(() => getUnlockedCount(badges), [badges]);
 
   const stats = useMemo(() => {
     const allEntries = entries.items;
@@ -278,6 +286,49 @@ export default function StatsScreen() {
           </>
         )}
 
+        {/* Badges / Achievements */}
+        <View style={s.badgesTitleRow}>
+          <Text style={[s.sectionTitle, { color: colors.text, marginTop: spacing.sm, marginBottom: 0 }]}>
+            Logros
+          </Text>
+          <View style={[s.badgesCountBadge, { backgroundColor: colors.primary + '22' }]}>
+            <Text style={[s.badgesCountText, { color: colors.primary }]}>
+              {unlockedCount}/{badges.length}
+            </Text>
+          </View>
+        </View>
+        <View style={s.badgesGrid}>
+          {badges.map((badge) => (
+            <View
+              key={badge.id}
+              style={[
+                s.badgeCard,
+                {
+                  backgroundColor: badge.unlocked ? colors.surface : colors.surfaceAlt,
+                  borderColor: badge.unlocked ? TIER_COLORS[badge.tier] : colors.border,
+                  opacity: badge.unlocked ? 1 : 0.5,
+                },
+              ]}
+            >
+              <Text style={[s.badgeEmoji, { opacity: badge.unlocked ? 1 : 0.4 }]}>
+                {badge.unlocked ? badge.emoji : '🔒'}
+              </Text>
+              <Text
+                style={[
+                  s.badgeName,
+                  { color: badge.unlocked ? colors.text : colors.textDisabled },
+                ]}
+                numberOfLines={2}
+              >
+                {badge.name}
+              </Text>
+              {badge.unlocked && (
+                <View style={[s.tierDot, { backgroundColor: TIER_COLORS[badge.tier] }]} />
+              )}
+            </View>
+          ))}
+        </View>
+
         <View style={{ height: spacing['2xl'] }} />
       </ScrollView>
     </SafeAreaView>
@@ -379,4 +430,48 @@ const makeStyles = (
     rankName: { flex: 1, fontSize: fontSize.md, fontWeight: fontWeight.medium },
     rankBadge: { paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: radii.full },
     rankBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    badgesTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      marginTop: spacing.xl,
+      marginBottom: spacing.md,
+    },
+    badgesCountBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 3,
+      borderRadius: radii.full,
+    },
+    badgesCountText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+    badgesGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+    },
+    badgeCard: {
+      width: '30%',
+      flexGrow: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.sm,
+      borderRadius: radii.lg,
+      borderWidth: 1.5,
+      gap: 4,
+      position: 'relative',
+    },
+    badgeEmoji: { fontSize: 28 },
+    badgeName: {
+      fontSize: 10,
+      fontWeight: fontWeight.semibold,
+      textAlign: 'center',
+      lineHeight: 14,
+    },
+    tierDot: {
+      position: 'absolute',
+      top: 6,
+      right: 6,
+      width: 7,
+      height: 7,
+      borderRadius: 4,
+    },
   });
