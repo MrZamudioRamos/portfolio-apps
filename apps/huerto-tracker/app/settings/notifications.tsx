@@ -2,6 +2,7 @@ import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
@@ -15,6 +16,8 @@ export default function NotificationsSettingsScreen() {
 
   const zoneConfig = zone ? CLIMATE_ZONE_CONFIG[zone] : null;
 
+  const { t } = useTranslation();
+
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
@@ -26,14 +29,14 @@ export default function NotificationsSettingsScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>Notificaciones</Text>
+        <Text style={[s.headerTitle, { color: colors.text }]}>{t('notifications.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
         {/* Seasonal alerts toggle */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>ALERTAS ESTACIONALES</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('notifications.seasonalLabel')}</Text>
         <Card padded style={s.card}>
           <View style={s.toggleRow}>
             <View style={[s.iconBox, { backgroundColor: colors.primary + '18' }]}>
@@ -41,10 +44,10 @@ export default function NotificationsSettingsScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[s.rowTitle, { color: colors.text }]}>
-                Recordatorios de siembra
+                {t('notifications.sowingReminders')}
               </Text>
               <Text style={[s.rowSub, { color: colors.textSecondary }]}>
-                Aviso el 1.º de cada mes con lo que puedes sembrar
+                {t('notifications.sowingRemindersDesc')}
               </Text>
             </View>
             <Switch
@@ -62,7 +65,7 @@ export default function NotificationsSettingsScreen() {
               <View style={s.zoneRow}>
                 <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
                 <Text style={[s.rowSub, { color: colors.textSecondary, flex: 1 }]}>
-                  Basado en tu zona climática:{' '}
+                  {t('notifications.basedOnZone')}{' '}
                   <Text style={{ color: colors.primary, fontWeight: fontWeight.semibold }}>
                     {zoneConfig.emoji} {zoneConfig.label}
                   </Text>
@@ -75,7 +78,7 @@ export default function NotificationsSettingsScreen() {
         {/* Next alert preview */}
         {enabled && nextPreview && (
           <>
-            <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>PRÓXIMA ALERTA</Text>
+            <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('notifications.nextAlertLabel')}</Text>
             <Card padded style={s.card}>
               <View style={s.previewHeader}>
                 <View style={[s.iconBox, { backgroundColor: '#4CAF5018' }]}>
@@ -83,10 +86,10 @@ export default function NotificationsSettingsScreen() {
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={[s.rowTitle, { color: colors.text }]}>
-                    1 de {nextPreview.monthLabel}
+                    {t('notifications.nextAlertDate', { month: nextPreview.monthLabel })}
                   </Text>
                   <Text style={[s.rowSub, { color: colors.textSecondary }]}>
-                    {nextPreview.total} cultivo{nextPreview.total !== 1 ? 's' : ''} para sembrar
+                    {t('notifications.nextAlertCrops', { count: nextPreview.total })}
                   </Text>
                 </View>
               </View>
@@ -103,7 +106,7 @@ export default function NotificationsSettingsScreen() {
                 {nextPreview.total > 4 && (
                   <View style={[s.cropChip, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
                     <Text style={[s.cropChipText, { color: colors.textSecondary }]}>
-                      +{nextPreview.total - 4} más
+                      +{nextPreview.total - 4} {t('common.more')}
                     </Text>
                   </View>
                 )}
@@ -113,23 +116,23 @@ export default function NotificationsSettingsScreen() {
         )}
 
         {/* How it works */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>CÓMO FUNCIONA</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('notifications.howLabel')}</Text>
         <Card padded style={s.card}>
           {[
             {
               icon: '📅',
-              title: 'Aviso mensual',
-              desc: 'Recibes una notificación el día 1 de cada mes a las 9:00.',
+              title: t('notifications.how1Title'),
+              desc: t('notifications.how1Desc'),
             },
             {
               icon: '🌍',
-              title: 'Personalizado por zona',
-              desc: 'Los cultivos sugeridos se calculan según tu zona climática en España.',
+              title: t('notifications.how2Title'),
+              desc: t('notifications.how2Desc'),
             },
             {
               icon: '📱',
-              title: 'Sin conexión',
-              desc: 'Las alertas se programan en el dispositivo. No necesitas internet.',
+              title: t('notifications.how3Title'),
+              desc: t('notifications.how3Desc'),
             },
           ].map((item, i, arr) => (
             <View key={item.title}>
@@ -149,7 +152,7 @@ export default function NotificationsSettingsScreen() {
           <View style={[s.warningBox, { backgroundColor: colors.warning + '18', borderColor: colors.warning }]}>
             <Ionicons name="warning-outline" size={18} color={colors.warning} />
             <Text style={[s.warningText, { color: colors.text }]}>
-              Completa el onboarding para activar las alertas personalizadas por zona.
+              {t('notifications.noZoneWarning')}
             </Text>
           </View>
         )}

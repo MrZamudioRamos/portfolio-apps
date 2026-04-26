@@ -1,6 +1,7 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,6 +10,7 @@ export default function MagicSentScreen() {
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { email } = useLocalSearchParams<{ email: string }>();
+  const { t } = useTranslation();
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -19,15 +21,12 @@ export default function MagicSentScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
       <View style={s.content}>
         <Text style={s.emoji}>✉️</Text>
-        <Text style={[s.title, { color: colors.text }]}>Revisa tu email</Text>
+        <Text style={[s.title, { color: colors.text }]}>{t('magicSent.title')}</Text>
         <Text style={[s.body, { color: colors.textSecondary }]}>
-          Te hemos enviado un enlace mágico a{' '}
-          <Text style={[s.emailHighlight, { color: colors.text }]}>{email ?? 'tu email'}</Text>
-          {'. '}
-          Pulsa el enlace desde tu teléfono para entrar automáticamente.
+          {t('magicSent.message', { email: email ?? 'tu email' })}
         </Text>
         <Text style={[s.hint, { color: colors.textDisabled }]}>
-          El enlace caduca en 1 hora. Si no lo ves, revisa la carpeta de spam.
+          {t('magicSent.note')}
         </Text>
       </View>
 
@@ -39,14 +38,14 @@ export default function MagicSentScreen() {
             { borderColor: colors.border, opacity: pressed ? 0.7 : 1 },
           ]}
         >
-          <Text style={[s.btnText, { color: colors.text }]}>Cambiar email</Text>
+          <Text style={[s.btnText, { color: colors.text }]}>{t('magicSent.changeEmail')}</Text>
         </Pressable>
         <Pressable
           onPress={() => router.replace('/onboarding')}
           style={({ pressed }) => [s.guestLink, { opacity: pressed ? 0.6 : 1 }]}
         >
           <Text style={[s.guestText, { color: colors.textDisabled }]}>
-            Continuar sin cuenta por ahora
+            {t('magicSent.continueGuest')}
           </Text>
         </Pressable>
       </View>

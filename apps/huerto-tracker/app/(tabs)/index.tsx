@@ -3,6 +3,7 @@ import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   FlatList,
@@ -31,6 +32,7 @@ export default function DashboardScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
@@ -63,12 +65,12 @@ export default function DashboardScreen() {
     const gardenId = garden?.id;
     if (!gardenId || plants.count === 0) return;
     Alert.alert(
-      'Regar todo',
-      `¿Registrar riego para las ${plants.count} plantas?`,
+      t('home.waterAllTitle'),
+      t('home.waterAllMessage', { count: plants.count }),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Regar todas',
+          text: t('home.waterAllConfirm'),
           onPress: async () => {
             const today = new Date().toISOString().split('T')[0];
             await Promise.all(
@@ -162,7 +164,7 @@ export default function DashboardScreen() {
             )}
             {streak >= 2 && (
               <View style={[s.streakBadge, { backgroundColor: '#FF6D0022' }]}>
-                <Text style={s.streakBadgeText}>🔥 {streak} días</Text>
+                <Text style={s.streakBadgeText}>{t('home.streak', { count: streak })}</Text>
               </View>
             )}
           </View>
@@ -190,26 +192,26 @@ export default function DashboardScreen() {
               <StatCard
                 emoji="🌱"
                 value={plants.count}
-                label="Plantas"
+                label={t('home.stats.plants')}
                 onPress={() => {}}
               />
               <StatCard
                 emoji="🧺"
                 value={harvestingCount}
-                label="En cosecha"
+                label={t('home.stats.harvesting')}
                 onPress={() => {}}
               />
               <StatCard
                 emoji="🔔"
                 value={activeReminders}
-                label="Recordatorios"
+                label={t('home.stats.reminders')}
                 onPress={() => {}}
               />
               {activePests > 0 && (
                 <StatCard
                   emoji="🐛"
                   value={activePests}
-                  label="Con plaga"
+                  label={t('home.stats.pests')}
                   onPress={() => {}}
                 />
               )}
@@ -240,7 +242,7 @@ export default function DashboardScreen() {
                 </Text>
               </View>
               <View style={s.lunarRight}>
-                <Text style={[s.lunarDay, { color: colors.textDisabled }]}>Día</Text>
+                <Text style={[s.lunarDay, { color: colors.textDisabled }]}>{t('home.lunarDay')}</Text>
                 <Text style={[s.lunarDayNum, { color: colors.text }]}>{lunar.dayInCycle}</Text>
               </View>
             </Pressable>
@@ -251,7 +253,7 @@ export default function DashboardScreen() {
                 {weatherLoading || !weather ? (
                   <View style={s.weatherLoading}>
                     <Text style={[s.weatherLoadingText, { color: colors.textSecondary }]}>
-                      🌤️ Cargando el tiempo…
+                      {t('home.weatherLoading')}
                     </Text>
                   </View>
                 ) : (
@@ -326,14 +328,14 @@ export default function DashboardScreen() {
               ]}
             >
               <Ionicons name="bar-chart-outline" size={16} color={colors.primary} />
-              <Text style={[s.statsLinkText, { color: colors.primary }]}>Ver estadísticas</Text>
+              <Text style={[s.statsLinkText, { color: colors.primary }]}>{t('home.viewStats')}</Text>
               <Ionicons name="chevron-forward" size={14} color={colors.primary} />
             </Pressable>
 
             {/* Section title + Regar todo */}
             {plants.count > 0 && (
               <View style={s.sectionRow}>
-                <Text style={[s.sectionTitle, { color: colors.text }]}>Mis plantas</Text>
+                <Text style={[s.sectionTitle, { color: colors.text }]}>{t('home.myPlants')}</Text>
                 <Pressable
                   onPress={handleWaterAll}
                   style={({ pressed }) => [
@@ -341,7 +343,7 @@ export default function DashboardScreen() {
                     { backgroundColor: '#29B6F6' + '22', borderColor: '#29B6F6', opacity: pressed ? 0.7 : 1 },
                   ]}
                 >
-                  <Text style={s.waterAllText}>💧 Regar todo</Text>
+                  <Text style={s.waterAllText}>{t('home.waterAll')}</Text>
                 </Pressable>
               </View>
             )}
@@ -351,9 +353,9 @@ export default function DashboardScreen() {
           !plants.loading ? (
             <EmptyState
               emoji="🌱"
-              title="Aún no hay plantas"
-              description="Añade tu primera planta para empezar a registrar tu huerto."
-              ctaLabel="Añadir planta"
+              title={t('home.emptyTitle')}
+              description={t('home.emptyDesc')}
+              ctaLabel={t('home.addPlant')}
               onCta={() => router.push('/plant/new')}
             />
           ) : null

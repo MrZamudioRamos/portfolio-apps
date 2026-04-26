@@ -4,6 +4,7 @@ import { formatDate, formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Image,
@@ -25,8 +26,7 @@ const ALL_STATUSES: PlantStatus[] = [
   'seedling', 'transplanted', 'growing', 'flowering', 'fruiting', 'harvesting', 'finished',
 ];
 
-const SUN_LABEL: Record<string, string> = { full: '☀️ Pleno sol', partial: '⛅ Semisombra', shade: '🌑 Sombra' };
-const WATER_LABEL: Record<string, string> = { high: '💧💧💧 Alto', medium: '💧💧 Medio', low: '💧 Bajo' };
+// Sun/water labels are now derived from t() inside the component
 
 export default function PlantDetailScreen() {
   const colors = useColors();
@@ -60,6 +60,19 @@ export default function PlantDetailScreen() {
     [reminders.items, id]
   );
 
+  const { t } = useTranslation();
+
+  const SUN_LABEL: Record<string, string> = {
+    full: `☀️ ${t('plantDetail.sunFull')}`,
+    partial: `⛅ ${t('plantDetail.sunPartial')}`,
+    shade: `🌑 ${t('plantDetail.sunShade')}`,
+  };
+  const WATER_LABEL: Record<string, string> = {
+    high: `💧💧💧 ${t('plantDetail.waterHigh')}`,
+    medium: `💧💧 ${t('plantDetail.waterMedium')}`,
+    low: `💧 ${t('plantDetail.waterLow')}`,
+  };
+
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
@@ -71,7 +84,7 @@ export default function PlantDetailScreen() {
         <Pressable onPress={() => router.back()} style={s.backBtn}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
-        <Text style={[s.notFound, { color: colors.textSecondary }]}>Planta no encontrada</Text>
+        <Text style={[s.notFound, { color: colors.textSecondary }]}>{t('plantDetail.notFound')}</Text>
       </SafeAreaView>
     );
   }
@@ -82,12 +95,12 @@ export default function PlantDetailScreen() {
 
   function handleDelete() {
     Alert.alert(
-      `¿Eliminar ${plant!.name}?`,
-      'Se eliminará la planta y todas sus entradas de diario y recordatorios.',
+      t('plantDetail.deleteTitle', { name: plant!.name }),
+      t('plantDetail.deleteDesc'),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Eliminar',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             await plants.remove(id);
@@ -141,12 +154,12 @@ export default function PlantDetailScreen() {
           {/* Dates */}
           {plant.sowingDate && (
             <Text style={[s.dateText, { color: colors.textSecondary }]}>
-              🌰 Sembrada {formatDate(plant.sowingDate)}
+              {t('plantDetail.sownOn', { date: formatDate(plant.sowingDate) })}
             </Text>
           )}
 
           {/* Status selector */}
-          <Text style={[s.sectionTitle, { color: colors.text }]}>Estado</Text>
+          <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.statusSection')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.lg }}>
             <View style={s.statusRow}>
               {ALL_STATUSES.map((status) => {
@@ -175,13 +188,13 @@ export default function PlantDetailScreen() {
           </ScrollView>
 
           {/* Crop info */}
-          <Text style={[s.sectionTitle, { color: colors.text }]}>Información del cultivo</Text>
+          <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.cropInfo')}</Text>
           <Card padded style={s.infoCard}>
             <View style={s.infoGrid}>
-              <InfoItem label="Cosecha" value={`${crop.daysToHarvest[0]}–${crop.daysToHarvest[1]} días`} />
-              <InfoItem label="Luz" value={SUN_LABEL[crop.sunNeeds]} />
-              <InfoItem label="Agua" value={WATER_LABEL[crop.waterNeeds]} />
-              <InfoItem label="Espaciado" value={`${crop.spacing} cm`} />
+              <InfoItem label={t('plantDetail.harvest')} value={t('plantDetail.harvestDays', { min: crop.daysToHarvest[0], max: crop.daysToHarvest[1] })} />
+              <InfoItem label={t('plantDetail.light')} value={SUN_LABEL[crop.sunNeeds]} />
+              <InfoItem label={t('plantDetail.water')} value={WATER_LABEL[crop.waterNeeds]} />
+              <InfoItem label={t('plantDetail.spacing')} value={`${crop.spacing} cm`} />
             </View>
             <View style={[s.tipBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
               <Text style={[s.tipText, { color: colors.textSecondary }]}>💡 {crop.tips}</Text>
@@ -191,7 +204,7 @@ export default function PlantDetailScreen() {
           {/* Companions */}
           {companions.length > 0 && (
             <>
-              <Text style={[s.sectionTitle, { color: colors.text }]}>Buenos vecinos</Text>
+              <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.goodNeighbors')}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={{ flexDirection: 'row', gap: spacing.sm }}>
                   {companions.map((c) => (
@@ -207,7 +220,7 @@ export default function PlantDetailScreen() {
 
           {incompatibles.length > 0 && (
             <>
-              <Text style={[s.sectionTitle, { color: colors.text, marginTop: spacing.lg }]}>Malos vecinos</Text>
+              <Text style={[s.sectionTitle, { color: colors.text, marginTop: spacing.lg }]}>{t('plantDetail.badNeighbors')}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={{ flexDirection: 'row', gap: spacing.sm }}>
                   {incompatibles.map((c) => (
@@ -224,7 +237,7 @@ export default function PlantDetailScreen() {
           {/* Reminders */}
           {plantReminders.length > 0 && (
             <>
-              <Text style={[s.sectionTitle, { color: colors.text }]}>Recordatorios</Text>
+              <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.reminders')}</Text>
               {plantReminders.map((r) => {
                 const rc = REMINDER_TYPE_CONFIG[r.type];
                 const hour = String(r.time.hour).padStart(2, '0');
@@ -243,7 +256,7 @@ export default function PlantDetailScreen() {
                       </View>
                       <View style={[s.enabledBadge, { backgroundColor: r.enabled ? '#4CAF5022' : colors.surfaceAlt }]}>
                         <Text style={{ fontSize: 12, color: r.enabled ? '#4CAF50' : colors.textDisabled }}>
-                          {r.enabled ? 'Activo' : 'Pausado'}
+                          {r.enabled ? t('plantDetail.active') : t('plantDetail.paused')}
                         </Text>
                       </View>
                     </View>
@@ -255,10 +268,10 @@ export default function PlantDetailScreen() {
 
           {/* Diary entries */}
           <View style={s.sectionHeaderRow}>
-            <Text style={[s.sectionTitle, { color: colors.text }]}>Diario</Text>
+            <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.diary')}</Text>
             {plantEntries.length > 0 && (
               <Pressable onPress={() => router.push('/diary')}>
-                <Text style={{ color: colors.primary, fontSize: fontSize.sm }}>Ver todo</Text>
+                <Text style={{ color: colors.primary, fontSize: fontSize.sm }}>{t('common.viewAll')}</Text>
               </Pressable>
             )}
           </View>
@@ -294,12 +307,12 @@ export default function PlantDetailScreen() {
             })
           ) : (
             <Text style={[s.emptyText, { color: colors.textSecondary }]}>
-              Sin entradas aún. ¡Registra tu primera actividad!
+              {t('plantDetail.noEntries')}
             </Text>
           )}
 
           {/* Pest tracker section */}
-          <Text style={[s.sectionTitle, { color: colors.text }]}>Estado de plagas</Text>
+          <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.pestSection')}</Text>
           <Card padded style={{ gap: spacing.md }}>
             {/* Status selector */}
             <View style={s.pestStatusRow}>
@@ -332,7 +345,7 @@ export default function PlantDetailScreen() {
               <>
                 <View style={[{ height: StyleSheet.hairlineWidth, backgroundColor: colors.border }]} />
                 <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary, fontWeight: fontWeight.semibold }]}>
-                  PLAGAS FRECUENTES EN {crop?.name.toUpperCase()}
+                  {t('plantDetail.commonPests', { crop: crop?.name.toUpperCase() })}
                 </Text>
                 {pestInfo.slice(0, 3).map((pest) => (
                   <View key={pest.id} style={[s.pestCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
@@ -378,14 +391,14 @@ export default function PlantDetailScreen() {
           {/* Action buttons */}
           <View style={s.actions}>
             <Button
-              title="Nueva entrada"
+              title={t('plantDetail.newEntry')}
               variant="secondary"
               size="md"
               onPress={() => router.push(`/entry/new?plantId=${id}`)}
               style={{ flex: 1 }}
             />
             <Button
-              title="Recordatorio"
+              title={t('plantDetail.reminder')}
               variant="outline"
               size="md"
               onPress={() => router.push(`/reminder/new?plantId=${id}`)}
@@ -396,7 +409,7 @@ export default function PlantDetailScreen() {
           {/* Delete */}
           <Pressable onPress={handleDelete} style={s.deleteBtn}>
             <Ionicons name="trash-outline" size={16} color={colors.error} />
-            <Text style={[s.deleteText, { color: colors.error }]}>Eliminar planta</Text>
+            <Text style={[s.deleteText, { color: colors.error }]}>{t('plantDetail.deletePlant')}</Text>
           </Pressable>
         </View>
       </ScrollView>

@@ -4,6 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Image,
   KeyboardAvoidingView,
@@ -30,6 +31,7 @@ export default function NewEntryScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
 
+  const { t } = useTranslation();
   const { plantId: paramPlantId } = useLocalSearchParams<{ plantId?: string }>();
 
   const gardens = useCollection<Garden>('gardens');
@@ -97,10 +99,10 @@ export default function NewEntryScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>Nueva entrada</Text>
+        <Text style={[s.headerTitle, { color: colors.text }]}>{t('entryNew.title')}</Text>
         <Pressable onPress={handleSave} disabled={saving} hitSlop={12}>
           <Text style={[{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }, saving && { opacity: 0.5 }]}>
-            {saving ? 'Guardando…' : 'Guardar'}
+            {saving ? t('entryNew.saving') : t('entryNew.save')}
           </Text>
         </Pressable>
       </View>
@@ -110,7 +112,7 @@ export default function NewEntryScreen() {
           <View style={s.body}>
 
             {/* Entry type grid */}
-            <Text style={[s.label, { color: colors.textSecondary }]}>TIPO DE ACTIVIDAD</Text>
+            <Text style={[s.label, { color: colors.textSecondary }]}>{t('entryNew.activityType')}</Text>
             <View style={s.typeGrid}>
               {ALL_TYPES.map((type) => {
                 const cfg = ENTRY_TYPE_CONFIG[type];
@@ -138,7 +140,7 @@ export default function NewEntryScreen() {
 
             {/* Plant selector */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>
-              PLANTA <Text style={{ fontWeight: '400' }}>(opcional)</Text>
+              {t('entryNew.plant')}
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.md }}>
               <View style={{ flexDirection: 'row', gap: spacing.sm }}>
@@ -154,7 +156,7 @@ export default function NewEntryScreen() {
                 >
                   <Text style={{ fontSize: 16 }}>🏡</Text>
                   <Text style={[s.plantChipLabel, { color: !selectedPlantId ? colors.primary : colors.textSecondary }]}>
-                    General
+                    {t('entryNew.general')}
                   </Text>
                 </Pressable>
                 {plants.items.map((p) => (
@@ -179,11 +181,11 @@ export default function NewEntryScreen() {
             </ScrollView>
 
             {/* Date */}
-            <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.md }]}>FECHA</Text>
+            <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.md }]}>{t('entryNew.date')}</Text>
             <TextInput
               value={date}
               onChangeText={setDate}
-              placeholder="AAAA-MM-DD"
+              placeholder={t('entryNew.datePlaceholder')}
               placeholderTextColor={colors.textDisabled}
               style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
               keyboardType="numeric"
@@ -191,12 +193,12 @@ export default function NewEntryScreen() {
 
             {/* Notes */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
-              NOTAS <Text style={{ fontWeight: '400' }}>(opcional)</Text>
+              {t('entryNew.notes')}
             </Text>
             <TextInput
               value={notes}
               onChangeText={setNotes}
-              placeholder="¿Qué observaste? ¿Cómo estaba la planta?"
+              placeholder={t('entryNew.notesPlaceholder')}
               placeholderTextColor={colors.textDisabled}
               multiline
               numberOfLines={4}
@@ -215,10 +217,10 @@ export default function NewEntryScreen() {
             {/* Harvest extras */}
             {selectedType === 'harvest' && (
               <>
-                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>COSECHA</Text>
+                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.harvest')}</Text>
                 <View style={{ flexDirection: 'row', gap: spacing.md }}>
                   <View style={{ flex: 1 }}>
-                    <Text style={[s.inputLabel, { color: colors.textSecondary }]}>Peso (kg)</Text>
+                    <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.weightKg')}</Text>
                     <TextInput
                       value={harvestWeight}
                       onChangeText={setHarvestWeight}
@@ -229,7 +231,7 @@ export default function NewEntryScreen() {
                     />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={[s.inputLabel, { color: colors.textSecondary }]}>Unidades</Text>
+                    <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.units')}</Text>
                     <TextInput
                       value={harvestUnits}
                       onChangeText={setHarvestUnits}
@@ -245,7 +247,7 @@ export default function NewEntryScreen() {
 
             {/* Photo */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
-              FOTO <Text style={{ fontWeight: '400' }}>(opcional)</Text>
+              {t('entryNew.photo')}
             </Text>
             <Pressable onPress={pickPhoto}>
               {photoUri ? (
@@ -254,14 +256,14 @@ export default function NewEntryScreen() {
                 <View style={[s.photoPlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
                   <Text style={{ fontSize: 28 }}>📷</Text>
                   <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: 4 }}>
-                    Añadir foto
+                    {t('entryNew.addPhoto')}
                   </Text>
                 </View>
               )}
             </Pressable>
 
             <Button
-              title="Guardar entrada"
+              title={t('entryNew.saveEntry')}
               onPress={handleSave}
               loading={saving}
               size="lg"

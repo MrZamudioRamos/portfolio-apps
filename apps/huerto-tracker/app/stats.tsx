@@ -3,6 +3,7 @@ import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../src/data/crops';
@@ -127,6 +128,8 @@ export default function StatsScreen() {
     };
   }, [entries.items, plants.items]);
 
+  const { t } = useTranslation();
+
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
@@ -141,33 +144,33 @@ export default function StatsScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>Estadísticas</Text>
+        <Text style={[s.headerTitle, { color: colors.text }]}>{t('stats.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
         {/* Key stats */}
         <View style={s.keyStatsGrid}>
-          <KeyStat emoji="📓" value={stats.totalEntries} label="Entradas" colors={colors} s={s} />
-          <KeyStat emoji="🧺" value={stats.totalHarvests} label="Cosechas" colors={colors} s={s} />
+          <KeyStat emoji="📓" value={stats.totalEntries} label={t('stats.entries')} colors={colors} s={s} />
+          <KeyStat emoji="🧺" value={stats.totalHarvests} label={t('stats.harvests')} colors={colors} s={s} />
           <KeyStat
             emoji="⚡"
             value={stats.streak}
-            label={stats.streak === 1 ? 'día activo' : 'días activos'}
+            label={t('stats.activeDays', { count: stats.streak })}
             colors={colors}
             s={s}
           />
           <KeyStat
             emoji="⚖️"
             value={stats.totalWeight !== null ? `${stats.totalWeight} g` : '—'}
-            label="Cosechado"
+            label={t('stats.harvested')}
             colors={colors}
             s={s}
           />
         </View>
 
         {/* Monthly activity bar chart */}
-        <Text style={[s.sectionTitle, { color: colors.text }]}>Actividad mensual</Text>
+        <Text style={[s.sectionTitle, { color: colors.text }]}>{t('stats.monthlyActivity')}</Text>
         <Card padded style={s.card}>
           <View style={s.barChart}>
             {stats.monthCounts.map((m) => {
@@ -199,7 +202,7 @@ export default function StatsScreen() {
           </View>
           {stats.totalEntries === 0 && (
             <Text style={[s.emptyNote, { color: colors.textDisabled }]}>
-              Sin actividad aún. ¡Empieza registrando algo!
+              {t('stats.noActivity')}
             </Text>
           )}
         </Card>
@@ -207,7 +210,7 @@ export default function StatsScreen() {
         {/* Activity breakdown */}
         {stats.topTypes.length > 0 && (
           <>
-            <Text style={[s.sectionTitle, { color: colors.text }]}>Desglose de actividad</Text>
+            <Text style={[s.sectionTitle, { color: colors.text }]}>{t('stats.activityBreakdown')}</Text>
             <Card padded style={s.card}>
               {stats.topTypes.map((type, i) => {
                 const cfg = ENTRY_TYPE_CONFIG[type];
@@ -239,7 +242,7 @@ export default function StatsScreen() {
         {/* Top plants */}
         {stats.topPlants.length > 0 && (
           <>
-            <Text style={[s.sectionTitle, { color: colors.text }]}>Plantas más activas</Text>
+            <Text style={[s.sectionTitle, { color: colors.text }]}>{t('stats.topPlants')}</Text>
             <Card padded style={s.card}>
               {stats.topPlants.map((item, i) => (
                 <View key={item.plantId}>
@@ -252,7 +255,7 @@ export default function StatsScreen() {
                     </Text>
                     <View style={[s.rankBadge, { backgroundColor: colors.surfaceAlt }]}>
                       <Text style={[s.rankBadgeText, { color: colors.primary }]}>
-                        {item.count} {item.count === 1 ? 'entrada' : 'entradas'}
+                        {t('stats.entryCount', { count: item.count })}
                       </Text>
                     </View>
                   </View>
@@ -265,7 +268,7 @@ export default function StatsScreen() {
         {/* Top crops by harvest */}
         {stats.topCrops.length > 0 && (
           <>
-            <Text style={[s.sectionTitle, { color: colors.text }]}>Cultivos más cosechados</Text>
+            <Text style={[s.sectionTitle, { color: colors.text }]}>{t('stats.topCrops')}</Text>
             <Card padded style={s.card}>
               {stats.topCrops.map((item, i) => (
                 <View key={item.crop.id}>
@@ -276,7 +279,7 @@ export default function StatsScreen() {
                     <Text style={[s.rankName, { color: colors.text }]}>{item.crop.name}</Text>
                     <View style={[s.rankBadge, { backgroundColor: '#FF704322' }]}>
                       <Text style={[s.rankBadgeText, { color: '#FF7043' }]}>
-                        {item.count} {item.count === 1 ? 'cosecha' : 'cosechas'}
+                        {t('stats.harvestCount', { count: item.count })}
                       </Text>
                     </View>
                   </View>
@@ -289,7 +292,7 @@ export default function StatsScreen() {
         {/* Badges / Achievements */}
         <View style={s.badgesTitleRow}>
           <Text style={[s.sectionTitle, { color: colors.text, marginTop: spacing.sm, marginBottom: 0 }]}>
-            Logros
+            {t('stats.achievements')}
           </Text>
           <View style={[s.badgesCountBadge, { backgroundColor: colors.primary + '22' }]}>
             <Text style={[s.badgesCountText, { color: colors.primary }]}>

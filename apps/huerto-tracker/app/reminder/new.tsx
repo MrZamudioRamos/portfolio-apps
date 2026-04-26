@@ -4,6 +4,7 @@ import { useReminders, FREQUENCY_LABELS, type ReminderFrequency } from '@portfol
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   FlatList,
@@ -38,6 +39,7 @@ export default function ReminderNewScreen() {
   const [hour, setHour] = useState(8);
   const [minute, setMinute] = useState(0);
   const [saving, setSaving] = useState(false);
+  const { t } = useTranslation();
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -52,7 +54,7 @@ export default function ReminderNewScreen() {
   async function handleSave() {
     const gardenId = gardens.items[0]?.id;
     if (!gardenId) {
-      Alert.alert('Sin huerto', 'Completa el onboarding primero.');
+      Alert.alert(t('reminderNew.noGardenTitle'), t('reminderNew.noGardenDesc'));
       return;
     }
     setSaving(true);
@@ -68,7 +70,7 @@ export default function ReminderNewScreen() {
       });
       router.back();
     } catch {
-      Alert.alert('Error', 'No se pudo crear el recordatorio.');
+      Alert.alert(t('common.error'), t('reminderNew.saveError'));
     } finally {
       setSaving(false);
     }
@@ -79,7 +81,7 @@ export default function ReminderNewScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
         <View style={[s.header, { borderBottomColor: colors.border }]}>
-          <Text style={[s.headerTitle, { color: colors.text }]}>Nuevo recordatorio</Text>
+          <Text style={[s.headerTitle, { color: colors.text }]}>{t('reminderNew.title')}</Text>
           <Pressable onPress={() => router.back()} hitSlop={12}>
             <Ionicons name="close" size={24} color={colors.textSecondary} />
           </Pressable>
@@ -87,7 +89,7 @@ export default function ReminderNewScreen() {
 
         <View style={s.body}>
           {/* Type selector */}
-          <Text style={[s.label, { color: colors.textSecondary }]}>TIPO</Text>
+          <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.typeLabel')}</Text>
           <View style={s.typeGrid}>
             {TYPES.map((t) => {
               const cfg = REMINDER_TYPE_CONFIG[t];
@@ -119,7 +121,7 @@ export default function ReminderNewScreen() {
           </View>
 
           {/* Title */}
-          <Text style={[s.label, { color: colors.textSecondary }]}>TÍTULO</Text>
+          <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.titleLabel')}</Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
@@ -137,7 +139,7 @@ export default function ReminderNewScreen() {
           />
 
           {/* Frequency */}
-          <Text style={[s.label, { color: colors.textSecondary }]}>FRECUENCIA</Text>
+          <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.frequencyLabel')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.lg }}>
             <View style={{ flexDirection: 'row', gap: spacing.sm }}>
               {FREQUENCIES.map((f) => {
@@ -169,7 +171,7 @@ export default function ReminderNewScreen() {
           </ScrollView>
 
           {/* Hour picker */}
-          <Text style={[s.label, { color: colors.textSecondary }]}>HORA</Text>
+          <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.hourLabel')}</Text>
           <FlatList
             horizontal
             data={HOURS}
@@ -199,7 +201,7 @@ export default function ReminderNewScreen() {
           />
 
           {/* Minute picker */}
-          <Text style={[s.label, { color: colors.textSecondary }]}>MINUTOS</Text>
+          <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.minuteLabel')}</Text>
           <View style={[s.minuteRow, { marginBottom: spacing.xl }]}>
             {MINUTES.map((m) => {
               const active = minute === m;
@@ -238,7 +240,7 @@ export default function ReminderNewScreen() {
       {/* Sticky footer */}
       <View style={[s.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
         <Button
-          title={saving ? 'Guardando…' : 'Crear recordatorio'}
+          title={saving ? t('common.saving') : t('reminderNew.create')}
           variant="primary"
           size="lg"
           onPress={handleSave}

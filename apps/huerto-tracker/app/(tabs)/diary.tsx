@@ -16,30 +16,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { formatRelative } from '@portfolio/shared';
 import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
 import { type Plant } from '../../src/models/plant';
+import { useTranslation } from 'react-i18next';
 
 const ALL_TYPES: Array<EntryType | 'all'> = [
   'all', 'watering', 'sowing', 'harvest', 'fertilizing', 'transplant',
   'pest', 'treatment', 'pruning', 'photo', 'note',
 ];
 
-const TYPE_LABEL: Record<EntryType | 'all', string> = {
-  all: 'Todos',
-  watering: 'Riego',
-  sowing: 'Siembra',
-  harvest: 'Cosecha',
-  fertilizing: 'Abono',
-  transplant: 'Trasplante',
-  pest: 'Plaga',
-  treatment: 'Tratamiento',
-  pruning: 'Poda',
-  photo: 'Foto',
-  note: 'Nota',
-};
-
 export default function DiaryScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [activeFilter, setActiveFilter] = useState<EntryType | 'all'>('all');
 
@@ -125,7 +113,7 @@ export default function DiaryScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={s.header}>
-        <Text style={[s.headerTitle, { color: colors.text }]}>Diario</Text>
+        <Text style={[s.headerTitle, { color: colors.text }]}>{t('diary.title')}</Text>
       </View>
 
       {/* Filter chips */}
@@ -155,7 +143,7 @@ export default function DiaryScreen() {
                 </Text>
               )}
               <Text style={[s.filterLabel, { color: isActive ? '#fff' : colors.text }]}>
-                {TYPE_LABEL[type]}
+                {t(`diary.filters.${type}`)}
               </Text>
             </Pressable>
           );
@@ -173,9 +161,9 @@ export default function DiaryScreen() {
           !entries.loading ? (
             <EmptyState
               emoji="📔"
-              title="Tu diario está vacío"
-              description="Registra tu primera actividad: un riego, una siembra o una cosecha."
-              ctaLabel="Nueva entrada"
+              title={t('diary.emptyTitle')}
+              description={t('diary.emptyDesc')}
+              ctaLabel={t('diary.newEntry')}
               onCta={() => router.push('/entry/new')}
             />
           ) : null

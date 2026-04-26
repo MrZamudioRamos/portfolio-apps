@@ -3,31 +3,40 @@ import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 export default function WelcomeScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
+  const features = [
+    { emoji: '📅', title: t('welcome.features.calendar'), desc: t('welcome.features.calendarDesc') },
+    { emoji: '📓', title: t('welcome.features.diary'), desc: t('welcome.features.diaryDesc') },
+    { emoji: '🔔', title: t('welcome.features.reminders'), desc: t('welcome.features.remindersDesc') },
+    { emoji: '☁️', title: t('welcome.features.sync'), desc: t('welcome.features.syncDesc') },
+  ];
+
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
       {/* Hero */}
       <View style={s.hero}>
         <Text style={s.heroEmoji}>🌱</Text>
-        <Text style={[s.title, { color: colors.text }]}>Huerto Tracker</Text>
+        <Text style={[s.title, { color: colors.text }]}>{t('welcome.title')}</Text>
         <Text style={[s.subtitle, { color: colors.textSecondary }]}>
-          Lleva el registro de tu huerto, planifica siembras y cosecha más y mejor.
+          {t('welcome.subtitle')}
         </Text>
       </View>
 
       {/* Features */}
       <View style={s.features}>
-        {FEATURES.map((f) => (
+        {features.map((f) => (
           <View key={f.emoji} style={s.featureRow}>
             <Text style={s.featureEmoji}>{f.emoji}</Text>
             <View style={s.featureText}>
@@ -47,7 +56,7 @@ export default function WelcomeScreen() {
             { backgroundColor: colors.primary, ...shadows.md, opacity: pressed ? 0.85 : 1 },
           ]}
         >
-          <Text style={s.btnPrimaryText}>Crear cuenta gratuita</Text>
+          <Text style={s.btnPrimaryText}>{t('welcome.createAccount')}</Text>
         </Pressable>
 
         <Pressable
@@ -58,24 +67,17 @@ export default function WelcomeScreen() {
           ]}
         >
           <Text style={[s.btnSecondaryText, { color: colors.textSecondary }]}>
-            Explorar sin cuenta
+            {t('welcome.explore')}
           </Text>
         </Pressable>
 
         <Text style={[s.disclaimer, { color: colors.textDisabled }]}>
-          La cuenta gratuita incluye hasta 10 plantas y sincronización en la nube.
+          {t('welcome.note')}
         </Text>
       </View>
     </SafeAreaView>
   );
 }
-
-const FEATURES = [
-  { emoji: '📅', title: 'Calendario de siembra', desc: 'Siembra en el momento óptimo para tu zona climática.' },
-  { emoji: '📓', title: 'Diario del huerto', desc: 'Registra riegos, podas y cosechas con fotos.' },
-  { emoji: '🔔', title: 'Recordatorios', desc: 'Nunca olvides regar o abonar tus plantas.' },
-  { emoji: '☁️', title: 'Sincronización', desc: 'Tus datos seguros en la nube, en todos tus dispositivos.' },
-];
 
 const makeStyles = (
   colors: ReturnType<typeof useColors>,

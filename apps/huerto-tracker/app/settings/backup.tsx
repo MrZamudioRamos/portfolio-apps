@@ -4,6 +4,7 @@ import { formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBackup } from '../../src/hooks/useBackup';
@@ -24,6 +25,8 @@ export default function BackupScreen() {
     toggleAutoBackup,
   } = useBackup();
 
+  const { t } = useTranslation();
+
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
@@ -32,11 +35,11 @@ export default function BackupScreen() {
   async function handleToggleAuto(value: boolean) {
     if (value && !isPro) {
       Alert.alert(
-        'Función Pro',
-        'La sincronización automática con iCloud está disponible en el plan Pro.',
+        t('backup.proTitle'),
+        t('backup.proDesc'),
         [
-          { text: 'Ver planes', onPress: () => router.push('/paywall') },
-          { text: 'Cancelar', style: 'cancel' },
+          { text: t('backup.viewPlans'), onPress: () => router.push('/paywall') },
+          { text: t('common.cancel'), style: 'cancel' },
         ]
       );
       return;
@@ -48,29 +51,29 @@ export default function BackupScreen() {
     try {
       await exportBackup();
     } catch {
-      Alert.alert('Error', 'No se pudo exportar el backup. Inténtalo de nuevo.');
+      Alert.alert(t('common.error'), t('backup.exportError'));
     }
   }
 
   async function handleImport() {
     Alert.alert(
-      'Importar backup',
-      'Esto reemplazará TODOS los datos actuales con los del archivo de backup. La app necesitará reiniciarse.\n\n¿Continuar?',
+      t('backup.importTitle'),
+      t('backup.importDesc'),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Importar',
+          text: t('backup.importConfirm'),
           style: 'destructive',
           onPress: async () => {
             const result = await importBackup();
             if (!result.success) {
-              if (result.error) Alert.alert('Error', result.error);
+              if (result.error) Alert.alert(t('common.error'), result.error);
               return;
             }
             Alert.alert(
-              'Datos restaurados ✓',
-              'Cierra y vuelve a abrir la app para que los cambios surtan efecto.',
-              [{ text: 'Entendido' }]
+              t('backup.restoredTitle'),
+              t('backup.restoredDesc'),
+              [{ text: t('common.ok') }]
             );
           },
         },
@@ -80,7 +83,7 @@ export default function BackupScreen() {
 
   const lastBackupLabel = lastBackupAt
     ? formatRelative(lastBackupAt)
-    : 'Nunca';
+    : t('backup.never');
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -89,14 +92,14 @@ export default function BackupScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>Copia de seguridad</Text>
+        <Text style={[s.headerTitle, { color: colors.text }]}>{t('backup.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
         {/* iCloud auto-sync */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>SINCRONIZACIÓN AUTOMÁTICA</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('backup.autoSyncLabel')}</Text>
         <Card padded style={s.card}>
           <View style={s.row}>
             <View style={s.rowIcon}>
@@ -104,7 +107,7 @@ export default function BackupScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <View style={s.rowTitleRow}>
-                <Text style={[s.rowTitle, { color: colors.text }]}>Sincronizar con iCloud</Text>
+                <Text style={[s.rowTitle, { color: colors.text }]}>{t('backup.icloudSync')}</Text>
                 {!isPro && (
                   <View style={[s.proBadge, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}>
                     <Text style={[s.proBadgeText, { color: colors.primary }]}>Pro</Text>
@@ -112,7 +115,7 @@ export default function BackupScreen() {
                 )}
               </View>
               <Text style={[s.rowSub, { color: colors.textSecondary }]}>
-                Guarda automáticamente un backup en tu carpeta de iCloud al salir de la app.
+                {t('backup.icloudSyncDesc')}
               </Text>
             </View>
             <Switch
@@ -131,7 +134,7 @@ export default function BackupScreen() {
               <Ionicons name="time-outline" size={20} color={colors.textSecondary} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[s.rowTitle, { color: colors.text }]}>Último backup</Text>
+              <Text style={[s.rowTitle, { color: colors.text }]}>{t('backup.lastBackup')}</Text>
               <Text style={[s.rowSub, { color: colors.textSecondary }]}>{lastBackupLabel}</Text>
             </View>
           </View>
@@ -141,30 +144,26 @@ export default function BackupScreen() {
           <View style={[s.infoBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
             <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
             <Text style={[s.infoText, { color: colors.textSecondary }]}>
-              Para activar la sincronización iCloud ve a{' '}
-              <Text style={{ fontWeight: fontWeight.semibold }}>
-                Ajustes {'>'} Tu nombre {'>'} iCloud {'>'} Apps que usan iCloud
-              </Text>{' '}
-              y activa HuertoTracker.
+              {t('backup.icloudTip')}
             </Text>
           </View>
         )}
 
         {/* Manual backup */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>MANUAL</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('backup.manualLabel')}</Text>
         <Card padded style={s.card}>
           <View style={s.actionRow}>
             <View style={s.rowIcon}>
               <Ionicons name="download-outline" size={20} color={colors.primary} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[s.rowTitle, { color: colors.text }]}>Exportar backup</Text>
+              <Text style={[s.rowTitle, { color: colors.text }]}>{t('backup.exportTitle')}</Text>
               <Text style={[s.rowSub, { color: colors.textSecondary }]}>
-                Guarda el archivo en Archivos, Drive o compártelo.
+                {t('backup.exportDesc')}
               </Text>
             </View>
             <Button
-              title={exporting ? '…' : 'Exportar'}
+              title={exporting ? '…' : t('backup.export')}
               variant="secondary"
               size="sm"
               onPress={handleExport}
@@ -179,13 +178,13 @@ export default function BackupScreen() {
               <Ionicons name="arrow-down-circle-outline" size={20} color={colors.textSecondary} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[s.rowTitle, { color: colors.text }]}>Importar backup</Text>
+              <Text style={[s.rowTitle, { color: colors.text }]}>{t('backup.importTitle2')}</Text>
               <Text style={[s.rowSub, { color: colors.textSecondary }]}>
-                Restaura desde un archivo .json. Reemplaza todos los datos.
+                {t('backup.importDesc2')}
               </Text>
             </View>
             <Button
-              title={importing ? '…' : 'Importar'}
+              title={importing ? '…' : t('backup.import')}
               variant="outline"
               size="sm"
               onPress={handleImport}
@@ -195,13 +194,13 @@ export default function BackupScreen() {
         </Card>
 
         {/* What's included */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>QUÉ INCLUYE EL BACKUP</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('backup.includesLabel')}</Text>
         <Card padded style={s.card}>
           {[
-            { icon: 'leaf-outline', label: 'Huerto y configuración de zona' },
-            { icon: 'flower-outline', label: 'Todas tus plantas' },
-            { icon: 'journal-outline', label: 'Entradas del diario' },
-            { icon: 'notifications-outline', label: 'Recordatorios configurados' },
+            { icon: 'leaf-outline', label: t('backup.includeGarden') },
+            { icon: 'flower-outline', label: t('backup.includePlants') },
+            { icon: 'journal-outline', label: t('backup.includeEntries') },
+            { icon: 'notifications-outline', label: t('backup.includeReminders') },
           ].map((item, i, arr) => (
             <View key={item.label}>
               <View style={s.includeRow}>
@@ -215,7 +214,7 @@ export default function BackupScreen() {
         </Card>
 
         <Text style={[s.footer, { color: colors.textDisabled }]}>
-          El backup no incluye fotos (se almacenan en la galería del dispositivo) ni el estado de la suscripción.
+          {t('backup.footerNote')}
         </Text>
       </ScrollView>
     </SafeAreaView>

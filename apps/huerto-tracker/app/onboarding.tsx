@@ -4,6 +4,7 @@ import { useCollection } from '@portfolio/storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   FlatList,
   Image,
@@ -30,6 +31,7 @@ export default function OnboardingScreen() {
   const { complete } = useOnboarding('huerto');
   const gardens = useCollection<Garden>('gardens');
 
+  const { t } = useTranslation();
   const [step, setStep] = useState<Step>(0);
   const [province, setProvince] = useState('');
   const [provinceSearch, setProvinceSearch] = useState('');
@@ -104,12 +106,12 @@ export default function OnboardingScreen() {
         <View style={s.stepContainer}>
           <View style={s.heroSection}>
             <Text style={s.heroEmoji}>🌱</Text>
-            <Text style={[s.heroTitle, { color: colors.text }]}>Tu huerto digital</Text>
+            <Text style={[s.heroTitle, { color: colors.text }]}>{t('onboarding.step1Title')}</Text>
             <Text style={[s.heroDesc, { color: colors.textSecondary }]}>
-              Planifica tu siembra, registra tu cosecha y nunca olvides regar.
+              {t('onboarding.step1Desc')}
             </Text>
           </View>
-          <Button title="Empezar →" onPress={() => setStep(1)} size="lg" />
+          <Button title={t('onboarding.start')} onPress={() => setStep(1)} size="lg" />
         </View>
       )}
 
@@ -120,9 +122,9 @@ export default function OnboardingScreen() {
           style={s.stepContainer}
         >
           <View style={s.stepContent}>
-            <Text style={[s.stepTitle, { color: colors.text }]}>¿Dónde está tu huerto?</Text>
+            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.step2Title')}</Text>
             <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>
-              Usaremos tu provincia para personalizar el calendario de siembra.
+              {t('onboarding.step2Desc')}
             </Text>
 
             <Pressable
@@ -136,7 +138,7 @@ export default function OnboardingScreen() {
               ]}
             >
               <Text style={{ color: province ? colors.text : colors.textDisabled, fontSize: fontSize.md }}>
-                {province || 'Selecciona tu provincia'}
+                {province || t('onboarding.selectProvince')}
               </Text>
               <Text style={{ fontSize: 18 }}>›</Text>
             </Pressable>
@@ -146,7 +148,7 @@ export default function OnboardingScreen() {
                 <Text style={{ fontSize: 28 }}>{zoneConfig.emoji}</Text>
                 <View style={{ marginLeft: spacing.md, flex: 1 }}>
                   <Text style={[s.zoneTitle, { color: colors.primary }]}>
-                    Zona {zoneConfig.label}
+                    {t('onboarding.zone', { label: zoneConfig.label })}
                   </Text>
                   <Text style={[s.zoneDesc, { color: colors.textSecondary }]}>
                     {zoneConfig.description}
@@ -158,10 +160,10 @@ export default function OnboardingScreen() {
 
           <View style={s.stepActions}>
             <Pressable onPress={() => setStep(0)} style={s.backButton}>
-              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>← Atrás</Text>
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
             <Button
-              title="Continuar →"
+              title={t('onboarding.continue')}
               onPress={() => setStep(2)}
               disabled={!province}
               size="lg"
@@ -178,13 +180,13 @@ export default function OnboardingScreen() {
           style={s.stepContainer}
         >
           <View style={s.stepContent}>
-            <Text style={[s.stepTitle, { color: colors.text }]}>Crea tu primer huerto</Text>
+            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.step3Title')}</Text>
             <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>
-              Dale un nombre a tu espacio de cultivo.
+              {t('onboarding.step3Desc')}
             </Text>
 
             {/* Garden type selector */}
-            <Text style={[s.inputLabel, { color: colors.textSecondary }]}>¿Qué tipo de espacio tienes?</Text>
+            <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('onboarding.gardenTypeLabel')}</Text>
             <View style={s.gardenTypeRow}>
               {(Object.entries(GARDEN_TYPE_CONFIG) as [GardenType, typeof GARDEN_TYPE_CONFIG[GardenType]][]).map(([key, cfg]) => {
                 const active = gardenType === key;
@@ -217,7 +219,7 @@ export default function OnboardingScreen() {
                 <View style={[s.photoPlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
                   <Text style={{ fontSize: 32 }}>📷</Text>
                   <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: 4 }}>
-                    Añadir foto
+                    {t('plantNew.addPhoto')}
                   </Text>
                 </View>
               )}
@@ -227,7 +229,7 @@ export default function OnboardingScreen() {
             <TextInput
               value={gardenName}
               onChangeText={setGardenName}
-              placeholder="Ej: Mi terraza, Balcón norte..."
+              placeholder={t('onboarding.gardenNamePlaceholder')}
               placeholderTextColor={colors.textDisabled}
               style={[
                 s.input,
@@ -245,10 +247,10 @@ export default function OnboardingScreen() {
 
           <View style={s.stepActions}>
             <Pressable onPress={() => setStep(1)} style={s.backButton}>
-              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>← Atrás</Text>
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
             <Button
-              title="Crear huerto 🌱"
+              title={t('onboarding.create')}
               onPress={handleCreate}
               disabled={!gardenName.trim()}
               loading={saving}
@@ -263,10 +265,10 @@ export default function OnboardingScreen() {
       <Modal visible={showProvincePicker} animationType="slide" presentationStyle="pageSheet">
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
           <View style={s.modalHeader}>
-            <Text style={[s.modalTitle, { color: colors.text }]}>Selecciona provincia</Text>
+            <Text style={[s.modalTitle, { color: colors.text }]}>{t('onboarding.selectProvince')}</Text>
             <Pressable onPress={() => { setShowProvincePicker(false); setProvinceSearch(''); }}>
               <Text style={{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }}>
-                Cerrar
+                {t('onboarding.closeSearch')}
               </Text>
             </Pressable>
           </View>
@@ -276,7 +278,7 @@ export default function OnboardingScreen() {
             <TextInput
               value={provinceSearch}
               onChangeText={setProvinceSearch}
-              placeholder="Buscar provincia..."
+              placeholder={t('onboarding.provinceSearch')}
               placeholderTextColor={colors.textDisabled}
               style={{ flex: 1, color: colors.text, fontSize: fontSize.md }}
               autoFocus

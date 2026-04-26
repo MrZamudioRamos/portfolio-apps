@@ -3,6 +3,7 @@ import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   FlatList,
@@ -33,6 +34,7 @@ export default function GardenEditScreen() {
   const [provinceSearch, setProvinceSearch] = useState('');
   const [showProvinceModal, setShowProvinceModal] = useState(false);
   const [saving, setSaving] = useState(false);
+  const { t } = useTranslation();
 
   const climateZone: ClimateZone | null = province ? (PROVINCE_ZONES[province] ?? null) : null;
   const zoneConfig = climateZone ? CLIMATE_ZONE_CONFIG[climateZone] : null;
@@ -52,11 +54,11 @@ export default function GardenEditScreen() {
 
   async function handleSave() {
     if (!name.trim()) {
-      Alert.alert('Nombre requerido', 'Ponle un nombre a tu huerto.');
+      Alert.alert(t('gardenEdit.nameRequired'), t('gardenEdit.nameRequiredDesc'));
       return;
     }
     if (!province) {
-      Alert.alert('Provincia requerida', 'Selecciona tu provincia para el calendario de siembra.');
+      Alert.alert(t('gardenEdit.provinceRequired'), t('gardenEdit.provinceRequiredDesc'));
       return;
     }
     if (!garden) return;
@@ -79,7 +81,7 @@ export default function GardenEditScreen() {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
         <Text style={[{ color: colors.textSecondary, textAlign: 'center', marginTop: 80 }]}>
-          Sin huerto configurado
+          {t('gardenEdit.noGarden')}
         </Text>
       </SafeAreaView>
     );
@@ -92,13 +94,13 @@ export default function GardenEditScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>Editar huerto</Text>
+        <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardenEdit.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <View style={s.body}>
         {/* Name */}
-        <Text style={[s.label, { color: colors.textSecondary }]}>NOMBRE DEL HUERTO</Text>
+        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.nameLabel')}</Text>
         <TextInput
           value={name}
           onChangeText={setName}
@@ -106,14 +108,14 @@ export default function GardenEditScreen() {
             s.input,
             { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border, fontSize: fontSize.md },
           ]}
-          placeholder="Mi huerto"
+          placeholder={t('gardenEdit.namePlaceholder')}
           placeholderTextColor={colors.textDisabled}
           returnKeyType="done"
           maxLength={40}
         />
 
         {/* Garden type */}
-        <Text style={[s.label, { color: colors.textSecondary }]}>TIPO DE HUERTO</Text>
+        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.typeLabel')}</Text>
         <View style={s.typeRow}>
           {(Object.entries(GARDEN_TYPE_CONFIG) as [GardenType, typeof GARDEN_TYPE_CONFIG[GardenType]][]).map(([key, cfg]) => {
             const active = gardenType === key;
@@ -141,19 +143,19 @@ export default function GardenEditScreen() {
         {gardenType !== 'huerto' && (
           <View style={[s.typeTip, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
             <Text style={[s.typeTipText, { color: colors.textSecondary }]}>
-              {GARDEN_TYPE_CONFIG[gardenType].emoji} {GARDEN_TYPE_CONFIG[gardenType].description}. El calendario filtrará cultivos aptos para contenedores.
+              {GARDEN_TYPE_CONFIG[gardenType].emoji} {GARDEN_TYPE_CONFIG[gardenType].description}. {t('gardenEdit.containerTip')}
             </Text>
           </View>
         )}
 
         {/* Province */}
-        <Text style={[s.label, { color: colors.textSecondary }]}>PROVINCIA</Text>
+        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.provinceLabel')}</Text>
         <Pressable
           onPress={() => { setProvinceSearch(''); setShowProvinceModal(true); }}
           style={[s.picker, { backgroundColor: colors.surface, borderColor: colors.border }]}
         >
           <Text style={[{ flex: 1, fontSize: fontSize.md }, province ? { color: colors.text } : { color: colors.textDisabled }]}>
-            {province || 'Seleccionar provincia…'}
+            {province || t('gardenEdit.provincePlaceholder')}
           </Text>
           <Ionicons name="chevron-down" size={18} color={colors.textSecondary} />
         </Pressable>
@@ -168,7 +170,7 @@ export default function GardenEditScreen() {
         )}
 
         <Button
-          title={saving ? 'Guardando…' : 'Guardar cambios'}
+          title={saving ? t('common.saving') : t('gardenEdit.save')}
           variant="primary"
           size="lg"
           onPress={handleSave}
@@ -186,7 +188,7 @@ export default function GardenEditScreen() {
       >
         <SafeAreaView style={[s.modal, { backgroundColor: colors.background }]} edges={['top']}>
           <View style={[s.modalHeader, { borderBottomColor: colors.border }]}>
-            <Text style={[s.modalTitle, { color: colors.text }]}>Selecciona tu provincia</Text>
+            <Text style={[s.modalTitle, { color: colors.text }]}>{t('gardenEdit.selectProvince')}</Text>
             <Pressable onPress={() => setShowProvinceModal(false)} hitSlop={12}>
               <Ionicons name="close" size={24} color={colors.textSecondary} />
             </Pressable>
@@ -197,7 +199,7 @@ export default function GardenEditScreen() {
             <TextInput
               value={provinceSearch}
               onChangeText={setProvinceSearch}
-              placeholder="Buscar provincia…"
+              placeholder={t('gardenEdit.searchProvince')}
               placeholderTextColor={colors.textDisabled}
               style={[{ flex: 1, color: colors.text, fontSize: fontSize.md, marginLeft: spacing.sm }]}
               autoFocus

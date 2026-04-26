@@ -1,3 +1,4 @@
+import '../src/i18n';
 import { initSupabase, handleDeepLink } from '@portfolio/supabase';
 import { ThemeProvider, huertoPalette } from '@portfolio/ui';
 import { Stack, useRouter } from 'expo-router';

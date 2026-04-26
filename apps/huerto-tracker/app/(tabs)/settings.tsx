@@ -8,6 +8,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import type { Garden } from '../../src/models/garden';
 import type { Plant } from '../../src/models/plant';
@@ -22,6 +23,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const { reset: resetOnboarding } = useOnboarding('huerto');
 
+  const { t } = useTranslation();
   const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
@@ -41,12 +43,12 @@ export default function SettingsScreen() {
 
   function deleteAllData() {
     Alert.alert(
-      '¿Eliminar todos los datos?',
-      'Se borrarán permanentemente todas las plantas, entradas de diario y recordatorios. Esta acción no se puede deshacer.',
+      t('settings.data.deleteTitle'),
+      t('settings.data.deleteDesc'),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Eliminar todo',
+          text: t('settings.data.deleteConfirm'),
           style: 'destructive',
           onPress: async () => {
             await Promise.all([
@@ -66,21 +68,21 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scrollContent}>
-        <Text style={[s.pageTitle, { color: colors.text }]}>Ajustes</Text>
+        <Text style={[s.pageTitle, { color: colors.text }]}>{t('settings.title')}</Text>
 
         {/* ── Cuenta ── */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>CUENTA</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.account')}</Text>
         <Card padded style={s.card}>
           {isGuest ? (
             <View style={s.guestRow}>
               <View style={s.guestInfo}>
-                <Text style={[s.guestTitle, { color: colors.text }]}>Modo invitado</Text>
+                <Text style={[s.guestTitle, { color: colors.text }]}>{t('settings.account.guestTitle')}</Text>
                 <Text style={[s.guestDesc, { color: colors.textSecondary }]}>
-                  Crea una cuenta para sincronizar tu huerto y no perder tus datos.
+                  {t('settings.account.guestDesc')}
                 </Text>
               </View>
               <Button
-                title="Iniciar sesión"
+                title={t('settings.account.signIn')}
                 variant="primary"
                 size="sm"
                 onPress={() => router.push('/auth' as any)}
@@ -90,7 +92,7 @@ export default function SettingsScreen() {
             <>
               <Row
                 icon="person-circle-outline"
-                label="Email"
+                label={t('settings.account.email')}
                 value={user?.email ?? '—'}
                 colors={colors}
                 s={s}
@@ -98,13 +100,13 @@ export default function SettingsScreen() {
               <Separator colors={colors} />
               <RowAction
                 icon="log-out-outline"
-                label="Cerrar sesión"
+                label={t('settings.account.signOut')}
                 colors={colors}
                 s={s}
                 onPress={() => {
-                  Alert.alert('¿Cerrar sesión?', 'Tus datos locales se conservarán.', [
-                    { text: 'Cancelar', style: 'cancel' },
-                    { text: 'Cerrar sesión', style: 'destructive', onPress: () => signOut() },
+                  Alert.alert(t('settings.account.signOutTitle'), t('settings.account.signOutDesc'), [
+                    { text: t('common.cancel'), style: 'cancel' },
+                    { text: t('settings.account.signOut'), style: 'destructive', onPress: () => signOut() },
                   ]);
                 }}
                 destructive
@@ -114,11 +116,11 @@ export default function SettingsScreen() {
         </Card>
 
         {/* ── Mi huerto ── */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>MI HUERTO</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.garden')}</Text>
         <Card padded style={s.card}>
           <Row
             icon="leaf-outline"
-            label="Nombre"
+            label={t('settings.garden.name')}
             value={garden?.name ?? '—'}
             colors={colors}
             s={s}
@@ -126,7 +128,7 @@ export default function SettingsScreen() {
           <Separator colors={colors} />
           <Row
             icon="location-outline"
-            label="Provincia"
+            label={t('settings.garden.province')}
             value={garden?.province ?? '—'}
             colors={colors}
             s={s}
@@ -134,7 +136,7 @@ export default function SettingsScreen() {
           <Separator colors={colors} />
           <Row
             icon="cloud-outline"
-            label="Zona climática"
+            label={t('settings.garden.climateZone')}
             value={zoneConfig ? `${zoneConfig.emoji} ${zoneConfig.label}` : '—'}
             colors={colors}
             s={s}
@@ -142,7 +144,7 @@ export default function SettingsScreen() {
           <Separator colors={colors} />
           <RowAction
             icon="map-outline"
-            label="Mapa del huerto"
+            label={t('settings.garden.map')}
             colors={colors}
             s={s}
             onPress={() => router.push('/garden/map')}
@@ -150,7 +152,7 @@ export default function SettingsScreen() {
           <Separator colors={colors} />
           <RowAction
             icon="create-outline"
-            label="Editar huerto"
+            label={t('settings.garden.edit')}
             colors={colors}
             s={s}
             onPress={() => router.push('/garden/edit')}
@@ -158,7 +160,7 @@ export default function SettingsScreen() {
         </Card>
 
         {/* ── Suscripción ── */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>SUSCRIPCIÓN</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.subscription')}</Text>
         <Card padded style={s.card}>
           <View style={s.proRow}>
             <View style={s.proInfo}>
@@ -171,18 +173,18 @@ export default function SettingsScreen() {
                 ]}
               >
                 <Text style={[s.freeBadgeText, { color: isPro ? colors.primary : colors.textSecondary }]}>
-                  {isPro ? '⭐ Plan Pro' : 'Plan gratuito'}
+                  {isPro ? t('settings.subscription.proPlan') : t('settings.subscription.freePlan')}
                 </Text>
               </View>
               <Text style={[s.proDesc, { color: colors.textSecondary }]}>
                 {isPro
-                  ? `Suscripción ${activePlan === 'annual' ? 'anual' : 'mensual'} activa`
-                  : 'Hasta 5 plantas por huerto'}
+                  ? t(activePlan === 'annual' ? 'settings.subscription.activeAnnual' : 'settings.subscription.activeMonthly')
+                  : t('settings.subscription.freeLimit')}
               </Text>
             </View>
             {!isPro && (
               <Button
-                title="Ver planes"
+                title={t('settings.subscription.viewPlans')}
                 variant="primary"
                 size="sm"
                 onPress={() => router.push('/paywall')}
@@ -192,11 +194,11 @@ export default function SettingsScreen() {
         </Card>
 
         {/* ── Herramientas ── */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>HERRAMIENTAS</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.tools')}</Text>
         <Card padded style={s.card}>
           <RowAction
             icon="git-network-outline"
-            label="Guía de asociaciones"
+            label={t('settings.tools.companions')}
             badge={isPro ? undefined : 'Pro'}
             colors={colors}
             s={s}
@@ -205,7 +207,7 @@ export default function SettingsScreen() {
           <Separator colors={colors} />
           <RowAction
             icon="bar-chart-outline"
-            label="Ver estadísticas"
+            label={t('settings.tools.stats')}
             colors={colors}
             s={s}
             onPress={() => router.push('/stats')}
@@ -213,21 +215,21 @@ export default function SettingsScreen() {
         </Card>
 
         {/* ── Estadísticas ── */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>RESUMEN</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.summary')}</Text>
         <Card padded style={s.card}>
-          <Row icon="leaf-outline" label="Plantas activas" value={String(plants.count)} colors={colors} s={s} />
+          <Row icon="leaf-outline" label={t('settings.summary.activePlants')} value={String(plants.count)} colors={colors} s={s} />
           <Separator colors={colors} />
-          <Row icon="journal-outline" label="Entradas de diario" value={String(entries.count)} colors={colors} s={s} />
+          <Row icon="journal-outline" label={t('settings.summary.diaryEntries')} value={String(entries.count)} colors={colors} s={s} />
           <Separator colors={colors} />
-          <Row icon="notifications-outline" label="Recordatorios" value={String(reminders.count)} colors={colors} s={s} />
+          <Row icon="notifications-outline" label={t('settings.summary.reminders')} value={String(reminders.count)} colors={colors} s={s} />
         </Card>
 
         {/* ── Notificaciones ── */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>NOTIFICACIONES</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.notifications')}</Text>
         <Card padded style={s.card}>
           <RowAction
             icon="notifications-outline"
-            label="Alertas estacionales"
+            label={t('settings.notifications.seasonal')}
             colors={colors}
             s={s}
             onPress={() => router.push('/settings/notifications')}
@@ -235,11 +237,11 @@ export default function SettingsScreen() {
         </Card>
 
         {/* ── Datos ── */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>DATOS</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.data')}</Text>
         <Card padded style={s.card}>
           <RowAction
             icon="cloud-upload-outline"
-            label="Copia de seguridad"
+            label={t('settings.data.backup')}
             colors={colors}
             s={s}
             onPress={() => router.push('/settings/backup')}
@@ -247,7 +249,7 @@ export default function SettingsScreen() {
           <Separator colors={colors} />
           <RowAction
             icon="trash-outline"
-            label="Eliminar todos los datos"
+            label={t('settings.data.deleteAll')}
             colors={colors}
             s={s}
             onPress={deleteAllData}
@@ -256,13 +258,13 @@ export default function SettingsScreen() {
         </Card>
 
         {/* ── App ── */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>APP</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.app')}</Text>
         <Card padded style={s.card}>
-          <Row icon="information-circle-outline" label="Versión" value={APP_VERSION} colors={colors} s={s} />
+          <Row icon="information-circle-outline" label={t('settings.app.version')} value={APP_VERSION} colors={colors} s={s} />
           <Separator colors={colors} />
           <RowAction
             icon="star-outline"
-            label="Valorar en App Store"
+            label={t('settings.app.rate')}
             colors={colors}
             s={s}
             onPress={() => Linking.openURL('https://apps.apple.com')}
@@ -270,7 +272,7 @@ export default function SettingsScreen() {
           <Separator colors={colors} />
           <RowAction
             icon="shield-checkmark-outline"
-            label="Política de privacidad"
+            label={t('settings.app.privacy')}
             colors={colors}
             s={s}
             onPress={() => Linking.openURL('https://mrzamudioramos.github.io/huerto-tracker/privacy-policy.html')}
@@ -278,7 +280,7 @@ export default function SettingsScreen() {
           <Separator colors={colors} />
           <RowAction
             icon="mail-outline"
-            label="Contacto"
+            label={t('settings.app.contact')}
             colors={colors}
             s={s}
             onPress={() => Linking.openURL('mailto:rikkardo22@gmail.com')}

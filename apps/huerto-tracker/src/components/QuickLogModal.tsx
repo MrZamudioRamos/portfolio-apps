@@ -2,6 +2,7 @@ import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Animated,
@@ -29,14 +30,6 @@ interface QuickAction {
   hasWeight?: boolean;
 }
 
-const QUICK_ACTIONS: QuickAction[] = [
-  { type: 'watering',    emoji: '💧', label: 'Regar',    color: '#29B6F6' },
-  { type: 'harvest',     emoji: '🧺', label: 'Cosechar', color: '#FF7043', hasWeight: true },
-  { type: 'pest',        emoji: '🐛', label: 'Plaga',    color: '#EF5350', hasNote: true },
-  { type: 'fertilizing', emoji: '🌾', label: 'Abonar',   color: '#FFA726' },
-  { type: 'pruning',     emoji: '✂️', label: 'Poda',     color: '#AB47BC' },
-  { type: 'note',        emoji: '📝', label: 'Nota',     color: '#78909C', hasNote: true },
-];
 
 interface Props {
   plant: Plant | null;
@@ -47,6 +40,16 @@ interface Props {
 export function QuickLogModal({ plant, visible, onClose }: Props) {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
+  const { t } = useTranslation();
+
+  const QUICK_ACTIONS: QuickAction[] = [
+    { type: 'watering',    emoji: '💧', label: t('quickLog.water'),     color: '#29B6F6' },
+    { type: 'harvest',     emoji: '🧺', label: t('quickLog.harvest'),   color: '#FF7043', hasWeight: true },
+    { type: 'pest',        emoji: '🐛', label: t('quickLog.pest'),      color: '#EF5350', hasNote: true },
+    { type: 'fertilizing', emoji: '🌾', label: t('quickLog.fertilize'), color: '#FFA726' },
+    { type: 'pruning',     emoji: '✂️', label: t('quickLog.prune'),     color: '#AB47BC' },
+    { type: 'note',        emoji: '📝', label: t('quickLog.note'),      color: '#78909C', hasNote: true },
+  ];
 
   const gardens = useCollection<Garden>('gardens');
   const entries = useCollection<DiaryEntry>('diary_entries');
@@ -149,7 +152,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
           {done ? (
             <View style={s.doneBox}>
               <Text style={s.doneEmoji}>✅</Text>
-              <Text style={[s.doneText, { color: colors.text }]}>¡Registrado!</Text>
+              <Text style={[s.doneText, { color: colors.text }]}>{t('quickLog.done')}</Text>
             </View>
           ) : (
             <>
@@ -181,7 +184,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
               {/* Pest suggestions */}
               {selected?.type === 'pest' && suggestedPests.length > 0 && (
                 <View style={[s.pestSuggestions, { backgroundColor: '#EF535010', borderColor: '#EF5350' }]}>
-                  <Text style={[s.pestSuggestLabel, { color: '#EF5350' }]}>🐛 Plagas frecuentes en {crop?.name}:</Text>
+                  <Text style={[s.pestSuggestLabel, { color: '#EF5350' }]}>🐛 {t('quickLog.commonPests', { crop: crop?.name })}</Text>
                   <View style={s.pestChips}>
                     {suggestedPests.map((p) => (
                       <Pressable
@@ -200,7 +203,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
               {selected?.type === 'treatment' && plant.pestStatus === 'active' && (
                 <View style={[s.pestSuggestions, { backgroundColor: '#FF980010', borderColor: '#FF9800' }]}>
                   <Text style={[s.pestSuggestLabel, { color: '#FF9800' }]}>
-                    🧴 Al guardar, la planta pasará a "En tratamiento"
+                    🧴 {t('quickLog.treatmentTip')}
                   </Text>
                 </View>
               )}
@@ -210,7 +213,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
                 <TextInput
                   value={note}
                   onChangeText={setNote}
-                  placeholder={selected.type === 'pest' ? 'Describe la plaga o síntoma…' : 'Añade una nota…'}
+                  placeholder={selected.type === 'pest' ? t('quickLog.pestPlaceholder') : t('quickLog.notePlaceholder')}
                   placeholderTextColor={colors.textDisabled}
                   multiline
                   numberOfLines={3}
@@ -228,7 +231,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
                   <TextInput
                     value={weight}
                     onChangeText={setWeight}
-                    placeholder="Peso en kg (opcional)"
+                    placeholder={t('quickLog.weightPlaceholder')}
                     placeholderTextColor={colors.textDisabled}
                     keyboardType="decimal-pad"
                     style={[
@@ -255,7 +258,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
                   <ActivityIndicator color="#fff" size="small" />
                 ) : (
                   <Text style={s.saveBtnText}>
-                    {selected ? `Registrar ${selected.label.toLowerCase()}` : 'Elige una acción'}
+                    {selected ? t('quickLog.save', { action: selected.label.toLowerCase() }) : t('quickLog.chooseAction')}
                   </Text>
                 )}
               </Pressable>

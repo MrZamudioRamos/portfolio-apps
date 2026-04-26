@@ -3,6 +3,7 @@ import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   FlatList,
@@ -55,6 +56,8 @@ export default function GardenMapScreen() {
     [plants.items, placedPlantIds, search]
   );
 
+  const { t } = useTranslation();
+
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
@@ -106,9 +109,9 @@ export default function GardenMapScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         <View style={{ flex: 1, marginLeft: spacing.md }}>
-          <Text style={[s.headerTitle, { color: colors.text }]}>Mapa del huerto</Text>
+          <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardenMap.title')}</Text>
           <Text style={[s.headerSub, { color: colors.textSecondary }]}>
-            {placedPlantIds.size} / {plants.count} plantas colocadas · {GRID_COLS}×{GRID_ROWS} parcelas
+            {t('gardenMap.summary', { placed: placedPlantIds.size, total: plants.count, cols: GRID_COLS, rows: GRID_ROWS })}
           </Text>
         </View>
       </View>
@@ -117,7 +120,7 @@ export default function GardenMapScreen() {
         {/* Compass / orientation hint */}
         <View style={s.compassRow}>
           <View style={[s.compassBadge, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary }]}>☀️ Sur</Text>
+            <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary }]}>☀️ {t('gardenMap.south')}</Text>
           </View>
         </View>
 
@@ -162,17 +165,17 @@ export default function GardenMapScreen() {
         <View style={s.legend}>
           <View style={s.legendItem}>
             <View style={[s.legendDot, { backgroundColor: colors.primary }]} />
-            <Text style={[s.legendText, { color: colors.textSecondary }]}>Parcela con planta</Text>
+            <Text style={[s.legendText, { color: colors.textSecondary }]}>{t('gardenMap.legendOccupied')}</Text>
           </View>
           <View style={s.legendItem}>
             <View style={[s.legendDot, { backgroundColor: colors.border }]} />
-            <Text style={[s.legendText, { color: colors.textSecondary }]}>Parcela vacía</Text>
+            <Text style={[s.legendText, { color: colors.textSecondary }]}>{t('gardenMap.legendEmpty')}</Text>
           </View>
         </View>
 
         {plants.count === 0 && (
           <Text style={[s.emptyNote, { color: colors.textDisabled }]}>
-            Añade plantas primero desde el dashboard para colocarlas en el mapa.
+            {t('gardenMap.emptyNote')}
           </Text>
         )}
 
@@ -188,7 +191,7 @@ export default function GardenMapScreen() {
       >
         <SafeAreaView style={[s.modal, { backgroundColor: colors.background }]} edges={['top']}>
           <View style={[s.modalHeader, { borderBottomColor: colors.border }]}>
-            <Text style={[s.modalTitle, { color: colors.text }]}>Asignar planta</Text>
+            <Text style={[s.modalTitle, { color: colors.text }]}>{t('gardenMap.assignPlant')}</Text>
             <Pressable onPress={() => setPickingCell(null)} hitSlop={12}>
               <Ionicons name="close" size={24} color={colors.textSecondary} />
             </Pressable>
@@ -199,7 +202,7 @@ export default function GardenMapScreen() {
             <TextInput
               value={search}
               onChangeText={setSearch}
-              placeholder="Buscar planta…"
+              placeholder={t('gardenMap.searchPlant')}
               placeholderTextColor={colors.textDisabled}
               style={[{ flex: 1, color: colors.text, fontSize: fontSize.md, marginLeft: spacing.sm }]}
               autoFocus
@@ -210,8 +213,8 @@ export default function GardenMapScreen() {
             <View style={s.emptyPicker}>
               <Text style={[{ color: colors.textSecondary, textAlign: 'center', fontSize: fontSize.md }]}>
                 {plants.count === 0
-                  ? 'No tienes plantas aún.\nAñade plantas desde el dashboard.'
-                  : 'Todas las plantas ya están colocadas.'}
+                  ? t('gardenMap.noPlants')
+                  : t('gardenMap.allPlaced')}
               </Text>
             </View>
           ) : (
@@ -276,7 +279,7 @@ export default function GardenMapScreen() {
                 </View>
                 <View style={s.sheetActions}>
                   <Button
-                    title="Ver planta"
+                    title={t('gardenMap.viewPlant')}
                     variant="primary"
                     size="md"
                     onPress={() => {
@@ -286,16 +289,16 @@ export default function GardenMapScreen() {
                     style={{ flex: 1 }}
                   />
                   <Button
-                    title="Quitar del mapa"
+                    title={t('gardenMap.removeFromMap')}
                     variant="outline"
                     size="md"
                     onPress={() => {
                       Alert.alert(
-                        'Quitar del mapa',
-                        `¿Quitar ${selectedPlant.name} de esta parcela?`,
+                        t('gardenMap.removeTitle'),
+                        t('gardenMap.removeDesc', { name: selectedPlant.name }),
                         [
-                          { text: 'Cancelar', style: 'cancel' },
-                          { text: 'Quitar', style: 'destructive', onPress: handleRemoveFromCell },
+                          { text: t('common.cancel'), style: 'cancel' },
+                          { text: t('gardenMap.remove'), style: 'destructive', onPress: handleRemoveFromCell },
                         ]
                       );
                     }}

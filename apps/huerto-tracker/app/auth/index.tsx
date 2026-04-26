@@ -3,6 +3,7 @@ import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -21,6 +22,7 @@ export default function AuthScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
 
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingApple, setLoadingApple] = useState(false);
@@ -39,7 +41,7 @@ export default function AuthScreen() {
       router.replace('/onboarding');
     } catch (e: any) {
       if (e?.message !== 'User cancelled') {
-        Alert.alert('Error', 'No se pudo iniciar sesión con Google.');
+        Alert.alert(t('common.error'), t('auth.errorGoogle'));
       }
     } finally {
       setLoadingGoogle(false);
@@ -53,7 +55,7 @@ export default function AuthScreen() {
       router.replace('/onboarding');
     } catch (e: any) {
       if (e?.code !== 'ERR_REQUEST_CANCELED') {
-        Alert.alert('Error', 'No se pudo iniciar sesión con Apple.');
+        Alert.alert(t('common.error'), t('auth.errorApple'));
       }
     } finally {
       setLoadingApple(false);
@@ -62,7 +64,7 @@ export default function AuthScreen() {
 
   async function handleMagicLink() {
     if (!email.trim()) {
-      Alert.alert('Email requerido', 'Introduce tu dirección de email.');
+      Alert.alert(t('auth.errorEmailRequired'), t('auth.errorEmailRequiredDesc'));
       return;
     }
     setLoadingMagic(true);
@@ -70,7 +72,7 @@ export default function AuthScreen() {
       await signInWithMagicLink(email.trim().toLowerCase());
       router.push('/auth/magic-sent');
     } catch {
-      Alert.alert('Error', 'No se pudo enviar el enlace. Comprueba el email.');
+      Alert.alert(t('common.error'), t('auth.errorMagicLink'));
     } finally {
       setLoadingMagic(false);
     }
@@ -82,13 +84,13 @@ export default function AuthScreen() {
         <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
           {/* Header */}
           <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={12}>
-            <Text style={[s.backText, { color: colors.primary }]}>← Volver</Text>
+            <Text style={[s.backText, { color: colors.primary }]}>{t('common.back')}</Text>
           </Pressable>
 
           <Text style={s.heroEmoji}>🌱</Text>
-          <Text style={[s.title, { color: colors.text }]}>Crea tu cuenta</Text>
+          <Text style={[s.title, { color: colors.text }]}>{t('auth.title')}</Text>
           <Text style={[s.subtitle, { color: colors.textSecondary }]}>
-            Sincroniza tu huerto en todos tus dispositivos y no pierdas ningún dato.
+            {t('auth.subtitle')}
           </Text>
 
           {/* Google */}
@@ -102,7 +104,7 @@ export default function AuthScreen() {
           >
             <Text style={s.socialIcon}>🌐</Text>
             <Text style={[s.socialText, { color: colors.text }]}>
-              {loadingGoogle ? 'Conectando…' : 'Continuar con Google'}
+              {loadingGoogle ? t('auth.connecting') : t('auth.continueGoogle')}
             </Text>
           </Pressable>
 
@@ -120,7 +122,7 @@ export default function AuthScreen() {
           {/* Divider */}
           <View style={s.divider}>
             <View style={[s.dividerLine, { backgroundColor: colors.border }]} />
-            <Text style={[s.dividerText, { color: colors.textDisabled }]}>o</Text>
+            <Text style={[s.dividerText, { color: colors.textDisabled }]}>{t('auth.or')}</Text>
             <View style={[s.dividerLine, { backgroundColor: colors.border }]} />
           </View>
 
@@ -131,14 +133,14 @@ export default function AuthScreen() {
               style={({ pressed }) => [s.magicToggle, { opacity: pressed ? 0.7 : 1 }]}
             >
               <Text style={[s.magicToggleText, { color: colors.primary }]}>
-                ✉️ Usar enlace por email
+                {t('auth.emailLink')}
               </Text>
             </Pressable>
           ) : (
             <View style={s.magicForm}>
               <TextInput
                 style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
-                placeholder="tu@email.com"
+                placeholder={t('auth.emailPlaceholder')}
                 placeholderTextColor={colors.textDisabled}
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -155,7 +157,7 @@ export default function AuthScreen() {
                 ]}
               >
                 <Text style={s.magicBtnText}>
-                  {loadingMagic ? 'Enviando…' : 'Enviar enlace mágico'}
+                  {loadingMagic ? t('auth.sending') : t('auth.sendMagicLink')}
                 </Text>
               </Pressable>
             </View>
@@ -167,7 +169,7 @@ export default function AuthScreen() {
             style={({ pressed }) => [s.guestLink, { opacity: pressed ? 0.6 : 1 }]}
           >
             <Text style={[s.guestText, { color: colors.textDisabled }]}>
-              Continuar sin cuenta (máx. 3 plantas)
+              {t('auth.continueGuest')}
             </Text>
           </Pressable>
         </ScrollView>

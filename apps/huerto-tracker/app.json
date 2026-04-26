@@ -25,10 +25,14 @@
         "NSCameraUsageDescription": "Usa la cámara para añadir fotos de tus plantas.",
         "NSPhotoLibraryUsageDescription": "Accede a la galería para añadir fotos de tus plantas.",
         "NSLocationWhenInUseUsageDescription": "Usa tu ubicación para mostrar el mapa del huerto.",
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
       },
       "entitlements": {
-        "com.apple.developer.applesignin": ["Default"],
+        "com.apple.developer.applesignin": [
+          "Default"
+        ],
         "aps-environment": "production"
       }
     },
@@ -44,7 +48,8 @@
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE",
-        "android.permission.POST_NOTIFICATIONS"
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -76,29 +81,40 @@
               "NSPrivacyAccessedAPITypes": [
                 {
                   "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
-                  "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
+                  "NSPrivacyAccessedAPITypeReasons": [
+                    "CA92.1"
+                  ]
                 },
                 {
                   "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
-                  "NSPrivacyAccessedAPITypeReasons": ["C617.1"]
+                  "NSPrivacyAccessedAPITypeReasons": [
+                    "C617.1"
+                  ]
                 },
                 {
                   "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryDiskSpace",
-                  "NSPrivacyAccessedAPITypeReasons": ["E174.1"]
+                  "NSPrivacyAccessedAPITypeReasons": [
+                    "E174.1"
+                  ]
                 }
               ]
             }
           }
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
       "eas": {
-        "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
+        "projectId": "4ccd28f8-b6ea-4009-941c-4a769fcdd238"
+      },
+      "router": {
+        "origin": false
       }
-    }
+    },
+    "owner": "rikki22zs-organization"
   }
 }

@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Image,
   KeyboardAvoidingView,
@@ -33,6 +34,7 @@ export default function NewPlantScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
 
+  const { t } = useTranslation();
   const { cropId: paramCropId } = useLocalSearchParams<{ cropId?: string }>();
 
   const gardens = useCollection<Garden>('gardens');
@@ -122,7 +124,7 @@ export default function NewPlantScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>Nueva planta</Text>
+        <Text style={[s.headerTitle, { color: colors.text }]}>{t('plantNew.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -137,7 +139,7 @@ export default function NewPlantScreen() {
           renderItem={() => (
             <View style={s.formContainer}>
               {/* Crop selector */}
-              <Text style={[s.label, { color: colors.textSecondary }]}>CULTIVO</Text>
+              <Text style={[s.label, { color: colors.textSecondary }]}>{t('plantNew.cropLabel')}</Text>
               {selectedCrop ? (
                 <Pressable
                   onPress={() => setShowCropPicker(true)}
@@ -150,7 +152,7 @@ export default function NewPlantScreen() {
                       {CATEGORY_CONFIG[selectedCrop.category].label}
                     </Text>
                   </View>
-                  <Text style={[s.changeText, { color: colors.primary }]}>Cambiar</Text>
+                  <Text style={[s.changeText, { color: colors.primary }]}>{t('plantNew.changeCrop')}</Text>
                 </Pressable>
               ) : (
                 <Pressable
@@ -159,36 +161,36 @@ export default function NewPlantScreen() {
                 >
                   <Text style={{ fontSize: 28 }}>🌱</Text>
                   <Text style={[{ color: colors.textSecondary, fontSize: fontSize.md, marginLeft: spacing.md }]}>
-                    Seleccionar cultivo
+                    {t('plantNew.selectCrop')}
                   </Text>
                   <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
                 </Pressable>
               )}
 
               {/* Plant name */}
-              <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>NOMBRE</Text>
+              <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('plantNew.nameLabel')}</Text>
               <TextInput
                 value={plantName}
                 onChangeText={setPlantName}
-                placeholder="Nombre de tu planta"
+                placeholder={t('plantNew.namePlaceholder')}
                 placeholderTextColor={colors.textDisabled}
                 style={[s.input, { backgroundColor: colors.surface, borderColor: plantName ? colors.primary : colors.border, color: colors.text }]}
               />
 
               {/* Variety */}
               <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
-                VARIEDAD <Text style={{ fontWeight: '400' }}>(opcional)</Text>
+                {t('plantNew.varietyLabel')}
               </Text>
               <TextInput
                 value={variety}
                 onChangeText={setVariety}
-                placeholder="Ej: Cherry, Romana, Negra de Crimea..."
+                placeholder={t('plantNew.varietyPlaceholder')}
                 placeholderTextColor={colors.textDisabled}
                 style={[s.input, { backgroundColor: colors.surface, borderColor: variety ? colors.primary : colors.border, color: colors.text }]}
               />
 
               {/* Sowing date */}
-              <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>FECHA DE SIEMBRA</Text>
+              <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('plantNew.sowingDate')}</Text>
               <TextInput
                 value={sowingDate}
                 onChangeText={setSowingDate}
@@ -200,7 +202,7 @@ export default function NewPlantScreen() {
 
               {/* Photo */}
               <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
-                FOTO <Text style={{ fontWeight: '400' }}>(opcional)</Text>
+                {t('plantNew.photo')}
               </Text>
               <Pressable onPress={pickPhoto} style={s.photoRow}>
                 {photoUri ? (
@@ -209,7 +211,7 @@ export default function NewPlantScreen() {
                   <View style={[s.photoPlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
                     <Text style={{ fontSize: 28 }}>📷</Text>
                     <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: 4 }}>
-                      Añadir foto
+                      {t('plantNew.addPhoto')}
                     </Text>
                   </View>
                 )}
@@ -217,7 +219,7 @@ export default function NewPlantScreen() {
 
               {/* Save button */}
               <Button
-                title="Añadir planta 🌱"
+                title={t('plantNew.addPlant')}
                 onPress={handleSave}
                 disabled={!selectedCropId || !plantName.trim()}
                 loading={saving}
@@ -234,10 +236,10 @@ export default function NewPlantScreen() {
       <Modal visible={showCropPicker} animationType="slide" presentationStyle="pageSheet">
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
           <View style={[s.modalHeader, { borderBottomColor: colors.border }]}>
-            <Text style={[s.modalTitle, { color: colors.text }]}>Seleccionar cultivo</Text>
+            <Text style={[s.modalTitle, { color: colors.text }]}>{t('plantNew.cropPickerTitle')}</Text>
             <Pressable onPress={() => { setShowCropPicker(false); setCropSearch(''); }}>
               <Text style={{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }}>
-                Cerrar
+                {t('common.close')}
               </Text>
             </Pressable>
           </View>
@@ -247,7 +249,7 @@ export default function NewPlantScreen() {
             <TextInput
               value={cropSearch}
               onChangeText={setCropSearch}
-              placeholder="Buscar cultivo..."
+              placeholder={t('plantNew.cropSearch')}
               placeholderTextColor={colors.textDisabled}
               style={{ flex: 1, color: colors.text, fontSize: fontSize.md }}
               autoFocus

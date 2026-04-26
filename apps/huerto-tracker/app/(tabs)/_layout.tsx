@@ -3,11 +3,13 @@ import { useSession } from '@portfolio/supabase';
 import { useColors } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { Redirect, Tabs } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 export default function TabsLayout() {
   const { completed, isLoading: onboardingLoading } = useOnboarding('huerto');
   const { loading: sessionLoading, isAuthenticated } = useSession();
   const colors = useColors();
+  const { t } = useTranslation();
 
   if (onboardingLoading || sessionLoading) return null;
 
@@ -34,7 +36,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Mi Huerto',
+          title: t('tabs.home'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="leaf-outline" size={size} color={color} />
           ),
@@ -43,7 +45,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="calendar"
         options={{
-          title: 'Calendario',
+          title: t('tabs.calendar'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar-outline" size={size} color={color} />
           ),
@@ -52,7 +54,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="diary"
         options={{
-          title: 'Diario',
+          title: t('tabs.diary'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="journal-outline" size={size} color={color} />
           ),
@@ -61,7 +63,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Ajustes',
+          title: t('tabs.settings'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="settings-outline" size={size} color={color} />
           ),

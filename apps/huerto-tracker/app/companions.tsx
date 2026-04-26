@@ -3,6 +3,7 @@ import { usePurchases } from '@portfolio/billing';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Pressable,
   ScrollView,
@@ -41,6 +42,8 @@ export default function CompanionsScreen() {
     [search]
   );
 
+  const { t } = useTranslation();
+
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
@@ -72,7 +75,7 @@ export default function CompanionsScreen() {
             <>
               {companions.length > 0 && (
                 <View style={s.chipSection}>
-                  <Text style={[s.chipSectionLabel, { color: '#2E7D32' }]}>🤝 Buenos vecinos</Text>
+                  <Text style={[s.chipSectionLabel, { color: '#2E7D32' }]}>🤝 {t('companions.goodNeighbors')}</Text>
                   <View style={s.chipRow}>
                     {companions.map((c) => (
                       <View key={c.id} style={[s.chip, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
@@ -85,7 +88,7 @@ export default function CompanionsScreen() {
 
               {incompatible.length > 0 && (
                 <View style={s.chipSection}>
-                  <Text style={[s.chipSectionLabel, { color: '#C62828' }]}>❌ Malos vecinos</Text>
+                  <Text style={[s.chipSectionLabel, { color: '#C62828' }]}>❌ {t('companions.badNeighbors')}</Text>
                   <View style={s.chipRow}>
                     {incompatible.map((c) => (
                       <View key={c.id} style={[s.chip, { backgroundColor: '#EF535018', borderColor: '#EF5350' }]}>
@@ -98,7 +101,7 @@ export default function CompanionsScreen() {
 
               {companions.length === 0 && incompatible.length === 0 && (
                 <Text style={[s.neutralText, { color: colors.textDisabled }]}>
-                  Sin asociaciones registradas
+                  {t('companions.noAssociations')}
                 </Text>
               )}
             </>
@@ -112,7 +115,7 @@ export default function CompanionsScreen() {
           >
             <View style={[s.lockBadge, { backgroundColor: colors.primary, ...shadows.md }]}>
               <Ionicons name="lock-closed" size={14} color="#fff" />
-              <Text style={s.lockText}>Pro — Desbloquear guía completa</Text>
+              <Text style={s.lockText}>{t('companions.proUnlock')}</Text>
             </View>
           </Pressable>
         )}
@@ -128,9 +131,9 @@ export default function CompanionsScreen() {
   }, [selectedA, selectedB]);
 
   const COMPAT_CONFIG = {
-    companion:    { emoji: '🤝', label: '¡Buena combinación!', color: '#4CAF50', bg: '#4CAF5018' },
-    incompatible: { emoji: '❌', label: 'No los plantes juntos', color: '#EF5350', bg: '#EF535018' },
-    neutral:      { emoji: '➖', label: 'Compatibles pero neutros', color: '#757575', bg: colors.surfaceAlt },
+    companion:    { emoji: '🤝', label: t('companions.goodMatch'), color: '#4CAF50', bg: '#4CAF5018' },
+    incompatible: { emoji: '❌', label: t('companions.badMatch'), color: '#EF5350', bg: '#EF535018' },
+    neutral:      { emoji: '➖', label: t('companions.neutral'), color: '#757575', bg: colors.surfaceAlt },
   };
 
   function CropPicker({ slot, crop }: { slot: 'A' | 'B'; crop: CropInfo | null }) {
@@ -160,7 +163,7 @@ export default function CompanionsScreen() {
               <Ionicons name="add" size={20} color={colors.textSecondary} />
             </View>
             <Text style={[s.pickerPlaceholderText, { color: colors.textSecondary }]}>
-              {slot === 'A' ? 'Primer cultivo' : 'Segundo cultivo'}
+              {slot === 'A' ? t('companions.firstCrop') : t('companions.secondCrop')}
             </Text>
           </>
         )}
@@ -176,10 +179,10 @@ export default function CompanionsScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         <View style={{ flex: 1 }}>
-          <Text style={[s.headerTitle, { color: colors.text }]}>Asociaciones</Text>
+          <Text style={[s.headerTitle, { color: colors.text }]}>{t('companions.title')}</Text>
           {!isPro && (
             <Text style={[s.headerSub, { color: colors.textSecondary }]}>
-              Guía completa disponible en Pro
+              {t('companions.proSub')}
             </Text>
           )}
         </View>
@@ -202,7 +205,7 @@ export default function CompanionsScreen() {
             style={[s.tab, mode === m && { backgroundColor: colors.surface, ...shadows.sm }]}
           >
             <Text style={[s.tabText, { color: mode === m ? colors.primary : colors.textSecondary }]}>
-              {m === 'browse' ? '📋 Explorar' : '🔍 Consultar'}
+              {m === 'browse' ? `📋 ${t('companions.browse')}` : `🔍 ${t('companions.check')}`}
             </Text>
           </Pressable>
         ))}
@@ -216,7 +219,7 @@ export default function CompanionsScreen() {
             <TextInput
               value={search}
               onChangeText={setSearch}
-              placeholder="Buscar cultivo…"
+              placeholder={t('companions.searchCrop')}
               placeholderTextColor={colors.textDisabled}
               style={[s.searchInput, { color: colors.text }]}
             />
@@ -239,7 +242,7 @@ export default function CompanionsScreen() {
                 style={[s.unlockBanner, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}
               >
                 <Text style={[s.unlockBannerText, { color: colors.primary }]}>
-                  ⭐ Desbloquea los {filtered.length - FREE_PREVIEW_COUNT} cultivos restantes con Pro
+                  ⭐ {t('companions.unlockRemaining', { count: filtered.length - FREE_PREVIEW_COUNT })}
                 </Text>
                 <Ionicons name="chevron-forward" size={16} color={colors.primary} />
               </Pressable>
@@ -282,12 +285,12 @@ export default function CompanionsScreen() {
               </Text>
               {compatibility === 'companion' && (
                 <Text style={[s.resultNote, { color: colors.textSecondary }]}>
-                  Estos cultivos se benefician mutuamente. Plántalos a {Math.min(selectedA.spacing, selectedB.spacing)} cm de distancia.
+                  {t('companions.companionNote', { spacing: Math.min(selectedA.spacing, selectedB.spacing) })}
                 </Text>
               )}
               {compatibility === 'incompatible' && (
                 <Text style={[s.resultNote, { color: colors.textSecondary }]}>
-                  Estos cultivos pueden inhibirse o atraer plagas mutuamente. Mantenlos separados.
+                  {t('companions.incompatibleNote')}
                 </Text>
               )}
             </View>
@@ -301,7 +304,7 @@ export default function CompanionsScreen() {
                 <TextInput
                   value={search}
                   onChangeText={setSearch}
-                  placeholder={`Buscar ${pickingSlot === 'A' ? 'primer' : 'segundo'} cultivo…`}
+                  placeholder={pickingSlot === 'A' ? t('companions.searchFirst') : t('companions.searchSecond')}
                   placeholderTextColor={colors.textDisabled}
                   style={[s.searchInput, { color: colors.text }]}
                   autoFocus
@@ -349,7 +352,7 @@ export default function CompanionsScreen() {
             <View style={s.checkEmpty}>
               <Text style={s.checkEmptyEmoji}>🌿</Text>
               <Text style={[s.checkEmptyText, { color: colors.textSecondary }]}>
-                Selecciona dos cultivos para comprobar si son compatibles entre sí.
+                {t('companions.checkEmpty')}
               </Text>
             </View>
           )}
