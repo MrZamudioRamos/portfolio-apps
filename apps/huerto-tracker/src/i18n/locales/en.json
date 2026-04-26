@@ -220,7 +220,11 @@
     "nameRequired": "Name required",
     "nameRequiredDesc": "Give your garden a name.",
     "provinceRequired": "Province required",
-    "provinceRequiredDesc": "Select your province for the sowing calendar."
+    "provinceRequiredDesc": "Select your province for the sowing calendar.",
+    "gridSizeLabel": "MAP SIZE",
+    "cells": "plots",
+    "gridProTitle": "Pro Feature",
+    "gridProDesc": "Change the map size with the Pro plan."
   },
   "gardenMap": {
     "title": "Garden map",

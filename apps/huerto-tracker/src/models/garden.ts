@@ -9,6 +9,8 @@ export interface Garden extends BaseItem {
   province: string;
   gardenType?: GardenType;
   photoUri?: string;
+  gridRows?: number;
+  gridCols?: number;
 }
 
 export const GARDEN_TYPE_CONFIG: Record<GardenType, { label: string; emoji: string; description: string }> = {

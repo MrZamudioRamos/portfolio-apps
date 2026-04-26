@@ -220,7 +220,11 @@
     "nameRequired": "Nome requirido",
     "nameRequiredDesc": "Ponlle un nome á túa horta.",
     "provinceRequired": "Provincia requirida",
-    "provinceRequiredDesc": "Selecciona a túa provincia para o calendario de sementeira."
+    "provinceRequiredDesc": "Selecciona a túa provincia para o calendario de sementeira.",
+    "gridSizeLabel": "TAMAÑO DO MAPA",
+    "cells": "parcelas",
+    "gridProTitle": "Función Pro",
+    "gridProDesc": "Cambia o tamaño do mapa co plan Pro."
   },
   "gardenMap": {
     "title": "Mapa da horta",

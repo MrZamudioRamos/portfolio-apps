@@ -220,7 +220,11 @@
     "nameRequired": "Nombre requerido",
     "nameRequiredDesc": "Ponle un nombre a tu huerto.",
     "provinceRequired": "Provincia requerida",
-    "provinceRequiredDesc": "Selecciona tu provincia para el calendario de siembra."
+    "provinceRequiredDesc": "Selecciona tu provincia para el calendario de siembra.",
+    "gridSizeLabel": "TAMAÑO DEL MAPA",
+    "cells": "parcelas",
+    "gridProTitle": "Función Pro",
+    "gridProDesc": "Cambia el tamaño del mapa con el plan Pro."
   },
   "gardenMap": {
     "title": "Mapa del huerto",

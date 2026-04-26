@@ -17,11 +17,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
+import type { Garden } from '../../src/models/garden';
 import type { Plant } from '../../src/models/plant';
 import { PLANT_STATUS_CONFIG } from '../../src/models/plant';
 import {
-  GRID_ROWS,
-  GRID_COLS,
+  DEFAULT_GRID_ROWS,
+  DEFAULT_GRID_COLS,
   cellIndex,
   useGardenLayout,
 } from '../../src/hooks/useGardenLayout';
@@ -31,8 +32,13 @@ export default function GardenMapScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
 
+  const gardens = useCollection<Garden>('gardens');
+  const garden = gardens.items[0];
+  const gridRows = garden?.gridRows ?? DEFAULT_GRID_ROWS;
+  const gridCols = garden?.gridCols ?? DEFAULT_GRID_COLS;
+
   const plants = useCollection<Plant>('plants');
-  const { layout, loading, setCell } = useGardenLayout();
+  const { layout, loading, setCell } = useGardenLayout(gridRows, gridCols);
 
   // Modal state for picking a plant to place
   const [pickingCell, setPickingCell] = useState<number | null>(null);
@@ -90,9 +96,9 @@ export default function GardenMapScreen() {
   const selectedCrop = selectedPlant ? CROPS_BY_ID[selectedPlant.cropId] : null;
 
   // Build grid rows
-  const rows = Array.from({ length: GRID_ROWS }, (_, r) =>
-    Array.from({ length: GRID_COLS }, (_, c) => {
-      const idx = cellIndex(r, c);
+  const rows = Array.from({ length: gridRows }, (_, r) =>
+    Array.from({ length: gridCols }, (_, c) => {
+      const idx = cellIndex(r, c, gridCols);
       const plantId = layout[idx];
       const plant = plantId ? plants.items.find((p) => p.id === plantId) ?? null : null;
       const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
@@ -111,7 +117,7 @@ export default function GardenMapScreen() {
         <View style={{ flex: 1, marginLeft: spacing.md }}>
           <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardenMap.title')}</Text>
           <Text style={[s.headerSub, { color: colors.textSecondary }]}>
-            {t('gardenMap.summary', { placed: placedPlantIds.size, total: plants.count, cols: GRID_COLS, rows: GRID_ROWS })}
+            {t('gardenMap.summary', { placed: placedPlantIds.size, total: plants.count, cols: gridCols, rows: gridRows })}
           </Text>
         </View>
       </View>

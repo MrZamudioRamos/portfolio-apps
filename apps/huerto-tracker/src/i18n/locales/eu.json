@@ -220,7 +220,11 @@
     "nameRequired": "Izena beharrezkoa",
     "nameRequiredDesc": "Jarri izen bat zure baratzeari.",
     "provinceRequired": "Probintzia beharrezkoa",
-    "provinceRequiredDesc": "Hautatu zure probintzia erein egutegia pertsonalizatzeko."
+    "provinceRequiredDesc": "Hautatu zure probintzia erein egutegia pertsonalizatzeko.",
+    "gridSizeLabel": "MAPAREN TAMAINA",
+    "cells": "lursail",
+    "gridProTitle": "Pro funtzioa",
+    "gridProDesc": "Aldatu maparen tamaina Pro planarekin."
   },
   "gardenMap": {
     "title": "Baratzearen mapa",

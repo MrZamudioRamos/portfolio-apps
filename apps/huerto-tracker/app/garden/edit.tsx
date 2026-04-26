@@ -1,5 +1,6 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { usePurchases } from '@portfolio/billing';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -9,6 +10,7 @@ import {
   FlatList,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -18,6 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PROVINCE_ZONES, CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import type { ClimateZone, Garden, GardenType } from '../../src/models/garden';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
+import { GRID_PRESETS, DEFAULT_GRID_ROWS, DEFAULT_GRID_COLS } from '../../src/hooks/useGardenLayout';
 
 const ALL_PROVINCES = Object.keys(PROVINCE_ZONES).sort();
 
@@ -27,10 +30,13 @@ export default function GardenEditScreen() {
   const router = useRouter();
   const gardens = useCollection<Garden>('gardens');
   const garden = gardens.items[0];
+  const { isPro } = usePurchases();
 
   const [name, setName] = useState(garden?.name ?? '');
   const [province, setProvince] = useState(garden?.province ?? '');
   const [gardenType, setGardenType] = useState<GardenType>(garden?.gardenType ?? 'huerto');
+  const [gridRows, setGridRows] = useState(garden?.gridRows ?? DEFAULT_GRID_ROWS);
+  const [gridCols, setGridCols] = useState(garden?.gridCols ?? DEFAULT_GRID_COLS);
   const [provinceSearch, setProvinceSearch] = useState('');
   const [showProvinceModal, setShowProvinceModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -70,6 +76,8 @@ export default function GardenEditScreen() {
         province,
         climateZone: PROVINCE_ZONES[province],
         gardenType,
+        gridRows,
+        gridCols,
       });
       router.back();
     } finally {
@@ -98,7 +106,11 @@ export default function GardenEditScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <View style={s.body}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={s.body}
+      >
         {/* Name */}
         <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.nameLabel')}</Text>
         <TextInput
@@ -169,6 +181,56 @@ export default function GardenEditScreen() {
           </View>
         )}
 
+        {/* Grid size — Pro feature */}
+        <View style={s.gridSizeHeader}>
+          <Text style={[s.label, { color: colors.textSecondary, marginTop: 0, marginBottom: 0 }]}>
+            {t('gardenEdit.gridSizeLabel')}
+          </Text>
+          {!isPro && (
+            <View style={[s.proBadge, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}>
+              <Text style={[s.proBadgeText, { color: colors.primary }]}>Pro</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={s.presetRow}>
+          {GRID_PRESETS.map((preset) => {
+            const active = gridRows === preset.rows && gridCols === preset.cols;
+            const locked = !isPro && !(preset.rows === DEFAULT_GRID_ROWS && preset.cols === DEFAULT_GRID_COLS);
+            return (
+              <Pressable
+                key={`${preset.rows}x${preset.cols}`}
+                onPress={() => {
+                  if (locked) {
+                    Alert.alert(t('gardenEdit.gridProTitle'), t('gardenEdit.gridProDesc'));
+                    return;
+                  }
+                  setGridRows(preset.rows);
+                  setGridCols(preset.cols);
+                }}
+                style={[
+                  s.presetBtn,
+                  {
+                    backgroundColor: active ? colors.primary + '22' : colors.surface,
+                    borderColor: active ? colors.primary : colors.border,
+                    opacity: locked ? 0.5 : 1,
+                  },
+                ]}
+              >
+                {locked && (
+                  <Ionicons name="lock-closed" size={10} color={colors.textSecondary} style={{ marginBottom: 1 }} />
+                )}
+                <Text style={[s.presetLabel, { color: active ? colors.primary : colors.text }]}>
+                  {preset.cols}×{preset.rows}
+                </Text>
+                <Text style={[s.presetSub, { color: colors.textSecondary }]}>
+                  {preset.rows * preset.cols} {t('gardenEdit.cells')}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
         <Button
           title={saving ? t('common.saving') : t('gardenEdit.save')}
           variant="primary"
@@ -177,7 +239,8 @@ export default function GardenEditScreen() {
           disabled={saving}
           style={{ marginTop: spacing['2xl'] }}
         />
-      </View>
+        <View style={{ height: spacing['2xl'] }} />
+      </ScrollView>
 
       {/* Province modal */}
       <Modal
@@ -330,4 +393,35 @@ const makeStyles = (
       borderBottomWidth: StyleSheet.hairlineWidth,
     },
     provinceName: { flex: 1, fontSize: fontSize.md },
+    gridSizeHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginTop: spacing.lg,
+      marginBottom: spacing.sm,
+    },
+    proBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: radii.full,
+      borderWidth: 1,
+    },
+    proBadgeText: { fontSize: 10, fontWeight: fontWeight.bold },
+    presetRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      flexWrap: 'wrap',
+    },
+    presetBtn: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.md,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      minWidth: 58,
+      gap: 2,
+    },
+    presetLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    presetSub: { fontSize: 10 },
   });

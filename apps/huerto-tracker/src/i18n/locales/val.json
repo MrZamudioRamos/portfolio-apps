@@ -220,7 +220,11 @@
     "nameRequired": "Nom requerit",
     "nameRequiredDesc": "Posa-li un nom al teu hort.",
     "provinceRequired": "Província requerida",
-    "provinceRequiredDesc": "Selecciona la teua província per al calendari de sembra."
+    "provinceRequiredDesc": "Selecciona la teua província per al calendari de sembra.",
+    "gridSizeLabel": "MIDA DEL MAPA",
+    "cells": "parcel·les",
+    "gridProTitle": "Funció Pro",
+    "gridProDesc": "Canvia la mida del mapa amb el pla Pro."
   },
   "gardenMap": {
     "title": "Mapa de l'hort",
