@@ -48,6 +48,7 @@
     "containerBanner": "Mostrant només cultius aptes per a contenidors",
     "lunarProfile": "Perfil lunar del mes",
     "lunarBasis": "Basat en el cicle sinòdic",
+    "lunarDayIllum": "Dia {{day}} · {{illum}}% il·luminada",
     "cropsCount": "{{count}} cultius per a sembrar en {{month}}",
     "companions": "🤝 Associacions",
     "emptyCrops": "Sense sembres en {{month}}",
@@ -480,6 +481,13 @@
       "raices": "Perfecte per a pastanagues, raves i tubèrculs.",
       "flores": "Trasplanta flors i plantes aromàtiques hui.",
       "descanso": "Dia de lluna nova. Descansa la terra i planifica."
+    },
+    "monthLabel": {
+      "frutos": "Mes de fruits",
+      "hojas": "Mes de fulles",
+      "raices": "Mes d'arrels",
+      "flores": "Mes de flors",
+      "descanso": "Mes de descans"
     }
   },
   "weather": {
@@ -503,5 +511,63 @@
     "wateringReduce": "💧 Possibilitat de pluja ({{rain}}%) — rega amb moderació.",
     "wateringHot": "🌡️ Calor intens ({{temp}}°C) — rega a primera hora del matí.",
     "wateringNormal": "✅ Bon moment per regar ({{temp}}°C, {{rain}}% pluja)."
+  },
+  "zone": {
+    "atlantica": "Atlàntica",
+    "continental": "Continental",
+    "mediterranea": "Mediterrània",
+    "subtropical": "Subtropical"
+  },
+  "gardenType": {
+    "huerto": "Hort",
+    "balcon": "Balcó / Terrassa",
+    "maceta": "Interior / Testos"
+  },
+  "cropCategory": {
+    "frutas": "Fruites",
+    "hojas": "Fulles i amanides",
+    "raices": "Arrels i tubèrculs",
+    "legumbres": "Llegums",
+    "cruciferas": "Crucíferes",
+    "cucurbitaceas": "Cucurbitàcies",
+    "aromaticas": "Aromàtiques",
+    "bulbos": "Bulbs"
+  },
+  "crops": {
+    "tomate":      { "name": "Tomaca" },
+    "pimiento":    { "name": "Pebrot" },
+    "berenjena":   { "name": "Albergínia" },
+    "fresa":       { "name": "Maduixa" },
+    "lechuga":     { "name": "Enciam" },
+    "espinaca":    { "name": "Espinac" },
+    "acelga":      { "name": "Bleda" },
+    "rucula":      { "name": "Rúcola" },
+    "canonigos":   { "name": "Canonges" },
+    "zanahoria":   { "name": "Pastanaga" },
+    "rabano":      { "name": "Rave" },
+    "remolacha":   { "name": "Remolatxa" },
+    "patata":      { "name": "Creïlla" },
+    "nabo":        { "name": "Nap" },
+    "judia-verde": { "name": "Mongeta tendra" },
+    "guisante":    { "name": "Pésol" },
+    "haba":        { "name": "Fava" },
+    "brocoli":     { "name": "Bròquil" },
+    "coliflor":    { "name": "Coliflor" },
+    "col":         { "name": "Col / Repoll" },
+    "kale":        { "name": "Kale (Col arrissada)" },
+    "calabacin":   { "name": "Carabasseta" },
+    "pepino":      { "name": "Cogombre" },
+    "calabaza":    { "name": "Carabassa" },
+    "melon":       { "name": "Meló" },
+    "sandia":      { "name": "Síndria" },
+    "albahaca":    { "name": "Alfàbrega" },
+    "perejil":     { "name": "Julivert" },
+    "cilantro":    { "name": "Coriandre" },
+    "romero":      { "name": "Romaní" },
+    "tomillo":     { "name": "Farigola" },
+    "menta":       { "name": "Menta" },
+    "ajo":         { "name": "All" },
+    "cebolla":     { "name": "Ceba" },
+    "puerro":      { "name": "Porro" }
   }
 }

@@ -48,6 +48,7 @@
     "containerBanner": "Mostrando solo cultivos aptos para contenedores",
     "lunarProfile": "Perfil lunar del mes",
     "lunarBasis": "Basado en ciclo sinódico",
+    "lunarDayIllum": "Día {{day}} · {{illum}}% iluminada",
     "cropsCount": "{{count}} cultivos para sembrar en {{month}}",
     "companions": "🤝 Asociaciones",
     "emptyCrops": "Sin siembras en {{month}}",
@@ -480,6 +481,13 @@
       "raices": "Perfecto para zanahorias, rábanos y tubérculos.",
       "flores": "Trasplanta flores y plantas aromáticas hoy.",
       "descanso": "Día de luna nueva. Descansa el suelo y planifica."
+    },
+    "monthLabel": {
+      "frutos": "Mes de frutos",
+      "hojas": "Mes de hojas",
+      "raices": "Mes de raíces",
+      "flores": "Mes de flores",
+      "descanso": "Mes de descanso"
     }
   },
   "weather": {
@@ -503,5 +511,26 @@
     "wateringReduce": "💧 Posibilidad de lluvia ({{rain}}%) — riega con moderación.",
     "wateringHot": "🌡️ Calor intenso ({{temp}}°C) — riega por la mañana temprano.",
     "wateringNormal": "✅ Buen momento para regar ({{temp}}°C, {{rain}}% lluvia)."
+  },
+  "zone": {
+    "atlantica": "Atlántica",
+    "continental": "Continental",
+    "mediterranea": "Mediterránea",
+    "subtropical": "Subtropical"
+  },
+  "gardenType": {
+    "huerto": "Huerto",
+    "balcon": "Balcón / Terraza",
+    "maceta": "Interior / Macetas"
+  },
+  "cropCategory": {
+    "frutas": "Frutas",
+    "hojas": "Hojas y ensaladas",
+    "raices": "Raíces y tubérculos",
+    "legumbres": "Legumbres",
+    "cruciferas": "Crucíferas",
+    "cucurbitaceas": "Cucurbitáceas",
+    "aromaticas": "Aromáticas",
+    "bulbos": "Bulbos"
   }
 }

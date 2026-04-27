@@ -48,6 +48,7 @@
     "containerBanner": "Mostrando só cultivos aptos para recipientes",
     "lunarProfile": "Perfil lunar do mes",
     "lunarBasis": "Baseado no ciclo sinódico",
+    "lunarDayIllum": "Día {{day}} · {{illum}}% iluminada",
     "cropsCount": "{{count}} cultivos para sementar en {{month}}",
     "companions": "🤝 Asociacións",
     "emptyCrops": "Sen sementeiras en {{month}}",
@@ -480,6 +481,13 @@
       "raices": "Perfecto para cenoras, rábanos e tubérculos.",
       "flores": "Trasplanta flores e plantas aromáticas hoxe.",
       "descanso": "Día de lúa nova. Descansa o chan e planifica."
+    },
+    "monthLabel": {
+      "frutos": "Mes de froitos",
+      "hojas": "Mes de follas",
+      "raices": "Mes de raíces",
+      "flores": "Mes de flores",
+      "descanso": "Mes de descanso"
     }
   },
   "weather": {
@@ -503,5 +511,63 @@
     "wateringReduce": "💧 Posibilidade de choiva ({{rain}}%) — rega con moderación.",
     "wateringHot": "🌡️ Calor intenso ({{temp}}°C) — rega pola mañá cedo.",
     "wateringNormal": "✅ Bo momento para regar ({{temp}}°C, {{rain}}% choiva)."
+  },
+  "zone": {
+    "atlantica": "Atlántica",
+    "continental": "Continental",
+    "mediterranea": "Mediterránea",
+    "subtropical": "Subtropical"
+  },
+  "gardenType": {
+    "huerto": "Horta",
+    "balcon": "Balcón / Terraza",
+    "maceta": "Interior / Macetas"
+  },
+  "cropCategory": {
+    "frutas": "Froitas",
+    "hojas": "Follas e ensaladas",
+    "raices": "Raíces e tubérculos",
+    "legumbres": "Legumes",
+    "cruciferas": "Crucíferas",
+    "cucurbitaceas": "Cucurbitáceas",
+    "aromaticas": "Aromáticas",
+    "bulbos": "Bulbos"
+  },
+  "crops": {
+    "tomate":      { "name": "Tomate" },
+    "pimiento":    { "name": "Pemento" },
+    "berenjena":   { "name": "Berenxena" },
+    "fresa":       { "name": "Amorodo" },
+    "lechuga":     { "name": "Leituga" },
+    "espinaca":    { "name": "Espinaca" },
+    "acelga":      { "name": "Acelga" },
+    "rucula":      { "name": "Rúcula" },
+    "canonigos":   { "name": "Canónigos" },
+    "zanahoria":   { "name": "Cenoria" },
+    "rabano":      { "name": "Rábano" },
+    "remolacha":   { "name": "Remolacha" },
+    "patata":      { "name": "Pataca" },
+    "nabo":        { "name": "Nabo" },
+    "judia-verde": { "name": "Feixoo verde" },
+    "guisante":    { "name": "Chícharo" },
+    "haba":        { "name": "Faba" },
+    "brocoli":     { "name": "Brócoli" },
+    "coliflor":    { "name": "Coliflor" },
+    "col":         { "name": "Col / Repolo" },
+    "kale":        { "name": "Kale (Col rizada)" },
+    "calabacin":   { "name": "Calabacín" },
+    "pepino":      { "name": "Pepino" },
+    "calabaza":    { "name": "Cabaza" },
+    "melon":       { "name": "Melón" },
+    "sandia":      { "name": "Sandía" },
+    "albahaca":    { "name": "Albahaca" },
+    "perejil":     { "name": "Perexil" },
+    "cilantro":    { "name": "Cilantro" },
+    "romero":      { "name": "Romeu" },
+    "tomillo":     { "name": "Tomelo" },
+    "menta":       { "name": "Hortelá" },
+    "ajo":         { "name": "Allo" },
+    "cebolla":     { "name": "Cebola" },
+    "puerro":      { "name": "Porro" }
   }
 }

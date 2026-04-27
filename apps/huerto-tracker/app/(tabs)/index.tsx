@@ -151,14 +151,14 @@ export default function DashboardScreen() {
             {zoneConfig && (
               <View style={[s.zoneBadge, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
                 <Text style={[s.zoneBadgeText, { color: colors.primary }]}>
-                  {zoneConfig.emoji} {zoneConfig.label}
+                  {zoneConfig.emoji} {t(`zone.${garden.climateZone}`)}
                 </Text>
               </View>
             )}
             {garden?.gardenType && garden.gardenType !== 'huerto' && (
               <View style={[s.streakBadge, { backgroundColor: '#4CAF5018' }]}>
                 <Text style={[s.streakBadgeText, { color: '#2E7D32' }]}>
-                  {GARDEN_TYPE_CONFIG[garden.gardenType].emoji} {GARDEN_TYPE_CONFIG[garden.gardenType].label}
+                  {GARDEN_TYPE_CONFIG[garden.gardenType].emoji} {t(`gardenType.${garden.gardenType}`)}
                 </Text>
               </View>
             )}

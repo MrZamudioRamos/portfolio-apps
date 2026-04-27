@@ -3,26 +3,21 @@ import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS, CROPS_BY_ID, CATEGORY_CONFIG } from '../../src/data/crops';
+import { CROPS, CATEGORY_CONFIG } from '../../src/data/crops';
 import type { Garden } from '../../src/models/garden';
 import type { CropInfo } from '../../src/data/crops';
 import { getLunarDay, getMonthGardeningProfile } from '../../src/utils/lunar';
 import { isContainerFriendly, getContainerInfo } from '../../src/data/containers';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 
-const MONTH_NAMES = Array.from({ length: 12 }, (_, i) =>
-  new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(2024, i, 1))
-);
-
-const SUN_LABEL: Record<string, string> = { full: '☀️ Pleno sol', partial: '⛅ Semisombra', shade: '🌑 Sombra' };
-const WATER_LABEL: Record<string, string> = { high: '💧💧💧', medium: '💧💧', low: '💧' };
-
 export default function CalendarScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
+  const { t, i18n } = useTranslation();
 
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1); // 1-12
@@ -38,6 +33,14 @@ export default function CalendarScreen() {
     useCallback(() => {
       gardens.refresh();
     }, [])
+  );
+
+  const intlLocale = i18n.language === 'val' ? 'ca-ES' : i18n.language;
+  const MONTH_NAMES = useMemo(
+    () => Array.from({ length: 12 }, (_, i) =>
+      new Intl.DateTimeFormat(intlLocale, { month: 'long' }).format(new Date(2024, i, 1))
+    ),
+    [intlLocale]
   );
 
   const availableCrops = useMemo(
@@ -69,9 +72,6 @@ export default function CalendarScreen() {
   const GARDENING_EMOJI: Record<string, string> = {
     frutos: '🍅', hojas: '🥬', raices: '🥕', flores: '🌸', descanso: '😴',
   };
-  const GARDENING_LABEL: Record<string, string> = {
-    frutos: 'Mes de frutos', hojas: 'Mes de hojas', raices: 'Mes de raíces', flores: 'Mes de flores', descanso: 'Mes de descanso',
-  };
 
   function prevMonth() {
     if (month === 1) { setMonth(12); setYear((y) => y - 1); }
@@ -84,23 +84,35 @@ export default function CalendarScreen() {
   }
 
   const monthName = MONTH_NAMES[month - 1];
+  const monthNameCap = monthName ? monthName.charAt(0).toUpperCase() + monthName.slice(1) : '';
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
+  function getSunLabel(sun: string): string {
+    if (sun === 'full') return t('calendar.fullSun');
+    if (sun === 'partial') return t('calendar.partialShade');
+    return t('calendar.shade');
+  }
+
+  const WATER_LABEL: Record<string, string> = { high: '💧💧💧', medium: '💧💧', low: '💧' };
+
   function renderCropItem({ item }: { item: CropInfo }) {
     const [minDays, maxDays] = item.daysToHarvest;
     const category = CATEGORY_CONFIG[item.category];
+    const containerInfo = getContainerInfo(item.id);
     return (
       <Card padded style={s.cropCard}>
         <View style={s.cropHeader}>
           <Text style={s.cropEmoji}>{item.emoji}</Text>
           <View style={{ flex: 1, marginLeft: spacing.md }}>
-            <Text style={[s.cropName, { color: colors.text }]}>{item.name}</Text>
+            <Text style={[s.cropName, { color: colors.text }]}>
+              {t(`crops.${item.id}.name`, { defaultValue: item.name })}
+            </Text>
             <Text style={[s.cropCategory, { color: colors.primary }]}>
-              {category.label}
+              {t(`cropCategory.${item.category}`, { defaultValue: category.label })}
             </Text>
           </View>
         </View>
@@ -108,12 +120,12 @@ export default function CalendarScreen() {
         <View style={s.cropMeta}>
           <View style={[s.metaChip, { backgroundColor: colors.surfaceAlt }]}>
             <Text style={[s.metaText, { color: colors.textSecondary }]}>
-              🗓 {minDays}–{maxDays} días
+              {t('calendar.days', { min: minDays, max: maxDays })}
             </Text>
           </View>
           <View style={[s.metaChip, { backgroundColor: colors.surfaceAlt }]}>
             <Text style={[s.metaText, { color: colors.textSecondary }]}>
-              {SUN_LABEL[item.sunNeeds]}
+              {getSunLabel(item.sunNeeds)}
             </Text>
           </View>
           <View style={[s.metaChip, { backgroundColor: colors.surfaceAlt }]}>
@@ -123,20 +135,20 @@ export default function CalendarScreen() {
           </View>
         </View>
 
-        {isContainer && getContainerInfo(item.id) && (
+        {isContainer && containerInfo && (
           <View style={[s.containerChip, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
             <Text style={s.containerChipText}>
-              🪴 Maceta mín. {getContainerInfo(item.id)!.minLiters} L · {getContainerInfo(item.id)!.tip}
+              {t('calendar.containerInfo', { liters: containerInfo.minLiters, tip: containerInfo.tip })}
             </Text>
           </View>
         )}
 
         <Text style={[s.tipText, { color: colors.textSecondary, borderTopColor: colors.border }]}>
-          💡 {item.tips}
+          💡 {t(`crops.${item.id}.tips`, { defaultValue: item.tips })}
         </Text>
 
         <Button
-          title="Añadir al huerto"
+          title={t('calendar.addToGarden')}
           variant="secondary"
           size="sm"
           onPress={() => router.push(`/plant/new?cropId=${item.id}`)}
@@ -150,9 +162,9 @@ export default function CalendarScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={s.header}>
-        <Text style={[s.headerTitle, { color: colors.text }]}>Calendario de siembra</Text>
+        <Text style={[s.headerTitle, { color: colors.text }]}>{t('calendar.title')}</Text>
         <Text style={[s.headerZone, { color: colors.textSecondary }]}>
-          Zona {garden?.climateZone ?? '…'}
+          {t('calendar.zone', { zone: t(`zone.${zone}`) })}
         </Text>
       </View>
 
@@ -162,9 +174,7 @@ export default function CalendarScreen() {
           <Ionicons name="chevron-back" size={22} color={colors.primary} />
         </Pressable>
         <View style={{ alignItems: 'center' }}>
-          <Text style={[s.monthName, { color: colors.text }]}>
-            {monthName.charAt(0).toUpperCase() + monthName.slice(1)}
-          </Text>
+          <Text style={[s.monthName, { color: colors.text }]}>{monthNameCap}</Text>
           <Text style={[s.yearText, { color: colors.textSecondary }]}>{year}</Text>
         </View>
         <Pressable onPress={nextMonth} hitSlop={16} style={s.navArrow}>
@@ -177,8 +187,8 @@ export default function CalendarScreen() {
         <View style={[s.containerBanner, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
           <Text style={s.containerBannerEmoji}>{GARDEN_TYPE_CONFIG[gardenType].emoji}</Text>
           <Text style={[s.containerBannerText, { color: colors.text }]}>
-            <Text style={{ fontWeight: fontWeight.semibold }}>{GARDEN_TYPE_CONFIG[gardenType].label}</Text>
-            {' — Mostrando solo cultivos aptos para contenedores'}
+            <Text style={{ fontWeight: fontWeight.semibold }}>{t(`gardenType.${gardenType}`)}</Text>
+            {' — '}{t('calendar.containerBanner')}
           </Text>
         </View>
       )}
@@ -190,23 +200,25 @@ export default function CalendarScreen() {
             <>
               <Text style={s.lunarBannerMoon}>{lunar.phaseEmoji}</Text>
               <View>
-                <Text style={[s.lunarBannerPhase, { color: colors.text }]}>{lunar.phaseName}</Text>
-                <Text style={[s.lunarBannerDay, { color: colors.textSecondary }]}>Día {lunar.dayInCycle} · {lunar.illumination}% iluminada</Text>
+                <Text style={[s.lunarBannerPhase, { color: colors.text }]}>{t(lunar.phaseKey)}</Text>
+                <Text style={[s.lunarBannerDay, { color: colors.textSecondary }]}>
+                  {t('calendar.lunarDayIllum', { day: lunar.dayInCycle, illum: lunar.illumination })}
+                </Text>
               </View>
             </>
           ) : (
             <>
               <Text style={s.lunarBannerMoon}>🌙</Text>
               <View>
-                <Text style={[s.lunarBannerPhase, { color: colors.text }]}>Perfil lunar del mes</Text>
-                <Text style={[s.lunarBannerDay, { color: colors.textSecondary }]}>Basado en ciclo sinódico</Text>
+                <Text style={[s.lunarBannerPhase, { color: colors.text }]}>{t('calendar.lunarProfile')}</Text>
+                <Text style={[s.lunarBannerDay, { color: colors.textSecondary }]}>{t('calendar.lunarBasis')}</Text>
               </View>
             </>
           )}
         </View>
         <View style={[s.lunarBannerBadge, { backgroundColor: GARDENING_COLORS[monthProfile] + '22' }]}>
           <Text style={[s.lunarBannerBadgeText, { color: GARDENING_COLORS[monthProfile] }]}>
-            {GARDENING_EMOJI[monthProfile]} {GARDENING_LABEL[monthProfile]}
+            {GARDENING_EMOJI[monthProfile]} {t(`lunar.monthLabel.${monthProfile}`)}
           </Text>
         </View>
       </View>
@@ -215,14 +227,14 @@ export default function CalendarScreen() {
       <View style={s.subTitleRow}>
         <Text style={[s.subTitle, { color: colors.textSecondary, flex: 1, marginBottom: 0 }]}>
           {availableCrops.length > 0
-            ? `${availableCrops.length} cultivos para sembrar en ${monthName}`
+            ? t('calendar.cropsCount', { count: availableCrops.length, month: monthName })
             : null}
         </Text>
         <Pressable
           onPress={() => router.push('/companions')}
           style={({ pressed }) => [s.companionsLink, { borderColor: colors.primary, opacity: pressed ? 0.7 : 1 }]}
         >
-          <Text style={[s.companionsLinkText, { color: colors.primary }]}>🤝 Asociaciones</Text>
+          <Text style={[s.companionsLinkText, { color: colors.primary }]}>{t('calendar.companions')}</Text>
         </Pressable>
       </View>
 
@@ -235,8 +247,8 @@ export default function CalendarScreen() {
         ListEmptyComponent={
           <EmptyState
             emoji="💤"
-            title={`Sin siembras en ${monthName}`}
-            description={`No hay cultivos recomendados para tu zona en este mes. Consulta meses cercanos.`}
+            title={t('calendar.emptyCrops', { month: monthName })}
+            description={t('calendar.emptyCropsDesc')}
           />
         }
       />
