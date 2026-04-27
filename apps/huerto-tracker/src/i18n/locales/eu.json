@@ -429,13 +429,13 @@
     "title": "Huerto Tracker",
     "subtitle": "Erregistratu zure baratzea, planifikatu ereintzak eta uzta gehiago eta hobeto.",
     "features": {
-      "calendar": "📅 Erein egutegia",
+      "calendar": "Erein egutegia",
       "calendarDesc": "Erein momentu egokienean zure klima zonarentzat.",
-      "diary": "📓 Baratze egunkaria",
+      "diary": "Baratze egunkaria",
       "diaryDesc": "Erregistratu ureztatze, inausketa eta uztak argazkiekin.",
-      "reminders": "🔔 Oroigarriak",
+      "reminders": "Oroigarriak",
       "remindersDesc": "Inoiz ez ahaztu landareak ureztatu edo ongarriztatu.",
-      "sync": "☁️ Sinkronizazioa",
+      "sync": "Sinkronizazioa",
       "syncDesc": "Zure datuak seguru hodeian, gailu guztietan."
     },
     "createAccount": "Doako kontua sortu",
@@ -457,5 +457,51 @@
     "chooseAction": "Aukeratu ekintza bat",
     "save": "Erregistratu {{action}}",
     "done": "Erregistratuta!"
+  },
+  "lunar": {
+    "newMoon": "Ilargi berria",
+    "waxingCrescent": "Ilargi igoera",
+    "firstQuarter": "Lehen laurden",
+    "waxingGibbous": "Gibosa hazten",
+    "fullMoon": "Ilargi betea",
+    "waningGibbous": "Gibosa jaisten",
+    "lastQuarter": "Azken laurden",
+    "waningCrescent": "Ilargi beheera",
+    "gardeningLabel": {
+      "frutos": "Fruitu eguna",
+      "hojas": "Hosto eguna",
+      "raices": "Erroa eguna",
+      "flores": "Lore eguna",
+      "descanso": "Atseden eguna"
+    },
+    "recommendation": {
+      "frutos": "Ilargi ona tomateak, pepinoak eta fruituak bildu eta landatzeko.",
+      "hojas": "Letxugak, espinakak eta belar aromatikoak ereiteko egokia.",
+      "raices": "Azenarioak, errabanoak eta tuberkuluak landatzeko ezin hobea.",
+      "flores": "Lore eta landare aromatikoak trasplantatu gaur.",
+      "descanso": "Ilargi berriaren eguna. Atseden eman lurra eta planifikatu."
+    }
+  },
+  "weather": {
+    "clear": "Eguzkitsua",
+    "mostlyClear": "Gehienbat eguzkitsua",
+    "partlyCloudy": "Erdizka hodeitsua",
+    "cloudy": "Hodeitsua",
+    "fog": "Lainoa",
+    "frostFog": "Izoztu lainoa",
+    "drizzle": "Zirrimirria",
+    "lightRain": "Euri arina",
+    "rain": "Euria",
+    "heavyRain": "Euri bizia",
+    "lightSnow": "Elur arina",
+    "snow": "Elurra",
+    "showers": "Zaparradak",
+    "thunderstorm": "Ekaitza",
+    "hailstorm": "Txingorra",
+    "variable": "Aldakorra",
+    "wateringSkip": "💧 Euria aurreikusita ({{rain}}%) — utzi ureztatzea gaur.",
+    "wateringReduce": "💧 Euri aukera ({{rain}}%) — ureztatu neurriz.",
+    "wateringHot": "🌡️ Bero bizia ({{temp}}°C) — ureztatu goiz-goizean.",
+    "wateringNormal": "✅ Ureztatzeko une ona ({{temp}}°C, {{rain}}% euria)."
   }
 }

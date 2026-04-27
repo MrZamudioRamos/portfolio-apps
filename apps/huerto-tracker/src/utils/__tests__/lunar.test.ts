@@ -35,17 +35,17 @@ describe('getLunarDay', () => {
     }
   });
 
-  it('luna nueva (phase ≈ 0) → illumination ≈ 0 y nombre correcto', () => {
+  it('luna nueva (phase ≈ 0) → illumination ≈ 0 y phaseKey correcto', () => {
     const result = getLunarDay(REF_NEW_MOON);
     expect(result.illumination).toBeLessThanOrEqual(5);
-    expect(result.phaseName).toBe('Luna nueva');
+    expect(result.phaseKey).toBe('lunar.newMoon');
     expect(result.phaseEmoji).toBe('🌑');
   });
 
-  it('luna llena (phase = 0.5) → illumination ≈ 100 y nombre correcto', () => {
+  it('luna llena (phase = 0.5) → illumination ≈ 100 y phaseKey correcto', () => {
     const result = getLunarDay(dateAtPhase(0.5));
     expect(result.illumination).toBeGreaterThanOrEqual(95);
-    expect(result.phaseName).toBe('Luna llena');
+    expect(result.phaseKey).toBe('lunar.fullMoon');
     expect(result.phaseEmoji).toBe('🌕');
   });
 
@@ -86,11 +86,11 @@ describe('getLunarDay', () => {
     }
   });
 
-  it('gardeningLabel, gardeningEmoji y recommendation no están vacíos', () => {
+  it('gardeningType, gardeningEmoji y phaseKey no están vacíos', () => {
     const result = getLunarDay(dateAtPhase(0.3));
-    expect(result.gardeningLabel.length).toBeGreaterThan(0);
+    expect(result.gardeningType.length).toBeGreaterThan(0);
     expect(result.gardeningEmoji.length).toBeGreaterThan(0);
-    expect(result.recommendation.length).toBeGreaterThan(0);
+    expect(result.phaseKey.length).toBeGreaterThan(0);
   });
 
   it('usa la fecha actual si no se pasa argumento', () => {

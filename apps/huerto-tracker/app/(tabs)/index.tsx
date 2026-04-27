@@ -32,7 +32,7 @@ export default function DashboardScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
@@ -233,12 +233,12 @@ export default function DashboardScreen() {
                 <Text style={[s.lunarIllumText, { color: colors.textSecondary }]}>{lunar.illumination}%</Text>
               </View>
               <View style={s.lunarCenter}>
-                <Text style={[s.lunarPhaseName, { color: colors.text }]}>{lunar.phaseName}</Text>
+                <Text style={[s.lunarPhaseName, { color: colors.text }]}>{t(lunar.phaseKey)}</Text>
                 <Text style={[s.lunarGardening, { color: colors.primary }]}>
-                  {lunar.gardeningEmoji} {lunar.gardeningLabel}
+                  {lunar.gardeningEmoji} {t(`lunar.gardeningLabel.${lunar.gardeningType}`)}
                 </Text>
                 <Text style={[s.lunarRec, { color: colors.textSecondary }]} numberOfLines={2}>
-                  {lunar.recommendation}
+                  {t(`lunar.recommendation.${lunar.gardeningType}`)}
                 </Text>
               </View>
               <View style={s.lunarRight}>
@@ -266,7 +266,7 @@ export default function DashboardScreen() {
                           {weather.province}
                         </Text>
                         <Text style={[s.weatherLabel, { color: colors.text }]}>
-                          {getWeatherLabel(weather.today.weatherCode).label}
+                          {t(getWeatherLabel(weather.today.weatherCode).key)}
                         </Text>
                       </View>
                       <View style={s.weatherTemps}>
@@ -280,7 +280,8 @@ export default function DashboardScreen() {
                       {weather.forecast.map((day) => {
                         const lbl = getWeatherLabel(day.weatherCode);
                         const date = new Date(day.date + 'T12:00:00');
-                        const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'short' }).format(date);
+                        const intlLocale = i18n.language === 'val' ? 'ca-ES' : i18n.language;
+                        const dayName = new Intl.DateTimeFormat(intlLocale, { weekday: 'short' }).format(date);
                         return (
                           <View key={day.date} style={s.forecastDay}>
                             <Text style={[s.forecastDayName, { color: colors.textSecondary }]}>
@@ -311,7 +312,7 @@ export default function DashboardScreen() {
                       },
                     ]}>
                       <Text style={[s.wateringAdviceText, { color: colors.text }]}>
-                        {weather.wateringMessage}
+                        {t(weather.wateringKey, weather.wateringParams)}
                       </Text>
                     </View>
                   </>

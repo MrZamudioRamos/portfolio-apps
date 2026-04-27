@@ -429,13 +429,13 @@
     "title": "Huerto Tracker",
     "subtitle": "Leva o rexistro da túa horta, planifica sementeiras e colleita máis e mellor.",
     "features": {
-      "calendar": "📅 Calendario de sementeira",
+      "calendar": "Calendario de sementeira",
       "calendarDesc": "Sementa no momento óptimo para a túa zona climática.",
-      "diary": "📓 Diario da horta",
+      "diary": "Diario da horta",
       "diaryDesc": "Rexistra regos, podas e colleitas con fotos.",
-      "reminders": "🔔 Recordatorios",
+      "reminders": "Recordatorios",
       "remindersDesc": "Nunca esquezas regar ou abonar as túas plantas.",
-      "sync": "☁️ Sincronización",
+      "sync": "Sincronización",
       "syncDesc": "Os teus datos seguros na nube, en todos os teus dispositivos."
     },
     "createAccount": "Crear conta gratuíta",
@@ -457,5 +457,51 @@
     "chooseAction": "Escolle unha acción",
     "save": "Rexistrar {{action}}",
     "done": "Rexistrado!"
+  },
+  "lunar": {
+    "newMoon": "Lúa nova",
+    "waxingCrescent": "Cuarto crecente",
+    "firstQuarter": "Primeiro cuarto",
+    "waxingGibbous": "Xibosa crecente",
+    "fullMoon": "Lúa chea",
+    "waningGibbous": "Xibosa minguante",
+    "lastQuarter": "Último cuarto",
+    "waningCrescent": "Cuarto minguante",
+    "gardeningLabel": {
+      "frutos": "Día de froitos",
+      "hojas": "Día de follas",
+      "raices": "Día de raíces",
+      "flores": "Día de flores",
+      "descanso": "Día de descanso"
+    },
+    "recommendation": {
+      "frutos": "Boa lúa para colleitar e plantar tomates, pepinos e froitas.",
+      "hojas": "Ideal para sementar leituga, espinacas e herbas aromáticas.",
+      "raices": "Perfecto para cenoras, rábanos e tubérculos.",
+      "flores": "Trasplanta flores e plantas aromáticas hoxe.",
+      "descanso": "Día de lúa nova. Descansa o chan e planifica."
+    }
+  },
+  "weather": {
+    "clear": "Despexado",
+    "mostlyClear": "Maiormente despexado",
+    "partlyCloudy": "Parcialmente nublado",
+    "cloudy": "Nublado",
+    "fog": "Néboa",
+    "frostFog": "Néboa con xeada",
+    "drizzle": "Orballo",
+    "lightRain": "Choiva lixeira",
+    "rain": "Choiva",
+    "heavyRain": "Choiva forte",
+    "lightSnow": "Nevada lixeira",
+    "snow": "Neve",
+    "showers": "Chuvascos",
+    "thunderstorm": "Tormenta",
+    "hailstorm": "Sarabia",
+    "variable": "Variable",
+    "wateringSkip": "💧 Choiva prevista ({{rain}}%) — omite o rego hoxe.",
+    "wateringReduce": "💧 Posibilidade de choiva ({{rain}}%) — rega con moderación.",
+    "wateringHot": "🌡️ Calor intenso ({{temp}}°C) — rega pola mañá cedo.",
+    "wateringNormal": "✅ Bo momento para regar ({{temp}}°C, {{rain}}% choiva)."
   }
 }

@@ -429,13 +429,13 @@
     "title": "Huerto Tracker",
     "subtitle": "Track your garden, plan your sowing, and harvest more and better.",
     "features": {
-      "calendar": "📅 Sowing calendar",
+      "calendar": "Sowing calendar",
       "calendarDesc": "Sow at the optimal time for your climate zone.",
-      "diary": "📓 Garden journal",
+      "diary": "Garden journal",
       "diaryDesc": "Log waterings, prunings, and harvests with photos.",
-      "reminders": "🔔 Reminders",
+      "reminders": "Reminders",
       "remindersDesc": "Never forget to water or fertilise your plants.",
-      "sync": "☁️ Sync",
+      "sync": "Sync",
       "syncDesc": "Your data safe in the cloud, across all your devices."
     },
     "createAccount": "Create free account",
@@ -457,5 +457,51 @@
     "chooseAction": "Choose an action",
     "save": "Log {{action}}",
     "done": "Logged!"
+  },
+  "lunar": {
+    "newMoon": "New Moon",
+    "waxingCrescent": "Waxing Crescent",
+    "firstQuarter": "First Quarter",
+    "waxingGibbous": "Waxing Gibbous",
+    "fullMoon": "Full Moon",
+    "waningGibbous": "Waning Gibbous",
+    "lastQuarter": "Last Quarter",
+    "waningCrescent": "Waning Crescent",
+    "gardeningLabel": {
+      "frutos": "Fruit day",
+      "hojas": "Leaf day",
+      "raices": "Root day",
+      "flores": "Flower day",
+      "descanso": "Rest day"
+    },
+    "recommendation": {
+      "frutos": "Good moon for harvesting and planting tomatoes, cucumbers and fruits.",
+      "hojas": "Ideal for sowing lettuces, spinach and aromatic herbs.",
+      "raices": "Perfect for carrots, radishes and root vegetables.",
+      "flores": "Transplant flowers and aromatic plants today.",
+      "descanso": "New moon day. Rest the soil and plan ahead."
+    }
+  },
+  "weather": {
+    "clear": "Clear",
+    "mostlyClear": "Mostly clear",
+    "partlyCloudy": "Partly cloudy",
+    "cloudy": "Cloudy",
+    "fog": "Fog",
+    "frostFog": "Freezing fog",
+    "drizzle": "Drizzle",
+    "lightRain": "Light rain",
+    "rain": "Rain",
+    "heavyRain": "Heavy rain",
+    "lightSnow": "Light snow",
+    "snow": "Snow",
+    "showers": "Showers",
+    "thunderstorm": "Thunderstorm",
+    "hailstorm": "Hailstorm",
+    "variable": "Variable",
+    "wateringSkip": "💧 Rain forecast ({{rain}}%) — skip watering today.",
+    "wateringReduce": "💧 Chance of rain ({{rain}}%) — water sparingly.",
+    "wateringHot": "🌡️ Intense heat ({{temp}}°C) — water early in the morning.",
+    "wateringNormal": "✅ Good time to water ({{temp}}°C, {{rain}}% rain)."
   }
 }

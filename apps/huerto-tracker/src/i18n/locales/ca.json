@@ -429,13 +429,13 @@
     "title": "Huerto Tracker",
     "subtitle": "Porta el registre del teu hort, planifica sembres i collita més i millor.",
     "features": {
-      "calendar": "📅 Calendari de sembra",
+      "calendar": "Calendari de sembra",
       "calendarDesc": "Sembra en el moment òptim per a la teva zona climàtica.",
-      "diary": "📓 Diari de l'hort",
+      "diary": "Diari de l'hort",
       "diaryDesc": "Registra regs, podes i collites amb fotos.",
-      "reminders": "🔔 Recordatoris",
+      "reminders": "Recordatoris",
       "remindersDesc": "No oblidis regar o abonar les teves plantes.",
-      "sync": "☁️ Sincronització",
+      "sync": "Sincronització",
       "syncDesc": "Les teves dades segures al núvol, a tots els teus dispositius."
     },
     "createAccount": "Crear compte gratuït",
@@ -457,5 +457,51 @@
     "chooseAction": "Tria una acció",
     "save": "Registrar {{action}}",
     "done": "Registrat!"
+  },
+  "lunar": {
+    "newMoon": "Lluna nova",
+    "waxingCrescent": "Lluna creixent",
+    "firstQuarter": "Quart creixent",
+    "waxingGibbous": "Gibosa creixent",
+    "fullMoon": "Lluna plena",
+    "waningGibbous": "Gibosa minvant",
+    "lastQuarter": "Quart minvant",
+    "waningCrescent": "Lluna minvant",
+    "gardeningLabel": {
+      "frutos": "Dia de fruits",
+      "hojas": "Dia de fulles",
+      "raices": "Dia d'arrels",
+      "flores": "Dia de flors",
+      "descanso": "Dia de descans"
+    },
+    "recommendation": {
+      "frutos": "Bona lluna per collir i plantar tomàquets, cogombres i fruites.",
+      "hojas": "Ideal per sembrar enciam, espinacs i herbes aromàtiques.",
+      "raices": "Perfecte per a pastanagues, raves i tubèrculs.",
+      "flores": "Trasplanta flors i plantes aromàtiques avui.",
+      "descanso": "Dia de lluna nova. Descansa el sòl i planifica."
+    }
+  },
+  "weather": {
+    "clear": "Cel serè",
+    "mostlyClear": "Majoritàriament serè",
+    "partlyCloudy": "Parcialment ennuvolat",
+    "cloudy": "Ennuvolat",
+    "fog": "Boira",
+    "frostFog": "Boira amb gelada",
+    "drizzle": "Plugim",
+    "lightRain": "Pluja feble",
+    "rain": "Pluja",
+    "heavyRain": "Pluja intensa",
+    "lightSnow": "Nevada feble",
+    "snow": "Neu",
+    "showers": "Xàfecs",
+    "thunderstorm": "Tempesta",
+    "hailstorm": "Pedregada",
+    "variable": "Variable",
+    "wateringSkip": "💧 Pluja prevista ({{rain}}%) — omet el reg avui.",
+    "wateringReduce": "💧 Possibilitat de pluja ({{rain}}%) — rega amb moderació.",
+    "wateringHot": "🌡️ Calor intens ({{temp}}°C) — rega a primera hora del matí.",
+    "wateringNormal": "✅ Bon moment per regar ({{temp}}°C, {{rain}}% pluja)."
   }
 }

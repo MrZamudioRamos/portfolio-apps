@@ -12,7 +12,8 @@ export interface WeatherData {
   today: WeatherDay;
   forecast: WeatherDay[]; // next 2 days after today
   wateringAdvice: 'skip' | 'reduce' | 'normal';
-  wateringMessage: string;
+  wateringKey: string;                   // i18n key
+  wateringParams: Record<string, number>; // interpolation params
 }
 
 // Capital coordinates for each Spanish province
@@ -71,53 +72,62 @@ const PROVINCE_COORDS: Record<string, [number, number]> = {
   'Zaragoza':                 [41.656, -0.878],
 };
 
-const WMO_LABEL: Record<number, { label: string; emoji: string }> = {
-  0:  { label: 'Despejado',    emoji: '☀️' },
-  1:  { label: 'Casi despejado', emoji: '🌤️' },
-  2:  { label: 'Parcialmente nublado', emoji: '⛅' },
-  3:  { label: 'Nublado',      emoji: '☁️' },
-  45: { label: 'Niebla',       emoji: '🌫️' },
-  48: { label: 'Niebla helada', emoji: '🌫️' },
-  51: { label: 'Llovizna',     emoji: '🌦️' },
-  53: { label: 'Llovizna',     emoji: '🌦️' },
-  55: { label: 'Llovizna',     emoji: '🌦️' },
-  61: { label: 'Lluvia leve',  emoji: '🌧️' },
-  63: { label: 'Lluvia',       emoji: '🌧️' },
-  65: { label: 'Lluvia intensa', emoji: '🌧️' },
-  71: { label: 'Nieve leve',   emoji: '🌨️' },
-  73: { label: 'Nieve',        emoji: '❄️' },
-  80: { label: 'Chubascos',    emoji: '🌦️' },
-  81: { label: 'Chubascos',    emoji: '🌦️' },
-  95: { label: 'Tormenta',     emoji: '⛈️' },
-  99: { label: 'Tormenta con granizo', emoji: '⛈️' },
+// Maps WMO weather code to an i18n key and emoji
+const WMO_MAP: Record<number, { key: string; emoji: string }> = {
+  0:  { key: 'weather.clear',         emoji: '☀️' },
+  1:  { key: 'weather.mostlyClear',   emoji: '🌤️' },
+  2:  { key: 'weather.partlyCloudy',  emoji: '⛅' },
+  3:  { key: 'weather.cloudy',        emoji: '☁️' },
+  45: { key: 'weather.fog',           emoji: '🌫️' },
+  48: { key: 'weather.frostFog',      emoji: '🌫️' },
+  51: { key: 'weather.drizzle',       emoji: '🌦️' },
+  53: { key: 'weather.drizzle',       emoji: '🌦️' },
+  55: { key: 'weather.drizzle',       emoji: '🌦️' },
+  61: { key: 'weather.lightRain',     emoji: '🌧️' },
+  63: { key: 'weather.rain',          emoji: '🌧️' },
+  65: { key: 'weather.heavyRain',     emoji: '🌧️' },
+  71: { key: 'weather.lightSnow',     emoji: '🌨️' },
+  73: { key: 'weather.snow',          emoji: '❄️' },
+  80: { key: 'weather.showers',       emoji: '🌦️' },
+  81: { key: 'weather.showers',       emoji: '🌦️' },
+  95: { key: 'weather.thunderstorm',  emoji: '⛈️' },
+  99: { key: 'weather.hailstorm',     emoji: '⛈️' },
 };
 
-export function getWeatherLabel(code: number): { label: string; emoji: string } {
-  return WMO_LABEL[code] ?? { label: 'Variable', emoji: '🌤️' };
+export function getWeatherLabel(code: number): { key: string; emoji: string } {
+  return WMO_MAP[code] ?? { key: 'weather.variable', emoji: '🌤️' };
 }
 
-function buildWateringAdvice(today: WeatherDay): { advice: WeatherData['wateringAdvice']; message: string } {
+function buildWateringAdvice(today: WeatherDay): {
+  advice: WeatherData['wateringAdvice'];
+  wateringKey: string;
+  wateringParams: Record<string, number>;
+} {
   if (today.rainProbability >= 60 || today.precipitationMm >= 5) {
     return {
       advice: 'skip',
-      message: `🌧️ Se esperan lluvias (${today.rainProbability}%). No riegues hoy.`,
+      wateringKey: 'weather.wateringSkip',
+      wateringParams: { rain: today.rainProbability },
     };
   }
   if (today.rainProbability >= 30 || today.precipitationMm >= 2) {
     return {
       advice: 'reduce',
-      message: `🌦️ Posibles lluvias (${today.rainProbability}%). Riega con moderación.`,
+      wateringKey: 'weather.wateringReduce',
+      wateringParams: { rain: today.rainProbability },
     };
   }
   if (today.tempMax >= 35) {
     return {
       advice: 'normal',
-      message: `🥵 Calor intenso (${today.tempMax}°C). Riega por la mañana temprano.`,
+      wateringKey: 'weather.wateringHot',
+      wateringParams: { temp: today.tempMax },
     };
   }
   return {
     advice: 'normal',
-    message: `✅ Buen día para regar (${today.tempMax}°C, ${today.rainProbability}% lluvia).`,
+    wateringKey: 'weather.wateringNormal',
+    wateringParams: { temp: today.tempMax, rain: today.rainProbability },
   };
 }
 
@@ -150,14 +160,15 @@ export async function fetchWeather(province: string): Promise<WeatherData | null
     }));
 
     const [today, ...rest] = days;
-    const { advice, message } = buildWateringAdvice(today);
+    const { advice, wateringKey, wateringParams } = buildWateringAdvice(today);
 
     return {
       province,
       today,
       forecast: rest,
       wateringAdvice: advice,
-      wateringMessage: message,
+      wateringKey,
+      wateringParams,
     };
   } catch {
     return null;

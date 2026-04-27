@@ -2,13 +2,11 @@ export type GardeningType = 'frutos' | 'hojas' | 'raices' | 'flores' | 'descanso
 
 export interface LunarDay {
   phase: number;        // 0–1 (0=new, 0.5=full)
-  dayInCycle: number;  // 1–29
-  phaseName: string;
+  dayInCycle: number;  // 1–30
+  phaseKey: string;    // i18n key, e.g. 'lunar.newMoon'
   phaseEmoji: string;
   gardeningType: GardeningType;
-  gardeningLabel: string;
   gardeningEmoji: string;
-  recommendation: string;
   illumination: number; // 0–100 %
 }
 
@@ -16,97 +14,64 @@ export interface LunarDay {
 const REFERENCE_NEW_MOON = new Date('2000-01-06T18:14:00Z').getTime();
 const SYNODIC_PERIOD_MS = 29.53058770576 * 24 * 60 * 60 * 1000;
 
+const GARDENING_EMOJI: Record<GardeningType, string> = {
+  frutos:   '🍅',
+  hojas:    '🥬',
+  raices:   '🥕',
+  flores:   '🌸',
+  descanso: '😴',
+};
+
 export function getLunarDay(date: Date = new Date()): LunarDay {
   const elapsed = date.getTime() - REFERENCE_NEW_MOON;
   const cyclePos = ((elapsed % SYNODIC_PERIOD_MS) + SYNODIC_PERIOD_MS) % SYNODIC_PERIOD_MS;
   const phase = cyclePos / SYNODIC_PERIOD_MS; // 0–1
-  const dayInCycle = Math.floor(phase * 29.53) + 1; // 1–29
+  const dayInCycle = Math.floor(phase * 29.53) + 1;
 
-  // Illumination approximation
   const illumination = Math.round((1 - Math.cos(phase * 2 * Math.PI)) / 2 * 100);
 
-  // Phase name and emoji
-  let phaseName: string;
+  // Phase key and emoji
+  let phaseKey: string;
   let phaseEmoji: string;
   if (phase < 0.03 || phase >= 0.97) {
-    phaseName = 'Luna nueva'; phaseEmoji = '🌑';
+    phaseKey = 'lunar.newMoon';           phaseEmoji = '🌑';
   } else if (phase < 0.22) {
-    phaseName = 'Cuarto creciente'; phaseEmoji = '🌒';
+    phaseKey = 'lunar.waxingCrescent';   phaseEmoji = '🌒';
   } else if (phase < 0.28) {
-    phaseName = 'Cuarto creciente'; phaseEmoji = '🌓';
+    phaseKey = 'lunar.firstQuarter';     phaseEmoji = '🌓';
   } else if (phase < 0.47) {
-    phaseName = 'Luna gibosa creciente'; phaseEmoji = '🌔';
+    phaseKey = 'lunar.waxingGibbous';    phaseEmoji = '🌔';
   } else if (phase < 0.53) {
-    phaseName = 'Luna llena'; phaseEmoji = '🌕';
+    phaseKey = 'lunar.fullMoon';         phaseEmoji = '🌕';
   } else if (phase < 0.72) {
-    phaseName = 'Luna gibosa menguante'; phaseEmoji = '🌖';
+    phaseKey = 'lunar.waningGibbous';    phaseEmoji = '🌖';
   } else if (phase < 0.78) {
-    phaseName = 'Cuarto menguante'; phaseEmoji = '🌗';
+    phaseKey = 'lunar.lastQuarter';      phaseEmoji = '🌗';
   } else {
-    phaseName = 'Luna menguante'; phaseEmoji = '🌘';
+    phaseKey = 'lunar.waningCrescent';   phaseEmoji = '🌘';
   }
 
   // Biodynamic gardening type
   let gardeningType: GardeningType;
   if (phase < 0.03 || phase >= 0.97) {
-    // New moon ±1 day: descanso
     gardeningType = 'descanso';
   } else if (phase < 0.25) {
-    // Waxing crescent: leaf/stem crops
     gardeningType = 'hojas';
-  } else if (phase < 0.5) {
-    // Waxing gibbous → full moon: fruit crops
-    gardeningType = 'frutos';
   } else if (phase < 0.53) {
-    // Full moon ±1 day: fruit crops (peak)
     gardeningType = 'frutos';
   } else if (phase < 0.75) {
-    // Waning gibbous: root crops
     gardeningType = 'raices';
   } else {
-    // Last quarter → new moon: descanso / roots
     gardeningType = 'descanso';
   }
-
-  const GARDENING_CONFIG: Record<GardeningType, { label: string; emoji: string; recommendation: string }> = {
-    frutos: {
-      label: 'Día de frutos',
-      emoji: '🍅',
-      recommendation: 'Ideal para sembrar, trasplantar y cosechar tomates, pimientos, pepinos y calabacines.',
-    },
-    hojas: {
-      label: 'Día de hojas',
-      emoji: '🥬',
-      recommendation: 'Buen momento para lechugas, espinacas, acelgas y hierbas aromáticas.',
-    },
-    raices: {
-      label: 'Día de raíces',
-      emoji: '🥕',
-      recommendation: 'Perfecto para zanahorias, rábanos, remolachas y patatas.',
-    },
-    flores: {
-      label: 'Día de flores',
-      emoji: '🌸',
-      recommendation: 'Favorable para plantas ornamentales y cultivos de flor.',
-    },
-    descanso: {
-      label: 'Día de descanso',
-      emoji: '😴',
-      recommendation: 'Mejor evitar labores importantes. Día para planificar y preparar herramientas.',
-    },
-  };
-
-  const config = GARDENING_CONFIG[gardeningType];
 
   return {
     phase,
     dayInCycle,
-    phaseName,
+    phaseKey,
     phaseEmoji,
     gardeningType,
-    gardeningLabel: config.label,
-    gardeningEmoji: config.emoji,
-    recommendation: config.recommendation,
+    gardeningEmoji: GARDENING_EMOJI[gardeningType],
     illumination,
   };
 }

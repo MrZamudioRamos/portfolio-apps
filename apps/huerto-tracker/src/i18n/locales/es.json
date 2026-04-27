@@ -429,13 +429,13 @@
     "title": "Huerto Tracker",
     "subtitle": "Lleva el registro de tu huerto, planifica siembras y cosecha más y mejor.",
     "features": {
-      "calendar": "📅 Calendario de siembra",
+      "calendar": "Calendario de siembra",
       "calendarDesc": "Siembra en el momento óptimo para tu zona climática.",
-      "diary": "📓 Diario del huerto",
+      "diary": "Diario del huerto",
       "diaryDesc": "Registra riegos, podas y cosechas con fotos.",
-      "reminders": "🔔 Recordatorios",
+      "reminders": "Recordatorios",
       "remindersDesc": "Nunca olvides regar o abonar tus plantas.",
-      "sync": "☁️ Sincronización",
+      "sync": "Sincronización",
       "syncDesc": "Tus datos seguros en la nube, en todos tus dispositivos."
     },
     "createAccount": "Crear cuenta gratuita",
@@ -457,5 +457,51 @@
     "chooseAction": "Elige una acción",
     "save": "Registrar {{action}}",
     "done": "¡Registrado!"
+  },
+  "lunar": {
+    "newMoon": "Luna nueva",
+    "waxingCrescent": "Cuarto creciente",
+    "firstQuarter": "Primer cuarto",
+    "waxingGibbous": "Gibosa creciente",
+    "fullMoon": "Luna llena",
+    "waningGibbous": "Gibosa menguante",
+    "lastQuarter": "Último cuarto",
+    "waningCrescent": "Cuarto menguante",
+    "gardeningLabel": {
+      "frutos": "Día de frutos",
+      "hojas": "Día de hojas",
+      "raices": "Día de raíces",
+      "flores": "Día de flores",
+      "descanso": "Día de descanso"
+    },
+    "recommendation": {
+      "frutos": "Buena luna para cosechar y plantar tomates, pepinos y frutas.",
+      "hojas": "Ideal para sembrar lechugas, espinacas y hierbas aromáticas.",
+      "raices": "Perfecto para zanahorias, rábanos y tubérculos.",
+      "flores": "Trasplanta flores y plantas aromáticas hoy.",
+      "descanso": "Día de luna nueva. Descansa el suelo y planifica."
+    }
+  },
+  "weather": {
+    "clear": "Despejado",
+    "mostlyClear": "Mayormente despejado",
+    "partlyCloudy": "Parcialmente nublado",
+    "cloudy": "Nublado",
+    "fog": "Niebla",
+    "frostFog": "Niebla con helada",
+    "drizzle": "Llovizna",
+    "lightRain": "Lluvia ligera",
+    "rain": "Lluvia",
+    "heavyRain": "Lluvia fuerte",
+    "lightSnow": "Nevada ligera",
+    "snow": "Nieve",
+    "showers": "Chubascos",
+    "thunderstorm": "Tormenta",
+    "hailstorm": "Granizo",
+    "variable": "Variable",
+    "wateringSkip": "💧 Lluvia prevista ({{rain}}%) — omite el riego hoy.",
+    "wateringReduce": "💧 Posibilidad de lluvia ({{rain}}%) — riega con moderación.",
+    "wateringHot": "🌡️ Calor intenso ({{temp}}°C) — riega por la mañana temprano.",
+    "wateringNormal": "✅ Buen momento para regar ({{temp}}°C, {{rain}}% lluvia)."
   }
 }
