@@ -71,10 +71,15 @@ export default function DiaryScreen() {
           </View>
           <View style={{ flex: 1, marginLeft: spacing.md }}>
             <View style={s.entryTitleRow}>
-              <Text style={[s.entryType, { color: colors.text }]}>{config.label}</Text>
-              <Text style={[s.entryDate, { color: colors.textSecondary }]}>
-                {formatRelative(item.date)}
-              </Text>
+              <Text style={[s.entryType, { color: colors.text }]}>{t(`diary.filters.${item.type}`)}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={[s.entryDate, { color: colors.textSecondary }]}>
+                  {formatRelative(item.date)}
+                </Text>
+                <Pressable onPress={() => router.push(`/entry/edit?id=${item.id}`)} hitSlop={8}>
+                  <Ionicons name="pencil-outline" size={14} color={colors.textDisabled} />
+                </Pressable>
+              </View>
             </View>
             {plant && (
               <Text style={[s.entryPlant, { color: colors.primary }]}>

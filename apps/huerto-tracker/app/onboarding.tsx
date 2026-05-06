@@ -22,7 +22,7 @@ import { CLIMATE_ZONE_CONFIG, PROVINCES, PROVINCE_ZONES } from '../src/data';
 import type { Garden } from '../src/models';
 import { GARDEN_TYPE_CONFIG, type GardenType } from '../src/models/garden';
 
-type Step = 0 | 1 | 2;
+type Step = 0 | 1 | 2 | 3;
 
 export default function OnboardingScreen() {
   const colors = useColors();
@@ -72,7 +72,7 @@ export default function OnboardingScreen() {
         ...(photoUri ? { photoUri } : {}),
       });
       await complete();
-      router.replace('/(tabs)');
+      setStep(3);
     } finally {
       setSaving(false);
     }
@@ -85,7 +85,7 @@ export default function OnboardingScreen() {
       {/* Step dots */}
       {step > 0 && (
         <View style={s.dots}>
-          {([0, 1, 2] as Step[]).map((i) => (
+          {([0, 1, 2, 3] as Step[]).map((i) => (
             <View
               key={i}
               style={[
@@ -103,13 +103,27 @@ export default function OnboardingScreen() {
 
       {/* ── STEP 0: Bienvenida ── */}
       {step === 0 && (
-        <View style={s.stepContainer}>
-          <View style={s.heroSection}>
+        <View style={[s.stepContainer, { justifyContent: 'space-between' }]}>
+          <View style={{ flex: 1, justifyContent: 'center' }}>
             <Text style={s.heroEmoji}>🌱</Text>
             <Text style={[s.heroTitle, { color: colors.text }]}>{t('onboarding.step1Title')}</Text>
-            <Text style={[s.heroDesc, { color: colors.textSecondary }]}>
-              {t('onboarding.step1Desc')}
-            </Text>
+            <Text style={[s.heroDesc, { color: colors.textSecondary }]}>{t('onboarding.step1Desc')}</Text>
+
+            <View style={s.featureList}>
+              {[
+                { emoji: '🌙', titleKey: 'onboarding.feature1Title', descKey: 'onboarding.feature1Desc' },
+                { emoji: '🌤️', titleKey: 'onboarding.feature2Title', descKey: 'onboarding.feature2Desc' },
+                { emoji: '🤝', titleKey: 'onboarding.feature3Title', descKey: 'onboarding.feature3Desc' },
+              ].map((f) => (
+                <View key={f.emoji} style={[s.featureRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  <Text style={s.featureEmoji}>{f.emoji}</Text>
+                  <View style={{ flex: 1, marginLeft: spacing.md }}>
+                    <Text style={[s.featureTitle, { color: colors.text }]}>{t(f.titleKey)}</Text>
+                    <Text style={[s.featureDesc, { color: colors.textSecondary }]}>{t(f.descKey)}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
           </View>
           <Button title={t('onboarding.start')} onPress={() => setStep(1)} size="lg" />
         </View>
@@ -261,6 +275,32 @@ export default function OnboardingScreen() {
         </KeyboardAvoidingView>
       )}
 
+      {/* ── STEP 3: Éxito ── */}
+      {step === 3 && (
+        <View style={[s.stepContainer, { justifyContent: 'space-between' }]}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ fontSize: 80, marginBottom: spacing.xl }}>🎉</Text>
+            <Text style={[s.stepTitle, { color: colors.text, textAlign: 'center' }]}>{t('onboarding.step4Title')}</Text>
+            <Text style={[s.stepSubtitle, { color: colors.textSecondary, textAlign: 'center' }]}>
+              {t('onboarding.step4Desc')}
+            </Text>
+          </View>
+          <View style={{ gap: spacing.md }}>
+            <Button
+              title={t('onboarding.addFirstPlant')}
+              onPress={() => router.replace('/plant/new')}
+              size="lg"
+            />
+            <Button
+              title={t('onboarding.skipToGarden')}
+              variant="secondary"
+              onPress={() => router.replace('/(tabs)')}
+              size="lg"
+            />
+          </View>
+        </View>
+      )}
+
       {/* ── Province picker modal ── */}
       <Modal visible={showProvincePicker} animationType="slide" presentationStyle="pageSheet">
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
@@ -394,6 +434,11 @@ const styles = (
       padding: spacing.lg,
       fontSize: fontSize.md,
     },
+    featureList: { gap: spacing.md, marginTop: spacing['2xl'] },
+    featureRow: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, borderRadius: radii.lg, borderWidth: 1 },
+    featureEmoji: { fontSize: 28 },
+    featureTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    featureDesc: { fontSize: fontSize.sm, marginTop: 2, lineHeight: 18 },
     modalHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',

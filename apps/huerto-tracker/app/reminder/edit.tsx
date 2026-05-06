@@ -1,5 +1,4 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
-import { useCollection } from '@portfolio/storage';
 import { useReminders, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -11,69 +10,96 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { REMINDER_TYPE_CONFIG, type GardenReminder, type ReminderType } from '../../src/models/reminder';
-import type { Garden } from '../../src/models/garden';
 
 const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'custom'];
 const FREQUENCIES: ReminderFrequency[] = ['daily', 'every_2_days', 'every_3_days', 'weekly', 'once'];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = [0, 15, 30, 45];
 
-export default function ReminderNewScreen() {
+export default function ReminderEditScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
-  const { plantId } = useLocalSearchParams<{ plantId?: string }>();
-
-  const gardens = useCollection<Garden>('gardens');
-  const reminders = useReminders<GardenReminder>('reminders');
-
-  const [type, setType] = useState<ReminderType>('watering');
-  const [title, setTitle] = useState(REMINDER_TYPE_CONFIG['watering'].defaultTitle);
-  const [frequency, setFrequency] = useState<ReminderFrequency>('daily');
-  const [hour, setHour] = useState(8);
-  const [minute, setMinute] = useState(0);
-  const [saving, setSaving] = useState(false);
+  const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
+
+  const reminders = useReminders<GardenReminder>('reminders');
+  const reminder = reminders.getById(id);
+
+  const [type, setType] = useState<ReminderType>(reminder?.type ?? 'watering');
+  const [title, setTitle] = useState(reminder?.title ?? '');
+  const [frequency, setFrequency] = useState<ReminderFrequency>(reminder?.frequency ?? 'daily');
+  const [hour, setHour] = useState(reminder?.time.hour ?? 8);
+  const [minute, setMinute] = useState(reminder?.time.minute ?? 0);
+  const [enabled, setEnabled] = useState(reminder?.enabled ?? true);
+  const [saving, setSaving] = useState(false);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  function handleTypeChange(tp: ReminderType) {
-    setType(tp);
-    setTitle(REMINDER_TYPE_CONFIG[tp].defaultTitle);
+  if (!reminder) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
+        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }}>
+          <Ionicons name="arrow-back" size={24} color={colors.primary} />
+        </Pressable>
+        <Text style={[s.notFound, { color: colors.textSecondary }]}>
+          {t('reminderEdit.notFound')}
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
+  function handleTypeChange(newType: ReminderType) {
+    setType(newType);
+    if (title === REMINDER_TYPE_CONFIG[type].defaultTitle) {
+      setTitle(REMINDER_TYPE_CONFIG[newType].defaultTitle);
+    }
   }
 
   async function handleSave() {
-    const gardenId = gardens.items[0]?.id;
-    if (!gardenId) {
-      Alert.alert(t('reminderNew.noGardenTitle'), t('reminderNew.noGardenDesc'));
-      return;
-    }
     setSaving(true);
     try {
-      await reminders.create({
-        gardenId,
-        plantId: plantId ?? undefined,
+      await reminders.update(id, {
         type,
         title: title.trim() || REMINDER_TYPE_CONFIG[type].defaultTitle,
         frequency,
         time: { hour, minute },
-        enabled: true,
+        enabled,
       });
       router.back();
     } catch {
-      Alert.alert(t('common.error'), t('reminderNew.saveError'));
+      Alert.alert(t('common.error'), t('reminderEdit.saveError'));
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleDelete() {
+    Alert.alert(
+      t('reminderEdit.deleteTitle'),
+      t('reminderEdit.deleteDesc'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.delete'),
+          style: 'destructive',
+          onPress: async () => {
+            await reminders.remove(id);
+            router.back();
+          },
+        },
+      ]
+    );
   }
 
   return (
@@ -81,13 +107,28 @@ export default function ReminderNewScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
         <View style={[s.header, { borderBottomColor: colors.border }]}>
-          <Text style={[s.headerTitle, { color: colors.text }]}>{t('reminderNew.title')}</Text>
+          <Text style={[s.headerTitle, { color: colors.text }]}>{t('reminderEdit.title')}</Text>
           <Pressable onPress={() => router.back()} hitSlop={12}>
             <Ionicons name="close" size={24} color={colors.textSecondary} />
           </Pressable>
         </View>
 
         <View style={s.body}>
+          {/* Enabled toggle */}
+          <View style={[s.enabledRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.enabledLabel, { color: colors.text }]}>{t('reminderEdit.enabledLabel')}</Text>
+              <Text style={[s.enabledDesc, { color: colors.textSecondary }]}>
+                {enabled ? t('reminderEdit.enabledOn') : t('reminderEdit.enabledOff')}
+              </Text>
+            </View>
+            <Switch
+              value={enabled}
+              onValueChange={setEnabled}
+              trackColor={{ true: colors.primary }}
+            />
+          </View>
+
           {/* Type selector */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.typeLabel')}</Text>
           <View style={s.typeGrid}>
@@ -107,12 +148,7 @@ export default function ReminderNewScreen() {
                   ]}
                 >
                   <Text style={{ fontSize: 28 }}>{cfg.emoji}</Text>
-                  <Text
-                    style={[
-                      s.typeLabel,
-                      { color: active ? colors.primary : colors.text },
-                    ]}
-                  >
+                  <Text style={[s.typeLabel, { color: active ? colors.primary : colors.text }]}>
                     {t('reminderType.' + tp)}
                   </Text>
                 </Pressable>
@@ -127,12 +163,7 @@ export default function ReminderNewScreen() {
             onChangeText={setTitle}
             style={[
               s.input,
-              {
-                color: colors.text,
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-                fontSize: fontSize.md,
-              },
+              { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border, fontSize: fontSize.md },
             ]}
             placeholderTextColor={colors.textDisabled}
             returnKeyType="done"
@@ -156,12 +187,7 @@ export default function ReminderNewScreen() {
                       },
                     ]}
                   >
-                    <Text
-                      style={[
-                        s.chipText,
-                        { color: active ? '#fff' : colors.text },
-                      ]}
-                    >
+                    <Text style={[s.chipText, { color: active ? '#fff' : colors.text }]}>
                       {t('reminderFrequency.' + f)}
                     </Text>
                   </Pressable>
@@ -234,13 +260,19 @@ export default function ReminderNewScreen() {
               {t('reminderFrequency.' + frequency)} · {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}
             </Text>
           </View>
+
+          {/* Delete */}
+          <Pressable onPress={handleDelete} style={s.deleteBtn}>
+            <Ionicons name="trash-outline" size={16} color={colors.error} />
+            <Text style={[s.deleteText, { color: colors.error }]}>{t('reminderEdit.delete')}</Text>
+          </Pressable>
         </View>
       </ScrollView>
 
       {/* Sticky footer */}
       <View style={[s.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
         <Button
-          title={saving ? t('common.saving') : t('reminderNew.create')}
+          title={saving ? t('common.saving') : t('reminderEdit.save')}
           variant="primary"
           size="lg"
           onPress={handleSave}
@@ -271,6 +303,16 @@ const makeStyles = (
     },
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     body: { padding: spacing.xl },
+    enabledRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.lg,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      marginBottom: spacing.sm,
+    },
+    enabledLabel: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    enabledDesc: { fontSize: fontSize.xs, marginTop: 2 },
     label: {
       fontSize: fontSize.xs,
       fontWeight: fontWeight.semibold,
@@ -278,12 +320,7 @@ const makeStyles = (
       marginBottom: spacing.sm,
       marginTop: spacing.lg,
     },
-    typeGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: spacing.md,
-      marginBottom: spacing.sm,
-    },
+    typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginBottom: spacing.sm },
     typeCard: {
       width: '47%',
       paddingVertical: spacing.lg,
@@ -326,11 +363,16 @@ const makeStyles = (
       alignItems: 'center',
       justifyContent: 'center',
     },
-    preview: {
-      padding: spacing.lg,
-      borderRadius: radii.lg,
-      borderWidth: 1,
+    preview: { padding: spacing.lg, borderRadius: radii.lg, borderWidth: 1 },
+    deleteBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      marginTop: spacing.xl,
+      padding: spacing.md,
     },
+    deleteText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     footer: {
       position: 'absolute',
       bottom: 0,
@@ -339,4 +381,5 @@ const makeStyles = (
       padding: spacing.xl,
       borderTopWidth: 1,
     },
+    notFound: { textAlign: 'center', marginTop: 80, fontSize: fontSize.lg },
   });

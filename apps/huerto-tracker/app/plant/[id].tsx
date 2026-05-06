@@ -1,5 +1,6 @@
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { useReminders } from '@portfolio/notifications';
 import { formatDate, formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -11,6 +12,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   View,
 } from 'react-native';
@@ -19,7 +21,7 @@ import { CROPS_BY_ID, CATEGORY_CONFIG } from '../../src/data/crops';
 import { getCompanions, getIncompatible } from '../../src/data/companions';
 import { PLANT_STATUS_CONFIG, type Plant, type PlantStatus } from '../../src/models/plant';
 import { ENTRY_TYPE_CONFIG, type DiaryEntry } from '../../src/models/diary-entry';
-import { REMINDER_TYPE_CONFIG, FREQUENCY_LABELS, type GardenReminder } from '../../src/models/reminder';
+import { REMINDER_TYPE_CONFIG, type GardenReminder } from '../../src/models/reminder';
 import { getPestsForCrop, PEST_STATUS_CONFIG } from '../../src/data/pests';
 
 const ALL_STATUSES: PlantStatus[] = [
@@ -36,7 +38,7 @@ export default function PlantDetailScreen() {
 
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
-  const reminders = useCollection<GardenReminder>('reminders');
+  const reminders = useReminders<GardenReminder>('reminders');
 
   const plant = plants.getById(id);
   const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
@@ -131,6 +133,12 @@ export default function PlantDetailScreen() {
           ) : (
             <Text style={s.heroEmoji}>{crop.emoji}</Text>
           )}
+          <Pressable
+            onPress={() => router.push(`/plant/edit?id=${id}`)}
+            style={s.editBtn}
+          >
+            <Ionicons name="pencil" size={16} color={colors.primary} />
+          </Pressable>
         </View>
 
         <View style={s.body}>
@@ -145,7 +153,7 @@ export default function PlantDetailScreen() {
             {statusConfig && (
               <View style={[s.statusBadge, { backgroundColor: statusConfig.color + '22' }]}>
                 <Text style={[s.statusText, { color: statusConfig.color }]}>
-                  {statusConfig.emoji} {statusConfig.label}
+                  {statusConfig.emoji} {t('plantStatus.' + plant.status)}
                 </Text>
               </View>
             )}
@@ -179,7 +187,7 @@ export default function PlantDetailScreen() {
                   >
                     <Text style={{ fontSize: 16 }}>{cfg.emoji}</Text>
                     <Text style={[s.statusChipLabel, { color: active ? '#fff' : colors.textSecondary }]}>
-                      {cfg.label}
+                      {t('plantStatus.' + status)}
                     </Text>
                   </Pressable>
                 );
@@ -251,7 +259,7 @@ export default function PlantDetailScreen() {
                           {r.title}
                         </Text>
                         <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>
-                          {FREQUENCY_LABELS[r.frequency]} · {hour}:{min}
+                          {t('reminderType.' + r.type)} · {t('reminderFrequency.' + r.frequency)} · {hour}:{min}
                         </Text>
                       </View>
                       <View style={[s.enabledBadge, { backgroundColor: r.enabled ? '#4CAF5022' : colors.surfaceAlt }]}>
@@ -259,6 +267,19 @@ export default function PlantDetailScreen() {
                           {r.enabled ? t('plantDetail.active') : t('plantDetail.paused')}
                         </Text>
                       </View>
+                      <Switch
+                        value={r.enabled}
+                        onValueChange={(val) => reminders.update(r.id, { enabled: val })}
+                        trackColor={{ true: colors.primary }}
+                        style={{ marginLeft: 4 }}
+                      />
+                      <Pressable
+                        onPress={() => router.push(`/reminder/edit?id=${r.id}`)}
+                        hitSlop={8}
+                        style={{ padding: 4, marginLeft: 4 }}
+                      >
+                        <Ionicons name="pencil-outline" size={16} color={colors.textSecondary} />
+                      </Pressable>
                     </View>
                   </Card>
                 );
@@ -287,7 +308,7 @@ export default function PlantDetailScreen() {
                     </View>
                     <View style={{ flex: 1, marginLeft: spacing.md }}>
                       <Text style={{ color: colors.text, fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>
-                        {cfg.label}
+                        {t('diary.filters.' + entry.type)}
                       </Text>
                       <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>
                         {formatRelative(entry.date)}
@@ -450,6 +471,17 @@ const makeStyles = (
       position: 'absolute',
       top: spacing.lg,
       left: spacing.lg,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: 'rgba(255,255,255,0.85)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    editBtn: {
+      position: 'absolute',
+      top: spacing.lg,
+      right: spacing.lg,
       width: 36,
       height: 36,
       borderRadius: 18,

@@ -260,7 +260,17 @@
     "gardenNamePlaceholder": "E.g. My terrace, North balcony...",
     "create": "Create garden 🌱",
     "provinceSearch": "Search province...",
-    "closeSearch": "Close"
+    "closeSearch": "Close",
+    "step4Title": "Garden created! 🌱",
+    "step4Desc": "All set. Would you like to add your first plant now?",
+    "addFirstPlant": "Add first plant",
+    "skipToGarden": "See my garden",
+    "feature1Title": "Moon & sowing",
+    "feature1Desc": "Sow at the optimal time based on the lunar cycle",
+    "feature2Title": "Live weather",
+    "feature2Desc": "Watering tips based on the weather forecast",
+    "feature3Title": "Companion plants",
+    "feature3Desc": "Discover which crops grow well together"
   },
   "paywall": {
     "titlePro": "You're Pro!",
@@ -297,6 +307,12 @@
     "restoreNoneTitle": "No previous purchases",
     "restoreNoneDesc": "We couldn't find any active subscription linked to your account.",
     "restoreError": "Could not connect. Please try again."
+  },
+  "plantEdit": {
+    "title": "Edit plant",
+    "save": "Save changes",
+    "changePhoto": "Change photo",
+    "cropFixed": "Fixed crop"
   },
   "plantNew": {
     "title": "New plant",
@@ -344,6 +360,18 @@
     "deleteTitle": "Delete {{name}}?",
     "deleteDesc": "The plant and all its journal entries and reminders will be deleted.",
     "sownOn": "🌰 Sown {{date}}"
+  },
+  "reminderEdit": {
+    "title": "Edit reminder",
+    "save": "Save changes",
+    "enabledLabel": "Reminder active",
+    "enabledOn": "Notifications are enabled",
+    "enabledOff": "Notifications are disabled",
+    "delete": "Delete reminder",
+    "deleteTitle": "Delete reminder?",
+    "deleteDesc": "The notification will be cancelled and the reminder will be deleted.",
+    "saveError": "Could not save the reminder.",
+    "notFound": "Reminder not found"
   },
   "reminderNew": {
     "title": "New reminder",
@@ -522,6 +550,37 @@
     "huerto": "Garden",
     "balcon": "Balcony / Terrace",
     "maceta": "Indoor / Pots"
+  },
+  "plantStatus": {
+    "seedling": "Seedling",
+    "transplanted": "Transplanted",
+    "growing": "Growing",
+    "flowering": "Flowering",
+    "fruiting": "Fruiting",
+    "harvesting": "Harvesting",
+    "finished": "Done"
+  },
+  "reminderType": {
+    "watering": "Watering",
+    "fertilizing": "Fertilizing",
+    "harvest_check": "Check harvest",
+    "custom": "Custom"
+  },
+  "reminderFrequency": {
+    "daily": "Daily",
+    "every_2_days": "Every 2 days",
+    "every_3_days": "Every 3 days",
+    "weekly": "Weekly",
+    "once": "Once"
+  },
+  "entryEdit": {
+    "title": "Edit entry",
+    "save": "Save",
+    "delete": "Delete entry",
+    "deleteTitle": "Delete entry?",
+    "deleteDesc": "This entry will be permanently deleted.",
+    "notFound": "Entry not found",
+    "changePhoto": "Change photo"
   },
   "cropCategory": {
     "frutas": "Fruits",

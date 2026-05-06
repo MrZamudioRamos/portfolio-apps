@@ -3,24 +3,26 @@ import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const PRO_FEATURES = [
-  { emoji: '🏡', text: 'Huertos ilimitados (ahora sólo 1)' },
-  { emoji: '🌱', text: 'Plantas sin límite (plan gratuito: 5)' },
-  { emoji: '📅', text: 'Calendario de siembra completo con alertas' },
-  { emoji: '🤝', text: 'Guía de asociaciones de cultivos' },
-  { emoji: '📊', text: 'Gráficos de cosecha y productividad' },
-  { emoji: '📄', text: 'Exportar diario en PDF' },
-  { emoji: '🔔', text: 'Recordatorios de riego ilimitados' },
-  { emoji: '☁️', text: 'Copia de seguridad en la nube' },
+const PRO_FEATURE_KEYS = [
+  { emoji: '🏡', key: 'paywall.features.gardens' },
+  { emoji: '🌱', key: 'paywall.features.plants' },
+  { emoji: '📅', key: 'paywall.features.calendar' },
+  { emoji: '🤝', key: 'paywall.features.companions' },
+  { emoji: '📊', key: 'paywall.features.charts' },
+  { emoji: '📄', key: 'paywall.features.pdf' },
+  { emoji: '🔔', key: 'paywall.features.reminders' },
+  { emoji: '☁️', key: 'paywall.features.backup' },
 ];
 
 export default function PaywallScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
+  const { t } = useTranslation();
   const { isPro, activePlan, purchasing, offerings, purchase, restore } = usePurchases();
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('annual');
 
@@ -37,27 +39,27 @@ export default function PaywallScreen() {
     const result = await purchase(selectedPlan);
     if (result.success) {
       Alert.alert(
-        '¡Bienvenido a Pro! 🌻',
-        'Tu suscripción está activa. Disfruta de todas las funciones sin límite.',
-        [{ text: '¡Vamos!', onPress: () => router.back() }]
+        t('paywall.successTitle'),
+        t('paywall.successDesc'),
+        [{ text: t('paywall.successBtn'), onPress: () => router.back() }]
       );
     } else {
-      Alert.alert('Error', result.error ?? 'No se pudo completar la compra. Inténtalo de nuevo.');
+      Alert.alert(t('common.error'), result.error ?? t('paywall.errorPurchase'));
     }
   }
 
   async function handleRestore() {
     const result = await restore();
     if (!result.success) {
-      Alert.alert('Error', 'No se pudo conectar. Inténtalo de nuevo.');
+      Alert.alert(t('common.error'), t('paywall.restoreError'));
       return;
     }
     if (result.found) {
-      Alert.alert('¡Compras restauradas!', 'Tu suscripción Pro está activa.', [
-        { text: 'OK', onPress: () => router.back() },
+      Alert.alert(t('paywall.restoreSuccessTitle'), t('paywall.restoreSuccessDesc'), [
+        { text: t('common.ok'), onPress: () => router.back() },
       ]);
     } else {
-      Alert.alert('Sin compras anteriores', 'No encontramos ninguna suscripción activa asociada a tu cuenta.');
+      Alert.alert(t('paywall.restoreNoneTitle'), t('paywall.restoreNoneDesc'));
     }
   }
 
@@ -77,29 +79,29 @@ export default function PaywallScreen() {
         <View style={s.hero}>
           <Text style={s.heroEmoji}>{isPro ? '🏆' : '🌻'}</Text>
           <Text style={[s.heroTitle, { color: colors.text }]}>
-            {isPro ? '¡Ya eres Pro!' : `Haz crecer tu huerto\nsin límites`}
+            {isPro ? t('paywall.titlePro') : t('paywall.title')}
           </Text>
           <Text style={[s.heroSub, { color: colors.textSecondary }]}>
             {isPro
-              ? `Suscripción activa · Plan ${activePlan === 'annual' ? 'anual' : 'mensual'}`
-              : 'Desbloquea todo lo que necesitas para convertirte en un auténtico huertero.'}
+              ? t('paywall.subtitlePro', { plan: activePlan ?? 'monthly' })
+              : t('paywall.subtitle')}
           </Text>
         </View>
 
         {/* Features */}
         <View style={[s.featuresCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          {PRO_FEATURES.map((feat, i) => (
+          {PRO_FEATURE_KEYS.map((feat, i) => (
             <View
               key={i}
               style={[
                 s.featureRow,
-                i < PRO_FEATURES.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+                i < PRO_FEATURE_KEYS.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
               ]}
             >
               <View style={[s.featureIconBox, { backgroundColor: colors.surfaceAlt }]}>
                 <Text style={{ fontSize: 18 }}>{feat.emoji}</Text>
               </View>
-              <Text style={[s.featureText, { color: colors.text }]}>{feat.text}</Text>
+              <Text style={[s.featureText, { color: colors.text }]}>{t(feat.key)}</Text>
               <Ionicons
                 name={isPro ? 'checkmark-circle' : 'checkmark-circle-outline'}
                 size={20}
@@ -112,7 +114,7 @@ export default function PaywallScreen() {
         {/* Plans — hidden when already Pro */}
         {!isPro && (
           <>
-            <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>ELIGE TU PLAN</Text>
+            <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('paywall.choosePlan')}</Text>
             <View style={s.plansRow}>
               {plans.map((plan) => {
                 const active = selectedPlan === plan.id;
@@ -135,7 +137,7 @@ export default function PaywallScreen() {
                     {plan.highlight && (
                       <View style={[s.popularBadge, { backgroundColor: active ? '#fff' : colors.primary }]}>
                         <Text style={[s.popularText, { color: active ? colors.primary : '#fff' }]}>
-                          ⭐ Más popular
+                          {t('paywall.popular')}
                         </Text>
                       </View>
                     )}
@@ -145,7 +147,7 @@ export default function PaywallScreen() {
                         { color: plan.highlight && active ? '#fff' : active ? colors.primary : colors.textSecondary },
                       ]}
                     >
-                      {plan.id === 'monthly' ? 'Mensual' : 'Anual'}
+                      {plan.id === 'monthly' ? t('paywall.monthly') : t('paywall.annual')}
                     </Text>
                     <Text
                       style={[
@@ -168,7 +170,7 @@ export default function PaywallScreen() {
                         },
                       ]}
                     >
-                      {plan.savingsLabel ?? 'Cancela cuando quieras'}
+                      {plan.savingsLabel ?? t('paywall.cancelAnytime')}
                     </Text>
                   </Pressable>
                 );
@@ -182,12 +184,12 @@ export default function PaywallScreen() {
           <View style={s.loadingRow}>
             <ActivityIndicator color={colors.primary} />
             <Text style={[{ color: colors.textSecondary, marginLeft: 10, fontSize: fontSize.md }]}>
-              Procesando…
+              {t('paywall.processing')}
             </Text>
           </View>
         ) : (
           <Button
-            title={isPro ? 'Listo' : `Empezar prueba gratis 7 días`}
+            title={isPro ? t('paywall.ctaDone') : t('paywall.ctaTrial')}
             onPress={handlePurchase}
             size="lg"
             style={{ marginTop: spacing.xl }}
@@ -196,18 +198,18 @@ export default function PaywallScreen() {
 
         {!isPro && !purchasing && (
           <Text style={[s.trialNote, { color: colors.textSecondary }]}>
-            Cancela en cualquier momento. Sin compromisos.
+            {t('paywall.trialNote')}
           </Text>
         )}
 
         {!isPro && (
           <Pressable onPress={handleRestore} style={s.restoreBtn} disabled={purchasing}>
-            <Text style={[s.restoreText, { color: colors.textSecondary }]}>Restaurar compras</Text>
+            <Text style={[s.restoreText, { color: colors.textSecondary }]}>{t('paywall.restore')}</Text>
           </Pressable>
         )}
 
         <Text style={[s.legal, { color: colors.textDisabled }]}>
-          El pago se cargará en tu cuenta de App Store. La suscripción se renueva automáticamente salvo que se cancele al menos 24 horas antes del final del período actual.
+          {t('paywall.legal')}
         </Text>
       </ScrollView>
     </SafeAreaView>

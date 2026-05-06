@@ -260,7 +260,17 @@
     "gardenNamePlaceholder": "Ex: La meva terrassa, Balcó nord...",
     "create": "Crear hort 🌱",
     "provinceSearch": "Cercar província...",
-    "closeSearch": "Tancar"
+    "closeSearch": "Tancar",
+    "step4Title": "Hort creat! 🌱",
+    "step4Desc": "Tot llest. Vols afegir la teva primera planta ara?",
+    "addFirstPlant": "Afegir primera planta",
+    "skipToGarden": "Veure el meu hort",
+    "feature1Title": "Lluna i sembra",
+    "feature1Desc": "Sembra al moment òptim segons el cicle lunar",
+    "feature2Title": "Temps real",
+    "feature2Desc": "Recomanacions de reg segons la previsió meteorològica",
+    "feature3Title": "Plantes companyes",
+    "feature3Desc": "Descobreix quins cultius es porten bé junts"
   },
   "paywall": {
     "titlePro": "Ja ets Pro!",
@@ -297,6 +307,12 @@
     "restoreNoneTitle": "Sense compres anteriors",
     "restoreNoneDesc": "No hem trobat cap subscripció activa associada al teu compte.",
     "restoreError": "No s'ha pogut connectar. Torna-ho a intentar."
+  },
+  "plantEdit": {
+    "title": "Editar planta",
+    "save": "Desar canvis",
+    "changePhoto": "Canviar foto",
+    "cropFixed": "Cultiu fix"
   },
   "plantNew": {
     "title": "Nova planta",
@@ -344,6 +360,18 @@
     "deleteTitle": "Eliminar {{name}}?",
     "deleteDesc": "S'eliminarà la planta i totes les seves entrades de diari i recordatoris.",
     "sownOn": "🌰 Sembrada {{date}}"
+  },
+  "reminderEdit": {
+    "title": "Editar recordatori",
+    "save": "Desar canvis",
+    "enabledLabel": "Recordatori actiu",
+    "enabledOn": "Les notificacions estan activades",
+    "enabledOff": "Les notificacions estan desactivades",
+    "delete": "Eliminar recordatori",
+    "deleteTitle": "Eliminar recordatori?",
+    "deleteDesc": "Es cancel·larà la notificació i s'eliminarà el recordatori.",
+    "saveError": "No s'ha pogut desar el recordatori.",
+    "notFound": "Recordatori no trobat"
   },
   "reminderNew": {
     "title": "Nou recordatori",
@@ -522,6 +550,37 @@
     "huerto": "Hort",
     "balcon": "Balcó / Terrassa",
     "maceta": "Interior / Testos"
+  },
+  "plantStatus": {
+    "seedling": "Planter",
+    "transplanted": "Trasplantat",
+    "growing": "Creixent",
+    "flowering": "En flor",
+    "fruiting": "Fructificant",
+    "harvesting": "En collita",
+    "finished": "Finalitzat"
+  },
+  "reminderType": {
+    "watering": "Reg",
+    "fertilizing": "Adob",
+    "harvest_check": "Revisar collita",
+    "custom": "Personalitzat"
+  },
+  "reminderFrequency": {
+    "daily": "Cada dia",
+    "every_2_days": "Cada 2 dies",
+    "every_3_days": "Cada 3 dies",
+    "weekly": "Cada setmana",
+    "once": "Una vegada"
+  },
+  "entryEdit": {
+    "title": "Editar entrada",
+    "save": "Desar",
+    "delete": "Eliminar entrada",
+    "deleteTitle": "Eliminar entrada?",
+    "deleteDesc": "Aquesta entrada s'eliminarà permanentment.",
+    "notFound": "Entrada no trobada",
+    "changePhoto": "Canviar foto"
   },
   "cropCategory": {
     "frutas": "Fruites",

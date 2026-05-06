@@ -34,6 +34,18 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
     }
   }
 
+  async function update(id: string, data: Partial<CreateInput<T>>): Promise<void> {
+    const reminder = collection.getById(id);
+    if (!reminder) return;
+    if (reminder.notificationId) await cancelReminder(reminder.notificationId).catch(() => {});
+    const merged = { ...reminder, ...data };
+    let notificationId: string | undefined;
+    if (merged.enabled) {
+      notificationId = await scheduleReminder(merged).catch(() => undefined);
+    }
+    await collection.update(id, { ...data, notificationId } as any);
+  }
+
   async function remove(id: string): Promise<void> {
     const reminder = collection.getById(id);
     if (reminder?.notificationId) await cancelReminder(reminder.notificationId).catch(() => {});
@@ -48,6 +60,7 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
     items: collection.items,
     loading: collection.loading,
     create,
+    update,
     toggle,
     remove,
     getById: collection.getById,

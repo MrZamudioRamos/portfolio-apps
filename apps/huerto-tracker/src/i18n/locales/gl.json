@@ -260,7 +260,17 @@
     "gardenNamePlaceholder": "Ex: A miña terraza, Balcón norte...",
     "create": "Crear horta 🌱",
     "provinceSearch": "Buscar provincia...",
-    "closeSearch": "Pechar"
+    "closeSearch": "Pechar",
+    "step4Title": "Horto creado! 🌱",
+    "step4Desc": "Todo listo. Queres engadir a túa primeira planta agora?",
+    "addFirstPlant": "Engadir primeira planta",
+    "skipToGarden": "Ver o meu horto",
+    "feature1Title": "Lúa e sementeira",
+    "feature1Desc": "Sementa no momento óptimo segundo o ciclo lunar",
+    "feature2Title": "Tempo real",
+    "feature2Desc": "Recomendacións de rego segundo a previsión meteorolóxica",
+    "feature3Title": "Plantas compañeiras",
+    "feature3Desc": "Descobre que cultivos se levan ben xuntos"
   },
   "paywall": {
     "titlePro": "Xa es Pro!",
@@ -297,6 +307,12 @@
     "restoreNoneTitle": "Sen compras anteriores",
     "restoreNoneDesc": "Non atopamos ningunha subscrición activa asociada á túa conta.",
     "restoreError": "Non se puido conectar. Téntao de novo."
+  },
+  "plantEdit": {
+    "title": "Editar planta",
+    "save": "Gardar cambios",
+    "changePhoto": "Cambiar foto",
+    "cropFixed": "Cultivo fixo"
   },
   "plantNew": {
     "title": "Nova planta",
@@ -344,6 +360,18 @@
     "deleteTitle": "Eliminar {{name}}?",
     "deleteDesc": "Eliminarase a planta e todas as súas entradas de diario e recordatorios.",
     "sownOn": "🌰 Sementada {{date}}"
+  },
+  "reminderEdit": {
+    "title": "Editar recordatorio",
+    "save": "Gardar cambios",
+    "enabledLabel": "Recordatorio activo",
+    "enabledOn": "As notificacións están activadas",
+    "enabledOff": "As notificacións están desactivadas",
+    "delete": "Eliminar recordatorio",
+    "deleteTitle": "Eliminar recordatorio?",
+    "deleteDesc": "Cancelarase a notificación e eliminarase o recordatorio.",
+    "saveError": "Non se puido gardar o recordatorio.",
+    "notFound": "Recordatorio non atopado"
   },
   "reminderNew": {
     "title": "Novo recordatorio",
@@ -522,6 +550,37 @@
     "huerto": "Horta",
     "balcon": "Balcón / Terraza",
     "maceta": "Interior / Macetas"
+  },
+  "plantStatus": {
+    "seedling": "Viveiro",
+    "transplanted": "Trasplantada",
+    "growing": "Crecendo",
+    "flowering": "En flor",
+    "fruiting": "Frutificando",
+    "harvesting": "En colleita",
+    "finished": "Rematada"
+  },
+  "reminderType": {
+    "watering": "Rego",
+    "fertilizing": "Abono",
+    "harvest_check": "Revisar colleita",
+    "custom": "Personalizado"
+  },
+  "reminderFrequency": {
+    "daily": "Cada día",
+    "every_2_days": "Cada 2 días",
+    "every_3_days": "Cada 3 días",
+    "weekly": "Cada semana",
+    "once": "Unha vez"
+  },
+  "entryEdit": {
+    "title": "Editar entrada",
+    "save": "Gardar",
+    "delete": "Eliminar entrada",
+    "deleteTitle": "Eliminar entrada?",
+    "deleteDesc": "Esta entrada eliminarase permanentemente.",
+    "notFound": "Entrada non atopada",
+    "changePhoto": "Cambiar foto"
   },
   "cropCategory": {
     "frutas": "Froitas",

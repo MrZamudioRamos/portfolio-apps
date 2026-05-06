@@ -260,7 +260,17 @@
     "gardenNamePlaceholder": "Adib: Nire terraza, Balkoi iparraldea...",
     "create": "Sortu baratzea 🌱",
     "provinceSearch": "Probintzia bilatu...",
-    "closeSearch": "Itxi"
+    "closeSearch": "Itxi",
+    "step4Title": "Lorategia sortua! 🌱",
+    "step4Desc": "Dena prest. Zure lehen landarea gehitu nahi duzu orain?",
+    "addFirstPlant": "Lehen landarea gehitu",
+    "skipToGarden": "Nire lorategia ikusi",
+    "feature1Title": "Ilargia eta ereintza",
+    "feature1Desc": "Erein momentu onean ilargi-zikloaren arabera",
+    "feature2Title": "Eguraldi erreala",
+    "feature2Desc": "Ureztatzeko gomendioakeguraldi iragarpenaren arabera",
+    "feature3Title": "Laguntzaile landareak",
+    "feature3Desc": "Jakin zein laborek ongi hartzen duten elkar"
   },
   "paywall": {
     "titlePro": "Pro zara dagoeneko!",
@@ -297,6 +307,12 @@
     "restoreNoneTitle": "Ez dago aurreko erosketa",
     "restoreNoneDesc": "Ez dugu aurkitu zure kontuarekin lotutako harpidetza aktiborik.",
     "restoreError": "Ezin izan da konektatu. Saiatu berriro."
+  },
+  "plantEdit": {
+    "title": "Landarea editatu",
+    "save": "Aldaketak gorde",
+    "changePhoto": "Argazkia aldatu",
+    "cropFixed": "Laborea finkoa"
   },
   "plantNew": {
     "title": "Landare berria",
@@ -344,6 +360,18 @@
     "deleteTitle": "{{name}} ezabatu?",
     "deleteDesc": "Landarea eta bere egunkari sarrera eta oroigarri guztiak ezabatuko dira.",
     "sownOn": "🌰 Ereindakoa {{date}}"
+  },
+  "reminderEdit": {
+    "title": "Gogorarazlea editatu",
+    "save": "Aldaketak gorde",
+    "enabledLabel": "Gogorarazlea aktibo",
+    "enabledOn": "Jakinarazpenak aktibatuta daude",
+    "enabledOff": "Jakinarazpenak desaktibatuta daude",
+    "delete": "Gogorarazlea ezabatu",
+    "deleteTitle": "Gogorarazlea ezabatu?",
+    "deleteDesc": "Jakinarazpena bertan behera utziko da eta gogorarazlea ezabatuko da.",
+    "saveError": "Ezin izan da gogorarazlea gorde.",
+    "notFound": "Gogorarazlea ez da aurkitu"
   },
   "reminderNew": {
     "title": "Oroigarri berria",
@@ -522,6 +550,37 @@
     "huerto": "Baratzea",
     "balcon": "Balkoia / Terraza",
     "maceta": "Barrualdea / Ontziak"
+  },
+  "plantStatus": {
+    "seedling": "Landaretegi",
+    "transplanted": "Transplantatuta",
+    "growing": "Hazten",
+    "flowering": "Loratzen",
+    "fruiting": "Frutatzen",
+    "harvesting": "Uztan",
+    "finished": "Amaituta"
+  },
+  "reminderType": {
+    "watering": "Ureztatzea",
+    "fertilizing": "Ongarritzea",
+    "harvest_check": "Uzta egiaztatzea",
+    "custom": "Pertsonalizatua"
+  },
+  "reminderFrequency": {
+    "daily": "Egunero",
+    "every_2_days": "2 egunero",
+    "every_3_days": "3 egunero",
+    "weekly": "Astero",
+    "once": "Behin"
+  },
+  "entryEdit": {
+    "title": "Sarrera editatu",
+    "save": "Gorde",
+    "delete": "Sarrera ezabatu",
+    "deleteTitle": "Sarrera ezabatu?",
+    "deleteDesc": "Sarrera hau behin betiko ezabatuko da.",
+    "notFound": "Sarrera ez da aurkitu",
+    "changePhoto": "Argazkia aldatu"
   },
   "cropCategory": {
     "frutas": "Fruituak",

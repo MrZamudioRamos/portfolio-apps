@@ -13,16 +13,17 @@ import type { Plant } from '../src/models/plant';
 import type { Garden } from '../src/models/garden';
 import { buildGamificationData, evaluateBadges, sortBadges, getUnlockedCount, TIER_COLORS } from '../src/utils/gamification';
 
-const MONTH_SHORT = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const BAR_MAX_H = 72;
 
-function getLast6Months(): { key: string; label: string }[] {
+function getLast6Months(locale: string): { key: string; label: string }[] {
   const now = new Date();
+  const intlLocale = locale === 'val' ? 'ca-ES' : locale;
   return Array.from({ length: 6 }, (_, i) => {
     const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    const label = new Intl.DateTimeFormat(intlLocale, { month: 'short' }).format(d);
     return {
       key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
-      label: MONTH_SHORT[d.getMonth()],
+      label: label.charAt(0).toUpperCase() + label.slice(1, 3),
     };
   });
 }
@@ -44,6 +45,7 @@ export default function StatsScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, isDark } = useTheme();
   const router = useRouter();
+  const { i18n } = useTranslation();
 
   const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
@@ -61,7 +63,7 @@ export default function StatsScreen() {
     const harvestEntries = allEntries.filter((e) => e.type === 'harvest');
 
     // Monthly activity (last 6 months)
-    const months = getLast6Months();
+    const months = getLast6Months(i18n.language);
     const monthCounts = months.map((m) => ({
       ...m,
       count: allEntries.filter((e) => e.date.startsWith(m.key)).length,
@@ -126,7 +128,7 @@ export default function StatsScreen() {
       topPlants,
       topCrops,
     };
-  }, [entries.items, plants.items]);
+  }, [entries.items, plants.items, i18n.language]);
 
   const { t } = useTranslation();
 
