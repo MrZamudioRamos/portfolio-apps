@@ -3,6 +3,8 @@ import { useSession } from '@portfolio/supabase';
 import { useColors } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { Redirect, Tabs } from 'expo-router';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
+import { Platform, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 export default function TabsLayout() {
@@ -12,6 +14,8 @@ export default function TabsLayout() {
   const { t } = useTranslation();
 
   if (onboardingLoading || sessionLoading) return null;
+
+  const glassTabBar = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
   if (!completed) {
     // Authenticated users skip the welcome screen and go straight to setup
@@ -27,10 +31,14 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textDisabled,
         tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border,
+          backgroundColor: glassTabBar ? 'transparent' : colors.surface,
+          borderTopColor: glassTabBar ? 'transparent' : colors.border,
+          borderTopWidth: glassTabBar ? 0 : 1,
           paddingBottom: 4,
         },
+        tabBarBackground: glassTabBar
+          ? () => <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />
+          : undefined,
       }}
     >
       <Tabs.Screen

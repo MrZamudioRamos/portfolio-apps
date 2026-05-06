@@ -15,11 +15,12 @@
       "resizeMode": "contain",
       "backgroundColor": "#FAFAF5"
     },
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.portfolio.huertotracker",
       "buildNumber": "1",
-      "minimumOsVersion": "15.1",
+      "minimumOsVersion": "16.0",
       "usesAppleSignIn": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Usa la cámara para añadir fotos de tus plantas.",
@@ -33,7 +34,10 @@
         "com.apple.developer.applesignin": [
           "Default"
         ],
-        "aps-environment": "production"
+        "aps-environment": "production",
+        "com.apple.security.application-groups": [
+          "group.com.portfolio.huertotracker"
+        ]
       }
     },
     "android": {
@@ -102,7 +106,20 @@
           }
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-widgets",
+        {
+          "widgets": [
+            {
+              "name": "GardenWidget",
+              "displayName": "Mi Huerto",
+              "entryPoint": "./src/widgets/GardenWidget.tsx",
+              "supportedFamilies": ["systemSmall", "systemMedium"]
+            }
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

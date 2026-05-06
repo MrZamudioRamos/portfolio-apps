@@ -2,12 +2,15 @@ import { useColors, useTheme, Card, EmptyState, StatCard, type Theme } from '@po
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
+import { GardenWidget } from '../../src/widgets/GardenWidget';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
   FlatList,
   Image,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -60,6 +63,24 @@ export default function DashboardScreen() {
     () => buildGamificationData(plants.items, entries.items).streak,
     [plants.items, entries.items]
   );
+
+  const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
+
+  // Update home screen widget snapshot whenever garden data changes
+  useEffect(() => {
+    if (!garden) return;
+    const nextReminder = reminders.items
+      .filter((r) => r.enabled)
+      .sort((a, b) => a.time.hour * 60 + a.time.minute - (b.time.hour * 60 + b.time.minute))[0];
+    GardenWidget.updateSnapshot({
+      gardenName: garden.name,
+      plantCount: plants.count,
+      nextReminder: nextReminder
+        ? `${String(nextReminder.time.hour).padStart(2, '0')}:${String(nextReminder.time.minute).padStart(2, '0')}`
+        : null,
+      lunarEmoji: lunar.phaseEmoji,
+    });
+  }, [garden, plants.count, reminders.items]);
 
   async function handleWaterAll() {
     const gardenId = garden?.id;
@@ -222,9 +243,15 @@ export default function DashboardScreen() {
               onPress={() => router.push('/(tabs)/calendar' as any)}
               style={({ pressed }) => [
                 s.lunarCard,
-                { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.85 : 1 },
+                {
+                  backgroundColor: glassAvailable ? 'transparent' : colors.surface,
+                  borderColor: colors.border,
+                  overflow: 'hidden',
+                  opacity: pressed ? 0.85 : 1,
+                },
               ]}
             >
+              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
               <View style={s.lunarLeft}>
                 <Text style={s.lunarMoonEmoji}>{lunar.phaseEmoji}</Text>
                 <View style={[s.lunarIllumBar, { backgroundColor: colors.border }]}>
