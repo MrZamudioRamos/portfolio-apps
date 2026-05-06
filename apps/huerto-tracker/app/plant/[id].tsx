@@ -205,7 +205,7 @@ export default function PlantDetailScreen() {
               <InfoItem label={t('plantDetail.spacing')} value={`${crop.spacing} cm`} />
             </View>
             <View style={[s.tipBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-              <Text style={[s.tipText, { color: colors.textSecondary }]}>💡 {crop.tips}</Text>
+              <Text style={[s.tipText, { color: colors.textSecondary }]}>💡 {t('crops.' + crop.id + '.tips')}</Text>
             </View>
           </Card>
 
@@ -366,7 +366,7 @@ export default function PlantDetailScreen() {
               <>
                 <View style={[{ height: StyleSheet.hairlineWidth, backgroundColor: colors.border }]} />
                 <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary, fontWeight: fontWeight.semibold }]}>
-                  {t('plantDetail.commonPests', { crop: crop?.name.toUpperCase() })}
+                  {t('plantDetail.commonPests', { crop: t('crops.' + crop?.id + '.name').toUpperCase() })}
                 </Text>
                 {pestInfo.slice(0, 3).map((pest) => (
                   <View key={pest.id} style={[s.pestCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>

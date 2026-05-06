@@ -102,9 +102,9 @@ export default function EditPlantScreen() {
           <View style={[s.cropRow, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
             <Text style={{ fontSize: 32 }}>{crop.emoji}</Text>
             <View style={{ flex: 1, marginLeft: spacing.md }}>
-              <Text style={[s.cropName, { color: colors.text }]}>{crop.name}</Text>
+              <Text style={[s.cropName, { color: colors.text }]}>{t('crops.' + crop.id + '.name')}</Text>
               <Text style={[s.cropCategory, { color: colors.textSecondary }]}>
-                {CATEGORY_CONFIG[crop.category].label}
+                {t('cropCategory.' + crop.category)}
               </Text>
             </View>
             <View style={[s.fixedBadge, { backgroundColor: colors.border }]}>

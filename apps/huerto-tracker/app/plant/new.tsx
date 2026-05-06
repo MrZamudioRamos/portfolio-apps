@@ -50,7 +50,7 @@ export default function NewPlantScreen() {
   const [showCropPicker, setShowCropPicker] = useState(!paramCropId);
   const [cropSearch, setCropSearch] = useState('');
   const [plantName, setPlantName] = useState(
-    paramCropId ? (CROPS_BY_ID[paramCropId]?.name ?? '') : ''
+    paramCropId ? (t('crops.' + paramCropId + '.name') || CROPS_BY_ID[paramCropId]?.name || '') : ''
   );
   const [variety, setVariety] = useState('');
   const [sowingDate, setSowingDate] = useState(new Date().toISOString().split('T')[0]);
@@ -64,13 +64,16 @@ export default function NewPlantScreen() {
     const q = cropSearch.toLowerCase();
     return SECTIONS.map((s) => ({
       ...s,
-      data: s.data.filter((c) => c.name.toLowerCase().includes(q)),
+      data: s.data.filter((c) =>
+        c.name.toLowerCase().includes(q) ||
+        t('crops.' + c.id + '.name').toLowerCase().includes(q)
+      ),
     })).filter((s) => s.data.length > 0);
-  }, [cropSearch]);
+  }, [cropSearch, t]);
 
   function handleSelectCrop(crop: CropInfo) {
     setSelectedCropId(crop.id);
-    if (!plantName) setPlantName(crop.name);
+    if (!plantName) setPlantName(t('crops.' + crop.id + '.name') || crop.name);
     setShowCropPicker(false);
     setCropSearch('');
   }
@@ -106,7 +109,8 @@ export default function NewPlantScreen() {
         status: 'seedling',
         ...(photoUri ? { photoUri } : {}),
       });
-      router.back();
+      if (router.canGoBack()) router.back();
+      else router.replace('/(tabs)');
     } finally {
       setSaving(false);
     }
@@ -121,7 +125,7 @@ export default function NewPlantScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
+        <Pressable onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('plantNew.title')}</Text>
@@ -147,9 +151,9 @@ export default function NewPlantScreen() {
                 >
                   <Text style={{ fontSize: 32 }}>{selectedCrop.emoji}</Text>
                   <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={[s.cropName, { color: colors.text }]}>{selectedCrop.name}</Text>
+                    <Text style={[s.cropName, { color: colors.text }]}>{t('crops.' + selectedCrop.id + '.name')}</Text>
                     <Text style={[s.cropCategory, { color: colors.textSecondary }]}>
-                      {CATEGORY_CONFIG[selectedCrop.category].label}
+                      {t('cropCategory.' + selectedCrop.category)}
                     </Text>
                   </View>
                   <Text style={[s.changeText, { color: colors.primary }]}>{t('plantNew.changeCrop')}</Text>
@@ -194,7 +198,7 @@ export default function NewPlantScreen() {
               <TextInput
                 value={sowingDate}
                 onChangeText={setSowingDate}
-                placeholder="AAAA-MM-DD"
+                placeholder={t('entryNew.datePlaceholder')}
                 placeholderTextColor={colors.textDisabled}
                 style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                 keyboardType="numeric"
@@ -262,7 +266,7 @@ export default function NewPlantScreen() {
             renderSectionHeader={({ section }) => (
               <View style={[s.categoryHeader, { backgroundColor: colors.background }]}>
                 <Text style={[s.categoryTitle, { color: colors.textSecondary }]}>
-                  {CATEGORY_CONFIG[section.title].emoji} {CATEGORY_CONFIG[section.title].label.toUpperCase()}
+                  {CATEGORY_CONFIG[section.title].emoji} {t('cropCategory.' + section.title).toUpperCase()}
                 </Text>
               </View>
             )}
@@ -285,7 +289,7 @@ export default function NewPlantScreen() {
                 <Text style={{ fontSize: 28 }}>{item.emoji}</Text>
                 <View style={{ flex: 1, marginLeft: spacing.md }}>
                   <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.medium }}>
-                    {item.name}
+                    {t('crops.' + item.id + '.name')}
                   </Text>
                 </View>
                 {item.id === selectedCropId && (

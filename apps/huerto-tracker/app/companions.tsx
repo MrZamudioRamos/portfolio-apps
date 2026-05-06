@@ -34,15 +34,16 @@ export default function CompanionsScreen() {
   const [selectedB, setSelectedB] = useState<CropInfo | null>(null);
   const [pickingSlot, setPickingSlot] = useState<'A' | 'B' | null>(null);
 
+  const { t } = useTranslation();
+
   const filtered = useMemo(
     () =>
       CROPS.filter((c) =>
-        c.name.toLowerCase().includes(search.toLowerCase())
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        t('crops.' + c.id + '.name').toLowerCase().includes(search.toLowerCase())
       ),
-    [search]
+    [search, t]
   );
-
-  const { t } = useTranslation();
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -63,10 +64,10 @@ export default function CompanionsScreen() {
             <Text style={s.browseEmoji}>{crop.emoji}</Text>
             <View style={{ flex: 1 }}>
               <Text style={[s.browseName, { color: locked ? colors.textDisabled : colors.text }]}>
-                {crop.name}
+                {t('crops.' + crop.id + '.name')}
               </Text>
               <Text style={[s.browseCategory, { color: colors.primary }]}>
-                {CATEGORY_CONFIG[crop.category]?.label}
+                {t('cropCategory.' + crop.category)}
               </Text>
             </View>
           </View>
@@ -79,7 +80,7 @@ export default function CompanionsScreen() {
                   <View style={s.chipRow}>
                     {companions.map((c) => (
                       <View key={c.id} style={[s.chip, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
-                        <Text style={s.chipText}>{c.emoji} {c.name}</Text>
+                        <Text style={s.chipText}>{c.emoji} {t('crops.' + c.id + '.name')}</Text>
                       </View>
                     ))}
                   </View>
@@ -92,7 +93,7 @@ export default function CompanionsScreen() {
                   <View style={s.chipRow}>
                     {incompatible.map((c) => (
                       <View key={c.id} style={[s.chip, { backgroundColor: '#EF535018', borderColor: '#EF5350' }]}>
-                        <Text style={s.chipText}>{c.emoji} {c.name}</Text>
+                        <Text style={s.chipText}>{c.emoji} {t('crops.' + c.id + '.name')}</Text>
                       </View>
                     ))}
                   </View>
@@ -152,7 +153,7 @@ export default function CompanionsScreen() {
         {crop ? (
           <>
             <Text style={{ fontSize: 28 }}>{crop.emoji}</Text>
-            <Text style={[s.pickerName, { color: colors.text }]} numberOfLines={1}>{crop.name}</Text>
+            <Text style={[s.pickerName, { color: colors.text }]} numberOfLines={1}>{t('crops.' + crop.id + '.name')}</Text>
             <Pressable onPress={() => slot === 'A' ? setSelectedA(null) : setSelectedB(null)} hitSlop={8}>
               <Ionicons name="close-circle" size={16} color={colors.textDisabled} />
             </Pressable>
@@ -281,7 +282,7 @@ export default function CompanionsScreen() {
                 {COMPAT_CONFIG[compatibility].label}
               </Text>
               <Text style={[s.resultDesc, { color: colors.text }]}>
-                {selectedA.name} + {selectedB.name}
+                {t('crops.' + selectedA.id + '.name')} + {t('crops.' + selectedB.id + '.name')}
               </Text>
               {compatibility === 'companion' && (
                 <Text style={[s.resultNote, { color: colors.textSecondary }]}>
@@ -333,7 +334,7 @@ export default function CompanionsScreen() {
                       ]}
                     >
                       <Text style={{ fontSize: 22, width: 32 }}>{crop.emoji}</Text>
-                      <Text style={[s.cropPickName, { color: colors.text, flex: 1 }]}>{crop.name}</Text>
+                      <Text style={[s.cropPickName, { color: colors.text, flex: 1 }]}>{t('crops.' + crop.id + '.name')}</Text>
                       {statusColor && (
                         <Ionicons
                           name={status === 'companion' ? 'checkmark-circle' : 'close-circle'}

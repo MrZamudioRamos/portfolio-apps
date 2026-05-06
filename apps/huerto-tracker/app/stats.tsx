@@ -278,7 +278,7 @@ export default function StatsScreen() {
                   <View style={s.rankRow}>
                     <Text style={[s.rankNum, { color: colors.textDisabled }]}>#{i + 1}</Text>
                     <Text style={{ fontSize: 22 }}>{item.crop.emoji}</Text>
-                    <Text style={[s.rankName, { color: colors.text }]}>{item.crop.name}</Text>
+                    <Text style={[s.rankName, { color: colors.text }]}>{t('crops.' + item.crop.id + '.name')}</Text>
                     <View style={[s.rankBadge, { backgroundColor: '#FF704322' }]}>
                       <Text style={[s.rankBadgeText, { color: '#FF7043' }]}>
                         {t('stats.harvestCount', { count: item.count })}
