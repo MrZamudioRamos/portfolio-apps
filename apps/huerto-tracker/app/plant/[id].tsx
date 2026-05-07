@@ -161,9 +161,22 @@ export default function PlantDetailScreen() {
 
           {/* Dates */}
           {plant.sowingDate && (
-            <Text style={[s.dateText, { color: colors.textSecondary }]}>
-              {t('plantDetail.sownOn', { date: formatDate(plant.sowingDate) })}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xl }}>
+              <Text style={[s.dateText, { color: colors.textSecondary, marginBottom: 0 }]}>
+                {t('plantDetail.sownOn', { date: formatDate(plant.sowingDate) })}
+              </Text>
+              {(() => {
+                const days = Math.floor((Date.now() - new Date(plant.sowingDate).getTime()) / 86_400_000);
+                if (days < 1) return null;
+                return (
+                  <View style={[s.daysChip, { backgroundColor: colors.primary + '18' }]}>
+                    <Text style={[s.daysChipText, { color: colors.primary }]}>
+                      {t('plantDetail.daysGrowing', { count: days })}
+                    </Text>
+                  </View>
+                );
+              })()}
+            </View>
           )}
 
           {/* Status selector */}
@@ -291,7 +304,7 @@ export default function PlantDetailScreen() {
           <View style={s.sectionHeaderRow}>
             <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.diary')}</Text>
             {plantEntries.length > 0 && (
-              <Pressable onPress={() => router.push('/diary')}>
+              <Pressable onPress={() => router.push(`/(tabs)/diary?plantId=${id}` as any)}>
                 <Text style={{ color: colors.primary, fontSize: fontSize.sm }}>{t('common.viewAll')}</Text>
               </Pressable>
             )}
@@ -500,7 +513,13 @@ const makeStyles = (
       alignSelf: 'flex-start',
     },
     statusText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    dateText: { fontSize: fontSize.sm, marginBottom: spacing.xl },
+    dateText: { fontSize: fontSize.sm },
+    daysChip: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: radii.full,
+    },
+    daysChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     sectionTitle: {
       fontSize: fontSize.lg,
       fontWeight: fontWeight.bold,

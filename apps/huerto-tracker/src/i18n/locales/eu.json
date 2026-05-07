@@ -359,7 +359,9 @@
     "deletePlant": "Landarea ezabatu",
     "deleteTitle": "{{name}} ezabatu?",
     "deleteDesc": "Landarea eta bere egunkari sarrera eta oroigarri guztiak ezabatuko dira.",
-    "sownOn": "🌰 Ereindakoa {{date}}"
+    "sownOn": "🌰 Ereindakoa {{date}}",
+    "daysGrowing_one": "{{count}} egun",
+    "daysGrowing_other": "{{count}} egun"
   },
   "reminderEdit": {
     "title": "Gogorarazlea editatu",
@@ -593,40 +595,110 @@
     "bulbos": "Bulboak"
   },
   "crops": {
-    "tomate":      { "name": "Tomatea" },
-    "pimiento":    { "name": "Piperra" },
-    "berenjena":   { "name": "Alberjinia" },
-    "fresa":       { "name": "Marrubia" },
-    "lechuga":     { "name": "Letxuga" },
-    "espinaca":    { "name": "Espinaka" },
-    "acelga":      { "name": "Zikoria" },
-    "rucula":      { "name": "Rúkola" },
-    "canonigos":   { "name": "Kanongiak" },
-    "zanahoria":   { "name": "Azenarioa" },
-    "rabano":      { "name": "Errabano" },
-    "remolacha":   { "name": "Erremolatxa" },
-    "patata":      { "name": "Patata" },
-    "nabo":        { "name": "Nabua" },
-    "judia-verde": { "name": "Babarrun berdea" },
-    "guisante":    { "name": "Ilarraren" },
-    "haba":        { "name": "Baba" },
-    "brocoli":     { "name": "Brokolia" },
-    "coliflor":    { "name": "Koliflore" },
-    "col":         { "name": "Aza / Errep-oloa" },
-    "kale":        { "name": "Kale (Aza kizkurra)" },
-    "calabacin":   { "name": "Kalabazina" },
-    "pepino":      { "name": "Pepinoa" },
-    "calabaza":    { "name": "Kalabaza" },
-    "melon":       { "name": "Meloia" },
-    "sandia":      { "name": "Sandia" },
-    "albahaca":    { "name": "Albahaka" },
-    "perejil":     { "name": "Perrexila" },
-    "cilantro":    { "name": "Zilantro" },
-    "romero":      { "name": "Erromeroa" },
-    "tomillo":     { "name": "Ezkaia" },
-    "menta":       { "name": "Menta" },
-    "ajo":         { "name": "Berakatz" },
-    "cebolla":     { "name": "Tipula" },
-    "puerro":      { "name": "Porrua" }
+    "tomate": {
+      "name": "Tomatea"
+    },
+    "pimiento": {
+      "name": "Piperra"
+    },
+    "berenjena": {
+      "name": "Alberjinia"
+    },
+    "fresa": {
+      "name": "Marrubia"
+    },
+    "lechuga": {
+      "name": "Letxuga"
+    },
+    "espinaca": {
+      "name": "Espinaka"
+    },
+    "acelga": {
+      "name": "Zikoria"
+    },
+    "rucula": {
+      "name": "Rúkola"
+    },
+    "canonigos": {
+      "name": "Kanongiak"
+    },
+    "zanahoria": {
+      "name": "Azenarioa"
+    },
+    "rabano": {
+      "name": "Errabano"
+    },
+    "remolacha": {
+      "name": "Erremolatxa"
+    },
+    "patata": {
+      "name": "Patata"
+    },
+    "nabo": {
+      "name": "Nabua"
+    },
+    "judia-verde": {
+      "name": "Babarrun berdea"
+    },
+    "guisante": {
+      "name": "Ilarraren"
+    },
+    "haba": {
+      "name": "Baba"
+    },
+    "brocoli": {
+      "name": "Brokolia"
+    },
+    "coliflor": {
+      "name": "Koliflore"
+    },
+    "col": {
+      "name": "Aza / Errep-oloa"
+    },
+    "kale": {
+      "name": "Kale (Aza kizkurra)"
+    },
+    "calabacin": {
+      "name": "Kalabazina"
+    },
+    "pepino": {
+      "name": "Pepinoa"
+    },
+    "calabaza": {
+      "name": "Kalabaza"
+    },
+    "melon": {
+      "name": "Meloia"
+    },
+    "sandia": {
+      "name": "Sandia"
+    },
+    "albahaca": {
+      "name": "Albahaka"
+    },
+    "perejil": {
+      "name": "Perrexila"
+    },
+    "cilantro": {
+      "name": "Zilantro"
+    },
+    "romero": {
+      "name": "Erromeroa"
+    },
+    "tomillo": {
+      "name": "Ezkaia"
+    },
+    "menta": {
+      "name": "Menta"
+    },
+    "ajo": {
+      "name": "Berakatz"
+    },
+    "cebolla": {
+      "name": "Tipula"
+    },
+    "puerro": {
+      "name": "Porrua"
+    }
   }
 }

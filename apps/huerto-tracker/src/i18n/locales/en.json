@@ -359,7 +359,9 @@
     "deletePlant": "Delete plant",
     "deleteTitle": "Delete {{name}}?",
     "deleteDesc": "The plant and all its journal entries and reminders will be deleted.",
-    "sownOn": "🌰 Sown {{date}}"
+    "sownOn": "🌰 Sown {{date}}",
+    "daysGrowing_one": "{{count}} day",
+    "daysGrowing_other": "{{count}} days"
   },
   "reminderEdit": {
     "title": "Edit reminder",
@@ -593,40 +595,145 @@
     "bulbos": "Bulbs"
   },
   "crops": {
-    "tomate":      { "name": "Tomato",        "tips": "Remove suckers regularly to focus energy on the fruits. Water at the base, never on the leaves." },
-    "pimiento":    { "name": "Pepper",        "tips": "Needs warm nights to set fruit well. On terraces, place it against a south-facing wall." },
-    "berenjena":   { "name": "Aubergine",     "tips": "The most heat-demanding crop in the nightshade family. Harvest before the skin loses its shine." },
-    "fresa":       { "name": "Strawberry",    "tips": "Plant in autumn to harvest in spring. Mulch with straw to retain moisture and prevent fruit touching the soil." },
-    "lechuga":     { "name": "Lettuce",       "tips": "Stagger sowings every 2–3 weeks for a continuous supply. In heat it bolts quickly; choose heat-resistant varieties." },
-    "espinaca":    { "name": "Spinach",       "tips": "Cool-season crop. Harvest outer leaves and the heart will keep producing for several weeks." },
-    "acelga":      { "name": "Swiss Chard",   "tips": "Very productive and hardy. Cut from the outside leaving the heart; one plant can last more than a year." },
-    "rucula":      { "name": "Rocket",        "tips": "Grows in 4 weeks. Gets very peppery and bolts in heat; sow in partial shade in summer." },
-    "canonigos":   { "name": "Lamb's Lettuce","tips": "Ideal autumn-winter crop to keep the garden productive in the cold season. Sow densely." },
-    "zanahoria":   { "name": "Carrot",        "tips": "Needs deep, loose soil without stones for the root to grow straight. Thin to 8 cm when seedlings are 5 cm tall." },
-    "rabano":      { "name": "Radish",        "tips": "The fastest crop in the garden, ideal for filling gaps. Harvest promptly or it becomes woody and overly peppery." },
-    "remolacha":   { "name": "Beetroot",      "tips": "Each seed is a fruit containing several seeds; thin to 10 cm leaving the most vigorous seedling." },
-    "patata":      { "name": "Potato",        "tips": "Earth up soil around the stem as it grows for more tubers. Harvest when the plant yellows." },
-    "nabo":        { "name": "Turnip",        "tips": "Rustic autumn crop. Harvest small (5–7 cm) for best flavour; larger ones become bitter and fibrous." },
-    "judia-verde": { "name": "Green Bean",    "tips": "Harvest frequently while pods still bend; letting them mature exhausts the plant. Climbing varieties need 1.5 m support." },
-    "guisante":    { "name": "Pea",           "tips": "Cool-season crop. Provide support from the start. Harvest when pods are well-filled but still green." },
-    "haba":        { "name": "Broad Bean",    "tips": "Sow in autumn for greater yield. Pinch the main stem when first fruits appear to control black aphid." },
-    "brocoli":     { "name": "Broccoli",      "tips": "Harvest the central head before it flowers. Plants will keep producing small side shoots for weeks." },
-    "coliflor":    { "name": "Cauliflower",   "tips": "When the curd forms, fold the outer leaves over it to blanch and protect it from the sun." },
-    "col":         { "name": "Cabbage",       "tips": "Very frost-hardy. Plant in firm soil and earth up around the stem so it doesn't topple in the wind." },
-    "kale":        { "name": "Kale",          "tips": "Harvest lower and outer leaves; the plant keeps growing from the top. Cold improves its flavour, making it sweeter." },
-    "calabacin":   { "name": "Courgette",     "tips": "A single plant can yield 3–4 kg per week. Harvest at 15–20 cm so the plant doesn't exhaust itself." },
-    "pepino":      { "name": "Cucumber",      "tips": "Train on a trellis to save space on terraces. Harvest daily when production is at its peak." },
-    "calabaza":    { "name": "Pumpkin",       "tips": "Needs lots of space; on small terraces use small-fruited or climbing varieties. Ready when the stem dries." },
-    "melon":       { "name": "Melon",         "tips": "Prune to 2–3 fruits per plant for large, sweet melons. Reduce watering once fruits have set to concentrate sugar." },
-    "sandia":      { "name": "Watermelon",    "tips": "Tap the fruit gently: a hollow sound means ripe. The tendril closest to the fruit should be dry at harvest." },
-    "albahaca":    { "name": "Basil",         "tips": "Pinch to encourage branching and prevent bolting. The best tomato companion: repels whitefly and aphids." },
-    "perejil":     { "name": "Parsley",       "tips": "Slow to germinate (3–4 weeks). Soak seeds 24 h before sowing to speed it up. Cut from the outside, leaving the heart." },
-    "cilantro":    { "name": "Coriander",     "tips": "Bolts quickly in heat; sow in partial shade or in staggered sowings every 3 weeks for continuous production." },
-    "romero":      { "name": "Rosemary",      "tips": "Hardy perennial. Better to propagate by cuttings in spring than from seed. Does not tolerate waterlogging." },
-    "tomillo":     { "name": "Thyme",         "tips": "Mediterranean herb that withstands drought well. Prune after flowering to keep it compact and productive." },
-    "menta":       { "name": "Mint",          "tips": "Very invasive: always plant in a pot or with an underground barrier. Prefers partial shade in summer." },
-    "ajo":         { "name": "Garlic",        "tips": "Plant individual cloves tip-up, 5 cm deep. When half the leaves dry out, it's time to harvest." },
-    "cebolla":     { "name": "Onion",         "tips": "Bend the leaves when they fall naturally and leave the bulb to cure in the ground for 2 weeks. Store cool and dry." },
-    "puerro":      { "name": "Leek",          "tips": "Transplant into deep holes and earth up gradually to blanch the stem. Stays in the ground all autumn-winter; harvest as needed." }
+    "tomate": {
+      "name": "Tomato",
+      "tips": "Remove suckers regularly to focus energy on the fruits. Water at the base, never on the leaves."
+    },
+    "pimiento": {
+      "name": "Pepper",
+      "tips": "Needs warm nights to set fruit well. On terraces, place it against a south-facing wall."
+    },
+    "berenjena": {
+      "name": "Aubergine",
+      "tips": "The most heat-demanding crop in the nightshade family. Harvest before the skin loses its shine."
+    },
+    "fresa": {
+      "name": "Strawberry",
+      "tips": "Plant in autumn to harvest in spring. Mulch with straw to retain moisture and prevent fruit touching the soil."
+    },
+    "lechuga": {
+      "name": "Lettuce",
+      "tips": "Stagger sowings every 2–3 weeks for a continuous supply. In heat it bolts quickly; choose heat-resistant varieties."
+    },
+    "espinaca": {
+      "name": "Spinach",
+      "tips": "Cool-season crop. Harvest outer leaves and the heart will keep producing for several weeks."
+    },
+    "acelga": {
+      "name": "Swiss Chard",
+      "tips": "Very productive and hardy. Cut from the outside leaving the heart; one plant can last more than a year."
+    },
+    "rucula": {
+      "name": "Rocket",
+      "tips": "Grows in 4 weeks. Gets very peppery and bolts in heat; sow in partial shade in summer."
+    },
+    "canonigos": {
+      "name": "Lamb's Lettuce",
+      "tips": "Ideal autumn-winter crop to keep the garden productive in the cold season. Sow densely."
+    },
+    "zanahoria": {
+      "name": "Carrot",
+      "tips": "Needs deep, loose soil without stones for the root to grow straight. Thin to 8 cm when seedlings are 5 cm tall."
+    },
+    "rabano": {
+      "name": "Radish",
+      "tips": "The fastest crop in the garden, ideal for filling gaps. Harvest promptly or it becomes woody and overly peppery."
+    },
+    "remolacha": {
+      "name": "Beetroot",
+      "tips": "Each seed is a fruit containing several seeds; thin to 10 cm leaving the most vigorous seedling."
+    },
+    "patata": {
+      "name": "Potato",
+      "tips": "Earth up soil around the stem as it grows for more tubers. Harvest when the plant yellows."
+    },
+    "nabo": {
+      "name": "Turnip",
+      "tips": "Rustic autumn crop. Harvest small (5–7 cm) for best flavour; larger ones become bitter and fibrous."
+    },
+    "judia-verde": {
+      "name": "Green Bean",
+      "tips": "Harvest frequently while pods still bend; letting them mature exhausts the plant. Climbing varieties need 1.5 m support."
+    },
+    "guisante": {
+      "name": "Pea",
+      "tips": "Cool-season crop. Provide support from the start. Harvest when pods are well-filled but still green."
+    },
+    "haba": {
+      "name": "Broad Bean",
+      "tips": "Sow in autumn for greater yield. Pinch the main stem when first fruits appear to control black aphid."
+    },
+    "brocoli": {
+      "name": "Broccoli",
+      "tips": "Harvest the central head before it flowers. Plants will keep producing small side shoots for weeks."
+    },
+    "coliflor": {
+      "name": "Cauliflower",
+      "tips": "When the curd forms, fold the outer leaves over it to blanch and protect it from the sun."
+    },
+    "col": {
+      "name": "Cabbage",
+      "tips": "Very frost-hardy. Plant in firm soil and earth up around the stem so it doesn't topple in the wind."
+    },
+    "kale": {
+      "name": "Kale",
+      "tips": "Harvest lower and outer leaves; the plant keeps growing from the top. Cold improves its flavour, making it sweeter."
+    },
+    "calabacin": {
+      "name": "Courgette",
+      "tips": "A single plant can yield 3–4 kg per week. Harvest at 15–20 cm so the plant doesn't exhaust itself."
+    },
+    "pepino": {
+      "name": "Cucumber",
+      "tips": "Train on a trellis to save space on terraces. Harvest daily when production is at its peak."
+    },
+    "calabaza": {
+      "name": "Pumpkin",
+      "tips": "Needs lots of space; on small terraces use small-fruited or climbing varieties. Ready when the stem dries."
+    },
+    "melon": {
+      "name": "Melon",
+      "tips": "Prune to 2–3 fruits per plant for large, sweet melons. Reduce watering once fruits have set to concentrate sugar."
+    },
+    "sandia": {
+      "name": "Watermelon",
+      "tips": "Tap the fruit gently: a hollow sound means ripe. The tendril closest to the fruit should be dry at harvest."
+    },
+    "albahaca": {
+      "name": "Basil",
+      "tips": "Pinch to encourage branching and prevent bolting. The best tomato companion: repels whitefly and aphids."
+    },
+    "perejil": {
+      "name": "Parsley",
+      "tips": "Slow to germinate (3–4 weeks). Soak seeds 24 h before sowing to speed it up. Cut from the outside, leaving the heart."
+    },
+    "cilantro": {
+      "name": "Coriander",
+      "tips": "Bolts quickly in heat; sow in partial shade or in staggered sowings every 3 weeks for continuous production."
+    },
+    "romero": {
+      "name": "Rosemary",
+      "tips": "Hardy perennial. Better to propagate by cuttings in spring than from seed. Does not tolerate waterlogging."
+    },
+    "tomillo": {
+      "name": "Thyme",
+      "tips": "Mediterranean herb that withstands drought well. Prune after flowering to keep it compact and productive."
+    },
+    "menta": {
+      "name": "Mint",
+      "tips": "Very invasive: always plant in a pot or with an underground barrier. Prefers partial shade in summer."
+    },
+    "ajo": {
+      "name": "Garlic",
+      "tips": "Plant individual cloves tip-up, 5 cm deep. When half the leaves dry out, it's time to harvest."
+    },
+    "cebolla": {
+      "name": "Onion",
+      "tips": "Bend the leaves when they fall naturally and leave the bulb to cure in the ground for 2 weeks. Store cool and dry."
+    },
+    "puerro": {
+      "name": "Leek",
+      "tips": "Transplant into deep holes and earth up gradually to blanch the stem. Stays in the ground all autumn-winter; harvest as needed."
+    }
   }
 }

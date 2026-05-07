@@ -96,10 +96,11 @@ export default function StatsScreen() {
         return { plantId, count, name: plant?.name ?? '—', emoji: crop?.emoji ?? '🌱' };
       });
 
-    // Harvest weight total
+    // Harvest weight total (stored as kg, may be string or number)
     const totalWeight = harvestEntries.reduce((sum, e) => {
       const w = (e.data as any)?.weight;
-      return sum + (typeof w === 'number' ? w : 0);
+      const parsed = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
+      return sum + (isNaN(parsed) ? 0 : parsed);
     }, 0);
 
     // Top crops by harvest
@@ -164,7 +165,7 @@ export default function StatsScreen() {
           />
           <KeyStat
             emoji="⚖️"
-            value={stats.totalWeight !== null ? `${stats.totalWeight} g` : '—'}
+            value={stats.totalWeight !== null ? `${stats.totalWeight.toFixed(2)} kg` : '—'}
             label={t('stats.harvested')}
             colors={colors}
             s={s}

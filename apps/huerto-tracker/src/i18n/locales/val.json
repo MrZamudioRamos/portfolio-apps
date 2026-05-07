@@ -359,7 +359,9 @@
     "deletePlant": "Eliminar planta",
     "deleteTitle": "Eliminar {{name}}?",
     "deleteDesc": "S'eliminarà la planta i totes les seues entrades de diari i recordatoris.",
-    "sownOn": "🌰 Sembrada {{date}}"
+    "sownOn": "🌰 Sembrada {{date}}",
+    "daysGrowing_one": "{{count}} dia",
+    "daysGrowing_other": "{{count}} dies"
   },
   "reminderEdit": {
     "title": "Editar recordatori",
@@ -593,40 +595,110 @@
     "bulbos": "Bulbs"
   },
   "crops": {
-    "tomate":      { "name": "Tomaca" },
-    "pimiento":    { "name": "Pebrot" },
-    "berenjena":   { "name": "Albergínia" },
-    "fresa":       { "name": "Maduixa" },
-    "lechuga":     { "name": "Enciam" },
-    "espinaca":    { "name": "Espinac" },
-    "acelga":      { "name": "Bleda" },
-    "rucula":      { "name": "Rúcola" },
-    "canonigos":   { "name": "Canonges" },
-    "zanahoria":   { "name": "Pastanaga" },
-    "rabano":      { "name": "Rave" },
-    "remolacha":   { "name": "Remolatxa" },
-    "patata":      { "name": "Creïlla" },
-    "nabo":        { "name": "Nap" },
-    "judia-verde": { "name": "Mongeta tendra" },
-    "guisante":    { "name": "Pésol" },
-    "haba":        { "name": "Fava" },
-    "brocoli":     { "name": "Bròquil" },
-    "coliflor":    { "name": "Coliflor" },
-    "col":         { "name": "Col / Repoll" },
-    "kale":        { "name": "Kale (Col arrissada)" },
-    "calabacin":   { "name": "Carabasseta" },
-    "pepino":      { "name": "Cogombre" },
-    "calabaza":    { "name": "Carabassa" },
-    "melon":       { "name": "Meló" },
-    "sandia":      { "name": "Síndria" },
-    "albahaca":    { "name": "Alfàbrega" },
-    "perejil":     { "name": "Julivert" },
-    "cilantro":    { "name": "Coriandre" },
-    "romero":      { "name": "Romaní" },
-    "tomillo":     { "name": "Farigola" },
-    "menta":       { "name": "Menta" },
-    "ajo":         { "name": "All" },
-    "cebolla":     { "name": "Ceba" },
-    "puerro":      { "name": "Porro" }
+    "tomate": {
+      "name": "Tomaca"
+    },
+    "pimiento": {
+      "name": "Pebrot"
+    },
+    "berenjena": {
+      "name": "Albergínia"
+    },
+    "fresa": {
+      "name": "Maduixa"
+    },
+    "lechuga": {
+      "name": "Enciam"
+    },
+    "espinaca": {
+      "name": "Espinac"
+    },
+    "acelga": {
+      "name": "Bleda"
+    },
+    "rucula": {
+      "name": "Rúcola"
+    },
+    "canonigos": {
+      "name": "Canonges"
+    },
+    "zanahoria": {
+      "name": "Pastanaga"
+    },
+    "rabano": {
+      "name": "Rave"
+    },
+    "remolacha": {
+      "name": "Remolatxa"
+    },
+    "patata": {
+      "name": "Creïlla"
+    },
+    "nabo": {
+      "name": "Nap"
+    },
+    "judia-verde": {
+      "name": "Mongeta tendra"
+    },
+    "guisante": {
+      "name": "Pésol"
+    },
+    "haba": {
+      "name": "Fava"
+    },
+    "brocoli": {
+      "name": "Bròquil"
+    },
+    "coliflor": {
+      "name": "Coliflor"
+    },
+    "col": {
+      "name": "Col / Repoll"
+    },
+    "kale": {
+      "name": "Kale (Col arrissada)"
+    },
+    "calabacin": {
+      "name": "Carabasseta"
+    },
+    "pepino": {
+      "name": "Cogombre"
+    },
+    "calabaza": {
+      "name": "Carabassa"
+    },
+    "melon": {
+      "name": "Meló"
+    },
+    "sandia": {
+      "name": "Síndria"
+    },
+    "albahaca": {
+      "name": "Alfàbrega"
+    },
+    "perejil": {
+      "name": "Julivert"
+    },
+    "cilantro": {
+      "name": "Coriandre"
+    },
+    "romero": {
+      "name": "Romaní"
+    },
+    "tomillo": {
+      "name": "Farigola"
+    },
+    "menta": {
+      "name": "Menta"
+    },
+    "ajo": {
+      "name": "All"
+    },
+    "cebolla": {
+      "name": "Ceba"
+    },
+    "puerro": {
+      "name": "Porro"
+    }
   }
 }

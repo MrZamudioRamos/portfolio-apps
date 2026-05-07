@@ -359,7 +359,9 @@
     "deletePlant": "Eliminar planta",
     "deleteTitle": "¿Eliminar {{name}}?",
     "deleteDesc": "Se eliminará la planta y todas sus entradas de diario y recordatorios.",
-    "sownOn": "🌰 Sembrada {{date}}"
+    "sownOn": "🌰 Sembrada {{date}}",
+    "daysGrowing_one": "{{count}} día",
+    "daysGrowing_other": "{{count}} días"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",

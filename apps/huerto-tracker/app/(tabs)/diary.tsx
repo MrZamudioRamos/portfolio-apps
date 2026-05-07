@@ -1,6 +1,6 @@
 import { useColors, useTheme, Card, EmptyState, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
@@ -30,6 +30,7 @@ export default function DiaryScreen() {
   const { t } = useTranslation();
 
   const [activeFilter, setActiveFilter] = useState<EntryType | 'all'>('all');
+  const { plantId } = useLocalSearchParams<{ plantId?: string }>();
 
   const entries = useCollection<DiaryEntry>('diary_entries');
   const plants = useCollection<Plant>('plants');
@@ -45,9 +46,10 @@ export default function DiaryScreen() {
     const sorted = [...entries.items].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
-    if (activeFilter === 'all') return sorted;
-    return sorted.filter((e) => e.type === activeFilter);
-  }, [entries.items, activeFilter]);
+    const byPlant = plantId ? sorted.filter((e) => e.plantId === plantId) : sorted;
+    if (activeFilter === 'all') return byPlant;
+    return byPlant.filter((e) => e.type === activeFilter);
+  }, [entries.items, activeFilter, plantId]);
 
   const plantsById = useMemo(
     () => Object.fromEntries(plants.items.map((p) => [p.id, p])),
@@ -114,11 +116,30 @@ export default function DiaryScreen() {
     );
   }
 
+  const filteredPlant = plantId ? plantsById[plantId] : null;
+
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={s.header}>
-        <Text style={[s.headerTitle, { color: colors.text }]}>{t('diary.title')}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+          {plantId && (
+            <Pressable onPress={() => router.back()} hitSlop={8}>
+              <Ionicons name="arrow-back" size={22} color={colors.primary} />
+            </Pressable>
+          )}
+          <Text style={[s.headerTitle, { color: colors.text }]}>{t('diary.title')}</Text>
+        </View>
+        {filteredPlant && (
+          <View style={[s.plantFilterBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+            <Text style={[s.plantFilterText, { color: colors.primary }]}>
+              🌱 {filteredPlant.name}
+            </Text>
+            <Pressable onPress={() => router.setParams({ plantId: undefined } as any)} hitSlop={8}>
+              <Ionicons name="close-circle" size={16} color={colors.textSecondary} />
+            </Pressable>
+          </View>
+        )}
       </View>
 
       {/* Filter chips */}
@@ -215,6 +236,19 @@ const makeStyles = (
       borderWidth: 1.5,
     },
     filterLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    plantFilterBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: spacing.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 6,
+      borderRadius: radii.full,
+      borderWidth: 1,
+      alignSelf: 'flex-start',
+      gap: spacing.sm,
+    },
+    plantFilterText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     listContent: { paddingHorizontal: spacing.xl, paddingBottom: 100, gap: spacing.sm },
     entryCard: {},
     entryRow: { flexDirection: 'row', alignItems: 'flex-start' },
