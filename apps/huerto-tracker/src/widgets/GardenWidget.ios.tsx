@@ -1,6 +1,6 @@
-import { createWidget, type WidgetEnvironment } from 'expo-widgets';
 import { Text, VStack, HStack, Spacer } from '@expo/ui/swift-ui';
 import { foregroundStyle, bold, font, padding } from '@expo/ui/swift-ui/modifiers';
+import type { WidgetEnvironment } from 'expo-widgets';
 
 export type GardenWidgetProps = {
   gardenName: string;
@@ -64,4 +64,12 @@ function GardenWidgetRoot(props: GardenWidgetProps, env: WidgetEnvironment) {
   return GardenWidgetSmall(props, env);
 }
 
-export const GardenWidget = createWidget('GardenWidget', GardenWidgetRoot);
+export const GardenWidget: { updateSnapshot: (props: GardenWidgetProps) => void } = (() => {
+  try {
+    // createWidget requires a native build — silently no-ops in Expo Go
+    const { createWidget } = require('expo-widgets') as typeof import('expo-widgets');
+    return createWidget('GardenWidget', GardenWidgetRoot) as any;
+  } catch {
+    return { updateSnapshot: () => {} };
+  }
+})();

@@ -9,6 +9,6 @@ export type GardenWidgetProps = {
 };
 
 export const GardenWidget = {
-  updateSnapshot: (_props: GardenWidgetProps) => Promise.resolve(),
-  updateTimeline: (_props: GardenWidgetProps[]) => Promise.resolve(),
+  updateSnapshot: (_props: GardenWidgetProps): void => {},
+  updateTimeline: (_props: GardenWidgetProps[]): void => {},
 };

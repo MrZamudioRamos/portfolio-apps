@@ -23,6 +23,7 @@
       "minimumOsVersion": "16.0",
       "usesAppleSignIn": true,
       "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Usa la cámara para añadir fotos de tus plantas.",
         "NSPhotoLibraryUsageDescription": "Accede a la galería para añadir fotos de tus plantas.",
         "NSLocationWhenInUseUsageDescription": "Usa tu ubicación para mostrar el mapa del huerto.",
