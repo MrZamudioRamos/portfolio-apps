@@ -1,5 +1,6 @@
 import { createWidget, type WidgetEnvironment } from 'expo-widgets';
-import { Text, VStack, HStack, Spacer } from '@expo/ui';
+import { Text, VStack, HStack, Spacer } from '@expo/ui/swift-ui';
+import { foregroundStyle, bold, font, padding } from '@expo/ui/swift-ui/modifiers';
 
 export type GardenWidgetProps = {
   gardenName: string;
@@ -8,24 +9,22 @@ export type GardenWidgetProps = {
   lunarEmoji: string;
 };
 
+const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' });
+
 function GardenWidgetSmall(props: GardenWidgetProps, _env: WidgetEnvironment) {
   'widget';
   return (
-    <VStack alignment="leading" spacing={6}>
-      <Text textStyle="caption1" foregroundStyle="secondary">
+    <VStack alignment="leading" spacing={6} modifiers={[padding({ all: 4 })]}>
+      <Text modifiers={[secondary, font({ size: 11 })]}>
         {props.lunarEmoji} HuertoTracker
       </Text>
-      <Text textStyle="title2">🌱 {props.plantCount}</Text>
+      <Text modifiers={[bold(), font({ size: 28 })]}>
+        🌱 {props.plantCount}
+      </Text>
       <Spacer />
-      {props.nextReminder ? (
-        <Text textStyle="caption2" foregroundStyle="secondary">
-          💧 {props.nextReminder}
-        </Text>
-      ) : (
-        <Text textStyle="caption2" foregroundStyle="secondary">
-          {props.gardenName}
-        </Text>
-      )}
+      <Text modifiers={[secondary, font({ size: 11 })]}>
+        {props.nextReminder ? `💧 ${props.nextReminder}` : props.gardenName}
+      </Text>
     </VStack>
   );
 }
@@ -33,16 +32,22 @@ function GardenWidgetSmall(props: GardenWidgetProps, _env: WidgetEnvironment) {
 function GardenWidgetMedium(props: GardenWidgetProps, _env: WidgetEnvironment) {
   'widget';
   return (
-    <HStack alignment="center" spacing={12}>
+    <HStack alignment="center" spacing={12} modifiers={[padding({ all: 4 })]}>
       <VStack alignment="leading" spacing={4}>
-        <Text textStyle="headline">{props.gardenName}</Text>
-        <Text textStyle="title">🌱 {props.plantCount} plants</Text>
+        <Text modifiers={[bold(), font({ size: 15 })]}>
+          {props.gardenName}
+        </Text>
+        <Text modifiers={[font({ size: 28 })]}>
+          🌱 {props.plantCount}
+        </Text>
       </VStack>
       <Spacer />
       <VStack alignment="trailing" spacing={4}>
-        <Text textStyle="caption1">{props.lunarEmoji}</Text>
+        <Text modifiers={[font({ size: 20 })]}>
+          {props.lunarEmoji}
+        </Text>
         {props.nextReminder ? (
-          <Text textStyle="caption1" foregroundStyle="secondary">
+          <Text modifiers={[secondary, font({ size: 12 })]}>
             💧 {props.nextReminder}
           </Text>
         ) : null}
@@ -53,7 +58,7 @@ function GardenWidgetMedium(props: GardenWidgetProps, _env: WidgetEnvironment) {
 
 function GardenWidgetRoot(props: GardenWidgetProps, env: WidgetEnvironment) {
   'widget';
-  if (env.family === 'systemMedium') {
+  if (env.widgetFamily === 'systemMedium') {
     return GardenWidgetMedium(props, env);
   }
   return GardenWidgetSmall(props, env);
