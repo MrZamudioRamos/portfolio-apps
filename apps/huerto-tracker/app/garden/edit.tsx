@@ -146,7 +146,7 @@ export default function GardenEditScreen() {
               >
                 <Text style={s.typeEmoji}>{cfg.emoji}</Text>
                 <Text style={[s.typeLabel, { color: active ? colors.primary : colors.textSecondary }]}>
-                  {cfg.label}
+                  {t('gardenType.' + key)}
                 </Text>
               </Pressable>
             );
@@ -155,7 +155,7 @@ export default function GardenEditScreen() {
         {gardenType !== 'huerto' && (
           <View style={[s.typeTip, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
             <Text style={[s.typeTipText, { color: colors.textSecondary }]}>
-              {GARDEN_TYPE_CONFIG[gardenType].emoji} {GARDEN_TYPE_CONFIG[gardenType].description}. {t('gardenEdit.containerTip')}
+              {GARDEN_TYPE_CONFIG[gardenType].emoji} {t('gardenType.' + gardenType + 'Desc')}
             </Text>
           </View>
         )}

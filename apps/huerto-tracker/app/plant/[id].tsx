@@ -367,7 +367,7 @@ export default function PlantDetailScreen() {
                   >
                     <Text style={{ fontSize: 16 }}>{cfg.emoji}</Text>
                     <Text style={[s.pestStatusLabel, { color: isActive ? cfg.color : colors.textSecondary }]}>
-                      {cfg.label}
+                      {t('pestStatus.' + status)}
                     </Text>
                   </Pressable>
                 );

@@ -278,14 +278,14 @@
     "subtitlePro": "Suscripción activa · Plan {{plan}}",
     "subtitle": "Desbloquea todo lo que necesitas para convertirte en un auténtico huertero.",
     "features": {
-      "gardens": "🏡 Huertos ilimitados (ahora sólo 1)",
-      "plants": "🌱 Plantas sin límite (plan gratuito: 5)",
-      "calendar": "📅 Calendario de siembra completo con alertas",
-      "companions": "🤝 Guía de asociaciones de cultivos",
-      "charts": "📊 Gráficos de cosecha y productividad",
-      "pdf": "📄 Exportar diario en PDF",
-      "reminders": "🔔 Recordatorios de riego ilimitados",
-      "backup": "☁️ Copia de seguridad en la nube"
+      "gardens": "Huertos ilimitados (ahora sólo 1)",
+      "plants": "Plantas sin límite (plan gratuito: 5)",
+      "calendar": "Calendario de siembra completo con alertas",
+      "companions": "Guía de asociaciones de cultivos",
+      "charts": "Gráficos de cosecha y productividad",
+      "pdf": "Exportar diario en PDF",
+      "reminders": "Recordatorios de riego ilimitados",
+      "backup": "Copia de seguridad en la nube"
     },
     "choosePlan": "ELIGE TU PLAN",
     "monthly": "Mensual",
@@ -551,7 +551,14 @@
   "gardenType": {
     "huerto": "Huerto",
     "balcon": "Balcón / Terraza",
-    "maceta": "Interior / Macetas"
+    "maceta": "Interior / Macetas",
+    "balconDesc": "Cultivo en contenedores en exterior. El calendario filtrará cultivos aptos para macetas.",
+    "macetaDesc": "Cultivo en interiores o ventanas. El calendario filtrará cultivos aptos para interior."
+  },
+  "pestStatus": {
+    "none": "Sin plagas",
+    "active": "Plaga activa",
+    "treated": "En tratamiento"
   },
   "plantStatus": {
     "seedling": "Semillero",

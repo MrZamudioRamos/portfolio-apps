@@ -278,14 +278,14 @@
     "subtitlePro": "Active subscription · {{plan}} plan",
     "subtitle": "Unlock everything you need to become a true gardener.",
     "features": {
-      "gardens": "🏡 Unlimited gardens (currently 1)",
-      "plants": "🌱 Unlimited plants (free plan: 5)",
-      "calendar": "📅 Full sowing calendar with alerts",
-      "companions": "🤝 Companion planting guide",
-      "charts": "📊 Harvest and productivity charts",
-      "pdf": "📄 Export journal as PDF",
-      "reminders": "🔔 Unlimited watering reminders",
-      "backup": "☁️ Cloud backup"
+      "gardens": "Unlimited gardens (currently 1)",
+      "plants": "Unlimited plants (free plan: 5)",
+      "calendar": "Full sowing calendar with alerts",
+      "companions": "Companion planting guide",
+      "charts": "Harvest and productivity charts",
+      "pdf": "Export journal as PDF",
+      "reminders": "Unlimited watering reminders",
+      "backup": "Cloud backup"
     },
     "choosePlan": "CHOOSE YOUR PLAN",
     "monthly": "Monthly",
@@ -551,7 +551,14 @@
   "gardenType": {
     "huerto": "Garden",
     "balcon": "Balcony / Terrace",
-    "maceta": "Indoor / Pots"
+    "maceta": "Indoor / Pots",
+    "balconDesc": "Growing in containers outdoors. The calendar will filter crops suitable for containers.",
+    "macetaDesc": "Growing indoors or on windowsills. The calendar will filter crops suitable for indoor growing."
+  },
+  "pestStatus": {
+    "none": "No pests",
+    "active": "Active pest",
+    "treated": "Under treatment"
   },
   "plantStatus": {
     "seedling": "Seedling",

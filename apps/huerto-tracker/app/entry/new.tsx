@@ -124,13 +124,13 @@ export default function NewEntryScreen() {
                     style={[
                       s.typeChip,
                       {
-                        backgroundColor: active ? cfg.color + '22' : colors.surface,
-                        borderColor: active ? cfg.color : colors.border,
+                        backgroundColor: active ? colors.primary + '22' : colors.surface,
+                        borderColor: active ? colors.primary : colors.border,
                       },
                     ]}
                   >
                     <Text style={{ fontSize: 22 }}>{cfg.emoji}</Text>
-                    <Text style={[s.typeLabel, { color: active ? cfg.color : colors.textSecondary }]}>
+                    <Text style={[s.typeLabel, { color: active ? colors.primary : colors.textSecondary }]}>
                       {cfg.label}
                     </Text>
                   </Pressable>

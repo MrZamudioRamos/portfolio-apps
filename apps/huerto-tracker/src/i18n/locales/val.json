@@ -278,14 +278,14 @@
     "subtitlePro": "Subscripció activa · Pla {{plan}}",
     "subtitle": "Desbloqueja tot el que necessites per a convertir-te en un autèntic hortolà.",
     "features": {
-      "gardens": "🏡 Horts il·limitats (ara només 1)",
-      "plants": "🌱 Plantes sense límit (pla gratuït: 5)",
-      "calendar": "📅 Calendari de sembra complet amb alertes",
-      "companions": "🤝 Guia d'associacions de cultius",
-      "charts": "📊 Gràfiques de collita i productivitat",
-      "pdf": "📄 Exportar diari en PDF",
-      "reminders": "🔔 Recordatoris de reg il·limitats",
-      "backup": "☁️ Còpia de seguretat en el núvol"
+      "gardens": "Horts il·limitats (ara només 1)",
+      "plants": "Plantes sense límit (pla gratuït: 5)",
+      "calendar": "Calendari de sembra complet amb alertes",
+      "companions": "Guia d'associacions de cultius",
+      "charts": "Gràfiques de collita i productivitat",
+      "pdf": "Exportar diari en PDF",
+      "reminders": "Recordatoris de reg il·limitats",
+      "backup": "Còpia de seguretat en el núvol"
     },
     "choosePlan": "TRIA EL TEU PLA",
     "monthly": "Mensual",
@@ -551,7 +551,14 @@
   "gardenType": {
     "huerto": "Hort",
     "balcon": "Balcó / Terrassa",
-    "maceta": "Interior / Testos"
+    "maceta": "Interior / Testos",
+    "balconDesc": "Cultiu en contenidors a l'exterior. El calendari filtrarà cultius aptes per a contenidors.",
+    "macetaDesc": "Cultiu a l'interior o finestres. El calendari filtrarà cultius aptes per a interior."
+  },
+  "pestStatus": {
+    "none": "Sense plagues",
+    "active": "Plaga activa",
+    "treated": "En tractament"
   },
   "plantStatus": {
     "seedling": "Planter",

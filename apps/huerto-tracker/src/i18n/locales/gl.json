@@ -278,14 +278,14 @@
     "subtitlePro": "Subscrición activa · Plan {{plan}}",
     "subtitle": "Desbloquea todo o que necesitas para converterte nun verdadeiro horticultor.",
     "features": {
-      "gardens": "🏡 Hortas ilimitadas (agora só 1)",
-      "plants": "🌱 Plantas sen límite (plan gratuíto: 5)",
-      "calendar": "📅 Calendario de sementeira completo con alertas",
-      "companions": "🤝 Guía de asociacións de cultivos",
-      "charts": "📊 Gráficos de colleita e produtividade",
-      "pdf": "📄 Exportar diario en PDF",
-      "reminders": "🔔 Recordatorios de rego ilimitados",
-      "backup": "☁️ Copia de seguridade na nube"
+      "gardens": "Hortas ilimitadas (agora só 1)",
+      "plants": "Plantas sen límite (plan gratuíto: 5)",
+      "calendar": "Calendario de sementeira completo con alertas",
+      "companions": "Guía de asociacións de cultivos",
+      "charts": "Gráficos de colleita e produtividade",
+      "pdf": "Exportar diario en PDF",
+      "reminders": "Recordatorios de rego ilimitados",
+      "backup": "Copia de seguridade na nube"
     },
     "choosePlan": "ESCOLLE O TEU PLAN",
     "monthly": "Mensual",
@@ -551,7 +551,14 @@
   "gardenType": {
     "huerto": "Horta",
     "balcon": "Balcón / Terraza",
-    "maceta": "Interior / Macetas"
+    "maceta": "Interior / Macetas",
+    "balconDesc": "Cultivo en recipientes ao exterior. O calendario filtrará cultivos axeitados para macetas.",
+    "macetaDesc": "Cultivo en interior ou ventás. O calendario filtrará cultivos axeitados para interior."
+  },
+  "pestStatus": {
+    "none": "Sen pragas",
+    "active": "Praga activa",
+    "treated": "En tratamento"
   },
   "plantStatus": {
     "seedling": "Viveiro",

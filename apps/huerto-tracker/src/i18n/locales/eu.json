@@ -278,14 +278,14 @@
     "subtitlePro": "Harpidetza aktiboa · {{plan}} Plana",
     "subtitle": "Desblokeatu benetako baratzezain bat izateko behar duzun guztia.",
     "features": {
-      "gardens": "🏡 Baratze mugagabeak (orain 1 soilik)",
-      "plants": "🌱 Landare mugagabeak (doako plana: 5)",
-      "calendar": "📅 Erein egutegi osoa alertekin",
-      "companions": "🤝 Labore elkartze gida",
-      "charts": "📊 Uzta eta produktibitate grafikoak",
-      "pdf": "📄 Egunkaria PDF-n esportatu",
-      "reminders": "🔔 Ureztatze oroigarri mugagabeak",
-      "backup": "☁️ Hodeiaren segurtasun kopia"
+      "gardens": "Baratze mugagabeak (orain 1 soilik)",
+      "plants": "Landare mugagabeak (doako plana: 5)",
+      "calendar": "Erein egutegi osoa alertekin",
+      "companions": "Labore elkartze gida",
+      "charts": "Uzta eta produktibitate grafikoak",
+      "pdf": "Egunkaria PDF-n esportatu",
+      "reminders": "Ureztatze oroigarri mugagabeak",
+      "backup": "Hodeiaren segurtasun kopia"
     },
     "choosePlan": "AUKERATU PLANA",
     "monthly": "Hilekoa",
@@ -551,7 +551,14 @@
   "gardenType": {
     "huerto": "Baratzea",
     "balcon": "Balkoia / Terraza",
-    "maceta": "Barrualdea / Ontziak"
+    "maceta": "Barrualdea / Ontziak",
+    "balconDesc": "Kanpo-ontzian haztegia. Egutegia ontzi-labore egokietara iragaziko da.",
+    "macetaDesc": "Barruko edo leiho haztegia. Egutegia barne-labore egokietara iragaziko da."
+  },
+  "pestStatus": {
+    "none": "Izurririk gabe",
+    "active": "Izurri aktiboa",
+    "treated": "Tratamenduan"
   },
   "plantStatus": {
     "seedling": "Landaretegi",

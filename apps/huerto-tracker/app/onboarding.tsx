@@ -218,7 +218,7 @@ export default function OnboardingScreen() {
                   >
                     <Text style={{ fontSize: 24 }}>{cfg.emoji}</Text>
                     <Text style={[s.gardenTypeName, { color: active ? colors.primary : colors.textSecondary }]}>
-                      {cfg.label}
+                      {t('gardenType.' + key)}
                     </Text>
                   </Pressable>
                 );
