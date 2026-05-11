@@ -12,6 +12,9 @@ export function gardenToRow(g: Garden, userId: string) {
     name: g.name,
     province: g.province ?? null,
     climate_zone: g.climateZone,
+    garden_type: g.gardenType ?? null,
+    grid_rows: g.gridRows ?? null,
+    grid_cols: g.gridCols ?? null,
     created_at: g.createdAt,
     updated_at: g.updatedAt,
   };
@@ -23,6 +26,9 @@ export function rowToGarden(r: ReturnType<typeof gardenToRow>): Garden {
     name: r.name,
     province: r.province ?? '',
     climateZone: r.climate_zone as Garden['climateZone'],
+    gardenType: (r.garden_type as Garden['gardenType']) ?? undefined,
+    gridRows: r.grid_rows ?? undefined,
+    gridCols: r.grid_cols ?? undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
@@ -38,8 +44,12 @@ export function plantToRow(p: Plant, userId: string) {
     crop_id: p.cropId,
     name: p.name,
     variety: p.variety ?? null,
+    variety_id: p.varietyId ?? null,
     status: p.status,
     planted_at: p.sowingDate ?? null,
+    transplant_date: p.transplantDate ?? null,
+    first_harvest_date: p.firstHarvestDate ?? null,
+    pest_status: p.pestStatus ?? null,
     photo_uri: p.photoUri ?? null,
     notes: p.notes ?? null,
     created_at: p.createdAt,
@@ -54,8 +64,12 @@ export function rowToPlant(r: ReturnType<typeof plantToRow>): Plant {
     cropId: r.crop_id,
     name: r.name,
     variety: r.variety ?? undefined,
+    varietyId: r.variety_id ?? undefined,
     status: r.status as Plant['status'],
     sowingDate: r.planted_at ?? undefined,
+    transplantDate: r.transplant_date ?? undefined,
+    firstHarvestDate: r.first_harvest_date ?? undefined,
+    pestStatus: (r.pest_status as Plant['pestStatus']) ?? undefined,
     photoUri: r.photo_uri ?? undefined,
     notes: r.notes ?? undefined,
     createdAt: r.created_at,
@@ -75,12 +89,21 @@ export function entryToRow(e: DiaryEntry, userId: string) {
     notes: e.notes ?? null,
     photo_uri: e.photoUri ?? null,
     harvest_weight_g: (e.data?.weightGrams as number) ?? null,
+    harvest_unit: (e.data?.unit as string) ?? null,
+    entry_data: e.data ?? null,
     recorded_at: e.date,
     created_at: e.createdAt,
   };
 }
 
 export function rowToEntry(r: ReturnType<typeof entryToRow>): DiaryEntry {
+  const data: Record<string, unknown> | undefined =
+    r.entry_data
+      ? r.entry_data
+      : r.harvest_weight_g != null
+        ? { weightGrams: r.harvest_weight_g, unit: r.harvest_unit ?? 'kg' }
+        : undefined;
+
   return {
     id: r.id,
     gardenId: r.garden_id,
@@ -89,7 +112,7 @@ export function rowToEntry(r: ReturnType<typeof entryToRow>): DiaryEntry {
     date: r.recorded_at,
     notes: r.notes ?? undefined,
     photoUri: r.photo_uri ?? undefined,
-    data: r.harvest_weight_g != null ? { weightGrams: r.harvest_weight_g } : undefined,
+    data,
     createdAt: r.created_at,
     updatedAt: r.created_at,
   };

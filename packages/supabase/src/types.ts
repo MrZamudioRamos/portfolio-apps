@@ -56,6 +56,9 @@ export interface RemoteGarden {
   name: string;
   province: string | null;
   climate_zone: ClimateZone;
+  garden_type: string | null;
+  grid_rows: number | null;
+  grid_cols: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -67,8 +70,12 @@ export interface RemotePlant {
   crop_id: string;
   name: string;
   variety: string | null;
+  variety_id: string | null;
   status: PlantStatus;
   planted_at: string | null;
+  transplant_date: string | null;
+  first_harvest_date: string | null;
+  pest_status: string | null;
   photo_uri: string | null;
   notes: string | null;
   created_at: string;
@@ -78,12 +85,14 @@ export interface RemotePlant {
 export interface RemoteDiaryEntry {
   id: string;
   user_id: string;
-  plant_id: string;
+  plant_id: string | null;
   garden_id: string;
   type: string;
   notes: string | null;
   photo_uri: string | null;
   harvest_weight_g: number | null;
+  harvest_unit: string | null;
+  entry_data: Record<string, unknown> | null;
   recorded_at: string;
   created_at: string;
 }

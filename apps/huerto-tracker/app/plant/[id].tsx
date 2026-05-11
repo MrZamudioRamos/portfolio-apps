@@ -167,8 +167,12 @@ export default function PlantDetailScreen() {
           <View style={s.titleRow}>
             <View style={{ flex: 1 }}>
               <Text style={[s.plantName, { color: colors.text }]}>{plant.name}</Text>
-              {plant.variety && (
-                <Text style={[s.variety, { color: colors.textSecondary }]}>{plant.variety}</Text>
+              {(plant.varietyId || plant.variety) && (
+                <Text style={[s.variety, { color: colors.textSecondary }]}>
+                  {plant.varietyId
+                    ? t('varieties.' + plant.varietyId, { defaultValue: VARIETIES_BY_ID[plant.varietyId]?.name ?? plant.variety })
+                    : plant.variety}
+                </Text>
               )}
             </View>
             {statusConfig && (

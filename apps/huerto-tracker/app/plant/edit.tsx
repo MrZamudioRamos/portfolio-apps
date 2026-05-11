@@ -188,7 +188,7 @@ export default function EditPlantScreen() {
                     ]}
                   >
                     <Text style={[s.varietyChipText, { color: active ? colors.primary : colors.text }]}>
-                      {v.name}
+                      {t('varieties.' + v.id, { defaultValue: v.name })}
                     </Text>
                     <Text style={[s.varietyChipDays, { color: colors.textSecondary }]}>
                       {v.daysToHarvest[0]}–{v.daysToHarvest[1]}d
