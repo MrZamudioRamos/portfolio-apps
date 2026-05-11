@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "HuertoTracker",
-    "slug": "huerto-tracker",
+    "name": "Semilla - Planificador de Huerto",
+    "slug": "semilla",
     "version": "1.0.0",
     "runtimeVersion": {
       "policy": "appVersion"
     },
-    "scheme": "huertotracker",
+    "scheme": "semilla",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -18,7 +18,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.portfolio.huertotracker",
+      "bundleIdentifier": "com.portfolio.semilla",
       "buildNumber": "1",
       "minimumOsVersion": "16.0",
       "usesAppleSignIn": true,
@@ -37,7 +37,7 @@
         ],
         "aps-environment": "production",
         "com.apple.security.application-groups": [
-          "group.com.portfolio.huertotracker"
+          "group.com.portfolio.semilla"
         ]
       }
     },
@@ -46,7 +46,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FAFAF5"
       },
-      "package": "com.portfolio.huertotracker",
+      "package": "com.portfolio.semilla",
       "versionCode": 1,
       "permissions": [
         "android.permission.CAMERA",
@@ -114,7 +114,7 @@
           "widgets": [
             {
               "name": "GardenWidget",
-              "displayName": "Mi Huerto",
+              "displayName": "Semilla",
               "entryPoint": "./src/widgets/GardenWidget.tsx",
               "supportedFamilies": ["systemSmall", "systemMedium"]
             }
