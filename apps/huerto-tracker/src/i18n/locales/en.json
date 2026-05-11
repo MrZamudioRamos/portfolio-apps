@@ -28,7 +28,8 @@
       "plants": "Plants",
       "harvesting": "Harvesting",
       "reminders": "Reminders",
-      "pests": "With pest"
+      "pests": "With pest",
+      "needsWater": "Need water"
     },
     "weatherLoading": "🌤️ Loading weather…",
     "lunarDay": "Day",
@@ -121,7 +122,8 @@
     },
     "tools": {
       "companions": "Companion planting guide",
-      "stats": "View statistics"
+      "stats": "View statistics",
+      "diseaseGuide": "Pest & disease guide"
     },
     "summary": {
       "activePlants": "Active plants",
@@ -231,6 +233,43 @@
     "gridProTitle": "Pro Feature",
     "gridProDesc": "Change the map size with the Pro plan."
   },
+  "gardens": {
+    "title": "My gardens",
+    "hint": "Tap a garden to make it active. Plants on the home screen are filtered by the active garden.",
+    "active": "Active",
+    "createTitle": "New garden",
+    "fieldName": "Name",
+    "fieldNamePlaceholder": "E.g. Rooftop garden",
+    "fieldType": "Type",
+    "fieldProvince": "Province",
+    "fieldProvincePlaceholder": "Select province",
+    "cantDeleteLast": "You cannot delete the only garden.",
+    "deleteTitle": "Delete {{name}}",
+    "deleteDesc": "Only the garden will be deleted, not the associated plants or diary entries."
+  },
+  "diseaseGuide": {
+    "title": "Disease Guide",
+    "subtitle": "Pests, diseases and deficiencies",
+    "search": "Search pest, symptom or crop…",
+    "filterAll": "All",
+    "filterPest": "🐛 Pest",
+    "filterDisease": "🍂 Disease",
+    "filterDeficiency": "💛 Deficiency",
+    "empty": "No results for that search.",
+    "affectedCrops": "Affected crops",
+    "symptoms": "Symptoms",
+    "treatments": "Treatments",
+    "type": {
+      "plaga": "Pest",
+      "enfermedad": "Disease",
+      "deficiencia": "Deficiency"
+    },
+    "treatment": {
+      "organico": "Organic",
+      "preventivo": "Preventive",
+      "quimico": "Chemical"
+    }
+  },
   "gardenMap": {
     "title": "Garden map",
     "summary": "{{placed}} / {{total}} plants placed · {{cols}}×{{rows}} plots",
@@ -249,7 +288,10 @@
     "remove": "Remove",
     "movePlant": "Move",
     "moveModeHint": "Tap the destination plot · Press ✕ to cancel",
-    "moveCancelled": "Move cancelled"
+    "moveCancelled": "Move cancelled",
+    "shareTitle": "My Garden",
+    "shareNotAvailable": "Sharing is not available on this device.",
+    "shareError": "Could not capture the map."
   },
   "onboarding": {
     "step1Title": "Your digital garden",
@@ -370,7 +412,11 @@
     "sownOn": "🌰 Sown {{date}}",
     "daysGrowing_one": "{{count}} day",
     "daysGrowing_other": "{{count}} days",
-    "estimatedHarvest": "🧺 Est. harvest {{date}}"
+    "estimatedHarvest": "🧺 Est. harvest {{date}}",
+    "harvestSummary_one": "1 harvest logged",
+    "harvestSummary_other": "{{count}} harvests logged",
+    "units": "units",
+    "photoTimeline": "📸 Progress photos"
   },
   "reminderEdit": {
     "title": "Edit reminder",
@@ -445,6 +491,10 @@
     "how3Title": "Offline",
     "how3Desc": "Alerts are scheduled on the device. No internet needed.",
     "noZoneWarning": "Complete onboarding to activate personalised zone alerts.",
+    "frostLabel": "FROST",
+    "frostAlerts": "Frost alerts",
+    "frostAlertsDesc": "Get a notification when temperatures below 2°C are forecast in the coming days.",
+    "frostNoProvince": "Set your province in the garden settings to enable frost alerts.",
     "more": "more"
   },
   "stats": {
@@ -494,6 +544,9 @@
     "pestPlaceholder": "Describe the pest or symptom…",
     "notePlaceholder": "Add a note…",
     "weightPlaceholder": "Weight in kg (optional)",
+    "weightKgPlaceholder": "Amount in kg…",
+    "weightUnitsPlaceholder": "Number of units…",
+    "units": "pcs",
     "chooseAction": "Choose an action",
     "save": "Log {{action}}",
     "done": "Logged!"

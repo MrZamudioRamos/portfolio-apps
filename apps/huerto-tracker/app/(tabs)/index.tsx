@@ -32,6 +32,9 @@ import { useWeather } from '../../src/hooks/useWeather';
 import { getWeatherLabel } from '../../src/utils/weather';
 import { buildGamificationData } from '../../src/utils/gamification';
 import { PEST_STATUS_CONFIG } from '../../src/data/pests';
+import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringStatus';
+import { checkFrost } from '../../src/hooks/useFrostAlert';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
 export default function DashboardScreen() {
   const colors = useColors();
@@ -39,26 +42,38 @@ export default function DashboardScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
 
-  const gardens = useCollection<Garden>('gardens');
-  const plants = useCollection<Plant>('plants');
+  const { activeGarden: garden, gardens: allGardens } = useActiveGarden();
+  const allPlants = useCollection<Plant>('plants');
   const reminders = useCollection<GardenReminder>('reminders');
+  const entries = useCollection<DiaryEntry>('diary_entries');
+
+  // Filter plants to active garden
+  const gardenPlantItems = useMemo(
+    () => (garden ? allPlants.items.filter((p) => p.gardenId === garden.id) : allPlants.items),
+    [allPlants.items, garden?.id]
+  );
+  const plants = useMemo(
+    () => ({ ...allPlants, items: gardenPlantItems, count: gardenPlantItems.length }),
+    [allPlants, gardenPlantItems]
+  );
 
   useFocusEffect(
     useCallback(() => {
-      plants.refresh();
+      allPlants.refresh();
       reminders.refresh();
-    }, [])
+      if (garden?.province) checkFrost(garden.province);
+    }, [garden?.province])
   );
 
-  const entries = useCollection<DiaryEntry>('diary_entries');
-
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
-
-  const garden = gardens.items[0];
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
   const harvestingCount = plants.items.filter((p) => p.status === 'harvesting').length;
   const activeReminders = reminders.items.filter((r) => r.enabled).length;
   const activePests = plants.items.filter((p) => p.pestStatus === 'active' || p.pestStatus === 'treated').length;
+  const needsWaterCount = useMemo(
+    () => getWateringNeedsCount(plants.items, CROPS_BY_ID, entries.items),
+    [plants.items, entries.items]
+  );
   const lunar = useMemo(() => getLunarDay(), []);
   const { weather, loading: weatherLoading } = useWeather(garden?.province);
   const streak = useMemo(
@@ -121,6 +136,7 @@ export default function DashboardScreen() {
   function renderPlantCard({ item }: { item: Plant }) {
     const crop = CROPS_BY_ID[item.cropId];
     const statusConfig = PLANT_STATUS_CONFIG[item.status];
+    const needsWater = getNeedsWater(item, crop, entries.items);
     return (
       <Pressable
         onPress={() => router.push(`/plant/${item.id}`)}
@@ -137,6 +153,12 @@ export default function DashboardScreen() {
             {item.pestStatus && item.pestStatus !== 'none' && (
               <View style={[s.pestBadge, { backgroundColor: PEST_STATUS_CONFIG[item.pestStatus].color }]}>
                 <Text style={s.pestBadgeText}>{PEST_STATUS_CONFIG[item.pestStatus].emoji}</Text>
+              </View>
+            )}
+            {/* Water badge */}
+            {needsWater && (
+              <View style={[s.waterBadge, { backgroundColor: '#29B6F6' }]}>
+                <Text style={s.waterBadgeText}>💧</Text>
               </View>
             )}
             {/* Quick log button */}
@@ -198,6 +220,15 @@ export default function DashboardScreen() {
             )}
           </View>
         </View>
+        {allGardens.length > 1 && (
+          <Pressable
+            onPress={() => router.push('/gardens' as any)}
+            style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
+            hitSlop={8}
+          >
+            <Ionicons name="swap-horizontal-outline" size={18} color={colors.primary} />
+          </Pressable>
+        )}
         <Pressable
           onPress={() => router.push('/garden/map')}
           style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
@@ -242,6 +273,14 @@ export default function DashboardScreen() {
                   value={activePests}
                   label={t('home.stats.pests')}
                   onPress={() => {}}
+                />
+              )}
+              {needsWaterCount > 0 && (
+                <StatCard
+                  emoji="💧"
+                  value={needsWaterCount}
+                  label={t('home.stats.needsWater')}
+                  onPress={handleWaterAll}
                 />
               )}
             </View>
@@ -572,6 +611,17 @@ const makeStyles = (
       justifyContent: 'center',
     },
     pestBadgeText: { fontSize: 12 },
+    waterBadge: {
+      position: 'absolute',
+      top: 6,
+      right: 34,
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    waterBadgeText: { fontSize: 12 },
     quickLogBtn: {
       position: 'absolute',
       bottom: 6,

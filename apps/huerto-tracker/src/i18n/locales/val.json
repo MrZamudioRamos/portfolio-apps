@@ -28,7 +28,8 @@
       "plants": "Plantes",
       "harvesting": "En collita",
       "reminders": "Recordatoris",
-      "pests": "Amb plaga"
+      "pests": "Amb plaga",
+      "needsWater": "Necessiten aigua"
     },
     "weatherLoading": "🌤️ Carregant el temps…",
     "lunarDay": "Dia",
@@ -109,7 +110,8 @@
       "province": "Província",
       "climateZone": "Zona climàtica",
       "map": "Mapa de l'hort",
-      "edit": "Editar hort"
+      "edit": "Editar hort",
+      "manageGardens": "Gestionar horts"
     },
     "subscription": {
       "proPlan": "⭐ Pla Pro",
@@ -121,7 +123,8 @@
     },
     "tools": {
       "companions": "Guia d'associacions",
-      "stats": "Vore estadístiques"
+      "stats": "Vore estadístiques",
+      "diseaseGuide": "Guia de plagues i malalties"
     },
     "summary": {
       "activePlants": "Plantes actives",
@@ -231,6 +234,35 @@
     "gridProTitle": "Funció Pro",
     "gridProDesc": "Canvia la mida del mapa amb el pla Pro."
   },
+  "gardens": {
+    "title": "Els meus horts",
+    "hint": "Toca un hort per activar-lo. Les plantes de l'inici es filtren per l'hort actiu.",
+    "active": "Actiu",
+    "createTitle": "Nou hort",
+    "fieldName": "Nom",
+    "fieldNamePlaceholder": "Ex. Hort de la terrassa",
+    "fieldType": "Tipus",
+    "fieldProvince": "Província",
+    "fieldProvincePlaceholder": "Selecciona província",
+    "cantDeleteLast": "No pots eliminar l'únic hort.",
+    "deleteTitle": "Eliminar {{name}}",
+    "deleteDesc": "Només s'eliminarà l'hort, no les plantes ni entrades associades."
+  },
+  "diseaseGuide": {
+    "title": "Guia de malalties",
+    "subtitle": "Plagues, malalties i deficiències",
+    "search": "Cerca plaga, símptoma o cultiu…",
+    "filterAll": "Totes",
+    "filterPest": "🐛 Plaga",
+    "filterDisease": "🍂 Malaltia",
+    "filterDeficiency": "💛 Deficiència",
+    "empty": "Sense resultats per a eixa cerca.",
+    "affectedCrops": "Cultius afectats",
+    "symptoms": "Símptomes",
+    "treatments": "Tractaments",
+    "type": { "plaga": "Plaga", "enfermedad": "Malaltia", "deficiencia": "Deficiència" },
+    "treatment": { "organico": "Orgànic", "preventivo": "Preventiu", "quimico": "Químic" }
+  },
   "gardenMap": {
     "title": "Mapa de l'hort",
     "summary": "{{placed}} / {{total}} plantes col·locades · {{cols}}×{{rows}} parcel·les",
@@ -249,7 +281,10 @@
     "remove": "Traure",
     "movePlant": "Moure",
     "moveModeHint": "Toca la parcel·la de destí · Prem ✕ per cancel·lar",
-    "moveCancelled": "Moviment cancel·lat"
+    "moveCancelled": "Moviment cancel·lat",
+    "shareTitle": "El meu hort",
+    "shareNotAvailable": "Compartir no està disponible en aquest dispositiu.",
+    "shareError": "No s'ha pogut capturar el mapa."
   },
   "onboarding": {
     "step1Title": "El teu hort digital",
@@ -370,7 +405,11 @@
     "sownOn": "🌰 Sembrada {{date}}",
     "daysGrowing_one": "{{count}} dia",
     "daysGrowing_other": "{{count}} dies",
-    "estimatedHarvest": "🧺 Collita est. {{date}}"
+    "estimatedHarvest": "🧺 Collita est. {{date}}",
+    "harvestSummary_one": "1 collita registrada",
+    "harvestSummary_other": "{{count}} collites registrades",
+    "units": "unitats",
+    "photoTimeline": "📸 Fotos de progrés"
   },
   "reminderEdit": {
     "title": "Editar recordatori",
@@ -445,6 +484,10 @@
     "how3Title": "Sense connexió",
     "how3Desc": "Les alertes es programen en el dispositiu. No necessites internet.",
     "noZoneWarning": "Completa l'onboarding per a activar les alertes personalitzades per zona.",
+    "frostLabel": "GELADES",
+    "frostAlerts": "Alertes de gelada",
+    "frostAlertsDesc": "Rep una notificació quan es prevegin temperatures sota 2°C els propers dies.",
+    "frostNoProvince": "Configura la teua província a l'hort per a activar les alertes de gelada.",
     "more": "més"
   },
   "stats": {
@@ -494,6 +537,9 @@
     "pestPlaceholder": "Descriu la plaga o símptoma…",
     "notePlaceholder": "Afig una nota…",
     "weightPlaceholder": "Pes en kg (opcional)",
+    "weightKgPlaceholder": "Quantitat en kg…",
+    "weightUnitsPlaceholder": "Nombre d'unitats…",
+    "units": "uds",
     "chooseAction": "Tria una acció",
     "save": "Registrar {{action}}",
     "done": "Registrat!"

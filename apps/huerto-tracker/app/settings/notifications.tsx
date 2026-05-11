@@ -5,14 +5,20 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCollection } from '@portfolio/storage';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import { useSeasonalAlerts } from '../../src/hooks/useSeasonalAlerts';
+import { useFrostAlert } from '../../src/hooks/useFrostAlert';
+import type { Garden } from '../../src/models/garden';
 
 export default function NotificationsSettingsScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { enabled, loading, toggle, nextPreview, zone } = useSeasonalAlerts();
+  const gardens = useCollection<Garden>('gardens');
+  const garden = gardens.items[0];
+  const { enabled: frostEnabled, loading: frostLoading, toggle: toggleFrost } = useFrostAlert(garden?.province);
 
   const zoneConfig = zone ? CLIMATE_ZONE_CONFIG[zone] : null;
 
@@ -71,6 +77,39 @@ export default function NotificationsSettingsScreen() {
                   </Text>
                 </Text>
               </View>
+            </>
+          )}
+        </Card>
+
+        {/* Frost alerts toggle */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('notifications.frostLabel')}</Text>
+        <Card padded style={s.card}>
+          <View style={s.toggleRow}>
+            <View style={[s.iconBox, { backgroundColor: '#29B6F618' }]}>
+              <Text style={{ fontSize: 20 }}>🌡️</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.rowTitle, { color: colors.text }]}>
+                {t('notifications.frostAlerts')}
+              </Text>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>
+                {t('notifications.frostAlertsDesc')}
+              </Text>
+            </View>
+            <Switch
+              value={frostEnabled}
+              onValueChange={toggleFrost}
+              disabled={frostLoading}
+              trackColor={{ true: '#29B6F6' }}
+              thumbColor="#fff"
+            />
+          </View>
+          {!garden?.province && (
+            <>
+              <View style={[s.divider, { backgroundColor: colors.border }]} />
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>
+                {t('notifications.frostNoProvince')}
+              </Text>
             </>
           )}
         </Card>

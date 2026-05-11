@@ -28,7 +28,8 @@
       "plants": "Plantas",
       "harvesting": "En colleita",
       "reminders": "Recordatorios",
-      "pests": "Con praga"
+      "pests": "Con praga",
+      "needsWater": "Necesitan auga"
     },
     "weatherLoading": "🌤️ Cargando o tempo…",
     "lunarDay": "Día",
@@ -109,7 +110,8 @@
       "province": "Provincia",
       "climateZone": "Zona climática",
       "map": "Mapa da horta",
-      "edit": "Editar horta"
+      "edit": "Editar horta",
+      "manageGardens": "Xestionar hortas"
     },
     "subscription": {
       "proPlan": "⭐ Plan Pro",
@@ -121,7 +123,8 @@
     },
     "tools": {
       "companions": "Guía de asociacións",
-      "stats": "Ver estatísticas"
+      "stats": "Ver estatísticas",
+      "diseaseGuide": "Guía de pragas e enfermidades"
     },
     "summary": {
       "activePlants": "Plantas activas",
@@ -231,6 +234,35 @@
     "gridProTitle": "Función Pro",
     "gridProDesc": "Cambia o tamaño do mapa co plan Pro."
   },
+  "gardens": {
+    "title": "As miñas hortas",
+    "hint": "Toca unha horta para activala. As plantas da pantalla principal fíltrase pola horta activa.",
+    "active": "Activa",
+    "createTitle": "Nova horta",
+    "fieldName": "Nome",
+    "fieldNamePlaceholder": "Ex. Horta da terraza",
+    "fieldType": "Tipo",
+    "fieldProvince": "Provincia",
+    "fieldProvincePlaceholder": "Selecciona provincia",
+    "cantDeleteLast": "Non podes eliminar a única horta.",
+    "deleteTitle": "Eliminar {{name}}",
+    "deleteDesc": "Só se eliminará a horta, non as plantas nin entradas asociadas."
+  },
+  "diseaseGuide": {
+    "title": "Guía de enfermidades",
+    "subtitle": "Pragas, enfermidades e deficiencias",
+    "search": "Buscar praga, síntoma ou cultivo…",
+    "filterAll": "Todas",
+    "filterPest": "🐛 Praga",
+    "filterDisease": "🍂 Enfermidade",
+    "filterDeficiency": "💛 Deficiencia",
+    "empty": "Sen resultados para esa busca.",
+    "affectedCrops": "Cultivos afectados",
+    "symptoms": "Síntomas",
+    "treatments": "Tratamentos",
+    "type": { "plaga": "Praga", "enfermedad": "Enfermidade", "deficiencia": "Deficiencia" },
+    "treatment": { "organico": "Orgánico", "preventivo": "Preventivo", "quimico": "Químico" }
+  },
   "gardenMap": {
     "title": "Mapa da horta",
     "summary": "{{placed}} / {{total}} plantas colocadas · {{cols}}×{{rows}} parcelas",
@@ -249,7 +281,10 @@
     "remove": "Quitar",
     "movePlant": "Mover",
     "moveModeHint": "Toca a parcela de destino · Preme ✕ para cancelar",
-    "moveCancelled": "Movemento cancelado"
+    "moveCancelled": "Movemento cancelado",
+    "shareTitle": "A miña horta",
+    "shareNotAvailable": "Compartir non está dispoñible neste dispositivo.",
+    "shareError": "Non se puido capturar o mapa."
   },
   "onboarding": {
     "step1Title": "A túa horta dixital",
@@ -370,7 +405,11 @@
     "sownOn": "🌰 Sementada {{date}}",
     "daysGrowing_one": "{{count}} día",
     "daysGrowing_other": "{{count}} días",
-    "estimatedHarvest": "🧺 Colleita est. {{date}}"
+    "estimatedHarvest": "🧺 Colleita est. {{date}}",
+    "harvestSummary_one": "1 colleita rexistrada",
+    "harvestSummary_other": "{{count}} colleitas rexistradas",
+    "units": "unidades",
+    "photoTimeline": "📸 Fotos de progreso"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",
@@ -445,6 +484,10 @@
     "how3Title": "Sen conexión",
     "how3Desc": "As alertas prográmanse no dispositivo. Non necesitas internet.",
     "noZoneWarning": "Completa o onboarding para activar as alertas personalizadas por zona.",
+    "frostLabel": "XEADAS",
+    "frostAlerts": "Alertas de xeada",
+    "frostAlertsDesc": "Recibe unha notificación cando se prevexan temperaturas baixo 2°C nos próximos días.",
+    "frostNoProvince": "Configura a túa provincia no horto para activar as alertas de xeada.",
     "more": "máis"
   },
   "stats": {
@@ -494,6 +537,9 @@
     "pestPlaceholder": "Describe a praga ou síntoma…",
     "notePlaceholder": "Engade unha nota…",
     "weightPlaceholder": "Peso en kg (opcional)",
+    "weightKgPlaceholder": "Cantidade en kg…",
+    "weightUnitsPlaceholder": "Número de unidades…",
+    "units": "uds",
     "chooseAction": "Escolle unha acción",
     "save": "Rexistrar {{action}}",
     "done": "Rexistrado!"

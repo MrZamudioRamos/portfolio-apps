@@ -58,6 +58,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
   const [selected, setSelected] = useState<QuickAction | null>(null);
   const [note, setNote] = useState('');
   const [weight, setWeight] = useState('');
+  const [unit, setUnit] = useState<'kg' | 'units'>('kg');
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -69,6 +70,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
     setSelected(null);
     setNote('');
     setWeight('');
+    setUnit('kg');
     setSaving(false);
     setDone(false);
   }
@@ -83,7 +85,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
     setSaving(true);
     try {
       const harvestData = selected.hasWeight && weight.trim()
-        ? { weight: weight.trim() }
+        ? { weight: weight.trim(), unit }
         : undefined;
       await entries.create({
         gardenId,
@@ -226,19 +228,37 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
               )}
 
               {selected?.hasWeight && (
-                <View style={s.weightRow}>
-                  <Ionicons name="scale-outline" size={18} color={colors.textSecondary} />
-                  <TextInput
-                    value={weight}
-                    onChangeText={setWeight}
-                    placeholder={t('quickLog.weightPlaceholder')}
-                    placeholderTextColor={colors.textDisabled}
-                    keyboardType="decimal-pad"
-                    style={[
-                      s.weightInput,
-                      { backgroundColor: colors.surfaceAlt, borderColor: colors.border, color: colors.text },
-                    ]}
-                  />
+                <View style={{ gap: spacing.xs }}>
+                  <View style={s.weightRow}>
+                    <Ionicons name="scale-outline" size={18} color={colors.textSecondary} />
+                    <TextInput
+                      value={weight}
+                      onChangeText={setWeight}
+                      placeholder={unit === 'kg' ? t('quickLog.weightKgPlaceholder') : t('quickLog.weightUnitsPlaceholder')}
+                      placeholderTextColor={colors.textDisabled}
+                      keyboardType="decimal-pad"
+                      style={[
+                        s.weightInput,
+                        { backgroundColor: colors.surfaceAlt, borderColor: colors.border, color: colors.text },
+                      ]}
+                    />
+                    <View style={[s.unitToggle, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+                      {(['kg', 'units'] as const).map((u) => (
+                        <Pressable
+                          key={u}
+                          onPress={() => setUnit(u)}
+                          style={[
+                            s.unitBtn,
+                            unit === u && { backgroundColor: '#FF7043', borderRadius: radii.sm - 1 },
+                          ]}
+                        >
+                          <Text style={[s.unitBtnText, { color: unit === u ? '#fff' : colors.textSecondary }]}>
+                            {u === 'kg' ? 'kg' : t('quickLog.units')}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
                 </View>
               )}
 
@@ -345,6 +365,19 @@ const makeStyles = (
       paddingVertical: spacing.sm,
       fontSize: fontSize.md,
     },
+    unitToggle: {
+      flexDirection: 'row',
+      borderWidth: 1.5,
+      borderRadius: radii.sm,
+      overflow: 'hidden',
+    },
+    unitBtn: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 6,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    unitBtnText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     saveBtn: {
       paddingVertical: spacing.lg,
       borderRadius: radii.lg,

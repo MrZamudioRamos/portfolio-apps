@@ -157,6 +157,14 @@ export default function SettingsScreen() {
             s={s}
             onPress={() => router.push('/garden/edit')}
           />
+          <Separator colors={colors} />
+          <RowAction
+            icon="swap-horizontal-outline"
+            label={t('settings.garden.manageGardens')}
+            colors={colors}
+            s={s}
+            onPress={() => router.push('/gardens' as any)}
+          />
         </Card>
 
         {/* ── Suscripción ── */}
@@ -211,6 +219,14 @@ export default function SettingsScreen() {
             colors={colors}
             s={s}
             onPress={() => router.push('/stats')}
+          />
+          <Separator colors={colors} />
+          <RowAction
+            icon="bug-outline"
+            label={t('settings.tools.diseaseGuide')}
+            colors={colors}
+            s={s}
+            onPress={() => router.push('/disease-guide' as any)}
           />
         </Card>
 

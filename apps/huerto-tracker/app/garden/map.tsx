@@ -2,7 +2,8 @@ import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import * as Sharing from 'expo-sharing';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -16,6 +17,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ViewShot from 'react-native-view-shot';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import type { Garden } from '../../src/models/garden';
 import type { Plant } from '../../src/models/plant';
@@ -44,6 +46,8 @@ export default function GardenMapScreen() {
   const [search, setSearch] = useState('');
   const [selectedCell, setSelectedCell] = useState<number | null>(null);
   const [moveSourceCell, setMoveSourceCell] = useState<number | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const viewShotRef = useRef<ViewShot>(null);
 
   useFocusEffect(useCallback(() => { plants.refresh(); }, []));
 
@@ -116,6 +120,24 @@ export default function GardenMapScreen() {
     setSelectedCell(null);
   }
 
+  async function handleShare() {
+    if (!viewShotRef.current) return;
+    const canShare = await Sharing.isAvailableAsync();
+    if (!canShare) {
+      Alert.alert(t('gardenMap.shareNotAvailable'));
+      return;
+    }
+    setSharing(true);
+    try {
+      const uri = await (viewShotRef.current as any).capture();
+      await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: t('gardenMap.shareTitle') });
+    } catch {
+      Alert.alert(t('common.error'), t('gardenMap.shareError'));
+    } finally {
+      setSharing(false);
+    }
+  }
+
   const selectedPlant =
     selectedCell !== null ? plants.items.find((p) => p.id === layout[selectedCell]) ?? null : null;
   const selectedCrop = selectedPlant ? CROPS_BY_ID[selectedPlant.cropId] : null;
@@ -148,6 +170,14 @@ export default function GardenMapScreen() {
             {t('gardenMap.summary', { placed: placedPlantIds.size, total: plants.count, cols: gridCols, rows: gridRows })}
           </Text>
         </View>
+        <Pressable
+          onPress={handleShare}
+          disabled={sharing}
+          hitSlop={12}
+          style={{ opacity: sharing ? 0.4 : 1 }}
+        >
+          <Ionicons name="share-outline" size={22} color={colors.primary} />
+        </Pressable>
       </View>
 
       {/* Move mode banner */}
@@ -169,7 +199,11 @@ export default function GardenMapScreen() {
           </View>
         </View>
 
-        {/* Grid */}
+        {/* Grid — wrapped in ViewShot for sharing */}
+        <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }} style={[s.viewShot, { backgroundColor: colors.background }]}>
+          {garden?.name ? (
+            <Text style={[s.shareTitle, { color: colors.text }]}>{garden.name}</Text>
+          ) : null}
         <View style={[s.grid, { borderColor: colors.border }]}>
           {rows.map((row, r) => (
             <View key={r} style={s.gridRow}>
@@ -217,6 +251,8 @@ export default function GardenMapScreen() {
             </View>
           ))}
         </View>
+
+        </ViewShot>
 
         {/* Legend */}
         <View style={s.legend}>
@@ -411,6 +447,8 @@ const makeStyles = (
     },
     moveBannerText: { flex: 1, color: '#fff', fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
     scroll: { paddingHorizontal: spacing.xl, paddingTop: spacing.md },
+    viewShot: { borderRadius: radii.lg, padding: spacing.sm },
+    shareTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, textAlign: 'center', marginBottom: spacing.sm },
     compassRow: { alignItems: 'center', marginBottom: spacing.sm },
     compassBadge: {
       paddingHorizontal: spacing.md,

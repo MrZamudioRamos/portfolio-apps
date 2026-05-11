@@ -60,6 +60,24 @@ export default function PlantDetailScreen() {
     [entries.items, id]
   );
 
+  const photoEntries = useMemo(
+    () =>
+      [...entries.items]
+        .filter((e) => e.plantId === id && e.photoUri)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+    [entries.items, id]
+  );
+
+  const harvestSummary = useMemo(() => {
+    const harvests = entries.items.filter((e) => e.plantId === id && e.type === 'harvest');
+    if (harvests.length === 0) return null;
+    const kgEntries = harvests.filter((e) => (e.data as any)?.unit !== 'units' && (e.data as any)?.weight);
+    const unitEntries = harvests.filter((e) => (e.data as any)?.unit === 'units' && (e.data as any)?.weight);
+    const totalKg = kgEntries.reduce((s, e) => s + (parseFloat((e.data as any).weight) || 0), 0);
+    const totalUnits = unitEntries.reduce((s, e) => s + (parseFloat((e.data as any).weight) || 0), 0);
+    return { count: harvests.length, totalKg: totalKg > 0 ? totalKg : null, totalUnits: totalUnits > 0 ? totalUnits : null };
+  }, [entries.items, id]);
+
   const plantReminders = useMemo(
     () => reminders.items.filter((r) => r.plantId === id),
     [reminders.items, id]
@@ -324,6 +342,49 @@ export default function PlantDetailScreen() {
             </>
           )}
 
+          {/* Harvest summary */}
+          {harvestSummary && isPro && (
+            <View style={[s.harvestSummaryCard, { backgroundColor: '#FF704318', borderColor: '#FF7043' }]}>
+              <Text style={{ fontSize: 22 }}>🧺</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.harvestSummaryTitle, { color: '#FF7043' }]}>
+                  {t('plantDetail.harvestSummary', { count: harvestSummary.count })}
+                </Text>
+                <View style={{ flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap', marginTop: 2 }}>
+                  {harvestSummary.totalKg !== null && (
+                    <Text style={[s.harvestSummaryValue, { color: colors.text }]}>
+                      ⚖️ {harvestSummary.totalKg.toFixed(2)} kg
+                    </Text>
+                  )}
+                  {harvestSummary.totalUnits !== null && (
+                    <Text style={[s.harvestSummaryValue, { color: colors.text }]}>
+                      🔢 {Math.round(harvestSummary.totalUnits)} {t('plantDetail.units')}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Photo progress timeline */}
+          {photoEntries.length > 0 && (
+            <>
+              <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.photoTimeline')}</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.md }}>
+                <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+                  {photoEntries.map((entry) => (
+                    <View key={entry.id} style={s.photoTimelineItem}>
+                      <Image source={{ uri: entry.photoUri! }} style={s.photoTimelineImg} />
+                      <Text style={[s.photoTimelineDate, { color: colors.textSecondary }]}>
+                        {new Date(entry.date + 'T12:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            </>
+          )}
+
           {/* Diary entries */}
           <View style={s.sectionHeaderRow}>
             <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.diary')}</Text>
@@ -370,7 +431,17 @@ export default function PlantDetailScreen() {
           )}
 
           {/* Pest tracker section */}
-          <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.pestSection')}</Text>
+          <View style={[s.sectionHeaderRow, { marginTop: spacing.xl, marginBottom: spacing.sm }]}>
+            <Text style={[s.sectionTitle, { color: colors.text, marginTop: 0, marginBottom: 0 }]}>{t('plantDetail.pestSection')}</Text>
+            <Pressable
+              onPress={() => router.push('/disease-guide' as any)}
+              hitSlop={8}
+            >
+              <Text style={{ color: colors.primary, fontSize: fontSize.xs, fontWeight: fontWeight.semibold }}>
+                {t('plantDetail.diseaseGuideBtn')}
+              </Text>
+            </Pressable>
+          </View>
 
           {/* AI identify button */}
           <Pressable
@@ -691,4 +762,18 @@ const makeStyles = (
       borderRadius: radii.full,
     },
     proBadgeText: { fontSize: 10, fontWeight: fontWeight.bold, color: '#fff' },
+    photoTimelineItem: { alignItems: 'center', gap: 4 },
+    photoTimelineImg: { width: 80, height: 80, borderRadius: radii.md },
+    photoTimelineDate: { fontSize: 10, fontWeight: fontWeight.medium },
+    harvestSummaryCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      padding: spacing.md,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      marginBottom: spacing.sm,
+    },
+    harvestSummaryTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    harvestSummaryValue: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
   });

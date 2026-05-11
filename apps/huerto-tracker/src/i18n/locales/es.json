@@ -28,7 +28,8 @@
       "plants": "Plantas",
       "harvesting": "En cosecha",
       "reminders": "Recordatorios",
-      "pests": "Con plaga"
+      "pests": "Con plaga",
+      "needsWater": "Necesitan agua"
     },
     "weatherLoading": "🌤️ Cargando el tiempo…",
     "lunarDay": "Día",
@@ -109,7 +110,8 @@
       "province": "Provincia",
       "climateZone": "Zona climática",
       "map": "Mapa del huerto",
-      "edit": "Editar huerto"
+      "edit": "Editar huerto",
+      "manageGardens": "Gestionar huertos"
     },
     "subscription": {
       "proPlan": "⭐ Plan Pro",
@@ -121,7 +123,8 @@
     },
     "tools": {
       "companions": "Guía de asociaciones",
-      "stats": "Ver estadísticas"
+      "stats": "Ver estadísticas",
+      "diseaseGuide": "Guía de plagas y enfermedades"
     },
     "summary": {
       "activePlants": "Plantas activas",
@@ -231,6 +234,43 @@
     "gridProTitle": "Función Pro",
     "gridProDesc": "Cambia el tamaño del mapa con el plan Pro."
   },
+  "gardens": {
+    "title": "Mis huertos",
+    "hint": "Toca un huerto para hacerlo activo. Las plantas del inicio se filtran según el huerto activo.",
+    "active": "Activo",
+    "createTitle": "Nuevo huerto",
+    "fieldName": "Nombre",
+    "fieldNamePlaceholder": "Ej. Huerto de la terraza",
+    "fieldType": "Tipo",
+    "fieldProvince": "Provincia",
+    "fieldProvincePlaceholder": "Selecciona provincia",
+    "cantDeleteLast": "No puedes eliminar el único huerto.",
+    "deleteTitle": "Eliminar {{name}}",
+    "deleteDesc": "Se eliminará solo el huerto, no las plantas ni entradas asociadas."
+  },
+  "diseaseGuide": {
+    "title": "Guía de enfermedades",
+    "subtitle": "Plagas, enfermedades y deficiencias",
+    "search": "Buscar plaga, síntoma o cultivo…",
+    "filterAll": "Todas",
+    "filterPest": "🐛 Plaga",
+    "filterDisease": "🍂 Enfermedad",
+    "filterDeficiency": "💛 Deficiencia",
+    "empty": "Sin resultados para esa búsqueda.",
+    "affectedCrops": "Cultivos afectados",
+    "symptoms": "Síntomas",
+    "treatments": "Tratamientos",
+    "type": {
+      "plaga": "Plaga",
+      "enfermedad": "Enfermedad",
+      "deficiencia": "Deficiencia"
+    },
+    "treatment": {
+      "organico": "Orgánico",
+      "preventivo": "Preventivo",
+      "quimico": "Químico"
+    }
+  },
   "gardenMap": {
     "title": "Mapa del huerto",
     "summary": "{{placed}} / {{total}} plantas colocadas · {{cols}}×{{rows}} parcelas",
@@ -249,7 +289,10 @@
     "remove": "Quitar",
     "movePlant": "Mover",
     "moveModeHint": "Toca la parcela de destino · Pulsa ✕ para cancelar",
-    "moveCancelled": "Movimiento cancelado"
+    "moveCancelled": "Movimiento cancelado",
+    "shareTitle": "Mi Huerto",
+    "shareNotAvailable": "Compartir no está disponible en este dispositivo.",
+    "shareError": "No se pudo capturar el mapa."
   },
   "onboarding": {
     "step1Title": "Tu huerto digital",
@@ -361,6 +404,7 @@
     "diary": "Diario",
     "noEntries": "Sin entradas aún. ¡Registra tu primera actividad!",
     "pestSection": "Estado de plagas",
+    "diseaseGuideBtn": "📖 Guía de enfermedades",
     "commonPests": "PLAGAS FRECUENTES EN {{crop}}",
     "newEntry": "Nueva entrada",
     "reminder": "Recordatorio",
@@ -370,7 +414,11 @@
     "sownOn": "🌰 Sembrada {{date}}",
     "daysGrowing_one": "{{count}} día",
     "daysGrowing_other": "{{count}} días",
-    "estimatedHarvest": "🧺 Cosecha est. {{date}}"
+    "estimatedHarvest": "🧺 Cosecha est. {{date}}",
+    "harvestSummary_one": "1 cosecha registrada",
+    "harvestSummary_other": "{{count}} cosechas registradas",
+    "units": "unidades",
+    "photoTimeline": "📸 Fotos de progreso"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",
@@ -445,6 +493,10 @@
     "how3Title": "Sin conexión",
     "how3Desc": "Las alertas se programan en el dispositivo. No necesitas internet.",
     "noZoneWarning": "Completa el onboarding para activar las alertas personalizadas por zona.",
+    "frostLabel": "HELADAS",
+    "frostAlerts": "Alertas de helada",
+    "frostAlertsDesc": "Recibe una notificación cuando se prevean temperaturas bajo 2°C en los próximos días.",
+    "frostNoProvince": "Configura tu provincia en el huerto para activar las alertas de helada.",
     "more": "más"
   },
   "stats": {
@@ -494,6 +546,9 @@
     "pestPlaceholder": "Describe la plaga o síntoma…",
     "notePlaceholder": "Añade una nota…",
     "weightPlaceholder": "Peso en kg (opcional)",
+    "weightKgPlaceholder": "Cantidad en kg…",
+    "weightUnitsPlaceholder": "Nº de unidades…",
+    "units": "uds",
     "chooseAction": "Elige una acción",
     "save": "Registrar {{action}}",
     "done": "¡Registrado!"

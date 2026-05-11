@@ -28,7 +28,8 @@
       "plants": "Landareak",
       "harvesting": "Uztatzeko",
       "reminders": "Oroigarriak",
-      "pests": "Izurriteekin"
+      "pests": "Izurriteekin",
+      "needsWater": "Ur beharra"
     },
     "weatherLoading": "🌤️ Eguraldia kargatzen…",
     "lunarDay": "Eguna",
@@ -109,7 +110,8 @@
       "province": "Probintzia",
       "climateZone": "Klima zona",
       "map": "Baratzearen mapa",
-      "edit": "Baratzea editatu"
+      "edit": "Baratzea editatu",
+      "manageGardens": "Baratzeak kudeatu"
     },
     "subscription": {
       "proPlan": "⭐ Pro Plana",
@@ -121,7 +123,8 @@
     },
     "tools": {
       "companions": "Elkartze gida",
-      "stats": "Estatistikak ikusi"
+      "stats": "Estatistikak ikusi",
+      "diseaseGuide": "Izurri eta gaixotasun-gida"
     },
     "summary": {
       "activePlants": "Landare aktiboak",
@@ -231,6 +234,35 @@
     "gridProTitle": "Pro funtzioa",
     "gridProDesc": "Aldatu maparen tamaina Pro planarekin."
   },
+  "gardens": {
+    "title": "Nire baratzeak",
+    "hint": "Sakatu baratze bat aktibatzeko. Hasierako landare-zerrenda baratze aktiboaren arabera iragazten da.",
+    "active": "Aktiboa",
+    "createTitle": "Baratze berria",
+    "fieldName": "Izena",
+    "fieldNamePlaceholder": "Adib. Terrazako baratzea",
+    "fieldType": "Mota",
+    "fieldProvince": "Probintzia",
+    "fieldProvincePlaceholder": "Hautatu probintzia",
+    "cantDeleteLast": "Ezin duzu azken baratzea ezabatu.",
+    "deleteTitle": "Ezabatu {{name}}",
+    "deleteDesc": "Baratzea soilik ezabatuko da, ez lotutako landareak edo sarrerak."
+  },
+  "diseaseGuide": {
+    "title": "Gaixotasun-gida",
+    "subtitle": "Izurriak, gaixotasunak eta gabeziak",
+    "search": "Bilatu izurria, sintoma edo laborea…",
+    "filterAll": "Guztiak",
+    "filterPest": "🐛 Izurria",
+    "filterDisease": "🍂 Gaixotasuna",
+    "filterDeficiency": "💛 Gabezia",
+    "empty": "Ez dago emaitzarik bilaketa horretarako.",
+    "affectedCrops": "Eragindako laboreak",
+    "symptoms": "Sintomak",
+    "treatments": "Tratamenduak",
+    "type": { "plaga": "Izurria", "enfermedad": "Gaixotasuna", "deficiencia": "Gabezia" },
+    "treatment": { "organico": "Ekologikoa", "preventivo": "Prebentiboa", "quimico": "Kimikoa" }
+  },
   "gardenMap": {
     "title": "Baratzearen mapa",
     "summary": "{{placed}} / {{total}} landare kokatuta · {{cols}}×{{rows}} lursailak",
@@ -249,7 +281,10 @@
     "remove": "Kendu",
     "movePlant": "Mugitu",
     "moveModeHint": "Sakatu helmugako lursaila · Sakatu ✕ bertan behera uzteko",
-    "moveCancelled": "Mugimendua bertan behera utzi da"
+    "moveCancelled": "Mugimendua bertan behera utzi da",
+    "shareTitle": "Nire baratzea",
+    "shareNotAvailable": "Partekatzea ez dago eskuragarri gailu honetan.",
+    "shareError": "Ezin izan da mapa kapturatu."
   },
   "onboarding": {
     "step1Title": "Zure baratze digitala",
@@ -370,7 +405,11 @@
     "sownOn": "🌰 Ereindakoa {{date}}",
     "daysGrowing_one": "{{count}} egun",
     "daysGrowing_other": "{{count}} egun",
-    "estimatedHarvest": "🧺 Uzta est. {{date}}"
+    "estimatedHarvest": "🧺 Uzta est. {{date}}",
+    "harvestSummary_one": "1 uzta erregistratua",
+    "harvestSummary_other": "{{count}} uzta erregistratuak",
+    "units": "ale",
+    "photoTimeline": "📸 Aurrerapen argazkiak"
   },
   "reminderEdit": {
     "title": "Gogorarazlea editatu",
@@ -445,6 +484,10 @@
     "how3Title": "Konexiorik gabe",
     "how3Desc": "Alertak gailuan programatzen dira. Ez duzu internet behar.",
     "noZoneWarning": "Osatu onboarding-a zona alertak pertsonalizatuak aktibatzeko.",
+    "frostLabel": "IZOTZA",
+    "frostAlerts": "Izotz-alertak",
+    "frostAlertsDesc": "Jakinarazpen bat jasoko duzu hurrengo egunetan 2°C azpiko tenperaturak aurreikusten direnean.",
+    "frostNoProvince": "Konfiguratu zure probintzia baratzearen ezarpenetan izotz-alertak aktibatzeko.",
     "more": "gehiago"
   },
   "stats": {
@@ -494,6 +537,9 @@
     "pestPlaceholder": "Deskribatu izurritea edo sintoma…",
     "notePlaceholder": "Gehitu ohar bat…",
     "weightPlaceholder": "Pisua kg-tan (hautazkoa)",
+    "weightKgPlaceholder": "Kantitatea kg-tan…",
+    "weightUnitsPlaceholder": "Ale kopurua…",
+    "units": "ale",
     "chooseAction": "Aukeratu ekintza bat",
     "save": "Erregistratu {{action}}",
     "done": "Erregistratuta!"
