@@ -332,7 +332,8 @@
     "addPhoto": "Argazkia gehitu",
     "addPlant": "Landarea gehitu 🌱",
     "cropSearch": "Laborea bilatu...",
-    "cropPickerTitle": "Hautatu laborea"
+    "cropPickerTitle": "Hautatu laborea",
+    "varietyGeneric": "Generikoa"
   },
   "plantDetail": {
     "notFound": "Landarea ez da aurkitu",
@@ -365,7 +366,8 @@
     "deleteDesc": "Landarea eta bere egunkari sarrera eta oroigarri guztiak ezabatuko dira.",
     "sownOn": "🌰 Ereindakoa {{date}}",
     "daysGrowing_one": "{{count}} egun",
-    "daysGrowing_other": "{{count}} egun"
+    "daysGrowing_other": "{{count}} egun",
+    "estimatedHarvest": "🧺 Uzta est. {{date}}"
   },
   "reminderEdit": {
     "title": "Gogorarazlea editatu",
@@ -710,6 +712,43 @@
     },
     "puerro": {
       "name": "Porrua"
+    }
+  },
+  "identify": {
+    "title": "Izurria identifikatu",
+    "subtitle": "Argazkia egin kaltetutako aldea",
+    "takePhoto": "Argazkia atera",
+    "fromGallery": "Galeriatik",
+    "analyze": "AArekin aztertu",
+    "analyzing": "Landarea aztertzen…",
+    "retake": "Argazki berria",
+    "healthy": "Zure landarea osasuntsu dago!",
+    "healthyDesc": "Ez da izurririk edo gaixotasunik hauteman",
+    "saveEntry": "Diagnostikoa egunkarian gorde",
+    "saved": "✓ Egunkarian gordeta",
+    "proOnly": "Pro funtzioa",
+    "proOnlyDesc": "IA identifikazioa Pro planean dago eskuragarri.",
+    "upgradePro": "Planak ikusi",
+    "noKeyDesc": "Gehitu EXPO_PUBLIC_ANTHROPIC_KEY .env fitxategian",
+    "error": "Analisatzeko errorea",
+    "errorDesc": "Ezin izan da irudia analisatu. Saiatu berriro.",
+    "confidence": {
+      "alta": "Konfiantza altua",
+      "media": "Konfiantza ertaina",
+      "baja": "Konfiantza baxua"
+    },
+    "problemType": {
+      "plaga": "Izurria",
+      "enfermedad": "Gaixotasuna",
+      "deficiencia": "Gabezia",
+      "saludable": "Osasuntsu"
+    },
+    "symptomsLabel": "Ikusitako sintomak",
+    "treatmentsLabel": "Gomendatutako tratamenduak",
+    "treatmentType": {
+      "organico": "Organikoa",
+      "preventivo": "Prebentiboa",
+      "quimico": "Kimikoa"
     }
   }
 }

@@ -332,7 +332,8 @@
     "addPhoto": "Añadir foto",
     "addPlant": "Añadir planta 🌱",
     "cropSearch": "Buscar cultivo...",
-    "cropPickerTitle": "Seleccionar cultivo"
+    "cropPickerTitle": "Seleccionar cultivo",
+    "varietyGeneric": "Genérica"
   },
   "plantDetail": {
     "notFound": "Planta no encontrada",
@@ -365,7 +366,8 @@
     "deleteDesc": "Se eliminará la planta y todas sus entradas de diario y recordatorios.",
     "sownOn": "🌰 Sembrada {{date}}",
     "daysGrowing_one": "{{count}} día",
-    "daysGrowing_other": "{{count}} días"
+    "daysGrowing_other": "{{count}} días",
+    "estimatedHarvest": "🧺 Cosecha est. {{date}}"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",
@@ -604,5 +606,42 @@
     "cucurbitaceas": "Cucurbitáceas",
     "aromaticas": "Aromáticas",
     "bulbos": "Bulbos"
+  },
+  "identify": {
+    "title": "Identificar plaga",
+    "subtitle": "Fotografía la parte afectada de tu planta",
+    "takePhoto": "Tomar foto",
+    "fromGallery": "Desde galería",
+    "analyze": "Analizar con IA",
+    "analyzing": "Analizando tu planta…",
+    "retake": "Nueva foto",
+    "healthy": "¡Tu planta está sana!",
+    "healthyDesc": "No se detectaron plagas ni enfermedades",
+    "saveEntry": "Guardar diagnóstico en el diario",
+    "saved": "✓ Guardado en el diario",
+    "proOnly": "Función Pro",
+    "proOnlyDesc": "La identificación por IA está disponible en el plan Pro.",
+    "upgradePro": "Ver planes",
+    "noKeyDesc": "Añade EXPO_PUBLIC_ANTHROPIC_KEY en el archivo .env",
+    "error": "Error al analizar",
+    "errorDesc": "No se pudo analizar la imagen. Inténtalo de nuevo.",
+    "confidence": {
+      "alta": "Alta confianza",
+      "media": "Confianza media",
+      "baja": "Baja confianza"
+    },
+    "problemType": {
+      "plaga": "Plaga",
+      "enfermedad": "Enfermedad",
+      "deficiencia": "Deficiencia",
+      "saludable": "Sano"
+    },
+    "symptomsLabel": "Síntomas observados",
+    "treatmentsLabel": "Tratamientos recomendados",
+    "treatmentType": {
+      "organico": "Orgánico",
+      "preventivo": "Preventivo",
+      "quimico": "Químico"
+    }
   }
 }

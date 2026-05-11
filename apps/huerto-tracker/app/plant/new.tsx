@@ -1,7 +1,7 @@
 import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useSession } from '@portfolio/supabase';
-import { usePurchases } from '@portfolio/billing';
+import { usePro as usePurchases } from '../../src/hooks/usePro';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +13,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  ScrollView,
   SectionList,
   StyleSheet,
   Text,
@@ -21,6 +22,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS, CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, type CropInfo } from '../../src/data/crops';
+import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import type { Garden } from '../../src/models/garden';
 import type { Plant } from '../../src/models/plant';
 
@@ -53,6 +55,7 @@ export default function NewPlantScreen() {
     paramCropId ? (t('crops.' + paramCropId + '.name') || CROPS_BY_ID[paramCropId]?.name || '') : ''
   );
   const [variety, setVariety] = useState('');
+  const [varietyId, setVarietyId] = useState<string | null>(null);
   const [sowingDate, setSowingDate] = useState(new Date().toISOString().split('T')[0]);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -71,11 +74,25 @@ export default function NewPlantScreen() {
     })).filter((s) => s.data.length > 0);
   }, [cropSearch, t]);
 
+  const cropVarieties = selectedCropId ? (VARIETIES_BY_CROP[selectedCropId] ?? []) : [];
+
   function handleSelectCrop(crop: CropInfo) {
     setSelectedCropId(crop.id);
     if (!plantName) setPlantName(t('crops.' + crop.id + '.name') || crop.name);
     setShowCropPicker(false);
     setCropSearch('');
+    setVarietyId(null);
+    setVariety('');
+  }
+
+  function handleSelectVariety(v: VarietyInfo | null) {
+    if (v === null) {
+      setVarietyId(null);
+      setVariety('');
+    } else {
+      setVarietyId(v.id);
+      setVariety(v.name);
+    }
   }
 
   async function pickPhoto() {
@@ -105,6 +122,7 @@ export default function NewPlantScreen() {
         cropId: selectedCropId,
         name: plantName.trim(),
         ...(variety.trim() ? { variety: variety.trim() } : {}),
+        ...(varietyId ? { varietyId } : {}),
         sowingDate,
         status: 'seedling',
         ...(photoUri ? { photoUri } : {}),
@@ -185,9 +203,55 @@ export default function NewPlantScreen() {
               <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
                 {t('plantNew.varietyLabel')}
               </Text>
+              {cropVarieties.length > 0 && (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ marginBottom: spacing.sm }}
+                  contentContainerStyle={{ gap: spacing.sm, paddingBottom: 2 }}
+                >
+                  <Pressable
+                    onPress={() => handleSelectVariety(null)}
+                    style={[
+                      s.varietyChip,
+                      {
+                        backgroundColor: !varietyId ? colors.primary + '22' : colors.surface,
+                        borderColor: !varietyId ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={[s.varietyChipText, { color: !varietyId ? colors.primary : colors.textSecondary }]}>
+                      🌱 {t('plantNew.varietyGeneric')}
+                    </Text>
+                  </Pressable>
+                  {cropVarieties.map((v) => {
+                    const active = varietyId === v.id;
+                    return (
+                      <Pressable
+                        key={v.id}
+                        onPress={() => handleSelectVariety(v)}
+                        style={[
+                          s.varietyChip,
+                          {
+                            backgroundColor: active ? colors.primary + '22' : colors.surface,
+                            borderColor: active ? colors.primary : colors.border,
+                          },
+                        ]}
+                      >
+                        <Text style={[s.varietyChipText, { color: active ? colors.primary : colors.text }]}>
+                          {v.name}
+                        </Text>
+                        <Text style={[s.varietyChipDays, { color: colors.textSecondary }]}>
+                          {v.daysToHarvest[0]}–{v.daysToHarvest[1]}d
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              )}
               <TextInput
                 value={variety}
-                onChangeText={setVariety}
+                onChangeText={(text) => { setVariety(text); setVarietyId(null); }}
                 placeholder={t('plantNew.varietyPlaceholder')}
                 placeholderTextColor={colors.textDisabled}
                 style={[s.input, { backgroundColor: colors.surface, borderColor: variety ? colors.primary : colors.border, color: colors.text }]}
@@ -387,5 +451,21 @@ const makeStyles = (
       paddingHorizontal: spacing.xl,
       paddingVertical: spacing.md,
       borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    varietyChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+      gap: 4,
+    },
+    varietyChipText: {
+      fontSize: fontSize.sm,
+      fontWeight: fontWeight.medium,
+    },
+    varietyChipDays: {
+      fontSize: 10,
     },
   });

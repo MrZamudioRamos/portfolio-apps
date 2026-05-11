@@ -332,7 +332,8 @@
     "addPhoto": "Afegir foto",
     "addPlant": "Afegir planta 🌱",
     "cropSearch": "Cercar cultiu...",
-    "cropPickerTitle": "Seleccionar cultiu"
+    "cropPickerTitle": "Seleccionar cultiu",
+    "varietyGeneric": "Genèrica"
   },
   "plantDetail": {
     "notFound": "Planta no trobada",
@@ -365,7 +366,8 @@
     "deleteDesc": "S'eliminarà la planta i totes les seves entrades de diari i recordatoris.",
     "sownOn": "🌰 Sembrada {{date}}",
     "daysGrowing_one": "{{count}} dia",
-    "daysGrowing_other": "{{count}} dies"
+    "daysGrowing_other": "{{count}} dies",
+    "estimatedHarvest": "🧺 Collita est. {{date}}"
   },
   "reminderEdit": {
     "title": "Editar recordatori",
@@ -710,6 +712,43 @@
     },
     "puerro": {
       "name": "Porro"
+    }
+  },
+  "identify": {
+    "title": "Identificar plaga",
+    "subtitle": "Fotografia la part afectada de la planta",
+    "takePhoto": "Fer foto",
+    "fromGallery": "Des de la galeria",
+    "analyze": "Analitzar amb IA",
+    "analyzing": "Analitzant la planta…",
+    "retake": "Nova foto",
+    "healthy": "La planta té bon aspecte!",
+    "healthyDesc": "No s'han detectat plagues ni malalties",
+    "saveEntry": "Guardar diagnòstic al diari",
+    "saved": "✓ Guardat al diari",
+    "proOnly": "Funció Pro",
+    "proOnlyDesc": "La identificació per IA està disponible al pla Pro.",
+    "upgradePro": "Veure plans",
+    "noKeyDesc": "Afegiu EXPO_PUBLIC_ANTHROPIC_KEY al fitxer .env",
+    "error": "Error en analitzar",
+    "errorDesc": "No s'ha pogut analitzar la imatge. Torneu-ho a intentar.",
+    "confidence": {
+      "alta": "Confiança alta",
+      "media": "Confiança mitjana",
+      "baja": "Confiança baixa"
+    },
+    "problemType": {
+      "plaga": "Plaga",
+      "enfermedad": "Malaltia",
+      "deficiencia": "Deficiència",
+      "saludable": "Sana"
+    },
+    "symptomsLabel": "Símptomes observats",
+    "treatmentsLabel": "Tractaments recomanats",
+    "treatmentType": {
+      "organico": "Orgànic",
+      "preventivo": "Preventiu",
+      "quimico": "Químic"
     }
   }
 }

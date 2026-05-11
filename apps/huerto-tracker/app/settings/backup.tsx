@@ -1,4 +1,4 @@
-import { usePurchases } from '@portfolio/billing';
+import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';

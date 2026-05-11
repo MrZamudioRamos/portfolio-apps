@@ -2,7 +2,7 @@ import { useOnboarding } from '@portfolio/shared';
 import { useSession, signOut } from '@portfolio/supabase';
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
-import { usePurchases } from '@portfolio/billing';
+import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';

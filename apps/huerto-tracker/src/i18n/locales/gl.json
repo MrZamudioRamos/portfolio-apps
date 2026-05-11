@@ -332,7 +332,8 @@
     "addPhoto": "Engadir foto",
     "addPlant": "Engadir planta 🌱",
     "cropSearch": "Buscar cultivo...",
-    "cropPickerTitle": "Seleccionar cultivo"
+    "cropPickerTitle": "Seleccionar cultivo",
+    "varietyGeneric": "Xenérica"
   },
   "plantDetail": {
     "notFound": "Planta non atopada",
@@ -365,7 +366,8 @@
     "deleteDesc": "Eliminarase a planta e todas as súas entradas de diario e recordatorios.",
     "sownOn": "🌰 Sementada {{date}}",
     "daysGrowing_one": "{{count}} día",
-    "daysGrowing_other": "{{count}} días"
+    "daysGrowing_other": "{{count}} días",
+    "estimatedHarvest": "🧺 Colleita est. {{date}}"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",
@@ -710,6 +712,43 @@
     },
     "puerro": {
       "name": "Porro"
+    }
+  },
+  "identify": {
+    "title": "Identificar praga",
+    "subtitle": "Fotografía a parte afectada da planta",
+    "takePhoto": "Facer foto",
+    "fromGallery": "Desde a galería",
+    "analyze": "Analizar con IA",
+    "analyzing": "Analizando a planta…",
+    "retake": "Nova foto",
+    "healthy": "A túa planta está san!",
+    "healthyDesc": "Non se detectaron pragas nin enfermidades",
+    "saveEntry": "Gardar diagnóstico no diario",
+    "saved": "✓ Gardado no diario",
+    "proOnly": "Función Pro",
+    "proOnlyDesc": "A identificación por IA está dispoñible no plan Pro.",
+    "upgradePro": "Ver plans",
+    "noKeyDesc": "Engade EXPO_PUBLIC_ANTHROPIC_KEY no ficheiro .env",
+    "error": "Erro ao analizar",
+    "errorDesc": "Non se puido analizar a imaxe. Téntao de novo.",
+    "confidence": {
+      "alta": "Alta confianza",
+      "media": "Confianza media",
+      "baja": "Baixa confianza"
+    },
+    "problemType": {
+      "plaga": "Praga",
+      "enfermedad": "Enfermidade",
+      "deficiencia": "Deficiencia",
+      "saludable": "Sa"
+    },
+    "symptomsLabel": "Síntomas observados",
+    "treatmentsLabel": "Tratamentos recomendados",
+    "treatmentType": {
+      "organico": "Orgánico",
+      "preventivo": "Preventivo",
+      "quimico": "Químico"
     }
   }
 }

@@ -1,6 +1,6 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
-import { usePurchases } from '@portfolio/billing';
+import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';

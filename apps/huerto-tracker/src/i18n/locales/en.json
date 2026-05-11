@@ -332,7 +332,8 @@
     "addPhoto": "Add photo",
     "addPlant": "Add plant 🌱",
     "cropSearch": "Search crop...",
-    "cropPickerTitle": "Select crop"
+    "cropPickerTitle": "Select crop",
+    "varietyGeneric": "Generic"
   },
   "plantDetail": {
     "notFound": "Plant not found",
@@ -365,7 +366,8 @@
     "deleteDesc": "The plant and all its journal entries and reminders will be deleted.",
     "sownOn": "🌰 Sown {{date}}",
     "daysGrowing_one": "{{count}} day",
-    "daysGrowing_other": "{{count}} days"
+    "daysGrowing_other": "{{count}} days",
+    "estimatedHarvest": "🧺 Est. harvest {{date}}"
   },
   "reminderEdit": {
     "title": "Edit reminder",
@@ -745,6 +747,43 @@
     "puerro": {
       "name": "Leek",
       "tips": "Transplant into deep holes and earth up gradually to blanch the stem. Stays in the ground all autumn-winter; harvest as needed."
+    }
+  },
+  "identify": {
+    "title": "Identify pest",
+    "subtitle": "Photograph the affected part of your plant",
+    "takePhoto": "Take photo",
+    "fromGallery": "From gallery",
+    "analyze": "Analyze with AI",
+    "analyzing": "Analyzing your plant…",
+    "retake": "New photo",
+    "healthy": "Your plant looks healthy!",
+    "healthyDesc": "No pests or diseases were detected",
+    "saveEntry": "Save diagnosis to journal",
+    "saved": "✓ Saved to journal",
+    "proOnly": "Pro feature",
+    "proOnlyDesc": "AI identification is available on the Pro plan.",
+    "upgradePro": "View plans",
+    "noKeyDesc": "Add EXPO_PUBLIC_ANTHROPIC_KEY to .env file",
+    "error": "Analysis error",
+    "errorDesc": "Could not analyze the image. Please try again.",
+    "confidence": {
+      "alta": "High confidence",
+      "media": "Medium confidence",
+      "baja": "Low confidence"
+    },
+    "problemType": {
+      "plaga": "Pest",
+      "enfermedad": "Disease",
+      "deficiencia": "Deficiency",
+      "saludable": "Healthy"
+    },
+    "symptomsLabel": "Observed symptoms",
+    "treatmentsLabel": "Recommended treatments",
+    "treatmentType": {
+      "organico": "Organic",
+      "preventivo": "Preventive",
+      "quimico": "Chemical"
     }
   }
 }

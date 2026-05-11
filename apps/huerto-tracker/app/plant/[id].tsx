@@ -17,12 +17,14 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS_BY_ID, CATEGORY_CONFIG } from '../../src/data/crops';
+import { CROPS_BY_ID } from '../../src/data/crops';
+import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import { getCompanions, getIncompatible } from '../../src/data/companions';
 import { PLANT_STATUS_CONFIG, type Plant, type PlantStatus } from '../../src/models/plant';
 import { ENTRY_TYPE_CONFIG, type DiaryEntry } from '../../src/models/diary-entry';
 import { REMINDER_TYPE_CONFIG, type GardenReminder } from '../../src/models/reminder';
 import { getPestsForCrop, PEST_STATUS_CONFIG } from '../../src/data/pests';
+import { usePro as usePurchases } from '../../src/hooks/usePro';
 
 const ALL_STATUSES: PlantStatus[] = [
   'seedling', 'transplanted', 'growing', 'flowering', 'fruiting', 'harvesting', 'finished',
@@ -47,6 +49,7 @@ export default function PlantDetailScreen() {
   const incompatibles = crop ? getIncompatible(crop.id) : [];
   const pestInfo = crop ? getPestsForCrop(crop.id) : [];
   const currentPestStatus = plant?.pestStatus ?? 'none';
+  const { isPro } = usePurchases();
 
   const plantEntries = useMemo(
     () =>
@@ -161,17 +164,38 @@ export default function PlantDetailScreen() {
 
           {/* Dates */}
           {plant.sowingDate && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xl }}>
-              <Text style={[s.dateText, { color: colors.textSecondary, marginBottom: 0 }]}>
-                {t('plantDetail.sownOn', { date: formatDate(plant.sowingDate) })}
-              </Text>
+            <View style={{ marginBottom: spacing.xl }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                <Text style={[s.dateText, { color: colors.textSecondary, marginBottom: 0 }]}>
+                  {t('plantDetail.sownOn', { date: formatDate(plant.sowingDate) })}
+                </Text>
+                {(() => {
+                  const days = Math.floor((Date.now() - new Date(plant.sowingDate).getTime()) / 86_400_000);
+                  if (days < 1) return null;
+                  return (
+                    <View style={[s.daysChip, { backgroundColor: colors.primary + '18' }]}>
+                      <Text style={[s.daysChipText, { color: colors.primary }]}>
+                        {t('plantDetail.daysGrowing', { count: days })}
+                      </Text>
+                    </View>
+                  );
+                })()}
+              </View>
               {(() => {
-                const days = Math.floor((Date.now() - new Date(plant.sowingDate).getTime()) / 86_400_000);
-                if (days < 1) return null;
+                const dth = plant.varietyId
+                  ? VARIETIES_BY_ID[plant.varietyId]?.daysToHarvest
+                  : crop.daysToHarvest;
+                if (!dth) return null;
+                const sow = new Date(plant.sowingDate);
+                const midDays = Math.round((dth[0] + dth[1]) / 2);
+                const harvestDate = new Date(sow.getTime() + midDays * 86_400_000);
+                const today = new Date();
+                if (harvestDate < today) return null;
+                const dateStr = harvestDate.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
                 return (
-                  <View style={[s.daysChip, { backgroundColor: colors.primary + '18' }]}>
-                    <Text style={[s.daysChipText, { color: colors.primary }]}>
-                      {t('plantDetail.daysGrowing', { count: days })}
+                  <View style={[s.harvestChip, { backgroundColor: '#FF7043' + '18' }]}>
+                    <Text style={[s.daysChipText, { color: '#FF7043' }]}>
+                      {t('plantDetail.estimatedHarvest', { date: dateStr })}
                     </Text>
                   </View>
                 );
@@ -347,6 +371,31 @@ export default function PlantDetailScreen() {
 
           {/* Pest tracker section */}
           <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.pestSection')}</Text>
+
+          {/* AI identify button */}
+          <Pressable
+            onPress={() =>
+              isPro
+                ? router.push(`/plant/identify?plantId=${id}&cropId=${crop.id}` as any)
+                : router.push('/paywall')
+            }
+            style={[s.identifyBtn, { backgroundColor: '#FF703415', borderColor: '#FF7034' }]}
+          >
+            <Text style={{ fontSize: 22 }}>📸</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.identifyBtnTitle, { color: '#E55A1B' }]}>{t('identify.title')}</Text>
+              <Text style={[s.identifyBtnSub, { color: colors.textSecondary }]}>
+                {isPro ? t('identify.subtitle') : t('identify.proOnly')}
+              </Text>
+            </View>
+            {!isPro && (
+              <View style={[s.proBadge, { backgroundColor: colors.primary }]}>
+                <Text style={s.proBadgeText}>PRO</Text>
+              </View>
+            )}
+            <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+          </Pressable>
+
           <Card padded style={{ gap: spacing.md }}>
             {/* Status selector */}
             <View style={s.pestStatusRow}>
@@ -519,6 +568,13 @@ const makeStyles = (
       paddingVertical: 2,
       borderRadius: radii.full,
     },
+    harvestChip: {
+      alignSelf: 'flex-start',
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: radii.full,
+      marginTop: spacing.xs,
+    },
     daysChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     sectionTitle: {
       fontSize: fontSize.lg,
@@ -618,4 +674,21 @@ const makeStyles = (
     treatmentType: { fontSize: 9, fontWeight: fontWeight.bold, textTransform: 'uppercase' },
     treatmentName: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     treatmentInstructions: { fontSize: fontSize.xs, lineHeight: 16, marginTop: 2 },
+    identifyBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      padding: spacing.md,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      marginBottom: spacing.md,
+    },
+    identifyBtnTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    identifyBtnSub: { fontSize: fontSize.xs, marginTop: 2 },
+    proBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: radii.full,
+    },
+    proBadgeText: { fontSize: 10, fontWeight: fontWeight.bold, color: '#fff' },
   });

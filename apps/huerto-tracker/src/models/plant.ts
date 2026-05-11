@@ -16,6 +16,7 @@ export interface Plant extends BaseItem {
   cropId: string;
   name: string;
   variety?: string;
+  varietyId?: string;
   sowingDate?: string;
   transplantDate?: string;
   firstHarvestDate?: string;
