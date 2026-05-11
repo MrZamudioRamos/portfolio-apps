@@ -24,6 +24,7 @@ import type { GardenReminder } from '../../src/models/reminder';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { getLunarDay } from '../../src/utils/lunar';
+import { getSowingNow } from '../../src/utils/sowingNow';
 import { QuickLogModal } from '../../src/components/QuickLogModal';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import { useWeather } from '../../src/hooks/useWeather';
@@ -65,6 +66,12 @@ export default function DashboardScreen() {
   );
 
   const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
+
+  const currentMonth = new Date().getMonth() + 1;
+  const sowingData = useMemo(() => {
+    if (!garden?.climateZone) return null;
+    return getSowingNow(garden.climateZone, currentMonth);
+  }, [garden?.climateZone, currentMonth]);
 
   // Update home screen widget snapshot whenever garden data changes
   useEffect(() => {
@@ -347,6 +354,64 @@ export default function DashboardScreen() {
               </View>
             )}
 
+            {/* Sow Now card */}
+            {sowingData && (sowingData.now.length > 0 || sowingData.soon.length > 0) && (
+              <View style={[s.sowCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                {sowingData.now.length > 0 && (
+                  <>
+                    <Text style={[s.sowSectionLabel, { color: colors.primary }]}>
+                      🌱 {t('home.sowNowTitle')}
+                    </Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.sowScroll}>
+                      <View style={s.sowRow}>
+                        {sowingData.now.map((crop) => (
+                          <Pressable
+                            key={crop.id}
+                            onPress={() => router.push(`/plant/new?cropId=${crop.id}` as any)}
+                            style={({ pressed }) => [
+                              s.sowChip,
+                              { backgroundColor: colors.primary + '18', borderColor: colors.primary, opacity: pressed ? 0.7 : 1 },
+                            ]}
+                          >
+                            <Text style={s.sowChipEmoji}>{crop.emoji}</Text>
+                            <Text style={[s.sowChipName, { color: colors.text }]} numberOfLines={1}>
+                              {t('crops.' + crop.id + '.name')}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  </>
+                )}
+                {sowingData.soon.length > 0 && (
+                  <>
+                    <Text style={[s.sowSectionLabel, { color: colors.textSecondary, marginTop: sowingData.now.length > 0 ? 10 : 0 }]}>
+                      🕐 {t('home.sowSoonTitle')}
+                    </Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.sowScroll}>
+                      <View style={s.sowRow}>
+                        {sowingData.soon.map((crop) => (
+                          <Pressable
+                            key={crop.id}
+                            onPress={() => router.push(`/plant/new?cropId=${crop.id}` as any)}
+                            style={({ pressed }) => [
+                              s.sowChip,
+                              { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 },
+                            ]}
+                          >
+                            <Text style={s.sowChipEmoji}>{crop.emoji}</Text>
+                            <Text style={[s.sowChipName, { color: colors.textSecondary }]} numberOfLines={1}>
+                              {t('crops.' + crop.id + '.name')}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  </>
+                )}
+              </View>
+            )}
+
             {/* Stats link */}
             <Pressable
               onPress={() => router.push('/stats')}
@@ -613,6 +678,32 @@ const makeStyles = (
       borderWidth: 1,
     },
     statsLinkText: { flex: 1, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    sowCard: {
+      marginHorizontal: spacing.xl,
+      marginBottom: spacing.md,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      padding: spacing.md,
+    },
+    sowSectionLabel: {
+      fontSize: fontSize.xs,
+      fontWeight: fontWeight.semibold,
+      letterSpacing: 0.5,
+      marginBottom: spacing.sm,
+    },
+    sowScroll: { marginHorizontal: -spacing.xs },
+    sowRow: { flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.xs },
+    sowChip: {
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      minWidth: 72,
+      gap: 3,
+    },
+    sowChipEmoji: { fontSize: 22 },
+    sowChipName: { fontSize: 10, fontWeight: fontWeight.medium, textAlign: 'center' },
     fab: {
       position: 'absolute',
       bottom: 24,
