@@ -68,6 +68,15 @@ export function useGardenLayout(
     });
   }
 
+  async function swapCells(a: number, b: number): Promise<void> {
+    setLayout((prev) => {
+      const next = [...prev];
+      [next[a], next[b]] = [next[b], next[a]];
+      AsyncStorage.setItem(LAYOUT_KEY, JSON.stringify(next));
+      return next;
+    });
+  }
+
   async function clearAll(): Promise<void> {
     const empty = Array(gridSize).fill(null);
     setLayout(empty);
@@ -78,5 +87,5 @@ export function useGardenLayout(
     return layout.indexOf(plantId);
   }
 
-  return { layout, loading, setCell, removePlant, clearAll, plantIndexInGrid, gridRows, gridCols, gridSize };
+  return { layout, loading, setCell, swapCells, removePlant, clearAll, plantIndexInGrid, gridRows, gridCols, gridSize };
 }

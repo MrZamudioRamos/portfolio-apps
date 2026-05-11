@@ -38,14 +38,12 @@ export default function GardenMapScreen() {
   const gridCols = garden?.gridCols ?? DEFAULT_GRID_COLS;
 
   const plants = useCollection<Plant>('plants');
-  const { layout, loading, setCell } = useGardenLayout(gridRows, gridCols);
+  const { layout, loading, setCell, swapCells } = useGardenLayout(gridRows, gridCols);
 
-  // Modal state for picking a plant to place
   const [pickingCell, setPickingCell] = useState<number | null>(null);
   const [search, setSearch] = useState('');
-
-  // Modal state for an occupied cell
   const [selectedCell, setSelectedCell] = useState<number | null>(null);
+  const [moveSourceCell, setMoveSourceCell] = useState<number | null>(null);
 
   useFocusEffect(useCallback(() => { plants.refresh(); }, []));
 
@@ -70,8 +68,30 @@ export default function GardenMapScreen() {
   );
 
   function handleCellPress(index: number) {
-    const plantId = layout[index];
-    if (plantId) {
+    // ── Move mode ──
+    if (moveSourceCell !== null) {
+      if (index === moveSourceCell) {
+        setMoveSourceCell(null);
+        return;
+      }
+      const targetPlant = layout[index];
+      if (targetPlant) {
+        // Swap the two occupied cells
+        swapCells(moveSourceCell, index);
+      } else {
+        // Move to empty cell
+        const srcPlantId = layout[moveSourceCell];
+        if (srcPlantId) {
+          setCell(moveSourceCell, null);
+          setCell(index, srcPlantId);
+        }
+      }
+      setMoveSourceCell(null);
+      return;
+    }
+
+    // ── Normal mode ──
+    if (layout[index]) {
       setSelectedCell(index);
     } else {
       setSearch('');
@@ -91,11 +111,15 @@ export default function GardenMapScreen() {
     setSelectedCell(null);
   }
 
+  function handleStartMove() {
+    setMoveSourceCell(selectedCell);
+    setSelectedCell(null);
+  }
+
   const selectedPlant =
     selectedCell !== null ? plants.items.find((p) => p.id === layout[selectedCell]) ?? null : null;
   const selectedCrop = selectedPlant ? CROPS_BY_ID[selectedPlant.cropId] : null;
 
-  // Build grid rows
   const rows = Array.from({ length: gridRows }, (_, r) =>
     Array.from({ length: gridCols }, (_, c) => {
       const idx = cellIndex(r, c, gridCols);
@@ -103,9 +127,13 @@ export default function GardenMapScreen() {
       const plant = plantId ? plants.items.find((p) => p.id === plantId) ?? null : null;
       const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
       const statusColor = plant ? PLANT_STATUS_CONFIG[plant.status].color : null;
-      return { idx, plant, crop, statusColor };
+      const isSource = moveSourceCell === idx;
+      const inMoveMode = moveSourceCell !== null;
+      return { idx, plant, crop, statusColor, isSource, inMoveMode };
     })
   );
+
+  if (loading) return null;
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -122,8 +150,19 @@ export default function GardenMapScreen() {
         </View>
       </View>
 
+      {/* Move mode banner */}
+      {moveSourceCell !== null && (
+        <Pressable
+          onPress={() => setMoveSourceCell(null)}
+          style={[s.moveBanner, { backgroundColor: colors.primary }]}
+        >
+          <Ionicons name="move-outline" size={16} color="#fff" />
+          <Text style={s.moveBannerText}>{t('gardenMap.moveModeHint')}</Text>
+          <Ionicons name="close" size={18} color="#fff" />
+        </Pressable>
+      )}
+
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
-        {/* Compass / orientation hint */}
         <View style={s.compassRow}>
           <View style={[s.compassBadge, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
             <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary }]}>☀️ {t('gardenMap.south')}</Text>
@@ -134,15 +173,28 @@ export default function GardenMapScreen() {
         <View style={[s.grid, { borderColor: colors.border }]}>
           {rows.map((row, r) => (
             <View key={r} style={s.gridRow}>
-              {row.map(({ idx, plant, crop, statusColor }) => (
+              {row.map(({ idx, plant, crop, statusColor, isSource, inMoveMode }) => (
                 <Pressable
                   key={idx}
                   onPress={() => handleCellPress(idx)}
                   style={({ pressed }) => [
                     s.cell,
                     {
-                      backgroundColor: plant ? colors.surfaceAlt : colors.surface,
-                      borderColor: plant ? (statusColor + '55') : colors.border,
+                      backgroundColor: isSource
+                        ? colors.primary + '28'
+                        : plant
+                        ? colors.surfaceAlt
+                        : inMoveMode
+                        ? colors.primary + '08'
+                        : colors.surface,
+                      borderColor: isSource
+                        ? colors.primary
+                        : plant
+                        ? (statusColor + '55')
+                        : inMoveMode
+                        ? colors.primary + '40'
+                        : colors.border,
+                      borderWidth: isSource ? 2.5 : 1.5,
                       opacity: pressed ? 0.75 : 1,
                     },
                   ]}
@@ -150,14 +202,13 @@ export default function GardenMapScreen() {
                   {plant && crop ? (
                     <>
                       <Text style={s.cellEmoji}>{crop.emoji}</Text>
-                      <Text
-                        style={[s.cellLabel, { color: colors.text }]}
-                        numberOfLines={1}
-                      >
+                      <Text style={[s.cellLabel, { color: colors.text }]} numberOfLines={1}>
                         {plant.name}
                       </Text>
                       <View style={[s.cellDot, { backgroundColor: statusColor ?? colors.primary }]} />
                     </>
+                  ) : inMoveMode ? (
+                    <Ionicons name="add-circle-outline" size={18} color={colors.primary + '60'} />
                   ) : (
                     <Ionicons name="add" size={18} color={colors.border} />
                   )}
@@ -218,9 +269,7 @@ export default function GardenMapScreen() {
           {availablePlants.length === 0 ? (
             <View style={s.emptyPicker}>
               <Text style={[{ color: colors.textSecondary, textAlign: 'center', fontSize: fontSize.md }]}>
-                {plants.count === 0
-                  ? t('gardenMap.noPlants')
-                  : t('gardenMap.allPlaced')}
+                {plants.count === 0 ? t('gardenMap.noPlants') : t('gardenMap.allPlaced')}
               </Text>
             </View>
           ) : (
@@ -243,9 +292,7 @@ export default function GardenMapScreen() {
                     <View style={{ flex: 1 }}>
                       <Text style={[s.pickName, { color: colors.text }]}>{item.name}</Text>
                       {item.variety && (
-                        <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary }]}>
-                          {item.variety}
-                        </Text>
+                        <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary }]}>{item.variety}</Text>
                       )}
                     </View>
                     <View style={[s.statusPill, { backgroundColor: statusCfg.color + '22' }]}>
@@ -261,7 +308,7 @@ export default function GardenMapScreen() {
         </SafeAreaView>
       </Modal>
 
-      {/* ── Occupied cell options modal ── */}
+      {/* ── Compact context menu ── */}
       <Modal
         visible={selectedCell !== null}
         animationType="fade"
@@ -269,35 +316,48 @@ export default function GardenMapScreen() {
         onRequestClose={() => setSelectedCell(null)}
       >
         <Pressable style={s.overlay} onPress={() => setSelectedCell(null)}>
-          <Pressable style={[s.sheet, { backgroundColor: colors.surface, ...shadows.lg }]}>
+          {/* Stop tap from bubbling through the card */}
+          <Pressable style={[s.contextCard, { backgroundColor: colors.surface, ...shadows.lg }]}>
             {selectedPlant && selectedCrop && (
               <>
-                <View style={s.sheetHeader}>
-                  <Text style={{ fontSize: 40 }}>{selectedCrop.emoji}</Text>
+                {/* Plant identity */}
+                <View style={s.contextHeader}>
+                  <Text style={{ fontSize: 32 }}>{selectedCrop.emoji}</Text>
                   <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={[s.sheetTitle, { color: colors.text }]}>{selectedPlant.name}</Text>
-                    {selectedPlant.variety && (
-                      <Text style={[{ fontSize: fontSize.sm, color: colors.textSecondary }]}>
+                    <Text style={[s.contextName, { color: colors.text }]} numberOfLines={1}>
+                      {selectedPlant.name}
+                    </Text>
+                    {selectedPlant.variety ? (
+                      <Text style={[s.contextVariety, { color: colors.textSecondary }]} numberOfLines={1}>
                         {selectedPlant.variety}
                       </Text>
-                    )}
+                    ) : null}
                   </View>
+                  <View style={[s.statusDot, { backgroundColor: PLANT_STATUS_CONFIG[selectedPlant.status].color }]} />
                 </View>
-                <View style={s.sheetActions}>
-                  <Button
-                    title={t('gardenMap.viewPlant')}
-                    variant="primary"
-                    size="md"
-                    onPress={() => {
-                      setSelectedCell(null);
-                      router.push(`/plant/${selectedPlant.id}`);
-                    }}
-                    style={{ flex: 1 }}
-                  />
-                  <Button
-                    title={t('gardenMap.removeFromMap')}
-                    variant="outline"
-                    size="md"
+
+                {/* Divider */}
+                <View style={[s.divider, { backgroundColor: colors.border }]} />
+
+                {/* Action buttons */}
+                <View style={s.contextActions}>
+                  <Pressable
+                    onPress={() => { setSelectedCell(null); router.push(`/plant/${selectedPlant.id}`); }}
+                    style={[s.contextBtn, { backgroundColor: colors.primary + '15' }]}
+                  >
+                    <Ionicons name="eye-outline" size={20} color={colors.primary} />
+                    <Text style={[s.contextBtnText, { color: colors.primary }]}>{t('gardenMap.viewPlant')}</Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={handleStartMove}
+                    style={[s.contextBtn, { backgroundColor: '#FFA72615' }]}
+                  >
+                    <Ionicons name="move-outline" size={20} color="#E69500" />
+                    <Text style={[s.contextBtnText, { color: '#E69500' }]}>{t('gardenMap.movePlant')}</Text>
+                  </Pressable>
+
+                  <Pressable
                     onPress={() => {
                       Alert.alert(
                         t('gardenMap.removeTitle'),
@@ -308,8 +368,11 @@ export default function GardenMapScreen() {
                         ]
                       );
                     }}
-                    style={{ flex: 1 }}
-                  />
+                    style={[s.contextBtn, { backgroundColor: '#EF535015' }]}
+                  >
+                    <Ionicons name="trash-outline" size={20} color="#EF5350" />
+                    <Text style={[s.contextBtnText, { color: '#EF5350' }]}>{t('gardenMap.remove')}</Text>
+                  </Pressable>
                 </View>
               </>
             )}
@@ -338,6 +401,15 @@ const makeStyles = (
     },
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     headerSub: { fontSize: fontSize.xs, marginTop: 1 },
+    moveBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+    },
+    moveBannerText: { flex: 1, color: '#fff', fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
     scroll: { paddingHorizontal: spacing.xl, paddingTop: spacing.md },
     compassRow: { alignItems: 'center', marginBottom: spacing.sm },
     compassBadge: {
@@ -418,13 +490,26 @@ const makeStyles = (
       backgroundColor: 'rgba(0,0,0,0.45)',
       justifyContent: 'flex-end',
     },
-    sheet: {
+    contextCard: {
       borderTopLeftRadius: radii.xl,
       borderTopRightRadius: radii.xl,
-      padding: spacing.xl,
+      paddingTop: spacing.xl,
       paddingBottom: spacing['2xl'],
+      paddingHorizontal: spacing.xl,
     },
-    sheetHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xl },
-    sheetTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
-    sheetActions: { flexDirection: 'row', gap: spacing.md },
+    contextHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.lg },
+    contextName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    contextVariety: { fontSize: fontSize.sm, marginTop: 2 },
+    statusDot: { width: 10, height: 10, borderRadius: 5 },
+    divider: { height: StyleSheet.hairlineWidth, marginBottom: spacing.lg },
+    contextActions: { flexDirection: 'row', gap: spacing.sm },
+    contextBtn: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xs,
+      paddingVertical: spacing.md,
+      borderRadius: radii.md,
+    },
+    contextBtnText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
   });

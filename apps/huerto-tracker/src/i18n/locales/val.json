@@ -246,7 +246,10 @@
     "removeFromMap": "Traure del mapa",
     "removeTitle": "Traure del mapa",
     "removeDesc": "Traure {{name}} d'esta parcel·la?",
-    "remove": "Traure"
+    "remove": "Traure",
+    "movePlant": "Moure",
+    "moveModeHint": "Toca la parcel·la de destí · Prem ✕ per cancel·lar",
+    "moveCancelled": "Moviment cancel·lat"
   },
   "onboarding": {
     "step1Title": "El teu hort digital",

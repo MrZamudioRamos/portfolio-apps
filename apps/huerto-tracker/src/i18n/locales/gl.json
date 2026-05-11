@@ -246,7 +246,10 @@
     "removeFromMap": "Quitar do mapa",
     "removeTitle": "Quitar do mapa",
     "removeDesc": "Quitar {{name}} desta parcela?",
-    "remove": "Quitar"
+    "remove": "Quitar",
+    "movePlant": "Mover",
+    "moveModeHint": "Toca a parcela de destino · Preme ✕ para cancelar",
+    "moveCancelled": "Movemento cancelado"
   },
   "onboarding": {
     "step1Title": "A túa horta dixital",

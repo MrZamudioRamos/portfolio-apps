@@ -246,7 +246,10 @@
     "removeFromMap": "Mapetatik kendu",
     "removeTitle": "Mapetatik kendu",
     "removeDesc": "{{name}} lursail honetatik kendu?",
-    "remove": "Kendu"
+    "remove": "Kendu",
+    "movePlant": "Mugitu",
+    "moveModeHint": "Sakatu helmugako lursaila · Sakatu ✕ bertan behera uzteko",
+    "moveCancelled": "Mugimendua bertan behera utzi da"
   },
   "onboarding": {
     "step1Title": "Zure baratze digitala",

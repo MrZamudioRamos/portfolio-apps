@@ -246,7 +246,10 @@
     "removeFromMap": "Remove from map",
     "removeTitle": "Remove from map",
     "removeDesc": "Remove {{name}} from this plot?",
-    "remove": "Remove"
+    "remove": "Remove",
+    "movePlant": "Move",
+    "moveModeHint": "Tap the destination plot · Press ✕ to cancel",
+    "moveCancelled": "Move cancelled"
   },
   "onboarding": {
     "step1Title": "Your digital garden",
