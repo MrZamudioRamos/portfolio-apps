@@ -131,7 +131,9 @@
       },
       "router": {
         "origin": false
-      }
+      },
+      "privacyPolicyUrl": "https://semillaapp.app/privacy-policy.html",
+      "supportEmail": "semillaapp.contacto@gmail.com"
     },
     "owner": "rikki22zs-organization"
   }
