@@ -1,5 +1,6 @@
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
+import { useCollection } from '@portfolio/storage';
 import { formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -8,6 +9,10 @@ import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBackup } from '../../src/hooks/useBackup';
+import { usePdfReport } from '../../src/hooks/usePdfReport';
+import type { Garden } from '../../src/models/garden';
+import type { Plant } from '../../src/models/plant';
+import type { DiaryEntry } from '../../src/models/diary-entry';
 
 export default function BackupScreen() {
   const colors = useColors();
@@ -24,6 +29,11 @@ export default function BackupScreen() {
     importBackup,
     toggleAutoBackup,
   } = useBackup();
+  const { generating, generateAndShare } = usePdfReport();
+
+  const gardens = useCollection<Garden>('gardens');
+  const plants = useCollection<Plant>('plants');
+  const entries = useCollection<DiaryEntry>('diary_entries');
 
   const { t } = useTranslation();
 
@@ -189,6 +199,41 @@ export default function BackupScreen() {
               size="sm"
               onPress={handleImport}
               disabled={exporting || importing}
+            />
+          </View>
+        </Card>
+
+        {/* PDF seasonal report */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('backup.pdfLabel')}</Text>
+        <Card padded style={s.card}>
+          <View style={s.actionRow}>
+            <View style={s.rowIcon}>
+              <Ionicons name="document-text-outline" size={20} color={isPro ? colors.primary : colors.textDisabled} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={s.rowTitleRow}>
+                <Text style={[s.rowTitle, { color: colors.text }]}>{t('backup.pdfTitle')}</Text>
+                {!isPro && (
+                  <View style={[s.proBadge, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}>
+                    <Text style={[s.proBadgeText, { color: colors.primary }]}>Pro</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>
+                {t('backup.pdfDesc')}
+              </Text>
+            </View>
+            <Button
+              title={generating ? '…' : t('backup.pdfGenerate')}
+              variant={isPro ? 'primary' : 'secondary'}
+              size="sm"
+              onPress={() => {
+                if (!isPro) { router.push('/paywall'); return; }
+                const garden = gardens.items[0];
+                if (!garden) return;
+                generateAndShare(garden, plants.items, entries.items, t);
+              }}
+              disabled={generating}
             />
           </View>
         </Card>
