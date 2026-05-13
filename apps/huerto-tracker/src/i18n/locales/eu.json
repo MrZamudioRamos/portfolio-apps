@@ -360,7 +360,9 @@
     "title": "Landarea editatu",
     "save": "Aldaketak gorde",
     "changePhoto": "Argazkia aldatu",
-    "cropFixed": "Laborea finkoa"
+    "cropFixed": "Laborea finkoa",
+    "harvestGoalLabel": "Uzta helburua (kg)",
+    "harvestGoalPlaceholder": "Ad.: 5.0"
   },
   "plantNew": {
     "title": "Landare berria",
@@ -415,6 +417,7 @@
     "harvestSummary_one": "1 uzta erregistratua",
     "harvestSummary_other": "{{count}} uzta erregistratuak",
     "units": "ale",
+    "goalProgress": "Denboraldi helburua",
     "photoTimeline": "📸 Aurrerapen argazkiak"
   },
   "reminderEdit": {

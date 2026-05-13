@@ -24,6 +24,7 @@ export interface Plant extends BaseItem {
   pestStatus?: PestStatus;
   photoUri?: string;
   notes?: string;
+  harvestGoalKg?: number;
 }
 
 export const PLANT_STATUS_CONFIG: Record<

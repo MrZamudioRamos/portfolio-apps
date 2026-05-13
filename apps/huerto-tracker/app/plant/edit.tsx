@@ -37,6 +37,9 @@ export default function EditPlantScreen() {
   const [varietyId, setVarietyId] = useState<string | null>(plant?.varietyId ?? null);
   const [sowingDate, setSowingDate] = useState(plant?.sowingDate ?? '');
   const [photoUri, setPhotoUri] = useState<string | null>(plant?.photoUri ?? null);
+  const [harvestGoalKg, setHarvestGoalKg] = useState(
+    plant?.harvestGoalKg ? String(plant.harvestGoalKg) : ''
+  );
   const [saving, setSaving] = useState(false);
 
   const s = useMemo(
@@ -85,12 +88,14 @@ export default function EditPlantScreen() {
     if (!plantName.trim()) return;
     setSaving(true);
     try {
+      const goalParsed = parseFloat(harvestGoalKg);
       await plants.update(id, {
         name: plantName.trim(),
         variety: variety.trim() || undefined,
         varietyId: varietyId ?? undefined,
         sowingDate: sowingDate.trim() || undefined,
         photoUri: photoUri ?? undefined,
+        harvestGoalKg: !isNaN(goalParsed) && goalParsed > 0 ? goalParsed : undefined,
       });
       router.back();
     } finally {
@@ -227,6 +232,22 @@ export default function EditPlantScreen() {
               { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text },
             ]}
             keyboardType="numeric"
+          />
+
+          {/* Harvest goal */}
+          <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
+            {t('plantEdit.harvestGoalLabel')}
+          </Text>
+          <TextInput
+            value={harvestGoalKg}
+            onChangeText={setHarvestGoalKg}
+            placeholder={t('plantEdit.harvestGoalPlaceholder')}
+            placeholderTextColor={colors.textDisabled}
+            style={[
+              s.input,
+              { backgroundColor: colors.surface, borderColor: harvestGoalKg ? colors.primary : colors.border, color: colors.text },
+            ]}
+            keyboardType="decimal-pad"
           />
 
           {/* Photo */}

@@ -346,8 +346,8 @@ export default function PlantDetailScreen() {
             </>
           )}
 
-          {/* Harvest summary */}
-          {harvestSummary && isPro && (
+          {/* Harvest summary + goal progress */}
+          {harvestSummary && (
             <View style={[s.harvestSummaryCard, { backgroundColor: '#FF704318', borderColor: '#FF7043' }]}>
               <Text style={{ fontSize: 22 }}>🧺</Text>
               <View style={{ flex: 1 }}>
@@ -366,6 +366,30 @@ export default function PlantDetailScreen() {
                     </Text>
                   )}
                 </View>
+                {plant?.harvestGoalKg && harvestSummary.totalKg !== null && (
+                  <View style={{ marginTop: spacing.sm }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={[s.harvestSummaryValue, { color: colors.textSecondary }]}>
+                        {t('plantDetail.goalProgress')}
+                      </Text>
+                      <Text style={[s.harvestSummaryValue, { color: harvestSummary.totalKg >= plant.harvestGoalKg ? '#4CAF50' : '#FF7043' }]}>
+                        {harvestSummary.totalKg.toFixed(1)} / {plant.harvestGoalKg} kg
+                        {harvestSummary.totalKg >= plant.harvestGoalKg ? ' 🎉' : ''}
+                      </Text>
+                    </View>
+                    <View style={[s.goalBarTrack, { backgroundColor: colors.border }]}>
+                      <View
+                        style={[
+                          s.goalBarFill,
+                          {
+                            width: `${Math.min((harvestSummary.totalKg / plant.harvestGoalKg) * 100, 100)}%` as any,
+                            backgroundColor: harvestSummary.totalKg >= plant.harvestGoalKg ? '#4CAF50' : '#FF7043',
+                          },
+                        ]}
+                      />
+                    </View>
+                  </View>
+                )}
               </View>
             </View>
           )}
@@ -771,7 +795,7 @@ const makeStyles = (
     photoTimelineDate: { fontSize: 10, fontWeight: fontWeight.medium },
     harvestSummaryCard: {
       flexDirection: 'row',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       gap: spacing.md,
       padding: spacing.md,
       borderRadius: radii.md,
@@ -780,4 +804,13 @@ const makeStyles = (
     },
     harvestSummaryTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     harvestSummaryValue: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
+    goalBarTrack: {
+      height: 6,
+      borderRadius: 3,
+      overflow: 'hidden',
+    },
+    goalBarFill: {
+      height: 6,
+      borderRadius: 3,
+    },
   });

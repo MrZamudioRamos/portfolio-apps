@@ -367,7 +367,9 @@
     "title": "Edit plant",
     "save": "Save changes",
     "changePhoto": "Change photo",
-    "cropFixed": "Fixed crop"
+    "cropFixed": "Fixed crop",
+    "harvestGoalLabel": "Harvest goal (kg)",
+    "harvestGoalPlaceholder": "e.g. 5.0"
   },
   "plantNew": {
     "title": "New plant",
@@ -422,6 +424,7 @@
     "harvestSummary_one": "1 harvest logged",
     "harvestSummary_other": "{{count}} harvests logged",
     "units": "units",
+    "goalProgress": "Season goal",
     "photoTimeline": "📸 Progress photos"
   },
   "reminderEdit": {

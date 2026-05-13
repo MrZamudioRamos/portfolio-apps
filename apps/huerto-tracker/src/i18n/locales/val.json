@@ -360,7 +360,9 @@
     "title": "Editar planta",
     "save": "Guardar canvis",
     "changePhoto": "Canviar foto",
-    "cropFixed": "Cultiu fix"
+    "cropFixed": "Cultiu fix",
+    "harvestGoalLabel": "Objectiu de collita (kg)",
+    "harvestGoalPlaceholder": "Ex: 5.0"
   },
   "plantNew": {
     "title": "Nova planta",
@@ -415,6 +417,7 @@
     "harvestSummary_one": "1 collita registrada",
     "harvestSummary_other": "{{count}} collites registrades",
     "units": "unitats",
+    "goalProgress": "Objectiu de temporada",
     "photoTimeline": "📸 Fotos de progrés"
   },
   "reminderEdit": {

@@ -360,7 +360,9 @@
     "title": "Editar planta",
     "save": "Gardar cambios",
     "changePhoto": "Cambiar foto",
-    "cropFixed": "Cultivo fixo"
+    "cropFixed": "Cultivo fixo",
+    "harvestGoalLabel": "Obxectivo de colleita (kg)",
+    "harvestGoalPlaceholder": "Ex: 5.0"
   },
   "plantNew": {
     "title": "Nova planta",
@@ -415,6 +417,7 @@
     "harvestSummary_one": "1 colleita rexistrada",
     "harvestSummary_other": "{{count}} colleitas rexistradas",
     "units": "unidades",
+    "goalProgress": "Obxectivo de tempada",
     "photoTimeline": "📸 Fotos de progreso"
   },
   "reminderEdit": {

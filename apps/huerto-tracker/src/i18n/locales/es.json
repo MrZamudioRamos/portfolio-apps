@@ -368,7 +368,9 @@
     "title": "Editar planta",
     "save": "Guardar cambios",
     "changePhoto": "Cambiar foto",
-    "cropFixed": "Cultivo fijo"
+    "cropFixed": "Cultivo fijo",
+    "harvestGoalLabel": "Meta de cosecha (kg)",
+    "harvestGoalPlaceholder": "Ej: 5.0"
   },
   "plantNew": {
     "title": "Nueva planta",
@@ -424,6 +426,7 @@
     "harvestSummary_one": "1 cosecha registrada",
     "harvestSummary_other": "{{count}} cosechas registradas",
     "units": "unidades",
+    "goalProgress": "Meta de temporada",
     "photoTimeline": "📸 Fotos de progreso"
   },
   "reminderEdit": {
