@@ -20,7 +20,7 @@ import type { CropInfo } from '../src/data/crops';
 
 type Mode = 'browse' | 'check';
 
-const FREE_PREVIEW_COUNT = 4;
+const FREE_PREVIEW_COUNT = 10;
 
 export default function CompanionsScreen() {
   const colors = useColors();

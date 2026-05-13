@@ -117,6 +117,20 @@ export default function StatsScreen() {
       .map(([cropId, count]) => ({ crop: CROPS_BY_ID[cropId], count }))
       .filter((x) => x.crop);
 
+    // Harvest by year
+    const harvestByYear = new Map<number, { count: number; kg: number }>();
+    harvestEntries.forEach((e) => {
+      const year = new Date(e.date).getFullYear();
+      const prev = harvestByYear.get(year) ?? { count: 0, kg: 0 };
+      const w = (e.data as any)?.weight;
+      const parsed = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
+      harvestByYear.set(year, { count: prev.count + 1, kg: prev.kg + (isNaN(parsed) ? 0 : parsed) });
+    });
+    const currentYear = new Date().getFullYear();
+    const yearlyHarvest = [currentYear, currentYear - 1]
+      .filter((y) => harvestByYear.has(y))
+      .map((y) => ({ year: y, ...harvestByYear.get(y)! }));
+
     return {
       totalEntries: allEntries.length,
       totalHarvests: harvestEntries.length,
@@ -128,6 +142,7 @@ export default function StatsScreen() {
       topTypes,
       topPlants,
       topCrops,
+      yearlyHarvest,
     };
   }, [entries.items, plants.items, i18n.language]);
 
@@ -288,6 +303,45 @@ export default function StatsScreen() {
                   </View>
                 </View>
               ))}
+            </Card>
+          </>
+        )}
+
+        {/* Yearly harvest comparison */}
+        {stats.yearlyHarvest.length > 0 && (
+          <>
+            <Text style={[s.sectionTitle, { color: colors.text }]}>{t('stats.harvestByYear')}</Text>
+            <Card padded style={s.card}>
+              {stats.yearlyHarvest.map((item, i) => {
+                const isCurrent = item.year === new Date().getFullYear();
+                return (
+                  <View key={item.year}>
+                    {i > 0 && <View style={[s.divider, { backgroundColor: colors.border }]} />}
+                    <View style={s.rankRow}>
+                      <Text style={[s.rankNum, { color: isCurrent ? colors.primary : colors.textDisabled, fontWeight: isCurrent ? fontWeight.bold : fontWeight.regular }]}>
+                        {item.year}
+                      </Text>
+                      <View style={{ flex: 1, gap: 2 }}>
+                        <Text style={[s.rankName, { color: colors.text }]}>
+                          {t('stats.harvestCount', { count: item.count })}
+                        </Text>
+                        {item.kg > 0 && (
+                          <Text style={[s.breakdownLabel, { color: colors.textSecondary }]}>
+                            {item.kg.toFixed(2)} kg
+                          </Text>
+                        )}
+                      </View>
+                      {isCurrent && (
+                        <View style={[s.rankBadge, { backgroundColor: colors.primary + '18' }]}>
+                          <Text style={[s.rankBadgeText, { color: colors.primary }]}>
+                            {t('stats.currentYear')}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                );
+              })}
             </Card>
           </>
         )}

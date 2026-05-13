@@ -44,8 +44,8 @@ export default function NewPlantScreen() {
   const { isGuest } = useSession();
   const { isPro } = usePurchases();
 
-  // Tier limits: guest = 3, free registered = 10, pro = unlimited
-  const plantLimit = isGuest ? 3 : isPro ? Infinity : 10;
+  // Tier limits: guest = 3, free registered = 20, pro = unlimited
+  const plantLimit = isGuest ? 3 : isPro ? Infinity : 20;
   const atLimit = plants.count >= plantLimit;
 
   const [selectedCropId, setSelectedCropId] = useState<string | null>(paramCropId ?? null);

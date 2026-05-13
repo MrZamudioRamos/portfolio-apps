@@ -66,6 +66,31 @@ export default function DashboardScreen() {
   );
 
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
+  const [weeklyExpanded, setWeeklyExpanded] = useState(true);
+
+  const weeklyTasks = useMemo(() => {
+    const tasks: Array<{ emoji: string; label: string; plantId: string }> = [];
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const in7DaysStr = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    plants.items.forEach((p) => {
+      const crop = CROPS_BY_ID[p.cropId];
+      if (getNeedsWater(p, crop, entries.items)) {
+        tasks.push({ emoji: '💧', label: t('home.taskWater', { name: p.name }), plantId: p.id });
+      }
+      if (p.pestStatus === 'active') {
+        tasks.push({ emoji: '🐛', label: t('home.taskPest', { name: p.name }), plantId: p.id });
+      }
+      if (p.transplantDate && p.transplantDate >= todayStr && p.transplantDate <= in7DaysStr) {
+        tasks.push({ emoji: '🪴', label: t('home.taskTransplant', { name: p.name }), plantId: p.id });
+      }
+      if (p.firstHarvestDate && p.firstHarvestDate >= todayStr && p.firstHarvestDate <= in7DaysStr) {
+        tasks.push({ emoji: '🧺', label: t('home.taskHarvest', { name: p.name }), plantId: p.id });
+      }
+    });
+    return tasks;
+  }, [plants.items, entries.items, t]);
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
   const harvestingCount = plants.items.filter((p) => p.status === 'harvesting').length;
   const activeReminders = reminders.items.filter((r) => r.enabled).length;
@@ -452,6 +477,53 @@ export default function DashboardScreen() {
               </View>
             )}
 
+            {/* Weekly tasks */}
+            {plants.count > 0 && (
+              <View style={[s.weeklyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <Pressable
+                  onPress={() => setWeeklyExpanded((v) => !v)}
+                  style={s.weeklyHeader}
+                  hitSlop={8}
+                >
+                  <Text style={[s.weeklySectionTitle, { color: colors.text }]}>
+                    📋 {t('home.weeklyTasks')}
+                    {weeklyTasks.length > 0 && (
+                      <Text style={[s.weeklyBadge, { color: colors.primary }]}> ({weeklyTasks.length})</Text>
+                    )}
+                  </Text>
+                  <Ionicons
+                    name={weeklyExpanded ? 'chevron-up' : 'chevron-down'}
+                    size={16}
+                    color={colors.textSecondary}
+                  />
+                </Pressable>
+                {weeklyExpanded && (
+                  weeklyTasks.length === 0 ? (
+                    <Text style={[s.weeklyEmpty, { color: colors.textSecondary }]}>
+                      {t('home.weeklyTasksEmpty')}
+                    </Text>
+                  ) : (
+                    weeklyTasks.map((task, i) => (
+                      <Pressable
+                        key={i}
+                        onPress={() => router.push(`/plant/${task.plantId}`)}
+                        style={({ pressed }) => [
+                          s.weeklyRow,
+                          { borderTopColor: colors.border, opacity: pressed ? 0.7 : 1 },
+                        ]}
+                      >
+                        <Text style={s.weeklyEmoji}>{task.emoji}</Text>
+                        <Text style={[s.weeklyLabel, { color: colors.text }]} numberOfLines={1}>
+                          {task.label}
+                        </Text>
+                        <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} />
+                      </Pressable>
+                    ))
+                  )
+                )}
+              </View>
+            )}
+
             {/* Stats link */}
             <Pressable
               onPress={() => router.push('/stats')}
@@ -717,6 +789,37 @@ const makeStyles = (
     lunarRight: { alignItems: 'center', minWidth: 32 },
     lunarDay: { fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5 },
     lunarDayNum: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+    weeklyCard: {
+      marginHorizontal: spacing.xl,
+      marginBottom: spacing.md,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      overflow: 'hidden',
+    },
+    weeklyHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+    },
+    weeklySectionTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    weeklyBadge: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    weeklyEmpty: {
+      fontSize: fontSize.sm,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.md,
+    },
+    weeklyRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderTopWidth: StyleSheet.hairlineWidth,
+    },
+    weeklyEmoji: { fontSize: 16, width: 22, textAlign: 'center' },
+    weeklyLabel: { flex: 1, fontSize: fontSize.sm },
     statsLink: {
       flexDirection: 'row',
       alignItems: 'center',
