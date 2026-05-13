@@ -334,14 +334,14 @@
     "subtitlePro": "Suscripción activa · Plan {{plan}}",
     "subtitle": "Desbloquea todo lo que necesitas para convertirte en un auténtico huertero.",
     "features": {
-      "gardens": "Huertos ilimitados (ahora sólo 1)",
-      "plants": "Plantas sin límite (plan gratuito: 5)",
+      "gardens": "Huertos ilimitados (gratis: hasta 2)",
+      "plants": "Plantas sin límite (gratis: hasta 20)",
       "calendar": "Calendario de siembra completo con alertas",
       "companions": "Guía de asociaciones de cultivos",
       "charts": "Gráficos de cosecha y productividad",
       "pdf": "Exportar diario en PDF",
       "reminders": "Recordatorios de riego ilimitados",
-      "backup": "Copia de seguridad en la nube"
+      "backup": "Sincronización automática en la nube (gratis: export manual)"
     },
     "choosePlan": "ELIGE TU PLAN",
     "monthly": "Mensual",

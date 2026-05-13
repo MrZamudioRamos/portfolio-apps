@@ -25,7 +25,7 @@ import { usePro as usePurchases } from '../src/hooks/usePro';
 
 const ACTIVE_KEY = '@portfolio/active_garden_id';
 const ALL_PROVINCES = Object.keys(PROVINCE_ZONES).sort();
-const FREE_GARDEN_LIMIT = 1;
+const FREE_GARDEN_LIMIT = 2;
 
 export default function GardensScreen() {
   const colors = useColors();
