@@ -113,7 +113,8 @@
       "summary": "SUMMARY",
       "notifications": "NOTIFICATIONS",
       "data": "DATA",
-      "app": "APP"
+      "app": "APP",
+      "language": "LANGUAGE"
     },
     "account": {
       "guestTitle": "Guest mode",

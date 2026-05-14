@@ -113,7 +113,8 @@
       "summary": "RESUMO",
       "notifications": "NOTIFICACIÓNS",
       "data": "DATOS",
-      "app": "APP"
+      "app": "APP",
+      "language": "IDIOMA"
     },
     "account": {
       "guestTitle": "Modo convidado",

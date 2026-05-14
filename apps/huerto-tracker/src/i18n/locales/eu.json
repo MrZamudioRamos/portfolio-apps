@@ -113,7 +113,8 @@
       "summary": "LABURPENA",
       "notifications": "JAKINARAZPENAK",
       "data": "DATUAK",
-      "app": "APP"
+      "app": "APP",
+      "language": "HIZKUNTZA"
     },
     "account": {
       "guestTitle": "Gonbidatu modua",

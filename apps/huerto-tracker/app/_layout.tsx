@@ -1,4 +1,5 @@
 import '../src/i18n';
+import { loadSavedLanguage } from '../src/i18n';
 import { initSupabase, handleDeepLink } from '@portfolio/supabase';
 import { ThemeProvider, huertoPalette } from '@portfolio/ui';
 import { Stack, useRouter } from 'expo-router';
@@ -18,6 +19,7 @@ function AppServices() {
   useSyncProvider();
 
   useEffect(() => {
+    loadSavedLanguage();
     const sub = Linking.addEventListener('url', ({ url }) => {
       handleDeepLink(url).then(() => {
         router.replace('/onboarding');

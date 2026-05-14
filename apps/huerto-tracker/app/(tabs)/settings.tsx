@@ -14,6 +14,7 @@ import type { Garden } from '../../src/models/garden';
 import type { Plant } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import type { GardenReminder } from '../../src/models/reminder';
+import { saveLanguage, SUPPORTED_LANGS, LANG_LABELS, type SupportedLang } from '../../src/i18n';
 
 const APP_VERSION = '1.0.0';
 
@@ -23,7 +24,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const { reset: resetOnboarding } = useOnboarding('huerto');
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
@@ -240,6 +241,36 @@ export default function SettingsScreen() {
           <Row icon="notifications-outline" label={t('settings.summary.reminders')} value={String(reminders.count)} colors={colors} s={s} />
         </Card>
 
+        {/* ── Idioma ── */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.language')}</Text>
+        <Card padded style={s.card}>
+          <View style={s.langRow}>
+            {SUPPORTED_LANGS.map((lang) => {
+              const active = i18n.language === lang;
+              return (
+                <Pressable
+                  key={lang}
+                  onPress={() => saveLanguage(lang as SupportedLang)}
+                  style={[
+                    s.langChip,
+                    {
+                      backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
+                      borderColor: active ? colors.primary : colors.border,
+                    },
+                  ]}
+                >
+                  <Text style={[s.langChipCode, { color: active ? colors.primary : colors.text }]}>
+                    {lang.toUpperCase()}
+                  </Text>
+                  <Text style={[s.langChipLabel, { color: active ? colors.primary : colors.textSecondary }]}>
+                    {LANG_LABELS[lang as SupportedLang]}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Card>
+
         {/* ── Notificaciones ── */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.notifications')}</Text>
         <Card padded style={s.card}>
@@ -401,4 +432,15 @@ const makeStyles = (
     },
     freeBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
     proDesc: { fontSize: fontSize.xs },
+    langRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    langChip: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      alignItems: 'center',
+      minWidth: 70,
+    },
+    langChipCode: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    langChipLabel: { fontSize: 10, marginTop: 1 },
   });
