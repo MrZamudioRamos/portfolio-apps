@@ -10,7 +10,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 're
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBackup } from '../../src/hooks/useBackup';
 import { usePdfReport } from '../../src/hooks/usePdfReport';
-import type { Garden } from '../../src/models/garden';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import type { Plant } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 
@@ -31,7 +31,7 @@ export default function BackupScreen() {
   } = useBackup();
   const { generating, generateAndShare } = usePdfReport();
 
-  const gardens = useCollection<Garden>('gardens');
+  const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
 
@@ -229,9 +229,8 @@ export default function BackupScreen() {
               size="sm"
               onPress={() => {
                 if (!isPro) { router.push('/paywall'); return; }
-                const garden = gardens.items[0];
-                if (!garden) return;
-                generateAndShare(garden, plants.items, entries.items, t);
+                if (!activeGarden) return;
+                generateAndShare(activeGarden, plants.items, entries.items, t);
               }}
               disabled={generating}
             />

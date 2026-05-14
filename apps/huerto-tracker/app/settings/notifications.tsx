@@ -5,20 +5,18 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCollection } from '@portfolio/storage';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import { useSeasonalAlerts } from '../../src/hooks/useSeasonalAlerts';
 import { useFrostAlert } from '../../src/hooks/useFrostAlert';
-import type { Garden } from '../../src/models/garden';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
 export default function NotificationsSettingsScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { enabled, loading, toggle, nextPreview, zone } = useSeasonalAlerts();
-  const gardens = useCollection<Garden>('gardens');
-  const garden = gardens.items[0];
-  const { enabled: frostEnabled, loading: frostLoading, toggle: toggleFrost } = useFrostAlert(garden?.province);
+  const { activeGarden } = useActiveGarden();
+  const { enabled: frostEnabled, loading: frostLoading, toggle: toggleFrost } = useFrostAlert(activeGarden?.province);
 
   const zoneConfig = zone ? CLIMATE_ZONE_CONFIG[zone] : null;
 
