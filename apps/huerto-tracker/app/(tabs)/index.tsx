@@ -694,8 +694,10 @@ export default function DashboardScreen() {
                   </View>
                 )}
                 {plants.count > 2 && (() => {
+                  const statusCounts = new Map<string, number>();
+                  plants.items.forEach((p) => statusCounts.set(p.status, (statusCounts.get(p.status) ?? 0) + 1));
                   const presentStatuses = (Object.keys(PLANT_STATUS_CONFIG) as import('../../src/models/plant').PlantStatus[])
-                    .filter((st) => plants.items.some((p) => p.status === st));
+                    .filter((st) => statusCounts.has(st));
                   if (presentStatuses.length < 2) return null;
                   return (
                     <ScrollView
@@ -715,12 +717,13 @@ export default function DashboardScreen() {
                         ]}
                       >
                         <Text style={[s.filterChipText, { color: !statusFilter ? colors.primary : colors.textSecondary }]}>
-                          {t('home.filterAll')}
+                          {t('home.filterAll')} ({plants.items.length})
                         </Text>
                       </Pressable>
                       {presentStatuses.map((st) => {
                         const cfg = PLANT_STATUS_CONFIG[st];
                         const active = statusFilter === st;
+                        const count = statusCounts.get(st) ?? 0;
                         return (
                           <Pressable
                             key={st}
@@ -734,7 +737,7 @@ export default function DashboardScreen() {
                             ]}
                           >
                             <Text style={[s.filterChipText, { color: active ? cfg.color : colors.textSecondary }]}>
-                              {cfg.emoji} {t('plantStatus.' + st)}
+                              {cfg.emoji} {t('plantStatus.' + st)} ({count})
                             </Text>
                           </Pressable>
                         );
