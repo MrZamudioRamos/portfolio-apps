@@ -56,7 +56,12 @@
     "searchPlants": "Cercar planta…",
     "taskEstHarvest": "🧺 {{name}} propera a la collita",
     "taskNeglected": "👁️ {{name}} sense activitat ({{days}} dies)",
-    "filterAll": "Totes"
+    "filterAll": "Totes",
+    "sortDefault": "Ordre",
+    "sortName": "A-Z",
+    "sortNewest": "Recents",
+    "showFinished": "{{count}} finalitzades ocultes · Mostrar",
+    "hideFinished": "Amagar finalitzades"
   },
   "calendar": {
     "title": "Calendari de sembra",
@@ -389,7 +394,9 @@
     "changePhoto": "Canviar foto",
     "cropFixed": "Cultiu fix",
     "harvestGoalLabel": "Objectiu de collita (kg)",
-    "harvestGoalPlaceholder": "Ex: 5.0"
+    "harvestGoalPlaceholder": "Ex: 5.0",
+    "notesLabel": "NOTES (opcional)",
+    "notesPlaceholder": "Observacions, apunts personals…"
   },
   "plantNew": {
     "title": "Nova planta",

@@ -40,6 +40,7 @@ export default function EditPlantScreen() {
   const [harvestGoalKg, setHarvestGoalKg] = useState(
     plant?.harvestGoalKg ? String(plant.harvestGoalKg) : ''
   );
+  const [notes, setNotes] = useState(plant?.notes ?? '');
   const [saving, setSaving] = useState(false);
 
   const s = useMemo(
@@ -96,6 +97,7 @@ export default function EditPlantScreen() {
         sowingDate: sowingDate.trim() || undefined,
         photoUri: photoUri ?? undefined,
         harvestGoalKg: !isNaN(goalParsed) && goalParsed > 0 ? goalParsed : undefined,
+        notes: notes.trim() || undefined,
       });
       router.back();
     } finally {
@@ -250,6 +252,25 @@ export default function EditPlantScreen() {
             keyboardType="decimal-pad"
           />
 
+          {/* Notes */}
+          <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
+            {t('plantEdit.notesLabel')}
+          </Text>
+          <TextInput
+            value={notes}
+            onChangeText={setNotes}
+            placeholder={t('plantEdit.notesPlaceholder')}
+            placeholderTextColor={colors.textDisabled}
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+            style={[
+              s.input,
+              s.notesInput,
+              { backgroundColor: colors.surface, borderColor: notes ? colors.primary : colors.border, color: colors.text },
+            ]}
+          />
+
           {/* Photo */}
           <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
             {t('plantNew.photo')}
@@ -331,6 +352,7 @@ const makeStyles = (
       padding: spacing.lg,
       fontSize: fontSize.md,
     },
+    notesInput: { minHeight: 80 },
     photoRow: { alignItems: 'flex-start' },
     photoPlaceholder: {
       width: 90,

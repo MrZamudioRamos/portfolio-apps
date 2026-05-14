@@ -56,7 +56,12 @@
     "searchPlants": "Search plant…",
     "taskEstHarvest": "🧺 {{name}} nearing harvest",
     "taskNeglected": "👁️ {{name}} with no activity ({{days}} days)",
-    "filterAll": "All"
+    "filterAll": "All",
+    "sortDefault": "Order",
+    "sortName": "A-Z",
+    "sortNewest": "Newest",
+    "showFinished": "{{count}} finished hidden · Show",
+    "hideFinished": "Hide finished"
   },
   "calendar": {
     "title": "Sowing calendar",
@@ -388,7 +393,9 @@
     "changePhoto": "Change photo",
     "cropFixed": "Fixed crop",
     "harvestGoalLabel": "Harvest goal (kg)",
-    "harvestGoalPlaceholder": "e.g. 5.0"
+    "harvestGoalPlaceholder": "e.g. 5.0",
+    "notesLabel": "NOTES (optional)",
+    "notesPlaceholder": "Observations, personal notes…"
   },
   "plantNew": {
     "title": "New plant",

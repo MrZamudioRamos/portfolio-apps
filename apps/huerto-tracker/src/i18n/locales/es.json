@@ -56,7 +56,12 @@
     "searchPlants": "Buscar planta…",
     "taskEstHarvest": "🧺 {{name}} cerca de la cosecha",
     "taskNeglected": "👁️ {{name}} sin actividad ({{days}} días)",
-    "filterAll": "Todas"
+    "filterAll": "Todas",
+    "sortDefault": "Orden",
+    "sortName": "A–Z",
+    "sortNewest": "Recientes",
+    "showFinished": "{{count}} finalizadas ocultas · Mostrar",
+    "hideFinished": "Ocultar finalizadas"
   },
   "calendar": {
     "title": "Calendario de siembra",
@@ -389,7 +394,9 @@
     "changePhoto": "Cambiar foto",
     "cropFixed": "Cultivo fijo",
     "harvestGoalLabel": "Meta de cosecha (kg)",
-    "harvestGoalPlaceholder": "Ej: 5.0"
+    "harvestGoalPlaceholder": "Ej: 5.0",
+    "notesLabel": "NOTAS (opcional)",
+    "notesPlaceholder": "Observaciones, apuntes personales…"
   },
   "plantNew": {
     "title": "Nueva planta",

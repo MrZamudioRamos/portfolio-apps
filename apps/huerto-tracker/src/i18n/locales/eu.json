@@ -56,7 +56,12 @@
     "searchPlants": "Landarea bilatu…",
     "taskEstHarvest": "🧺 {{name}} uzta gertu",
     "taskNeglected": "👁️ {{name}} jarduera gabe ({{days}} egun)",
-    "filterAll": "Guztiak"
+    "filterAll": "Guztiak",
+    "sortDefault": "Ordena",
+    "sortName": "A-Z",
+    "sortNewest": "Berrienak",
+    "showFinished": "{{count}} amaituta ezkutatuta · Ikusi",
+    "hideFinished": "Ezkutatu amaitutakoak"
   },
   "calendar": {
     "title": "Erein egutegia",
@@ -389,7 +394,9 @@
     "changePhoto": "Argazkia aldatu",
     "cropFixed": "Laborea finkoa",
     "harvestGoalLabel": "Uzta helburua (kg)",
-    "harvestGoalPlaceholder": "Ad.: 5.0"
+    "harvestGoalPlaceholder": "Ad.: 5.0",
+    "notesLabel": "OHARRAK (aukerakoa)",
+    "notesPlaceholder": "Oharrak, ohar pertsonalak…"
   },
   "plantNew": {
     "title": "Landare berria",

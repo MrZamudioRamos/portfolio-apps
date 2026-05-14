@@ -70,6 +70,8 @@ export default function DashboardScreen() {
   const [weeklyExpanded, setWeeklyExpanded] = useState(true);
   const [plantSearch, setPlantSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<import('../../src/models/plant').PlantStatus | null>(null);
+  const [hideFinished, setHideFinished] = useState(true);
+  const [sortBy, setSortBy] = useState<'default' | 'name' | 'newest'>('default');
 
   const weeklyTasks = useMemo(() => {
     const tasks: Array<{ emoji: string; label: string; plantId: string }> = [];
@@ -132,13 +134,21 @@ export default function DashboardScreen() {
 
   const filteredPlants = useMemo(() => {
     let result = plants.items;
+    if (hideFinished && !statusFilter) result = result.filter((p) => p.status !== 'finished');
     if (plantSearch.trim()) {
       const q = plantSearch.toLowerCase();
       result = result.filter((p) => p.name.toLowerCase().includes(q) || p.variety?.toLowerCase().includes(q));
     }
     if (statusFilter) result = result.filter((p) => p.status === statusFilter);
+    if (sortBy === 'name') result = [...result].sort((a, b) => a.name.localeCompare(b.name));
+    else if (sortBy === 'newest') result = [...result].sort((a, b) => (b.sowingDate ?? '').localeCompare(a.sowingDate ?? ''));
     return result;
-  }, [plants.items, plantSearch, statusFilter]);
+  }, [plants.items, plantSearch, statusFilter, hideFinished, sortBy]);
+
+  const finishedCount = useMemo(
+    () => plants.items.filter((p) => p.status === 'finished').length,
+    [plants.items]
+  );
 
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
   const harvestingCount = plants.items.filter((p) => p.status === 'harvesting').length;
@@ -267,6 +277,19 @@ export default function DashboardScreen() {
                 return (
                   <View style={[s.daysChip, { backgroundColor: colors.primary + '12' }]}>
                     <Text style={[s.daysChipText, { color: colors.primary }]}>{days}d</Text>
+                  </View>
+                );
+              })()}
+              {(() => {
+                const lastWatered = [...entries.items]
+                  .filter((e) => e.plantId === item.id && e.type === 'watering')
+                  .sort((a, b) => b.date.localeCompare(a.date))[0];
+                if (!lastWatered) return null;
+                const days = Math.floor((Date.now() - new Date(lastWatered.date + 'T12:00:00').getTime()) / 86_400_000);
+                if (days < 1) return null;
+                return (
+                  <View style={[s.wateredChip, { backgroundColor: '#29B6F618' }]}>
+                    <Text style={[s.wateredChipText, { color: '#29B6F6' }]}>💧{days}d</Text>
                   </View>
                 );
               })()}
@@ -612,16 +635,47 @@ export default function DashboardScreen() {
               <>
                 <View style={s.sectionRow}>
                   <Text style={[s.sectionTitle, { color: colors.text }]}>{t('home.myPlants')}</Text>
-                  <Pressable
-                    onPress={handleWaterAll}
-                    style={({ pressed }) => [
-                      s.waterAllBtn,
-                      { backgroundColor: '#29B6F6' + '22', borderColor: '#29B6F6', opacity: pressed ? 0.7 : 1 },
-                    ]}
-                  >
-                    <Text style={s.waterAllText}>{t('home.waterAll')}</Text>
-                  </Pressable>
+                  <View style={{ flexDirection: 'row', gap: spacing.sm, alignItems: 'center' }}>
+                    <Pressable
+                      onPress={() => setSortBy((cur) => cur === 'default' ? 'name' : cur === 'name' ? 'newest' : 'default')}
+                      style={[
+                        s.sortBtn,
+                        {
+                          backgroundColor: sortBy !== 'default' ? colors.primary + '18' : colors.surfaceAlt,
+                          borderColor: sortBy !== 'default' ? colors.primary : colors.border,
+                        },
+                      ]}
+                    >
+                      <Ionicons name="swap-vertical-outline" size={13} color={sortBy !== 'default' ? colors.primary : colors.textSecondary} />
+                      <Text style={[s.sortBtnText, { color: sortBy !== 'default' ? colors.primary : colors.textSecondary }]}>
+                        {sortBy === 'name' ? t('home.sortName') : sortBy === 'newest' ? t('home.sortNewest') : t('home.sortDefault')}
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={handleWaterAll}
+                      style={({ pressed }) => [
+                        s.waterAllBtn,
+                        { backgroundColor: '#29B6F6' + '22', borderColor: '#29B6F6', opacity: pressed ? 0.7 : 1 },
+                      ]}
+                    >
+                      <Text style={s.waterAllText}>{t('home.waterAll')}</Text>
+                    </Pressable>
+                  </View>
                 </View>
+                {hideFinished && finishedCount > 0 && !statusFilter && (
+                  <Pressable onPress={() => setHideFinished(false)} style={s.showFinishedLink}>
+                    <Text style={[s.showFinishedText, { color: colors.textSecondary }]}>
+                      {t('home.showFinished', { count: finishedCount })}
+                    </Text>
+                  </Pressable>
+                )}
+                {!hideFinished && finishedCount > 0 && (
+                  <Pressable onPress={() => setHideFinished(true)} style={s.showFinishedLink}>
+                    <Text style={[s.showFinishedText, { color: colors.textSecondary }]}>
+                      {t('home.hideFinished')}
+                    </Text>
+                  </Pressable>
+                )}
                 {plants.count > 4 && (
                   <View style={[s.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <Ionicons name="search-outline" size={14} color={colors.textSecondary} />
@@ -1026,4 +1080,22 @@ const makeStyles = (
       alignItems: 'center',
       justifyContent: 'center',
     },
+    wateredChip: { paddingHorizontal: 5, paddingVertical: 1, borderRadius: radii.full },
+    wateredChipText: { fontSize: 9, fontWeight: fontWeight.bold },
+    sortBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+    },
+    sortBtnText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    showFinishedLink: {
+      paddingHorizontal: spacing.xl,
+      paddingVertical: spacing.xs,
+      marginBottom: spacing.sm,
+    },
+    showFinishedText: { fontSize: fontSize.xs, textDecorationLine: 'underline' },
   });

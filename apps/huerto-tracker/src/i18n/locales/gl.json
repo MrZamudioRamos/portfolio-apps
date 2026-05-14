@@ -56,7 +56,12 @@
     "searchPlants": "Buscar planta…",
     "taskEstHarvest": "🧺 {{name}} preto da colleita",
     "taskNeglected": "👁️ {{name}} sen actividade ({{days}} días)",
-    "filterAll": "Todas"
+    "filterAll": "Todas",
+    "sortDefault": "Orde",
+    "sortName": "A-Z",
+    "sortNewest": "Recentes",
+    "showFinished": "{{count}} rematadas ocultas · Mostrar",
+    "hideFinished": "Ocultar rematadas"
   },
   "calendar": {
     "title": "Calendario de sementeira",
@@ -389,7 +394,9 @@
     "changePhoto": "Cambiar foto",
     "cropFixed": "Cultivo fixo",
     "harvestGoalLabel": "Obxectivo de colleita (kg)",
-    "harvestGoalPlaceholder": "Ex: 5.0"
+    "harvestGoalPlaceholder": "Ex: 5.0",
+    "notesLabel": "NOTAS (opcional)",
+    "notesPlaceholder": "Observacións, apuntamentos persoais…"
   },
   "plantNew": {
     "title": "Nova planta",
