@@ -80,7 +80,8 @@
     "days": "🗓 {{min}}–{{max}} días",
     "containerInfo": "🪴 Maceta mín. {{liters}} L · {{tip}}",
     "addToGarden": "Añadir al huerto",
-    "hemisphereSurBanner": "Hemisferio Sur activo · meses invertidos respecto al norte"
+    "hemisphereSurBanner": "Hemisferio Sur activo · meses invertidos respecto al norte",
+    "catAll": "Todos"
   },
   "diary": {
     "title": "Diario",
@@ -564,7 +565,9 @@
     "entryCount_one": "{{count}} entrada",
     "entryCount_other": "{{count}} entradas",
     "harvestCount_one": "{{count}} cosecha",
-    "harvestCount_other": "{{count}} cosechas"
+    "harvestCount_other": "{{count}} cosechas",
+    "successRate": "Tasa de éxito",
+    "avgDaysToHarvest": "Media días a cosecha"
   },
   "welcome": {
     "title": "Huerto Tracker",

@@ -139,6 +139,17 @@ export default function StatsScreen() {
       .filter((y) => harvestByYear.has(y))
       .map((y) => ({ year: y, ...harvestByYear.get(y)! }));
 
+    // Success rate
+    const totalPlants = plants.items.length;
+    const successPlants = plants.items.filter((p) => p.status === 'harvesting' || p.status === 'finished').length;
+    const successRate = totalPlants > 0 ? Math.round((successPlants / totalPlants) * 100) : null;
+
+    // Average days sowing → first harvest
+    const avgDaysArr = plants.items
+      .filter((p) => p.sowingDate && p.firstHarvestDate)
+      .map((p) => Math.floor((new Date(p.firstHarvestDate! + 'T12:00:00').getTime() - new Date(p.sowingDate! + 'T12:00:00').getTime()) / 86_400_000));
+    const avgDays = avgDaysArr.length > 0 ? Math.round(avgDaysArr.reduce((s, d) => s + d, 0) / avgDaysArr.length) : null;
+
     return {
       totalEntries: allEntries.length,
       totalHarvests: harvestEntries.length,
@@ -151,6 +162,8 @@ export default function StatsScreen() {
       topPlants,
       topCrops,
       yearlyHarvest,
+      successRate,
+      avgDays,
     };
   }, [entries.items, plants.items, i18n.language]);
 
@@ -193,6 +206,24 @@ export default function StatsScreen() {
             colors={colors}
             s={s}
           />
+          {stats.successRate !== null && (
+            <KeyStat
+              emoji="🏆"
+              value={`${stats.successRate}%`}
+              label={t('stats.successRate')}
+              colors={colors}
+              s={s}
+            />
+          )}
+          {stats.avgDays !== null && (
+            <KeyStat
+              emoji="⏱️"
+              value={`${stats.avgDays}d`}
+              label={t('stats.avgDaysToHarvest')}
+              colors={colors}
+              s={s}
+            />
+          )}
         </View>
 
         {/* Monthly activity bar chart */}

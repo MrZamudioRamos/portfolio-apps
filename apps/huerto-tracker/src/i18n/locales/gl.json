@@ -80,7 +80,8 @@
     "days": "🗓 {{min}}–{{max}} días",
     "containerInfo": "🪴 Recipiente mín. {{liters}} L · {{tip}}",
     "addToGarden": "Engadir á horta",
-    "hemisphereSurBanner": "Hemisferio Sur activo · meses invertidos respecto ao norte"
+    "hemisphereSurBanner": "Hemisferio Sur activo · meses invertidos respecto ao norte",
+    "catAll": "Todos"
   },
   "diary": {
     "title": "Diario",
@@ -563,7 +564,9 @@
     "entryCount_one": "{{count}} entrada",
     "entryCount_other": "{{count}} entradas",
     "harvestCount_one": "{{count}} colleita",
-    "harvestCount_other": "{{count}} colleitas"
+    "harvestCount_other": "{{count}} colleitas",
+    "successRate": "Taxa de exito",
+    "avgDaysToHarvest": "Media dias a colleita"
   },
   "welcome": {
     "title": "Huerto Tracker",

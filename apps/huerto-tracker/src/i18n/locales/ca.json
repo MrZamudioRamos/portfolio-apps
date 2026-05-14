@@ -80,7 +80,8 @@
     "days": "🗓 {{min}}–{{max}} dies",
     "containerInfo": "🪴 Test mín. {{liters}} L · {{tip}}",
     "addToGarden": "Afegir a l'hort",
-    "hemisphereSurBanner": "Hemisferi Sud actiu · mesos invertits respecte al nord"
+    "hemisphereSurBanner": "Hemisferi Sud actiu · mesos invertits respecte al nord",
+    "catAll": "Tots"
   },
   "diary": {
     "title": "Diari",
@@ -563,7 +564,9 @@
     "entryCount_one": "{{count}} entrada",
     "entryCount_other": "{{count}} entrades",
     "harvestCount_one": "{{count}} collita",
-    "harvestCount_other": "{{count}} collites"
+    "harvestCount_other": "{{count}} collites",
+    "successRate": "Taxa d’exit",
+    "avgDaysToHarvest": "Mitjana dies a collita"
   },
   "welcome": {
     "title": "Huerto Tracker",

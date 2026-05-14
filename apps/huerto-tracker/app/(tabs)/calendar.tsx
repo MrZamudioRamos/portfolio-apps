@@ -1,18 +1,17 @@
 import { useColors, useTheme, Card, EmptyState, Button, type Theme } from '@portfolio/ui';
-import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import { useRouter } from 'expo-router';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS, CATEGORY_CONFIG } from '../../src/data/crops';
+import { CROPS, CATEGORY_CONFIG, type CropCategory } from '../../src/data/crops';
 import { getSeasonalTip } from '../../src/data/seasonalTips';
-import type { Garden } from '../../src/models/garden';
 import type { CropInfo } from '../../src/data/crops';
 import { getLunarDay, getMonthGardeningProfile } from '../../src/utils/lunar';
 import { isContainerFriendly, getContainerInfo } from '../../src/data/containers';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
 export default function CalendarScreen() {
   const colors = useColors();
@@ -23,20 +22,14 @@ export default function CalendarScreen() {
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1); // 1-12
   const [year, setYear] = useState(now.getFullYear());
+  const [categoryFilter, setCategoryFilter] = useState<CropCategory | null>(null);
 
-  const gardens = useCollection<Garden>('gardens');
-  const garden = gardens.items[0];
+  const { activeGarden: garden } = useActiveGarden();
   const zone = garden?.climateZone ?? 'mediterranea';
   const gardenType = garden?.gardenType ?? 'huerto';
   const isContainer = gardenType !== 'huerto';
   const hemisphere = garden?.hemisphere ?? 'norte';
   const effectiveMonth = hemisphere === 'sur' ? ((month - 1 + 6) % 12) + 1 : month;
-
-  useFocusEffect(
-    useCallback(() => {
-      gardens.refresh();
-    }, [])
-  );
 
   const intlLocale = i18n.language === 'val' ? 'ca-ES' : i18n.language;
   const MONTH_NAMES = useMemo(
@@ -48,11 +41,19 @@ export default function CalendarScreen() {
 
   const availableCrops = useMemo(
     () => {
-      const base = CROPS.filter((c) => c.sowingMonths[zone]?.includes(effectiveMonth));
-      return isContainer ? base.filter((c) => isContainerFriendly(c.id)) : base;
+      let base = CROPS.filter((c) => c.sowingMonths[zone]?.includes(effectiveMonth));
+      if (isContainer) base = base.filter((c) => isContainerFriendly(c.id));
+      if (categoryFilter) base = base.filter((c) => c.category === categoryFilter);
+      return base;
     },
-    [zone, effectiveMonth, isContainer]
+    [zone, effectiveMonth, isContainer, categoryFilter]
   );
+
+  const presentCategories = useMemo(() => {
+    const all = CROPS.filter((c) => c.sowingMonths[zone]?.includes(effectiveMonth));
+    const cats = new Set(all.map((c) => c.category));
+    return (Object.keys(CATEGORY_CONFIG) as CropCategory[]).filter((cat) => cats.has(cat));
+  }, [zone, effectiveMonth]);
 
   const today = new Date();
   const isCurrentMonth = month === today.getMonth() + 1 && year === today.getFullYear();
@@ -249,6 +250,52 @@ export default function CalendarScreen() {
         </Text>
       </View>
 
+      {/* Category filter chips */}
+      {presentCategories.length > 1 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm, paddingVertical: spacing.xs }}
+          style={{ marginBottom: spacing.xs }}
+        >
+          <Pressable
+            onPress={() => setCategoryFilter(null)}
+            style={[
+              s.catChip,
+              {
+                backgroundColor: !categoryFilter ? colors.primary + '22' : colors.surfaceAlt,
+                borderColor: !categoryFilter ? colors.primary : colors.border,
+              },
+            ]}
+          >
+            <Text style={[s.catChipText, { color: !categoryFilter ? colors.primary : colors.textSecondary }]}>
+              {t('calendar.catAll')}
+            </Text>
+          </Pressable>
+          {presentCategories.map((cat) => {
+            const cfg = CATEGORY_CONFIG[cat];
+            const active = categoryFilter === cat;
+            return (
+              <Pressable
+                key={cat}
+                onPress={() => setCategoryFilter(active ? null : cat)}
+                style={[
+                  s.catChip,
+                  {
+                    backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
+                    borderColor: active ? colors.primary : colors.border,
+                  },
+                ]}
+              >
+                <Text style={[s.catChipText, { color: active ? colors.primary : colors.textSecondary }]}>
+                  {cfg.emoji} {t(`cropCategory.${cat}`, { defaultValue: cfg.label })}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      )}
+
       {/* Subtitle + link to companions */}
       <View style={s.subTitleRow}>
         <Text style={[s.subTitle, { color: colors.textSecondary, flex: 1, marginBottom: 0 }]}>
@@ -362,6 +409,13 @@ const makeStyles = (
       borderWidth: 1,
     },
     companionsLinkText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    catChip: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+    },
+    catChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     listContent: { paddingHorizontal: spacing.xl, paddingBottom: 40, gap: spacing.md },
     cropCard: { gap: spacing.sm },
     cropHeader: { flexDirection: 'row', alignItems: 'center' },

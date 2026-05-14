@@ -80,7 +80,8 @@
     "days": "🗓 {{min}}–{{max}} days",
     "containerInfo": "🪴 Min. {{liters}} L pot · {{tip}}",
     "addToGarden": "Add to garden",
-    "hemisphereSurBanner": "Southern Hemisphere active · months reversed compared to the north"
+    "hemisphereSurBanner": "Southern Hemisphere active · months reversed compared to the north",
+    "catAll": "All"
   },
   "diary": {
     "title": "Journal",
@@ -562,7 +563,9 @@
     "entryCount_one": "{{count}} entry",
     "entryCount_other": "{{count}} entries",
     "harvestCount_one": "{{count}} harvest",
-    "harvestCount_other": "{{count}} harvests"
+    "harvestCount_other": "{{count}} harvests",
+    "successRate": "Success rate",
+    "avgDaysToHarvest": "Avg. days to harvest"
   },
   "welcome": {
     "title": "Huerto Tracker",

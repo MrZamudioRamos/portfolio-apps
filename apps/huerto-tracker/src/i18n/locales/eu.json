@@ -80,7 +80,8 @@
     "days": "🗓 {{min}}–{{max}} egun",
     "containerInfo": "🪴 Gutxieneko ontzia {{liters}} L · {{tip}}",
     "addToGarden": "Baratzera gehitu",
-    "hemisphereSurBanner": "Hego hemisferioa aktibo · hilabeteak alderantziz iparraldearekin alderatuta"
+    "hemisphereSurBanner": "Hego hemisferioa aktibo · hilabeteak alderantziz iparraldearekin alderatuta",
+    "catAll": "Guztiak"
   },
   "diary": {
     "title": "Egunkaria",
@@ -563,7 +564,9 @@
     "entryCount_one": "{{count}} sarrera",
     "entryCount_other": "{{count}} sarrera",
     "harvestCount_one": "{{count}} uzta",
-    "harvestCount_other": "{{count}} uzta"
+    "harvestCount_other": "{{count}} uzta",
+    "successRate": "Arrakasta tasa",
+    "avgDaysToHarvest": "Bataz beste egunak"
   },
   "welcome": {
     "title": "Huerto Tracker",
