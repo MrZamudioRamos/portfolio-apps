@@ -266,8 +266,16 @@
     "affectedCrops": "Eragindako laboreak",
     "symptoms": "Sintomak",
     "treatments": "Tratamenduak",
-    "type": { "plaga": "Izurria", "enfermedad": "Gaixotasuna", "deficiencia": "Gabezia" },
-    "treatment": { "organico": "Ekologikoa", "preventivo": "Prebentiboa", "quimico": "Kimikoa" }
+    "type": {
+      "plaga": "Izurria",
+      "enfermedad": "Gaixotasuna",
+      "deficiencia": "Gabezia"
+    },
+    "treatment": {
+      "organico": "Ekologikoa",
+      "preventivo": "Prebentiboa",
+      "quimico": "Kimikoa"
+    }
   },
   "gardenMap": {
     "title": "Baratzearen mapa",
@@ -354,7 +362,9 @@
     "restoreSuccessDesc": "Zure Pro harpidetza aktiboa dago.",
     "restoreNoneTitle": "Ez dago aurreko erosketa",
     "restoreNoneDesc": "Ez dugu aurkitu zure kontuarekin lotutako harpidetza aktiborik.",
-    "restoreError": "Ezin izan da konektatu. Saiatu berriro."
+    "restoreError": "Ezin izan da konektatu. Saiatu berriro.",
+    "lifetimeBadge": "Harpidetzarik gabe",
+    "lifetimeSub": "Ordainketa bakarra. Berrikuntza gabe"
   },
   "plantEdit": {
     "title": "Landarea editatu",
@@ -669,7 +679,8 @@
     "cruciferas": "Gurutzatutakoak",
     "cucurbitaceas": "Kukorbitagoak",
     "aromaticas": "Aromatikoak",
-    "bulbos": "Bulboak"
+    "bulbos": "Bulboak",
+    "medicinales": "Sendabelarrak"
   },
   "crops": {
     "tomate": {

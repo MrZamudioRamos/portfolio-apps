@@ -361,7 +361,9 @@
     "restoreSuccessDesc": "Your Pro subscription is active.",
     "restoreNoneTitle": "No previous purchases",
     "restoreNoneDesc": "We couldn't find any active subscription linked to your account.",
-    "restoreError": "Could not connect. Please try again."
+    "restoreError": "Could not connect. Please try again.",
+    "lifetimeBadge": "No subscription",
+    "lifetimeSub": "One-time payment. No renewals"
   },
   "plantEdit": {
     "title": "Edit plant",
@@ -676,7 +678,8 @@
     "cruciferas": "Brassicas",
     "cucurbitaceas": "Cucurbits",
     "aromaticas": "Herbs",
-    "bulbos": "Bulbs"
+    "bulbos": "Bulbs",
+    "medicinales": "Medicinal plants"
   },
   "crops": {
     "tomate": {

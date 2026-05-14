@@ -225,34 +225,103 @@ export default function PlantDetailScreen() {
             </View>
           )}
 
-          {/* Status selector */}
+          {/* Stage journey timeline */}
           <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.statusSection')}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.lg }}>
-            <View style={s.statusRow}>
-              {ALL_STATUSES.map((status) => {
-                const cfg = PLANT_STATUS_CONFIG[status];
-                const active = plant.status === status;
-                return (
-                  <Pressable
-                    key={status}
-                    onPress={() => handleStatusChange(status)}
-                    style={[
-                      s.statusChip,
-                      {
-                        backgroundColor: active ? cfg.color : colors.surface,
-                        borderColor: active ? cfg.color : colors.border,
-                      },
-                    ]}
-                  >
-                    <Text style={{ fontSize: 16 }}>{cfg.emoji}</Text>
-                    <Text style={[s.statusChipLabel, { color: active ? '#fff' : colors.textSecondary }]}>
-                      {t('plantStatus.' + status)}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </ScrollView>
+          {(() => {
+            const currentIdx = ALL_STATUSES.indexOf(plant.status);
+            function fmtMilestone(dateStr: string): string {
+              const d = new Date(dateStr + 'T12:00:00');
+              return d.toLocaleDateString('es', { day: 'numeric', month: 'short' });
+            }
+            const MILESTONE_DATE: Partial<Record<PlantStatus, string | undefined>> = {
+              seedling: plant.sowingDate,
+              transplanted: plant.transplantDate,
+              harvesting: plant.firstHarvestDate,
+            };
+            return (
+              <View style={{ marginBottom: spacing.xl }}>
+                <View style={s.journeyDotsRow}>
+                  {ALL_STATUSES.map((status, idx) => {
+                    const cfg = PLANT_STATUS_CONFIG[status];
+                    const isActive = idx === currentIdx;
+                    const isPast = idx < currentIdx;
+                    return (
+                      <React.Fragment key={status}>
+                        <Pressable
+                          onPress={() => handleStatusChange(status)}
+                          style={s.journeyDotWrap}
+                          hitSlop={8}
+                        >
+                          <View
+                            style={[
+                              s.journeyDot,
+                              {
+                                backgroundColor: isActive
+                                  ? cfg.color
+                                  : isPast
+                                  ? cfg.color + '66'
+                                  : colors.surfaceAlt,
+                                borderColor: isActive
+                                  ? cfg.color
+                                  : isPast
+                                  ? cfg.color
+                                  : colors.border,
+                                transform: [{ scale: isActive ? 1.25 : 1 }],
+                              },
+                            ]}
+                          >
+                            <Text style={{ fontSize: 11 }}>{cfg.emoji}</Text>
+                          </View>
+                        </Pressable>
+                        {idx < ALL_STATUSES.length - 1 && (
+                          <View
+                            style={[
+                              s.journeyLine,
+                              {
+                                backgroundColor: isPast
+                                  ? colors.primary + '55'
+                                  : colors.border,
+                              },
+                            ]}
+                          />
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </View>
+                <View style={s.journeyLabelsRow}>
+                  {ALL_STATUSES.map((status, idx) => {
+                    const cfg = PLANT_STATUS_CONFIG[status];
+                    const isActive = idx === currentIdx;
+                    const raw = MILESTONE_DATE[status as keyof typeof MILESTONE_DATE];
+                    const label = raw
+                      ? fmtMilestone(raw)
+                      : isActive
+                      ? t('plantStatus.' + status)
+                      : null;
+                    return (
+                      <React.Fragment key={status}>
+                        <View style={s.journeyLabelCell}>
+                          {label ? (
+                            <Text
+                              style={[
+                                s.journeyLabelText,
+                                { color: raw ? colors.textSecondary : cfg.color },
+                              ]}
+                              numberOfLines={1}
+                            >
+                              {label}
+                            </Text>
+                          ) : null}
+                        </View>
+                        {idx < ALL_STATUSES.length - 1 && <View style={{ flex: 1 }} />}
+                      </React.Fragment>
+                    );
+                  })}
+                </View>
+              </View>
+            );
+          })()}
 
           {/* Crop info */}
           <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.cropInfo')}</Text>
@@ -689,6 +758,43 @@ const makeStyles = (
       marginBottom: spacing.md,
     },
     statusRow: { flexDirection: 'row', gap: spacing.sm, paddingBottom: spacing.sm },
+    journeyDotsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    journeyDotWrap: {
+      width: 28,
+      height: 28,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    journeyDot: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1.5,
+    },
+    journeyLine: {
+      flex: 1,
+      height: 2,
+    },
+    journeyLabelsRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginTop: 5,
+    },
+    journeyLabelCell: {
+      width: 28,
+      alignItems: 'center',
+      overflow: 'visible',
+    },
+    journeyLabelText: {
+      fontSize: 8,
+      textAlign: 'center',
+      fontWeight: '600',
+    },
     statusChip: {
       flexDirection: 'row',
       alignItems: 'center',

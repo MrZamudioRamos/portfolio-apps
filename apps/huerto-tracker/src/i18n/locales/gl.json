@@ -266,8 +266,16 @@
     "affectedCrops": "Cultivos afectados",
     "symptoms": "Síntomas",
     "treatments": "Tratamentos",
-    "type": { "plaga": "Praga", "enfermedad": "Enfermidade", "deficiencia": "Deficiencia" },
-    "treatment": { "organico": "Orgánico", "preventivo": "Preventivo", "quimico": "Químico" }
+    "type": {
+      "plaga": "Praga",
+      "enfermedad": "Enfermidade",
+      "deficiencia": "Deficiencia"
+    },
+    "treatment": {
+      "organico": "Orgánico",
+      "preventivo": "Preventivo",
+      "quimico": "Químico"
+    }
   },
   "gardenMap": {
     "title": "Mapa da horta",
@@ -354,7 +362,9 @@
     "restoreSuccessDesc": "A túa subscrición Pro está activa.",
     "restoreNoneTitle": "Sen compras anteriores",
     "restoreNoneDesc": "Non atopamos ningunha subscrición activa asociada á túa conta.",
-    "restoreError": "Non se puido conectar. Téntao de novo."
+    "restoreError": "Non se puido conectar. Téntao de novo.",
+    "lifetimeBadge": "Sen subscripcion",
+    "lifetimeSub": "Pago unico. Sen renovacions"
   },
   "plantEdit": {
     "title": "Editar planta",
@@ -669,7 +679,8 @@
     "cruciferas": "Crucíferas",
     "cucurbitaceas": "Cucurbitáceas",
     "aromaticas": "Aromáticas",
-    "bulbos": "Bulbos"
+    "bulbos": "Bulbos",
+    "medicinales": "Medicinais"
   },
   "crops": {
     "tomate": {

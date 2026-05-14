@@ -8,7 +8,8 @@ export type CropCategory =
   | 'cruciferas'
   | 'cucurbitaceas'
   | 'aromaticas'
-  | 'bulbos';
+  | 'bulbos'
+  | 'medicinales';
 
 export interface CropInfo {
   id: string;
@@ -917,6 +918,239 @@ export const CROPS: CropInfo[] = [
     incompatible: ['judía verde', 'guisante'],
     tips: 'Trasplanta en hoyos profundos y ve aporcando tierra para blanquear el tallo. Aguanta en tierra todo el otoño-invierno; cosechar según necesidad.',
   },
+
+  // ── FRUTAS PICANTES ──────────────────────────────────────
+  {
+    id: 'guindilla',
+    name: 'Guindilla / Chile',
+    emoji: '🌶️',
+    category: 'frutas',
+    sowingMonths: {
+      atlantica:    [3, 4],
+      continental:  [3, 4],
+      mediterranea: [2, 3, 4],
+      subtropical:  [1, 2, 3, 10],
+    },
+    harvestMonths: {
+      atlantica:    [8, 9, 10],
+      continental:  [8, 9],
+      mediterranea: [7, 8, 9, 10],
+      subtropical:  [5, 6, 7, 12],
+    },
+    daysToHarvest: [75, 100],
+    sunNeeds: 'full',
+    waterNeeds: 'medium',
+    spacing: 40,
+    companions: ['tomate', 'albahaca', 'zanahoria'],
+    incompatible: ['hinojo'],
+    tips: 'Cuanto más estrés hídrico controlado, más capsaicina y picor. Cosecha verde o deja madurar a rojo para máximo sabor.',
+  },
+
+  // ── HOJAS EXTRAS ────────────────────────────────────────
+  {
+    id: 'apio',
+    name: 'Apio',
+    emoji: '🥬',
+    category: 'hojas',
+    sowingMonths: {
+      atlantica:    [3, 4, 5],
+      continental:  [3, 4, 5],
+      mediterranea: [2, 3, 4, 8, 9],
+      subtropical:  [9, 10, 11, 2, 3],
+    },
+    harvestMonths: {
+      atlantica:    [7, 8, 9, 10, 11],
+      continental:  [7, 8, 9, 10],
+      mediterranea: [5, 6, 7, 11, 12, 1],
+      subtropical:  [12, 1, 2, 5, 6],
+    },
+    daysToHarvest: [100, 140],
+    sunNeeds: 'partial',
+    waterNeeds: 'high',
+    spacing: 25,
+    companions: ['puerro', 'tomate', 'col', 'judia-verde'],
+    incompatible: ['lechuga', 'zanahoria'],
+    tips: 'Necesita riego constante o los tallos quedan fibrosos y amargos. Aporca tierra alrededor para blanquear y suavizar los tallos.',
+  },
+  {
+    id: 'esparrago',
+    name: 'Espárrago',
+    emoji: '🌿',
+    category: 'hojas',
+    sowingMonths: {
+      atlantica:    [3, 4],
+      continental:  [3, 4],
+      mediterranea: [2, 3, 4],
+      subtropical:  [9, 10, 2, 3],
+    },
+    harvestMonths: {
+      atlantica:    [4, 5, 6],
+      continental:  [4, 5, 6],
+      mediterranea: [3, 4, 5],
+      subtropical:  [2, 3, 4],
+    },
+    daysToHarvest: [730, 1095],
+    sunNeeds: 'full',
+    waterNeeds: 'low',
+    spacing: 40,
+    companions: ['tomate', 'perejil', 'albahaca'],
+    incompatible: ['cebolla', 'ajo', 'patata'],
+    tips: 'Cultivo perenne: no coseches hasta el 3er año para dejar enraizar bien. Luego produce durante 15-20 años con mínimo esfuerzo.',
+  },
+
+  // ── AROMÁTICAS EXTRAS ────────────────────────────────────
+  {
+    id: 'salvia',
+    name: 'Salvia',
+    emoji: '🌿',
+    category: 'aromaticas',
+    sowingMonths: {
+      atlantica:    [3, 4, 9],
+      continental:  [3, 4, 9],
+      mediterranea: [3, 4, 9, 10],
+      subtropical:  [1, 2, 3, 9, 10],
+    },
+    harvestMonths: {
+      atlantica:    [5, 6, 7, 8, 9],
+      continental:  [5, 6, 7, 8],
+      mediterranea: [4, 5, 6, 7, 8, 9, 10, 11],
+      subtropical:  [3, 4, 5, 6, 10, 11, 12],
+    },
+    daysToHarvest: [75, 100],
+    sunNeeds: 'full',
+    waterNeeds: 'low',
+    spacing: 45,
+    companions: ['col', 'zanahoria', 'romero'],
+    incompatible: ['albahaca', 'pepino'],
+    tips: 'Perenne mediterránea. Sus flores atraen polinizadores. Corta tras florecer para mantenerla compacta y productiva temporada tras temporada.',
+  },
+  {
+    id: 'oregano',
+    name: 'Orégano',
+    emoji: '🌿',
+    category: 'aromaticas',
+    sowingMonths: {
+      atlantica:    [3, 4, 5],
+      continental:  [3, 4, 5],
+      mediterranea: [3, 4, 5, 9, 10],
+      subtropical:  [1, 2, 3, 9, 10],
+    },
+    harvestMonths: {
+      atlantica:    [6, 7, 8, 9],
+      continental:  [6, 7, 8, 9],
+      mediterranea: [5, 6, 7, 8, 9, 10],
+      subtropical:  [4, 5, 6, 11, 12],
+    },
+    daysToHarvest: [60, 90],
+    sunNeeds: 'full',
+    waterNeeds: 'low',
+    spacing: 30,
+    companions: ['tomate', 'pimiento', 'berenjena'],
+    incompatible: [],
+    tips: 'El calor y la sequía intensifican su sabor. Corta antes de que florezca para máximo aroma. Seca los ramilletes colgados boca abajo.',
+  },
+  {
+    id: 'eneldo',
+    name: 'Eneldo',
+    emoji: '🌿',
+    category: 'aromaticas',
+    sowingMonths: {
+      atlantica:    [3, 4, 5, 8],
+      continental:  [3, 4, 5],
+      mediterranea: [2, 3, 4, 9, 10],
+      subtropical:  [9, 10, 11, 2, 3],
+    },
+    harvestMonths: {
+      atlantica:    [5, 6, 7, 9, 10],
+      continental:  [5, 6, 7],
+      mediterranea: [4, 5, 6, 11, 12],
+      subtropical:  [11, 12, 1, 4, 5],
+    },
+    daysToHarvest: [40, 70],
+    sunNeeds: 'full',
+    waterNeeds: 'medium',
+    spacing: 20,
+    companions: ['lechuga', 'col', 'pepino'],
+    incompatible: ['zanahoria', 'tomate', 'hinojo'],
+    tips: 'Sube a semilla rápido en verano; siembra escalonada cada 3 semanas. Nunca junto al hinojo: se polinizan cruzados y pierden su sabor característico.',
+  },
+  {
+    id: 'hinojo',
+    name: 'Hinojo',
+    emoji: '🌿',
+    category: 'aromaticas',
+    sowingMonths: {
+      atlantica:    [3, 4, 5],
+      continental:  [3, 4, 5],
+      mediterranea: [2, 3, 4, 8, 9],
+      subtropical:  [9, 10, 2, 3],
+    },
+    harvestMonths: {
+      atlantica:    [7, 8, 9, 10],
+      continental:  [7, 8, 9],
+      mediterranea: [5, 6, 7, 11, 12],
+      subtropical:  [12, 1, 5, 6],
+    },
+    daysToHarvest: [65, 90],
+    sunNeeds: 'full',
+    waterNeeds: 'low',
+    spacing: 45,
+    companions: ['eneldo'],
+    incompatible: ['tomate', 'pimiento', 'col', 'judia-verde', 'zanahoria'],
+    tips: 'Suprime el crecimiento de casi todo lo que lo rodea. Plántalo en un rincón aislado o en maceta separada para aprovechar sus beneficios sin dañar el huerto.',
+  },
+
+  // ── MEDICINALES ──────────────────────────────────────────
+  {
+    id: 'manzanilla',
+    name: 'Manzanilla',
+    emoji: '🌼',
+    category: 'medicinales',
+    sowingMonths: {
+      atlantica:    [3, 4, 9],
+      continental:  [3, 4, 9],
+      mediterranea: [2, 3, 9, 10],
+      subtropical:  [9, 10, 11, 2, 3],
+    },
+    harvestMonths: {
+      atlantica:    [5, 6, 7, 10, 11],
+      continental:  [5, 6, 7, 10],
+      mediterranea: [4, 5, 6, 11, 12],
+      subtropical:  [11, 12, 1, 4, 5],
+    },
+    daysToHarvest: [50, 70],
+    sunNeeds: 'full',
+    waterNeeds: 'low',
+    spacing: 20,
+    companions: ['tomate', 'col', 'lechuga'],
+    incompatible: [],
+    tips: 'Cosecha las flores en plena apertura para mayor concentración de aceites. Excelente compañera que repele insectos dañinos y atrae polinizadores.',
+  },
+  {
+    id: 'lavanda',
+    name: 'Lavanda',
+    emoji: '💜',
+    category: 'medicinales',
+    sowingMonths: {
+      atlantica:    [3, 4, 9],
+      continental:  [3, 4, 9],
+      mediterranea: [3, 4, 9, 10],
+      subtropical:  [9, 10, 11, 2, 3],
+    },
+    harvestMonths: {
+      atlantica:    [6, 7, 8],
+      continental:  [6, 7, 8],
+      mediterranea: [5, 6, 7, 8],
+      subtropical:  [3, 4, 5, 10, 11],
+    },
+    daysToHarvest: [90, 180],
+    sunNeeds: 'full',
+    waterNeeds: 'low',
+    spacing: 50,
+    companions: ['tomate', 'col', 'zanahoria'],
+    incompatible: [],
+    tips: 'Perenne muy resistente a la sequía. Corta los tallos florales a 1/3 tras la floración para mantener forma compacta. Atrae abejas y repele polillas y pulgones.',
+  },
 ];
 
 export const CROPS_BY_ID: Record<string, CropInfo> = Object.fromEntries(
@@ -932,6 +1166,7 @@ export const CROPS_BY_CATEGORY: Record<CropCategory, CropInfo[]> = {
   cucurbitaceas: [],
   aromaticas: [],
   bulbos: [],
+  medicinales: [],
 };
 
 for (const crop of CROPS) {
@@ -950,4 +1185,5 @@ export const CATEGORY_CONFIG: Record<
   cucurbitaceas: { label: 'Cucurbitáceas', emoji: '🥒' },
   aromaticas: { label: 'Aromáticas', emoji: '🌿' },
   bulbos: { label: 'Bulbos', emoji: '🧅' },
+  medicinales: { label: 'Medicinales', emoji: '🌼' },
 };

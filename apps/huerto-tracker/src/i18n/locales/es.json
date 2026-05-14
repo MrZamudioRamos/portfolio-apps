@@ -362,7 +362,9 @@
     "restoreSuccessDesc": "Tu suscripción Pro está activa.",
     "restoreNoneTitle": "Sin compras anteriores",
     "restoreNoneDesc": "No encontramos ninguna suscripción activa asociada a tu cuenta.",
-    "restoreError": "No se pudo conectar. Inténtalo de nuevo."
+    "restoreError": "No se pudo conectar. Inténtalo de nuevo.",
+    "lifetimeBadge": "Sin suscripción",
+    "lifetimeSub": "Pago único de por vida · Sin renovaciones"
   },
   "plantEdit": {
     "title": "Editar planta",
@@ -678,7 +680,8 @@
     "cruciferas": "Crucíferas",
     "cucurbitaceas": "Cucurbitáceas",
     "aromaticas": "Aromáticas",
-    "bulbos": "Bulbos"
+    "bulbos": "Bulbos",
+    "medicinales": "Medicinales"
   },
   "identify": {
     "title": "Identificar plaga",

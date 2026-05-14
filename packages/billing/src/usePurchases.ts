@@ -19,6 +19,14 @@ export const OFFERINGS: Offerings = {
     priceString: '19,99 €/año',
     savingsLabel: 'Ahorra un 44%',
   },
+  lifetime: {
+    id: 'lifetime',
+    productIdentifier: 'app.huertotracker.pro.lifetime',
+    packageType: 'lifetime',
+    priceString: '39,99 €',
+    savingsLabel: 'Sin renovaciones',
+    isOneTime: true,
+  },
 };
 
 export function usePurchases() {

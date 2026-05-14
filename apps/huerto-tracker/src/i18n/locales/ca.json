@@ -266,8 +266,16 @@
     "affectedCrops": "Cultius afectats",
     "symptoms": "Símptomes",
     "treatments": "Tractaments",
-    "type": { "plaga": "Plaga", "enfermedad": "Malaltia", "deficiencia": "Deficiència" },
-    "treatment": { "organico": "Orgànic", "preventivo": "Preventiu", "quimico": "Químic" }
+    "type": {
+      "plaga": "Plaga",
+      "enfermedad": "Malaltia",
+      "deficiencia": "Deficiència"
+    },
+    "treatment": {
+      "organico": "Orgànic",
+      "preventivo": "Preventiu",
+      "quimico": "Químic"
+    }
   },
   "gardenMap": {
     "title": "Mapa de l'hort",
@@ -354,7 +362,9 @@
     "restoreSuccessDesc": "La teva subscripció Pro és activa.",
     "restoreNoneTitle": "Sense compres anteriors",
     "restoreNoneDesc": "No hem trobat cap subscripció activa associada al teu compte.",
-    "restoreError": "No s'ha pogut connectar. Torna-ho a intentar."
+    "restoreError": "No s'ha pogut connectar. Torna-ho a intentar.",
+    "lifetimeBadge": "Sense subscripció",
+    "lifetimeSub": "Pagament únic · Sense renovacions"
   },
   "plantEdit": {
     "title": "Editar planta",
@@ -669,7 +679,8 @@
     "cruciferas": "Crucíferes",
     "cucurbitaceas": "Cucurbitàcies",
     "aromaticas": "Aromàtiques",
-    "bulbos": "Bulbs"
+    "bulbos": "Bulbs",
+    "medicinales": "Medicinals"
   },
   "crops": {
     "tomate": {
