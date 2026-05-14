@@ -143,6 +143,32 @@ export default function OnboardingScreen() {
               {t('onboarding.step2Desc')}
             </Text>
 
+            {/* Hemisphere selector — before province so LATAM users can find their region */}
+            <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('onboarding.hemisphereLabel')}</Text>
+            <View style={[s.gardenTypeRow, { marginBottom: spacing.lg }]}>
+              {(['norte', 'sur'] as const).map((h) => {
+                const active = hemisphere === h;
+                return (
+                  <Pressable
+                    key={h}
+                    onPress={() => { setHemisphere(h); setProvince(''); }}
+                    style={[
+                      s.gardenTypeBtn,
+                      {
+                        backgroundColor: active ? colors.primary + '22' : colors.surface,
+                        borderColor: active ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={{ fontSize: 24 }}>{h === 'norte' ? '🌍' : '🌎'}</Text>
+                    <Text style={[s.gardenTypeName, { color: active ? colors.primary : colors.textSecondary }]}>
+                      {t('onboarding.hemisphere' + h.charAt(0).toUpperCase() + h.slice(1))}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
             <Pressable
               onPress={() => setShowProvincePicker(true)}
               style={[
@@ -221,32 +247,6 @@ export default function OnboardingScreen() {
                     <Text style={{ fontSize: 24 }}>{cfg.emoji}</Text>
                     <Text style={[s.gardenTypeName, { color: active ? colors.primary : colors.textSecondary }]}>
                       {t('gardenType.' + key)}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* Hemisphere selector */}
-            <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('onboarding.hemisphereLabel')}</Text>
-            <View style={[s.gardenTypeRow, { marginBottom: spacing.lg }]}>
-              {(['norte', 'sur'] as const).map((h) => {
-                const active = hemisphere === h;
-                return (
-                  <Pressable
-                    key={h}
-                    onPress={() => setHemisphere(h)}
-                    style={[
-                      s.gardenTypeBtn,
-                      {
-                        backgroundColor: active ? colors.primary + '22' : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
-                      },
-                    ]}
-                  >
-                    <Text style={{ fontSize: 24 }}>{h === 'norte' ? '🌍' : '🌎'}</Text>
-                    <Text style={[s.gardenTypeName, { color: active ? colors.primary : colors.textSecondary }]}>
-                      {t('onboarding.hemisphere' + h.charAt(0).toUpperCase() + h.slice(1))}
                     </Text>
                   </Pressable>
                 );

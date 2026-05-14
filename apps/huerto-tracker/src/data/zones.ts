@@ -60,6 +60,48 @@ export const PROVINCE_ZONES: Record<string, ClimateZone> = {
   // Subtropical
   'Las Palmas': 'subtropical',
   'Santa Cruz de Tenerife': 'subtropical',
+
+  // Argentina
+  'Buenos Aires': 'mediterranea',
+  'Córdoba (AR)': 'continental',
+  'Mendoza': 'continental',
+  'Santa Fe': 'continental',
+  'Entre Ríos': 'continental',
+  'Tucumán': 'subtropical',
+  'Misiones': 'subtropical',
+  'Formosa': 'subtropical',
+  'Chaco': 'subtropical',
+  'Corrientes': 'subtropical',
+  'Salta': 'continental',
+  'Jujuy': 'continental',
+  'Patagonia (AR)': 'atlantica',
+  'Neuquén': 'continental',
+  'Río Negro': 'continental',
+
+  // Chile
+  'Región Metropolitana (Santiago)': 'mediterranea',
+  'Valparaíso (CL)': 'mediterranea',
+  "O'Higgins": 'mediterranea',
+  'Maule': 'mediterranea',
+  'Biobío': 'atlantica',
+  'Araucanía': 'atlantica',
+  'Los Lagos (CL)': 'atlantica',
+  'Patagonia (CL)': 'atlantica',
+  'Atacama': 'subtropical',
+  'Antofagasta': 'subtropical',
+  'Arica y Parinacota': 'subtropical',
+
+  // Uruguay
+  'Montevideo': 'mediterranea',
+  'Canelones': 'mediterranea',
+  'Interior (Uruguay)': 'continental',
+
+  // Other LATAM
+  'Ciudad de México': 'continental',
+  'Bogotá': 'subtropical',
+  'Lima': 'mediterranea',
+  'São Paulo': 'subtropical',
+  'Santiago de Cuba': 'subtropical',
 };
 
 export const PROVINCES: string[] = Object.keys(PROVINCE_ZONES).sort((a, b) =>
