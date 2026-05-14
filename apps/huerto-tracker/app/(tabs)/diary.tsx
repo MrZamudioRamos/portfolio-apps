@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { formatRelative } from '@portfolio/shared';
 import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
 import { type Plant } from '../../src/models/plant';
+import { CROPS_BY_ID } from '../../src/data/crops';
 import { useTranslation } from 'react-i18next';
 
 const ALL_TYPES: Array<EntryType | 'all'> = [
@@ -112,9 +113,11 @@ export default function DiaryScreen() {
               </View>
             </View>
             {plant && (
-              <Text style={[s.entryPlant, { color: colors.primary }]}>
-                🌱 {plant.name}
-              </Text>
+              <Pressable onPress={() => router.push(`/plant/${plant.id}` as any)} hitSlop={4}>
+                <Text style={[s.entryPlant, { color: colors.primary }]}>
+                  {CROPS_BY_ID[plant.cropId]?.emoji ?? '🌱'} {plant.name}
+                </Text>
+              </Pressable>
             )}
             {item.notes ? (
               <Text style={[s.entryNotes, { color: colors.textSecondary }]} numberOfLines={2}>
@@ -258,7 +261,7 @@ export default function DiaryScreen() {
 
       {/* FAB */}
       <Pressable
-        onPress={() => router.push('/entry/new')}
+        onPress={() => router.push(plantId ? `/entry/new?plantId=${plantId}` : '/entry/new' as any)}
         style={({ pressed }) => [
           s.fab,
           { ...shadows.lg, backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },

@@ -154,6 +154,32 @@ export default function EditEntryScreen() {
 
             {/* Date */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('entryNew.date')}</Text>
+            <View style={[s.dateBtnsRow, { marginBottom: spacing.sm }]}>
+              {([0, 1, 2] as const).map((days) => {
+                const d = new Date();
+                d.setDate(d.getDate() - days);
+                const dateStr = d.toISOString().split('T')[0];
+                const active = date === dateStr;
+                const label = days === 0 ? t('entryNew.today') : days === 1 ? t('entryNew.yesterday') : t('entryNew.twoDaysAgo');
+                return (
+                  <Pressable
+                    key={days}
+                    onPress={() => setDate(dateStr)}
+                    style={[
+                      s.dateBtn,
+                      {
+                        backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
+                        borderColor: active ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>
+                      {label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
             <TextInput
               value={date}
               onChangeText={setDate}
@@ -265,6 +291,14 @@ const makeStyles = (
       gap: 4,
     },
     typeLabel: { fontSize: 10, fontWeight: fontWeight.medium, textAlign: 'center' },
+    dateBtnsRow: { flexDirection: 'row', gap: spacing.sm },
+    dateBtn: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+    },
+    dateBtnText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     input: { borderWidth: 1.5, borderRadius: radii.md, padding: spacing.lg, fontSize: fontSize.md },
     textarea: { minHeight: 100 },
     photoRow: { alignItems: 'flex-start' },
