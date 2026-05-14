@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -36,6 +37,7 @@ export default function DiseaseGuideScreen() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<DiseaseType | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -163,6 +165,18 @@ export default function DiseaseGuideScreen() {
                 {isOpen && (
                   <>
                     <View style={[s.divider, { backgroundColor: colors.border }]} />
+
+                    {/* Disease image */}
+                    {disease.imageUrl && !imageError[disease.id] && (
+                      <View style={[s.imageWrapper, { backgroundColor: colors.surfaceAlt }]}>
+                        <Image
+                          source={{ uri: disease.imageUrl }}
+                          style={s.diseaseImage}
+                          resizeMode="cover"
+                          onError={() => setImageError((prev) => ({ ...prev, [disease.id]: true }))}
+                        />
+                      </View>
+                    )}
 
                     {/* Affected crops */}
                     <Text style={[s.label, { color: colors.textSecondary }]}>{t('diseaseGuide.affectedCrops')}</Text>
@@ -295,4 +309,13 @@ const makeStyles = (
       borderWidth: 1,
     },
     visualSignText: { fontSize: 11, fontWeight: fontWeight.medium },
+    imageWrapper: {
+      borderRadius: radii.md,
+      overflow: 'hidden',
+      marginBottom: spacing.xs,
+    },
+    diseaseImage: {
+      width: '100%',
+      height: 180,
+    },
   });
