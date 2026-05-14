@@ -1,6 +1,7 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -29,7 +30,7 @@ export default function GardenEditScreen() {
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const gardens = useCollection<Garden>('gardens');
-  const garden = gardens.items[0];
+  const { activeGarden: garden } = useActiveGarden();
   const { isPro } = usePurchases();
 
   const [name, setName] = useState(garden?.name ?? '');

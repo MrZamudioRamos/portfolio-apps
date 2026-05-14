@@ -10,7 +10,6 @@ import { CROPS_BY_ID } from '../src/data/crops';
 import type { DiaryEntry, EntryType } from '../src/models/diary-entry';
 import { ENTRY_TYPE_CONFIG } from '../src/models/diary-entry';
 import type { Plant } from '../src/models/plant';
-import type { Garden } from '../src/models/garden';
 import { buildGamificationData, evaluateBadges, sortBadges, getUnlockedCount, TIER_COLORS } from '../src/utils/gamification';
 
 const BAR_MAX_H = 72;
@@ -47,7 +46,6 @@ export default function StatsScreen() {
   const router = useRouter();
   const { i18n } = useTranslation();
 
-  const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
 
@@ -173,8 +171,6 @@ export default function StatsScreen() {
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
-
-  const garden = gardens.items[0];
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>

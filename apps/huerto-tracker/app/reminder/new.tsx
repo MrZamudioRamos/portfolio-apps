@@ -1,5 +1,4 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
-import { useCollection } from '@portfolio/storage';
 import { useReminders, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -17,7 +16,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { REMINDER_TYPE_CONFIG, type GardenReminder, type ReminderType } from '../../src/models/reminder';
-import type { Garden } from '../../src/models/garden';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
 const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'custom'];
 const FREQUENCIES: ReminderFrequency[] = ['daily', 'every_2_days', 'every_3_days', 'weekly', 'once'];
@@ -30,7 +29,7 @@ export default function ReminderNewScreen() {
   const router = useRouter();
   const { plantId } = useLocalSearchParams<{ plantId?: string }>();
 
-  const gardens = useCollection<Garden>('gardens');
+  const { activeGarden } = useActiveGarden();
   const reminders = useReminders<GardenReminder>('reminders');
 
   const [type, setType] = useState<ReminderType>('watering');
@@ -52,7 +51,7 @@ export default function ReminderNewScreen() {
   }
 
   async function handleSave() {
-    const gardenId = gardens.items[0]?.id;
+    const gardenId = activeGarden?.id;
     if (!gardenId) {
       Alert.alert(t('reminderNew.noGardenTitle'), t('reminderNew.noGardenDesc'));
       return;

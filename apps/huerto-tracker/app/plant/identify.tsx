@@ -20,8 +20,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import type { Plant } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
-import type { Garden } from '../../src/models/garden';
 import { identifyPest, type PestDiagnosis } from '../../src/utils/pestIdentify';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
 const TYPE_COLOR: Record<string, string> = {
   plaga: '#EF5350',
@@ -52,12 +52,12 @@ export default function IdentifyPlantScreen() {
 
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
-  const gardens = useCollection<Garden>('gardens');
+  const { activeGarden } = useActiveGarden();
 
   const plant = plantId ? plants.getById(plantId) : null;
   const resolvedCropId = cropId ?? plant?.cropId;
   const crop = resolvedCropId ? CROPS_BY_ID[resolvedCropId] : null;
-  const gardenId = gardens.items[0]?.id;
+  const gardenId = activeGarden?.id;
 
   const [photo, setPhoto] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
