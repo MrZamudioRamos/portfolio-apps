@@ -411,6 +411,15 @@ export default function PlantDetailScreen() {
                   <Text style={[s.tipText, { color: colors.textSecondary }]}>📝 {plant.soilNotes}</Text>
                 </View>
               ) : null}
+              {plant.bedName && (
+                <Pressable onPress={() => router.push('/rotation' as any)}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: spacing.sm }}>
+                  <Ionicons name="refresh-circle-outline" size={14} color={colors.primary} />
+                  <Text style={{ fontSize: fontSize.xs, color: colors.primary, fontWeight: fontWeight.medium }}>
+                    {t('rotation.title')}
+                  </Text>
+                </Pressable>
+              )}
             </Card>
           )}
 

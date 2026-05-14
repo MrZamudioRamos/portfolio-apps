@@ -167,7 +167,9 @@
       "rate": "Valorar en App Store",
       "privacy": "Política de privacidad",
       "contact": "Contacto"
-    }
+    },
+    "rotation": "Rotación de cultivos",
+    "rotationDesc": "Historial por bancal y recomendaciones"
   },
   "auth": {
     "title": "Crea tu cuenta",
@@ -1054,5 +1056,15 @@
     "clay": "Arcilloso",
     "silty": "Limoso",
     "peaty": "Turboso"
+  },
+  "rotation": {
+    "title": "Rotación de cultivos",
+    "noBed": "Sin parcela",
+    "conflict": "Conflicto",
+    "conflictDetail": "Misma familia ({{families}}) repetida este año. Riesgo de enfermedades del suelo.",
+    "suggest": "Buenas opciones para el próximo ciclo:",
+    "familyGuide": "FAMILIAS BOTÁNICAS",
+    "empty": "Asigna parcelas a tus plantas",
+    "emptyDesc": "Edita cada planta y añade un nombre de parcela (ej. \"Bancal A\") para ver el historial de rotación y recomendaciones."
   }
 }

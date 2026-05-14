@@ -230,6 +230,14 @@ export default function SettingsScreen() {
             s={s}
             onPress={() => router.push('/disease-guide' as any)}
           />
+          <Separator colors={colors} />
+          <RowAction
+            icon="refresh-circle-outline"
+            label={t('settings.rotation')}
+            colors={colors}
+            s={s}
+            onPress={() => router.push('/rotation' as any)}
+          />
         </Card>
 
         {/* ── Estadísticas ── */}

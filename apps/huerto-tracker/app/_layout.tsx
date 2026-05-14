@@ -68,6 +68,7 @@ export default function RootLayout() {
           <Stack.Screen name="companions" />
           <Stack.Screen name="disease-guide" />
           <Stack.Screen name="gardens" />
+          <Stack.Screen name="rotation" />
         </Stack>
       </ThemeProvider>
     </SafeAreaProvider>
