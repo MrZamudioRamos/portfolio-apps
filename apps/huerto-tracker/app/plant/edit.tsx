@@ -44,6 +44,10 @@ export default function EditPlantScreen() {
     plant?.harvestGoalKg ? String(plant.harvestGoalKg) : ''
   );
   const [notes, setNotes] = useState(plant?.notes ?? '');
+  const [soilPh, setSoilPh] = useState(plant?.soilPh ?? '');
+  const [soilTexture, setSoilTexture] = useState<Plant['soilTexture']>(plant?.soilTexture);
+  const [soilNotes, setSoilNotes] = useState(plant?.soilNotes ?? '');
+  const [bedName, setBedName] = useState(plant?.bedName ?? '');
   const [saving, setSaving] = useState(false);
 
   const s = useMemo(
@@ -101,6 +105,10 @@ export default function EditPlantScreen() {
         photoUri: photoUri ?? undefined,
         harvestGoalKg: !isNaN(goalParsed) && goalParsed > 0 ? goalParsed : undefined,
         notes: notes.trim() || undefined,
+        soilPh: soilPh.trim() || undefined,
+        soilTexture: soilTexture ?? undefined,
+        soilNotes: soilNotes.trim() || undefined,
+        bedName: bedName.trim() || undefined,
       });
       router.back();
     } finally {
@@ -323,6 +331,58 @@ export default function EditPlantScreen() {
             ]}
           />
 
+          {/* Soil data */}
+          <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>
+            {t('plantEdit.soilSection')}
+          </Text>
+          <View style={{ flexDirection: 'row', gap: spacing.md, marginBottom: spacing.sm }}>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('plantEdit.soilPh')}</Text>
+              <TextInput
+                value={soilPh}
+                onChangeText={setSoilPh}
+                placeholder="6.5"
+                placeholderTextColor={colors.textDisabled}
+                keyboardType="decimal-pad"
+                style={[s.input, { backgroundColor: colors.surface, borderColor: soilPh ? colors.primary : colors.border, color: colors.text }]}
+              />
+            </View>
+            <View style={{ flex: 2 }}>
+              <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('plantEdit.bedName')}</Text>
+              <TextInput
+                value={bedName}
+                onChangeText={setBedName}
+                placeholder={t('plantEdit.bedNamePlaceholder')}
+                placeholderTextColor={colors.textDisabled}
+                style={[s.input, { backgroundColor: colors.surface, borderColor: bedName ? colors.primary : colors.border, color: colors.text }]}
+              />
+            </View>
+          </View>
+          <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('plantEdit.soilTexture')}</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, marginBottom: spacing.sm }}>
+            {(['sandy','loamy','clay','silty','peaty'] as const).map((tx) => (
+              <Pressable key={tx} onPress={() => setSoilTexture(soilTexture === tx ? undefined : tx)}
+                style={[s.textureChip, {
+                  backgroundColor: soilTexture === tx ? '#8D6E6322' : colors.surface,
+                  borderColor: soilTexture === tx ? '#8D6E63' : colors.border,
+                }]}>
+                <Text style={{ fontSize: fontSize.xs, color: soilTexture === tx ? '#8D6E63' : colors.textSecondary, fontWeight: fontWeight.semibold }}>
+                  {t('soilTexture.' + tx)}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+          <TextInput
+            value={soilNotes}
+            onChangeText={setSoilNotes}
+            placeholder={t('plantEdit.soilNotesPlaceholder')}
+            placeholderTextColor={colors.textDisabled}
+            multiline
+            numberOfLines={2}
+            textAlignVertical="top"
+            style={[s.input, s.notesInput, { backgroundColor: colors.surface, borderColor: soilNotes ? colors.primary : colors.border, color: colors.text }]}
+          />
+
           {/* Photo */}
           <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
             {t('plantNew.photo')}
@@ -456,5 +516,12 @@ const makeStyles = (
     },
     varietyChipDays: {
       fontSize: 10,
+    },
+    inputLabel: { fontSize: fontSize.xs, marginBottom: spacing.xs, color: colors.textSecondary },
+    textureChip: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: radii.sm,
+      borderWidth: 1.5,
     },
   });

@@ -28,6 +28,7 @@ interface QuickAction {
   color: string;
   hasNote?: boolean;
   hasWeight?: boolean;
+  hasLiters?: boolean;
 }
 
 
@@ -43,7 +44,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
   const { t } = useTranslation();
 
   const QUICK_ACTIONS: QuickAction[] = [
-    { type: 'watering',    emoji: '💧', label: t('quickLog.water'),     color: '#29B6F6' },
+    { type: 'watering',    emoji: '💧', label: t('quickLog.water'),     color: '#29B6F6', hasLiters: true },
     { type: 'harvest',     emoji: '🧺', label: t('quickLog.harvest'),   color: '#FF7043', hasWeight: true },
     { type: 'pest',        emoji: '🐛', label: t('quickLog.pest'),      color: '#EF5350', hasNote: true },
     { type: 'fertilizing', emoji: '🌾', label: t('quickLog.fertilize'), color: '#FFA726' },
@@ -59,6 +60,8 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
   const [note, setNote] = useState('');
   const [weight, setWeight] = useState('');
   const [unit, setUnit] = useState<'kg' | 'units'>('kg');
+  const [liters, setLiters] = useState('');
+  const [harvestQuality, setHarvestQuality] = useState(0);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -71,6 +74,8 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
     setNote('');
     setWeight('');
     setUnit('kg');
+    setLiters('');
+    setHarvestQuality(0);
     setSaving(false);
     setDone(false);
   }
@@ -84,16 +89,22 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
     if (!selected || !gardenId || !plant) return;
     setSaving(true);
     try {
-      const harvestData = selected.hasWeight && weight.trim()
-        ? { weight: weight.trim(), unit }
-        : undefined;
+      let entryData: Record<string, unknown> | undefined;
+      if (selected.hasWeight && (weight.trim() || harvestQuality)) {
+        entryData = {
+          ...(weight.trim() ? { weight: weight.trim(), unit } : {}),
+          ...(harvestQuality ? { quality: harvestQuality } : {}),
+        };
+      } else if (selected.hasLiters && liters.trim()) {
+        entryData = { liters: liters.trim(), method: 'hand' };
+      }
       await entries.create({
         gardenId,
         plantId: plant.id,
         type: selected.type,
         date: new Date().toISOString().split('T')[0],
         ...(note.trim() ? { notes: note.trim() } : {}),
-        ...(harvestData ? { data: harvestData } : {}),
+        ...(entryData ? { data: entryData } : {}),
       });
       // Auto-update pestStatus on plant
       if (selected.type === 'pest') {
@@ -227,6 +238,21 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
                 />
               )}
 
+              {selected?.hasLiters && (
+                <View style={s.weightRow}>
+                  <Text style={{ fontSize: 18 }}>💧</Text>
+                  <TextInput
+                    value={liters}
+                    onChangeText={setLiters}
+                    placeholder={t('entryNew.litersPlaceholder')}
+                    placeholderTextColor={colors.textDisabled}
+                    keyboardType="decimal-pad"
+                    style={[s.weightInput, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, color: colors.text }]}
+                  />
+                  <Text style={[s.unitBtnText, { color: colors.textSecondary }]}>L</Text>
+                </View>
+              )}
+
               {selected?.hasWeight && (
                 <View style={{ gap: spacing.xs }}>
                   <View style={s.weightRow}>
@@ -258,6 +284,13 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
                         </Pressable>
                       ))}
                     </View>
+                  </View>
+                  <View style={{ flexDirection: 'row', gap: spacing.sm, paddingLeft: 2 }}>
+                    {[1,2,3,4,5].map((star) => (
+                      <Pressable key={star} onPress={() => setHarvestQuality(star === harvestQuality ? 0 : star)} hitSlop={8}>
+                        <Text style={{ fontSize: 24 }}>{star <= harvestQuality ? '⭐' : '☆'}</Text>
+                      </Pressable>
+                    ))}
                   </View>
                 </View>
               )}

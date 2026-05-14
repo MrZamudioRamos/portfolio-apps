@@ -25,6 +25,10 @@ export interface Plant extends BaseItem {
   photoUri?: string;
   notes?: string;
   harvestGoalKg?: number;
+  soilPh?: string;
+  soilTexture?: 'sandy' | 'loamy' | 'clay' | 'silty' | 'peaty';
+  soilNotes?: string;
+  bedName?: string;
 }
 
 export const PLANT_STATUS_CONFIG: Record<

@@ -394,6 +394,26 @@ export default function PlantDetailScreen() {
             );
           })()}
 
+          {/* Soil info */}
+          {(plant.soilPh || plant.soilTexture || plant.soilNotes || plant.bedName) && (
+            <Card padded style={[s.infoCard, { marginBottom: spacing.lg }]}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm }}>
+                <Text style={{ fontSize: 16 }}>🌍</Text>
+                <Text style={[s.sectionTitle, { color: colors.text, marginTop: 0, marginBottom: 0 }]}>{t('plantDetail.soilSection')}</Text>
+              </View>
+              <View style={s.infoGrid}>
+                {plant.soilPh ? <InfoItem label={t('plantDetail.soilPh')} value={`pH ${plant.soilPh}`} /> : null}
+                {plant.soilTexture ? <InfoItem label={t('plantDetail.soilTexture')} value={t('soilTexture.' + plant.soilTexture)} /> : null}
+                {plant.bedName ? <InfoItem label={t('plantDetail.bedName')} value={plant.bedName} /> : null}
+              </View>
+              {plant.soilNotes ? (
+                <View style={[s.tipBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+                  <Text style={[s.tipText, { color: colors.textSecondary }]}>📝 {plant.soilNotes}</Text>
+                </View>
+              ) : null}
+            </Card>
+          )}
+
           {/* Crop info */}
           <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.cropInfo')}</Text>
           <Card padded style={s.infoCard}>

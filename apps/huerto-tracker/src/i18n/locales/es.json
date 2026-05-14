@@ -421,7 +421,13 @@
     "harvestGoalLabel": "Meta de cosecha (kg)",
     "harvestGoalPlaceholder": "Ej: 5.0",
     "notesLabel": "NOTAS (opcional)",
-    "notesPlaceholder": "Observaciones, apuntes personales…"
+    "notesPlaceholder": "Observaciones, apuntes personales…",
+    "soilSection": "SUELO Y PARCELA",
+    "soilPh": "pH del suelo",
+    "bedName": "Parcela / Bancal",
+    "bedNamePlaceholder": "Ej. Bancal A, Macetón 2...",
+    "soilTexture": "Textura del suelo",
+    "soilNotesPlaceholder": "Enmiendas, compost añadido, observaciones..."
   },
   "plantNew": {
     "title": "Nueva planta",
@@ -488,7 +494,11 @@
     "transplantConfirm": "Confirmar trasplante",
     "treatmentActive": "Tratamiento activo",
     "treatmentSafeIn": "Seguro para cosechar en {{days}} día(s)",
-    "treatmentSafeToday": "Ya es seguro cosechar"
+    "treatmentSafeToday": "Ya es seguro cosechar",
+    "soilSection": "Suelo",
+    "soilPh": "pH",
+    "bedName": "Parcela",
+    "soilTexture": "Textura"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",
@@ -1037,5 +1047,12 @@
     "kg": "kg",
     "ml": "ml",
     "L": "L"
+  },
+  "soilTexture": {
+    "sandy": "Arenoso",
+    "loamy": "Franco",
+    "clay": "Arcilloso",
+    "silty": "Limoso",
+    "peaty": "Turboso"
   }
 }
