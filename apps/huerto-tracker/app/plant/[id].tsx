@@ -542,9 +542,22 @@ export default function PlantDetailScreen() {
 
           {/* Diary entries */}
           <View style={s.sectionHeaderRow}>
-            <Text style={[s.sectionTitle, { color: colors.text }]}>
-              {t('plantDetail.diary')}{plantEntryCount > 0 ? ` (${plantEntryCount})` : ''}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+              <Text style={[s.sectionTitle, { color: colors.text, marginTop: 0, marginBottom: 0 }]}>
+                {t('plantDetail.diary')}{plantEntryCount > 0 ? ` (${plantEntryCount})` : ''}
+              </Text>
+              {plantEntries[0] && (() => {
+                const days = Math.floor((Date.now() - new Date(plantEntries[0].date + 'T12:00:00').getTime()) / 86_400_000);
+                if (days < 1) return null;
+                return (
+                  <View style={[s.daysChip, { backgroundColor: days > 14 ? '#EF535018' : colors.primary + '12' }]}>
+                    <Text style={[s.daysChipText, { color: days > 14 ? '#EF5350' : colors.primary }]}>
+                      {days}d
+                    </Text>
+                  </View>
+                );
+              })()}
+            </View>
             {plantEntries.length > 0 && (
               <Pressable onPress={() => router.push(`/(tabs)/diary?plantId=${id}` as any)}>
                 <Text style={{ color: colors.primary, fontSize: fontSize.sm }}>{t('common.viewAll')}</Text>

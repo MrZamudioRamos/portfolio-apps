@@ -363,26 +363,26 @@ export default function DashboardScreen() {
                 emoji="🌱"
                 value={plants.count}
                 label={t('home.stats.plants')}
-                onPress={() => {}}
+                onPress={() => router.push('/plant/new')}
               />
               <StatCard
                 emoji="🧺"
                 value={harvestingCount}
                 label={t('home.stats.harvesting')}
-                onPress={() => {}}
+                onPress={() => setStatusFilter(statusFilter === 'harvesting' ? null : 'harvesting')}
               />
               <StatCard
                 emoji="🔔"
                 value={activeReminders}
                 label={t('home.stats.reminders')}
-                onPress={() => {}}
+                onPress={() => router.push('/settings/notifications' as any)}
               />
               {activePests > 0 && (
                 <StatCard
                   emoji="🐛"
                   value={activePests}
                   label={t('home.stats.pests')}
-                  onPress={() => {}}
+                  onPress={() => router.push('/disease-guide' as any)}
                 />
               )}
               {needsWaterCount > 0 && (
