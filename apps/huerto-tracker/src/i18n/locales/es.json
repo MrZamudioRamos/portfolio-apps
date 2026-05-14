@@ -61,7 +61,8 @@
     "sortName": "A–Z",
     "sortNewest": "Recientes",
     "showFinished": "{{count}} finalizadas ocultas · Mostrar",
-    "hideFinished": "Ocultar finalizadas"
+    "hideFinished": "Ocultar finalizadas",
+    "taskCarencia": "{{name}}: no cosechar {{days}} día(s) más (carencia)"
   },
   "calendar": {
     "title": "Calendario de siembra",

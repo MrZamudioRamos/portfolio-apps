@@ -117,6 +117,19 @@ export default function DashboardScreen() {
           }
         }
       }
+      // Treatment carencia: alert if still in waiting period
+      const lastTreatment = [...entries.items]
+        .filter((e) => e.plantId === p.id && e.type === 'treatment' && (e.data as any)?.waitDays)
+        .sort((a, b) => b.date.localeCompare(a.date))[0];
+      if (lastTreatment) {
+        const waitDays = Number((lastTreatment.data as any).waitDays);
+        const treatDate = new Date(lastTreatment.date + 'T12:00:00');
+        const safeDate = new Date(treatDate.getTime() + waitDays * 86_400_000);
+        const daysLeft = Math.ceil((safeDate.getTime() - Date.now()) / 86_400_000);
+        if (daysLeft > 0) {
+          tasks.push({ emoji: '🧴', label: t('home.taskCarencia', { name: p.name, days: daysLeft }), plantId: p.id });
+        }
+      }
     });
     return tasks;
   }, [plants.items, entries.items, t]);
