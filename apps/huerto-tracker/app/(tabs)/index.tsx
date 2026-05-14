@@ -15,6 +15,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -67,6 +68,7 @@ export default function DashboardScreen() {
 
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
   const [weeklyExpanded, setWeeklyExpanded] = useState(true);
+  const [plantSearch, setPlantSearch] = useState('');
 
   const weeklyTasks = useMemo(() => {
     const tasks: Array<{ emoji: string; label: string; plantId: string }> = [];
@@ -87,10 +89,29 @@ export default function DashboardScreen() {
       }
       if (p.firstHarvestDate && p.firstHarvestDate >= todayStr && p.firstHarvestDate <= in7DaysStr) {
         tasks.push({ emoji: '🧺', label: t('home.taskHarvest', { name: p.name }), plantId: p.id });
+      } else if (p.sowingDate && !['harvesting', 'finished'].includes(p.status)) {
+        const crop = CROPS_BY_ID[p.cropId];
+        const dth = crop?.daysToHarvest;
+        if (dth) {
+          const midDays = Math.round((dth[0] + dth[1]) / 2);
+          const estDate = new Date(new Date(p.sowingDate + 'T12:00:00').getTime() + midDays * 86_400_000);
+          const estStr = estDate.toISOString().split('T')[0];
+          if (estStr >= todayStr && estStr <= in7DaysStr) {
+            tasks.push({ emoji: '🧺', label: t('home.taskEstHarvest', { name: p.name }), plantId: p.id });
+          }
+        }
       }
     });
     return tasks;
   }, [plants.items, entries.items, t]);
+  const filteredPlants = useMemo(() => {
+    if (!plantSearch.trim()) return plants.items;
+    const q = plantSearch.toLowerCase();
+    return plants.items.filter(
+      (p) => p.name.toLowerCase().includes(q) || (p.variety?.toLowerCase().includes(q))
+    );
+  }, [plants.items, plantSearch]);
+
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
   const harvestingCount = plants.items.filter((p) => p.status === 'harvesting').length;
   const activeReminders = reminders.items.filter((r) => r.enabled).length;
@@ -204,10 +225,23 @@ export default function DashboardScreen() {
                 {item.variety}
               </Text>
             ) : null}
-            <View style={[s.statusBadge, { backgroundColor: statusConfig.color + '22' }]}>
-              <Text style={[s.statusText, { color: statusConfig.color }]}>
-                {statusConfig.emoji} {statusConfig.label}
-              </Text>
+            <View style={s.plantFooter}>
+              <View style={[s.statusBadge, { backgroundColor: statusConfig.color + '22' }]}>
+                <Text style={[s.statusText, { color: statusConfig.color }]}>
+                  {statusConfig.emoji} {statusConfig.label}
+                </Text>
+              </View>
+              {item.sowingDate && item.status !== 'finished' && (() => {
+                const days = Math.floor(
+                  (Date.now() - new Date(item.sowingDate + 'T12:00:00').getTime()) / 86_400_000
+                );
+                if (days < 1) return null;
+                return (
+                  <View style={[s.daysChip, { backgroundColor: colors.primary + '12' }]}>
+                    <Text style={[s.daysChipText, { color: colors.primary }]}>{days}d</Text>
+                  </View>
+                );
+              })()}
             </View>
           </View>
         </Card>
@@ -264,7 +298,7 @@ export default function DashboardScreen() {
       </View>
 
       <FlatList
-        data={plants.items}
+        data={filteredPlants}
         keyExtractor={(item) => item.id}
         numColumns={2}
         columnWrapperStyle={s.columnWrapper}
@@ -539,18 +573,37 @@ export default function DashboardScreen() {
 
             {/* Section title + Regar todo */}
             {plants.count > 0 && (
-              <View style={s.sectionRow}>
-                <Text style={[s.sectionTitle, { color: colors.text }]}>{t('home.myPlants')}</Text>
-                <Pressable
-                  onPress={handleWaterAll}
-                  style={({ pressed }) => [
-                    s.waterAllBtn,
-                    { backgroundColor: '#29B6F6' + '22', borderColor: '#29B6F6', opacity: pressed ? 0.7 : 1 },
-                  ]}
-                >
-                  <Text style={s.waterAllText}>{t('home.waterAll')}</Text>
-                </Pressable>
-              </View>
+              <>
+                <View style={s.sectionRow}>
+                  <Text style={[s.sectionTitle, { color: colors.text }]}>{t('home.myPlants')}</Text>
+                  <Pressable
+                    onPress={handleWaterAll}
+                    style={({ pressed }) => [
+                      s.waterAllBtn,
+                      { backgroundColor: '#29B6F6' + '22', borderColor: '#29B6F6', opacity: pressed ? 0.7 : 1 },
+                    ]}
+                  >
+                    <Text style={s.waterAllText}>{t('home.waterAll')}</Text>
+                  </Pressable>
+                </View>
+                {plants.count > 4 && (
+                  <View style={[s.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <Ionicons name="search-outline" size={14} color={colors.textSecondary} />
+                    <TextInput
+                      value={plantSearch}
+                      onChangeText={setPlantSearch}
+                      placeholder={t('home.searchPlants')}
+                      placeholderTextColor={colors.textDisabled}
+                      style={[{ flex: 1, color: colors.text, fontSize: fontSize.sm, marginLeft: 6 }]}
+                    />
+                    {plantSearch.length > 0 && (
+                      <Pressable onPress={() => setPlantSearch('')} hitSlop={8}>
+                        <Ionicons name="close-circle" size={14} color={colors.textDisabled} />
+                      </Pressable>
+                    )}
+                  </View>
+                )}
+              </>
             )}
           </>
         }
@@ -717,6 +770,19 @@ const makeStyles = (
       borderRadius: radii.full,
     },
     statusText: { fontSize: 10, fontWeight: fontWeight.semibold },
+    plantFooter: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: spacing.sm, flexWrap: 'wrap' },
+    daysChip: { paddingHorizontal: 5, paddingVertical: 1, borderRadius: radii.full },
+    daysChipText: { fontSize: 9, fontWeight: fontWeight.bold },
+    searchBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginHorizontal: spacing.xl,
+      marginBottom: spacing.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1,
+    },
     mapBtn: {
       width: 40,
       height: 40,

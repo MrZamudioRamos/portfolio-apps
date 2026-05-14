@@ -51,7 +51,9 @@
     "waterAllConfirm": "Regar todas",
     "emptyTitle": "Aún no hay plantas",
     "emptyDesc": "Añade tu primera planta para empezar a registrar tu huerto.",
-    "addPlant": "Añadir planta"
+    "addPlant": "Añadir planta",
+    "searchPlants": "Buscar planta…",
+    "taskEstHarvest": "🧺 {{name}} cerca de la cosecha"
   },
   "calendar": {
     "title": "Calendario de siembra",
@@ -335,7 +337,10 @@
     "feature2Title": "Tiempo real",
     "feature2Desc": "Recomendaciones de riego según la previsión del tiempo",
     "feature3Title": "Plantas compañeras",
-    "feature3Desc": "Descubre qué cultivos se llevan bien juntos"
+    "feature3Desc": "Descubre qué cultivos se llevan bien juntos",
+    "hemisphereLabel": "¿En qué hemisferio estás?",
+    "hemisphereNorte": "Norte",
+    "hemisphereSur": "Sur"
   },
   "paywall": {
     "titlePro": "¡Ya eres Pro!",

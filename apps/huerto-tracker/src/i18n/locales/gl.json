@@ -51,7 +51,9 @@
     "waterAllConfirm": "Regar todas",
     "emptyTitle": "Aínda non hai plantas",
     "emptyDesc": "Engade a túa primeira planta para comezar a rexistrar a túa horta.",
-    "addPlant": "Engadir planta"
+    "addPlant": "Engadir planta",
+    "searchPlants": "Buscar planta…",
+    "taskEstHarvest": "🧺 {{name}} preto da colleita"
   },
   "calendar": {
     "title": "Calendario de sementeira",
@@ -335,7 +337,10 @@
     "feature2Title": "Tempo real",
     "feature2Desc": "Recomendacións de rego segundo a previsión meteorolóxica",
     "feature3Title": "Plantas compañeiras",
-    "feature3Desc": "Descobre que cultivos se levan ben xuntos"
+    "feature3Desc": "Descobre que cultivos se levan ben xuntos",
+    "hemisphereLabel": "En que hemisferio estás?",
+    "hemisphereNorte": "Norte",
+    "hemisphereSur": "Sur"
   },
   "paywall": {
     "titlePro": "Xa es Pro!",

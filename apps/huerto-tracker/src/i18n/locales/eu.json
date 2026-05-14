@@ -51,7 +51,9 @@
     "waterAllConfirm": "Denak ureztatu",
     "emptyTitle": "Oraindik ez dago landarerik",
     "emptyDesc": "Gehitu zure lehen landarea baratzea erregistratzen hasteko.",
-    "addPlant": "Landarea gehitu"
+    "addPlant": "Landarea gehitu",
+    "searchPlants": "Landarea bilatu…",
+    "taskEstHarvest": "🧺 {{name}} uzta gertu"
   },
   "calendar": {
     "title": "Erein egutegia",
@@ -335,7 +337,10 @@
     "feature2Title": "Eguraldi erreala",
     "feature2Desc": "Ureztatzeko gomendioakeguraldi iragarpenaren arabera",
     "feature3Title": "Laguntzaile landareak",
-    "feature3Desc": "Jakin zein laborek ongi hartzen duten elkar"
+    "feature3Desc": "Jakin zein laborek ongi hartzen duten elkar",
+    "hemisphereLabel": "Zein hemisferiotan zaude?",
+    "hemisphereNorte": "Iparraldea",
+    "hemisphereSur": "Hegoaldea"
   },
   "paywall": {
     "titlePro": "Pro zara dagoeneko!",

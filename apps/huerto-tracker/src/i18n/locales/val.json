@@ -51,7 +51,9 @@
     "waterAllConfirm": "Regar totes",
     "emptyTitle": "Encara no hi ha plantes",
     "emptyDesc": "Afig la teua primera planta per a començar a registrar el teu hort.",
-    "addPlant": "Afig planta"
+    "addPlant": "Afig planta",
+    "searchPlants": "Cercar planta…",
+    "taskEstHarvest": "🧺 {{name}} prop de la collita"
   },
   "calendar": {
     "title": "Calendari de sembra",
@@ -335,7 +337,10 @@
     "feature2Title": "Temps real",
     "feature2Desc": "Recomanacions de reg segons la previsió meteorològica",
     "feature3Title": "Plantes companyes",
-    "feature3Desc": "Descobreix quins cultius es porten bé junts"
+    "feature3Desc": "Descobreix quins cultius es porten bé junts",
+    "hemisphereLabel": "En quin hemisferi estàs?",
+    "hemisphereNorte": "Nord",
+    "hemisphereSur": "Sud"
   },
   "paywall": {
     "titlePro": "Ja eres Pro!",

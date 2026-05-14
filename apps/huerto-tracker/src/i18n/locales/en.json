@@ -51,7 +51,9 @@
     "waterAllConfirm": "Water all",
     "emptyTitle": "No plants yet",
     "emptyDesc": "Add your first plant to start tracking your garden.",
-    "addPlant": "Add plant"
+    "addPlant": "Add plant",
+    "searchPlants": "Search plant…",
+    "taskEstHarvest": "🧺 {{name}} nearing harvest"
   },
   "calendar": {
     "title": "Sowing calendar",
@@ -334,7 +336,10 @@
     "feature2Title": "Live weather",
     "feature2Desc": "Watering tips based on the weather forecast",
     "feature3Title": "Companion plants",
-    "feature3Desc": "Discover which crops grow well together"
+    "feature3Desc": "Discover which crops grow well together",
+    "hemisphereLabel": "Which hemisphere are you in?",
+    "hemisphereNorte": "North",
+    "hemisphereSur": "South"
   },
   "paywall": {
     "titlePro": "You're Pro!",

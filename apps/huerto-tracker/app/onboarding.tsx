@@ -20,7 +20,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CLIMATE_ZONE_CONFIG, PROVINCES, PROVINCE_ZONES } from '../src/data';
 import type { Garden } from '../src/models';
-import { GARDEN_TYPE_CONFIG, type GardenType } from '../src/models/garden';
+import { GARDEN_TYPE_CONFIG, type GardenType, type Hemisphere } from '../src/models/garden';
 
 type Step = 0 | 1 | 2 | 3;
 
@@ -38,6 +38,7 @@ export default function OnboardingScreen() {
   const [showProvincePicker, setShowProvincePicker] = useState(false);
   const [gardenName, setGardenName] = useState('');
   const [gardenType, setGardenType] = useState<GardenType>('huerto');
+  const [hemisphere, setHemisphere] = useState<Hemisphere>('norte');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -69,6 +70,7 @@ export default function OnboardingScreen() {
         climateZone,
         province,
         gardenType,
+        hemisphere,
         ...(photoUri ? { photoUri } : {}),
       });
       await complete();
@@ -219,6 +221,32 @@ export default function OnboardingScreen() {
                     <Text style={{ fontSize: 24 }}>{cfg.emoji}</Text>
                     <Text style={[s.gardenTypeName, { color: active ? colors.primary : colors.textSecondary }]}>
                       {t('gardenType.' + key)}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            {/* Hemisphere selector */}
+            <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('onboarding.hemisphereLabel')}</Text>
+            <View style={[s.gardenTypeRow, { marginBottom: spacing.lg }]}>
+              {(['norte', 'sur'] as const).map((h) => {
+                const active = hemisphere === h;
+                return (
+                  <Pressable
+                    key={h}
+                    onPress={() => setHemisphere(h)}
+                    style={[
+                      s.gardenTypeBtn,
+                      {
+                        backgroundColor: active ? colors.primary + '22' : colors.surface,
+                        borderColor: active ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={{ fontSize: 24 }}>{h === 'norte' ? '🌍' : '🌎'}</Text>
+                    <Text style={[s.gardenTypeName, { color: active ? colors.primary : colors.textSecondary }]}>
+                      {t('onboarding.hemisphere' + h.charAt(0).toUpperCase() + h.slice(1))}
                     </Text>
                   </Pressable>
                 );
