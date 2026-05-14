@@ -182,10 +182,16 @@ export default function CalendarScreen() {
         <Pressable onPress={prevMonth} hitSlop={16} style={s.navArrow}>
           <Ionicons name="chevron-back" size={22} color={colors.primary} />
         </Pressable>
-        <View style={{ alignItems: 'center' }}>
+        <Pressable
+          onPress={() => { setMonth(now.getMonth() + 1); setYear(now.getFullYear()); }}
+          style={{ alignItems: 'center' }}
+          hitSlop={8}
+        >
           <Text style={[s.monthName, { color: colors.text }]}>{monthNameCap}</Text>
-          <Text style={[s.yearText, { color: colors.textSecondary }]}>{year}</Text>
-        </View>
+          <Text style={[s.yearText, { color: isCurrentMonth ? colors.primary : colors.textSecondary }]}>
+            {year}{!isCurrentMonth ? ' ·  ' + t('calendar.today') : ''}
+          </Text>
+        </Pressable>
         <Pressable onPress={nextMonth} hitSlop={16} style={s.navArrow}>
           <Ionicons name="chevron-forward" size={22} color={colors.primary} />
         </Pressable>

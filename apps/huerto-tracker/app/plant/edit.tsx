@@ -112,7 +112,16 @@ export default function EditPlantScreen() {
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('plantEdit.title')}</Text>
-        <View style={{ width: 24 }} />
+        <Pressable
+          onPress={handleSave}
+          disabled={!plantName.trim() || saving}
+          hitSlop={12}
+          style={{ opacity: !plantName.trim() || saving ? 0.4 : 1 }}
+        >
+          <Text style={[{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }]}>
+            {t('common.save')}
+          </Text>
+        </Pressable>
       </View>
 
       <KeyboardAvoidingView
