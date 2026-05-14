@@ -5,8 +5,8 @@ import { useCollection } from '@portfolio/storage';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useMemo } from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Alert, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
@@ -34,6 +34,7 @@ export default function SettingsScreen() {
 
   const garden = gardens.items[0];
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
+  const [showLangModal, setShowLangModal] = useState(false);
 
   useFocusEffect(useCallback(() => { gardens.refresh(); }, []));
 
@@ -244,32 +245,54 @@ export default function SettingsScreen() {
         {/* ── Idioma ── */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.language')}</Text>
         <Card padded style={s.card}>
-          <View style={s.langRow}>
-            {SUPPORTED_LANGS.map((lang) => {
-              const active = i18n.language === lang;
-              return (
-                <Pressable
-                  key={lang}
-                  onPress={() => saveLanguage(lang as SupportedLang)}
-                  style={[
-                    s.langChip,
-                    {
-                      backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
-                      borderColor: active ? colors.primary : colors.border,
-                    },
-                  ]}
-                >
-                  <Text style={[s.langChipCode, { color: active ? colors.primary : colors.text }]}>
-                    {lang.toUpperCase()}
-                  </Text>
-                  <Text style={[s.langChipLabel, { color: active ? colors.primary : colors.textSecondary }]}>
-                    {LANG_LABELS[lang as SupportedLang]}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
+          <Pressable
+            style={({ pressed }) => [s.rowContainer, { opacity: pressed ? 0.6 : 1 }]}
+            onPress={() => setShowLangModal(true)}
+          >
+            <Ionicons name="language-outline" size={18} color={colors.textSecondary} />
+            <Text style={[s.rowLabel, { color: colors.text }]}>{t('settings.sections.language')}</Text>
+            <Text style={[s.rowValue, { color: colors.textSecondary }]}>
+              {LANG_LABELS[i18n.language as SupportedLang] ?? i18n.language}
+            </Text>
+            <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />
+          </Pressable>
         </Card>
+
+        {/* Language modal */}
+        <Modal visible={showLangModal} transparent animationType="fade">
+          <Pressable style={s.langModalOverlay} onPress={() => setShowLangModal(false)}>
+            <Pressable style={[s.langModalSheet, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Text style={[s.langModalTitle, { color: colors.text }]}>{t('settings.sections.language')}</Text>
+              {SUPPORTED_LANGS.map((lang, idx) => {
+                const active = i18n.language === lang;
+                return (
+                  <Pressable
+                    key={lang}
+                    onPress={() => { saveLanguage(lang as SupportedLang); setShowLangModal(false); }}
+                    style={[
+                      s.langOption,
+                      {
+                        borderTopWidth: idx === 0 ? 0 : StyleSheet.hairlineWidth,
+                        borderTopColor: colors.border,
+                        backgroundColor: active ? colors.primary + '11' : 'transparent',
+                      },
+                    ]}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text style={[s.langOptionLabel, { color: colors.text }]}>
+                        {LANG_LABELS[lang as SupportedLang]}
+                      </Text>
+                      <Text style={[s.langOptionCode, { color: colors.textSecondary }]}>
+                        {lang.toUpperCase()}
+                      </Text>
+                    </View>
+                    {active && <Ionicons name="checkmark" size={20} color={colors.primary} />}
+                  </Pressable>
+                );
+              })}
+            </Pressable>
+          </Pressable>
+        </Modal>
 
         {/* ── Notificaciones ── */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.notifications')}</Text>
@@ -432,15 +455,32 @@ const makeStyles = (
     },
     freeBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
     proDesc: { fontSize: fontSize.xs },
-    langRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-    langChip: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
+    langModalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'center',
       alignItems: 'center',
-      minWidth: 70,
+      padding: spacing.xl,
     },
-    langChipCode: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-    langChipLabel: { fontSize: 10, marginTop: 1 },
+    langModalSheet: {
+      width: '100%',
+      borderRadius: radii.xl,
+      borderWidth: 1,
+      overflow: 'hidden',
+    },
+    langModalTitle: {
+      fontSize: fontSize.md,
+      fontWeight: fontWeight.bold,
+      textAlign: 'center',
+      paddingVertical: spacing.lg,
+      paddingHorizontal: spacing.xl,
+    },
+    langOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+      paddingVertical: spacing.md,
+    },
+    langOptionLabel: { fontSize: fontSize.md, fontWeight: fontWeight.medium },
+    langOptionCode: { fontSize: fontSize.xs, marginTop: 1 },
   });

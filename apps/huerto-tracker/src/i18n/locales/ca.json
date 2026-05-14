@@ -827,7 +827,16 @@
                               },
                   "puerro":  {
                                  "name":  "Porro"
-                             }
+                             },
+                  "guindilla":  { "name":  "Bitxo / Xile" },
+                  "apio":  { "name":  "Api" },
+                  "esparrago":  { "name":  "Espàrrec" },
+                  "salvia":  { "name":  "Sàlvia" },
+                  "oregano":  { "name":  "Orenga" },
+                  "eneldo":  { "name":  "Anet" },
+                  "hinojo":  { "name":  "Fonoll" },
+                  "manzanilla":  { "name":  "Camamilla" },
+                  "lavanda":  { "name":  "Lavanda" }
               },
     "identify":  {
                      "title":  "Identificar plaga",

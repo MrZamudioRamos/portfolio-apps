@@ -5,9 +5,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -36,6 +38,7 @@ export default function EditPlantScreen() {
   const [variety, setVariety] = useState(plant?.variety ?? '');
   const [varietyId, setVarietyId] = useState<string | null>(plant?.varietyId ?? null);
   const [sowingDate, setSowingDate] = useState(plant?.sowingDate ?? '');
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(plant?.photoUri ?? null);
   const [harvestGoalKg, setHarvestGoalKg] = useState(
     plant?.harvestGoalKg ? String(plant.harvestGoalKg) : ''
@@ -233,17 +236,57 @@ export default function EditPlantScreen() {
           <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
             {t('plantNew.sowingDate')}
           </Text>
-          <TextInput
-            value={sowingDate}
-            onChangeText={setSowingDate}
-            placeholder={t('entryNew.datePlaceholder')}
-            placeholderTextColor={colors.textDisabled}
-            style={[
-              s.input,
-              { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text },
-            ]}
-            keyboardType="numeric"
-          />
+          <Pressable
+            onPress={() => setShowDatePicker(true)}
+            style={[s.input, s.dateButton, { backgroundColor: colors.surface, borderColor: sowingDate ? colors.primary : colors.border }]}
+          >
+            <Ionicons name="calendar-outline" size={18} color={sowingDate ? colors.primary : colors.textSecondary} />
+            <Text style={{ color: sowingDate ? colors.text : colors.textDisabled, fontSize: fontSize.md, flex: 1 }}>
+              {sowingDate || t('entryNew.datePlaceholder')}
+            </Text>
+            {sowingDate && (
+              <Pressable onPress={() => setSowingDate('')} hitSlop={8}>
+                <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+              </Pressable>
+            )}
+          </Pressable>
+
+          {/* Date picker modal for iOS / inline for Android */}
+          {showDatePicker && Platform.OS === 'android' && (
+            <DateTimePicker
+              value={sowingDate ? new Date(sowingDate) : new Date()}
+              mode="date"
+              display="default"
+              onChange={(_, date) => {
+                setShowDatePicker(false);
+                if (date) setSowingDate(date.toISOString().split('T')[0]);
+              }}
+            />
+          )}
+          {showDatePicker && Platform.OS === 'ios' && (
+            <Modal transparent animationType="slide" visible>
+              <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
+                <Pressable style={[s.dateModalSheet, { backgroundColor: colors.surface }]}>
+                  <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
+                  <DateTimePicker
+                    value={sowingDate ? new Date(sowingDate) : new Date()}
+                    mode="date"
+                    display="spinner"
+                    onChange={(_, date) => {
+                      if (date) setSowingDate(date.toISOString().split('T')[0]);
+                    }}
+                    style={{ width: '100%' }}
+                  />
+                  <Button
+                    title={t('common.save')}
+                    onPress={() => setShowDatePicker(false)}
+                    size="lg"
+                    style={{ margin: spacing.xl, marginTop: 0 }}
+                  />
+                </Pressable>
+              </Pressable>
+            </Modal>
+          )}
 
           {/* Harvest goal */}
           <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
@@ -360,6 +403,28 @@ const makeStyles = (
       borderRadius: radii.md,
       padding: spacing.lg,
       fontSize: fontSize.md,
+    },
+    dateButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    dateModalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.4)',
+      justifyContent: 'flex-end',
+    },
+    dateModalSheet: {
+      borderTopLeftRadius: radii.xl,
+      borderTopRightRadius: radii.xl,
+      paddingTop: spacing.sm,
+      alignItems: 'center',
+    },
+    dateModalHandle: {
+      width: 40,
+      height: 4,
+      borderRadius: 2,
+      marginBottom: spacing.md,
     },
     notesInput: { minHeight: 80 },
     photoRow: { alignItems: 'flex-start' },

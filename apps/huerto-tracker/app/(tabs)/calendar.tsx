@@ -172,9 +172,16 @@ export default function CalendarScreen() {
       {/* Header */}
       <View style={s.header}>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('calendar.title')}</Text>
-        <Text style={[s.headerZone, { color: colors.textSecondary }]}>
-          {t('calendar.zone', { zone: t(`zone.${zone}`) })}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
+          <Text style={[s.headerZone, { color: colors.textSecondary }]}>
+            {t('calendar.zone', { zone: t(`zone.${zone}`) })}
+          </Text>
+          {hemisphere === 'sur' && (
+            <View style={[s.hemisphereTag, { backgroundColor: '#1565C018', borderColor: '#1565C066' }]}>
+              <Text style={{ fontSize: 11, color: '#1565C0' }}>🌎 Sur</Text>
+            </View>
+          )}
+        </View>
       </View>
 
       {/* Month navigation */}
@@ -196,16 +203,6 @@ export default function CalendarScreen() {
           <Ionicons name="chevron-forward" size={22} color={colors.primary} />
         </Pressable>
       </View>
-
-      {/* Hemisphere banner */}
-      {hemisphere === 'sur' && (
-        <View style={[s.containerBanner, { backgroundColor: '#1565C018', borderColor: '#1565C0', marginBottom: 0 }]}>
-          <Text style={s.containerBannerEmoji}>🌎</Text>
-          <Text style={[s.containerBannerText, { color: colors.text }]}>
-            {t('calendar.hemisphereSurBanner')}
-          </Text>
-        </View>
-      )}
 
       {/* Container mode banner */}
       {isContainer && (
@@ -252,7 +249,7 @@ export default function CalendarScreen() {
       <View style={[s.lunarBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, marginTop: spacing.sm }]}>
         <Text style={{ fontSize: 22 }}>{seasonalTip.emoji}</Text>
         <Text style={[{ flex: 1, fontSize: fontSize.sm, lineHeight: 20, color: colors.text }]}>
-          {seasonalTip.text}
+          {t(seasonalTip.key)}
         </Text>
       </View>
 
@@ -346,7 +343,13 @@ const makeStyles = (
     container: { flex: 1 },
     header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.sm },
     headerTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
-    headerZone: { fontSize: fontSize.sm, marginTop: 2 },
+    headerZone: { fontSize: fontSize.sm },
+    hemisphereTag: {
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: radii.full,
+      borderWidth: 1,
+    },
     monthNav: {
       flexDirection: 'row',
       alignItems: 'center',

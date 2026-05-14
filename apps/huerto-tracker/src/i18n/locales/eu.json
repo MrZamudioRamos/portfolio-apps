@@ -827,7 +827,16 @@
                               },
                   "puerro":  {
                                  "name":  "Porrua"
-                             }
+                             },
+                  "guindilla":  { "name":  "Piper mina / Txile" },
+                  "apio":  { "name":  "Apio" },
+                  "esparrago":  { "name":  "Zainzuria" },
+                  "salvia":  { "name":  "Salbia" },
+                  "oregano":  { "name":  "Oreganoa" },
+                  "eneldo":  { "name":  "Eneldoa" },
+                  "hinojo":  { "name":  "Milagrosa" },
+                  "manzanilla":  { "name":  "Kamomila" },
+                  "lavanda":  { "name":  "Izpiliku" }
               },
     "identify":  {
                      "title":  "Izurria identifikatu",

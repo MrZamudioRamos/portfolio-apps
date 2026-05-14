@@ -22,6 +22,48 @@ import { CLIMATE_ZONE_CONFIG, PROVINCES, PROVINCE_ZONES } from '../src/data';
 import type { Garden } from '../src/models';
 import { GARDEN_TYPE_CONFIG, type GardenType, type Hemisphere } from '../src/models/garden';
 
+const SPAIN_PROVINCES = new Set([
+  'A Coruña', 'Lugo', 'Pontevedra', 'Asturias', 'Cantabria', 'Vizcaya', 'Guipúzcoa',
+  'Ourense', 'Álava', 'Navarra', 'La Rioja', 'Madrid', 'Toledo', 'Ciudad Real', 'Cuenca',
+  'Guadalajara', 'Albacete', 'Ávila', 'Segovia', 'Soria', 'Burgos', 'Palencia',
+  'Valladolid', 'Zamora', 'Salamanca', 'León', 'Zaragoza', 'Huesca', 'Teruel', 'Lleida',
+  'Cáceres', 'Badajoz', 'Córdoba', 'Jaén', 'Barcelona', 'Tarragona', 'Girona',
+  'Valencia', 'Alicante', 'Castellón', 'Murcia', 'Almería', 'Málaga', 'Granada',
+  'Baleares', 'Sevilla', 'Cádiz', 'Huelva', 'Ceuta', 'Melilla', 'Las Palmas',
+  'Santa Cruz de Tenerife',
+]);
+
+const LATAM_COUNTRIES: { country: string; emoji: string; regions: string[] }[] = [
+  {
+    country: 'Argentina', emoji: '🇦🇷',
+    regions: ['Buenos Aires', 'Córdoba (AR)', 'Mendoza', 'Santa Fe', 'Entre Ríos', 'Tucumán', 'Misiones', 'Formosa', 'Chaco', 'Corrientes', 'Salta', 'Jujuy', 'Patagonia (AR)', 'Neuquén', 'Río Negro'],
+  },
+  {
+    country: 'Chile', emoji: '🇨🇱',
+    regions: ["Región Metropolitana (Santiago)", "Valparaíso (CL)", "O'Higgins", 'Maule', 'Biobío', 'Araucanía', 'Los Lagos (CL)', 'Patagonia (CL)', 'Atacama', 'Antofagasta', 'Arica y Parinacota'],
+  },
+  {
+    country: 'Uruguay', emoji: '🇺🇾',
+    regions: ['Montevideo', 'Canelones', 'Interior (Uruguay)'],
+  },
+  {
+    country: 'México', emoji: '🇲🇽',
+    regions: ['Ciudad de México'],
+  },
+  {
+    country: 'Colombia', emoji: '🇨🇴',
+    regions: ['Bogotá'],
+  },
+  {
+    country: 'Perú', emoji: '🇵🇪',
+    regions: ['Lima'],
+  },
+  {
+    country: 'Brasil', emoji: '🇧🇷',
+    regions: ['São Paulo'],
+  },
+];
+
 type Step = 0 | 1 | 2 | 3;
 
 export default function OnboardingScreen() {
@@ -36,6 +78,7 @@ export default function OnboardingScreen() {
   const [province, setProvince] = useState('');
   const [provinceSearch, setProvinceSearch] = useState('');
   const [showProvincePicker, setShowProvincePicker] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [gardenName, setGardenName] = useState('');
   const [gardenType, setGardenType] = useState<GardenType>('huerto');
   const [hemisphere, setHemisphere] = useState<Hemisphere>('norte');
@@ -45,7 +88,13 @@ export default function OnboardingScreen() {
   const climateZone = province ? PROVINCE_ZONES[province] : null;
   const zoneConfig = climateZone ? CLIMATE_ZONE_CONFIG[climateZone] : null;
 
-  const filteredProvinces = PROVINCES.filter((p) =>
+  const provincePool = hemisphere === 'norte'
+    ? PROVINCES.filter((p) => SPAIN_PROVINCES.has(p))
+    : selectedCountry
+      ? (LATAM_COUNTRIES.find((c) => c.country === selectedCountry)?.regions ?? [])
+      : [];
+
+  const filteredProvinces = provincePool.filter((p) =>
     p.toLowerCase().includes(provinceSearch.toLowerCase())
   );
 
@@ -151,7 +200,7 @@ export default function OnboardingScreen() {
                 return (
                   <Pressable
                     key={h}
-                    onPress={() => { setHemisphere(h); setProvince(''); }}
+                    onPress={() => { setHemisphere(h); setProvince(''); setSelectedCountry(null); }}
                     style={[
                       s.gardenTypeBtn,
                       {
@@ -333,7 +382,13 @@ export default function OnboardingScreen() {
       <Modal visible={showProvincePicker} animationType="slide" presentationStyle="pageSheet">
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
           <View style={s.modalHeader}>
-            <Text style={[s.modalTitle, { color: colors.text }]}>{t('onboarding.selectProvince')}</Text>
+            {hemisphere === 'sur' && selectedCountry ? (
+              <Pressable onPress={() => { setSelectedCountry(null); setProvinceSearch(''); }}>
+                <Text style={{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }}>← {selectedCountry}</Text>
+              </Pressable>
+            ) : (
+              <Text style={[s.modalTitle, { color: colors.text }]}>{t('onboarding.selectProvince')}</Text>
+            )}
             <Pressable onPress={() => { setShowProvincePicker(false); setProvinceSearch(''); }}>
               <Text style={{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }}>
                 {t('onboarding.closeSearch')}
@@ -341,54 +396,82 @@ export default function OnboardingScreen() {
             </Pressable>
           </View>
 
-          <View style={[s.searchContainer, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={{ fontSize: 16, marginRight: 6 }}>🔍</Text>
-            <TextInput
-              value={provinceSearch}
-              onChangeText={setProvinceSearch}
-              placeholder={t('onboarding.provinceSearch')}
-              placeholderTextColor={colors.textDisabled}
-              style={{ flex: 1, color: colors.text, fontSize: fontSize.md }}
-              autoFocus
-            />
-          </View>
-
-          <FlatList
-            data={filteredProvinces}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => {
-              const zone = PROVINCE_ZONES[item];
-              const zc = CLIMATE_ZONE_CONFIG[zone];
-              const isSelected = item === province;
-              return (
+          {/* LATAM: show country list first */}
+          {hemisphere === 'sur' && !selectedCountry ? (
+            <FlatList
+              data={LATAM_COUNTRIES}
+              keyExtractor={(item) => item.country}
+              renderItem={({ item }) => (
                 <Pressable
-                  onPress={() => {
-                    setProvince(item);
-                    setShowProvincePicker(false);
-                    setProvinceSearch('');
-                  }}
-                  style={[
-                    s.provinceRow,
-                    {
-                      backgroundColor: isSelected ? colors.surfaceAlt : colors.surface,
-                      borderBottomColor: colors.border,
-                    },
-                  ]}
+                  onPress={() => setSelectedCountry(item.country)}
+                  style={[s.provinceRow, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}
                 >
+                  <Text style={{ fontSize: 28, marginRight: spacing.md }}>{item.emoji}</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.medium }}>
-                      {item}
+                    <Text style={{ color: colors.text, fontSize: fontSize.lg, fontWeight: fontWeight.semibold }}>
+                      {item.country}
                     </Text>
                     <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>
-                      {zc.emoji} {zc.label}
+                      {item.regions.length} {t('onboarding.regions')}
                     </Text>
                   </View>
-                  {isSelected && <Text style={{ color: colors.primary, fontSize: 18 }}>✓</Text>}
+                  <Text style={{ color: colors.textDisabled, fontSize: 20 }}>›</Text>
                 </Pressable>
-              );
-            }}
-            contentContainerStyle={{ paddingBottom: 40 }}
-          />
+              )}
+              contentContainerStyle={{ paddingBottom: 40 }}
+            />
+          ) : (
+            <>
+              <View style={[s.searchContainer, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+                <Text style={{ fontSize: 16, marginRight: 6 }}>🔍</Text>
+                <TextInput
+                  value={provinceSearch}
+                  onChangeText={setProvinceSearch}
+                  placeholder={t('onboarding.provinceSearch')}
+                  placeholderTextColor={colors.textDisabled}
+                  style={{ flex: 1, color: colors.text, fontSize: fontSize.md }}
+                  autoFocus
+                />
+              </View>
+
+              <FlatList
+                data={filteredProvinces}
+                keyExtractor={(item) => item}
+                renderItem={({ item }) => {
+                  const zone = PROVINCE_ZONES[item];
+                  const zc = CLIMATE_ZONE_CONFIG[zone];
+                  const isSelected = item === province;
+                  return (
+                    <Pressable
+                      onPress={() => {
+                        setProvince(item);
+                        setShowProvincePicker(false);
+                        setProvinceSearch('');
+                      }}
+                      style={[
+                        s.provinceRow,
+                        {
+                          backgroundColor: isSelected ? colors.surfaceAlt : colors.surface,
+                          borderBottomColor: colors.border,
+                        },
+                      ]}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.medium }}>
+                          {item}
+                        </Text>
+                        <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>
+                          {zc.emoji} {zc.label}
+                        </Text>
+                      </View>
+                      {isSelected && <Text style={{ color: colors.primary, fontSize: 18 }}>✓</Text>}
+                    </Pressable>
+                  );
+                }}
+                contentContainerStyle={{ paddingBottom: 40 }}
+              />
+            </>
+          )}
         </SafeAreaView>
       </Modal>
     </SafeAreaView>

@@ -343,6 +343,7 @@
                        "create":  "Crear huerto 🌱",
                        "provinceSearch":  "Buscar provincia o región...",
                        "closeSearch":  "Cerrar",
+                       "regions":  "regiones",
                        "step4Title":  "¡Huerto creado! 🌱",
                        "step4Desc":  "Todo listo. ¿Quieres añadir tu primera planta ahora?",
                        "addFirstPlant":  "Añadir primera planta",
@@ -763,5 +764,63 @@
                                            "preventivo":  "Preventivo",
                                            "quimico":  "Químico"
                                        }
-                 }
+                 },
+    "seasonalTips":  {
+        "atlantica":  {
+            "1":  "Aprovecha los días sin lluvia para labrar y preparar la tierra.",
+            "2":  "Siembra patatas y coles en el exterior cuando el suelo supere los 5°C.",
+            "3":  "Es el momento de trasplantar los semilleros de tomate y pimiento al interior.",
+            "4":  "Aprovecha la lluvia para plantar judías verdes y guisantes.",
+            "5":  "Siembra calabacín y pepino al exterior; cuida los polinizadores.",
+            "6":  "Riega al atardecer para evitar la evaporación; protege los frutos del exceso de humedad.",
+            "7":  "Recoge tomates y pimientos antes de que lleguen lluvias intensas.",
+            "8":  "Mes de máxima cosecha: recoge regularmente para estimular más producción.",
+            "9":  "Siembra espinacas, acelgas y lechugas de otoño.",
+            "10":  "Planta ajos y cebollas de invierno antes de las primeras heladas.",
+            "11":  "Incorpora compost al suelo para mejorar la estructura para el año siguiente.",
+            "12":  "Planifica el huerto de la próxima temporada y pide semillas por catálogo."
+        },
+        "mediterranea":  {
+            "1":  "Siembra en semillero interior pimiento y berenjena; aún hay riesgo de heladas en el exterior.",
+            "2":  "Trasplanta fresas y planta habas; el tiempo fresco las favorece.",
+            "3":  "Siembra tomate en semillero; trasplanta lechugas y coles al exterior.",
+            "4":  "Trasplanta el tomate y el pimiento al exterior cuando las noches superen los 10°C.",
+            "5":  "Instala goteo antes del calor; siembra judías verdes y calabacín.",
+            "6":  "Recoge ajos y cebollas; acolcha para conservar la humedad del suelo.",
+            "7":  "Máxima producción de tomate: cosecha a diario para estimular nuevos frutos.",
+            "8":  "Siembra judías de verano y prepara el bancal de otoño en zonas con sombra.",
+            "9":  "Siembra acelgas, espinacas y lechugas de otoño; el calor remite.",
+            "10":  "Planta ajos y cebollas; prepara bancales con abono para el invierno.",
+            "11":  "Trasplanta brócoli y coliflor; las lluvias otoñales ayudan al arraigo.",
+            "12":  "Protege las plantas sensibles del frío y planifica la rotación de cultivos."
+        },
+        "continental":  {
+            "1":  "Prepara semilleros en interior; el frío todavía impide sembrar en exterior.",
+            "2":  "Inicia semilleros de tomate, pimiento y berenjena bajo cubierta.",
+            "3":  "Trasplanta lechugas y guisantes; espera a que no haya heladas.",
+            "4":  "Siembra judías y acelgas en exterior; trasplanta tomate solo si no hay riesgo de helada.",
+            "5":  "Riega con regularidad: las noches todavía son frescas pero el día puede ser caluroso.",
+            "6":  "Cosecha ajos y cebollas tempranas; mantén el riego en épocas de sequía.",
+            "7":  "Recoge tomates y cucurbitáceas; extrema el riego en días de más de 35°C.",
+            "8":  "Siembra espinacas y lechugas tardías; cosecha intensiva de verano.",
+            "9":  "El calor remite: siembra coles, brócoli y acelgas.",
+            "10":  "Planta ajos de invierno; limpia bancales y aplica compost.",
+            "11":  "Cosecha tardía de coles; cubre con manta térmica si hay heladas.",
+            "12":  "Protege las plantas más sensibles; planifica la rotación del año siguiente."
+        },
+        "subtropical":  {
+            "1":  "Siembra tomates, pimientos y pepinos: las temperaturas son ideales.",
+            "2":  "Planta fresas y siembra lechugas; el clima templado favorece el arraigo.",
+            "3":  "Trasplanta cucurbitáceas; aprovecha las lluvias de primavera si las hay.",
+            "4":  "Aumenta el riego a medida que sube la temperatura; acolcha para retener humedad.",
+            "5":  "Protege los cultivos del exceso de sol con malla de sombreo.",
+            "6":  "Temporada de lluvias: riega con moderación y vigila hongos.",
+            "7":  "Máximas precipitaciones: buen drenaje es clave; cosecha antes de podredumbres.",
+            "8":  "Siembra judías y maíz dulce; las noches cálidas favorecen la germinación.",
+            "9":  "Cosecha de verano tardío; siembra lechugas y espinacas a la sombra.",
+            "10":  "Tiempo fresco: ideal para crucíferas, zanahorias y remolachas.",
+            "11":  "Siembra coles y brócoli; las temperaturas frescas mejoran el sabor.",
+            "12":  "Cosecha y planifica: las plantas de verano terminan su ciclo."
+        }
+    }
 }

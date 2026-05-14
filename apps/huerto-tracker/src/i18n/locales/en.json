@@ -131,7 +131,8 @@
                                     "province":  "Province",
                                     "climateZone":  "Climate zone",
                                     "map":  "Garden map",
-                                    "edit":  "Edit garden"
+                                    "edit":  "Edit garden",
+                                    "manageGardens":  "Manage gardens"
                                 },
                      "subscription":  {
                                           "proPlan":  "⭐ Pro Plan",
@@ -342,6 +343,7 @@
                        "create":  "Create garden 🌱",
                        "provinceSearch":  "Search province or region...",
                        "closeSearch":  "Close",
+                       "regions":  "regions",
                        "step4Title":  "Garden created! 🌱",
                        "step4Desc":  "All set. Would you like to add your first plant now?",
                        "addFirstPlant":  "Add first plant",
@@ -861,7 +863,43 @@
                   "puerro":  {
                                  "name":  "Leek",
                                  "tips":  "Transplant into deep holes and earth up gradually to blanch the stem. Stays in the ground all autumn-winter; harvest as needed."
-                             }
+                             },
+                  "guindilla":  {
+                                    "name":  "Chilli / Chile",
+                                    "tips":  "Controlled water stress increases capsaicin and heat. Harvest green or let ripen to red for maximum flavour."
+                                },
+                  "apio":  {
+                               "name":  "Celery",
+                               "tips":  "Needs constant moisture or stalks turn fibrous and bitter. Earth up around the stems to blanch and soften them."
+                           },
+                  "esparrago":  {
+                                    "name":  "Asparagus",
+                                    "tips":  "Perennial crop: do not harvest until year 3 so roots establish well. Then produces for 15–20 years with minimal effort."
+                                },
+                  "salvia":  {
+                                 "name":  "Sage",
+                                 "tips":  "Mediterranean perennial. Its flowers attract pollinators. Cut back after flowering to keep it compact and productive season after season."
+                             },
+                  "oregano":  {
+                                  "name":  "Oregano",
+                                  "tips":  "Heat and drought intensify the flavour. Cut before it flowers for maximum aroma. Dry bunches hanging upside down."
+                              },
+                  "eneldo":  {
+                                 "name":  "Dill",
+                                 "tips":  "Bolts quickly in summer; sow in succession every 3 weeks. Never plant next to fennel — they cross-pollinate and lose their characteristic flavour."
+                             },
+                  "hinojo":  {
+                                 "name":  "Fennel",
+                                 "tips":  "Suppresses growth of almost everything nearby. Plant in an isolated corner or a separate pot to enjoy its benefits without harming the garden."
+                             },
+                  "manzanilla":  {
+                                     "name":  "Chamomile",
+                                     "tips":  "Harvest flowers at full opening for highest oil concentration. Excellent companion that repels harmful insects and attracts pollinators."
+                                 },
+                  "lavanda":  {
+                                  "name":  "Lavender",
+                                  "tips":  "Drought-tolerant perennial. Prune after flowering to prevent it becoming woody. Excellent for repelling aphids and moths."
+                              }
               },
     "varieties":  {
                       "tomate-cherry":  "Cherry",
@@ -992,5 +1030,63 @@
                                            "preventivo":  "Preventive",
                                            "quimico":  "Chemical"
                                        }
-                 }
+                 },
+    "seasonalTips":  {
+        "atlantica":  {
+            "1":  "Make the most of dry days to till and prepare the soil.",
+            "2":  "Sow potatoes and cabbages outdoors once soil temperature exceeds 5°C.",
+            "3":  "Time to transplant tomato and pepper seedlings under cover.",
+            "4":  "Take advantage of the rain to plant green beans and peas.",
+            "5":  "Sow courgette and cucumber outdoors; look after the pollinators.",
+            "6":  "Water at dusk to reduce evaporation; protect fruit from excess moisture.",
+            "7":  "Harvest tomatoes and peppers before heavy rain arrives.",
+            "8":  "Peak harvest month: pick regularly to encourage more production.",
+            "9":  "Sow spinach, Swiss chard and autumn lettuces.",
+            "10":  "Plant garlic and winter onions before the first frost.",
+            "11":  "Work compost into the soil to improve structure for next year.",
+            "12":  "Plan next season's garden and order seeds from catalogues."
+        },
+        "mediterranea":  {
+            "1":  "Start pepper and aubergine seedlings indoors; frost risk still present outside.",
+            "2":  "Transplant strawberries and plant broad beans; cool weather suits them.",
+            "3":  "Sow tomatoes under cover; transplant lettuces and cabbages outdoors.",
+            "4":  "Move tomatoes and peppers outside once night temperatures stay above 10°C.",
+            "5":  "Install drip irrigation before the heat; sow green beans and courgette.",
+            "6":  "Harvest garlic and onions; mulch to conserve soil moisture.",
+            "7":  "Peak tomato production: harvest daily to encourage new fruit.",
+            "8":  "Sow summer beans and prepare autumn beds in shadier spots.",
+            "9":  "Sow Swiss chard, spinach and autumn lettuces; heat is easing.",
+            "10":  "Plant garlic and onions; prepare beds with compost for winter.",
+            "11":  "Transplant broccoli and cauliflower; autumn rain helps them establish.",
+            "12":  "Protect frost-sensitive plants and plan crop rotation."
+        },
+        "continental":  {
+            "1":  "Start seedlings indoors; cold still prevents outdoor sowing.",
+            "2":  "Begin tomato, pepper and aubergine seedlings under cover.",
+            "3":  "Transplant lettuces and peas; wait until frost risk has passed.",
+            "4":  "Sow beans and Swiss chard outdoors; transplant tomatoes only if frost-free.",
+            "5":  "Water regularly: nights are still cool but days can be warm.",
+            "6":  "Harvest early garlic and onions; maintain irrigation during dry spells.",
+            "7":  "Harvest tomatoes and cucurbits; increase watering on days above 35°C.",
+            "8":  "Sow spinach and late lettuces; intensive summer harvest.",
+            "9":  "Heat is easing: sow cabbages, broccoli and Swiss chard.",
+            "10":  "Plant winter garlic; clear beds and apply compost.",
+            "11":  "Late cabbage harvest; cover with fleece if frost threatens.",
+            "12":  "Protect the most tender plants; plan next year's rotation."
+        },
+        "subtropical":  {
+            "1":  "Sow tomatoes, peppers and cucumbers: temperatures are ideal.",
+            "2":  "Plant strawberries and sow lettuces; mild weather aids establishment.",
+            "3":  "Transplant cucurbits; make the most of any spring rains.",
+            "4":  "Increase watering as temperatures rise; mulch to retain moisture.",
+            "5":  "Shade crops from excess sun with a shade net.",
+            "6":  "Rainy season: water moderately and watch for fungal disease.",
+            "7":  "Peak rainfall: good drainage is key; harvest before rot sets in.",
+            "8":  "Sow beans and sweet corn; warm nights encourage germination.",
+            "9":  "Late summer harvest; sow lettuces and spinach in the shade.",
+            "10":  "Cool weather: ideal for brassicas, carrots and beetroot.",
+            "11":  "Sow cabbages and broccoli; cool temperatures improve flavour.",
+            "12":  "Harvest and plan: summer crops are finishing their cycle."
+        }
+    }
 }

@@ -827,7 +827,16 @@
                               },
                   "puerro":  {
                                  "name":  "Porro"
-                             }
+                             },
+                  "guindilla":  { "name":  "Guindilla / Chile" },
+                  "apio":  { "name":  "Apio" },
+                  "esparrago":  { "name":  "Espárrago" },
+                  "salvia":  { "name":  "Salvia" },
+                  "oregano":  { "name":  "Ourego" },
+                  "eneldo":  { "name":  "Eneldo" },
+                  "hinojo":  { "name":  "Fiúncho" },
+                  "manzanilla":  { "name":  "Macela" },
+                  "lavanda":  { "name":  "Lavanda" }
               },
     "identify":  {
                      "title":  "Identificar praga",

@@ -95,7 +95,7 @@ export default function DiseaseGuideScreen() {
       </View>
 
       {/* Type filters */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: spacing.lg, marginBottom: spacing.md }} contentContainerStyle={{ gap: spacing.sm }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: spacing.lg, marginBottom: spacing.md }} contentContainerStyle={{ gap: spacing.sm, alignItems: 'center' }}>
         {FILTERS.map((f) => {
           const active = typeFilter === f.key;
           const color = f.key ? TYPE_COLOR[f.key] : colors.primary;
@@ -170,7 +170,7 @@ export default function DiseaseGuideScreen() {
                     {disease.imageUrl && !imageError[disease.id] && (
                       <View style={[s.imageWrapper, { backgroundColor: colors.surfaceAlt }]}>
                         <Image
-                          source={{ uri: disease.imageUrl }}
+                          source={{ uri: disease.imageUrl, headers: { 'User-Agent': 'HuertoTracker/1.0 (https://github.com/MrZamudioRamos/portfolio-apps)' } }}
                           style={s.diseaseImage}
                           resizeMode="cover"
                           onError={() => setImageError((prev) => ({ ...prev, [disease.id]: true }))}
