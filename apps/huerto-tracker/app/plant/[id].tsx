@@ -800,6 +800,12 @@ export default function PlantDetailScreen() {
               <Pressable
                 onPress={async () => {
                   await plants.update(id, { status: 'transplanted', transplantDate: transplantDateInput });
+                  await entries.create({
+                    gardenId: plant!.gardenId,
+                    plantId: id,
+                    type: 'transplant',
+                    date: transplantDateInput,
+                  });
                   setShowTransplantModal(false);
                 }}
                 style={[s.modalConfirmBtn, { backgroundColor: '#4CAF50' }]}

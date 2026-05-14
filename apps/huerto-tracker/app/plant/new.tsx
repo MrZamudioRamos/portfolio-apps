@@ -26,6 +26,7 @@ import { CROPS, CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, type CropInfo }
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import { getCompanions } from '../../src/data/companions';
 import type { Plant } from '../../src/models/plant';
+import type { DiaryEntry } from '../../src/models/diary-entry';
 
 const SECTIONS = (Object.keys(CATEGORY_CONFIG) as Array<keyof typeof CATEGORY_CONFIG>).map((cat) => ({
   title: cat,
@@ -42,6 +43,7 @@ export default function NewPlantScreen() {
 
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
+  const entries = useCollection<DiaryEntry>('diary_entries');
   const { isGuest } = useSession();
   const { isPro } = usePurchases();
 
@@ -118,7 +120,7 @@ export default function NewPlantScreen() {
     if (!gardenId) return;
     setSaving(true);
     try {
-      await plants.create({
+      const newPlant = await plants.create({
         gardenId,
         cropId: selectedCropId,
         name: plantName.trim(),
@@ -127,6 +129,12 @@ export default function NewPlantScreen() {
         sowingDate,
         status: 'seedling',
         ...(photoUri ? { photoUri } : {}),
+      });
+      await entries.create({
+        gardenId,
+        plantId: newPlant.id,
+        type: 'sowing',
+        date: sowingDate,
       });
       if (router.canGoBack()) router.back();
       else router.replace('/(tabs)');
