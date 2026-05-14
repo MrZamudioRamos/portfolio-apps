@@ -99,7 +99,8 @@
     },
     "emptyTitle": "Egunkaria hutsik dago",
     "emptyDesc": "Erregistratu zure lehen jarduera: ureztatze bat, ereintza bat edo uzta bat.",
-    "newEntry": "Sarrera berria"
+    "newEntry": "Sarrera berria",
+    "search": "Bilatu egunkarian…"
   },
   "settings": {
     "title": "Ezarpenak",
@@ -458,7 +459,8 @@
     "transplantCtaDesc": "{{days}} egun hazitegian",
     "transplantModalTitle": "Landaketa erregistratu",
     "transplantDateLabel": "LANDAKETA DATA",
-    "transplantConfirm": "Landaketa berretsi"
+    "transplantConfirm": "Landaketa berretsi",
+    "duplicate": "Bikoiztu landarea"
   },
   "reminderEdit": {
     "title": "Gogorarazlea editatu",

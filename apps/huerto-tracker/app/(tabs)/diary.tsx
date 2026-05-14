@@ -10,6 +10,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,6 +31,7 @@ export default function DiaryScreen() {
   const { t } = useTranslation();
 
   const [activeFilter, setActiveFilter] = useState<EntryType | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const { plantId } = useLocalSearchParams<{ plantId?: string }>();
 
   const entries = useCollection<DiaryEntry>('diary_entries');
@@ -42,19 +44,35 @@ export default function DiaryScreen() {
     }, [])
   );
 
+  const plantsById = useMemo(
+    () => Object.fromEntries(plants.items.map((p) => [p.id, p])),
+    [plants.items]
+  );
+
   const filtered = useMemo(() => {
     const sorted = [...entries.items].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
     const byPlant = plantId ? sorted.filter((e) => e.plantId === plantId) : sorted;
-    if (activeFilter === 'all') return byPlant;
-    return byPlant.filter((e) => e.type === activeFilter);
-  }, [entries.items, activeFilter, plantId]);
+    const byType = activeFilter === 'all' ? byPlant : byPlant.filter((e) => e.type === activeFilter);
+    if (!searchQuery.trim()) return byType;
+    const q = searchQuery.toLowerCase();
+    return byType.filter((e) => {
+      const plant = plantsById[e.plantId ?? ''];
+      return (
+        e.notes?.toLowerCase().includes(q) ||
+        plant?.name.toLowerCase().includes(q) ||
+        plant?.variety?.toLowerCase().includes(q)
+      );
+    });
+  }, [entries.items, activeFilter, plantId, searchQuery, plantsById]);
 
-  const plantsById = useMemo(
-    () => Object.fromEntries(plants.items.map((p) => [p.id, p])),
-    [plants.items]
-  );
+  const typeCounts = useMemo(() => {
+    const base = plantId ? entries.items.filter((e) => e.plantId === plantId) : entries.items;
+    const counts: Record<string, number> = { all: base.length };
+    base.forEach((e) => { counts[e.type] = (counts[e.type] ?? 0) + 1; });
+    return counts;
+  }, [entries.items, plantId]);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -149,8 +167,9 @@ export default function DiaryScreen() {
         contentContainerStyle={s.filtersContainer}
         style={s.filtersScroll}
       >
-        {ALL_TYPES.map((type) => {
+        {ALL_TYPES.filter((type) => type === 'all' || (typeCounts[type] ?? 0) > 0).map((type) => {
           const isActive = activeFilter === type;
+          const count = typeCounts[type] ?? 0;
           return (
             <Pressable
               key={type}
@@ -171,10 +190,34 @@ export default function DiaryScreen() {
               <Text style={[s.filterLabel, { color: isActive ? '#fff' : colors.text }]}>
                 {t(`diary.filters.${type}`)}
               </Text>
+              {count > 0 && (
+                <Text style={[s.filterCount, { color: isActive ? 'rgba(255,255,255,0.8)' : colors.textSecondary }]}>
+                  {count}
+                </Text>
+              )}
             </Pressable>
           );
         })}
       </ScrollView>
+
+      {/* Search bar */}
+      {entries.items.length > 5 && (
+        <View style={[s.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Ionicons name="search-outline" size={14} color={colors.textSecondary} />
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={t('diary.search')}
+            placeholderTextColor={colors.textDisabled}
+            style={[{ flex: 1, color: colors.text, fontSize: fontSize.sm, marginLeft: 6 }]}
+          />
+          {searchQuery.length > 0 && (
+            <Pressable onPress={() => setSearchQuery('')} hitSlop={8}>
+              <Ionicons name="close-circle" size={14} color={colors.textDisabled} />
+            </Pressable>
+          )}
+        </View>
+      )}
 
       {/* List */}
       <FlatList
@@ -236,6 +279,17 @@ const makeStyles = (
       borderWidth: 1.5,
     },
     filterLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    filterCount: { fontSize: 10, fontWeight: fontWeight.bold, marginLeft: 3 },
+    searchBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginHorizontal: spacing.xl,
+      marginBottom: spacing.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1,
+    },
     plantFilterBanner: {
       flexDirection: 'row',
       alignItems: 'center',

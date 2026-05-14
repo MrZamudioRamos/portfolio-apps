@@ -99,7 +99,8 @@
     },
     "emptyTitle": "Your journal is empty",
     "emptyDesc": "Log your first activity: a watering, sowing, or harvest.",
-    "newEntry": "New entry"
+    "newEntry": "New entry",
+    "search": "Search diary…"
   },
   "settings": {
     "title": "Settings",
@@ -457,7 +458,8 @@
     "transplantCtaDesc": "{{days}} days in seedling tray",
     "transplantModalTitle": "Log transplant",
     "transplantDateLabel": "TRANSPLANT DATE",
-    "transplantConfirm": "Confirm transplant"
+    "transplantConfirm": "Confirm transplant",
+    "duplicate": "Duplicate plant"
   },
   "reminderEdit": {
     "title": "Edit reminder",

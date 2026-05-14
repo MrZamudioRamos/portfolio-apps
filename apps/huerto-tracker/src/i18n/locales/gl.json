@@ -99,7 +99,8 @@
     },
     "emptyTitle": "O teu diario está baleiro",
     "emptyDesc": "Rexistra a túa primeira actividade: un rego, unha sementeira ou unha colleita.",
-    "newEntry": "Nova entrada"
+    "newEntry": "Nova entrada",
+    "search": "Buscar no diario…"
   },
   "settings": {
     "title": "Axustes",
@@ -458,7 +459,8 @@
     "transplantCtaDesc": "{{days}} dias no semilleiro",
     "transplantModalTitle": "Rexistrar transplante",
     "transplantDateLabel": "DATA DO TRANSPLANTE",
-    "transplantConfirm": "Confirmar transplante"
+    "transplantConfirm": "Confirmar transplante",
+    "duplicate": "Duplicar planta"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",

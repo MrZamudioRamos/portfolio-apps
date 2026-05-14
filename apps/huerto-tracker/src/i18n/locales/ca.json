@@ -99,7 +99,8 @@
     },
     "emptyTitle": "El teu diari és buit",
     "emptyDesc": "Registra la teva primera activitat: un reg, una sembra o una collita.",
-    "newEntry": "Nova entrada"
+    "newEntry": "Nova entrada",
+    "search": "Cerca al diari…"
   },
   "settings": {
     "title": "Ajustos",
@@ -458,7 +459,8 @@
     "transplantCtaDesc": "{{days}} dies al planter",
     "transplantModalTitle": "Registrar trasplantament",
     "transplantDateLabel": "DATA DE TRASPLANTAMENT",
-    "transplantConfirm": "Confirmar trasplantament"
+    "transplantConfirm": "Confirmar trasplantament",
+    "duplicate": "Duplicar planta"
   },
   "reminderEdit": {
     "title": "Editar recordatori",

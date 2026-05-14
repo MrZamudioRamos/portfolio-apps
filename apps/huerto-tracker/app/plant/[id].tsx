@@ -123,6 +123,19 @@ export default function PlantDetailScreen() {
     await plants.update(id, { status });
   }
 
+  async function handleDuplicate() {
+    const newPlant = await plants.create({
+      gardenId: plant!.gardenId,
+      cropId: plant!.cropId,
+      name: plant!.name + ' 2',
+      variety: plant!.variety,
+      varietyId: plant!.varietyId,
+      photoUri: plant!.photoUri,
+      status: 'seedling',
+    });
+    router.replace(`/plant/${newPlant.id}` as any);
+  }
+
   function handleDelete() {
     Alert.alert(
       t('plantDetail.deleteTitle', { name: plant!.name }),
@@ -190,6 +203,14 @@ export default function PlantDetailScreen() {
               </View>
             )}
           </View>
+
+          {/* Notes */}
+          {plant.notes && (
+            <View style={[s.notesCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+              <Text style={s.notesEmoji}>📝</Text>
+              <Text style={[s.notesText, { color: colors.text }]}>{plant.notes}</Text>
+            </View>
+          )}
 
           {/* Dates */}
           {plant.sowingDate && (
@@ -689,6 +710,12 @@ export default function PlantDetailScreen() {
             />
           </View>
 
+          {/* Duplicate */}
+          <Pressable onPress={handleDuplicate} style={s.duplicateBtn}>
+            <Ionicons name="copy-outline" size={16} color={colors.primary} />
+            <Text style={[s.duplicateText, { color: colors.primary }]}>{t('plantDetail.duplicate')}</Text>
+          </Pressable>
+
           {/* Delete */}
           <Pressable onPress={handleDelete} style={s.deleteBtn}>
             <Ionicons name="trash-outline" size={16} color={colors.error} />
@@ -1038,4 +1065,24 @@ const makeStyles = (
       paddingVertical: spacing.md,
       borderRadius: radii.md,
     },
+    notesCard: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
+      padding: spacing.md,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      marginBottom: spacing.md,
+    },
+    notesEmoji: { fontSize: 16, marginTop: 1 },
+    notesText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20 },
+    duplicateBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      marginTop: spacing.sm,
+      padding: spacing.md,
+    },
+    duplicateText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
   });

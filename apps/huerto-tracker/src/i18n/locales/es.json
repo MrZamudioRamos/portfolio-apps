@@ -99,7 +99,8 @@
     },
     "emptyTitle": "Tu diario está vacío",
     "emptyDesc": "Registra tu primera actividad: un riego, una siembra o una cosecha.",
-    "newEntry": "Nueva entrada"
+    "newEntry": "Nueva entrada",
+    "search": "Buscar en el diario…"
   },
   "settings": {
     "title": "Ajustes",
@@ -443,6 +444,7 @@
     "commonPests": "PLAGAS FRECUENTES EN {{crop}}",
     "newEntry": "Nueva entrada",
     "reminder": "Recordatorio",
+    "duplicate": "Duplicar planta",
     "deletePlant": "Eliminar planta",
     "deleteTitle": "¿Eliminar {{name}}?",
     "deleteDesc": "Se eliminará la planta y todas sus entradas de diario y recordatorios.",
