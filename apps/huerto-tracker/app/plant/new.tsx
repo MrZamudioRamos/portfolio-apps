@@ -334,7 +334,7 @@ export default function NewPlantScreen() {
               {showDatePicker && Platform.OS === 'ios' && (
                 <Modal transparent animationType="slide" visible>
                   <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
-                    <Pressable style={[s.dateModalSheet, { backgroundColor: colors.surface }]}>
+                    <Pressable style={[s.dateModalSheet, { backgroundColor: colors.surface }]} onPress={() => {}}>
                       <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
                       <DateTimePicker
                         value={new Date(sowingDate)}

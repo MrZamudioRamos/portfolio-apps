@@ -261,7 +261,7 @@ export default function SettingsScreen() {
         {/* Language modal */}
         <Modal visible={showLangModal} transparent animationType="fade">
           <Pressable style={s.langModalOverlay} onPress={() => setShowLangModal(false)}>
-            <Pressable style={[s.langModalSheet, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Pressable style={[s.langModalSheet, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => {}}>
               <Text style={[s.langModalTitle, { color: colors.text }]}>{t('settings.sections.language')}</Text>
               {SUPPORTED_LANGS.map((lang, idx) => {
                 const active = i18n.language === lang;
