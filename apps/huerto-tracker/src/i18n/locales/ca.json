@@ -230,7 +230,10 @@
     "units": "Unitats",
     "photo": "FOTO (opcional)",
     "addPhoto": "Afegir foto",
-    "saveEntry": "Desar entrada"
+    "saveEntry": "Desar entrada",
+    "today": "Avui",
+    "yesterday": "Ahir",
+    "twoDaysAgo": "Fa 2 dies"
   },
   "gardenEdit": {
     "title": "Editar hort",

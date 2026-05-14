@@ -4,10 +4,10 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
-  FlatList,
   Image,
   Pressable,
   ScrollView,
+  SectionList,
   StyleSheet,
   Text,
   TextInput,
@@ -73,6 +73,16 @@ export default function DiaryScreen() {
     base.forEach((e) => { counts[e.type] = (counts[e.type] ?? 0) + 1; });
     return counts;
   }, [entries.items, plantId]);
+
+  const sections = useMemo(() => {
+    const groups = new Map<string, DiaryEntry[]>();
+    filtered.forEach((entry) => {
+      const day = entry.date.slice(0, 10);
+      if (!groups.has(day)) groups.set(day, []);
+      groups.get(day)!.push(entry);
+    });
+    return [...groups.entries()].map(([date, data]) => ({ date, data }));
+  }, [filtered]);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -219,13 +229,20 @@ export default function DiaryScreen() {
         </View>
       )}
 
-      {/* List */}
-      <FlatList
-        data={filtered}
+      {/* List grouped by date */}
+      <SectionList
+        sections={sections}
         keyExtractor={(item) => item.id}
         renderItem={renderEntry}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
+        renderSectionHeader={({ section: { date } }) => (
+          <View style={[s.sectionHeader, { backgroundColor: colors.background }]}>
+            <Text style={[s.sectionHeaderText, { color: colors.textSecondary }]}>
+              {formatRelative(date)}
+            </Text>
+          </View>
+        )}
         ListEmptyComponent={
           !entries.loading ? (
             <EmptyState
@@ -303,7 +320,12 @@ const makeStyles = (
       gap: spacing.sm,
     },
     plantFilterText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
-    listContent: { paddingHorizontal: spacing.xl, paddingBottom: 100, gap: spacing.sm },
+    listContent: { paddingHorizontal: spacing.xl, paddingBottom: 100 },
+    sectionHeader: {
+      paddingVertical: spacing.sm,
+      paddingTop: spacing.md,
+    },
+    sectionHeaderText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.5, textTransform: 'uppercase' },
     entryCard: {},
     entryRow: { flexDirection: 'row', alignItems: 'flex-start' },
     entryIconBadge: {

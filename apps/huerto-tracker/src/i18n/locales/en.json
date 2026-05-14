@@ -229,7 +229,10 @@
     "units": "Units",
     "photo": "PHOTO (optional)",
     "addPhoto": "Add photo",
-    "saveEntry": "Save entry"
+    "saveEntry": "Save entry",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "twoDaysAgo": "2 days ago"
   },
   "gardenEdit": {
     "title": "Edit garden",

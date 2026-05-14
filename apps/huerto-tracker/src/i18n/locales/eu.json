@@ -230,7 +230,10 @@
     "units": "Unitateak",
     "photo": "ARGAZKIA (hautazkoa)",
     "addPhoto": "Argazkia gehitu",
-    "saveEntry": "Sarrera gorde"
+    "saveEntry": "Sarrera gorde",
+    "today": "Gaur",
+    "yesterday": "Atzo",
+    "twoDaysAgo": "Duela 2 egun"
   },
   "gardenEdit": {
     "title": "Baratzea editatu",

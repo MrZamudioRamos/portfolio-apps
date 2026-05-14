@@ -230,7 +230,10 @@
     "units": "Unidades",
     "photo": "FOTO (opcional)",
     "addPhoto": "Engadir foto",
-    "saveEntry": "Gardar entrada"
+    "saveEntry": "Gardar entrada",
+    "today": "Hoxe",
+    "yesterday": "Onte",
+    "twoDaysAgo": "Hai 2 días"
   },
   "gardenEdit": {
     "title": "Editar horta",

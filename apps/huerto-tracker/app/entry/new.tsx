@@ -182,6 +182,32 @@ export default function NewEntryScreen() {
 
             {/* Date */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.md }]}>{t('entryNew.date')}</Text>
+            <View style={[s.dateBtnsRow, { marginBottom: spacing.sm }]}>
+              {([0, 1, 2] as const).map((days) => {
+                const d = new Date();
+                d.setDate(d.getDate() - days);
+                const dateStr = d.toISOString().split('T')[0];
+                const active = date === dateStr;
+                const label = days === 0 ? t('entryNew.today') : days === 1 ? t('entryNew.yesterday') : t('entryNew.twoDaysAgo');
+                return (
+                  <Pressable
+                    key={days}
+                    onPress={() => setDate(dateStr)}
+                    style={[
+                      s.dateBtn,
+                      {
+                        backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
+                        borderColor: active ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>
+                      {label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
             <TextInput
               value={date}
               onChangeText={setDate}
@@ -337,4 +363,13 @@ const makeStyles = (
       justifyContent: 'center',
     },
     photoPreview: { width: 120, height: 100, borderRadius: radii.lg },
+    dateBtnsRow: { flexDirection: 'row', gap: spacing.sm },
+    dateBtn: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+    },
+    dateBtnText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
   });
