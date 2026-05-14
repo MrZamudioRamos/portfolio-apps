@@ -29,7 +29,8 @@
       "harvesting": "En collita",
       "reminders": "Recordatoris",
       "pests": "Amb plaga",
-      "needsWater": "Necessiten aigua"
+      "needsWater": "Necessiten aigua",
+      "yearKg": "Collit enguany"
     },
     "weatherLoading": "🌤️ Carregant el temps…",
     "lunarDay": "Dia",
@@ -53,7 +54,9 @@
     "emptyDesc": "Afig la teua primera planta per a començar a registrar el teu hort.",
     "addPlant": "Afig planta",
     "searchPlants": "Cercar planta…",
-    "taskEstHarvest": "🧺 {{name}} prop de la collita"
+    "taskEstHarvest": "🧺 {{name}} prop de la collita",
+    "taskNeglected": "👁️ {{name}} sense activitat ({{days}} dies)",
+    "filterAll": "Totes"
   },
   "calendar": {
     "title": "Calendari de sembra",
@@ -403,7 +406,8 @@
     "addPlant": "Afig planta 🌱",
     "cropSearch": "Cercar cultiu...",
     "cropPickerTitle": "Seleccionar cultiu",
-    "varietyGeneric": "Genèrica"
+    "varietyGeneric": "Genèrica",
+    "goodWith": "Bones companyes: "
   },
   "plantDetail": {
     "notFound": "Planta no trobada",

@@ -29,7 +29,8 @@
       "harvesting": "Uztatzeko",
       "reminders": "Oroigarriak",
       "pests": "Izurriteekin",
-      "needsWater": "Ur beharra"
+      "needsWater": "Ur beharra",
+      "yearKg": "Aurten bildutakoa"
     },
     "weatherLoading": "🌤️ Eguraldia kargatzen…",
     "lunarDay": "Eguna",
@@ -53,7 +54,9 @@
     "emptyDesc": "Gehitu zure lehen landarea baratzea erregistratzen hasteko.",
     "addPlant": "Landarea gehitu",
     "searchPlants": "Landarea bilatu…",
-    "taskEstHarvest": "🧺 {{name}} uzta gertu"
+    "taskEstHarvest": "🧺 {{name}} uzta gertu",
+    "taskNeglected": "👁️ {{name}} jarduera gabe ({{days}} egun)",
+    "filterAll": "Guztiak"
   },
   "calendar": {
     "title": "Erein egutegia",
@@ -403,7 +406,8 @@
     "addPlant": "Landarea gehitu 🌱",
     "cropSearch": "Laborea bilatu...",
     "cropPickerTitle": "Hautatu laborea",
-    "varietyGeneric": "Generikoa"
+    "varietyGeneric": "Generikoa",
+    "goodWith": "Lagun onak: "
   },
   "plantDetail": {
     "notFound": "Landarea ez da aurkitu",

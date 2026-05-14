@@ -29,7 +29,8 @@
       "harvesting": "Harvesting",
       "reminders": "Reminders",
       "pests": "With pest",
-      "needsWater": "Need water"
+      "needsWater": "Need water",
+      "yearKg": "Harvested this year"
     },
     "weatherLoading": "🌤️ Loading weather…",
     "lunarDay": "Day",
@@ -53,7 +54,9 @@
     "emptyDesc": "Add your first plant to start tracking your garden.",
     "addPlant": "Add plant",
     "searchPlants": "Search plant…",
-    "taskEstHarvest": "🧺 {{name}} nearing harvest"
+    "taskEstHarvest": "🧺 {{name}} nearing harvest",
+    "taskNeglected": "👁️ {{name}} with no activity ({{days}} days)",
+    "filterAll": "All"
   },
   "calendar": {
     "title": "Sowing calendar",
@@ -402,7 +405,8 @@
     "addPlant": "Add plant 🌱",
     "cropSearch": "Search crop...",
     "cropPickerTitle": "Select crop",
-    "varietyGeneric": "Generic"
+    "varietyGeneric": "Generic",
+    "goodWith": "Good companions: "
   },
   "plantDetail": {
     "notFound": "Plant not found",

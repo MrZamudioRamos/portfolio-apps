@@ -29,7 +29,8 @@
       "harvesting": "En colleita",
       "reminders": "Recordatorios",
       "pests": "Con praga",
-      "needsWater": "Necesitan auga"
+      "needsWater": "Necesitan auga",
+      "yearKg": "Colleita este ano"
     },
     "weatherLoading": "🌤️ Cargando o tempo…",
     "lunarDay": "Día",
@@ -53,7 +54,9 @@
     "emptyDesc": "Engade a túa primeira planta para comezar a rexistrar a túa horta.",
     "addPlant": "Engadir planta",
     "searchPlants": "Buscar planta…",
-    "taskEstHarvest": "🧺 {{name}} preto da colleita"
+    "taskEstHarvest": "🧺 {{name}} preto da colleita",
+    "taskNeglected": "👁️ {{name}} sen actividade ({{days}} días)",
+    "filterAll": "Todas"
   },
   "calendar": {
     "title": "Calendario de sementeira",
@@ -403,7 +406,8 @@
     "addPlant": "Engadir planta 🌱",
     "cropSearch": "Buscar cultivo...",
     "cropPickerTitle": "Seleccionar cultivo",
-    "varietyGeneric": "Xenérica"
+    "varietyGeneric": "Xenérica",
+    "goodWith": "Boas compañeiras: "
   },
   "plantDetail": {
     "notFound": "Planta non atopada",

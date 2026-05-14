@@ -29,7 +29,8 @@
       "harvesting": "En cosecha",
       "reminders": "Recordatorios",
       "pests": "Con plaga",
-      "needsWater": "Necesitan agua"
+      "needsWater": "Necesitan agua",
+      "yearKg": "Cosechado este año"
     },
     "weatherLoading": "🌤️ Cargando el tiempo…",
     "lunarDay": "Día",
@@ -53,7 +54,9 @@
     "emptyDesc": "Añade tu primera planta para empezar a registrar tu huerto.",
     "addPlant": "Añadir planta",
     "searchPlants": "Buscar planta…",
-    "taskEstHarvest": "🧺 {{name}} cerca de la cosecha"
+    "taskEstHarvest": "🧺 {{name}} cerca de la cosecha",
+    "taskNeglected": "👁️ {{name}} sin actividad ({{days}} días)",
+    "filterAll": "Todas"
   },
   "calendar": {
     "title": "Calendario de siembra",
@@ -403,7 +406,8 @@
     "addPlant": "Añadir planta 🌱",
     "cropSearch": "Buscar cultivo...",
     "cropPickerTitle": "Seleccionar cultivo",
-    "varietyGeneric": "Genérica"
+    "varietyGeneric": "Genérica",
+    "goodWith": "Buenas compañeras: "
   },
   "plantDetail": {
     "notFound": "Planta no encontrada",

@@ -23,6 +23,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS, CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, type CropInfo } from '../../src/data/crops';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
+import { getCompanions } from '../../src/data/companions';
 import type { Garden } from '../../src/models/garden';
 import type { Plant } from '../../src/models/plant';
 
@@ -188,6 +189,20 @@ export default function NewPlantScreen() {
                   <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
                 </Pressable>
               )}
+
+              {/* Companion hint */}
+              {selectedCrop && (() => {
+                const companions = getCompanions(selectedCrop.id).slice(0, 4);
+                if (!companions.length) return null;
+                return (
+                  <View style={[s.companionHint, { backgroundColor: '#4CAF5012', borderColor: '#4CAF5055' }]}>
+                    <Text style={[s.companionHintText, { color: '#2E7D32' }]}>
+                      🤝 {t('plantNew.goodWith')}{' '}
+                      {companions.map((c) => `${c.emoji} ${t('crops.' + c.id + '.name', { defaultValue: c.name })}`).join('  ')}
+                    </Text>
+                  </View>
+                );
+              })()}
 
               {/* Plant name */}
               <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('plantNew.nameLabel')}</Text>
@@ -468,4 +483,11 @@ const makeStyles = (
     varietyChipDays: {
       fontSize: 10,
     },
+    companionHint: {
+      marginTop: spacing.md,
+      padding: spacing.md,
+      borderRadius: radii.md,
+      borderWidth: 1,
+    },
+    companionHintText: { fontSize: fontSize.xs, lineHeight: 18 },
   });

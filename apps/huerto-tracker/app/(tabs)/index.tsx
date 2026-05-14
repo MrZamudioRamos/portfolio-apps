@@ -69,6 +69,7 @@ export default function DashboardScreen() {
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
   const [weeklyExpanded, setWeeklyExpanded] = useState(true);
   const [plantSearch, setPlantSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<import('../../src/models/plant').PlantStatus | null>(null);
 
   const weeklyTasks = useMemo(() => {
     const tasks: Array<{ emoji: string; label: string; plantId: string }> = [];
@@ -101,16 +102,43 @@ export default function DashboardScreen() {
           }
         }
       }
+      // Neglected: no activity in >10 days and plant is active
+      if (['growing', 'fruiting', 'harvesting'].includes(p.status)) {
+        const lastEntry = [...entries.items]
+          .filter((e) => e.plantId === p.id)
+          .sort((a, b) => b.date.localeCompare(a.date))[0];
+        const ref = lastEntry?.date ?? p.sowingDate;
+        if (ref) {
+          const daysInactive = Math.floor((Date.now() - new Date(ref + 'T12:00:00').getTime()) / 86_400_000);
+          if (daysInactive > 10) {
+            tasks.push({ emoji: '👁️', label: t('home.taskNeglected', { name: p.name, days: daysInactive }), plantId: p.id });
+          }
+        }
+      }
     });
     return tasks;
   }, [plants.items, entries.items, t]);
+
+  const yearHarvestKg = useMemo(() => {
+    const year = new Date().getFullYear().toString();
+    return entries.items
+      .filter((e) => e.type === 'harvest' && e.date.startsWith(year) && (e.data as any)?.unit !== 'units')
+      .reduce((sum, e) => {
+        const w = (e.data as any)?.weight;
+        const n = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
+        return sum + (isNaN(n) ? 0 : n);
+      }, 0);
+  }, [entries.items]);
+
   const filteredPlants = useMemo(() => {
-    if (!plantSearch.trim()) return plants.items;
-    const q = plantSearch.toLowerCase();
-    return plants.items.filter(
-      (p) => p.name.toLowerCase().includes(q) || (p.variety?.toLowerCase().includes(q))
-    );
-  }, [plants.items, plantSearch]);
+    let result = plants.items;
+    if (plantSearch.trim()) {
+      const q = plantSearch.toLowerCase();
+      result = result.filter((p) => p.name.toLowerCase().includes(q) || p.variety?.toLowerCase().includes(q));
+    }
+    if (statusFilter) result = result.filter((p) => p.status === statusFilter);
+    return result;
+  }, [plants.items, plantSearch, statusFilter]);
 
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
   const harvestingCount = plants.items.filter((p) => p.status === 'harvesting').length;
@@ -340,6 +368,14 @@ export default function DashboardScreen() {
                   value={needsWaterCount}
                   label={t('home.stats.needsWater')}
                   onPress={handleWaterAll}
+                />
+              )}
+              {yearHarvestKg > 0 && (
+                <StatCard
+                  emoji="⚖️"
+                  value={`${yearHarvestKg.toFixed(1)}kg`}
+                  label={t('home.stats.yearKg')}
+                  onPress={() => router.push('/stats')}
                 />
               )}
             </View>
@@ -603,6 +639,55 @@ export default function DashboardScreen() {
                     )}
                   </View>
                 )}
+                {plants.count > 2 && (() => {
+                  const presentStatuses = (Object.keys(PLANT_STATUS_CONFIG) as import('../../src/models/plant').PlantStatus[])
+                    .filter((st) => plants.items.some((p) => p.status === st));
+                  if (presentStatuses.length < 2) return null;
+                  return (
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={{ marginBottom: spacing.sm }}
+                      contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm }}
+                    >
+                      <Pressable
+                        onPress={() => setStatusFilter(null)}
+                        style={[
+                          s.filterChip,
+                          {
+                            backgroundColor: !statusFilter ? colors.primary + '22' : colors.surfaceAlt,
+                            borderColor: !statusFilter ? colors.primary : colors.border,
+                          },
+                        ]}
+                      >
+                        <Text style={[s.filterChipText, { color: !statusFilter ? colors.primary : colors.textSecondary }]}>
+                          {t('home.filterAll')}
+                        </Text>
+                      </Pressable>
+                      {presentStatuses.map((st) => {
+                        const cfg = PLANT_STATUS_CONFIG[st];
+                        const active = statusFilter === st;
+                        return (
+                          <Pressable
+                            key={st}
+                            onPress={() => setStatusFilter(active ? null : st)}
+                            style={[
+                              s.filterChip,
+                              {
+                                backgroundColor: active ? cfg.color + '22' : colors.surfaceAlt,
+                                borderColor: active ? cfg.color : colors.border,
+                              },
+                            ]}
+                          >
+                            <Text style={[s.filterChipText, { color: active ? cfg.color : colors.textSecondary }]}>
+                              {cfg.emoji} {t('plantStatus.' + st)}
+                            </Text>
+                          </Pressable>
+                        );
+                      })}
+                    </ScrollView>
+                  );
+                })()}
               </>
             )}
           </>
@@ -783,6 +868,13 @@ const makeStyles = (
       borderRadius: radii.md,
       borderWidth: 1,
     },
+    filterChip: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+    },
+    filterChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     mapBtn: {
       width: 40,
       height: 40,
