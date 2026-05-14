@@ -19,7 +19,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
 import type { Plant } from '../../src/models/plant';
-import type { Garden } from '../../src/models/garden';
+import { CROPS_BY_ID } from '../../src/data/crops';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
 const ALL_TYPES: EntryType[] = [
   'watering', 'sowing', 'transplant', 'fertilizing',
@@ -34,11 +35,11 @@ export default function NewEntryScreen() {
   const { t } = useTranslation();
   const { plantId: paramPlantId } = useLocalSearchParams<{ plantId?: string }>();
 
-  const gardens = useCollection<Garden>('gardens');
+  const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
 
-  const gardenId = gardens.items[0]?.id ?? '';
+  const gardenId = activeGarden?.id ?? '';
 
   const [selectedType, setSelectedType] = useState<EntryType>('watering');
   const [selectedPlantId, setSelectedPlantId] = useState<string | undefined>(paramPlantId);
@@ -171,7 +172,7 @@ export default function NewEntryScreen() {
                       },
                     ]}
                   >
-                    <Text style={{ fontSize: 16 }}>🌱</Text>
+                    <Text style={{ fontSize: 16 }}>{CROPS_BY_ID[p.cropId]?.emoji ?? '🌱'}</Text>
                     <Text style={[s.plantChipLabel, { color: selectedPlantId === p.id ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
                       {p.name}
                     </Text>

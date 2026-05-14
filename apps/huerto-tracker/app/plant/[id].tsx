@@ -53,6 +53,11 @@ export default function PlantDetailScreen() {
   const currentPestStatus = plant?.pestStatus ?? 'none';
   const { isPro } = usePurchases();
 
+  const plantEntryCount = useMemo(
+    () => entries.items.filter((e) => e.plantId === id).length,
+    [entries.items, id]
+  );
+
   const plantEntries = useMemo(
     () =>
       [...entries.items]
@@ -537,7 +542,9 @@ export default function PlantDetailScreen() {
 
           {/* Diary entries */}
           <View style={s.sectionHeaderRow}>
-            <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.diary')}</Text>
+            <Text style={[s.sectionTitle, { color: colors.text }]}>
+              {t('plantDetail.diary')}{plantEntryCount > 0 ? ` (${plantEntryCount})` : ''}
+            </Text>
             {plantEntries.length > 0 && (
               <Pressable onPress={() => router.push(`/(tabs)/diary?plantId=${id}` as any)}>
                 <Text style={{ color: colors.primary, fontSize: fontSize.sm }}>{t('common.viewAll')}</Text>
@@ -734,6 +741,32 @@ export default function PlantDetailScreen() {
             <Text style={[s.sectionTitle, { color: colors.textSecondary, fontSize: fontSize.xs, letterSpacing: 0.8 }]}>
               {t('plantDetail.transplantDateLabel')}
             </Text>
+            <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm }}>
+              {([0, 1] as const).map((days) => {
+                const d = new Date();
+                d.setDate(d.getDate() - days);
+                const dateStr = d.toISOString().split('T')[0];
+                const active = transplantDateInput === dateStr;
+                const label = days === 0 ? t('entryNew.today') : t('entryNew.yesterday');
+                return (
+                  <Pressable
+                    key={days}
+                    onPress={() => setTransplantDateInput(dateStr)}
+                    style={[
+                      s.modalDateBtn,
+                      {
+                        backgroundColor: active ? '#4CAF5022' : colors.surfaceAlt,
+                        borderColor: active ? '#4CAF50' : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={[s.modalDateBtnText, { color: active ? '#2E7D32' : colors.textSecondary }]}>
+                      {label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
             <TextInput
               value={transplantDateInput}
               onChangeText={setTransplantDateInput}
@@ -1051,6 +1084,13 @@ const makeStyles = (
       padding: spacing.md,
       fontSize: fontSize.md,
     },
+    modalDateBtn: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+    },
+    modalDateBtnText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     modalCancelBtn: {
       flex: 1,
       alignItems: 'center',

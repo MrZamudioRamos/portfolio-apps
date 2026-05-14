@@ -2,6 +2,7 @@ import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useSession } from '@portfolio/supabase';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,7 +25,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS, CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, type CropInfo } from '../../src/data/crops';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import { getCompanions } from '../../src/data/companions';
-import type { Garden } from '../../src/models/garden';
 import type { Plant } from '../../src/models/plant';
 
 const SECTIONS = (Object.keys(CATEGORY_CONFIG) as Array<keyof typeof CATEGORY_CONFIG>).map((cat) => ({
@@ -40,7 +40,7 @@ export default function NewPlantScreen() {
   const { t } = useTranslation();
   const { cropId: paramCropId } = useLocalSearchParams<{ cropId?: string }>();
 
-  const gardens = useCollection<Garden>('gardens');
+  const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
   const { isGuest } = useSession();
   const { isPro } = usePurchases();
@@ -114,7 +114,7 @@ export default function NewPlantScreen() {
       router.replace('/paywall');
       return;
     }
-    const gardenId = gardens.items[0]?.id;
+    const gardenId = activeGarden?.id;
     if (!gardenId) return;
     setSaving(true);
     try {
@@ -274,6 +274,32 @@ export default function NewPlantScreen() {
 
               {/* Sowing date */}
               <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('plantNew.sowingDate')}</Text>
+              <View style={[s.dateBtnsRow, { marginBottom: spacing.sm }]}>
+                {([0, 1] as const).map((days) => {
+                  const d = new Date();
+                  d.setDate(d.getDate() - days);
+                  const dateStr = d.toISOString().split('T')[0];
+                  const active = sowingDate === dateStr;
+                  const label = days === 0 ? t('entryNew.today') : t('entryNew.yesterday');
+                  return (
+                    <Pressable
+                      key={days}
+                      onPress={() => setSowingDate(dateStr)}
+                      style={[
+                        s.dateBtn,
+                        {
+                          backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
+                          borderColor: active ? colors.primary : colors.border,
+                        },
+                      ]}
+                    >
+                      <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>
+                        {label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
               <TextInput
                 value={sowingDate}
                 onChangeText={setSowingDate}
@@ -467,6 +493,14 @@ const makeStyles = (
       paddingVertical: spacing.md,
       borderBottomWidth: StyleSheet.hairlineWidth,
     },
+    dateBtnsRow: { flexDirection: 'row', gap: spacing.sm },
+    dateBtn: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+    },
+    dateBtnText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     varietyChip: {
       flexDirection: 'row',
       alignItems: 'center',
