@@ -91,61 +91,105 @@ export default function DiaryScreen() {
   );
 
   function renderEntry({ item }: { item: DiaryEntry }) {
-    const config = ENTRY_TYPE_CONFIG[item.type];
-    const plant = item.plantId ? plantsById[item.plantId] : null;
+  const config = ENTRY_TYPE_CONFIG[item.type];
+  const plant = item.plantId ? plantsById[item.plantId] : null;
 
-    return (
+  return (
+    <Pressable
+      onPress={() => router.push(`/entry/edit?id=${item.id}` as any)}
+      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+    >
       <Card padded style={s.entryCard}>
         <View style={s.entryRow}>
-          <View style={[s.entryIconBadge, { backgroundColor: config.color + '22' }]}>
+          <View
+            style={[
+              s.entryIconBadge,
+              { backgroundColor: config.color + '22' },
+            ]}
+          >
             <Text style={{ fontSize: 22 }}>{config.emoji}</Text>
           </View>
+
           <View style={{ flex: 1, marginLeft: spacing.md }}>
             <View style={s.entryTitleRow}>
-              <Text style={[s.entryType, { color: colors.text }]}>{t(`diary.filters.${item.type}`)}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Text style={[s.entryDate, { color: colors.textSecondary }]}>
-                  {formatRelative(item.date)}
-                </Text>
-                <Pressable onPress={() => router.push(`/entry/edit?id=${item.id}`)} hitSlop={8}>
-                  <Ionicons name="pencil-outline" size={14} color={colors.textDisabled} />
-                </Pressable>
-              </View>
+              <Text style={[s.entryType, { color: colors.text }]}>
+                {t(`diary.filters.${item.type}`)}
+              </Text>
+
+              <Text
+                style={[s.entryDate, { color: colors.textSecondary }]}
+              >
+                {formatRelative(item.date)}
+              </Text>
             </View>
-            {plant && (
-              <Pressable onPress={() => router.push(`/plant/${plant.id}` as any)} hitSlop={4}>
+
+            {plant && !plantId && (
+              <Pressable
+                onPress={(e) => {
+                  e.stopPropagation();
+                  router.push(`/plant/${plant.id}` as any);
+                }}
+                hitSlop={4}
+              >
                 <Text style={[s.entryPlant, { color: colors.primary }]}>
                   {CROPS_BY_ID[plant.cropId]?.emoji ?? '🌱'} {plant.name}
                 </Text>
               </Pressable>
             )}
+
             {item.notes ? (
-              <Text style={[s.entryNotes, { color: colors.textSecondary }]} numberOfLines={2}>
+              <Text
+                style={[s.entryNotes, { color: colors.textSecondary }]}
+                numberOfLines={2}
+              >
                 {item.notes}
               </Text>
             ) : null}
+
             {item.data?.weight || item.data?.units ? (
               <View style={s.harvestData}>
                 {item.data.weight ? (
-                  <Text style={[s.harvestChip, { color: colors.primary, backgroundColor: colors.surfaceAlt }]}>
+                  <Text
+                    style={[
+                      s.harvestChip,
+                      {
+                        color: colors.primary,
+                        backgroundColor: colors.surfaceAlt,
+                      },
+                    ]}
+                  >
                     ⚖️ {item.data.weight as string} kg
                   </Text>
                 ) : null}
+
                 {item.data.units ? (
-                  <Text style={[s.harvestChip, { color: colors.primary, backgroundColor: colors.surfaceAlt }]}>
+                  <Text
+                    style={[
+                      s.harvestChip,
+                      {
+                        color: colors.primary,
+                        backgroundColor: colors.surfaceAlt,
+                      },
+                    ]}
+                  >
                     🔢 {item.data.units as string} uds
                   </Text>
                 ) : null}
               </View>
             ) : null}
           </View>
+
           {item.photoUri ? (
-            <Image source={{ uri: item.photoUri }} style={s.entryThumb} />
+            <Image
+              source={{ uri: item.photoUri }}
+              style={s.entryThumb}
+            />
           ) : null}
         </View>
       </Card>
-    );
-  }
+    </Pressable>
+  );
+}
 
   const filteredPlant = plantId ? plantsById[plantId] : null;
 
