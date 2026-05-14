@@ -16,10 +16,10 @@ import {
   View,
 } from 'react-native';
 import type { DiaryEntry, EntryType } from '../models/diary-entry';
-import type { Garden } from '../models/garden';
 import { CROPS_BY_ID } from '../data';
 import type { Plant } from '../models/plant';
 import { getPestsForCrop } from '../data/pests';
+import { useActiveGarden } from '../hooks/useActiveGarden';
 
 interface QuickAction {
   type: EntryType;
@@ -51,7 +51,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
     { type: 'note',        emoji: '📝', label: t('quickLog.note'),      color: '#78909C', hasNote: true },
   ];
 
-  const gardens = useCollection<Garden>('gardens');
+  const { activeGarden } = useActiveGarden();
   const entries = useCollection<DiaryEntry>('diary_entries');
   const plants = useCollection<Plant>('plants');
 
@@ -63,7 +63,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
   const [done, setDone] = useState(false);
 
   const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
-  const gardenId = gardens.items[0]?.id ?? '';
+  const gardenId = activeGarden?.id ?? '';
   const suggestedPests = plant && crop ? getPestsForCrop(crop.id).slice(0, 3) : [];
 
   function reset() {

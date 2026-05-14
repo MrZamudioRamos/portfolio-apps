@@ -22,6 +22,7 @@ import type { ClimateZone, Garden, GardenType } from '../src/models/garden';
 import { GARDEN_TYPE_CONFIG } from '../src/models/garden';
 import { DEFAULT_GRID_ROWS, DEFAULT_GRID_COLS } from '../src/hooks/useGardenLayout';
 import { usePro as usePurchases } from '../src/hooks/usePro';
+import type { Plant } from '../src/models/plant';
 
 const ACTIVE_KEY = '@portfolio/active_garden_id';
 const ALL_PROVINCES = Object.keys(PROVINCE_ZONES).sort();
@@ -35,6 +36,7 @@ export default function GardensScreen() {
   const { isPro } = usePurchases();
 
   const gardens = useCollection<Garden>('gardens');
+  const plants = useCollection<Plant>('plants');
   const [activeId, setActiveIdState] = useState<string | null>(null);
 
   React.useEffect(() => {
@@ -151,6 +153,7 @@ export default function GardensScreen() {
           const isActive = garden.id === effectiveActiveId;
           const zc = CLIMATE_ZONE_CONFIG[garden.climateZone];
           const gtc = garden.gardenType ? GARDEN_TYPE_CONFIG[garden.gardenType] : null;
+          const plantCount = plants.items.filter((p) => p.gardenId === garden.id).length;
           return (
             <Pressable key={garden.id} onPress={() => handleSwitch(garden.id)} style={{ marginBottom: spacing.md }}>
               <Card
@@ -172,7 +175,7 @@ export default function GardensScreen() {
                       )}
                     </View>
                     <Text style={[s.gardenSub, { color: colors.textSecondary }]}>
-                      {zc?.emoji} {garden.province} · {gtc?.label ?? ''}
+                      {zc?.emoji} {garden.province} · {gtc?.label ?? ''} · 🌱 {plantCount}
                     </Text>
                   </View>
                   {isActive ? (
