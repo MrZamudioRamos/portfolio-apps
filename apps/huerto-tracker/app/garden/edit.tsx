@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PROVINCE_ZONES, CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
-import type { ClimateZone, Garden, GardenType } from '../../src/models/garden';
+import type { ClimateZone, Garden, GardenType, Hemisphere } from '../../src/models/garden';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { GRID_PRESETS, DEFAULT_GRID_ROWS, DEFAULT_GRID_COLS } from '../../src/hooks/useGardenLayout';
 
@@ -37,6 +37,7 @@ export default function GardenEditScreen() {
   const [gardenType, setGardenType] = useState<GardenType>(garden?.gardenType ?? 'huerto');
   const [gridRows, setGridRows] = useState(garden?.gridRows ?? DEFAULT_GRID_ROWS);
   const [gridCols, setGridCols] = useState(garden?.gridCols ?? DEFAULT_GRID_COLS);
+  const [hemisphere, setHemisphere] = useState<Hemisphere>(garden?.hemisphere ?? 'norte');
   const [provinceSearch, setProvinceSearch] = useState('');
   const [showProvinceModal, setShowProvinceModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -78,6 +79,7 @@ export default function GardenEditScreen() {
         gardenType,
         gridRows,
         gridCols,
+        hemisphere,
       });
       router.back();
     } finally {
@@ -156,6 +158,40 @@ export default function GardenEditScreen() {
           <View style={[s.typeTip, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
             <Text style={[s.typeTipText, { color: colors.textSecondary }]}>
               {GARDEN_TYPE_CONFIG[gardenType].emoji} {t('gardenType.' + gardenType + 'Desc')}
+            </Text>
+          </View>
+        )}
+
+        {/* Hemisphere */}
+        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.hemisphereLabel')}</Text>
+        <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm }}>
+          {(['norte', 'sur'] as const).map((h) => {
+            const active = hemisphere === h;
+            return (
+              <Pressable
+                key={h}
+                onPress={() => setHemisphere(h)}
+                style={[
+                  s.typeBtn,
+                  {
+                    flex: 1,
+                    backgroundColor: active ? colors.primary + '22' : colors.surface,
+                    borderColor: active ? colors.primary : colors.border,
+                  },
+                ]}
+              >
+                <Text style={s.typeEmoji}>{h === 'norte' ? '🌍' : '🌎'}</Text>
+                <Text style={[s.typeLabel, { color: active ? colors.primary : colors.textSecondary }]}>
+                  {t('gardenEdit.hemisphere' + h.charAt(0).toUpperCase() + h.slice(1))}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        {hemisphere === 'sur' && (
+          <View style={[s.typeTip, { backgroundColor: '#1565C015', borderColor: '#1565C0' }]}>
+            <Text style={[s.typeTipText, { color: '#1565C0' }]}>
+              🌎 {t('gardenEdit.hemisphereSurTip')}
             </Text>
           </View>
         )}

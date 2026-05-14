@@ -69,7 +69,8 @@
     "shade": "🌑 Shade",
     "days": "🗓 {{min}}–{{max}} days",
     "containerInfo": "🪴 Min. {{liters}} L pot · {{tip}}",
-    "addToGarden": "Add to garden"
+    "addToGarden": "Add to garden",
+    "hemisphereSurBanner": "Southern Hemisphere active · months reversed compared to the north"
   },
   "diary": {
     "title": "Journal",
@@ -237,7 +238,11 @@
     "gridSizeLabel": "MAP SIZE",
     "cells": "plots",
     "gridProTitle": "Pro Feature",
-    "gridProDesc": "Change the map size with the Pro plan."
+    "gridProDesc": "Change the map size with the Pro plan.",
+    "hemisphereLabel": "HEMISPHERE",
+    "hemisphereNorte": "North",
+    "hemisphereSur": "South",
+    "hemisphereSurTip": "The calendar will reverse months for the southern hemisphere (Argentina, Chile, Uruguay…)"
   },
   "gardens": {
     "title": "My gardens",
@@ -274,7 +279,11 @@
       "organico": "Organic",
       "preventivo": "Preventive",
       "quimico": "Chemical"
-    }
+    },
+    "visualSigns": "Visual signs",
+    "severityHigh": "High severity",
+    "severityMed": "Medium severity",
+    "severityLow": "Low severity"
   },
   "gardenMap": {
     "title": "Garden map",
@@ -427,7 +436,12 @@
     "harvestSummary_other": "{{count}} harvests logged",
     "units": "units",
     "goalProgress": "Season goal",
-    "photoTimeline": "📸 Progress photos"
+    "photoTimeline": "📸 Progress photos",
+    "transplantCta": "Ready to transplant?",
+    "transplantCtaDesc": "{{days}} days in seedling tray",
+    "transplantModalTitle": "Log transplant",
+    "transplantDateLabel": "TRANSPLANT DATE",
+    "transplantConfirm": "Confirm transplant"
   },
   "reminderEdit": {
     "title": "Edit reminder",

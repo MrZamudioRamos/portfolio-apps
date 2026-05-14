@@ -69,7 +69,8 @@
     "shade": "🌑 Sombra",
     "days": "🗓 {{min}}–{{max}} días",
     "containerInfo": "🪴 Maceta mín. {{liters}} L · {{tip}}",
-    "addToGarden": "Añadir al huerto"
+    "addToGarden": "Añadir al huerto",
+    "hemisphereSurBanner": "Hemisferio Sur activo · meses invertidos respecto al norte"
   },
   "diary": {
     "title": "Diario",
@@ -238,7 +239,11 @@
     "gridSizeLabel": "TAMAÑO DEL MAPA",
     "cells": "parcelas",
     "gridProTitle": "Función Pro",
-    "gridProDesc": "Cambia el tamaño del mapa con el plan Pro."
+    "gridProDesc": "Cambia el tamaño del mapa con el plan Pro.",
+    "hemisphereLabel": "HEMISFERIO",
+    "hemisphereNorte": "Norte",
+    "hemisphereSur": "Sur",
+    "hemisphereSurTip": "El calendario invertirá los meses para adaptarse al hemisferio sur (Argentina, Chile, Uruguay…)"
   },
   "gardens": {
     "title": "Mis huertos",
@@ -275,7 +280,11 @@
       "organico": "Orgánico",
       "preventivo": "Preventivo",
       "quimico": "Químico"
-    }
+    },
+    "visualSigns": "Señales visuales",
+    "severityHigh": "Severidad alta",
+    "severityMed": "Severidad media",
+    "severityLow": "Severidad baja"
   },
   "gardenMap": {
     "title": "Mapa del huerto",
@@ -429,7 +438,12 @@
     "harvestSummary_other": "{{count}} cosechas registradas",
     "units": "unidades",
     "goalProgress": "Meta de temporada",
-    "photoTimeline": "📸 Fotos de progreso"
+    "photoTimeline": "📸 Fotos de progreso",
+    "transplantCta": "¿Lista para trasplantar?",
+    "transplantCtaDesc": "{{days}} días en semillero",
+    "transplantModalTitle": "Registrar trasplante",
+    "transplantDateLabel": "FECHA DE TRASPLANTE",
+    "transplantConfirm": "Confirmar trasplante"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",

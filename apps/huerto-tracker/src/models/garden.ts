@@ -2,6 +2,7 @@ import type { BaseItem } from '@portfolio/storage';
 
 export type ClimateZone = 'atlantica' | 'mediterranea' | 'continental' | 'subtropical';
 export type GardenType = 'huerto' | 'balcon' | 'maceta';
+export type Hemisphere = 'norte' | 'sur';
 
 export interface Garden extends BaseItem {
   name: string;
@@ -11,6 +12,7 @@ export interface Garden extends BaseItem {
   photoUri?: string;
   gridRows?: number;
   gridCols?: number;
+  hemisphere?: Hemisphere;
 }
 
 export const GARDEN_TYPE_CONFIG: Record<GardenType, { label: string; emoji: string; description: string }> = {

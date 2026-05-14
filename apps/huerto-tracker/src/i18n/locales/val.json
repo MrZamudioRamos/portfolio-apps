@@ -69,7 +69,8 @@
     "shade": "🌑 Ombra",
     "days": "🗓 {{min}}–{{max}} dies",
     "containerInfo": "🪴 Test mín. {{liters}} L · {{tip}}",
-    "addToGarden": "Afig a l'hort"
+    "addToGarden": "Afig a l'hort",
+    "hemisphereSurBanner": "Hemisferi Sud actiu · mesos invertits respecte al nord"
   },
   "diary": {
     "title": "Diari",
@@ -238,7 +239,11 @@
     "gridSizeLabel": "MIDA DEL MAPA",
     "cells": "parcel·les",
     "gridProTitle": "Funció Pro",
-    "gridProDesc": "Canvia la mida del mapa amb el pla Pro."
+    "gridProDesc": "Canvia la mida del mapa amb el pla Pro.",
+    "hemisphereLabel": "HEMISFERI",
+    "hemisphereNorte": "Nord",
+    "hemisphereSur": "Sud",
+    "hemisphereSurTip": "El calendari invertira els mesos per a adaptar-se a l'hemisferi sud"
   },
   "gardens": {
     "title": "Els meus horts",
@@ -275,7 +280,11 @@
       "organico": "Orgànic",
       "preventivo": "Preventiu",
       "quimico": "Químic"
-    }
+    },
+    "visualSigns": "Senyals visuals",
+    "severityHigh": "Severitat alta",
+    "severityMed": "Severitat mitjana",
+    "severityLow": "Severitat baixa"
   },
   "gardenMap": {
     "title": "Mapa de l'hort",
@@ -428,7 +437,12 @@
     "harvestSummary_other": "{{count}} collites registrades",
     "units": "unitats",
     "goalProgress": "Objectiu de temporada",
-    "photoTimeline": "📸 Fotos de progrés"
+    "photoTimeline": "📸 Fotos de progrés",
+    "transplantCta": "Llesta per a trasplantar?",
+    "transplantCtaDesc": "{{days}} dies al planter",
+    "transplantModalTitle": "Registrar trasplantament",
+    "transplantDateLabel": "DATA DE TRASPLANTAMENT",
+    "transplantConfirm": "Confirmar trasplantament"
   },
   "reminderEdit": {
     "title": "Editar recordatori",

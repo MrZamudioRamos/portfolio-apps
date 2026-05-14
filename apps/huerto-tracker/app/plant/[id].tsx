@@ -4,16 +4,18 @@ import { useReminders } from '@portfolio/notifications';
 import { formatDate, formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -95,6 +97,11 @@ export default function PlantDetailScreen() {
     medium: `💧💧 ${t('plantDetail.waterMedium')}`,
     low: `💧 ${t('plantDetail.waterLow')}`,
   };
+
+  const [showTransplantModal, setShowTransplantModal] = useState(false);
+  const [transplantDateInput, setTransplantDateInput] = useState(
+    () => new Date().toISOString().split('T')[0]
+  );
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -320,6 +327,31 @@ export default function PlantDetailScreen() {
                   })}
                 </View>
               </View>
+            );
+          })()}
+
+          {/* Transplant CTA — show when still in seedling phase */}
+          {plant.status === 'seedling' && plant.sowingDate && (() => {
+            const daysSinceSowing = Math.floor(
+              (Date.now() - new Date(plant.sowingDate + 'T12:00:00').getTime()) / 86_400_000
+            );
+            if (daysSinceSowing < 7) return null;
+            return (
+              <Pressable
+                onPress={() => setShowTransplantModal(true)}
+                style={[s.transplantCta, { backgroundColor: '#4CAF5015', borderColor: '#4CAF50' }]}
+              >
+                <Text style={{ fontSize: 24 }}>🪴</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.transplantCtaTitle, { color: '#2E7D32' }]}>
+                    {t('plantDetail.transplantCta')}
+                  </Text>
+                  <Text style={[s.transplantCtaDesc, { color: colors.textSecondary }]}>
+                    {t('plantDetail.transplantCtaDesc', { days: daysSinceSowing })}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color="#4CAF50" />
+              </Pressable>
             );
           })()}
 
@@ -664,6 +696,49 @@ export default function PlantDetailScreen() {
           </Pressable>
         </View>
       </ScrollView>
+
+      {/* Transplant modal */}
+      <Modal visible={showTransplantModal} transparent animationType="slide">
+        <Pressable style={s.modalOverlay} onPress={() => setShowTransplantModal(false)}>
+          <Pressable style={[s.transplantModal, { backgroundColor: colors.surface }]} onPress={(e) => e.stopPropagation()}>
+            <Text style={[s.transplantModalTitle, { color: colors.text }]}>
+              {t('plantDetail.transplantModalTitle')}
+            </Text>
+            <Text style={[s.sectionTitle, { color: colors.textSecondary, fontSize: fontSize.xs, letterSpacing: 0.8 }]}>
+              {t('plantDetail.transplantDateLabel')}
+            </Text>
+            <TextInput
+              value={transplantDateInput}
+              onChangeText={setTransplantDateInput}
+              placeholder="AAAA-MM-DD"
+              placeholderTextColor={colors.textDisabled}
+              style={[s.transplantInput, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
+              keyboardType="numeric"
+            />
+            <View style={{ flexDirection: 'row', gap: spacing.md, marginTop: spacing.xl }}>
+              <Pressable
+                onPress={() => setShowTransplantModal(false)}
+                style={[s.modalCancelBtn, { backgroundColor: colors.surfaceAlt }]}
+              >
+                <Text style={[{ color: colors.textSecondary, fontWeight: fontWeight.medium }]}>
+                  {t('common.cancel')}
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={async () => {
+                  await plants.update(id, { status: 'transplanted', transplantDate: transplantDateInput });
+                  setShowTransplantModal(false);
+                }}
+                style={[s.modalConfirmBtn, { backgroundColor: '#4CAF50' }]}
+              >
+                <Text style={[{ color: '#fff', fontWeight: fontWeight.semibold }]}>
+                  {t('plantDetail.transplantConfirm')}
+                </Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -918,5 +993,49 @@ const makeStyles = (
     goalBarFill: {
       height: 6,
       borderRadius: 3,
+    },
+    transplantCta: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      padding: spacing.md,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      marginBottom: spacing.md,
+    },
+    transplantCtaTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    transplantCtaDesc: { fontSize: fontSize.xs, marginTop: 2 },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.45)',
+      justifyContent: 'flex-end',
+    },
+    transplantModal: {
+      borderTopLeftRadius: radii.xl ?? 20,
+      borderTopRightRadius: radii.xl ?? 20,
+      padding: spacing.xl,
+      paddingBottom: spacing['2xl'],
+      gap: spacing.md,
+    },
+    transplantModalTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
+    transplantInput: {
+      borderWidth: 1.5,
+      borderRadius: radii.md,
+      padding: spacing.md,
+      fontSize: fontSize.md,
+    },
+    modalCancelBtn: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.md,
+      borderRadius: radii.md,
+    },
+    modalConfirmBtn: {
+      flex: 2,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.md,
+      borderRadius: radii.md,
     },
   });

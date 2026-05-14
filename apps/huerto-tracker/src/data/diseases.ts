@@ -11,8 +11,10 @@ export interface DiseaseInfo {
   name: string;
   type: DiseaseType;
   emoji: string;
+  severity: 1 | 2 | 3;
   affectedCrops: string[];
   symptoms: string;
+  visualSigns: string[];
   description: string;
   treatments: Treatment[];
 }
@@ -23,8 +25,10 @@ export const DISEASES: DiseaseInfo[] = [
     name: 'Mildiu',
     type: 'enfermedad',
     emoji: '🍂',
+    severity: 2,
     affectedCrops: ['tomate', 'pimiento', 'pepino', 'zanahoria', 'lechuga'],
     symptoms: 'Manchas amarillas en el haz de las hojas, pelusa grisácea en el envés. Las hojas se secan y caen.',
+    visualSigns: ['🟡 Manchas amarillas en haz', '🩶 Pelusa gris en envés', '🍂 Hojas que caen'],
     description: 'Enfermedad fúngica causada por Peronospora spp. Favorecida por humedad alta y temperaturas frescas.',
     treatments: [
       { type: 'organico', name: 'Caldo bordelés', instructions: 'Aplicar al inicio de síntomas. Repetir cada 7-10 días si persiste lluvia.' },
@@ -37,8 +41,10 @@ export const DISEASES: DiseaseInfo[] = [
     name: 'Oídio',
     type: 'enfermedad',
     emoji: '🤍',
+    severity: 2,
     affectedCrops: ['calabacin', 'pepino', 'tomate', 'pimiento', 'judias'],
     symptoms: 'Polvillo blanco en hojas, tallos y frutos. Las hojas afectadas se enrollan y secan.',
+    visualSigns: ['⚪ Polvillo blanco superficial', '🌀 Hojas enrolladas', '🔴 Frutos con manchas blancas'],
     description: 'Hongo superficial (Erysiphe spp.) que prospera con días cálidos y noches frías, con humedad ambiental alta.',
     treatments: [
       { type: 'organico', name: 'Leche diluida', instructions: 'Mezclar 1 parte de leche en 9 de agua y pulverizar semanalmente.' },
@@ -51,8 +57,10 @@ export const DISEASES: DiseaseInfo[] = [
     name: 'Botrytis (Moho gris)',
     type: 'enfermedad',
     emoji: '🫁',
+    severity: 3,
     affectedCrops: ['tomate', 'pimiento', 'fresa', 'lechuga', 'albahaca'],
     symptoms: 'Podredumbre blanda cubierta de pelusa gris-parda. Afecta tallos, hojas y frutos en condiciones húmedas.',
+    visualSigns: ['🩶 Pelusa gris-parda visible', '🟤 Tejido blando podrido', '💧 Peor en zonas húmedas'],
     description: 'Botrytis cinerea es uno de los hongos más comunes en huertas. Muy activo en primavera-otoño con alta humedad.',
     treatments: [
       { type: 'preventivo', name: 'Poda de partes afectadas', instructions: 'Eliminar y destruir (no compostar) tejido infectado inmediatamente.' },
@@ -65,8 +73,10 @@ export const DISEASES: DiseaseInfo[] = [
     name: 'Pulgón',
     type: 'plaga',
     emoji: '🐜',
+    severity: 2,
     affectedCrops: ['tomate', 'pimiento', 'judias', 'habas', 'lechuga', 'col', 'brocoli', 'coliflor'],
     symptoms: 'Colonias de pequeños insectos (verdes, negros o grises) en brotes y envés de hojas. Hojas deformadas y presencia de melaza.',
+    visualSigns: ['🐜 Colonias en brotes', '🍬 Melaza pegajosa', '🌀 Hojas deformadas', '🐜 Hormigas cerca'],
     description: 'Los pulgones chupan savia debilitando la planta y transmitiendo virus. Son atraídos por el exceso de nitrógeno.',
     treatments: [
       { type: 'organico', name: 'Jabón potásico', instructions: 'Pulverizar directamente sobre las colonias, mojando bien el envés. Repetir 2-3 veces con 5 días de intervalo.' },
@@ -79,8 +89,10 @@ export const DISEASES: DiseaseInfo[] = [
     name: 'Mosca blanca',
     type: 'plaga',
     emoji: '🦟',
+    severity: 2,
     affectedCrops: ['tomate', 'pimiento', 'pepino', 'calabacin', 'col'],
     symptoms: 'Nubecitas de pequeñas moscas blancas al mover las plantas. Hojas con melaza y fumagina negra.',
+    visualSigns: ['☁️ Nube blanca al mover', '⬛ Fumagina negra', '🍬 Melaza pegajosa'],
     description: 'Trialeurodes vaporariorum. Los adultos y larvas chupan savia. Ciclo corto en verano, muy difícil de erradicar.',
     treatments: [
       { type: 'organico', name: 'Trampas amarillas adhesivas', instructions: 'Colocar a la altura del follaje. Cambiar cuando estén llenas.' },
@@ -93,8 +105,10 @@ export const DISEASES: DiseaseInfo[] = [
     name: 'Araña roja',
     type: 'plaga',
     emoji: '🕷️',
+    severity: 3,
     affectedCrops: ['tomate', 'pimiento', 'pepino', 'fresa', 'judias'],
     symptoms: 'Punteado amarillento en hojas, telaraña fina en el envés. Hojas bronceadas y caída prematura.',
+    visualSigns: ['🕸️ Telaraña fina en envés', '🟡 Punteado amarillo', '🟤 Hojas bronceadas'],
     description: 'Tetranychus urticae. Muy activa en verano con calor y sequía. Se multiplica rápidamente.',
     treatments: [
       { type: 'preventivo', name: 'Aumentar humedad', instructions: 'Pulverizar agua en el ambiente al atardecer. No en las propias hojas.' },
@@ -107,8 +121,10 @@ export const DISEASES: DiseaseInfo[] = [
     name: 'Trips',
     type: 'plaga',
     emoji: '🪲',
+    severity: 3,
     affectedCrops: ['pimiento', 'tomate', 'pepino', 'cebolla', 'ajo'],
     symptoms: 'Plateado o bronceado en hojas y frutos. Pequeños raspados. Transmite el virus del bronceado del tomate.',
+    visualSigns: ['⚪ Zonas plateadas en hojas', '🟤 Frutos bronceados', '🔍 Insectos alargados < 1mm'],
     description: 'Frankiniella occidentalis. Muy difícil de controlar una vez establecido. Prefiere tiempo cálido y seco.',
     treatments: [
       { type: 'preventivo', name: 'Trampas azules adhesivas', instructions: 'Monitorizar y detectar infestaciones tempranas.' },
@@ -121,8 +137,10 @@ export const DISEASES: DiseaseInfo[] = [
     name: 'Clorosis férrica',
     type: 'deficiencia',
     emoji: '💛',
+    severity: 1,
     affectedCrops: ['tomate', 'pimiento', 'fresa', 'pepino'],
     symptoms: 'Amarillamiento entre nervios de hojas jóvenes mientras los nervios permanecen verdes.',
+    visualSigns: ['💛 Hoja amarilla con nervios verdes', '🌿 Solo hojas jóvenes', '🌱 Crecimiento lento'],
     description: 'Falta de hierro asimilable, normalmente por pH alto del sustrato o exceso de cal en el agua de riego.',
     treatments: [
       { type: 'organico', name: 'Quelato de hierro', instructions: 'Aplicar al sustrato o foliarmente (0,5 g/L). Repetir a las 2 semanas si es necesario.' },
@@ -135,8 +153,10 @@ export const DISEASES: DiseaseInfo[] = [
     name: 'Carencia de calcio',
     type: 'deficiencia',
     emoji: '🟤',
+    severity: 2,
     affectedCrops: ['tomate', 'pimiento', 'lechuga', 'col'],
     symptoms: 'Pudrición apical en tomates y pimientos. Bordes de hojas interiores marrones en lechugas (tip burn).',
+    visualSigns: ['🟤 Mancha oscura en punta del fruto', '🍅 Base del tomate negra', '🥬 Bordes marrones en lechuga'],
     description: 'La necrosis apical no es falta de calcio en el suelo, sino falta de transporte por riego irregular o exceso de potasio.',
     treatments: [
       { type: 'preventivo', name: 'Riego regular', instructions: 'Mantener humedad constante en el sustrato evitando ciclos de sequía y encharcamiento.' },

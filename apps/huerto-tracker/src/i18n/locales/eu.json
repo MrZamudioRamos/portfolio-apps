@@ -69,7 +69,8 @@
     "shade": "🌑 Itzala",
     "days": "🗓 {{min}}–{{max}} egun",
     "containerInfo": "🪴 Gutxieneko ontzia {{liters}} L · {{tip}}",
-    "addToGarden": "Baratzera gehitu"
+    "addToGarden": "Baratzera gehitu",
+    "hemisphereSurBanner": "Hego hemisferioa aktibo · hilabeteak alderantziz iparraldearekin alderatuta"
   },
   "diary": {
     "title": "Egunkaria",
@@ -238,7 +239,11 @@
     "gridSizeLabel": "MAPAREN TAMAINA",
     "cells": "lursail",
     "gridProTitle": "Pro funtzioa",
-    "gridProDesc": "Aldatu maparen tamaina Pro planarekin."
+    "gridProDesc": "Aldatu maparen tamaina Pro planarekin.",
+    "hemisphereLabel": "HEMISFERIO",
+    "hemisphereNorte": "Iparraldea",
+    "hemisphereSur": "Hegoaldea",
+    "hemisphereSurTip": "Egutegia hegoaldeko hemisferiorako hilabeteak alderantziz jarriko ditu"
   },
   "gardens": {
     "title": "Nire baratzeak",
@@ -275,7 +280,11 @@
       "organico": "Ekologikoa",
       "preventivo": "Prebentiboa",
       "quimico": "Kimikoa"
-    }
+    },
+    "visualSigns": "Ikusizko seinaleak",
+    "severityHigh": "Larritasun altua",
+    "severityMed": "Larritasun ertaina",
+    "severityLow": "Larritasun txikia"
   },
   "gardenMap": {
     "title": "Baratzearen mapa",
@@ -428,7 +437,12 @@
     "harvestSummary_other": "{{count}} uzta erregistratuak",
     "units": "ale",
     "goalProgress": "Denboraldi helburua",
-    "photoTimeline": "📸 Aurrerapen argazkiak"
+    "photoTimeline": "📸 Aurrerapen argazkiak",
+    "transplantCta": "Landatzeko prest?",
+    "transplantCtaDesc": "{{days}} egun hazitegian",
+    "transplantModalTitle": "Landaketa erregistratu",
+    "transplantDateLabel": "LANDAKETA DATA",
+    "transplantConfirm": "Landaketa berretsi"
   },
   "reminderEdit": {
     "title": "Gogorarazlea editatu",

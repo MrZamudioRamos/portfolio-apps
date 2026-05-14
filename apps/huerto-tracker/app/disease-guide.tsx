@@ -136,8 +136,21 @@ export default function DiseaseGuideScreen() {
                   <Text style={{ fontSize: 28 }}>{disease.emoji}</Text>
                   <View style={{ flex: 1 }}>
                     <Text style={[s.diseaseName, { color: colors.text }]}>{disease.name}</Text>
-                    <View style={[s.typeBadge, { backgroundColor: color + '22' }]}>
-                      <Text style={[s.typeBadgeText, { color }]}>{t('diseaseGuide.type.' + disease.type)}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
+                      <View style={[s.typeBadge, { backgroundColor: color + '22' }]}>
+                        <Text style={[s.typeBadgeText, { color }]}>{t('diseaseGuide.type.' + disease.type)}</Text>
+                      </View>
+                      <View style={s.severityRow}>
+                        {[1, 2, 3].map((dot) => (
+                          <View
+                            key={dot}
+                            style={[
+                              s.severityDot,
+                              { backgroundColor: dot <= disease.severity ? color : colors.border },
+                            ]}
+                          />
+                        ))}
+                      </View>
                     </View>
                   </View>
                   <Ionicons
@@ -156,6 +169,20 @@ export default function DiseaseGuideScreen() {
                     <Text style={[s.body, { color: colors.text }]}>
                       {disease.affectedCrops.map((c) => t('crops.' + c + '.name')).join(', ')}
                     </Text>
+
+                    {/* Visual signs */}
+                    {disease.visualSigns.length > 0 && (
+                      <>
+                        <Text style={[s.label, { color: colors.textSecondary }]}>{t('diseaseGuide.visualSigns')}</Text>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
+                          {disease.visualSigns.map((sign, i) => (
+                            <View key={i} style={[s.visualSignChip, { backgroundColor: color + '15', borderColor: color + '44' }]}>
+                              <Text style={[s.visualSignText, { color }]}>{sign}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </>
+                    )}
 
                     {/* Symptoms */}
                     <Text style={[s.label, { color: colors.textSecondary }]}>{t('diseaseGuide.symptoms')}</Text>
@@ -259,4 +286,13 @@ const makeStyles = (
     treatmentTypeText: { fontSize: 9, fontWeight: fontWeight.bold, textTransform: 'uppercase' },
     treatmentName: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     treatmentInstructions: { fontSize: fontSize.xs, lineHeight: 16, marginTop: 2 },
+    severityRow: { flexDirection: 'row', gap: 3, alignItems: 'center' },
+    severityDot: { width: 7, height: 7, borderRadius: 4 },
+    visualSignChip: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 3,
+      borderRadius: radii.full,
+      borderWidth: 1,
+    },
+    visualSignText: { fontSize: 11, fontWeight: fontWeight.medium },
   });

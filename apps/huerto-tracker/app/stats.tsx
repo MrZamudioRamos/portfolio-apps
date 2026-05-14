@@ -103,18 +103,26 @@ export default function StatsScreen() {
       return sum + (isNaN(parsed) ? 0 : parsed);
     }, 0);
 
-    // Top crops by harvest
-    const cropHarvestCounts = new Map<string, number>();
+    // Top crops by harvest (count + kg)
+    const cropHarvestData = new Map<string, { count: number; kg: number }>();
     harvestEntries.forEach((e) => {
       if (e.plantId) {
         const plant = plants.items.find((p) => p.id === e.plantId);
-        if (plant) cropHarvestCounts.set(plant.cropId, (cropHarvestCounts.get(plant.cropId) ?? 0) + 1);
+        if (plant) {
+          const prev = cropHarvestData.get(plant.cropId) ?? { count: 0, kg: 0 };
+          const w = (e.data as any)?.weight;
+          const unit = (e.data as any)?.unit;
+          const parsed = unit !== 'units' && typeof w !== 'undefined'
+            ? (typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0)
+            : 0;
+          cropHarvestData.set(plant.cropId, { count: prev.count + 1, kg: prev.kg + (isNaN(parsed) ? 0 : parsed) });
+        }
       }
     });
-    const topCrops = [...cropHarvestCounts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
-      .map(([cropId, count]) => ({ crop: CROPS_BY_ID[cropId], count }))
+    const topCrops = [...cropHarvestData.entries()]
+      .sort((a, b) => (b[1].kg || b[1].count) - (a[1].kg || a[1].count))
+      .slice(0, 4)
+      .map(([cropId, data]) => ({ crop: CROPS_BY_ID[cropId], ...data }))
       .filter((x) => x.crop);
 
     // Harvest by year
@@ -295,10 +303,19 @@ export default function StatsScreen() {
                     <Text style={[s.rankNum, { color: colors.textDisabled }]}>#{i + 1}</Text>
                     <Text style={{ fontSize: 22 }}>{item.crop.emoji}</Text>
                     <Text style={[s.rankName, { color: colors.text }]}>{t('crops.' + item.crop.id + '.name')}</Text>
-                    <View style={[s.rankBadge, { backgroundColor: '#FF704322' }]}>
-                      <Text style={[s.rankBadgeText, { color: '#FF7043' }]}>
-                        {t('stats.harvestCount', { count: item.count })}
-                      </Text>
+                    <View style={{ gap: 3, alignItems: 'flex-end' }}>
+                      {item.kg > 0 && (
+                        <View style={[s.rankBadge, { backgroundColor: '#FF704322' }]}>
+                          <Text style={[s.rankBadgeText, { color: '#FF7043' }]}>
+                            ⚖️ {item.kg.toFixed(1)} kg
+                          </Text>
+                        </View>
+                      )}
+                      <View style={[s.rankBadge, { backgroundColor: colors.surfaceAlt }]}>
+                        <Text style={[s.rankBadgeText, { color: colors.textSecondary }]}>
+                          {t('stats.harvestCount', { count: item.count })}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>

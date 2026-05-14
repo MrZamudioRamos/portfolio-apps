@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS, CATEGORY_CONFIG } from '../../src/data/crops';
+import { getSeasonalTip } from '../../src/data/seasonalTips';
 import type { Garden } from '../../src/models/garden';
 import type { CropInfo } from '../../src/data/crops';
 import { getLunarDay, getMonthGardeningProfile } from '../../src/utils/lunar';
@@ -28,6 +29,8 @@ export default function CalendarScreen() {
   const zone = garden?.climateZone ?? 'mediterranea';
   const gardenType = garden?.gardenType ?? 'huerto';
   const isContainer = gardenType !== 'huerto';
+  const hemisphere = garden?.hemisphere ?? 'norte';
+  const effectiveMonth = hemisphere === 'sur' ? ((month - 1 + 6) % 12) + 1 : month;
 
   useFocusEffect(
     useCallback(() => {
@@ -45,10 +48,10 @@ export default function CalendarScreen() {
 
   const availableCrops = useMemo(
     () => {
-      const base = CROPS.filter((c) => c.sowingMonths[zone]?.includes(month));
+      const base = CROPS.filter((c) => c.sowingMonths[zone]?.includes(effectiveMonth));
       return isContainer ? base.filter((c) => isContainerFriendly(c.id)) : base;
     },
-    [zone, month, isContainer]
+    [zone, effectiveMonth, isContainer]
   );
 
   const today = new Date();
@@ -60,6 +63,11 @@ export default function CalendarScreen() {
   const monthProfile = useMemo(
     () => getMonthGardeningProfile(year, month),
     [year, month]
+  );
+
+  const seasonalTip = useMemo(
+    () => getSeasonalTip(zone as any, month),
+    [zone, month]
   );
 
   const GARDENING_COLORS: Record<string, string> = {
@@ -182,6 +190,16 @@ export default function CalendarScreen() {
         </Pressable>
       </View>
 
+      {/* Hemisphere banner */}
+      {hemisphere === 'sur' && (
+        <View style={[s.containerBanner, { backgroundColor: '#1565C018', borderColor: '#1565C0', marginBottom: 0 }]}>
+          <Text style={s.containerBannerEmoji}>🌎</Text>
+          <Text style={[s.containerBannerText, { color: colors.text }]}>
+            {t('calendar.hemisphereSurBanner')}
+          </Text>
+        </View>
+      )}
+
       {/* Container mode banner */}
       {isContainer && (
         <View style={[s.containerBanner, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
@@ -221,6 +239,14 @@ export default function CalendarScreen() {
             {GARDENING_EMOJI[monthProfile]} {t(`lunar.monthLabel.${monthProfile}`)}
           </Text>
         </View>
+      </View>
+
+      {/* Seasonal tip */}
+      <View style={[s.lunarBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, marginTop: spacing.sm }]}>
+        <Text style={{ fontSize: 22 }}>{seasonalTip.emoji}</Text>
+        <Text style={[{ flex: 1, fontSize: fontSize.sm, lineHeight: 20, color: colors.text }]}>
+          {seasonalTip.text}
+        </Text>
       </View>
 
       {/* Subtitle + link to companions */}
