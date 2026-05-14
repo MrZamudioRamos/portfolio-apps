@@ -90,6 +90,19 @@ export default function PlantDetailScreen() {
     [reminders.items, id]
   );
 
+  const treatmentCarencia = useMemo(() => {
+    const treatments = entries.items
+      .filter((e) => e.plantId === id && e.type === 'treatment' && (e.data as any)?.waitDays)
+      .sort((a, b) => b.date.localeCompare(a.date));
+    if (!treatments[0]) return null;
+    const last = treatments[0];
+    const waitDays = Number((last.data as any).waitDays);
+    const treatDate = new Date(last.date + 'T12:00:00');
+    const safeDate = new Date(treatDate.getTime() + waitDays * 86_400_000);
+    const daysLeft = Math.ceil((safeDate.getTime() - Date.now()) / 86_400_000);
+    return { product: (last.data as any)?.product as string | undefined, daysLeft };
+  }, [entries.items, id]);
+
   const { t } = useTranslation();
 
   const SUN_LABEL: Record<string, string> = {
@@ -471,6 +484,29 @@ export default function PlantDetailScreen() {
                 );
               })}
             </>
+          )}
+
+          {/* Treatment carencia banner */}
+          {treatmentCarencia && (
+            <View style={[s.harvestSummaryCard, {
+              backgroundColor: treatmentCarencia.daysLeft > 0 ? '#EF535018' : '#4CAF5018',
+              borderColor: treatmentCarencia.daysLeft > 0 ? '#EF5350' : '#4CAF50',
+            }]}>
+              <Text style={{ fontSize: 22 }}>🧴</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.harvestSummaryTitle, { color: treatmentCarencia.daysLeft > 0 ? '#EF5350' : '#4CAF50' }]}>
+                  {treatmentCarencia.daysLeft > 0
+                    ? t('plantDetail.treatmentActive')
+                    : t('plantDetail.treatmentSafeToday')}
+                </Text>
+                <Text style={[s.harvestSummaryValue, { color: colors.textSecondary }]}>
+                  {treatmentCarencia.product ? `${treatmentCarencia.product} · ` : ''}
+                  {treatmentCarencia.daysLeft > 0
+                    ? t('plantDetail.treatmentSafeIn', { days: treatmentCarencia.daysLeft })
+                    : '✓'}
+                </Text>
+              </View>
+            </View>
           )}
 
           {/* Harvest summary + goal progress */}

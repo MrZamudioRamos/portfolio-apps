@@ -146,33 +146,41 @@ export default function DiaryScreen() {
               </Text>
             ) : null}
 
-            {item.data?.weight || item.data?.units ? (
+            {item.data && Object.keys(item.data).length > 0 ? (
               <View style={s.harvestData}>
-                {item.data.weight ? (
-                  <Text
-                    style={[
-                      s.harvestChip,
-                      {
-                        color: colors.primary,
-                        backgroundColor: colors.surfaceAlt,
-                      },
-                    ]}
-                  >
-                    ⚖️ {item.data.weight as string} kg
+                {(item.data as any).weight ? (
+                  <Text style={[s.harvestChip, { color: '#FF7043', backgroundColor: '#FF704318' }]}>
+                    ⚖️ {(item.data as any).weight} kg
                   </Text>
                 ) : null}
-
-                {item.data.units ? (
-                  <Text
-                    style={[
-                      s.harvestChip,
-                      {
-                        color: colors.primary,
-                        backgroundColor: colors.surfaceAlt,
-                      },
-                    ]}
-                  >
-                    🔢 {item.data.units as string} uds
+                {(item.data as any).units ? (
+                  <Text style={[s.harvestChip, { color: colors.primary, backgroundColor: colors.surfaceAlt }]}>
+                    🔢 {(item.data as any).units} uds
+                  </Text>
+                ) : null}
+                {(item.data as any).quality ? (
+                  <Text style={[s.harvestChip, { color: '#F59E0B', backgroundColor: '#F59E0B18' }]}>
+                    {'⭐'.repeat(Number((item.data as any).quality))}
+                  </Text>
+                ) : null}
+                {(item.data as any).liters ? (
+                  <Text style={[s.harvestChip, { color: '#29B6F6', backgroundColor: '#29B6F618' }]}>
+                    💧 {(item.data as any).liters} L
+                  </Text>
+                ) : null}
+                {(item.data as any).product ? (
+                  <Text style={[s.harvestChip, { color: colors.textSecondary, backgroundColor: colors.surfaceAlt }]} numberOfLines={1}>
+                    {(item.data as any).product}
+                  </Text>
+                ) : null}
+                {(item.data as any).waitDays ? (
+                  <Text style={[s.harvestChip, { color: '#EF5350', backgroundColor: '#EF535018' }]}>
+                    ⏳ {(item.data as any).waitDays}d carencia
+                  </Text>
+                ) : null}
+                {(item.data as any).amount ? (
+                  <Text style={[s.harvestChip, { color: '#FFA726', backgroundColor: '#FFA72618' }]}>
+                    {(item.data as any).amount} {(item.data as any).unit ?? ''}
                   </Text>
                 ) : null}
               </View>

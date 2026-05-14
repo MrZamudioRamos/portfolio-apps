@@ -235,7 +235,24 @@
     "units": "Unidades",
     "photo": "FOTO (opcional)",
     "addPhoto": "Añadir foto",
-    "saveEntry": "Guardar entrada"
+    "saveEntry": "Guardar entrada",
+    "watering": "RIEGO",
+    "liters": "Litros",
+    "litersPlaceholder": "10",
+    "waterMethod": "Método",
+    "fertilizing": "ABONO",
+    "fertProduct": "Producto",
+    "fertProductPlaceholder": "Ej. Compost, NPK 15-15-15...",
+    "fertAmount": "Cantidad",
+    "fertUnit": "Unidad",
+    "treatment": "TRATAMIENTO",
+    "treatProduct": "Producto",
+    "treatProductPlaceholder": "Ej. Cobre, Neem, Azufre...",
+    "treatDose": "Dosis",
+    "treatDosePlaceholder": "Ej. 2 ml/L",
+    "treatWaitDays": "Días carencia",
+    "treatWaitDaysPlaceholder": "3",
+    "harvestQuality": "CALIDAD"
   },
   "gardenEdit": {
     "title": "Editar huerto",
@@ -468,7 +485,10 @@
     "transplantCtaDesc": "{{days}} días en semillero",
     "transplantModalTitle": "Registrar trasplante",
     "transplantDateLabel": "FECHA DE TRASPLANTE",
-    "transplantConfirm": "Confirmar trasplante"
+    "transplantConfirm": "Confirmar trasplante",
+    "treatmentActive": "Tratamiento activo",
+    "treatmentSafeIn": "Seguro para cosechar en {{days}} día(s)",
+    "treatmentSafeToday": "Ya es seguro cosechar"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",
@@ -573,7 +593,12 @@
     "harvestCount_one": "{{count}} cosecha",
     "harvestCount_other": "{{count}} cosechas",
     "successRate": "Tasa de éxito",
-    "avgDaysToHarvest": "Media días a cosecha"
+    "avgDaysToHarvest": "Media días a cosecha",
+    "totalLiters": "Litros totales",
+    "litersPerKg": "L por kg cosechado",
+    "waterEfficiency": "Eficiencia hídrica",
+    "avgQuality": "Calidad media",
+    "noLitersData": "Registra litros en tus riegos para ver estadísticas"
   },
   "welcome": {
     "title": "Huerto Tracker",
@@ -1000,5 +1025,17 @@
       "name": "Lavanda",
       "tips": "Perenne muy resistente a la sequía. Corta los tallos florales a 1/3 tras la floración para mantener forma compacta. Atrae abejas y repele polillas y pulgones."
     }
+  },
+  "waterMethod": {
+    "hand": "Mano",
+    "drip": "Goteo",
+    "sprinkler": "Aspersor",
+    "flood": "Surco / Inundación"
+  },
+  "fertUnit": {
+    "g": "g",
+    "kg": "kg",
+    "ml": "ml",
+    "L": "L"
   }
 }

@@ -101,26 +101,37 @@ export default function StatsScreen() {
       return sum + (isNaN(parsed) ? 0 : parsed);
     }, 0);
 
-    // Top crops by harvest (count + kg)
-    const cropHarvestData = new Map<string, { count: number; kg: number }>();
+    // Top crops by harvest (count + kg + avg quality)
+    const cropHarvestData = new Map<string, { count: number; kg: number; qualitySum: number; qualityCount: number }>();
     harvestEntries.forEach((e) => {
       if (e.plantId) {
         const plant = plants.items.find((p) => p.id === e.plantId);
         if (plant) {
-          const prev = cropHarvestData.get(plant.cropId) ?? { count: 0, kg: 0 };
+          const prev = cropHarvestData.get(plant.cropId) ?? { count: 0, kg: 0, qualitySum: 0, qualityCount: 0 };
           const w = (e.data as any)?.weight;
           const unit = (e.data as any)?.unit;
           const parsed = unit !== 'units' && typeof w !== 'undefined'
             ? (typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0)
             : 0;
-          cropHarvestData.set(plant.cropId, { count: prev.count + 1, kg: prev.kg + (isNaN(parsed) ? 0 : parsed) });
+          const q = Number((e.data as any)?.quality ?? 0);
+          cropHarvestData.set(plant.cropId, {
+            count: prev.count + 1,
+            kg: prev.kg + (isNaN(parsed) ? 0 : parsed),
+            qualitySum: prev.qualitySum + q,
+            qualityCount: q > 0 ? prev.qualityCount + 1 : prev.qualityCount,
+          });
         }
       }
     });
     const topCrops = [...cropHarvestData.entries()]
       .sort((a, b) => (b[1].kg || b[1].count) - (a[1].kg || a[1].count))
       .slice(0, 4)
-      .map(([cropId, data]) => ({ crop: CROPS_BY_ID[cropId], ...data }))
+      .map(([cropId, data]) => ({
+        crop: CROPS_BY_ID[cropId],
+        count: data.count,
+        kg: data.kg,
+        avgQuality: data.qualityCount > 0 ? data.qualitySum / data.qualityCount : null,
+      }))
       .filter((x) => x.crop);
 
     // Harvest by year
@@ -148,6 +159,21 @@ export default function StatsScreen() {
       .map((p) => Math.floor((new Date(p.firstHarvestDate! + 'T12:00:00').getTime() - new Date(p.sowingDate! + 'T12:00:00').getTime()) / 86_400_000));
     const avgDays = avgDaysArr.length > 0 ? Math.round(avgDaysArr.reduce((s, d) => s + d, 0) / avgDaysArr.length) : null;
 
+    // Water stats
+    const wateringEntries = allEntries.filter((e) => e.type === 'watering');
+    const totalLiters = wateringEntries.reduce((sum, e) => {
+      const l = (e.data as any)?.liters;
+      const parsed = typeof l === 'string' ? parseFloat(l) : typeof l === 'number' ? l : 0;
+      return sum + (isNaN(parsed) ? 0 : parsed);
+    }, 0);
+    const litersPerKg = totalWeight > 0 && totalLiters > 0 ? totalLiters / totalWeight : null;
+
+    // Average harvest quality
+    const qualityHarvests = harvestEntries.filter((e) => (e.data as any)?.quality);
+    const avgQuality = qualityHarvests.length > 0
+      ? qualityHarvests.reduce((s, e) => s + Number((e.data as any).quality), 0) / qualityHarvests.length
+      : null;
+
     return {
       totalEntries: allEntries.length,
       totalHarvests: harvestEntries.length,
@@ -162,6 +188,9 @@ export default function StatsScreen() {
       yearlyHarvest,
       successRate,
       avgDays,
+      totalLiters: totalLiters > 0 ? totalLiters : null,
+      litersPerKg,
+      avgQuality,
     };
   }, [entries.items, plants.items, i18n.language]);
 
@@ -216,6 +245,33 @@ export default function StatsScreen() {
               emoji="⏱️"
               value={`${stats.avgDays}d`}
               label={t('stats.avgDaysToHarvest')}
+              colors={colors}
+              s={s}
+            />
+          )}
+          {stats.totalLiters !== null && (
+            <KeyStat
+              emoji="🪣"
+              value={`${Math.round(stats.totalLiters)} L`}
+              label={t('stats.totalLiters')}
+              colors={colors}
+              s={s}
+            />
+          )}
+          {stats.litersPerKg !== null && (
+            <KeyStat
+              emoji="💧"
+              value={`${Math.round(stats.litersPerKg)} L/kg`}
+              label={t('stats.litersPerKg')}
+              colors={colors}
+              s={s}
+            />
+          )}
+          {stats.avgQuality !== null && (
+            <KeyStat
+              emoji="⭐"
+              value={stats.avgQuality.toFixed(1)}
+              label={t('stats.avgQuality')}
               colors={colors}
               s={s}
             />
@@ -343,6 +399,11 @@ export default function StatsScreen() {
                           {t('stats.harvestCount', { count: item.count })}
                         </Text>
                       </View>
+                      {item.avgQuality !== null && (
+                        <Text style={{ fontSize: 11, color: colors.textSecondary }}>
+                          {'⭐'.repeat(Math.round(item.avgQuality))} {item.avgQuality.toFixed(1)}
+                        </Text>
+                      )}
                     </View>
                   </View>
                 </View>

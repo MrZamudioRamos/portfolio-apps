@@ -39,8 +39,21 @@ export default function EditEntryScreen() {
   const [notes, setNotes] = useState(entry?.notes ?? '');
   const [date, setDate] = useState(entry?.date ?? new Date().toISOString().split('T')[0]);
   const [photoUri, setPhotoUri] = useState<string | null>(entry?.photoUri ?? null);
+  // watering
+  const [waterLiters, setWaterLiters] = useState(String((entry?.data as any)?.liters ?? ''));
+  const [waterMethod, setWaterMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>((entry?.data as any)?.method ?? 'hand');
+  // harvest
   const [harvestWeight, setHarvestWeight] = useState(String(entry?.data?.weight ?? ''));
   const [harvestUnits, setHarvestUnits] = useState(String(entry?.data?.units ?? ''));
+  const [harvestQuality, setHarvestQuality] = useState<number>(Number((entry?.data as any)?.quality ?? 0));
+  // fertilizing
+  const [fertProduct, setFertProduct] = useState(String((entry?.data as any)?.product ?? ''));
+  const [fertAmount, setFertAmount] = useState(String((entry?.data as any)?.amount ?? ''));
+  const [fertUnit, setFertUnit] = useState<'g'|'kg'|'ml'|'L'>((entry?.data as any)?.unit ?? 'g');
+  // treatment
+  const [treatProduct, setTreatProduct] = useState(String((entry?.data as any)?.product ?? ''));
+  const [treatDose, setTreatDose] = useState(String((entry?.data as any)?.dose ?? ''));
+  const [treatWaitDays, setTreatWaitDays] = useState(String((entry?.data as any)?.waitDays ?? ''));
   const [saving, setSaving] = useState(false);
 
   const s = useMemo(
@@ -73,20 +86,37 @@ export default function EditEntryScreen() {
 
   async function handleSave() {
     setSaving(true);
-    const harvestData =
-      selectedType === 'harvest' && (harvestWeight || harvestUnits)
-        ? {
-            ...(harvestWeight ? { weight: harvestWeight } : {}),
-            ...(harvestUnits ? { units: harvestUnits } : {}),
-          }
-        : undefined;
+    let entryData: Record<string, unknown> | undefined;
+    if (selectedType === 'harvest' && (harvestWeight || harvestUnits || harvestQuality)) {
+      entryData = {
+        ...(harvestWeight ? { weight: harvestWeight } : {}),
+        ...(harvestUnits ? { units: harvestUnits } : {}),
+        ...(harvestQuality ? { quality: harvestQuality } : {}),
+      };
+    } else if (selectedType === 'watering' && (waterLiters || waterMethod !== 'hand')) {
+      entryData = {
+        ...(waterLiters ? { liters: waterLiters } : {}),
+        method: waterMethod,
+      };
+    } else if (selectedType === 'fertilizing' && (fertProduct || fertAmount)) {
+      entryData = {
+        ...(fertProduct ? { product: fertProduct } : {}),
+        ...(fertAmount ? { amount: fertAmount, unit: fertUnit } : {}),
+      };
+    } else if (selectedType === 'treatment' && (treatProduct || treatDose || treatWaitDays)) {
+      entryData = {
+        ...(treatProduct ? { product: treatProduct } : {}),
+        ...(treatDose ? { dose: treatDose } : {}),
+        ...(treatWaitDays ? { waitDays: Number(treatWaitDays) } : {}),
+      };
+    }
     try {
       await entries.update(id, {
         type: selectedType,
         date,
         notes: notes.trim() || undefined,
         photoUri: photoUri ?? undefined,
-        data: harvestData,
+        data: entryData,
       });
       router.back();
     } finally {
@@ -202,6 +232,36 @@ export default function EditEntryScreen() {
               style={[s.input, s.textarea, { backgroundColor: colors.surface, borderColor: notes ? colors.primary : colors.border, color: colors.text }]}
             />
 
+            {/* Watering extras */}
+            {selectedType === 'watering' && (
+              <>
+                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.watering')}</Text>
+                <View style={{ flexDirection: 'row', gap: spacing.md, marginBottom: spacing.sm }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.liters')}</Text>
+                    <TextInput
+                      value={waterLiters}
+                      onChangeText={setWaterLiters}
+                      placeholder={t('entryNew.litersPlaceholder')}
+                      placeholderTextColor={colors.textDisabled}
+                      keyboardType="decimal-pad"
+                      style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+                    />
+                  </View>
+                </View>
+                <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.waterMethod')}</Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
+                  {(['hand','drip','sprinkler','flood'] as const).map((m) => (
+                    <Pressable key={m} onPress={() => setWaterMethod(m)}
+                      style={[s.methodChip, { backgroundColor: waterMethod === m ? colors.primary + '22' : colors.surface, borderColor: waterMethod === m ? colors.primary : colors.border }]}>
+                      <Text style={{ fontSize: 18 }}>{m === 'hand' ? '🪣' : m === 'drip' ? '💧' : m === 'sprinkler' ? '🌦️' : '🌊'}</Text>
+                      <Text style={[s.methodLabel, { color: waterMethod === m ? colors.primary : colors.textSecondary }]}>{t('waterMethod.' + m)}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </>
+            )}
+
             {/* Harvest extras */}
             {selectedType === 'harvest' && (
               <>
@@ -224,6 +284,91 @@ export default function EditEntryScreen() {
                       value={harvestUnits}
                       onChangeText={setHarvestUnits}
                       placeholder="12"
+                      placeholderTextColor={colors.textDisabled}
+                      keyboardType="number-pad"
+                      style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+                    />
+                  </View>
+                </View>
+                <Text style={[s.inputLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>{t('entryNew.harvestQuality')}</Text>
+                <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs }}>
+                  {[1,2,3,4,5].map((star) => (
+                    <Pressable key={star} onPress={() => setHarvestQuality(star === harvestQuality ? 0 : star)} hitSlop={8}>
+                      <Text style={{ fontSize: 28 }}>{star <= harvestQuality ? '⭐' : '☆'}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </>
+            )}
+
+            {/* Fertilizing extras */}
+            {selectedType === 'fertilizing' && (
+              <>
+                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.fertilizing')}</Text>
+                <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.fertProduct')}</Text>
+                <TextInput
+                  value={fertProduct}
+                  onChangeText={setFertProduct}
+                  placeholder={t('entryNew.fertProductPlaceholder')}
+                  placeholderTextColor={colors.textDisabled}
+                  style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text, marginBottom: spacing.sm }]}
+                />
+                <View style={{ flexDirection: 'row', gap: spacing.md }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.fertAmount')}</Text>
+                    <TextInput
+                      value={fertAmount}
+                      onChangeText={setFertAmount}
+                      placeholder="50"
+                      placeholderTextColor={colors.textDisabled}
+                      keyboardType="decimal-pad"
+                      style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.fertUnit')}</Text>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
+                      {(['g','kg','ml','L'] as const).map((u) => (
+                        <Pressable key={u} onPress={() => setFertUnit(u)}
+                          style={[s.unitChip, { backgroundColor: fertUnit === u ? colors.primary + '22' : colors.surface, borderColor: fertUnit === u ? colors.primary : colors.border }]}>
+                          <Text style={{ fontSize: fontSize.sm, color: fertUnit === u ? colors.primary : colors.textSecondary, fontWeight: fontWeight.semibold }}>{u}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                </View>
+              </>
+            )}
+
+            {/* Treatment extras */}
+            {selectedType === 'treatment' && (
+              <>
+                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.treatment')}</Text>
+                <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.treatProduct')}</Text>
+                <TextInput
+                  value={treatProduct}
+                  onChangeText={setTreatProduct}
+                  placeholder={t('entryNew.treatProductPlaceholder')}
+                  placeholderTextColor={colors.textDisabled}
+                  style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text, marginBottom: spacing.sm }]}
+                />
+                <View style={{ flexDirection: 'row', gap: spacing.md }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.treatDose')}</Text>
+                    <TextInput
+                      value={treatDose}
+                      onChangeText={setTreatDose}
+                      placeholder={t('entryNew.treatDosePlaceholder')}
+                      placeholderTextColor={colors.textDisabled}
+                      style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.treatWaitDays')}</Text>
+                    <TextInput
+                      value={treatWaitDays}
+                      onChangeText={setTreatWaitDays}
+                      placeholder={t('entryNew.treatWaitDaysPlaceholder')}
                       placeholderTextColor={colors.textDisabled}
                       keyboardType="number-pad"
                       style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
@@ -323,4 +468,21 @@ const makeStyles = (
     },
     deleteText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     notFound: { textAlign: 'center', marginTop: 80, fontSize: fontSize.lg },
+    methodChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      gap: 6,
+    },
+    methodLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    unitChip: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: radii.sm,
+      borderWidth: 1.5,
+      alignItems: 'center',
+    },
   });
