@@ -16,6 +16,7 @@ import type { Plant } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import type { GardenReminder } from '../../src/models/reminder';
 import { saveLanguage, SUPPORTED_LANGS, LANG_LABELS, type SupportedLang } from '../../src/i18n';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -35,7 +36,7 @@ export default function SettingsScreen() {
   const { isPro, activePlan } = usePurchases();
   const { isGuest, user } = useSession();
 
-  const garden = gardens.items[0];
+  const { activeGarden: garden } = useActiveGarden();
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
   const [showLangModal, setShowLangModal] = useState(false);
 

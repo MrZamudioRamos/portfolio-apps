@@ -127,7 +127,7 @@ export default function DashboardScreen() {
         }
       }
       if (['growing', 'fruiting', 'harvesting'].includes(p.status)) {
-        const lastEntry = plantEntries.sort((a, b) => b.date.localeCompare(a.date))[0];
+        const lastEntry = [...plantEntries].sort((a, b) => b.date.localeCompare(a.date))[0];
         const ref = lastEntry?.date ?? p.sowingDate;
         if (ref) {
           const daysInactive = Math.floor((Date.now() - new Date(ref + 'T12:00:00').getTime()) / 86_400_000);
