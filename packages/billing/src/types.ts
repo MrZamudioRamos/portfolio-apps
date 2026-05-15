@@ -1,18 +1,16 @@
-export type PlanId = 'monthly' | 'annual' | 'lifetime';
+export type PlanId = 'monthly' | 'annual';
 
 export interface PackageInfo {
   id: PlanId;
   productIdentifier: string;
-  packageType: 'monthly' | 'annual' | 'lifetime';
+  packageType: 'monthly' | 'annual';
   priceString: string;
   savingsLabel?: string;
-  isOneTime?: boolean;
 }
 
 export interface Offerings {
   monthly: PackageInfo;
   annual: PackageInfo;
-  lifetime: PackageInfo;
 }
 
 export interface PurchaseResult {

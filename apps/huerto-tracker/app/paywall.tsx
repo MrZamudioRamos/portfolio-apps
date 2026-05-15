@@ -10,11 +10,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const PRO_FEATURE_KEYS = [
   { emoji: '🏡', key: 'paywall.features.gardens' },
   { emoji: '🌱', key: 'paywall.features.plants' },
-  { emoji: '📅', key: 'paywall.features.calendar' },
+  { emoji: '🤖', key: 'paywall.features.aiDiagnosis' },
+  { emoji: '💶', key: 'paywall.features.costsRoi' },
+  { emoji: '📤', key: 'paywall.features.csvExport' },
+  { emoji: '🏆', key: 'paywall.features.gamification' },
   { emoji: '🤝', key: 'paywall.features.companions' },
-  { emoji: '📊', key: 'paywall.features.charts' },
   { emoji: '📄', key: 'paywall.features.pdf' },
-  { emoji: '🔔', key: 'paywall.features.reminders' },
   { emoji: '☁️', key: 'paywall.features.backup' },
 ];
 
@@ -67,7 +68,6 @@ export default function PaywallScreen() {
     { ...offerings.monthly, highlight: false },
     { ...offerings.annual, highlight: true },
   ] as const;
-  const lifetimePlan = offerings.lifetime;
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
@@ -178,38 +178,6 @@ export default function PaywallScreen() {
               })}
             </View>
 
-            {/* Lifetime one-time option */}
-            <Pressable
-              onPress={() => setSelectedPlan('lifetime')}
-              style={[
-                s.lifetimeCard,
-                {
-                  backgroundColor: selectedPlan === 'lifetime'
-                    ? '#4CAF5018'
-                    : colors.surface,
-                  borderColor: selectedPlan === 'lifetime' ? '#4CAF50' : colors.border,
-                  borderWidth: selectedPlan === 'lifetime' ? 2.5 : 1.5,
-                  ...shadows.md,
-                },
-              ]}
-            >
-              <View style={[s.lifetimeBadge, { backgroundColor: selectedPlan === 'lifetime' ? '#4CAF50' : colors.surfaceAlt }]}>
-                <Text style={[s.lifetimeBadgeText, { color: selectedPlan === 'lifetime' ? '#fff' : colors.textSecondary }]}>
-                  {t('paywall.lifetimeBadge')}
-                </Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[s.planPrice, { color: selectedPlan === 'lifetime' ? '#2E7D32' : colors.text }]}>
-                  {lifetimePlan.priceString}
-                </Text>
-                <Text style={[s.planSub, { color: colors.textSecondary }]}>
-                  {t('paywall.lifetimeSub')}
-                </Text>
-              </View>
-              {selectedPlan === 'lifetime' && (
-                <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
-              )}
-            </Pressable>
           </>
         )}
 
@@ -310,21 +278,6 @@ const makeStyles = (
       marginBottom: spacing.md,
     },
     plansRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },
-    lifetimeCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.md,
-      borderRadius: radii.lg,
-      padding: spacing.lg,
-      overflow: 'hidden',
-    },
-    lifetimeBadge: {
-      paddingHorizontal: spacing.sm,
-      paddingVertical: 3,
-      borderRadius: radii.full,
-      alignSelf: 'flex-start',
-    },
-    lifetimeBadgeText: { fontSize: 11, fontWeight: fontWeight.bold },
     planCard: {
       flex: 1,
       borderRadius: radii.lg,

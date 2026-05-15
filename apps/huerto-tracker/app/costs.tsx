@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
+import { usePro } from '../src/hooks/usePro';
 import { CROPS_BY_ID } from '../src/data/crops';
 import type { DiaryEntry } from '../src/models/diary-entry';
 import type { Plant } from '../src/models/plant';
@@ -34,15 +35,17 @@ const DEFAULT_HARVEST_PRICE = 2.5;  // €/kg
 
 const CATEGORIES = Object.keys(COST_CATEGORY_CONFIG) as CostCategory[];
 
-function fmt(n: number) {
-  return n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+function fmt(n: number, locale = 'es') {
+  const intlLocale = locale === 'val' ? 'ca-ES' : locale;
+  return n.toLocaleString(intlLocale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 }
 
 export default function CostsScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows, isDark } = useTheme();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { isPro } = usePro();
   const { activeGarden } = useActiveGarden();
 
   const plants = useCollection<Plant>('plants');
@@ -157,6 +160,36 @@ export default function CostsScreen() {
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii, shadows), [colors, spacing, fontSize, fontWeight, radii, shadows]);
 
   const roiColor = roi === null ? colors.textSecondary : roi >= 0 ? '#4CAF50' : '#EF5350';
+  const locale = i18n.language;
+
+  if (!isPro) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <View style={[s.header, { borderBottomColor: colors.border }]}>
+          <Pressable onPress={() => router.back()} hitSlop={12}>
+            <Ionicons name="arrow-back" size={24} color={colors.primary} />
+          </Pressable>
+          <Text style={[s.headerTitle, { color: colors.text }]}>💰 {t('costs.title')}</Text>
+          <View style={{ width: 80 }} />
+        </View>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing['2xl'] }}>
+          <Text style={{ fontSize: 56, marginBottom: spacing.lg }}>💶</Text>
+          <Text style={{ fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text, textAlign: 'center', marginBottom: spacing.md }}>
+            {t('costs.proTitle')}
+          </Text>
+          <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: spacing['2xl'] }}>
+            {t('costs.proDesc')}
+          </Text>
+          <Pressable
+            onPress={() => router.push('/paywall')}
+            style={{ backgroundColor: colors.primary, paddingVertical: spacing.lg, paddingHorizontal: spacing['2xl'], borderRadius: radii.lg }}
+          >
+            <Text style={{ color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('costs.proBtn')}</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -184,11 +217,11 @@ export default function CostsScreen() {
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('costs.summaryLabel')}</Text>
         <View style={s.kpiRow}>
           <Card padded style={s.kpiCard}>
-            <Text style={[s.kpiValue, { color: '#EF5350' }]}>{fmt(totalCost)}</Text>
+            <Text style={[s.kpiValue, { color: '#EF5350' }]}>{fmt(totalCost, locale)}</Text>
             <Text style={[s.kpiLabel, { color: colors.textSecondary }]}>{t('costs.totalExpense')}</Text>
           </Card>
           <Card padded style={s.kpiCard}>
-            <Text style={[s.kpiValue, { color: '#4CAF50' }]}>{fmt(harvestValue)}</Text>
+            <Text style={[s.kpiValue, { color: '#4CAF50' }]}>{fmt(harvestValue, locale)}</Text>
             <Text style={[s.kpiLabel, { color: colors.textSecondary }]}>{t('costs.harvestValue')}</Text>
           </Card>
           <Card padded style={[s.kpiCard, { borderWidth: 1.5, borderColor: roiColor + '55' }]}>
@@ -204,7 +237,7 @@ export default function CostsScreen() {
           <View style={[s.netBanner, { backgroundColor: (netProfit >= 0 ? '#4CAF50' : '#EF5350') + '15', borderColor: (netProfit >= 0 ? '#4CAF50' : '#EF5350') + '40' }]}>
             <Ionicons name={netProfit >= 0 ? 'trending-up' : 'trending-down'} size={18} color={netProfit >= 0 ? '#4CAF50' : '#EF5350'} />
             <Text style={[s.netText, { color: netProfit >= 0 ? '#4CAF50' : '#EF5350' }]}>
-              {netProfit >= 0 ? t('costs.netProfit') : t('costs.netLoss')} {fmt(Math.abs(netProfit))}
+              {netProfit >= 0 ? t('costs.netProfit') : t('costs.netLoss')} {fmt(Math.abs(netProfit), locale)}
             </Text>
           </View>
         )}
@@ -224,7 +257,7 @@ export default function CostsScreen() {
                   </View>
                   <Text style={[s.costLabel, { color: colors.text, flex: 1 }]}>{t(`costs.cat.${cat}`)}</Text>
                   <Text style={[s.costAmt, { color: amt > 0 ? colors.text : colors.textDisabled }]}>
-                    {fmt(amt)}
+                    {fmt(amt, locale)}
                   </Text>
                 </View>
               </View>
@@ -240,13 +273,13 @@ export default function CostsScreen() {
               <Text style={[s.costLabel, { color: colors.text }]}>{t('costs.waterAuto')}</Text>
               <Text style={[s.costSub, { color: colors.textSecondary }]}>{totalLiters.toFixed(0)} L × {waterPrice} €/L</Text>
             </View>
-            <Text style={[s.costAmt, { color: waterCost > 0 ? colors.text : colors.textDisabled }]}>{fmt(waterCost)}</Text>
+            <Text style={[s.costAmt, { color: waterCost > 0 ? colors.text : colors.textDisabled }]}>{fmt(waterCost, locale)}</Text>
           </View>
 
           <View style={[s.divider, { backgroundColor: colors.border }]} />
           <View style={[s.costRow, { paddingTop: spacing.sm }]}>
             <Text style={[s.costLabel, { color: colors.text, flex: 1, fontWeight: fontWeight.bold }]}>{t('costs.totalExpense')}</Text>
-            <Text style={[s.costAmt, { color: '#EF5350', fontWeight: fontWeight.bold }]}>{fmt(totalCost)}</Text>
+            <Text style={[s.costAmt, { color: '#EF5350', fontWeight: fontWeight.bold }]}>{fmt(totalCost, locale)}</Text>
           </View>
         </Card>
 
@@ -282,7 +315,7 @@ export default function CostsScreen() {
           <View style={[s.divider, { backgroundColor: colors.border }]} />
           <View style={s.costRow}>
             <Text style={[s.costLabel, { color: colors.text, flex: 1, fontWeight: fontWeight.bold }]}>{t('costs.estimatedValue')}</Text>
-            <Text style={[s.costAmt, { color: '#4CAF50', fontWeight: fontWeight.bold }]}>{fmt(harvestValue)}</Text>
+            <Text style={[s.costAmt, { color: '#4CAF50', fontWeight: fontWeight.bold }]}>{fmt(harvestValue, locale)}</Text>
           </View>
         </Card>
 
@@ -310,7 +343,7 @@ export default function CostsScreen() {
           <View style={[s.divider, { backgroundColor: colors.border }]} />
           <View style={s.costRow}>
             <Text style={[s.costLabel, { color: colors.text, flex: 1, fontWeight: fontWeight.bold }]}>{t('costs.waterCost')}</Text>
-            <Text style={[s.costAmt, { color: '#29B6F6', fontWeight: fontWeight.bold }]}>{fmt(waterCost)}</Text>
+            <Text style={[s.costAmt, { color: '#29B6F6', fontWeight: fontWeight.bold }]}>{fmt(waterCost, locale)}</Text>
           </View>
         </Card>
 
@@ -335,7 +368,7 @@ export default function CostsScreen() {
                           </Text>
                           <Text style={[s.costSub, { color: colors.textSecondary }]}>{e.date}</Text>
                         </View>
-                        <Text style={[s.costAmt, { color: '#EF5350' }]}>-{fmt(e.amount)}</Text>
+                        <Text style={[s.costAmt, { color: '#EF5350' }]}>-{fmt(e.amount, locale)}</Text>
                       </View>
                     </View>
                   );

@@ -21,6 +21,7 @@ import { type Plant } from '../../src/models/plant';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { useTranslation } from 'react-i18next';
 import { useCsvExport } from '../../src/hooks/useCsvExport';
+import { usePro } from '../../src/hooks/usePro';
 
 const ALL_TYPES: Array<EntryType | 'all'> = [
   'all', 'watering', 'sowing', 'harvest', 'fertilizing', 'transplant',
@@ -40,6 +41,7 @@ export default function DiaryScreen() {
   const entries = useCollection<DiaryEntry>('diary_entries');
   const plants = useCollection<Plant>('plants');
   const { exportEntries, exporting } = useCsvExport();
+  const { isPro } = usePro();
 
   useFocusEffect(
     useCallback(() => {
@@ -219,13 +221,19 @@ export default function DiaryScreen() {
           </View>
           {entries.items.length > 0 && (
             <Pressable
-              onPress={() => exportEntries(entries.items, plants.items)}
+              onPress={() => {
+                if (!isPro) {
+                  router.push('/paywall');
+                  return;
+                }
+                exportEntries(entries.items, plants.items);
+              }}
               hitSlop={8}
               disabled={exporting}
             >
               {exporting
                 ? <ActivityIndicator size="small" color={colors.primary} />
-                : <Ionicons name="share-outline" size={22} color={colors.primary} />
+                : <Ionicons name={isPro ? 'share-outline' : 'lock-closed-outline'} size={22} color={colors.primary} />
               }
             </Pressable>
           )}

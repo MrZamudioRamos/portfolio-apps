@@ -2,7 +2,6 @@ import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -64,11 +63,6 @@ export default function IdentifyPlantScreen() {
   const [diagnosis, setDiagnosis] = useState<PestDiagnosis | null>(null);
   const [errorKey, setErrorKey] = useState<'noKey' | 'generic' | null>(null);
   const [saved, setSaved] = useState(false);
-  const [freeCreditUsed, setFreeCreditUsed] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    AsyncStorage.getItem('@semilla/free_identify_used').then(v => setFreeCreditUsed(v === 'true'));
-  }, []);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -114,10 +108,6 @@ export default function IdentifyPlantScreen() {
       const cropName = crop ? t('crops.' + crop.id + '.name') : 'plant';
       const result = await identifyPest(photo.uri, cropName, i18n.language);
       setDiagnosis(result);
-      if (!isPro && !freeCreditUsed) {
-        await AsyncStorage.setItem('@semilla/free_identify_used', 'true');
-        setFreeCreditUsed(true);
-      }
     } catch (err: unknown) {
       const e = err as { code?: string; message?: string };
       console.error('[identify] Error:', e.code, e.message, err);
@@ -144,8 +134,8 @@ export default function IdentifyPlantScreen() {
     setSaved(true);
   }
 
-  /* ---- Paywall gate: free credit used up ---- */
-  if (!isPro && freeCreditUsed === true) {
+  /* ---- Pro gate ---- */
+  if (!isPro) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
         <View style={[s.header, { borderBottomColor: colors.border }]}>
@@ -156,9 +146,9 @@ export default function IdentifyPlantScreen() {
           <View style={{ width: 24 }} />
         </View>
         <View style={s.gateContainer}>
-          <Text style={s.gateEmoji}>⭐</Text>
-          <Text style={[s.gateTitle, { color: colors.text }]}>{t('identify.freeCreditUsed')}</Text>
-          <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('identify.freeCreditUsedDesc')}</Text>
+          <Text style={s.gateEmoji}>🤖</Text>
+          <Text style={[s.gateTitle, { color: colors.text }]}>{t('identify.proTitle')}</Text>
+          <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('identify.proDesc')}</Text>
           <Button
             title={t('identify.upgradePro')}
             onPress={() => router.push('/paywall')}
@@ -183,16 +173,6 @@ export default function IdentifyPlantScreen() {
       </View>
 
       <ScrollView contentContainerStyle={s.body} showsVerticalScrollIndicator={false}>
-        {/* Free credit banner */}
-        {!isPro && freeCreditUsed === false && (
-          <View style={[s.freeBanner, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}>
-            <Ionicons name="gift-outline" size={16} color={colors.primary} />
-            <Text style={[s.freeBannerText, { color: colors.primary }]}>
-              {t('identify.freeCredit')} — {t('identify.freeCreditDesc')}
-            </Text>
-          </View>
-        )}
-
         {/* Photo area */}
         {!photo ? (
           /* No photo yet */

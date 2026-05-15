@@ -83,6 +83,17 @@ export default function DashboardScreen() {
   const [hideFinished, setHideFinished] = useState(true);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'newest'>('default');
 
+  const entriesByPlant = useMemo(() => {
+    const idx = new Map<string, DiaryEntry[]>();
+    for (const e of entries.items) {
+      if (!e.plantId) continue;
+      const arr = idx.get(e.plantId) ?? [];
+      arr.push(e);
+      idx.set(e.plantId, arr);
+    }
+    return idx;
+  }, [entries.items]);
+
   const weeklyTasks = useMemo(() => {
     const tasks: Array<{ emoji: string; label: string; plantId: string }> = [];
     const today = new Date();
@@ -91,7 +102,9 @@ export default function DashboardScreen() {
 
     plants.items.forEach((p) => {
       const crop = CROPS_BY_ID[p.cropId];
-      if (getNeedsWater(p, crop, entries.items)) {
+      const plantEntries = entriesByPlant.get(p.id) ?? [];
+
+      if (getNeedsWater(p, crop, plantEntries)) {
         tasks.push({ emoji: '💧', label: t('home.taskWater', { name: p.name }), plantId: p.id });
       }
       if (p.pestStatus === 'active') {
@@ -103,7 +116,6 @@ export default function DashboardScreen() {
       if (p.firstHarvestDate && p.firstHarvestDate >= todayStr && p.firstHarvestDate <= in7DaysStr) {
         tasks.push({ emoji: '🧺', label: t('home.taskHarvest', { name: p.name }), plantId: p.id });
       } else if (p.sowingDate && !['harvesting', 'finished'].includes(p.status)) {
-        const crop = CROPS_BY_ID[p.cropId];
         const dth = (p.varietyId ? VARIETIES_BY_ID[p.varietyId]?.daysToHarvest : null) ?? crop?.daysToHarvest;
         if (dth) {
           const midDays = Math.round((dth[0] + dth[1]) / 2);
@@ -114,11 +126,8 @@ export default function DashboardScreen() {
           }
         }
       }
-      // Neglected: no activity in >10 days and plant is active
       if (['growing', 'fruiting', 'harvesting'].includes(p.status)) {
-        const lastEntry = [...entries.items]
-          .filter((e) => e.plantId === p.id)
-          .sort((a, b) => b.date.localeCompare(a.date))[0];
+        const lastEntry = plantEntries.sort((a, b) => b.date.localeCompare(a.date))[0];
         const ref = lastEntry?.date ?? p.sowingDate;
         if (ref) {
           const daysInactive = Math.floor((Date.now() - new Date(ref + 'T12:00:00').getTime()) / 86_400_000);
@@ -127,9 +136,8 @@ export default function DashboardScreen() {
           }
         }
       }
-      // Treatment carencia: alert if still in waiting period
-      const lastTreatment = [...entries.items]
-        .filter((e) => e.plantId === p.id && e.type === 'treatment' && (e.data as any)?.waitDays)
+      const lastTreatment = plantEntries
+        .filter((e) => e.type === 'treatment' && (e.data as any)?.waitDays)
         .sort((a, b) => b.date.localeCompare(a.date))[0];
       if (lastTreatment) {
         const waitDays = Number((lastTreatment.data as any).waitDays);
@@ -142,7 +150,7 @@ export default function DashboardScreen() {
       }
     });
     return tasks;
-  }, [plants.items, entries.items, t]);
+  }, [plants.items, entriesByPlant, t]);
 
   const yearHarvestKg = useMemo(() => {
     const year = new Date().getFullYear().toString();
@@ -153,6 +161,17 @@ export default function DashboardScreen() {
         const n = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
         return sum + (isNaN(n) ? 0 : n);
       }, 0);
+  }, [entries.items]);
+
+  const lastWateredByPlant = useMemo(() => {
+    const idx = new Map<string, string>();
+    for (const e of entries.items) {
+      if (e.plantId && e.type === 'watering') {
+        const existing = idx.get(e.plantId);
+        if (!existing || e.date > existing) idx.set(e.plantId, e.date);
+      }
+    }
+    return idx;
   }, [entries.items]);
 
   const filteredPlants = useMemo(() => {
@@ -316,11 +335,9 @@ export default function DashboardScreen() {
                 );
               })()}
               {(() => {
-                const lastWatered = [...entries.items]
-                  .filter((e) => e.plantId === item.id && e.type === 'watering')
-                  .sort((a, b) => b.date.localeCompare(a.date))[0];
-                if (!lastWatered) return null;
-                const days = Math.floor((Date.now() - new Date(lastWatered.date + 'T12:00:00').getTime()) / 86_400_000);
+                const lastWateredDate = lastWateredByPlant.get(item.id);
+                if (!lastWateredDate) return null;
+                const days = Math.floor((Date.now() - new Date(lastWateredDate + 'T12:00:00').getTime()) / 86_400_000);
                 if (days < 1) return null;
                 return (
                   <View style={[s.wateredChip, { backgroundColor: '#29B6F618' }]}>

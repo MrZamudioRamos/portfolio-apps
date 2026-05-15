@@ -2,6 +2,7 @@ import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { usePro } from '../src/hooks/usePro';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -48,6 +49,7 @@ export default function StatsScreen() {
 
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
+  const { isPro } = usePro();
 
   const gamData = useMemo(
     () => buildGamificationData(plants.items, entries.items),
@@ -451,48 +453,65 @@ export default function StatsScreen() {
           </>
         )}
 
-        {/* Badges / Achievements */}
+        {/* Badges / Achievements — Pro only */}
         <View style={s.badgesTitleRow}>
           <Text style={[s.sectionTitle, { color: colors.text, marginTop: spacing.sm, marginBottom: 0 }]}>
             {t('stats.achievements')}
           </Text>
-          <View style={[s.badgesCountBadge, { backgroundColor: colors.primary + '22' }]}>
-            <Text style={[s.badgesCountText, { color: colors.primary }]}>
-              {unlockedCount}/{badges.length}
-            </Text>
-          </View>
-        </View>
-        <View style={s.badgesGrid}>
-          {badges.map((badge) => (
-            <View
-              key={badge.id}
-              style={[
-                s.badgeCard,
-                {
-                  backgroundColor: badge.unlocked ? colors.surface : colors.surfaceAlt,
-                  borderColor: badge.unlocked ? TIER_COLORS[badge.tier] : colors.border,
-                  opacity: badge.unlocked ? 1 : 0.5,
-                },
-              ]}
-            >
-              <Text style={[s.badgeEmoji, { opacity: badge.unlocked ? 1 : 0.4 }]}>
-                {badge.unlocked ? badge.emoji : '🔒'}
+          {isPro && (
+            <View style={[s.badgesCountBadge, { backgroundColor: colors.primary + '22' }]}>
+              <Text style={[s.badgesCountText, { color: colors.primary }]}>
+                {unlockedCount}/{badges.length}
               </Text>
-              <Text
-                style={[
-                  s.badgeName,
-                  { color: badge.unlocked ? colors.text : colors.textDisabled },
-                ]}
-                numberOfLines={2}
-              >
-                {badge.name}
-              </Text>
-              {badge.unlocked && (
-                <View style={[s.tierDot, { backgroundColor: TIER_COLORS[badge.tier] }]} />
-              )}
             </View>
-          ))}
+          )}
         </View>
+        {isPro ? (
+          <View style={s.badgesGrid}>
+            {badges.map((badge) => (
+              <View
+                key={badge.id}
+                style={[
+                  s.badgeCard,
+                  {
+                    backgroundColor: badge.unlocked ? colors.surface : colors.surfaceAlt,
+                    borderColor: badge.unlocked ? TIER_COLORS[badge.tier] : colors.border,
+                    opacity: badge.unlocked ? 1 : 0.5,
+                  },
+                ]}
+              >
+                <Text style={[s.badgeEmoji, { opacity: badge.unlocked ? 1 : 0.4 }]}>
+                  {badge.unlocked ? badge.emoji : '🔒'}
+                </Text>
+                <Text
+                  style={[
+                    s.badgeName,
+                    { color: badge.unlocked ? colors.text : colors.textDisabled },
+                  ]}
+                  numberOfLines={2}
+                >
+                  {badge.name}
+                </Text>
+                {badge.unlocked && (
+                  <View style={[s.tierDot, { backgroundColor: TIER_COLORS[badge.tier] }]} />
+                )}
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Pressable
+            onPress={() => router.push('/paywall')}
+            style={[s.badgesGrid, { backgroundColor: colors.surfaceAlt, borderRadius: radii.lg, padding: spacing.xl, alignItems: 'center', justifyContent: 'center', minHeight: 120 }]}
+          >
+            <Text style={{ fontSize: 32, marginBottom: spacing.sm }}>🏆</Text>
+            <Text style={{ fontSize: fontSize.md, fontWeight: fontWeight.bold, color: colors.text, textAlign: 'center' }}>
+              {t('stats.achievementsPro')}
+            </Text>
+            <Text style={{ fontSize: fontSize.sm, color: colors.primary, marginTop: spacing.sm }}>
+              {t('stats.achievementsProBtn')}
+            </Text>
+          </Pressable>
+        )}
 
         <View style={{ height: spacing['2xl'] }} />
       </ScrollView>
