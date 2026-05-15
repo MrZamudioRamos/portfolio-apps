@@ -271,10 +271,25 @@ export default function DashboardScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
+  function getHealthColor(plant: Plant, needsWater: boolean): string {
+    if (plant.status === 'finished') return colors.textDisabled;
+    if (plant.pestStatus === 'active') return '#EF5350';
+    if (needsWater) return '#FFA726';
+    const lastDate = lastWateredByPlant.get(plant.id) ?? plant.sowingDate;
+    if (lastDate) {
+      const daysAgo = Math.floor((Date.now() - new Date(lastDate + 'T12:00:00').getTime()) / 86_400_000);
+      if (daysAgo > 14) return '#EF5350';
+      if (daysAgo > 7) return '#FFA726';
+    }
+    return '#4CAF50';
+  }
+
   function renderPlantCard({ item }: { item: Plant }) {
     const crop = CROPS_BY_ID[item.cropId];
     const statusConfig = PLANT_STATUS_CONFIG[item.status];
-    const needsWater = getNeedsWater(item, crop, entries.items);
+    const plantEntries = entriesByPlant.get(item.id) ?? [];
+    const needsWater = getNeedsWater(item, crop, plantEntries);
+    const healthColor = getHealthColor(item, needsWater);
     return (
       <Pressable
         onPress={() => router.push(`/plant/${item.id}`)}
@@ -309,9 +324,12 @@ export default function DashboardScreen() {
             </Pressable>
           </View>
           <View style={s.plantInfo}>
-            <Text style={[s.plantName, { color: colors.text }]} numberOfLines={1}>
-              {item.name}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+              <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: healthColor }} />
+              <Text style={[s.plantName, { color: colors.text, flex: 1 }]} numberOfLines={1}>
+                {item.name}
+              </Text>
+            </View>
             {item.variety ? (
               <Text style={[s.plantVariety, { color: colors.textSecondary }]} numberOfLines={1}>
                 {item.variety}
