@@ -376,7 +376,7 @@ export default function DashboardScreen() {
       <View style={s.header}>
         <View style={{ flex: 1 }}>
           <Text style={[s.headerTitle, { color: colors.text }]} numberOfLines={1}>
-            {garden?.name ?? 'Mi Huerto'}
+            {garden?.name ?? t('home.defaultGardenName')}
           </Text>
           <View style={s.headerBadgesRow}>
             {zoneConfig && (

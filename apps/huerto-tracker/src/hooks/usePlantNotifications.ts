@@ -6,6 +6,7 @@ import type { Plant } from '../models/plant';
 import type { DiaryEntry } from '../models/diary-entry';
 import { CROPS } from '../data/crops';
 import { useActiveGarden } from './useActiveGarden';
+import i18n from '../i18n';
 
 type NotifType = 'transplant' | 'harvest' | 'treatment';
 
@@ -46,8 +47,8 @@ async function scheduleTransplant(plants: Plant[]): Promise<string[]> {
     const label = crop ? `${crop.emoji} ${plant.name}` : plant.name;
     const id = await scheduleDateAlert({
       date: target,
-      title: `🌱 Trasplanta ${label}`,
-      body: `Lleva ${TRANSPLANT_WEEKS} semanas en semillero. Muévela al bancal.`,
+      title: i18n.t('notifications.transplantPushTitle', { label }),
+      body: i18n.t('notifications.transplantPushBody', { label, weeks: TRANSPLANT_WEEKS }),
     });
     if (id) ids.push(id);
   }
@@ -67,8 +68,8 @@ async function scheduleHarvest(plants: Plant[]): Promise<string[]> {
     const label = crop ? `${crop.emoji} ${plant.name}` : plant.name;
     const id = await scheduleDateAlert({
       date: target,
-      title: `🧺 ${label} casi lista`,
-      body: `Cosecha prevista en 3 días. Revisa el punto de madurez.`,
+      title: i18n.t('notifications.harvestPushTitle', { label }),
+      body: i18n.t('notifications.harvestPushBody'),
     });
     if (id) ids.push(id);
   }
@@ -100,8 +101,8 @@ async function scheduleTreatment(plants: Plant[], entries: DiaryEntry[]): Promis
     const label = crop ? `${crop.emoji} ${plant.name}` : plant.name;
     const id = await scheduleDateAlert({
       date: target,
-      title: `🧴 Carencia vencida: ${label}`,
-      body: `Han pasado ${waitDays} días desde el último tratamiento. Ya puedes cosechar.`,
+      title: i18n.t('notifications.treatmentPushTitle', { label }),
+      body: i18n.t('notifications.treatmentPushBody', { days: waitDays }),
     });
     if (id) ids.push(id);
   }

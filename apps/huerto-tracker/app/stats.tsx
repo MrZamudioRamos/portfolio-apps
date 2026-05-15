@@ -12,6 +12,7 @@ import type { DiaryEntry, EntryType } from '../src/models/diary-entry';
 import { ENTRY_TYPE_CONFIG } from '../src/models/diary-entry';
 import type { Plant } from '../src/models/plant';
 import { buildGamificationData, evaluateBadges, sortBadges, getUnlockedCount, TIER_COLORS } from '../src/utils/gamification';
+import { useActiveGarden } from '../src/hooks/useActiveGarden';
 
 const BAR_MAX_H = 72;
 
@@ -50,16 +51,27 @@ export default function StatsScreen() {
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
   const { isPro } = usePro();
+  const { activeGarden } = useActiveGarden();
 
+  const gardenId = activeGarden?.id;
   const gamData = useMemo(
-    () => buildGamificationData(plants.items, entries.items),
-    [plants.items, entries.items]
+    () => {
+      const filteredPlants = gardenId ? plants.items.filter((p) => p.gardenId === gardenId) : plants.items;
+      const filteredEntries = gardenId ? entries.items.filter((e) => e.gardenId === gardenId) : entries.items;
+      return buildGamificationData(filteredPlants, filteredEntries);
+    },
+    [plants.items, entries.items, gardenId]
   );
   const badges = useMemo(() => sortBadges(evaluateBadges(gamData)), [gamData]);
   const unlockedCount = useMemo(() => getUnlockedCount(badges), [badges]);
 
   const stats = useMemo(() => {
-    const allEntries = entries.items;
+    const allEntries = gardenId
+      ? entries.items.filter((e) => e.gardenId === gardenId)
+      : entries.items;
+    const allPlants = gardenId
+      ? plants.items.filter((p) => p.gardenId === gardenId)
+      : plants.items;
     const harvestEntries = allEntries.filter((e) => e.type === 'harvest');
 
     // Monthly activity (last 6 months)
@@ -91,7 +103,7 @@ export default function StatsScreen() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([plantId, count]) => {
-        const plant = plants.items.find((p) => p.id === plantId);
+        const plant = allPlants.find((p) => p.id === plantId);
         const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
         return { plantId, count, name: plant?.name ?? '—', emoji: crop?.emoji ?? '🌱' };
       });
@@ -107,7 +119,7 @@ export default function StatsScreen() {
     const cropHarvestData = new Map<string, { count: number; kg: number; qualitySum: number; qualityCount: number }>();
     harvestEntries.forEach((e) => {
       if (e.plantId) {
-        const plant = plants.items.find((p) => p.id === e.plantId);
+        const plant = allPlants.find((p) => p.id === e.plantId);
         if (plant) {
           const prev = cropHarvestData.get(plant.cropId) ?? { count: 0, kg: 0, qualitySum: 0, qualityCount: 0 };
           const w = (e.data as any)?.weight;
@@ -151,12 +163,12 @@ export default function StatsScreen() {
       .map((y) => ({ year: y, ...harvestByYear.get(y)! }));
 
     // Success rate
-    const totalPlants = plants.items.length;
-    const successPlants = plants.items.filter((p) => p.status === 'harvesting' || p.status === 'finished').length;
+    const totalPlants = allPlants.length;
+    const successPlants = allPlants.filter((p) => p.status === 'harvesting' || p.status === 'finished').length;
     const successRate = totalPlants > 0 ? Math.round((successPlants / totalPlants) * 100) : null;
 
     // Average days sowing → first harvest
-    const avgDaysArr = plants.items
+    const avgDaysArr = allPlants
       .filter((p) => p.sowingDate && p.firstHarvestDate)
       .map((p) => Math.floor((new Date(p.firstHarvestDate! + 'T12:00:00').getTime() - new Date(p.sowingDate! + 'T12:00:00').getTime()) / 86_400_000));
     const avgDays = avgDaysArr.length > 0 ? Math.round(avgDaysArr.reduce((s, d) => s + d, 0) / avgDaysArr.length) : null;
@@ -194,7 +206,7 @@ export default function StatsScreen() {
       litersPerKg,
       avgQuality,
     };
-  }, [entries.items, plants.items, i18n.language]);
+  }, [entries.items, plants.items, i18n.language, activeGarden?.id]);
 
   const { t } = useTranslation();
 
@@ -332,7 +344,7 @@ export default function StatsScreen() {
                     {i > 0 && <View style={[s.divider, { backgroundColor: colors.border }]} />}
                     <View style={s.breakdownRow}>
                       <Text style={{ fontSize: 18, width: 28 }}>{cfg.emoji}</Text>
-                      <Text style={[s.breakdownLabel, { color: colors.text }]}>{cfg.label}</Text>
+                      <Text style={[s.breakdownLabel, { color: colors.text }]}>{t('diary.filters.' + type)}</Text>
                       <View style={s.breakdownBarTrack}>
                         <View
                           style={[

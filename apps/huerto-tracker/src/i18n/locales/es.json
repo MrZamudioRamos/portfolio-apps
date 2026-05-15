@@ -63,7 +63,8 @@
     "showFinished": "{{count}} finalizadas ocultas · Mostrar",
     "hideFinished": "Ocultar finalizadas",
     "taskCarencia": "{{name}}: no cosechar {{days}} día(s) más (carencia)",
-    "waterAllLitersHint": "se repartirán entre plantas activas"
+    "waterAllLitersHint": "se repartirán entre plantas activas",
+    "defaultGardenName": "Mi Huerto"
   },
   "calendar": {
     "title": "Calendario de siembra",
@@ -507,7 +508,8 @@
     "soilTexture": "Textura",
     "successionSow": "Nueva tanda (siembra escalonada)",
     "successionSowDesc": "Crea nueva planta del mismo cultivo sembrada hoy",
-    "successionNote": "Siembra escalonada de {{original}}"
+    "successionNote": "Siembra escalonada de {{original}}",
+    "successionName": "{{name}} (tanda {{batch}})"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",
@@ -599,7 +601,13 @@
     "treatmentTitle": "Carencia vencida",
     "treatmentDesc": "Notificación cuando termina el período de espera tras un tratamiento",
     "plantCount_one": "{{count}} planta programada",
-    "plantCount_other": "{{count}} plantas programadas"
+    "plantCount_other": "{{count}} plantas programadas",
+    "transplantPushTitle": "🌱 Trasplanta {{label}}",
+    "transplantPushBody": "Lleva {{weeks}} semanas en semillero. Muévela al bancal.",
+    "harvestPushTitle": "🧺 {{label}} casi lista",
+    "harvestPushBody": "Cosecha prevista en 3 días. Revisa el punto de madurez.",
+    "treatmentPushTitle": "🧴 Carencia vencida: {{label}}",
+    "treatmentPushBody": "Han pasado {{days}} días desde el último tratamiento. Ya puedes cosechar."
   },
   "stats": {
     "title": "Estadísticas",

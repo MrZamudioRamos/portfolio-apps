@@ -107,7 +107,7 @@ export default function PlantDetailScreen() {
     return { product: (last.data as any)?.product as string | undefined, daysLeft };
   }, [entries.items, id]);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const SUN_LABEL: Record<string, string> = {
     full: `☀️ ${t('plantDetail.sunFull')}`,
@@ -164,7 +164,7 @@ export default function PlantDetailScreen() {
     const newPlant = await plants.create({
       gardenId: plant!.gardenId,
       cropId: plant!.cropId,
-      name: `${plant!.name} (tanda ${batchNum})`,
+      name: t('plantDetail.successionName', { name: plant!.name, batch: batchNum }),
       variety: plant!.variety,
       varietyId: plant!.varietyId,
       sowingDate: today,
@@ -308,7 +308,8 @@ export default function PlantDetailScreen() {
             const currentIdx = ALL_STATUSES.indexOf(plant.status);
             function fmtMilestone(dateStr: string): string {
               const d = new Date(dateStr + 'T12:00:00');
-              return d.toLocaleDateString('es', { day: 'numeric', month: 'short' });
+              const locale = i18n.language === 'val' ? 'ca-ES' : i18n.language;
+              return d.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
             }
             const MILESTONE_DATE: Partial<Record<PlantStatus, string | undefined>> = {
               seedling: plant.sowingDate,
@@ -893,7 +894,7 @@ export default function PlantDetailScreen() {
             <TextInput
               value={transplantDateInput}
               onChangeText={setTransplantDateInput}
-              placeholder="AAAA-MM-DD"
+              placeholder="YYYY-MM-DD"
               placeholderTextColor={colors.textDisabled}
               style={[s.transplantInput, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
               keyboardType="numeric"

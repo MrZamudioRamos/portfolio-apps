@@ -63,7 +63,8 @@
     "showFinished": "{{count}} finished hidden · Show",
     "hideFinished": "Hide finished",
     "taskCarencia": "{{name}}: do not harvest for {{days}} more day(s) (clearance period)",
-    "waterAllLitersHint": "will be split among active plants"
+    "waterAllLitersHint": "will be split among active plants",
+    "defaultGardenName": "My Garden"
   },
   "calendar": {
     "title": "Sowing calendar",
@@ -469,7 +470,11 @@
     "transplantModalTitle": "Log transplant",
     "transplantDateLabel": "TRANSPLANT DATE",
     "transplantConfirm": "Confirm transplant",
-    "duplicate": "Duplicate plant"
+    "duplicate": "Duplicate plant",
+    "successionSow": "New batch (succession sowing)",
+    "successionSowDesc": "Creates a new plant of the same crop sown today",
+    "successionNote": "Succession sowing from {{original}}",
+    "successionName": "{{name}} (batch {{batch}})"
   },
   "reminderEdit": {
     "title": "Edit reminder",
@@ -561,7 +566,13 @@
     "treatmentTitle": "Treatment clearance",
     "treatmentDesc": "Notification when the waiting period after a treatment expires",
     "plantCount_one": "{{count}} plant scheduled",
-    "plantCount_other": "{{count}} plants scheduled"
+    "plantCount_other": "{{count}} plants scheduled",
+    "transplantPushTitle": "🌱 Transplant {{label}}",
+    "transplantPushBody": "{{label}} has been in the seedling tray for {{weeks}} weeks. Move it to the bed.",
+    "harvestPushTitle": "🧺 {{label}} nearly ready",
+    "harvestPushBody": "Harvest expected in 3 days. Check ripeness.",
+    "treatmentPushTitle": "🧴 Clearance expired: {{label}}",
+    "treatmentPushBody": "{{days}} days since the last treatment. You can harvest now."
   },
   "stats": {
     "title": "Statistics",

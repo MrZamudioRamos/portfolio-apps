@@ -162,7 +162,7 @@ export default function NewEntryScreen() {
                   >
                     <Text style={{ fontSize: 22 }}>{cfg.emoji}</Text>
                     <Text style={[s.typeLabel, { color: active ? colors.primary : colors.textSecondary }]}>
-                      {cfg.label}
+                      {t('diary.filters.' + type)}
                     </Text>
                   </Pressable>
                 );
@@ -190,7 +190,7 @@ export default function NewEntryScreen() {
                     {t('entryNew.general')}
                   </Text>
                 </Pressable>
-                {plants.items.map((p) => (
+                {plants.items.filter((p) => p.gardenId === gardenId).map((p) => (
                   <Pressable
                     key={p.id}
                     onPress={() => setSelectedPlantId(p.id)}
