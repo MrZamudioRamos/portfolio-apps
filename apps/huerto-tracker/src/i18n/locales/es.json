@@ -1082,5 +1082,37 @@
     "familyGuide": "FAMILIAS BOTÁNICAS",
     "empty": "Asigna parcelas a tus plantas",
     "emptyDesc": "Edita cada planta y añade un nombre de parcela (ej. \"Bancal A\") para ver el historial de rotación y recomendaciones."
+  },
+  "costs": {
+    "title": "Costes y ROI",
+    "summaryLabel": "RESUMEN",
+    "totalExpense": "Total gastos",
+    "harvestValue": "Valor cosecha",
+    "netProfit": "Beneficio neto:",
+    "netLoss": "Pérdida neta:",
+    "expensesLabel": "GASTOS",
+    "harvestLabel": "VALOR COSECHA",
+    "waterLabel": "AGUA",
+    "recentLabel": "ÚLTIMOS GASTOS",
+    "totalKg": "Kg cosechados",
+    "pricePerKg": "Precio estimado",
+    "estimatedValue": "Valor estimado",
+    "totalLiters": "Litros regados",
+    "pricePerLiter": "Precio agua",
+    "waterCost": "Coste agua",
+    "waterAuto": "Agua (auto)",
+    "addExpense": "Añadir gasto",
+    "categoryLabel": "CATEGORÍA",
+    "amountLabel": "IMPORTE",
+    "descLabel": "DESCRIPCIÓN (opcional)",
+    "descPlaceholder": "Ej. semillas de tomate cherry...",
+    "save": "Guardar gasto",
+    "cat": {
+      "seeds": "Semillas",
+      "fertilizer": "Abono",
+      "treatment": "Tratamientos",
+      "tools": "Herramientas",
+      "other": "Otros"
+    }
   }
 }

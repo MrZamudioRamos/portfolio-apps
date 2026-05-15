@@ -1097,5 +1097,37 @@
       "11": "Sow cabbages and broccoli; cool temperatures improve flavour.",
       "12": "Harvest and plan: summer crops are finishing their cycle."
     }
+  },
+  "costs": {
+    "title": "Costs & ROI",
+    "summaryLabel": "SUMMARY",
+    "totalExpense": "Total expenses",
+    "harvestValue": "Harvest value",
+    "netProfit": "Net profit:",
+    "netLoss": "Net loss:",
+    "expensesLabel": "EXPENSES",
+    "harvestLabel": "HARVEST VALUE",
+    "waterLabel": "WATER",
+    "recentLabel": "RECENT EXPENSES",
+    "totalKg": "Kg harvested",
+    "pricePerKg": "Estimated price",
+    "estimatedValue": "Estimated value",
+    "totalLiters": "Liters watered",
+    "pricePerLiter": "Water price",
+    "waterCost": "Water cost",
+    "waterAuto": "Water (auto)",
+    "addExpense": "Add expense",
+    "categoryLabel": "CATEGORY",
+    "amountLabel": "AMOUNT",
+    "descLabel": "DESCRIPTION (optional)",
+    "descPlaceholder": "E.g. cherry tomato seeds...",
+    "save": "Save expense",
+    "cat": {
+      "seeds": "Seeds",
+      "fertilizer": "Fertilizer",
+      "treatment": "Treatments",
+      "tools": "Tools",
+      "other": "Other"
+    }
   }
 }

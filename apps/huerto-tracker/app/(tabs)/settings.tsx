@@ -227,6 +227,14 @@ export default function SettingsScreen() {
           />
           <Separator colors={colors} />
           <RowAction
+            icon="cash-outline"
+            label={t('costs.title')}
+            colors={colors}
+            s={s}
+            onPress={() => router.push('/costs' as any)}
+          />
+          <Separator colors={colors} />
+          <RowAction
             icon="bug-outline"
             label={t('settings.tools.diseaseGuide')}
             colors={colors}
