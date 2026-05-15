@@ -1,882 +1,909 @@
-﻿{
-    "tabs":  {
-                 "home":  "El meu hort",
-                 "calendar":  "Calendari",
-                 "diary":  "Diari",
-                 "settings":  "Ajustos"
-             },
-    "common":  {
-                   "cancel":  "Cancel·lar",
-                   "delete":  "Eliminar",
-                   "save":  "Desar",
-                   "saving":  "Desant…",
-                   "back":  "← Tornar",
-                   "close":  "Tancar",
-                   "continue":  "Continuar →",
-                   "error":  "Error",
-                   "ok":  "D\u0027acord",
-                   "search":  "Cercar…",
-                   "version":  "Versió",
-                   "loading":  "Carregant…",
-                   "viewAll":  "Veure tot",
-                   "more":  "més"
-               },
-    "home":  {
-                 "title":  "El meu hort",
-                 "streak":  "🔥 {{count}} dies",
-                 "stats":  {
-                               "plants":  "Plantes",
-                               "harvesting":  "En collita",
-                               "reminders":  "Recordatoris",
-                               "pests":  "Amb plaga",
-                               "needsWater":  "Necessiten aigua",
-                               "yearKg":  "Collit enguany"
-                           },
-                 "weatherLoading":  "🌤️ Carregant el temps…",
-                 "lunarDay":  "Dia",
-                 "viewStats":  "Veure estadístiques",
-                 "sowNowTitle":  "Sembra ara",
-                 "sowSoonTitle":  "Pròximament",
-                 "sowNowEmpty":  "No hi ha cultius per sembrar aquest mes a la teva zona.",
-                 "sowAdd":  "Afegir",
-                 "weeklyTasks":  "Aquesta setmana",
-                 "weeklyTasksEmpty":  "Tot al dia. Bon treball! 🎉",
-                 "taskWater":  "Regar {{name}}",
-                 "taskTransplant":  "Trasplantar {{name}} aviat",
-                 "taskHarvest":  "{{name}} llesta per collir",
-                 "taskPest":  "Tractar plaga a {{name}}",
-                 "myPlants":  "Les meves plantes",
-                 "waterAll":  "💧 Regar tot",
-                 "waterAllTitle":  "Regar tot",
-                 "waterAllMessage":  "Registrar reg per a les {{count}} plantes?",
-                 "waterAllConfirm":  "Regar totes",
-                 "emptyTitle":  "Encara no hi ha plantes",
-                 "emptyDesc":  "Afegeix la teva primera planta per començar a registrar el teu hort.",
-                 "addPlant":  "Afegir planta",
-                 "searchPlants":  "Cercar planta…",
-                 "taskEstHarvest":  "🧺 {{name}} propera a la collita",
-                 "taskNeglected":  "👁️ {{name}} sense activitat ({{days}} dies)",
-                 "filterAll":  "Totes",
-                 "sortDefault":  "Ordre",
-                 "sortName":  "A-Z",
-                 "sortNewest":  "Recents",
-                 "showFinished":  "{{count}} finalitzades ocultes · Mostrar",
-                 "hideFinished":  "Amagar finalitzades"
-             },
-    "calendar":  {
-                     "title":  "Calendari de sembra",
-                     "zone":  "Zona {{zone}}",
-                     "containerBanner":  "Mostrant només cultius aptes per a contenidors",
-                     "lunarProfile":  "Perfil lunar del mes",
-                     "lunarBasis":  "Basat en cicle sinòdic",
-                     "lunarDayIllum":  "Dia {{day}} · {{illum}}% il·luminada",
-                     "cropsCount":  "{{count}} cultius per sembrar a {{month}}",
-                     "companions":  "🤝 Associacions",
-                     "emptyCrops":  "Sense sembres a {{month}}",
-                     "emptyCropsDesc":  "No hi ha cultius recomanats per a la teva zona aquest mes. Consulta mesos propers.",
-                     "fullSun":  "☀️ Sol ple",
-                     "partialShade":  "⛅ Semisombra",
-                     "shade":  "🌑 Ombra",
-                     "days":  "🗓 {{min}}–{{max}} dies",
-                     "containerInfo":  "🪴 Test mín. {{liters}} L · {{tip}}",
-                     "addToGarden":  "Afegir a l\u0027hort",
-                     "hemisphereSurBanner":  "Hemisferi Sud actiu · mesos invertits respecte al nord",
-                     "catAll":  "Tots",
-                     "today":  "Avui"
-                 },
-    "diary":  {
-                  "title":  "Diari",
-                  "filters":  {
-                                  "all":  "Tots",
-                                  "watering":  "Reg",
-                                  "sowing":  "Sembra",
-                                  "harvest":  "Collita",
-                                  "fertilizing":  "Adob",
-                                  "transplant":  "Trasplantament",
-                                  "pest":  "Plaga",
-                                  "treatment":  "Tractament",
-                                  "pruning":  "Poda",
-                                  "photo":  "Foto",
-                                  "note":  "Nota"
-                              },
-                  "emptyTitle":  "El teu diari és buit",
-                  "emptyDesc":  "Registra la teva primera activitat: un reg, una sembra o una collita.",
-                  "newEntry":  "Nova entrada",
-                  "search":  "Cerca al diari…"
-              },
-    "settings":  {
-                     "title":  "Ajustos",
-                     "sections":  {
-                                      "account":  "COMPTE",
-                                      "garden":  "EL MEU HORT",
-                                      "subscription":  "SUBSCRIPCIÓ",
-                                      "tools":  "EINES",
-                                      "summary":  "RESUM",
-                                      "notifications":  "NOTIFICACIONS",
-                                      "data":  "DADES",
-                                      "app":  "APP",
-                                      "language":  "IDIOMA"
-                                  },
-                     "account":  {
-                                     "guestTitle":  "Mode convidat",
-                                     "guestDesc":  "Crea un compte per sincronitzar el teu hort i no perdre les teves dades.",
-                                     "signIn":  "Iniciar sessió",
-                                     "email":  "Correu",
-                                     "signOut":  "Tancar sessió",
-                                     "signOutTitle":  "Tancar sessió?",
-                                     "signOutDesc":  "Les teves dades locals es conservaran."
-                                 },
-                     "garden":  {
-                                    "name":  "Nom",
-                                    "province":  "Província",
-                                    "climateZone":  "Zona climàtica",
-                                    "map":  "Mapa de l\u0027hort",
-                                    "edit":  "Editar hort",
-                                    "manageGardens":  "Gestionar horts"
-                                },
-                     "subscription":  {
-                                          "proPlan":  "⭐ Pla Pro",
-                                          "freePlan":  "Pla gratuït",
-                                          "activeAnnual":  "Subscripció anual activa",
-                                          "activeMonthly":  "Subscripció mensual activa",
-                                          "freeLimit":  "Fins a 5 plantes per hort",
-                                          "viewPlans":  "Veure plans"
-                                      },
-                     "tools":  {
-                                   "companions":  "Guia d\u0027associacions",
-                                   "stats":  "Veure estadístiques",
-                                   "diseaseGuide":  "Guia de plagues i malalties"
-                               },
-                     "summary":  {
-                                     "activePlants":  "Plantes actives",
-                                     "diaryEntries":  "Entrades del diari",
-                                     "reminders":  "Recordatoris"
-                                 },
-                     "notifications":  {
-                                           "seasonal":  "Alertes estacionals"
-                                       },
-                     "data":  {
-                                  "backup":  "Còpia de seguretat",
-                                  "deleteAll":  "Eliminar totes les dades",
-                                  "deleteTitle":  "Eliminar totes les dades?",
-                                  "deleteDesc":  "S\u0027eliminaran permanentment totes les plantes, entrades del diari i recordatoris. Aquesta acció no es pot desfer.",
-                                  "deleteConfirm":  "Eliminar tot"
-                              },
-                     "app":  {
-                                 "version":  "Versió",
-                                 "rate":  "Valorar a l\u0027App Store",
-                                 "privacy":  "Política de privacitat",
-                                 "contact":  "Contacte"
-                             }
-                 },
-    "auth":  {
-                 "title":  "Crea el teu compte",
-                 "subtitle":  "Sincronitza el teu hort a tots els teus dispositius i no perdis cap dada.",
-                 "connecting":  "Connectant…",
-                 "continueGoogle":  "Continuar amb Google",
-                 "continueApple":  "Continuar amb Apple",
-                 "or":  "o",
-                 "emailLink":  "✉️ Usar enllaç per correu",
-                 "emailPlaceholder":  "tu@correu.com",
-                 "sendMagicLink":  "Enviar enllaç màgic",
-                 "sending":  "Enviant…",
-                 "continueGuest":  "Continuar sense compte (màx. 3 plantes)",
-                 "errorGoogle":  "No s\u0027ha pogut iniciar sessió amb Google.",
-                 "errorApple":  "No s\u0027ha pogut iniciar sessió amb Apple.",
-                 "errorEmailRequired":  "Correu requerit",
-                 "errorEmailRequiredDesc":  "Introdueix la teva adreça de correu.",
-                 "errorMagicLink":  "No s\u0027ha pogut enviar l\u0027enllaç. Comprova el correu."
-             },
-    "magicSent":  {
-                      "title":  "Revisa el teu correu",
-                      "message":  "T\u0027hem enviat un enllaç màgic a {{email}}. Prem l\u0027enllaç des del teu telèfon per entrar automàticament.",
-                      "note":  "L\u0027enllaç caduca en 1 hora. Si no el veus, revisa la carpeta de correu no desitjat.",
-                      "changeEmail":  "Canviar correu",
-                      "continueGuest":  "Continuar sense compte per ara"
-                  },
-    "companions":  {
-                       "title":  "Associacions",
-                       "proSub":  "Guia completa disponible en Pro",
-                       "proUnlock":  "Pro — Desbloquejar guia completa",
-                       "browse":  "Explorar",
-                       "check":  "Consultar",
-                       "searchCrop":  "Cercar cultiu…",
-                       "searchFirst":  "Cercar primer cultiu…",
-                       "searchSecond":  "Cercar segon cultiu…",
-                       "goodNeighbors":  "Bons veïns",
-                       "badNeighbors":  "Mals veïns",
-                       "noAssociations":  "Sense associacions registrades",
-                       "unlockRemaining":  "Desbloqueja els {{count}} cultius restants amb Pro",
-                       "firstCrop":  "Primer cultiu",
-                       "secondCrop":  "Segon cultiu",
-                       "goodMatch":  "Bona combinació!",
-                       "badMatch":  "No els plantis junts",
-                       "neutral":  "Compatibles però neutres",
-                       "companionNote":  "Aquests cultius es beneficien mútuament. Planta\u0027ls a {{spacing}} cm de distància.",
-                       "incompatibleNote":  "Aquests cultius poden inhibir-se o atreure plagues mútuament. Mantén-los separats.",
-                       "checkEmpty":  "Selecciona dos cultius per comprovar si són compatibles entre ells."
-                   },
-    "entryNew":  {
-                     "title":  "Nova entrada",
-                     "saving":  "Desant…",
-                     "save":  "Desar",
-                     "activityType":  "TIPUS D\u0027ACTIVITAT",
-                     "plant":  "PLANTA (opcional)",
-                     "general":  "General",
-                     "date":  "DATA",
-                     "datePlaceholder":  "AAAA-MM-DD",
-                     "notes":  "NOTES (opcional)",
-                     "notesPlaceholder":  "Què has observat? Com estava la planta?",
-                     "harvest":  "COLLITA",
-                     "weightKg":  "Pes (kg)",
-                     "units":  "Unitats",
-                     "photo":  "FOTO (opcional)",
-                     "addPhoto":  "Afegir foto",
-                     "saveEntry":  "Desar entrada",
-                     "today":  "Avui",
-                     "yesterday":  "Ahir",
-                     "twoDaysAgo":  "Fa 2 dies"
-                 },
-    "gardenEdit":  {
-                       "title":  "Editar hort",
-                       "nameLabel":  "NOM DE L\u0027HORT",
-                       "namePlaceholder":  "El meu hort",
-                       "typeLabel":  "TIPUS D\u0027HORT",
-                       "noGarden":  "Sense hort configurat",
-                       "provinceLabel":  "PROVÍNCIA",
-                       "provincePlaceholder":  "Seleccionar província…",
-                       "selectProvince":  "Selecciona la teva província o regió",
-                       "searchProvince":  "Cercar província…",
-                       "containerTip":  "El calendari filtrarà cultius aptes per a contenidors.",
-                       "save":  "Desar canvis",
-                       "nameRequired":  "Nom requerit",
-                       "nameRequiredDesc":  "Posa un nom al teu hort.",
-                       "provinceRequired":  "Província requerida",
-                       "provinceRequiredDesc":  "Selecciona la teva província per al calendari de sembra.",
-                       "gridSizeLabel":  "MIDA DEL MAPA",
-                       "cells":  "parcel·les",
-                       "gridProTitle":  "Funció Pro",
-                       "gridProDesc":  "Canvia la mida del mapa amb el pla Pro.",
-                       "hemisphereLabel":  "HEMISFERI",
-                       "hemisphereNorte":  "Nord",
-                       "hemisphereSur":  "Sud",
-                       "hemisphereSurTip":  "El calendari invertirà els mesos per adaptar-se a l\u0027hemisferi sud (Argentina, Xile, Uruguai…)"
-                   },
-    "gardens":  {
-                    "title":  "Els meus horts",
-                    "hint":  "Toca un hort per activar-lo. Les plantes del inici es filtren per l\u0027hort actiu.",
-                    "active":  "Actiu",
-                    "createTitle":  "Nou hort",
-                    "fieldName":  "Nom",
-                    "fieldNamePlaceholder":  "Ex. Hort de la terrassa",
-                    "fieldType":  "Tipus",
-                    "fieldProvince":  "Província",
-                    "fieldProvincePlaceholder":  "Selecciona província",
-                    "cantDeleteLast":  "No pots eliminar l\u0027únic hort.",
-                    "deleteTitle":  "Eliminar {{name}}",
-                    "deleteDesc":  "Només s\u0027eliminarà l\u0027hort, no les plantes ni entrades associades."
-                },
-    "diseaseGuide":  {
-                         "title":  "Guia de malalties",
-                         "subtitle":  "Plagues, malalties i deficiències",
-                         "search":  "Cerca plaga, símptoma o cultiu…",
-                         "filterAll":  "Totes",
-                         "filterPest":  "🐛 Plaga",
-                         "filterDisease":  "🍂 Malaltia",
-                         "filterDeficiency":  "💛 Deficiència",
-                         "empty":  "Sense resultats per a aquesta cerca.",
-                         "affectedCrops":  "Cultius afectats",
-                         "symptoms":  "Símptomes",
-                         "treatments":  "Tractaments",
-                         "type":  {
-                                      "plaga":  "Plaga",
-                                      "enfermedad":  "Malaltia",
-                                      "deficiencia":  "Deficiència"
-                                  },
-                         "treatment":  {
-                                           "organico":  "Orgànic",
-                                           "preventivo":  "Preventiu",
-                                           "quimico":  "Químic"
-                                       },
-                         "visualSigns":  "Senyals visuals",
-                         "severityHigh":  "Severitat alta",
-                         "severityMed":  "Severitat mitjana",
-                         "severityLow":  "Severitat baixa"
-                     },
-    "gardenMap":  {
-                      "title":  "Mapa de l\u0027hort",
-                      "summary":  "{{placed}} / {{total}} plantes col·locades · {{cols}}×{{rows}} parcel·les",
-                      "south":  "Sud",
-                      "assignPlant":  "Assignar planta",
-                      "searchPlant":  "Cercar planta…",
-                      "noPlants":  "Encara no tens plantes.\nAfegeix plantes des del tauler.",
-                      "allPlaced":  "Totes les plantes ja estan col·locades.",
-                      "legendOccupied":  "Parcel·la amb planta",
-                      "legendEmpty":  "Parcel·la buida",
-                      "emptyNote":  "Afegeix plantes primer des del tauler per col·locar-les al mapa.",
-                      "viewPlant":  "Veure planta",
-                      "removeFromMap":  "Treure del mapa",
-                      "removeTitle":  "Treure del mapa",
-                      "removeDesc":  "Treure {{name}} d\u0027aquesta parcel·la?",
-                      "remove":  "Treure",
-                      "movePlant":  "Moure",
-                      "moveModeHint":  "Toca la parcel·la de destí · Prem ✕ per cancel·lar",
-                      "moveCancelled":  "Moviment cancel·lat",
-                      "shareTitle":  "El meu hort",
-                      "shareNotAvailable":  "Compartir no està disponible en aquest dispositiu.",
-                      "shareError":  "No s\u0027ha pogut capturar el mapa."
-                  },
-    "onboarding":  {
-                       "step1Title":  "El teu hort digital",
-                       "step1Desc":  "Planifica la teva sembra, registra la teva collita i no oblidis regar.",
-                       "start":  "Començar →",
-                       "step2Title":  "On és el teu hort?",
-                       "step2Desc":  "Selecciona la teva província o regió per personalitzar el calendari de sembra.",
-                       "selectProvince":  "Selecciona la teva província o regió",
-                       "zone":  "Zona {{label}}",
-                       "continue":  "Continuar →",
-                       "back":  "Enrere",
-                       "step3Title":  "Crea el teu primer hort",
-                       "step3Desc":  "Posa un nom al teu espai de cultiu.",
-                       "gardenTypeLabel":  "Quin tipus d\u0027espai tens?",
-                       "gardenNamePlaceholder":  "Ex: La meva terrassa, Balcó nord...",
-                       "create":  "Crear hort 🌱",
-                       "provinceSearch":  "Cercar província o regió...",
-                       "closeSearch":  "Tancar",
-                       "step4Title":  "Hort creat! 🌱",
-                       "step4Desc":  "Tot llest. Vols afegir la teva primera planta ara?",
-                       "addFirstPlant":  "Afegir primera planta",
-                       "skipToGarden":  "Veure el meu hort",
-                       "feature1Title":  "Lluna i sembra",
-                       "feature1Desc":  "Sembra al moment òptim segons el cicle lunar",
-                       "feature2Title":  "Temps real",
-                       "feature2Desc":  "Recomanacions de reg segons la previsió meteorològica",
-                       "feature3Title":  "Plantes companyes",
-                       "feature3Desc":  "Descobreix quins cultius es porten bé junts",
-                       "hemisphereLabel":  "En quin hemisferi ets?",
-                       "hemisphereNorte":  "Nord",
-                       "hemisphereSur":  "Sud"
-                   },
-    "paywall":  {
-                    "titlePro":  "Ja ets Pro!",
-                    "title":  "Fes créixer el teu hort\nsense límits",
-                    "subtitlePro":  "Subscripció activa · Pla {{plan}}",
-                    "subtitle":  "Desbloqueja tot el que necessites per convertir-te en un autèntic hortolà.",
-                    "features":  {
-                                     "gardens":  "Horts il·limitats (ara només 1)",
-                                     "plants":  "Plantes sense límit (pla gratuït: 5)",
-                                     "calendar":  "Calendari de sembra complet amb alertes",
-                                     "companions":  "Guia d\u0027associacions de cultius",
-                                     "charts":  "Gràfics de collita i productivitat",
-                                     "pdf":  "Exportar diari en PDF",
-                                     "reminders":  "Recordatoris de reg il·limitats",
-                                     "backup":  "Còpia de seguretat al núvol"
-                                 },
-                    "choosePlan":  "TRIA EL TEU PLA",
-                    "monthly":  "Mensual",
-                    "annual":  "Anual",
-                    "popular":  "⭐ Més popular",
-                    "cancelAnytime":  "Cancel·la quan vulguis",
-                    "processing":  "Processant…",
-                    "ctaTrial":  "Començar prova gratis 7 dies",
-                    "ctaDone":  "Fet",
-                    "trialNote":  "Cancel·la en qualsevol moment. Sense compromisos.",
-                    "restore":  "Restaurar compres",
-                    "legal":  "El pagament es carregarà al teu compte d\u0027App Store. La subscripció es renova automàticament llevat que es cancel·li almenys 24 hores abans del final del període actual.",
-                    "successTitle":  "Benvingut a Pro! 🌻",
-                    "successDesc":  "La teva subscripció és activa. Gaudeix de totes les funcions sense límit.",
-                    "successBtn":  "Anem-hi!",
-                    "errorPurchase":  "No s\u0027ha pogut completar la compra. Torna-ho a intentar.",
-                    "restoreSuccessTitle":  "Compres restaurades!",
-                    "restoreSuccessDesc":  "La teva subscripció Pro és activa.",
-                    "restoreNoneTitle":  "Sense compres anteriors",
-                    "restoreNoneDesc":  "No hem trobat cap subscripció activa associada al teu compte.",
-                    "restoreError":  "No s\u0027ha pogut connectar. Torna-ho a intentar.",
-                    "lifetimeBadge":  "Sense subscripció",
-                    "lifetimeSub":  "Pagament únic · Sense renovacions"
-                },
-    "plantEdit":  {
-                      "title":  "Editar planta",
-                      "save":  "Desar canvis",
-                      "changePhoto":  "Canviar foto",
-                      "cropFixed":  "Cultiu fix",
-                      "harvestGoalLabel":  "Objectiu de collita (kg)",
-                      "harvestGoalPlaceholder":  "Ex: 5.0",
-                      "notesLabel":  "NOTES (opcional)",
-                      "notesPlaceholder":  "Observacions, apunts personals…"
-                  },
-    "plantNew":  {
-                     "title":  "Nova planta",
-                     "cropLabel":  "CULTIU",
-                     "selectCrop":  "Seleccionar cultiu",
-                     "changeCrop":  "Canviar",
-                     "nameLabel":  "NOM",
-                     "namePlaceholder":  "Nom de la teva planta",
-                     "varietyLabel":  "VARIETAT (opcional)",
-                     "varietyPlaceholder":  "Ex: Cherry, Romana, Negra de Crimea...",
-                     "sowingDate":  "DATA DE SEMBRA",
-                     "photo":  "FOTO (opcional)",
-                     "addPhoto":  "Afegir foto",
-                     "addPlant":  "Afegir planta 🌱",
-                     "cropSearch":  "Cercar cultiu...",
-                     "cropPickerTitle":  "Seleccionar cultiu",
-                     "varietyGeneric":  "Genèrica",
-                     "goodWith":  "Bones companyes: "
-                 },
-    "plantDetail":  {
-                        "notFound":  "Planta no trobada",
-                        "statusSection":  "Estat",
-                        "cropInfo":  "Informació del cultiu",
-                        "harvest":  "Collita",
-                        "harvestDays":  "{{min}}–{{max}} dies",
-                        "light":  "Llum",
-                        "water":  "Aigua",
-                        "spacing":  "Espaiat",
-                        "sunFull":  "Sol ple",
-                        "sunPartial":  "Semisombra",
-                        "sunShade":  "Ombra",
-                        "waterHigh":  "Alt",
-                        "waterMedium":  "Mitjà",
-                        "waterLow":  "Baix",
-                        "goodNeighbors":  "Bons veïns",
-                        "badNeighbors":  "Mals veïns",
-                        "reminders":  "Recordatoris",
-                        "active":  "Actiu",
-                        "paused":  "Pausat",
-                        "diary":  "Diari",
-                        "noEntries":  "Sense entrades encara. Registra la teva primera activitat!",
-                        "pestSection":  "Estat de plagues",
-                        "commonPests":  "PLAGUES FREQÜENTS A {{crop}}",
-                        "newEntry":  "Nova entrada",
-                        "reminder":  "Recordatori",
-                        "deletePlant":  "Eliminar planta",
-                        "deleteTitle":  "Eliminar {{name}}?",
-                        "deleteDesc":  "S\u0027eliminarà la planta i totes les seves entrades de diari i recordatoris.",
-                        "sownOn":  "🌰 Sembrada {{date}}",
-                        "daysGrowing_one":  "{{count}} dia",
-                        "daysGrowing_other":  "{{count}} dies",
-                        "estimatedHarvest":  "🧺 Collita est. {{date}}",
-                        "harvestSummary_one":  "1 collita registrada",
-                        "harvestSummary_other":  "{{count}} collites registrades",
-                        "units":  "unitats",
-                        "goalProgress":  "Objectiu de temporada",
-                        "photoTimeline":  "📸 Fotos de progrés",
-                        "transplantCta":  "Llesta per trasplantar?",
-                        "transplantCtaDesc":  "{{days}} dies al planter",
-                        "transplantModalTitle":  "Registrar trasplantament",
-                        "transplantDateLabel":  "DATA DE TRASPLANTAMENT",
-                        "transplantConfirm":  "Confirmar trasplantament",
-                        "duplicate":  "Duplicar planta"
-                    },
-    "reminderEdit":  {
-                         "title":  "Editar recordatori",
-                         "save":  "Desar canvis",
-                         "enabledLabel":  "Recordatori actiu",
-                         "enabledOn":  "Les notificacions estan activades",
-                         "enabledOff":  "Les notificacions estan desactivades",
-                         "delete":  "Eliminar recordatori",
-                         "deleteTitle":  "Eliminar recordatori?",
-                         "deleteDesc":  "Es cancel·larà la notificació i s\u0027eliminarà el recordatori.",
-                         "saveError":  "No s\u0027ha pogut desar el recordatori.",
-                         "notFound":  "Recordatori no trobat"
-                     },
-    "reminderNew":  {
-                        "title":  "Nou recordatori",
-                        "typeLabel":  "TIPUS",
-                        "titleLabel":  "TÍTOL",
-                        "frequencyLabel":  "FREQÜÈNCIA",
-                        "hourLabel":  "HORA",
-                        "minuteLabel":  "MINUTS",
-                        "create":  "Crear recordatori",
-                        "noGardenTitle":  "Sense hort",
-                        "noGardenDesc":  "Completa l\u0027onboarding primer.",
-                        "saveError":  "No s\u0027ha pogut crear el recordatori."
-                    },
-    "backup":  {
-                   "title":  "Còpia de seguretat",
-                   "autoSyncLabel":  "SINCRONITZACIÓ AUTOMÀTICA",
-                   "icloudSync":  "Sincronitzar amb iCloud",
-                   "icloudSyncDesc":  "Desa automàticament una còpia de seguretat a la teva carpeta iCloud en sortir de l\u0027app.",
-                   "lastBackup":  "Última còpia",
-                   "never":  "Mai",
-                   "icloudTip":  "Per activar la sincronització iCloud ves a Ajustos \u003e El teu nom \u003e iCloud \u003e Apps que usen iCloud i activa HuertoTracker.",
-                   "manualLabel":  "MANUAL",
-                   "exportTitle":  "Exportar còpia",
-                   "exportDesc":  "Desa l\u0027arxiu a Arxius, Drive o comparteix-lo.",
-                   "export":  "Exportar",
-                   "importTitle2":  "Importar còpia",
-                   "importDesc2":  "Restaura des d\u0027un arxiu .json. Substitueix totes les dades.",
-                   "import":  "Importar",
-                   "pdfLabel":  "INFORME DE TEMPORADA",
-                   "pdfTitle":  "Exportar informe PDF",
-                   "pdfDesc":  "Resum del teu hort: plantes, collites i activitat de l\u0027any.",
-                   "pdfGenerate":  "Generar PDF",
-                   "includesLabel":  "QUÈ INCLOU LA CÒPIA",
-                   "includeGarden":  "Hort i configuració de zona",
-                   "includePlants":  "Totes les teves plantes",
-                   "includeEntries":  "Entrades del diari",
-                   "includeReminders":  "Recordatoris configurats",
-                   "footerNote":  "La còpia no inclou fotos (emmagatzemades a la galeria del dispositiu) ni l\u0027estat de la subscripció.",
-                   "proTitle":  "Funció Pro",
-                   "proDesc":  "La sincronització automàtica amb iCloud està disponible en el pla Pro.",
-                   "viewPlans":  "Veure plans",
-                   "importTitle":  "Importar còpia",
-                   "importDesc":  "Això substituirà TOTES les dades actuals amb les de l\u0027arxiu de còpia. L\u0027app necessitarà reiniciar-se.\n\nContinuar?",
-                   "importConfirm":  "Importar",
-                   "restoredTitle":  "Dades restaurades ✓",
-                   "restoredDesc":  "Tanca i torna a obrir l\u0027app perquè els canvis tinguin efecte.",
-                   "exportError":  "No s\u0027ha pogut exportar la còpia. Torna-ho a intentar."
-               },
-    "notifications":  {
-                          "title":  "Notificacions",
-                          "seasonalLabel":  "ALERTES ESTACIONALS",
-                          "sowingReminders":  "Recordatoris de sembra",
-                          "sowingRemindersDesc":  "Avís l\u00271 de cada mes amb el que pots sembrar",
-                          "basedOnZone":  "Basat en la teva zona climàtica:",
-                          "nextAlertLabel":  "PRÒXIMA ALERTA",
-                          "nextAlertDate":  "1 de {{month}}",
-                          "nextAlertCrops_one":  "{{count}} cultiu per sembrar",
-                          "nextAlertCrops_other":  "{{count}} cultius per sembrar",
-                          "howLabel":  "COM FUNCIONA",
-                          "how1Title":  "Avís mensual",
-                          "how1Desc":  "Reps una notificació el dia 1 de cada mes a les 9:00.",
-                          "how2Title":  "Personalitzat per zona",
-                          "how2Desc":  "Els cultius suggerits es calculen segons la teva zona climàtica a Espanya.",
-                          "how3Title":  "Sense connexió",
-                          "how3Desc":  "Les alertes es programen al dispositiu. No necessites internet.",
-                          "noZoneWarning":  "Completa l\u0027onboarding per activar les alertes personalitzades per zona.",
-                          "frostLabel":  "GELADES",
-                          "frostAlerts":  "Alertes de gelada",
-                          "frostAlertsDesc":  "Rep una notificació quan es prevegin temperatures sota 2°C els propers dies.",
-                          "frostNoProvince":  "Configura la teva província a l\u0027hort per activar les alertes de gelada.",
-                          "more":  "més"
-                      },
-    "stats":  {
-                  "title":  "Estadístiques",
-                  "entries":  "Entrades",
-                  "harvests":  "Collites",
-                  "activeDays_one":  "dia actiu",
-                  "activeDays_other":  "dies actius",
-                  "harvested":  "Collit",
-                  "monthlyActivity":  "Activitat mensual",
-                  "noActivity":  "Sense activitat encara. Comença a registrar alguna cosa!",
-                  "activityBreakdown":  "Desglossament d\u0027activitat",
-                  "topPlants":  "Plantes més actives",
-                  "topCrops":  "Cultius més collits",
-                  "harvestByYear":  "Collita per any",
-                  "currentYear":  "Aquest any",
-                  "achievements":  "Assoliments",
-                  "entryCount_one":  "{{count}} entrada",
-                  "entryCount_other":  "{{count}} entrades",
-                  "harvestCount_one":  "{{count}} collita",
-                  "harvestCount_other":  "{{count}} collites",
-                  "successRate":  "Taxa d’exit",
-                  "avgDaysToHarvest":  "Mitjana dies a collita"
-              },
-    "welcome":  {
-                    "title":  "Huerto Tracker",
-                    "subtitle":  "Porta el registre del teu hort, planifica sembres i collita més i millor.",
-                    "features":  {
-                                     "calendar":  "Calendari de sembra",
-                                     "calendarDesc":  "Sembra en el moment òptim per a la teva zona climàtica.",
-                                     "diary":  "Diari de l\u0027hort",
-                                     "diaryDesc":  "Registra regs, podes i collites amb fotos.",
-                                     "reminders":  "Recordatoris",
-                                     "remindersDesc":  "No oblidis regar o abonar les teves plantes.",
-                                     "sync":  "Sincronització",
-                                     "syncDesc":  "Les teves dades segures al núvol, a tots els teus dispositius."
-                                 },
-                    "createAccount":  "Crear compte gratuït",
-                    "explore":  "Explorar sense compte",
-                    "note":  "El compte gratuït inclou fins a 10 plantes i sincronització al núvol."
-                },
-    "quickLog":  {
-                     "water":  "Regar",
-                     "harvest":  "Collir",
-                     "pest":  "Plaga",
-                     "fertilize":  "Abonar",
-                     "prune":  "Podar",
-                     "note":  "Nota",
-                     "commonPests":  "Plagues freqüents a {{crop}}:",
-                     "treatmentTip":  "En desar, la planta passarà a \u0027En tractament\u0027",
-                     "pestPlaceholder":  "Descriu la plaga o símptoma…",
-                     "notePlaceholder":  "Afegeix una nota…",
-                     "weightPlaceholder":  "Pes en kg (opcional)",
-                     "weightKgPlaceholder":  "Quantitat en kg…",
-                     "weightUnitsPlaceholder":  "Nombre d\u0027unitats…",
-                     "units":  "uds",
-                     "chooseAction":  "Tria una acció",
-                     "save":  "Registrar {{action}}",
-                     "done":  "Registrat!"
-                 },
-    "lunar":  {
-                  "newMoon":  "Lluna nova",
-                  "waxingCrescent":  "Lluna creixent",
-                  "firstQuarter":  "Quart creixent",
-                  "waxingGibbous":  "Gibosa creixent",
-                  "fullMoon":  "Lluna plena",
-                  "waningGibbous":  "Gibosa minvant",
-                  "lastQuarter":  "Quart minvant",
-                  "waningCrescent":  "Lluna minvant",
-                  "gardeningLabel":  {
-                                         "frutos":  "Dia de fruits",
-                                         "hojas":  "Dia de fulles",
-                                         "raices":  "Dia d\u0027arrels",
-                                         "flores":  "Dia de flors",
-                                         "descanso":  "Dia de descans"
-                                     },
-                  "recommendation":  {
-                                         "frutos":  "Bona lluna per collir i plantar tomàquets, cogombres i fruites.",
-                                         "hojas":  "Ideal per sembrar enciam, espinacs i herbes aromàtiques.",
-                                         "raices":  "Perfecte per a pastanagues, raves i tubèrculs.",
-                                         "flores":  "Trasplanta flors i plantes aromàtiques avui.",
-                                         "descanso":  "Dia de lluna nova. Descansa el sòl i planifica."
-                                     },
-                  "monthLabel":  {
-                                     "frutos":  "Mes de fruits",
-                                     "hojas":  "Mes de fulles",
-                                     "raices":  "Mes d\u0027arrels",
-                                     "flores":  "Mes de flors",
-                                     "descanso":  "Mes de descans"
-                                 }
-              },
-    "weather":  {
-                    "clear":  "Cel serè",
-                    "mostlyClear":  "Majoritàriament serè",
-                    "partlyCloudy":  "Parcialment ennuvolat",
-                    "cloudy":  "Ennuvolat",
-                    "fog":  "Boira",
-                    "frostFog":  "Boira amb gelada",
-                    "drizzle":  "Plugim",
-                    "lightRain":  "Pluja feble",
-                    "rain":  "Pluja",
-                    "heavyRain":  "Pluja intensa",
-                    "lightSnow":  "Nevada feble",
-                    "snow":  "Neu",
-                    "showers":  "Xàfecs",
-                    "thunderstorm":  "Tempesta",
-                    "hailstorm":  "Pedregada",
-                    "variable":  "Variable",
-                    "wateringSkip":  "💧 Pluja prevista ({{rain}}%) — omet el reg avui.",
-                    "wateringReduce":  "💧 Possibilitat de pluja ({{rain}}%) — rega amb moderació.",
-                    "wateringHot":  "🌡️ Calor intens ({{temp}}°C) — rega a primera hora del matí.",
-                    "wateringNormal":  "✅ Bon moment per regar ({{temp}}°C, {{rain}}% pluja)."
-                },
-    "zone":  {
-                 "atlantica":  "Atlàntica",
-                 "continental":  "Continental",
-                 "mediterranea":  "Mediterrània",
-                 "subtropical":  "Subtropical"
-             },
-    "gardenType":  {
-                       "huerto":  "Hort",
-                       "balcon":  "Balcó / Terrassa",
-                       "maceta":  "Interior / Testos",
-                       "balconDesc":  "Cultiu en contenidors a l\u0027exterior. El calendari filtrarà cultius aptes per a contenidors.",
-                       "macetaDesc":  "Cultiu a l\u0027interior o finestres. El calendari filtrarà cultius aptes per a interior."
-                   },
-    "pestStatus":  {
-                       "none":  "Sense plagues",
-                       "active":  "Plaga activa",
-                       "treated":  "En tractament"
-                   },
-    "plantStatus":  {
-                        "seedling":  "Planter",
-                        "transplanted":  "Trasplantat",
-                        "growing":  "Creixent",
-                        "flowering":  "En flor",
-                        "fruiting":  "Fructificant",
-                        "harvesting":  "En collita",
-                        "finished":  "Finalitzat"
-                    },
-    "reminderType":  {
-                         "watering":  "Reg",
-                         "fertilizing":  "Adob",
-                         "harvest_check":  "Revisar collita",
-                         "custom":  "Personalitzat"
-                     },
-    "reminderFrequency":  {
-                              "daily":  "Cada dia",
-                              "every_2_days":  "Cada 2 dies",
-                              "every_3_days":  "Cada 3 dies",
-                              "weekly":  "Cada setmana",
-                              "once":  "Una vegada"
-                          },
-    "entryEdit":  {
-                      "title":  "Editar entrada",
-                      "save":  "Desar",
-                      "delete":  "Eliminar entrada",
-                      "deleteTitle":  "Eliminar entrada?",
-                      "deleteDesc":  "Aquesta entrada s\u0027eliminarà permanentment.",
-                      "notFound":  "Entrada no trobada",
-                      "changePhoto":  "Canviar foto"
-                  },
-    "cropCategory":  {
-                         "frutas":  "Fruites",
-                         "hojas":  "Fulles i amanides",
-                         "raices":  "Arrels i tubèrculs",
-                         "legumbres":  "Llegums",
-                         "cruciferas":  "Crucíferes",
-                         "cucurbitaceas":  "Cucurbitàcies",
-                         "aromaticas":  "Aromàtiques",
-                         "bulbos":  "Bulbs",
-                         "medicinales":  "Medicinals"
-                     },
-    "crops":  {
-                  "tomate":  {
-                                 "name":  "Tomàquet"
-                             },
-                  "pimiento":  {
-                                   "name":  "Pebrot"
-                               },
-                  "berenjena":  {
-                                    "name":  "Albergínia"
-                                },
-                  "fresa":  {
-                                "name":  "Maduixa"
-                            },
-                  "lechuga":  {
-                                  "name":  "Enciam"
-                              },
-                  "espinaca":  {
-                                   "name":  "Espinac"
-                               },
-                  "acelga":  {
-                                 "name":  "Bleda"
-                             },
-                  "rucula":  {
-                                 "name":  "Rúcula"
-                             },
-                  "canonigos":  {
-                                    "name":  "Canonges"
-                                },
-                  "zanahoria":  {
-                                    "name":  "Pastanaga"
-                                },
-                  "rabano":  {
-                                 "name":  "Rave"
-                             },
-                  "remolacha":  {
-                                    "name":  "Remolatxa"
-                                },
-                  "patata":  {
-                                 "name":  "Patata"
-                             },
-                  "nabo":  {
-                               "name":  "Nap"
-                           },
-                  "judia-verde":  {
-                                      "name":  "Mongeta tendra"
-                                  },
-                  "guisante":  {
-                                   "name":  "Pèsol"
-                               },
-                  "haba":  {
-                               "name":  "Fava"
-                           },
-                  "brocoli":  {
-                                  "name":  "Bròquil"
-                              },
-                  "coliflor":  {
-                                   "name":  "Coliflor"
-                               },
-                  "col":  {
-                              "name":  "Col / Repoll"
-                          },
-                  "kale":  {
-                               "name":  "Kale (Col arrissada)"
-                           },
-                  "calabacin":  {
-                                    "name":  "Carbassó"
-                                },
-                  "pepino":  {
-                                 "name":  "Cogombre"
-                             },
-                  "calabaza":  {
-                                   "name":  "Carbassa"
-                               },
-                  "melon":  {
-                                "name":  "Meló"
-                            },
-                  "sandia":  {
-                                 "name":  "Síndria"
-                             },
-                  "albahaca":  {
-                                   "name":  "Alfàbrega"
-                               },
-                  "perejil":  {
-                                  "name":  "Julivert"
-                              },
-                  "cilantro":  {
-                                   "name":  "Coriandre"
-                               },
-                  "romero":  {
-                                 "name":  "Romaní"
-                             },
-                  "tomillo":  {
-                                  "name":  "Farigola"
-                              },
-                  "menta":  {
-                                "name":  "Menta"
-                            },
-                  "ajo":  {
-                              "name":  "All"
-                          },
-                  "cebolla":  {
-                                  "name":  "Ceba"
-                              },
-                  "puerro":  {
-                                 "name":  "Porro"
-                             },
-                  "guindilla":  { "name":  "Bitxo / Xile" },
-                  "apio":  { "name":  "Api" },
-                  "esparrago":  { "name":  "Espàrrec" },
-                  "salvia":  { "name":  "Sàlvia" },
-                  "oregano":  { "name":  "Orenga" },
-                  "eneldo":  { "name":  "Anet" },
-                  "hinojo":  { "name":  "Fonoll" },
-                  "manzanilla":  { "name":  "Camamilla" },
-                  "lavanda":  { "name":  "Lavanda" }
-              },
-    "identify":  {
-                     "title":  "Identificar plaga",
-                     "subtitle":  "Fotografia la part afectada de la planta",
-                     "takePhoto":  "Fer foto",
-                     "fromGallery":  "Des de la galeria",
-                     "analyze":  "Analitzar amb IA",
-                     "analyzing":  "Analitzant la planta…",
-                     "retake":  "Nova foto",
-                     "healthy":  "La planta té bon aspecte!",
-                     "healthyDesc":  "No s\u0027han detectat plagues ni malalties",
-                     "saveEntry":  "Guardar diagnòstic al diari",
-                     "saved":  "✓ Guardat al diari",
-                     "proOnly":  "Funció Pro",
-                     "proOnlyDesc":  "La identificació per IA està disponible al pla Pro.",
-                     "upgradePro":  "Veure plans",
-                     "freeCredit":  "1 anàlisi gratuït",
-                     "freeCreditDesc":  "Prova la IA una vegada gratis. Després necessitaràs el pla Pro.",
-                     "freeCreditUsed":  "Ja has usat el teu anàlisi gratuït",
-                     "freeCreditUsedDesc":  "Actualitza a Pro per identificar plagues i malalties sense límit.",
-                     "noKeyDesc":  "Afegiu EXPO_PUBLIC_ANTHROPIC_KEY al fitxer .env",
-                     "error":  "Error en analitzar",
-                     "errorDesc":  "No s\u0027ha pogut analitzar la imatge. Torneu-ho a intentar.",
-                     "confidence":  {
-                                        "alta":  "Confiança alta",
-                                        "media":  "Confiança mitjana",
-                                        "baja":  "Confiança baixa"
-                                    },
-                     "problemType":  {
-                                         "plaga":  "Plaga",
-                                         "enfermedad":  "Malaltia",
-                                         "deficiencia":  "Deficiència",
-                                         "saludable":  "Sana"
-                                     },
-                     "symptomsLabel":  "Símptomes observats",
-                     "treatmentsLabel":  "Tractaments recomanats",
-                     "treatmentType":  {
-                                           "organico":  "Orgànic",
-                                           "preventivo":  "Preventiu",
-                                           "quimico":  "Químic"
-                                       }
-                 }
+{
+  "tabs": {
+    "home": "El meu hort",
+    "calendar": "Calendari",
+    "diary": "Diari",
+    "settings": "Ajustos"
+  },
+  "common": {
+    "cancel": "Cancel·lar",
+    "delete": "Eliminar",
+    "save": "Desar",
+    "saving": "Desant…",
+    "back": "← Tornar",
+    "close": "Tancar",
+    "continue": "Continuar →",
+    "error": "Error",
+    "ok": "D'acord",
+    "search": "Cercar…",
+    "version": "Versió",
+    "loading": "Carregant…",
+    "viewAll": "Veure tot",
+    "more": "més"
+  },
+  "home": {
+    "title": "El meu hort",
+    "streak": "🔥 {{count}} dies",
+    "stats": {
+      "plants": "Plantes",
+      "harvesting": "En collita",
+      "reminders": "Recordatoris",
+      "pests": "Amb plaga",
+      "needsWater": "Necessiten aigua",
+      "yearKg": "Collit enguany"
+    },
+    "weatherLoading": "🌤️ Carregant el temps…",
+    "lunarDay": "Dia",
+    "viewStats": "Veure estadístiques",
+    "sowNowTitle": "Sembra ara",
+    "sowSoonTitle": "Pròximament",
+    "sowNowEmpty": "No hi ha cultius per sembrar aquest mes a la teva zona.",
+    "sowAdd": "Afegir",
+    "weeklyTasks": "Aquesta setmana",
+    "weeklyTasksEmpty": "Tot al dia. Bon treball! 🎉",
+    "taskWater": "Regar {{name}}",
+    "taskTransplant": "Trasplantar {{name}} aviat",
+    "taskHarvest": "{{name}} llesta per collir",
+    "taskPest": "Tractar plaga a {{name}}",
+    "myPlants": "Les meves plantes",
+    "waterAll": "💧 Regar tot",
+    "waterAllTitle": "Regar tot",
+    "waterAllMessage": "Registrar reg per a les {{count}} plantes?",
+    "waterAllConfirm": "Regar totes",
+    "emptyTitle": "Encara no hi ha plantes",
+    "emptyDesc": "Afegeix la teva primera planta per començar a registrar el teu hort.",
+    "addPlant": "Afegir planta",
+    "searchPlants": "Cercar planta…",
+    "taskEstHarvest": "🧺 {{name}} propera a la collita",
+    "taskNeglected": "👁️ {{name}} sense activitat ({{days}} dies)",
+    "filterAll": "Totes",
+    "sortDefault": "Ordre",
+    "sortName": "A-Z",
+    "sortNewest": "Recents",
+    "showFinished": "{{count}} finalitzades ocultes · Mostrar",
+    "hideFinished": "Amagar finalitzades"
+  },
+  "calendar": {
+    "title": "Calendari de sembra",
+    "zone": "Zona {{zone}}",
+    "containerBanner": "Mostrant només cultius aptes per a contenidors",
+    "lunarProfile": "Perfil lunar del mes",
+    "lunarBasis": "Basat en cicle sinòdic",
+    "lunarDayIllum": "Dia {{day}} · {{illum}}% il·luminada",
+    "cropsCount": "{{count}} cultius per sembrar a {{month}}",
+    "companions": "🤝 Associacions",
+    "emptyCrops": "Sense sembres a {{month}}",
+    "emptyCropsDesc": "No hi ha cultius recomanats per a la teva zona aquest mes. Consulta mesos propers.",
+    "fullSun": "☀️ Sol ple",
+    "partialShade": "⛅ Semisombra",
+    "shade": "🌑 Ombra",
+    "days": "🗓 {{min}}–{{max}} dies",
+    "containerInfo": "🪴 Test mín. {{liters}} L · {{tip}}",
+    "addToGarden": "Afegir a l'hort",
+    "hemisphereSurBanner": "Hemisferi Sud actiu · mesos invertits respecte al nord",
+    "catAll": "Tots",
+    "today": "Avui"
+  },
+  "diary": {
+    "title": "Diari",
+    "filters": {
+      "all": "Tots",
+      "watering": "Reg",
+      "sowing": "Sembra",
+      "harvest": "Collita",
+      "fertilizing": "Adob",
+      "transplant": "Trasplantament",
+      "pest": "Plaga",
+      "treatment": "Tractament",
+      "pruning": "Poda",
+      "photo": "Foto",
+      "note": "Nota"
+    },
+    "emptyTitle": "El teu diari és buit",
+    "emptyDesc": "Registra la teva primera activitat: un reg, una sembra o una collita.",
+    "newEntry": "Nova entrada",
+    "search": "Cerca al diari…"
+  },
+  "settings": {
+    "title": "Ajustos",
+    "sections": {
+      "account": "COMPTE",
+      "garden": "EL MEU HORT",
+      "subscription": "SUBSCRIPCIÓ",
+      "tools": "EINES",
+      "summary": "RESUM",
+      "notifications": "NOTIFICACIONS",
+      "data": "DADES",
+      "app": "APP",
+      "language": "IDIOMA"
+    },
+    "account": {
+      "guestTitle": "Mode convidat",
+      "guestDesc": "Crea un compte per sincronitzar el teu hort i no perdre les teves dades.",
+      "signIn": "Iniciar sessió",
+      "email": "Correu",
+      "signOut": "Tancar sessió",
+      "signOutTitle": "Tancar sessió?",
+      "signOutDesc": "Les teves dades locals es conservaran."
+    },
+    "garden": {
+      "name": "Nom",
+      "province": "Província",
+      "climateZone": "Zona climàtica",
+      "map": "Mapa de l'hort",
+      "edit": "Editar hort",
+      "manageGardens": "Gestionar horts"
+    },
+    "subscription": {
+      "proPlan": "⭐ Pla Pro",
+      "freePlan": "Pla gratuït",
+      "activeAnnual": "Subscripció anual activa",
+      "activeMonthly": "Subscripció mensual activa",
+      "freeLimit": "Fins a 5 plantes per hort",
+      "viewPlans": "Veure plans"
+    },
+    "tools": {
+      "companions": "Guia d'associacions",
+      "stats": "Veure estadístiques",
+      "diseaseGuide": "Guia de plagues i malalties"
+    },
+    "summary": {
+      "activePlants": "Plantes actives",
+      "diaryEntries": "Entrades del diari",
+      "reminders": "Recordatoris"
+    },
+    "notifications": {
+      "seasonal": "Alertes estacionals"
+    },
+    "data": {
+      "backup": "Còpia de seguretat",
+      "deleteAll": "Eliminar totes les dades",
+      "deleteTitle": "Eliminar totes les dades?",
+      "deleteDesc": "S'eliminaran permanentment totes les plantes, entrades del diari i recordatoris. Aquesta acció no es pot desfer.",
+      "deleteConfirm": "Eliminar tot"
+    },
+    "app": {
+      "version": "Versió",
+      "rate": "Valorar a l'App Store",
+      "privacy": "Política de privacitat",
+      "contact": "Contacte"
+    }
+  },
+  "auth": {
+    "title": "Crea el teu compte",
+    "subtitle": "Sincronitza el teu hort a tots els teus dispositius i no perdis cap dada.",
+    "connecting": "Connectant…",
+    "continueGoogle": "Continuar amb Google",
+    "continueApple": "Continuar amb Apple",
+    "or": "o",
+    "emailLink": "✉️ Usar enllaç per correu",
+    "emailPlaceholder": "tu@correu.com",
+    "sendMagicLink": "Enviar enllaç màgic",
+    "sending": "Enviant…",
+    "continueGuest": "Continuar sense compte (màx. 3 plantes)",
+    "errorGoogle": "No s'ha pogut iniciar sessió amb Google.",
+    "errorApple": "No s'ha pogut iniciar sessió amb Apple.",
+    "errorEmailRequired": "Correu requerit",
+    "errorEmailRequiredDesc": "Introdueix la teva adreça de correu.",
+    "errorMagicLink": "No s'ha pogut enviar l'enllaç. Comprova el correu."
+  },
+  "magicSent": {
+    "title": "Revisa el teu correu",
+    "message": "T'hem enviat un enllaç màgic a {{email}}. Prem l'enllaç des del teu telèfon per entrar automàticament.",
+    "note": "L'enllaç caduca en 1 hora. Si no el veus, revisa la carpeta de correu no desitjat.",
+    "changeEmail": "Canviar correu",
+    "continueGuest": "Continuar sense compte per ara"
+  },
+  "companions": {
+    "title": "Associacions",
+    "proSub": "Guia completa disponible en Pro",
+    "proUnlock": "Pro — Desbloquejar guia completa",
+    "browse": "Explorar",
+    "check": "Consultar",
+    "searchCrop": "Cercar cultiu…",
+    "searchFirst": "Cercar primer cultiu…",
+    "searchSecond": "Cercar segon cultiu…",
+    "goodNeighbors": "Bons veïns",
+    "badNeighbors": "Mals veïns",
+    "noAssociations": "Sense associacions registrades",
+    "unlockRemaining": "Desbloqueja els {{count}} cultius restants amb Pro",
+    "firstCrop": "Primer cultiu",
+    "secondCrop": "Segon cultiu",
+    "goodMatch": "Bona combinació!",
+    "badMatch": "No els plantis junts",
+    "neutral": "Compatibles però neutres",
+    "companionNote": "Aquests cultius es beneficien mútuament. Planta'ls a {{spacing}} cm de distància.",
+    "incompatibleNote": "Aquests cultius poden inhibir-se o atreure plagues mútuament. Mantén-los separats.",
+    "checkEmpty": "Selecciona dos cultius per comprovar si són compatibles entre ells."
+  },
+  "entryNew": {
+    "title": "Nova entrada",
+    "saving": "Desant…",
+    "save": "Desar",
+    "activityType": "TIPUS D'ACTIVITAT",
+    "plant": "PLANTA (opcional)",
+    "general": "General",
+    "date": "DATA",
+    "datePlaceholder": "AAAA-MM-DD",
+    "notes": "NOTES (opcional)",
+    "notesPlaceholder": "Què has observat? Com estava la planta?",
+    "harvest": "COLLITA",
+    "weightKg": "Pes (kg)",
+    "units": "Unitats",
+    "photo": "FOTO (opcional)",
+    "addPhoto": "Afegir foto",
+    "saveEntry": "Desar entrada",
+    "today": "Avui",
+    "yesterday": "Ahir",
+    "twoDaysAgo": "Fa 2 dies"
+  },
+  "gardenEdit": {
+    "title": "Editar hort",
+    "nameLabel": "NOM DE L'HORT",
+    "namePlaceholder": "El meu hort",
+    "typeLabel": "TIPUS D'HORT",
+    "noGarden": "Sense hort configurat",
+    "provinceLabel": "PROVÍNCIA",
+    "provincePlaceholder": "Seleccionar província…",
+    "selectProvince": "Selecciona la teva província o regió",
+    "searchProvince": "Cercar província…",
+    "containerTip": "El calendari filtrarà cultius aptes per a contenidors.",
+    "save": "Desar canvis",
+    "nameRequired": "Nom requerit",
+    "nameRequiredDesc": "Posa un nom al teu hort.",
+    "provinceRequired": "Província requerida",
+    "provinceRequiredDesc": "Selecciona la teva província per al calendari de sembra.",
+    "gridSizeLabel": "MIDA DEL MAPA",
+    "cells": "parcel·les",
+    "gridProTitle": "Funció Pro",
+    "gridProDesc": "Canvia la mida del mapa amb el pla Pro.",
+    "hemisphereLabel": "HEMISFERI",
+    "hemisphereNorte": "Nord",
+    "hemisphereSur": "Sud",
+    "hemisphereSurTip": "El calendari invertirà els mesos per adaptar-se a l'hemisferi sud (Argentina, Xile, Uruguai…)"
+  },
+  "gardens": {
+    "title": "Els meus horts",
+    "hint": "Toca un hort per activar-lo. Les plantes del inici es filtren per l'hort actiu.",
+    "active": "Actiu",
+    "createTitle": "Nou hort",
+    "fieldName": "Nom",
+    "fieldNamePlaceholder": "Ex. Hort de la terrassa",
+    "fieldType": "Tipus",
+    "fieldProvince": "Província",
+    "fieldProvincePlaceholder": "Selecciona província",
+    "cantDeleteLast": "No pots eliminar l'únic hort.",
+    "deleteTitle": "Eliminar {{name}}",
+    "deleteDesc": "Només s'eliminarà l'hort, no les plantes ni entrades associades."
+  },
+  "diseaseGuide": {
+    "title": "Guia de malalties",
+    "subtitle": "Plagues, malalties i deficiències",
+    "search": "Cerca plaga, símptoma o cultiu…",
+    "filterAll": "Totes",
+    "filterPest": "🐛 Plaga",
+    "filterDisease": "🍂 Malaltia",
+    "filterDeficiency": "💛 Deficiència",
+    "empty": "Sense resultats per a aquesta cerca.",
+    "affectedCrops": "Cultius afectats",
+    "symptoms": "Símptomes",
+    "treatments": "Tractaments",
+    "type": {
+      "plaga": "Plaga",
+      "enfermedad": "Malaltia",
+      "deficiencia": "Deficiència"
+    },
+    "treatment": {
+      "organico": "Orgànic",
+      "preventivo": "Preventiu",
+      "quimico": "Químic"
+    },
+    "visualSigns": "Senyals visuals",
+    "severityHigh": "Severitat alta",
+    "severityMed": "Severitat mitjana",
+    "severityLow": "Severitat baixa"
+  },
+  "gardenMap": {
+    "title": "Mapa de l'hort",
+    "summary": "{{placed}} / {{total}} plantes col·locades · {{cols}}×{{rows}} parcel·les",
+    "south": "Sud",
+    "assignPlant": "Assignar planta",
+    "searchPlant": "Cercar planta…",
+    "noPlants": "Encara no tens plantes.\nAfegeix plantes des del tauler.",
+    "allPlaced": "Totes les plantes ja estan col·locades.",
+    "legendOccupied": "Parcel·la amb planta",
+    "legendEmpty": "Parcel·la buida",
+    "emptyNote": "Afegeix plantes primer des del tauler per col·locar-les al mapa.",
+    "viewPlant": "Veure planta",
+    "removeFromMap": "Treure del mapa",
+    "removeTitle": "Treure del mapa",
+    "removeDesc": "Treure {{name}} d'aquesta parcel·la?",
+    "remove": "Treure",
+    "movePlant": "Moure",
+    "moveModeHint": "Toca la parcel·la de destí · Prem ✕ per cancel·lar",
+    "moveCancelled": "Moviment cancel·lat",
+    "shareTitle": "El meu hort",
+    "shareNotAvailable": "Compartir no està disponible en aquest dispositiu.",
+    "shareError": "No s'ha pogut capturar el mapa."
+  },
+  "onboarding": {
+    "step1Title": "El teu hort digital",
+    "step1Desc": "Planifica la teva sembra, registra la teva collita i no oblidis regar.",
+    "start": "Començar →",
+    "step2Title": "On és el teu hort?",
+    "step2Desc": "Selecciona la teva província o regió per personalitzar el calendari de sembra.",
+    "selectProvince": "Selecciona la teva província o regió",
+    "zone": "Zona {{label}}",
+    "continue": "Continuar →",
+    "back": "Enrere",
+    "step3Title": "Crea el teu primer hort",
+    "step3Desc": "Posa un nom al teu espai de cultiu.",
+    "gardenTypeLabel": "Quin tipus d'espai tens?",
+    "gardenNamePlaceholder": "Ex: La meva terrassa, Balcó nord...",
+    "create": "Crear hort 🌱",
+    "provinceSearch": "Cercar província o regió...",
+    "closeSearch": "Tancar",
+    "step4Title": "Hort creat! 🌱",
+    "step4Desc": "Tot llest. Vols afegir la teva primera planta ara?",
+    "addFirstPlant": "Afegir primera planta",
+    "skipToGarden": "Veure el meu hort",
+    "feature1Title": "Lluna i sembra",
+    "feature1Desc": "Sembra al moment òptim segons el cicle lunar",
+    "feature2Title": "Temps real",
+    "feature2Desc": "Recomanacions de reg segons la previsió meteorològica",
+    "feature3Title": "Plantes companyes",
+    "feature3Desc": "Descobreix quins cultius es porten bé junts",
+    "hemisphereLabel": "En quin hemisferi ets?",
+    "hemisphereNorte": "Nord",
+    "hemisphereSur": "Sud"
+  },
+  "paywall": {
+    "titlePro": "Ja ets Pro!",
+    "title": "Fes créixer el teu hort\nsense límits",
+    "subtitlePro": "Subscripció activa · Pla {{plan}}",
+    "subtitle": "Desbloqueja tot el que necessites per convertir-te en un autèntic hortolà.",
+    "features": {
+      "gardens": "Horts il·limitats (ara només 1)",
+      "plants": "Plantes sense límit (pla gratuït: 5)",
+      "calendar": "Calendari de sembra complet amb alertes",
+      "companions": "Guia d'associacions de cultius",
+      "charts": "Gràfics de collita i productivitat",
+      "pdf": "Exportar diari en PDF",
+      "reminders": "Recordatoris de reg il·limitats",
+      "backup": "Còpia de seguretat al núvol"
+    },
+    "choosePlan": "TRIA EL TEU PLA",
+    "monthly": "Mensual",
+    "annual": "Anual",
+    "popular": "⭐ Més popular",
+    "cancelAnytime": "Cancel·la quan vulguis",
+    "processing": "Processant…",
+    "ctaTrial": "Començar prova gratis 7 dies",
+    "ctaDone": "Fet",
+    "trialNote": "Cancel·la en qualsevol moment. Sense compromisos.",
+    "restore": "Restaurar compres",
+    "legal": "El pagament es carregarà al teu compte d'App Store. La subscripció es renova automàticament llevat que es cancel·li almenys 24 hores abans del final del període actual.",
+    "successTitle": "Benvingut a Pro! 🌻",
+    "successDesc": "La teva subscripció és activa. Gaudeix de totes les funcions sense límit.",
+    "successBtn": "Anem-hi!",
+    "errorPurchase": "No s'ha pogut completar la compra. Torna-ho a intentar.",
+    "restoreSuccessTitle": "Compres restaurades!",
+    "restoreSuccessDesc": "La teva subscripció Pro és activa.",
+    "restoreNoneTitle": "Sense compres anteriors",
+    "restoreNoneDesc": "No hem trobat cap subscripció activa associada al teu compte.",
+    "restoreError": "No s'ha pogut connectar. Torna-ho a intentar.",
+    "lifetimeBadge": "Sense subscripció",
+    "lifetimeSub": "Pagament únic · Sense renovacions"
+  },
+  "plantEdit": {
+    "title": "Editar planta",
+    "save": "Desar canvis",
+    "changePhoto": "Canviar foto",
+    "cropFixed": "Cultiu fix",
+    "harvestGoalLabel": "Objectiu de collita (kg)",
+    "harvestGoalPlaceholder": "Ex: 5.0",
+    "notesLabel": "NOTES (opcional)",
+    "notesPlaceholder": "Observacions, apunts personals…"
+  },
+  "plantNew": {
+    "title": "Nova planta",
+    "cropLabel": "CULTIU",
+    "selectCrop": "Seleccionar cultiu",
+    "changeCrop": "Canviar",
+    "nameLabel": "NOM",
+    "namePlaceholder": "Nom de la teva planta",
+    "varietyLabel": "VARIETAT (opcional)",
+    "varietyPlaceholder": "Ex: Cherry, Romana, Negra de Crimea...",
+    "sowingDate": "DATA DE SEMBRA",
+    "photo": "FOTO (opcional)",
+    "addPhoto": "Afegir foto",
+    "addPlant": "Afegir planta 🌱",
+    "cropSearch": "Cercar cultiu...",
+    "cropPickerTitle": "Seleccionar cultiu",
+    "varietyGeneric": "Genèrica",
+    "goodWith": "Bones companyes: "
+  },
+  "plantDetail": {
+    "notFound": "Planta no trobada",
+    "statusSection": "Estat",
+    "cropInfo": "Informació del cultiu",
+    "harvest": "Collita",
+    "harvestDays": "{{min}}–{{max}} dies",
+    "light": "Llum",
+    "water": "Aigua",
+    "spacing": "Espaiat",
+    "sunFull": "Sol ple",
+    "sunPartial": "Semisombra",
+    "sunShade": "Ombra",
+    "waterHigh": "Alt",
+    "waterMedium": "Mitjà",
+    "waterLow": "Baix",
+    "goodNeighbors": "Bons veïns",
+    "badNeighbors": "Mals veïns",
+    "reminders": "Recordatoris",
+    "active": "Actiu",
+    "paused": "Pausat",
+    "diary": "Diari",
+    "noEntries": "Sense entrades encara. Registra la teva primera activitat!",
+    "pestSection": "Estat de plagues",
+    "commonPests": "PLAGUES FREQÜENTS A {{crop}}",
+    "newEntry": "Nova entrada",
+    "reminder": "Recordatori",
+    "deletePlant": "Eliminar planta",
+    "deleteTitle": "Eliminar {{name}}?",
+    "deleteDesc": "S'eliminarà la planta i totes les seves entrades de diari i recordatoris.",
+    "sownOn": "🌰 Sembrada {{date}}",
+    "daysGrowing_one": "{{count}} dia",
+    "daysGrowing_other": "{{count}} dies",
+    "estimatedHarvest": "🧺 Collita est. {{date}}",
+    "harvestSummary_one": "1 collita registrada",
+    "harvestSummary_other": "{{count}} collites registrades",
+    "units": "unitats",
+    "goalProgress": "Objectiu de temporada",
+    "photoTimeline": "📸 Fotos de progrés",
+    "transplantCta": "Llesta per trasplantar?",
+    "transplantCtaDesc": "{{days}} dies al planter",
+    "transplantModalTitle": "Registrar trasplantament",
+    "transplantDateLabel": "DATA DE TRASPLANTAMENT",
+    "transplantConfirm": "Confirmar trasplantament",
+    "duplicate": "Duplicar planta"
+  },
+  "reminderEdit": {
+    "title": "Editar recordatori",
+    "save": "Desar canvis",
+    "enabledLabel": "Recordatori actiu",
+    "enabledOn": "Les notificacions estan activades",
+    "enabledOff": "Les notificacions estan desactivades",
+    "delete": "Eliminar recordatori",
+    "deleteTitle": "Eliminar recordatori?",
+    "deleteDesc": "Es cancel·larà la notificació i s'eliminarà el recordatori.",
+    "saveError": "No s'ha pogut desar el recordatori.",
+    "notFound": "Recordatori no trobat"
+  },
+  "reminderNew": {
+    "title": "Nou recordatori",
+    "typeLabel": "TIPUS",
+    "titleLabel": "TÍTOL",
+    "frequencyLabel": "FREQÜÈNCIA",
+    "hourLabel": "HORA",
+    "minuteLabel": "MINUTS",
+    "create": "Crear recordatori",
+    "noGardenTitle": "Sense hort",
+    "noGardenDesc": "Completa l'onboarding primer.",
+    "saveError": "No s'ha pogut crear el recordatori."
+  },
+  "backup": {
+    "title": "Còpia de seguretat",
+    "autoSyncLabel": "SINCRONITZACIÓ AUTOMÀTICA",
+    "icloudSync": "Sincronitzar amb iCloud",
+    "icloudSyncDesc": "Desa automàticament una còpia de seguretat a la teva carpeta iCloud en sortir de l'app.",
+    "lastBackup": "Última còpia",
+    "never": "Mai",
+    "icloudTip": "Per activar la sincronització iCloud ves a Ajustos > El teu nom > iCloud > Apps que usen iCloud i activa HuertoTracker.",
+    "manualLabel": "MANUAL",
+    "exportTitle": "Exportar còpia",
+    "exportDesc": "Desa l'arxiu a Arxius, Drive o comparteix-lo.",
+    "export": "Exportar",
+    "importTitle2": "Importar còpia",
+    "importDesc2": "Restaura des d'un arxiu .json. Substitueix totes les dades.",
+    "import": "Importar",
+    "pdfLabel": "INFORME DE TEMPORADA",
+    "pdfTitle": "Exportar informe PDF",
+    "pdfDesc": "Resum del teu hort: plantes, collites i activitat de l'any.",
+    "pdfGenerate": "Generar PDF",
+    "includesLabel": "QUÈ INCLOU LA CÒPIA",
+    "includeGarden": "Hort i configuració de zona",
+    "includePlants": "Totes les teves plantes",
+    "includeEntries": "Entrades del diari",
+    "includeReminders": "Recordatoris configurats",
+    "footerNote": "La còpia no inclou fotos (emmagatzemades a la galeria del dispositiu) ni l'estat de la subscripció.",
+    "proTitle": "Funció Pro",
+    "proDesc": "La sincronització automàtica amb iCloud està disponible en el pla Pro.",
+    "viewPlans": "Veure plans",
+    "importTitle": "Importar còpia",
+    "importDesc": "Això substituirà TOTES les dades actuals amb les de l'arxiu de còpia. L'app necessitarà reiniciar-se.\n\nContinuar?",
+    "importConfirm": "Importar",
+    "restoredTitle": "Dades restaurades ✓",
+    "restoredDesc": "Tanca i torna a obrir l'app perquè els canvis tinguin efecte.",
+    "exportError": "No s'ha pogut exportar la còpia. Torna-ho a intentar."
+  },
+  "notifications": {
+    "title": "Notificacions",
+    "seasonalLabel": "ALERTES ESTACIONALS",
+    "sowingReminders": "Recordatoris de sembra",
+    "sowingRemindersDesc": "Avís l'1 de cada mes amb el que pots sembrar",
+    "basedOnZone": "Basat en la teva zona climàtica:",
+    "nextAlertLabel": "PRÒXIMA ALERTA",
+    "nextAlertDate": "1 de {{month}}",
+    "nextAlertCrops_one": "{{count}} cultiu per sembrar",
+    "nextAlertCrops_other": "{{count}} cultius per sembrar",
+    "howLabel": "COM FUNCIONA",
+    "how1Title": "Avís mensual",
+    "how1Desc": "Reps una notificació el dia 1 de cada mes a les 9:00.",
+    "how2Title": "Personalitzat per zona",
+    "how2Desc": "Els cultius suggerits es calculen segons la teva zona climàtica a Espanya.",
+    "how3Title": "Sense connexió",
+    "how3Desc": "Les alertes es programen al dispositiu. No necessites internet.",
+    "noZoneWarning": "Completa l'onboarding per activar les alertes personalitzades per zona.",
+    "frostLabel": "GELADES",
+    "frostAlerts": "Alertes de gelada",
+    "frostAlertsDesc": "Rep una notificació quan es prevegin temperatures sota 2°C els propers dies.",
+    "frostNoProvince": "Configura la teva província a l'hort per activar les alertes de gelada.",
+    "more": "més",
+    "plantLabel": "PLANTES",
+    "transplantTitle": "Avís de trasplantament",
+    "transplantDesc": "Alerta a les 6 setmanes de sembra per moure el plançó al bancal",
+    "harvestTitle": "Collita imminent",
+    "harvestDesc": "Avís 3 dies abans de la data estimada de collita",
+    "treatmentTitle": "Carència vençuda",
+    "treatmentDesc": "Notificació quan acaba el període d'espera després d'un tractament",
+    "plantCount_one": "{{count}} planta programada",
+    "plantCount_other": "{{count}} plantes programades"
+  },
+  "stats": {
+    "title": "Estadístiques",
+    "entries": "Entrades",
+    "harvests": "Collites",
+    "activeDays_one": "dia actiu",
+    "activeDays_other": "dies actius",
+    "harvested": "Collit",
+    "monthlyActivity": "Activitat mensual",
+    "noActivity": "Sense activitat encara. Comença a registrar alguna cosa!",
+    "activityBreakdown": "Desglossament d'activitat",
+    "topPlants": "Plantes més actives",
+    "topCrops": "Cultius més collits",
+    "harvestByYear": "Collita per any",
+    "currentYear": "Aquest any",
+    "achievements": "Assoliments",
+    "entryCount_one": "{{count}} entrada",
+    "entryCount_other": "{{count}} entrades",
+    "harvestCount_one": "{{count}} collita",
+    "harvestCount_other": "{{count}} collites",
+    "successRate": "Taxa d’exit",
+    "avgDaysToHarvest": "Mitjana dies a collita"
+  },
+  "welcome": {
+    "title": "Huerto Tracker",
+    "subtitle": "Porta el registre del teu hort, planifica sembres i collita més i millor.",
+    "features": {
+      "calendar": "Calendari de sembra",
+      "calendarDesc": "Sembra en el moment òptim per a la teva zona climàtica.",
+      "diary": "Diari de l'hort",
+      "diaryDesc": "Registra regs, podes i collites amb fotos.",
+      "reminders": "Recordatoris",
+      "remindersDesc": "No oblidis regar o abonar les teves plantes.",
+      "sync": "Sincronització",
+      "syncDesc": "Les teves dades segures al núvol, a tots els teus dispositius."
+    },
+    "createAccount": "Crear compte gratuït",
+    "explore": "Explorar sense compte",
+    "note": "El compte gratuït inclou fins a 10 plantes i sincronització al núvol."
+  },
+  "quickLog": {
+    "water": "Regar",
+    "harvest": "Collir",
+    "pest": "Plaga",
+    "fertilize": "Abonar",
+    "prune": "Podar",
+    "note": "Nota",
+    "commonPests": "Plagues freqüents a {{crop}}:",
+    "treatmentTip": "En desar, la planta passarà a 'En tractament'",
+    "pestPlaceholder": "Descriu la plaga o símptoma…",
+    "notePlaceholder": "Afegeix una nota…",
+    "weightPlaceholder": "Pes en kg (opcional)",
+    "weightKgPlaceholder": "Quantitat en kg…",
+    "weightUnitsPlaceholder": "Nombre d'unitats…",
+    "units": "uds",
+    "chooseAction": "Tria una acció",
+    "save": "Registrar {{action}}",
+    "done": "Registrat!"
+  },
+  "lunar": {
+    "newMoon": "Lluna nova",
+    "waxingCrescent": "Lluna creixent",
+    "firstQuarter": "Quart creixent",
+    "waxingGibbous": "Gibosa creixent",
+    "fullMoon": "Lluna plena",
+    "waningGibbous": "Gibosa minvant",
+    "lastQuarter": "Quart minvant",
+    "waningCrescent": "Lluna minvant",
+    "gardeningLabel": {
+      "frutos": "Dia de fruits",
+      "hojas": "Dia de fulles",
+      "raices": "Dia d'arrels",
+      "flores": "Dia de flors",
+      "descanso": "Dia de descans"
+    },
+    "recommendation": {
+      "frutos": "Bona lluna per collir i plantar tomàquets, cogombres i fruites.",
+      "hojas": "Ideal per sembrar enciam, espinacs i herbes aromàtiques.",
+      "raices": "Perfecte per a pastanagues, raves i tubèrculs.",
+      "flores": "Trasplanta flors i plantes aromàtiques avui.",
+      "descanso": "Dia de lluna nova. Descansa el sòl i planifica."
+    },
+    "monthLabel": {
+      "frutos": "Mes de fruits",
+      "hojas": "Mes de fulles",
+      "raices": "Mes d'arrels",
+      "flores": "Mes de flors",
+      "descanso": "Mes de descans"
+    }
+  },
+  "weather": {
+    "clear": "Cel serè",
+    "mostlyClear": "Majoritàriament serè",
+    "partlyCloudy": "Parcialment ennuvolat",
+    "cloudy": "Ennuvolat",
+    "fog": "Boira",
+    "frostFog": "Boira amb gelada",
+    "drizzle": "Plugim",
+    "lightRain": "Pluja feble",
+    "rain": "Pluja",
+    "heavyRain": "Pluja intensa",
+    "lightSnow": "Nevada feble",
+    "snow": "Neu",
+    "showers": "Xàfecs",
+    "thunderstorm": "Tempesta",
+    "hailstorm": "Pedregada",
+    "variable": "Variable",
+    "wateringSkip": "💧 Pluja prevista ({{rain}}%) — omet el reg avui.",
+    "wateringReduce": "💧 Possibilitat de pluja ({{rain}}%) — rega amb moderació.",
+    "wateringHot": "🌡️ Calor intens ({{temp}}°C) — rega a primera hora del matí.",
+    "wateringNormal": "✅ Bon moment per regar ({{temp}}°C, {{rain}}% pluja)."
+  },
+  "zone": {
+    "atlantica": "Atlàntica",
+    "continental": "Continental",
+    "mediterranea": "Mediterrània",
+    "subtropical": "Subtropical"
+  },
+  "gardenType": {
+    "huerto": "Hort",
+    "balcon": "Balcó / Terrassa",
+    "maceta": "Interior / Testos",
+    "balconDesc": "Cultiu en contenidors a l'exterior. El calendari filtrarà cultius aptes per a contenidors.",
+    "macetaDesc": "Cultiu a l'interior o finestres. El calendari filtrarà cultius aptes per a interior."
+  },
+  "pestStatus": {
+    "none": "Sense plagues",
+    "active": "Plaga activa",
+    "treated": "En tractament"
+  },
+  "plantStatus": {
+    "seedling": "Planter",
+    "transplanted": "Trasplantat",
+    "growing": "Creixent",
+    "flowering": "En flor",
+    "fruiting": "Fructificant",
+    "harvesting": "En collita",
+    "finished": "Finalitzat"
+  },
+  "reminderType": {
+    "watering": "Reg",
+    "fertilizing": "Adob",
+    "harvest_check": "Revisar collita",
+    "custom": "Personalitzat"
+  },
+  "reminderFrequency": {
+    "daily": "Cada dia",
+    "every_2_days": "Cada 2 dies",
+    "every_3_days": "Cada 3 dies",
+    "weekly": "Cada setmana",
+    "once": "Una vegada"
+  },
+  "entryEdit": {
+    "title": "Editar entrada",
+    "save": "Desar",
+    "delete": "Eliminar entrada",
+    "deleteTitle": "Eliminar entrada?",
+    "deleteDesc": "Aquesta entrada s'eliminarà permanentment.",
+    "notFound": "Entrada no trobada",
+    "changePhoto": "Canviar foto"
+  },
+  "cropCategory": {
+    "frutas": "Fruites",
+    "hojas": "Fulles i amanides",
+    "raices": "Arrels i tubèrculs",
+    "legumbres": "Llegums",
+    "cruciferas": "Crucíferes",
+    "cucurbitaceas": "Cucurbitàcies",
+    "aromaticas": "Aromàtiques",
+    "bulbos": "Bulbs",
+    "medicinales": "Medicinals"
+  },
+  "crops": {
+    "tomate": {
+      "name": "Tomàquet"
+    },
+    "pimiento": {
+      "name": "Pebrot"
+    },
+    "berenjena": {
+      "name": "Albergínia"
+    },
+    "fresa": {
+      "name": "Maduixa"
+    },
+    "lechuga": {
+      "name": "Enciam"
+    },
+    "espinaca": {
+      "name": "Espinac"
+    },
+    "acelga": {
+      "name": "Bleda"
+    },
+    "rucula": {
+      "name": "Rúcula"
+    },
+    "canonigos": {
+      "name": "Canonges"
+    },
+    "zanahoria": {
+      "name": "Pastanaga"
+    },
+    "rabano": {
+      "name": "Rave"
+    },
+    "remolacha": {
+      "name": "Remolatxa"
+    },
+    "patata": {
+      "name": "Patata"
+    },
+    "nabo": {
+      "name": "Nap"
+    },
+    "judia-verde": {
+      "name": "Mongeta tendra"
+    },
+    "guisante": {
+      "name": "Pèsol"
+    },
+    "haba": {
+      "name": "Fava"
+    },
+    "brocoli": {
+      "name": "Bròquil"
+    },
+    "coliflor": {
+      "name": "Coliflor"
+    },
+    "col": {
+      "name": "Col / Repoll"
+    },
+    "kale": {
+      "name": "Kale (Col arrissada)"
+    },
+    "calabacin": {
+      "name": "Carbassó"
+    },
+    "pepino": {
+      "name": "Cogombre"
+    },
+    "calabaza": {
+      "name": "Carbassa"
+    },
+    "melon": {
+      "name": "Meló"
+    },
+    "sandia": {
+      "name": "Síndria"
+    },
+    "albahaca": {
+      "name": "Alfàbrega"
+    },
+    "perejil": {
+      "name": "Julivert"
+    },
+    "cilantro": {
+      "name": "Coriandre"
+    },
+    "romero": {
+      "name": "Romaní"
+    },
+    "tomillo": {
+      "name": "Farigola"
+    },
+    "menta": {
+      "name": "Menta"
+    },
+    "ajo": {
+      "name": "All"
+    },
+    "cebolla": {
+      "name": "Ceba"
+    },
+    "puerro": {
+      "name": "Porro"
+    },
+    "guindilla": {
+      "name": "Bitxo / Xile"
+    },
+    "apio": {
+      "name": "Api"
+    },
+    "esparrago": {
+      "name": "Espàrrec"
+    },
+    "salvia": {
+      "name": "Sàlvia"
+    },
+    "oregano": {
+      "name": "Orenga"
+    },
+    "eneldo": {
+      "name": "Anet"
+    },
+    "hinojo": {
+      "name": "Fonoll"
+    },
+    "manzanilla": {
+      "name": "Camamilla"
+    },
+    "lavanda": {
+      "name": "Lavanda"
+    }
+  },
+  "identify": {
+    "title": "Identificar plaga",
+    "subtitle": "Fotografia la part afectada de la planta",
+    "takePhoto": "Fer foto",
+    "fromGallery": "Des de la galeria",
+    "analyze": "Analitzar amb IA",
+    "analyzing": "Analitzant la planta…",
+    "retake": "Nova foto",
+    "healthy": "La planta té bon aspecte!",
+    "healthyDesc": "No s'han detectat plagues ni malalties",
+    "saveEntry": "Guardar diagnòstic al diari",
+    "saved": "✓ Guardat al diari",
+    "proOnly": "Funció Pro",
+    "proOnlyDesc": "La identificació per IA està disponible al pla Pro.",
+    "upgradePro": "Veure plans",
+    "freeCredit": "1 anàlisi gratuït",
+    "freeCreditDesc": "Prova la IA una vegada gratis. Després necessitaràs el pla Pro.",
+    "freeCreditUsed": "Ja has usat el teu anàlisi gratuït",
+    "freeCreditUsedDesc": "Actualitza a Pro per identificar plagues i malalties sense límit.",
+    "noKeyDesc": "Afegiu EXPO_PUBLIC_ANTHROPIC_KEY al fitxer .env",
+    "error": "Error en analitzar",
+    "errorDesc": "No s'ha pogut analitzar la imatge. Torneu-ho a intentar.",
+    "confidence": {
+      "alta": "Confiança alta",
+      "media": "Confiança mitjana",
+      "baja": "Confiança baixa"
+    },
+    "problemType": {
+      "plaga": "Plaga",
+      "enfermedad": "Malaltia",
+      "deficiencia": "Deficiència",
+      "saludable": "Sana"
+    },
+    "symptomsLabel": "Símptomes observats",
+    "treatmentsLabel": "Tractaments recomanats",
+    "treatmentType": {
+      "organico": "Orgànic",
+      "preventivo": "Preventiu",
+      "quimico": "Químic"
+    }
+  }
 }

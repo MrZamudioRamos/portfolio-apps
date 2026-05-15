@@ -1,882 +1,909 @@
-﻿{
-    "tabs":  {
-                 "home":  "Nire Baratzea",
-                 "calendar":  "Egutegia",
-                 "diary":  "Egunkaria",
-                 "settings":  "Ezarpenak"
-             },
-    "common":  {
-                   "cancel":  "Utzi",
-                   "delete":  "Ezabatu",
-                   "save":  "Gorde",
-                   "saving":  "Gordetzen…",
-                   "back":  "← Itzuli",
-                   "close":  "Itxi",
-                   "continue":  "Jarraitu →",
-                   "error":  "Errorea",
-                   "ok":  "Ados",
-                   "search":  "Bilatu…",
-                   "version":  "Bertsioa",
-                   "loading":  "Kargatzen…",
-                   "viewAll":  "Guztiak ikusi",
-                   "more":  "gehiago"
-               },
-    "home":  {
-                 "title":  "Nire Baratzea",
-                 "streak":  "🔥 {{count}} egun",
-                 "stats":  {
-                               "plants":  "Landareak",
-                               "harvesting":  "Uztatzeko",
-                               "reminders":  "Oroigarriak",
-                               "pests":  "Izurriteekin",
-                               "needsWater":  "Ur beharra",
-                               "yearKg":  "Aurten bildutakoa"
-                           },
-                 "weatherLoading":  "🌤️ Eguraldia kargatzen…",
-                 "lunarDay":  "Eguna",
-                 "viewStats":  "Estatistikak ikusi",
-                 "sowNowTitle":  "Erein orain",
-                 "sowSoonTitle":  "Laster",
-                 "sowNowEmpty":  "Ez dago laborerik ereiteko hilabete honetan zure eremuan.",
-                 "sowAdd":  "Gehitu",
-                 "weeklyTasks":  "Aste honetan",
-                 "weeklyTasksEmpty":  "Dena egunean. Ondo eginda! 🎉",
-                 "taskWater":  "{{name}} ureztatu",
-                 "taskTransplant":  "{{name}} laster transplantatu",
-                 "taskHarvest":  "{{name}} uzta-prest",
-                 "taskPest":  "{{name}}-ko izurritea tratatu",
-                 "myPlants":  "Nire landareak",
-                 "waterAll":  "💧 Denak ureztatu",
-                 "waterAllTitle":  "Denak ureztatu",
-                 "waterAllMessage":  "{{count}} landareen ureztatze bat erregistratu?",
-                 "waterAllConfirm":  "Denak ureztatu",
-                 "emptyTitle":  "Oraindik ez dago landarerik",
-                 "emptyDesc":  "Gehitu zure lehen landarea baratzea erregistratzen hasteko.",
-                 "addPlant":  "Landarea gehitu",
-                 "searchPlants":  "Landarea bilatu…",
-                 "taskEstHarvest":  "🧺 {{name}} uzta gertu",
-                 "taskNeglected":  "👁️ {{name}} jarduera gabe ({{days}} egun)",
-                 "filterAll":  "Guztiak",
-                 "sortDefault":  "Ordena",
-                 "sortName":  "A-Z",
-                 "sortNewest":  "Berrienak",
-                 "showFinished":  "{{count}} amaituta ezkutatuta · Ikusi",
-                 "hideFinished":  "Ezkutatu amaitutakoak"
-             },
-    "calendar":  {
-                     "title":  "Erein egutegia",
-                     "zone":  "{{zone}} zona",
-                     "containerBanner":  "Ontzietarako egokiak diren laboreak soilik erakusten",
-                     "lunarProfile":  "Hilaren ilargi profila",
-                     "lunarBasis":  "Ziklo sinodikoan oinarrituta",
-                     "lunarDayIllum":  "{{day}}. eguna · {{illum}}% argiztatua",
-                     "cropsCount":  "{{month}}an ereiteko {{count}} labore",
-                     "companions":  "🤝 Elkarteak",
-                     "emptyCrops":  "{{month}}an ez dago ereintzarik",
-                     "emptyCropsDesc":  "Zure zonaldean ez dago labore gomendaturik hilabete honetan. Egiaztatu gertuko hilabeteak.",
-                     "fullSun":  "☀️ Eguzki osoa",
-                     "partialShade":  "⛅ Itzal partziala",
-                     "shade":  "🌑 Itzala",
-                     "days":  "🗓 {{min}}–{{max}} egun",
-                     "containerInfo":  "🪴 Gutxieneko ontzia {{liters}} L · {{tip}}",
-                     "addToGarden":  "Baratzera gehitu",
-                     "hemisphereSurBanner":  "Hego hemisferioa aktibo · hilabeteak alderantziz iparraldearekin alderatuta",
-                     "catAll":  "Guztiak",
-                     "today":  "Gaur"
-                 },
-    "diary":  {
-                  "title":  "Egunkaria",
-                  "filters":  {
-                                  "all":  "Guztiak",
-                                  "watering":  "Ureztatze",
-                                  "sowing":  "Ereintza",
-                                  "harvest":  "Uzta",
-                                  "fertilizing":  "Ongarritzea",
-                                  "transplant":  "Trasplantea",
-                                  "pest":  "Izurritea",
-                                  "treatment":  "Tratamendua",
-                                  "pruning":  "Inausketa",
-                                  "photo":  "Argazkia",
-                                  "note":  "Oharra"
-                              },
-                  "emptyTitle":  "Egunkaria hutsik dago",
-                  "emptyDesc":  "Erregistratu zure lehen jarduera: ureztatze bat, ereintza bat edo uzta bat.",
-                  "newEntry":  "Sarrera berria",
-                  "search":  "Bilatu egunkarian…"
-              },
-    "settings":  {
-                     "title":  "Ezarpenak",
-                     "sections":  {
-                                      "account":  "KONTUA",
-                                      "garden":  "NIRE BARATZEA",
-                                      "subscription":  "HARPIDETZA",
-                                      "tools":  "TRESNAK",
-                                      "summary":  "LABURPENA",
-                                      "notifications":  "JAKINARAZPENAK",
-                                      "data":  "DATUAK",
-                                      "app":  "APP",
-                                      "language":  "HIZKUNTZA"
-                                  },
-                     "account":  {
-                                     "guestTitle":  "Gonbidatu modua",
-                                     "guestDesc":  "Sortu kontu bat baratzea sinkronizatzeko eta datuak ez galtzeko.",
-                                     "signIn":  "Hasi saioa",
-                                     "email":  "Emaila",
-                                     "signOut":  "Itxi saioa",
-                                     "signOutTitle":  "Saioa itxi?",
-                                     "signOutDesc":  "Zure datu lokalak gordeko dira."
-                                 },
-                     "garden":  {
-                                    "name":  "Izena",
-                                    "province":  "Probintzia",
-                                    "climateZone":  "Klima zona",
-                                    "map":  "Baratzearen mapa",
-                                    "edit":  "Baratzea editatu",
-                                    "manageGardens":  "Baratzeak kudeatu"
-                                },
-                     "subscription":  {
-                                          "proPlan":  "⭐ Pro Plana",
-                                          "freePlan":  "Doako plana",
-                                          "activeAnnual":  "Urteko harpidetza aktiboa",
-                                          "activeMonthly":  "Hileko harpidetza aktiboa",
-                                          "freeLimit":  "5 landare baratze bakoitzeko",
-                                          "viewPlans":  "Planak ikusi"
-                                      },
-                     "tools":  {
-                                   "companions":  "Elkartze gida",
-                                   "stats":  "Estatistikak ikusi",
-                                   "diseaseGuide":  "Izurri eta gaixotasun-gida"
-                               },
-                     "summary":  {
-                                     "activePlants":  "Landare aktiboak",
-                                     "diaryEntries":  "Egunkari sarrerak",
-                                     "reminders":  "Oroigarriak"
-                                 },
-                     "notifications":  {
-                                           "seasonal":  "Sasoiko alertak"
-                                       },
-                     "data":  {
-                                  "backup":  "Segurtasun kopia",
-                                  "deleteAll":  "Datu guztiak ezabatu",
-                                  "deleteTitle":  "Datu guztiak ezabatu?",
-                                  "deleteDesc":  "Landare guztiak, egunkari sarrerak eta oroigarriak betirako ezabatuko dira. Ekintza hau ezin da desegin.",
-                                  "deleteConfirm":  "Dena ezabatu"
-                              },
-                     "app":  {
-                                 "version":  "Bertsioa",
-                                 "rate":  "App Store-n baloratu",
-                                 "privacy":  "Pribatutasun politika",
-                                 "contact":  "Kontaktua"
-                             }
-                 },
-    "auth":  {
-                 "title":  "Sortu zure kontua",
-                 "subtitle":  "Sinkronizatu zure baratzea gailu guztietan eta ez galdu daturik.",
-                 "connecting":  "Konektatzen…",
-                 "continueGoogle":  "Google-rekin jarraitu",
-                 "continueApple":  "Apple-rekin jarraitu",
-                 "or":  "edo",
-                 "emailLink":  "✉️ Email bidezko esteka erabili",
-                 "emailPlaceholder":  "zure@emaila.com",
-                 "sendMagicLink":  "Esteka magikoa bidali",
-                 "sending":  "Bidaltzen…",
-                 "continueGuest":  "Konturik gabe jarraitu (max. 3 landare)",
-                 "errorGoogle":  "Ezin izan da Google-rekin hasi saioa.",
-                 "errorApple":  "Ezin izan da Apple-rekin hasi saioa.",
-                 "errorEmailRequired":  "Emaila beharrezkoa",
-                 "errorEmailRequiredDesc":  "Sartu zure email helbidea.",
-                 "errorMagicLink":  "Ezin izan da esteka bidali. Egiaztatu emaila."
-             },
-    "magicSent":  {
-                      "title":  "Egiaztatu zure emaila",
-                      "message":  "Esteka magikoa bidali dizugu {{email}} helbidera. Sakatu esteka zure telefonotik automatikoki sartzeko.",
-                      "note":  "Esteka 1 orduz irauten du. Ez baduzu ikusten, egiaztatu spam karpeta.",
-                      "changeEmail":  "Emaila aldatu",
-                      "continueGuest":  "Konturik gabe jarraitu oraingoz"
-                  },
-    "companions":  {
-                       "title":  "Elkarteak",
-                       "proSub":  "Gida osoa Pro-n eskuragarri",
-                       "proUnlock":  "Pro — Desblokeatu gida osoa",
-                       "browse":  "Arakatu",
-                       "check":  "Kontsultatu",
-                       "searchCrop":  "Labore bilatu…",
-                       "searchFirst":  "Lehen laborea bilatu…",
-                       "searchSecond":  "Bigarren laborea bilatu…",
-                       "goodNeighbors":  "Auzokide onak",
-                       "badNeighbors":  "Auzokide txarrak",
-                       "noAssociations":  "Ez dago erregistratutako elkarterik",
-                       "unlockRemaining":  "Desblokeatu {{count}} labore hauek Pro-rekin",
-                       "firstCrop":  "Lehen laborea",
-                       "secondCrop":  "Bigarren laborea",
-                       "goodMatch":  "Konbinazio ona!",
-                       "badMatch":  "Ez landatu elkarrekin",
-                       "neutral":  "Bateragarriak baina neutroak",
-                       "companionNote":  "Labore hauek elkar onartzen dute. Landatu {{spacing}} cm-ko tartean.",
-                       "incompatibleNote":  "Labore hauek elkar inhiba dezakete edo izurriak erakar ditzakete. Mantendu bereizita.",
-                       "checkEmpty":  "Hautatu bi labore bateragarriak diren egiaztatzeko."
-                   },
-    "entryNew":  {
-                     "title":  "Sarrera berria",
-                     "saving":  "Gordetzen…",
-                     "save":  "Gorde",
-                     "activityType":  "JARDUERA MOTA",
-                     "plant":  "LANDAREA (hautazkoa)",
-                     "general":  "Orokorra",
-                     "date":  "DATA",
-                     "datePlaceholder":  "UUUU-HH-EE",
-                     "notes":  "OHARRAK (hautazkoa)",
-                     "notesPlaceholder":  "Zer ikusi zenuen? Nolako zen landarea?",
-                     "harvest":  "UZTA",
-                     "weightKg":  "Pisua (kg)",
-                     "units":  "Unitateak",
-                     "photo":  "ARGAZKIA (hautazkoa)",
-                     "addPhoto":  "Argazkia gehitu",
-                     "saveEntry":  "Sarrera gorde",
-                     "today":  "Gaur",
-                     "yesterday":  "Atzo",
-                     "twoDaysAgo":  "Duela 2 egun"
-                 },
-    "gardenEdit":  {
-                       "title":  "Baratzea editatu",
-                       "nameLabel":  "BARATZEAREN IZENA",
-                       "namePlaceholder":  "Nire baratzea",
-                       "typeLabel":  "BARATZE MOTA",
-                       "noGarden":  "Ez dago konfiguratutako baratzerik",
-                       "provinceLabel":  "PROBINTZIA",
-                       "provincePlaceholder":  "Hautatu probintzia…",
-                       "selectProvince":  "Hautatu zure probintzia",
-                       "searchProvince":  "Probintzia bilatu…",
-                       "containerTip":  "Egutegia ontzi-labore egokietara iragaziko da.",
-                       "save":  "Aldaketak gorde",
-                       "nameRequired":  "Izena beharrezkoa",
-                       "nameRequiredDesc":  "Jarri izen bat zure baratzeari.",
-                       "provinceRequired":  "Probintzia beharrezkoa",
-                       "provinceRequiredDesc":  "Hautatu zure probintzia erein egutegia pertsonalizatzeko.",
-                       "gridSizeLabel":  "MAPAREN TAMAINA",
-                       "cells":  "lursail",
-                       "gridProTitle":  "Pro funtzioa",
-                       "gridProDesc":  "Aldatu maparen tamaina Pro planarekin.",
-                       "hemisphereLabel":  "HEMISFERIO",
-                       "hemisphereNorte":  "Iparraldea",
-                       "hemisphereSur":  "Hegoaldea",
-                       "hemisphereSurTip":  "Egutegia hegoaldeko hemisferiorako hilabeteak alderantziz jarriko ditu"
-                   },
-    "gardens":  {
-                    "title":  "Nire baratzeak",
-                    "hint":  "Sakatu baratze bat aktibatzeko. Hasierako landare-zerrenda baratze aktiboaren arabera iragazten da.",
-                    "active":  "Aktiboa",
-                    "createTitle":  "Baratze berria",
-                    "fieldName":  "Izena",
-                    "fieldNamePlaceholder":  "Adib. Terrazako baratzea",
-                    "fieldType":  "Mota",
-                    "fieldProvince":  "Probintzia",
-                    "fieldProvincePlaceholder":  "Hautatu probintzia",
-                    "cantDeleteLast":  "Ezin duzu azken baratzea ezabatu.",
-                    "deleteTitle":  "Ezabatu {{name}}",
-                    "deleteDesc":  "Baratzea soilik ezabatuko da, ez lotutako landareak edo sarrerak."
-                },
-    "diseaseGuide":  {
-                         "title":  "Gaixotasun-gida",
-                         "subtitle":  "Izurriak, gaixotasunak eta gabeziak",
-                         "search":  "Bilatu izurria, sintoma edo laborea…",
-                         "filterAll":  "Guztiak",
-                         "filterPest":  "🐛 Izurria",
-                         "filterDisease":  "🍂 Gaixotasuna",
-                         "filterDeficiency":  "💛 Gabezia",
-                         "empty":  "Ez dago emaitzarik bilaketa horretarako.",
-                         "affectedCrops":  "Eragindako laboreak",
-                         "symptoms":  "Sintomak",
-                         "treatments":  "Tratamenduak",
-                         "type":  {
-                                      "plaga":  "Izurria",
-                                      "enfermedad":  "Gaixotasuna",
-                                      "deficiencia":  "Gabezia"
-                                  },
-                         "treatment":  {
-                                           "organico":  "Ekologikoa",
-                                           "preventivo":  "Prebentiboa",
-                                           "quimico":  "Kimikoa"
-                                       },
-                         "visualSigns":  "Ikusizko seinaleak",
-                         "severityHigh":  "Larritasun altua",
-                         "severityMed":  "Larritasun ertaina",
-                         "severityLow":  "Larritasun txikia"
-                     },
-    "gardenMap":  {
-                      "title":  "Baratzearen mapa",
-                      "summary":  "{{placed}} / {{total}} landare kokatuta · {{cols}}×{{rows}} lursailak",
-                      "south":  "Hegoa",
-                      "assignPlant":  "Landarea esleitu",
-                      "searchPlant":  "Landarea bilatu…",
-                      "noPlants":  "Oraindik ez daukazu landarerik.\nGehitu landareak agintaritzatik.",
-                      "allPlaced":  "Landare guztiak dagoeneko kokatuta daude.",
-                      "legendOccupied":  "Landaredun lursaila",
-                      "legendEmpty":  "Lursail hutsa",
-                      "emptyNote":  "Gehitu landareak lehenik agintaritzatik mapan jartzeko.",
-                      "viewPlant":  "Landarea ikusi",
-                      "removeFromMap":  "Mapetatik kendu",
-                      "removeTitle":  "Mapetatik kendu",
-                      "removeDesc":  "{{name}} lursail honetatik kendu?",
-                      "remove":  "Kendu",
-                      "movePlant":  "Mugitu",
-                      "moveModeHint":  "Sakatu helmugako lursaila · Sakatu ✕ bertan behera uzteko",
-                      "moveCancelled":  "Mugimendua bertan behera utzi da",
-                      "shareTitle":  "Nire baratzea",
-                      "shareNotAvailable":  "Partekatzea ez dago eskuragarri gailu honetan.",
-                      "shareError":  "Ezin izan da mapa kapturatu."
-                  },
-    "onboarding":  {
-                       "step1Title":  "Zure baratze digitala",
-                       "step1Desc":  "Planifikatu ereintza, erregistratu uzta eta inoiz ez ahaztu ureztatzea.",
-                       "start":  "Hasi →",
-                       "step2Title":  "Non dago zure baratzea?",
-                       "step2Desc":  "Hautatu zure probintzia edo eskualdea erein egutegia pertsonalizatzeko.",
-                       "selectProvince":  "Hautatu zure probintzia edo eskualdea",
-                       "zone":  "{{label}} zona",
-                       "continue":  "Jarraitu →",
-                       "back":  "Atzera",
-                       "step3Title":  "Sortu zure lehen baratzea",
-                       "step3Desc":  "Eman izen bat zure labore espaziori.",
-                       "gardenTypeLabel":  "Zer espazio mota daukazu?",
-                       "gardenNamePlaceholder":  "Adib: Nire terraza, Balkoi iparraldea...",
-                       "create":  "Sortu baratzea 🌱",
-                       "provinceSearch":  "Probintzia edo eskualdea bilatu...",
-                       "closeSearch":  "Itxi",
-                       "step4Title":  "Lorategia sortua! 🌱",
-                       "step4Desc":  "Dena prest. Zure lehen landarea gehitu nahi duzu orain?",
-                       "addFirstPlant":  "Lehen landarea gehitu",
-                       "skipToGarden":  "Nire lorategia ikusi",
-                       "feature1Title":  "Ilargia eta ereintza",
-                       "feature1Desc":  "Erein momentu onean ilargi-zikloaren arabera",
-                       "feature2Title":  "Eguraldi erreala",
-                       "feature2Desc":  "Ureztatzeko gomendioakeguraldi iragarpenaren arabera",
-                       "feature3Title":  "Laguntzaile landareak",
-                       "feature3Desc":  "Jakin zein laborek ongi hartzen duten elkar",
-                       "hemisphereLabel":  "Zein hemisferiotan zaude?",
-                       "hemisphereNorte":  "Iparraldea",
-                       "hemisphereSur":  "Hegoaldea"
-                   },
-    "paywall":  {
-                    "titlePro":  "Pro zara dagoeneko!",
-                    "title":  "Hazi zure baratzea\nmugagabe",
-                    "subtitlePro":  "Harpidetza aktiboa · {{plan}} Plana",
-                    "subtitle":  "Desblokeatu benetako baratzezain bat izateko behar duzun guztia.",
-                    "features":  {
-                                     "gardens":  "Baratze mugagabeak (orain 1 soilik)",
-                                     "plants":  "Landare mugagabeak (doako plana: 5)",
-                                     "calendar":  "Erein egutegi osoa alertekin",
-                                     "companions":  "Labore elkartze gida",
-                                     "charts":  "Uzta eta produktibitate grafikoak",
-                                     "pdf":  "Egunkaria PDF-n esportatu",
-                                     "reminders":  "Ureztatze oroigarri mugagabeak",
-                                     "backup":  "Hodeiaren segurtasun kopia"
-                                 },
-                    "choosePlan":  "AUKERATU PLANA",
-                    "monthly":  "Hilekoa",
-                    "annual":  "Urtekoa",
-                    "popular":  "⭐ Ezagunena",
-                    "cancelAnytime":  "Edozein momentutan bertan behera utzi",
-                    "processing":  "Prozesatzen…",
-                    "ctaTrial":  "Hasi 7 eguneko proba doakoa",
-                    "ctaDone":  "Prest",
-                    "trialNote":  "Edozein momentutan utzi. Konpromisorik gabe.",
-                    "restore":  "Erosketak berreskuratu",
-                    "legal":  "Ordainketa zure App Store kontuan kargatuko da. Harpidetza automatikoki berritzen da uneko aldian gutxienez 24 ordu lehenago bertan behera utzi ezean.",
-                    "successTitle":  "Ongi etorri Pro-ra! 🌻",
-                    "successDesc":  "Zure harpidetza aktiboa dago. Gozatu funtzio guztietatik mugagabe.",
-                    "successBtn":  "Goazen!",
-                    "errorPurchase":  "Ezin izan da erosketa osatu. Saiatu berriro.",
-                    "restoreSuccessTitle":  "Erosketak berreskuratuta!",
-                    "restoreSuccessDesc":  "Zure Pro harpidetza aktiboa dago.",
-                    "restoreNoneTitle":  "Ez dago aurreko erosketa",
-                    "restoreNoneDesc":  "Ez dugu aurkitu zure kontuarekin lotutako harpidetza aktiborik.",
-                    "restoreError":  "Ezin izan da konektatu. Saiatu berriro.",
-                    "lifetimeBadge":  "Harpidetzarik gabe",
-                    "lifetimeSub":  "Ordainketa bakarra. Berrikuntza gabe"
-                },
-    "plantEdit":  {
-                      "title":  "Landarea editatu",
-                      "save":  "Aldaketak gorde",
-                      "changePhoto":  "Argazkia aldatu",
-                      "cropFixed":  "Laborea finkoa",
-                      "harvestGoalLabel":  "Uzta helburua (kg)",
-                      "harvestGoalPlaceholder":  "Ad.: 5.0",
-                      "notesLabel":  "OHARRAK (aukerakoa)",
-                      "notesPlaceholder":  "Oharrak, ohar pertsonalak…"
-                  },
-    "plantNew":  {
-                     "title":  "Landare berria",
-                     "cropLabel":  "LABOREA",
-                     "selectCrop":  "Hautatu laborea",
-                     "changeCrop":  "Aldatu",
-                     "nameLabel":  "IZENA",
-                     "namePlaceholder":  "Zure landarearen izena",
-                     "varietyLabel":  "BARIETATEA (hautazkoa)",
-                     "varietyPlaceholder":  "Adib: Cherry, Erromana, Krimengo Beltza...",
-                     "sowingDate":  "EREIN DATA",
-                     "photo":  "ARGAZKIA (hautazkoa)",
-                     "addPhoto":  "Argazkia gehitu",
-                     "addPlant":  "Landarea gehitu 🌱",
-                     "cropSearch":  "Laborea bilatu...",
-                     "cropPickerTitle":  "Hautatu laborea",
-                     "varietyGeneric":  "Generikoa",
-                     "goodWith":  "Lagun onak: "
-                 },
-    "plantDetail":  {
-                        "notFound":  "Landarea ez da aurkitu",
-                        "statusSection":  "Egoera",
-                        "cropInfo":  "Laborearen informazioa",
-                        "harvest":  "Uzta",
-                        "harvestDays":  "{{min}}–{{max}} egun",
-                        "light":  "Argia",
-                        "water":  "Ura",
-                        "spacing":  "Tartea",
-                        "sunFull":  "Eguzki osoa",
-                        "sunPartial":  "Itzal partziala",
-                        "sunShade":  "Itzala",
-                        "waterHigh":  "Altua",
-                        "waterMedium":  "Ertaina",
-                        "waterLow":  "Baxua",
-                        "goodNeighbors":  "Auzokide onak",
-                        "badNeighbors":  "Auzokide txarrak",
-                        "reminders":  "Oroigarriak",
-                        "active":  "Aktiboa",
-                        "paused":  "Geldituta",
-                        "diary":  "Egunkaria",
-                        "noEntries":  "Oraindik ez dago sarrerarik. Erregistratu zure lehen jarduera!",
-                        "pestSection":  "Izurriteen egoera",
-                        "commonPests":  "{{crop}}-KO IZURRITE OHIKOAK",
-                        "newEntry":  "Sarrera berria",
-                        "reminder":  "Oroigarria",
-                        "deletePlant":  "Landarea ezabatu",
-                        "deleteTitle":  "{{name}} ezabatu?",
-                        "deleteDesc":  "Landarea eta bere egunkari sarrera eta oroigarri guztiak ezabatuko dira.",
-                        "sownOn":  "🌰 Ereindakoa {{date}}",
-                        "daysGrowing_one":  "{{count}} egun",
-                        "daysGrowing_other":  "{{count}} egun",
-                        "estimatedHarvest":  "🧺 Uzta est. {{date}}",
-                        "harvestSummary_one":  "1 uzta erregistratua",
-                        "harvestSummary_other":  "{{count}} uzta erregistratuak",
-                        "units":  "ale",
-                        "goalProgress":  "Denboraldi helburua",
-                        "photoTimeline":  "📸 Aurrerapen argazkiak",
-                        "transplantCta":  "Landatzeko prest?",
-                        "transplantCtaDesc":  "{{days}} egun hazitegian",
-                        "transplantModalTitle":  "Landaketa erregistratu",
-                        "transplantDateLabel":  "LANDAKETA DATA",
-                        "transplantConfirm":  "Landaketa berretsi",
-                        "duplicate":  "Bikoiztu landarea"
-                    },
-    "reminderEdit":  {
-                         "title":  "Gogorarazlea editatu",
-                         "save":  "Aldaketak gorde",
-                         "enabledLabel":  "Gogorarazlea aktibo",
-                         "enabledOn":  "Jakinarazpenak aktibatuta daude",
-                         "enabledOff":  "Jakinarazpenak desaktibatuta daude",
-                         "delete":  "Gogorarazlea ezabatu",
-                         "deleteTitle":  "Gogorarazlea ezabatu?",
-                         "deleteDesc":  "Jakinarazpena bertan behera utziko da eta gogorarazlea ezabatuko da.",
-                         "saveError":  "Ezin izan da gogorarazlea gorde.",
-                         "notFound":  "Gogorarazlea ez da aurkitu"
-                     },
-    "reminderNew":  {
-                        "title":  "Oroigarri berria",
-                        "typeLabel":  "MOTA",
-                        "titleLabel":  "IZENBURUA",
-                        "frequencyLabel":  "MAIZTASUNA",
-                        "hourLabel":  "ORDUA",
-                        "minuteLabel":  "MINUTUAK",
-                        "create":  "Oroigarria sortu",
-                        "noGardenTitle":  "Ez dago baratzerik",
-                        "noGardenDesc":  "Osatu onboarding-a lehenik.",
-                        "saveError":  "Ezin izan da oroigarria sortu."
-                    },
-    "backup":  {
-                   "title":  "Segurtasun kopia",
-                   "autoSyncLabel":  "SINKRONIZAZIO AUTOMATIKOA",
-                   "icloudSync":  "iCloud-ekin sinkronizatu",
-                   "icloudSyncDesc":  "Automatikoki gordetzen du babeskopia zure iCloud karpetan app-a uzten duzunean.",
-                   "lastBackup":  "Azken babeskopia",
-                   "never":  "Inoiz ez",
-                   "icloudTip":  "iCloud sinkronizazioa aktibatzeko joan Ezarpenak \u003e Zure izena \u003e iCloud \u003e iCloud erabiltzen duten Appak eta aktibatu HuertoTracker.",
-                   "manualLabel":  "ESKUZKOA",
-                   "exportTitle":  "Babeskopia esportatu",
-                   "exportDesc":  "Gorde fitxategia Fitxategietan, Drive-n edo partekatu.",
-                   "export":  "Esportatu",
-                   "importTitle2":  "Babeskopia inportatu",
-                   "importDesc2":  "Berreskuratu .json fitxategi batetik. Datu guztiak ordezkatzen ditu.",
-                   "import":  "Inportatu",
-                   "pdfLabel":  "DENBORALDI TXOSTENA",
-                   "pdfTitle":  "PDF txostena esportatu",
-                   "pdfDesc":  "Zure baratzearen laburpena: landareak, uztak eta urteko jarduera.",
-                   "pdfGenerate":  "PDF sortu",
-                   "includesLabel":  "ZER BARNE HARTZEN DU",
-                   "includeGarden":  "Baratzea eta zona konfigurazioa",
-                   "includePlants":  "Zure landare guztiak",
-                   "includeEntries":  "Egunkari sarrerak",
-                   "includeReminders":  "Konfiguratutako oroigarriak",
-                   "footerNote":  "Babeskopiak ez ditu argazkiak barne hartzen (gailuko galerian gordetzen dira) ez harpidetza egoera.",
-                   "proTitle":  "Pro funtzioa",
-                   "proDesc":  "iCloud-ekin sinkronizazio automatikoa Pro planean eskuragarri dago.",
-                   "viewPlans":  "Planak ikusi",
-                   "importTitle":  "Babeskopia inportatu",
-                   "importDesc":  "Honek uneko DATU GUZTIAK babeskopi fitxategikoekin ordezkatuko ditu. App-a berrabiarazi beharko da.\n\nJarraitu?",
-                   "importConfirm":  "Inportatu",
-                   "restoredTitle":  "Datuak berreskuratuta ✓",
-                   "restoredDesc":  "Itxi eta berriz ireki app-a aldaketak indarrean jartzeko.",
-                   "exportError":  "Ezin izan da babeskopia esportatu. Saiatu berriro."
-               },
-    "notifications":  {
-                          "title":  "Jakinarazpenak",
-                          "seasonalLabel":  "SASOIKO ALERTAK",
-                          "sowingReminders":  "Erein oroigarriak",
-                          "sowingRemindersDesc":  "Abisua hilaren 1ean zer erein dezakezunarekin",
-                          "basedOnZone":  "Zure klima zonaren arabera:",
-                          "nextAlertLabel":  "HURRENGO ALERTA",
-                          "nextAlertDate":  "{{month}}aren 1a",
-                          "nextAlertCrops_one":  "Ereiteko {{count}} labore",
-                          "nextAlertCrops_other":  "Ereiteko {{count}} labore",
-                          "howLabel":  "NOLA FUNTZIONATZEN DU",
-                          "how1Title":  "Hileko abisua",
-                          "how1Desc":  "Jakinarazpen bat jasotzen duzu hilaren 1ean 9:00etan.",
-                          "how2Title":  "Zonaren arabera pertsonalizatuta",
-                          "how2Desc":  "Iradokitako laboreak zure Espainiako klima zonaren arabera kalkulatzen dira.",
-                          "how3Title":  "Konexiorik gabe",
-                          "how3Desc":  "Alertak gailuan programatzen dira. Ez duzu internet behar.",
-                          "noZoneWarning":  "Osatu onboarding-a zona alertak pertsonalizatuak aktibatzeko.",
-                          "frostLabel":  "IZOTZA",
-                          "frostAlerts":  "Izotz-alertak",
-                          "frostAlertsDesc":  "Jakinarazpen bat jasoko duzu hurrengo egunetan 2°C azpiko tenperaturak aurreikusten direnean.",
-                          "frostNoProvince":  "Konfiguratu zure probintzia baratzearen ezarpenetan izotz-alertak aktibatzeko.",
-                          "more":  "gehiago"
-                      },
-    "stats":  {
-                  "title":  "Estatistikak",
-                  "entries":  "Sarrerak",
-                  "harvests":  "Uztak",
-                  "activeDays_one":  "egun aktibo",
-                  "activeDays_other":  "egun aktibo",
-                  "harvested":  "Bilduta",
-                  "monthlyActivity":  "Hileko jarduera",
-                  "noActivity":  "Oraindik ez dago jarduerarik. Hasi zerbait erregistratzen!",
-                  "activityBreakdown":  "Jarduera banaketa",
-                  "topPlants":  "Landare aktiboenenak",
-                  "topCrops":  "Gehien bildutako laboreak",
-                  "harvestByYear":  "Uzta urtez urte",
-                  "currentYear":  "Aurten",
-                  "achievements":  "Lorpenak",
-                  "entryCount_one":  "{{count}} sarrera",
-                  "entryCount_other":  "{{count}} sarrera",
-                  "harvestCount_one":  "{{count}} uzta",
-                  "harvestCount_other":  "{{count}} uzta",
-                  "successRate":  "Arrakasta tasa",
-                  "avgDaysToHarvest":  "Bataz beste egunak"
-              },
-    "welcome":  {
-                    "title":  "Huerto Tracker",
-                    "subtitle":  "Erregistratu zure baratzea, planifikatu ereintzak eta uzta gehiago eta hobeto.",
-                    "features":  {
-                                     "calendar":  "Erein egutegia",
-                                     "calendarDesc":  "Erein momentu egokienean zure klima zonarentzat.",
-                                     "diary":  "Baratze egunkaria",
-                                     "diaryDesc":  "Erregistratu ureztatze, inausketa eta uztak argazkiekin.",
-                                     "reminders":  "Oroigarriak",
-                                     "remindersDesc":  "Inoiz ez ahaztu landareak ureztatu edo ongarriztatu.",
-                                     "sync":  "Sinkronizazioa",
-                                     "syncDesc":  "Zure datuak seguru hodeian, gailu guztietan."
-                                 },
-                    "createAccount":  "Doako kontua sortu",
-                    "explore":  "Konturik gabe arakatu",
-                    "note":  "Doako kontuak 10 landare eta hodeiaren sinkronizazioa barne hartzen ditu."
-                },
-    "quickLog":  {
-                     "water":  "Ureztatu",
-                     "harvest":  "Bildu",
-                     "pest":  "Izurritea",
-                     "fertilize":  "Ongarriztatu",
-                     "prune":  "Inausi",
-                     "note":  "Oharra",
-                     "commonPests":  "{{crop}}-ko izurrite ohikoak:",
-                     "treatmentTip":  "Gordetzean, landarea \u0027Tratamenduan\u0027 pasako da",
-                     "pestPlaceholder":  "Deskribatu izurritea edo sintoma…",
-                     "notePlaceholder":  "Gehitu ohar bat…",
-                     "weightPlaceholder":  "Pisua kg-tan (hautazkoa)",
-                     "weightKgPlaceholder":  "Kantitatea kg-tan…",
-                     "weightUnitsPlaceholder":  "Ale kopurua…",
-                     "units":  "ale",
-                     "chooseAction":  "Aukeratu ekintza bat",
-                     "save":  "Erregistratu {{action}}",
-                     "done":  "Erregistratuta!"
-                 },
-    "lunar":  {
-                  "newMoon":  "Ilargi berria",
-                  "waxingCrescent":  "Ilargi igoera",
-                  "firstQuarter":  "Lehen laurden",
-                  "waxingGibbous":  "Gibosa hazten",
-                  "fullMoon":  "Ilargi betea",
-                  "waningGibbous":  "Gibosa jaisten",
-                  "lastQuarter":  "Azken laurden",
-                  "waningCrescent":  "Ilargi beheera",
-                  "gardeningLabel":  {
-                                         "frutos":  "Fruitu eguna",
-                                         "hojas":  "Hosto eguna",
-                                         "raices":  "Erroa eguna",
-                                         "flores":  "Lore eguna",
-                                         "descanso":  "Atseden eguna"
-                                     },
-                  "recommendation":  {
-                                         "frutos":  "Ilargi ona tomateak, pepinoak eta fruituak bildu eta landatzeko.",
-                                         "hojas":  "Letxugak, espinakak eta belar aromatikoak ereiteko egokia.",
-                                         "raices":  "Azenarioak, errabanoak eta tuberkuluak landatzeko ezin hobea.",
-                                         "flores":  "Lore eta landare aromatikoak trasplantatu gaur.",
-                                         "descanso":  "Ilargi berriaren eguna. Atseden eman lurra eta planifikatu."
-                                     },
-                  "monthLabel":  {
-                                     "frutos":  "Fruitu hilabetea",
-                                     "hojas":  "Hosto hilabetea",
-                                     "raices":  "Erroa hilabetea",
-                                     "flores":  "Lore hilabetea",
-                                     "descanso":  "Atseden hilabetea"
-                                 }
-              },
-    "weather":  {
-                    "clear":  "Eguzkitsua",
-                    "mostlyClear":  "Gehienbat eguzkitsua",
-                    "partlyCloudy":  "Erdizka hodeitsua",
-                    "cloudy":  "Hodeitsua",
-                    "fog":  "Lainoa",
-                    "frostFog":  "Izoztu lainoa",
-                    "drizzle":  "Zirrimirria",
-                    "lightRain":  "Euri arina",
-                    "rain":  "Euria",
-                    "heavyRain":  "Euri bizia",
-                    "lightSnow":  "Elur arina",
-                    "snow":  "Elurra",
-                    "showers":  "Zaparradak",
-                    "thunderstorm":  "Ekaitza",
-                    "hailstorm":  "Txingorra",
-                    "variable":  "Aldakorra",
-                    "wateringSkip":  "💧 Euria aurreikusita ({{rain}}%) — utzi ureztatzea gaur.",
-                    "wateringReduce":  "💧 Euri aukera ({{rain}}%) — ureztatu neurriz.",
-                    "wateringHot":  "🌡️ Bero bizia ({{temp}}°C) — ureztatu goiz-goizean.",
-                    "wateringNormal":  "✅ Ureztatzeko une ona ({{temp}}°C, {{rain}}% euria)."
-                },
-    "zone":  {
-                 "atlantica":  "Atlantikoa",
-                 "continental":  "Kontinentala",
-                 "mediterranea":  "Mediterraneoa",
-                 "subtropical":  "Subtropikala"
-             },
-    "gardenType":  {
-                       "huerto":  "Baratzea",
-                       "balcon":  "Balkoia / Terraza",
-                       "maceta":  "Barrualdea / Ontziak",
-                       "balconDesc":  "Kanpo-ontzian haztegia. Egutegia ontzi-labore egokietara iragaziko da.",
-                       "macetaDesc":  "Barruko edo leiho haztegia. Egutegia barne-labore egokietara iragaziko da."
-                   },
-    "pestStatus":  {
-                       "none":  "Izurririk gabe",
-                       "active":  "Izurri aktiboa",
-                       "treated":  "Tratamenduan"
-                   },
-    "plantStatus":  {
-                        "seedling":  "Landaretegi",
-                        "transplanted":  "Transplantatuta",
-                        "growing":  "Hazten",
-                        "flowering":  "Loratzen",
-                        "fruiting":  "Frutatzen",
-                        "harvesting":  "Uztan",
-                        "finished":  "Amaituta"
-                    },
-    "reminderType":  {
-                         "watering":  "Ureztatzea",
-                         "fertilizing":  "Ongarritzea",
-                         "harvest_check":  "Uzta egiaztatzea",
-                         "custom":  "Pertsonalizatua"
-                     },
-    "reminderFrequency":  {
-                              "daily":  "Egunero",
-                              "every_2_days":  "2 egunero",
-                              "every_3_days":  "3 egunero",
-                              "weekly":  "Astero",
-                              "once":  "Behin"
-                          },
-    "entryEdit":  {
-                      "title":  "Sarrera editatu",
-                      "save":  "Gorde",
-                      "delete":  "Sarrera ezabatu",
-                      "deleteTitle":  "Sarrera ezabatu?",
-                      "deleteDesc":  "Sarrera hau behin betiko ezabatuko da.",
-                      "notFound":  "Sarrera ez da aurkitu",
-                      "changePhoto":  "Argazkia aldatu"
-                  },
-    "cropCategory":  {
-                         "frutas":  "Fruituak",
-                         "hojas":  "Hostoak eta entsaladak",
-                         "raices":  "Sustraiak eta tuberkuluak",
-                         "legumbres":  "Lekaleak",
-                         "cruciferas":  "Gurutzatutakoak",
-                         "cucurbitaceas":  "Kukorbitagoak",
-                         "aromaticas":  "Aromatikoak",
-                         "bulbos":  "Bulboak",
-                         "medicinales":  "Sendabelarrak"
-                     },
-    "crops":  {
-                  "tomate":  {
-                                 "name":  "Tomatea"
-                             },
-                  "pimiento":  {
-                                   "name":  "Piperra"
-                               },
-                  "berenjena":  {
-                                    "name":  "Alberjinia"
-                                },
-                  "fresa":  {
-                                "name":  "Marrubia"
-                            },
-                  "lechuga":  {
-                                  "name":  "Letxuga"
-                              },
-                  "espinaca":  {
-                                   "name":  "Espinaka"
-                               },
-                  "acelga":  {
-                                 "name":  "Zikoria"
-                             },
-                  "rucula":  {
-                                 "name":  "Rúkola"
-                             },
-                  "canonigos":  {
-                                    "name":  "Kanongiak"
-                                },
-                  "zanahoria":  {
-                                    "name":  "Azenarioa"
-                                },
-                  "rabano":  {
-                                 "name":  "Errabano"
-                             },
-                  "remolacha":  {
-                                    "name":  "Erremolatxa"
-                                },
-                  "patata":  {
-                                 "name":  "Patata"
-                             },
-                  "nabo":  {
-                               "name":  "Nabua"
-                           },
-                  "judia-verde":  {
-                                      "name":  "Babarrun berdea"
-                                  },
-                  "guisante":  {
-                                   "name":  "Ilarraren"
-                               },
-                  "haba":  {
-                               "name":  "Baba"
-                           },
-                  "brocoli":  {
-                                  "name":  "Brokolia"
-                              },
-                  "coliflor":  {
-                                   "name":  "Koliflore"
-                               },
-                  "col":  {
-                              "name":  "Aza / Errep-oloa"
-                          },
-                  "kale":  {
-                               "name":  "Kale (Aza kizkurra)"
-                           },
-                  "calabacin":  {
-                                    "name":  "Kalabazina"
-                                },
-                  "pepino":  {
-                                 "name":  "Pepinoa"
-                             },
-                  "calabaza":  {
-                                   "name":  "Kalabaza"
-                               },
-                  "melon":  {
-                                "name":  "Meloia"
-                            },
-                  "sandia":  {
-                                 "name":  "Sandia"
-                             },
-                  "albahaca":  {
-                                   "name":  "Albahaka"
-                               },
-                  "perejil":  {
-                                  "name":  "Perrexila"
-                              },
-                  "cilantro":  {
-                                   "name":  "Zilantro"
-                               },
-                  "romero":  {
-                                 "name":  "Erromeroa"
-                             },
-                  "tomillo":  {
-                                  "name":  "Ezkaia"
-                              },
-                  "menta":  {
-                                "name":  "Menta"
-                            },
-                  "ajo":  {
-                              "name":  "Berakatz"
-                          },
-                  "cebolla":  {
-                                  "name":  "Tipula"
-                              },
-                  "puerro":  {
-                                 "name":  "Porrua"
-                             },
-                  "guindilla":  { "name":  "Piper mina / Txile" },
-                  "apio":  { "name":  "Apio" },
-                  "esparrago":  { "name":  "Zainzuria" },
-                  "salvia":  { "name":  "Salbia" },
-                  "oregano":  { "name":  "Oreganoa" },
-                  "eneldo":  { "name":  "Eneldoa" },
-                  "hinojo":  { "name":  "Milagrosa" },
-                  "manzanilla":  { "name":  "Kamomila" },
-                  "lavanda":  { "name":  "Izpiliku" }
-              },
-    "identify":  {
-                     "title":  "Izurria identifikatu",
-                     "subtitle":  "Argazkia egin kaltetutako aldea",
-                     "takePhoto":  "Argazkia atera",
-                     "fromGallery":  "Galeriatik",
-                     "analyze":  "AArekin aztertu",
-                     "analyzing":  "Landarea aztertzen…",
-                     "retake":  "Argazki berria",
-                     "healthy":  "Zure landarea osasuntsu dago!",
-                     "healthyDesc":  "Ez da izurririk edo gaixotasunik hauteman",
-                     "saveEntry":  "Diagnostikoa egunkarian gorde",
-                     "saved":  "✓ Egunkarian gordeta",
-                     "proOnly":  "Pro funtzioa",
-                     "proOnlyDesc":  "IA identifikazioa Pro planean dago eskuragarri.",
-                     "upgradePro":  "Planak ikusi",
-                     "freeCredit":  "Doako azterketa 1",
-                     "freeCreditDesc":  "Probatu IA behin doan. Gero Pro plana beharko duzu.",
-                     "freeCreditUsed":  "Dagoeneko erabili duzu doako azterketa",
-                     "freeCreditUsedDesc":  "Igo Pro-ra izurriteak eta gaixotasunak mugagabe identifikatzeko.",
-                     "noKeyDesc":  "Gehitu EXPO_PUBLIC_ANTHROPIC_KEY .env fitxategian",
-                     "error":  "Analisatzeko errorea",
-                     "errorDesc":  "Ezin izan da irudia analisatu. Saiatu berriro.",
-                     "confidence":  {
-                                        "alta":  "Konfiantza altua",
-                                        "media":  "Konfiantza ertaina",
-                                        "baja":  "Konfiantza baxua"
-                                    },
-                     "problemType":  {
-                                         "plaga":  "Izurria",
-                                         "enfermedad":  "Gaixotasuna",
-                                         "deficiencia":  "Gabezia",
-                                         "saludable":  "Osasuntsu"
-                                     },
-                     "symptomsLabel":  "Ikusitako sintomak",
-                     "treatmentsLabel":  "Gomendatutako tratamenduak",
-                     "treatmentType":  {
-                                           "organico":  "Organikoa",
-                                           "preventivo":  "Prebentiboa",
-                                           "quimico":  "Kimikoa"
-                                       }
-                 }
+{
+  "tabs": {
+    "home": "Nire Baratzea",
+    "calendar": "Egutegia",
+    "diary": "Egunkaria",
+    "settings": "Ezarpenak"
+  },
+  "common": {
+    "cancel": "Utzi",
+    "delete": "Ezabatu",
+    "save": "Gorde",
+    "saving": "Gordetzen…",
+    "back": "← Itzuli",
+    "close": "Itxi",
+    "continue": "Jarraitu →",
+    "error": "Errorea",
+    "ok": "Ados",
+    "search": "Bilatu…",
+    "version": "Bertsioa",
+    "loading": "Kargatzen…",
+    "viewAll": "Guztiak ikusi",
+    "more": "gehiago"
+  },
+  "home": {
+    "title": "Nire Baratzea",
+    "streak": "🔥 {{count}} egun",
+    "stats": {
+      "plants": "Landareak",
+      "harvesting": "Uztatzeko",
+      "reminders": "Oroigarriak",
+      "pests": "Izurriteekin",
+      "needsWater": "Ur beharra",
+      "yearKg": "Aurten bildutakoa"
+    },
+    "weatherLoading": "🌤️ Eguraldia kargatzen…",
+    "lunarDay": "Eguna",
+    "viewStats": "Estatistikak ikusi",
+    "sowNowTitle": "Erein orain",
+    "sowSoonTitle": "Laster",
+    "sowNowEmpty": "Ez dago laborerik ereiteko hilabete honetan zure eremuan.",
+    "sowAdd": "Gehitu",
+    "weeklyTasks": "Aste honetan",
+    "weeklyTasksEmpty": "Dena egunean. Ondo eginda! 🎉",
+    "taskWater": "{{name}} ureztatu",
+    "taskTransplant": "{{name}} laster transplantatu",
+    "taskHarvest": "{{name}} uzta-prest",
+    "taskPest": "{{name}}-ko izurritea tratatu",
+    "myPlants": "Nire landareak",
+    "waterAll": "💧 Denak ureztatu",
+    "waterAllTitle": "Denak ureztatu",
+    "waterAllMessage": "{{count}} landareen ureztatze bat erregistratu?",
+    "waterAllConfirm": "Denak ureztatu",
+    "emptyTitle": "Oraindik ez dago landarerik",
+    "emptyDesc": "Gehitu zure lehen landarea baratzea erregistratzen hasteko.",
+    "addPlant": "Landarea gehitu",
+    "searchPlants": "Landarea bilatu…",
+    "taskEstHarvest": "🧺 {{name}} uzta gertu",
+    "taskNeglected": "👁️ {{name}} jarduera gabe ({{days}} egun)",
+    "filterAll": "Guztiak",
+    "sortDefault": "Ordena",
+    "sortName": "A-Z",
+    "sortNewest": "Berrienak",
+    "showFinished": "{{count}} amaituta ezkutatuta · Ikusi",
+    "hideFinished": "Ezkutatu amaitutakoak"
+  },
+  "calendar": {
+    "title": "Erein egutegia",
+    "zone": "{{zone}} zona",
+    "containerBanner": "Ontzietarako egokiak diren laboreak soilik erakusten",
+    "lunarProfile": "Hilaren ilargi profila",
+    "lunarBasis": "Ziklo sinodikoan oinarrituta",
+    "lunarDayIllum": "{{day}}. eguna · {{illum}}% argiztatua",
+    "cropsCount": "{{month}}an ereiteko {{count}} labore",
+    "companions": "🤝 Elkarteak",
+    "emptyCrops": "{{month}}an ez dago ereintzarik",
+    "emptyCropsDesc": "Zure zonaldean ez dago labore gomendaturik hilabete honetan. Egiaztatu gertuko hilabeteak.",
+    "fullSun": "☀️ Eguzki osoa",
+    "partialShade": "⛅ Itzal partziala",
+    "shade": "🌑 Itzala",
+    "days": "🗓 {{min}}–{{max}} egun",
+    "containerInfo": "🪴 Gutxieneko ontzia {{liters}} L · {{tip}}",
+    "addToGarden": "Baratzera gehitu",
+    "hemisphereSurBanner": "Hego hemisferioa aktibo · hilabeteak alderantziz iparraldearekin alderatuta",
+    "catAll": "Guztiak",
+    "today": "Gaur"
+  },
+  "diary": {
+    "title": "Egunkaria",
+    "filters": {
+      "all": "Guztiak",
+      "watering": "Ureztatze",
+      "sowing": "Ereintza",
+      "harvest": "Uzta",
+      "fertilizing": "Ongarritzea",
+      "transplant": "Trasplantea",
+      "pest": "Izurritea",
+      "treatment": "Tratamendua",
+      "pruning": "Inausketa",
+      "photo": "Argazkia",
+      "note": "Oharra"
+    },
+    "emptyTitle": "Egunkaria hutsik dago",
+    "emptyDesc": "Erregistratu zure lehen jarduera: ureztatze bat, ereintza bat edo uzta bat.",
+    "newEntry": "Sarrera berria",
+    "search": "Bilatu egunkarian…"
+  },
+  "settings": {
+    "title": "Ezarpenak",
+    "sections": {
+      "account": "KONTUA",
+      "garden": "NIRE BARATZEA",
+      "subscription": "HARPIDETZA",
+      "tools": "TRESNAK",
+      "summary": "LABURPENA",
+      "notifications": "JAKINARAZPENAK",
+      "data": "DATUAK",
+      "app": "APP",
+      "language": "HIZKUNTZA"
+    },
+    "account": {
+      "guestTitle": "Gonbidatu modua",
+      "guestDesc": "Sortu kontu bat baratzea sinkronizatzeko eta datuak ez galtzeko.",
+      "signIn": "Hasi saioa",
+      "email": "Emaila",
+      "signOut": "Itxi saioa",
+      "signOutTitle": "Saioa itxi?",
+      "signOutDesc": "Zure datu lokalak gordeko dira."
+    },
+    "garden": {
+      "name": "Izena",
+      "province": "Probintzia",
+      "climateZone": "Klima zona",
+      "map": "Baratzearen mapa",
+      "edit": "Baratzea editatu",
+      "manageGardens": "Baratzeak kudeatu"
+    },
+    "subscription": {
+      "proPlan": "⭐ Pro Plana",
+      "freePlan": "Doako plana",
+      "activeAnnual": "Urteko harpidetza aktiboa",
+      "activeMonthly": "Hileko harpidetza aktiboa",
+      "freeLimit": "5 landare baratze bakoitzeko",
+      "viewPlans": "Planak ikusi"
+    },
+    "tools": {
+      "companions": "Elkartze gida",
+      "stats": "Estatistikak ikusi",
+      "diseaseGuide": "Izurri eta gaixotasun-gida"
+    },
+    "summary": {
+      "activePlants": "Landare aktiboak",
+      "diaryEntries": "Egunkari sarrerak",
+      "reminders": "Oroigarriak"
+    },
+    "notifications": {
+      "seasonal": "Sasoiko alertak"
+    },
+    "data": {
+      "backup": "Segurtasun kopia",
+      "deleteAll": "Datu guztiak ezabatu",
+      "deleteTitle": "Datu guztiak ezabatu?",
+      "deleteDesc": "Landare guztiak, egunkari sarrerak eta oroigarriak betirako ezabatuko dira. Ekintza hau ezin da desegin.",
+      "deleteConfirm": "Dena ezabatu"
+    },
+    "app": {
+      "version": "Bertsioa",
+      "rate": "App Store-n baloratu",
+      "privacy": "Pribatutasun politika",
+      "contact": "Kontaktua"
+    }
+  },
+  "auth": {
+    "title": "Sortu zure kontua",
+    "subtitle": "Sinkronizatu zure baratzea gailu guztietan eta ez galdu daturik.",
+    "connecting": "Konektatzen…",
+    "continueGoogle": "Google-rekin jarraitu",
+    "continueApple": "Apple-rekin jarraitu",
+    "or": "edo",
+    "emailLink": "✉️ Email bidezko esteka erabili",
+    "emailPlaceholder": "zure@emaila.com",
+    "sendMagicLink": "Esteka magikoa bidali",
+    "sending": "Bidaltzen…",
+    "continueGuest": "Konturik gabe jarraitu (max. 3 landare)",
+    "errorGoogle": "Ezin izan da Google-rekin hasi saioa.",
+    "errorApple": "Ezin izan da Apple-rekin hasi saioa.",
+    "errorEmailRequired": "Emaila beharrezkoa",
+    "errorEmailRequiredDesc": "Sartu zure email helbidea.",
+    "errorMagicLink": "Ezin izan da esteka bidali. Egiaztatu emaila."
+  },
+  "magicSent": {
+    "title": "Egiaztatu zure emaila",
+    "message": "Esteka magikoa bidali dizugu {{email}} helbidera. Sakatu esteka zure telefonotik automatikoki sartzeko.",
+    "note": "Esteka 1 orduz irauten du. Ez baduzu ikusten, egiaztatu spam karpeta.",
+    "changeEmail": "Emaila aldatu",
+    "continueGuest": "Konturik gabe jarraitu oraingoz"
+  },
+  "companions": {
+    "title": "Elkarteak",
+    "proSub": "Gida osoa Pro-n eskuragarri",
+    "proUnlock": "Pro — Desblokeatu gida osoa",
+    "browse": "Arakatu",
+    "check": "Kontsultatu",
+    "searchCrop": "Labore bilatu…",
+    "searchFirst": "Lehen laborea bilatu…",
+    "searchSecond": "Bigarren laborea bilatu…",
+    "goodNeighbors": "Auzokide onak",
+    "badNeighbors": "Auzokide txarrak",
+    "noAssociations": "Ez dago erregistratutako elkarterik",
+    "unlockRemaining": "Desblokeatu {{count}} labore hauek Pro-rekin",
+    "firstCrop": "Lehen laborea",
+    "secondCrop": "Bigarren laborea",
+    "goodMatch": "Konbinazio ona!",
+    "badMatch": "Ez landatu elkarrekin",
+    "neutral": "Bateragarriak baina neutroak",
+    "companionNote": "Labore hauek elkar onartzen dute. Landatu {{spacing}} cm-ko tartean.",
+    "incompatibleNote": "Labore hauek elkar inhiba dezakete edo izurriak erakar ditzakete. Mantendu bereizita.",
+    "checkEmpty": "Hautatu bi labore bateragarriak diren egiaztatzeko."
+  },
+  "entryNew": {
+    "title": "Sarrera berria",
+    "saving": "Gordetzen…",
+    "save": "Gorde",
+    "activityType": "JARDUERA MOTA",
+    "plant": "LANDAREA (hautazkoa)",
+    "general": "Orokorra",
+    "date": "DATA",
+    "datePlaceholder": "UUUU-HH-EE",
+    "notes": "OHARRAK (hautazkoa)",
+    "notesPlaceholder": "Zer ikusi zenuen? Nolako zen landarea?",
+    "harvest": "UZTA",
+    "weightKg": "Pisua (kg)",
+    "units": "Unitateak",
+    "photo": "ARGAZKIA (hautazkoa)",
+    "addPhoto": "Argazkia gehitu",
+    "saveEntry": "Sarrera gorde",
+    "today": "Gaur",
+    "yesterday": "Atzo",
+    "twoDaysAgo": "Duela 2 egun"
+  },
+  "gardenEdit": {
+    "title": "Baratzea editatu",
+    "nameLabel": "BARATZEAREN IZENA",
+    "namePlaceholder": "Nire baratzea",
+    "typeLabel": "BARATZE MOTA",
+    "noGarden": "Ez dago konfiguratutako baratzerik",
+    "provinceLabel": "PROBINTZIA",
+    "provincePlaceholder": "Hautatu probintzia…",
+    "selectProvince": "Hautatu zure probintzia",
+    "searchProvince": "Probintzia bilatu…",
+    "containerTip": "Egutegia ontzi-labore egokietara iragaziko da.",
+    "save": "Aldaketak gorde",
+    "nameRequired": "Izena beharrezkoa",
+    "nameRequiredDesc": "Jarri izen bat zure baratzeari.",
+    "provinceRequired": "Probintzia beharrezkoa",
+    "provinceRequiredDesc": "Hautatu zure probintzia erein egutegia pertsonalizatzeko.",
+    "gridSizeLabel": "MAPAREN TAMAINA",
+    "cells": "lursail",
+    "gridProTitle": "Pro funtzioa",
+    "gridProDesc": "Aldatu maparen tamaina Pro planarekin.",
+    "hemisphereLabel": "HEMISFERIO",
+    "hemisphereNorte": "Iparraldea",
+    "hemisphereSur": "Hegoaldea",
+    "hemisphereSurTip": "Egutegia hegoaldeko hemisferiorako hilabeteak alderantziz jarriko ditu"
+  },
+  "gardens": {
+    "title": "Nire baratzeak",
+    "hint": "Sakatu baratze bat aktibatzeko. Hasierako landare-zerrenda baratze aktiboaren arabera iragazten da.",
+    "active": "Aktiboa",
+    "createTitle": "Baratze berria",
+    "fieldName": "Izena",
+    "fieldNamePlaceholder": "Adib. Terrazako baratzea",
+    "fieldType": "Mota",
+    "fieldProvince": "Probintzia",
+    "fieldProvincePlaceholder": "Hautatu probintzia",
+    "cantDeleteLast": "Ezin duzu azken baratzea ezabatu.",
+    "deleteTitle": "Ezabatu {{name}}",
+    "deleteDesc": "Baratzea soilik ezabatuko da, ez lotutako landareak edo sarrerak."
+  },
+  "diseaseGuide": {
+    "title": "Gaixotasun-gida",
+    "subtitle": "Izurriak, gaixotasunak eta gabeziak",
+    "search": "Bilatu izurria, sintoma edo laborea…",
+    "filterAll": "Guztiak",
+    "filterPest": "🐛 Izurria",
+    "filterDisease": "🍂 Gaixotasuna",
+    "filterDeficiency": "💛 Gabezia",
+    "empty": "Ez dago emaitzarik bilaketa horretarako.",
+    "affectedCrops": "Eragindako laboreak",
+    "symptoms": "Sintomak",
+    "treatments": "Tratamenduak",
+    "type": {
+      "plaga": "Izurria",
+      "enfermedad": "Gaixotasuna",
+      "deficiencia": "Gabezia"
+    },
+    "treatment": {
+      "organico": "Ekologikoa",
+      "preventivo": "Prebentiboa",
+      "quimico": "Kimikoa"
+    },
+    "visualSigns": "Ikusizko seinaleak",
+    "severityHigh": "Larritasun altua",
+    "severityMed": "Larritasun ertaina",
+    "severityLow": "Larritasun txikia"
+  },
+  "gardenMap": {
+    "title": "Baratzearen mapa",
+    "summary": "{{placed}} / {{total}} landare kokatuta · {{cols}}×{{rows}} lursailak",
+    "south": "Hegoa",
+    "assignPlant": "Landarea esleitu",
+    "searchPlant": "Landarea bilatu…",
+    "noPlants": "Oraindik ez daukazu landarerik.\nGehitu landareak agintaritzatik.",
+    "allPlaced": "Landare guztiak dagoeneko kokatuta daude.",
+    "legendOccupied": "Landaredun lursaila",
+    "legendEmpty": "Lursail hutsa",
+    "emptyNote": "Gehitu landareak lehenik agintaritzatik mapan jartzeko.",
+    "viewPlant": "Landarea ikusi",
+    "removeFromMap": "Mapetatik kendu",
+    "removeTitle": "Mapetatik kendu",
+    "removeDesc": "{{name}} lursail honetatik kendu?",
+    "remove": "Kendu",
+    "movePlant": "Mugitu",
+    "moveModeHint": "Sakatu helmugako lursaila · Sakatu ✕ bertan behera uzteko",
+    "moveCancelled": "Mugimendua bertan behera utzi da",
+    "shareTitle": "Nire baratzea",
+    "shareNotAvailable": "Partekatzea ez dago eskuragarri gailu honetan.",
+    "shareError": "Ezin izan da mapa kapturatu."
+  },
+  "onboarding": {
+    "step1Title": "Zure baratze digitala",
+    "step1Desc": "Planifikatu ereintza, erregistratu uzta eta inoiz ez ahaztu ureztatzea.",
+    "start": "Hasi →",
+    "step2Title": "Non dago zure baratzea?",
+    "step2Desc": "Hautatu zure probintzia edo eskualdea erein egutegia pertsonalizatzeko.",
+    "selectProvince": "Hautatu zure probintzia edo eskualdea",
+    "zone": "{{label}} zona",
+    "continue": "Jarraitu →",
+    "back": "Atzera",
+    "step3Title": "Sortu zure lehen baratzea",
+    "step3Desc": "Eman izen bat zure labore espaziori.",
+    "gardenTypeLabel": "Zer espazio mota daukazu?",
+    "gardenNamePlaceholder": "Adib: Nire terraza, Balkoi iparraldea...",
+    "create": "Sortu baratzea 🌱",
+    "provinceSearch": "Probintzia edo eskualdea bilatu...",
+    "closeSearch": "Itxi",
+    "step4Title": "Lorategia sortua! 🌱",
+    "step4Desc": "Dena prest. Zure lehen landarea gehitu nahi duzu orain?",
+    "addFirstPlant": "Lehen landarea gehitu",
+    "skipToGarden": "Nire lorategia ikusi",
+    "feature1Title": "Ilargia eta ereintza",
+    "feature1Desc": "Erein momentu onean ilargi-zikloaren arabera",
+    "feature2Title": "Eguraldi erreala",
+    "feature2Desc": "Ureztatzeko gomendioakeguraldi iragarpenaren arabera",
+    "feature3Title": "Laguntzaile landareak",
+    "feature3Desc": "Jakin zein laborek ongi hartzen duten elkar",
+    "hemisphereLabel": "Zein hemisferiotan zaude?",
+    "hemisphereNorte": "Iparraldea",
+    "hemisphereSur": "Hegoaldea"
+  },
+  "paywall": {
+    "titlePro": "Pro zara dagoeneko!",
+    "title": "Hazi zure baratzea\nmugagabe",
+    "subtitlePro": "Harpidetza aktiboa · {{plan}} Plana",
+    "subtitle": "Desblokeatu benetako baratzezain bat izateko behar duzun guztia.",
+    "features": {
+      "gardens": "Baratze mugagabeak (orain 1 soilik)",
+      "plants": "Landare mugagabeak (doako plana: 5)",
+      "calendar": "Erein egutegi osoa alertekin",
+      "companions": "Labore elkartze gida",
+      "charts": "Uzta eta produktibitate grafikoak",
+      "pdf": "Egunkaria PDF-n esportatu",
+      "reminders": "Ureztatze oroigarri mugagabeak",
+      "backup": "Hodeiaren segurtasun kopia"
+    },
+    "choosePlan": "AUKERATU PLANA",
+    "monthly": "Hilekoa",
+    "annual": "Urtekoa",
+    "popular": "⭐ Ezagunena",
+    "cancelAnytime": "Edozein momentutan bertan behera utzi",
+    "processing": "Prozesatzen…",
+    "ctaTrial": "Hasi 7 eguneko proba doakoa",
+    "ctaDone": "Prest",
+    "trialNote": "Edozein momentutan utzi. Konpromisorik gabe.",
+    "restore": "Erosketak berreskuratu",
+    "legal": "Ordainketa zure App Store kontuan kargatuko da. Harpidetza automatikoki berritzen da uneko aldian gutxienez 24 ordu lehenago bertan behera utzi ezean.",
+    "successTitle": "Ongi etorri Pro-ra! 🌻",
+    "successDesc": "Zure harpidetza aktiboa dago. Gozatu funtzio guztietatik mugagabe.",
+    "successBtn": "Goazen!",
+    "errorPurchase": "Ezin izan da erosketa osatu. Saiatu berriro.",
+    "restoreSuccessTitle": "Erosketak berreskuratuta!",
+    "restoreSuccessDesc": "Zure Pro harpidetza aktiboa dago.",
+    "restoreNoneTitle": "Ez dago aurreko erosketa",
+    "restoreNoneDesc": "Ez dugu aurkitu zure kontuarekin lotutako harpidetza aktiborik.",
+    "restoreError": "Ezin izan da konektatu. Saiatu berriro.",
+    "lifetimeBadge": "Harpidetzarik gabe",
+    "lifetimeSub": "Ordainketa bakarra. Berrikuntza gabe"
+  },
+  "plantEdit": {
+    "title": "Landarea editatu",
+    "save": "Aldaketak gorde",
+    "changePhoto": "Argazkia aldatu",
+    "cropFixed": "Laborea finkoa",
+    "harvestGoalLabel": "Uzta helburua (kg)",
+    "harvestGoalPlaceholder": "Ad.: 5.0",
+    "notesLabel": "OHARRAK (aukerakoa)",
+    "notesPlaceholder": "Oharrak, ohar pertsonalak…"
+  },
+  "plantNew": {
+    "title": "Landare berria",
+    "cropLabel": "LABOREA",
+    "selectCrop": "Hautatu laborea",
+    "changeCrop": "Aldatu",
+    "nameLabel": "IZENA",
+    "namePlaceholder": "Zure landarearen izena",
+    "varietyLabel": "BARIETATEA (hautazkoa)",
+    "varietyPlaceholder": "Adib: Cherry, Erromana, Krimengo Beltza...",
+    "sowingDate": "EREIN DATA",
+    "photo": "ARGAZKIA (hautazkoa)",
+    "addPhoto": "Argazkia gehitu",
+    "addPlant": "Landarea gehitu 🌱",
+    "cropSearch": "Laborea bilatu...",
+    "cropPickerTitle": "Hautatu laborea",
+    "varietyGeneric": "Generikoa",
+    "goodWith": "Lagun onak: "
+  },
+  "plantDetail": {
+    "notFound": "Landarea ez da aurkitu",
+    "statusSection": "Egoera",
+    "cropInfo": "Laborearen informazioa",
+    "harvest": "Uzta",
+    "harvestDays": "{{min}}–{{max}} egun",
+    "light": "Argia",
+    "water": "Ura",
+    "spacing": "Tartea",
+    "sunFull": "Eguzki osoa",
+    "sunPartial": "Itzal partziala",
+    "sunShade": "Itzala",
+    "waterHigh": "Altua",
+    "waterMedium": "Ertaina",
+    "waterLow": "Baxua",
+    "goodNeighbors": "Auzokide onak",
+    "badNeighbors": "Auzokide txarrak",
+    "reminders": "Oroigarriak",
+    "active": "Aktiboa",
+    "paused": "Geldituta",
+    "diary": "Egunkaria",
+    "noEntries": "Oraindik ez dago sarrerarik. Erregistratu zure lehen jarduera!",
+    "pestSection": "Izurriteen egoera",
+    "commonPests": "{{crop}}-KO IZURRITE OHIKOAK",
+    "newEntry": "Sarrera berria",
+    "reminder": "Oroigarria",
+    "deletePlant": "Landarea ezabatu",
+    "deleteTitle": "{{name}} ezabatu?",
+    "deleteDesc": "Landarea eta bere egunkari sarrera eta oroigarri guztiak ezabatuko dira.",
+    "sownOn": "🌰 Ereindakoa {{date}}",
+    "daysGrowing_one": "{{count}} egun",
+    "daysGrowing_other": "{{count}} egun",
+    "estimatedHarvest": "🧺 Uzta est. {{date}}",
+    "harvestSummary_one": "1 uzta erregistratua",
+    "harvestSummary_other": "{{count}} uzta erregistratuak",
+    "units": "ale",
+    "goalProgress": "Denboraldi helburua",
+    "photoTimeline": "📸 Aurrerapen argazkiak",
+    "transplantCta": "Landatzeko prest?",
+    "transplantCtaDesc": "{{days}} egun hazitegian",
+    "transplantModalTitle": "Landaketa erregistratu",
+    "transplantDateLabel": "LANDAKETA DATA",
+    "transplantConfirm": "Landaketa berretsi",
+    "duplicate": "Bikoiztu landarea"
+  },
+  "reminderEdit": {
+    "title": "Gogorarazlea editatu",
+    "save": "Aldaketak gorde",
+    "enabledLabel": "Gogorarazlea aktibo",
+    "enabledOn": "Jakinarazpenak aktibatuta daude",
+    "enabledOff": "Jakinarazpenak desaktibatuta daude",
+    "delete": "Gogorarazlea ezabatu",
+    "deleteTitle": "Gogorarazlea ezabatu?",
+    "deleteDesc": "Jakinarazpena bertan behera utziko da eta gogorarazlea ezabatuko da.",
+    "saveError": "Ezin izan da gogorarazlea gorde.",
+    "notFound": "Gogorarazlea ez da aurkitu"
+  },
+  "reminderNew": {
+    "title": "Oroigarri berria",
+    "typeLabel": "MOTA",
+    "titleLabel": "IZENBURUA",
+    "frequencyLabel": "MAIZTASUNA",
+    "hourLabel": "ORDUA",
+    "minuteLabel": "MINUTUAK",
+    "create": "Oroigarria sortu",
+    "noGardenTitle": "Ez dago baratzerik",
+    "noGardenDesc": "Osatu onboarding-a lehenik.",
+    "saveError": "Ezin izan da oroigarria sortu."
+  },
+  "backup": {
+    "title": "Segurtasun kopia",
+    "autoSyncLabel": "SINKRONIZAZIO AUTOMATIKOA",
+    "icloudSync": "iCloud-ekin sinkronizatu",
+    "icloudSyncDesc": "Automatikoki gordetzen du babeskopia zure iCloud karpetan app-a uzten duzunean.",
+    "lastBackup": "Azken babeskopia",
+    "never": "Inoiz ez",
+    "icloudTip": "iCloud sinkronizazioa aktibatzeko joan Ezarpenak > Zure izena > iCloud > iCloud erabiltzen duten Appak eta aktibatu HuertoTracker.",
+    "manualLabel": "ESKUZKOA",
+    "exportTitle": "Babeskopia esportatu",
+    "exportDesc": "Gorde fitxategia Fitxategietan, Drive-n edo partekatu.",
+    "export": "Esportatu",
+    "importTitle2": "Babeskopia inportatu",
+    "importDesc2": "Berreskuratu .json fitxategi batetik. Datu guztiak ordezkatzen ditu.",
+    "import": "Inportatu",
+    "pdfLabel": "DENBORALDI TXOSTENA",
+    "pdfTitle": "PDF txostena esportatu",
+    "pdfDesc": "Zure baratzearen laburpena: landareak, uztak eta urteko jarduera.",
+    "pdfGenerate": "PDF sortu",
+    "includesLabel": "ZER BARNE HARTZEN DU",
+    "includeGarden": "Baratzea eta zona konfigurazioa",
+    "includePlants": "Zure landare guztiak",
+    "includeEntries": "Egunkari sarrerak",
+    "includeReminders": "Konfiguratutako oroigarriak",
+    "footerNote": "Babeskopiak ez ditu argazkiak barne hartzen (gailuko galerian gordetzen dira) ez harpidetza egoera.",
+    "proTitle": "Pro funtzioa",
+    "proDesc": "iCloud-ekin sinkronizazio automatikoa Pro planean eskuragarri dago.",
+    "viewPlans": "Planak ikusi",
+    "importTitle": "Babeskopia inportatu",
+    "importDesc": "Honek uneko DATU GUZTIAK babeskopi fitxategikoekin ordezkatuko ditu. App-a berrabiarazi beharko da.\n\nJarraitu?",
+    "importConfirm": "Inportatu",
+    "restoredTitle": "Datuak berreskuratuta ✓",
+    "restoredDesc": "Itxi eta berriz ireki app-a aldaketak indarrean jartzeko.",
+    "exportError": "Ezin izan da babeskopia esportatu. Saiatu berriro."
+  },
+  "notifications": {
+    "title": "Jakinarazpenak",
+    "seasonalLabel": "SASOIKO ALERTAK",
+    "sowingReminders": "Erein oroigarriak",
+    "sowingRemindersDesc": "Abisua hilaren 1ean zer erein dezakezunarekin",
+    "basedOnZone": "Zure klima zonaren arabera:",
+    "nextAlertLabel": "HURRENGO ALERTA",
+    "nextAlertDate": "{{month}}aren 1a",
+    "nextAlertCrops_one": "Ereiteko {{count}} labore",
+    "nextAlertCrops_other": "Ereiteko {{count}} labore",
+    "howLabel": "NOLA FUNTZIONATZEN DU",
+    "how1Title": "Hileko abisua",
+    "how1Desc": "Jakinarazpen bat jasotzen duzu hilaren 1ean 9:00etan.",
+    "how2Title": "Zonaren arabera pertsonalizatuta",
+    "how2Desc": "Iradokitako laboreak zure Espainiako klima zonaren arabera kalkulatzen dira.",
+    "how3Title": "Konexiorik gabe",
+    "how3Desc": "Alertak gailuan programatzen dira. Ez duzu internet behar.",
+    "noZoneWarning": "Osatu onboarding-a zona alertak pertsonalizatuak aktibatzeko.",
+    "frostLabel": "IZOTZA",
+    "frostAlerts": "Izotz-alertak",
+    "frostAlertsDesc": "Jakinarazpen bat jasoko duzu hurrengo egunetan 2°C azpiko tenperaturak aurreikusten direnean.",
+    "frostNoProvince": "Konfiguratu zure probintzia baratzearen ezarpenetan izotz-alertak aktibatzeko.",
+    "more": "gehiago",
+    "plantLabel": "LANDAREAK",
+    "transplantTitle": "Transplante-abisua",
+    "transplantDesc": "Alerta 6 astetera ereitik landarea lursailera mugitzeko",
+    "harvestTitle": "Uzta hurbil",
+    "harvestDesc": "Abisua uzta-data baino 3 egun lehenago",
+    "treatmentTitle": "Tratamendu-itxaronaldia amaitu",
+    "treatmentDesc": "Jakinarazpena tratamendu baten osteko itxaronaldia amaitzean",
+    "plantCount_one": "{{count}} landare programatua",
+    "plantCount_other": "{{count}} landare programatu"
+  },
+  "stats": {
+    "title": "Estatistikak",
+    "entries": "Sarrerak",
+    "harvests": "Uztak",
+    "activeDays_one": "egun aktibo",
+    "activeDays_other": "egun aktibo",
+    "harvested": "Bilduta",
+    "monthlyActivity": "Hileko jarduera",
+    "noActivity": "Oraindik ez dago jarduerarik. Hasi zerbait erregistratzen!",
+    "activityBreakdown": "Jarduera banaketa",
+    "topPlants": "Landare aktiboenenak",
+    "topCrops": "Gehien bildutako laboreak",
+    "harvestByYear": "Uzta urtez urte",
+    "currentYear": "Aurten",
+    "achievements": "Lorpenak",
+    "entryCount_one": "{{count}} sarrera",
+    "entryCount_other": "{{count}} sarrera",
+    "harvestCount_one": "{{count}} uzta",
+    "harvestCount_other": "{{count}} uzta",
+    "successRate": "Arrakasta tasa",
+    "avgDaysToHarvest": "Bataz beste egunak"
+  },
+  "welcome": {
+    "title": "Huerto Tracker",
+    "subtitle": "Erregistratu zure baratzea, planifikatu ereintzak eta uzta gehiago eta hobeto.",
+    "features": {
+      "calendar": "Erein egutegia",
+      "calendarDesc": "Erein momentu egokienean zure klima zonarentzat.",
+      "diary": "Baratze egunkaria",
+      "diaryDesc": "Erregistratu ureztatze, inausketa eta uztak argazkiekin.",
+      "reminders": "Oroigarriak",
+      "remindersDesc": "Inoiz ez ahaztu landareak ureztatu edo ongarriztatu.",
+      "sync": "Sinkronizazioa",
+      "syncDesc": "Zure datuak seguru hodeian, gailu guztietan."
+    },
+    "createAccount": "Doako kontua sortu",
+    "explore": "Konturik gabe arakatu",
+    "note": "Doako kontuak 10 landare eta hodeiaren sinkronizazioa barne hartzen ditu."
+  },
+  "quickLog": {
+    "water": "Ureztatu",
+    "harvest": "Bildu",
+    "pest": "Izurritea",
+    "fertilize": "Ongarriztatu",
+    "prune": "Inausi",
+    "note": "Oharra",
+    "commonPests": "{{crop}}-ko izurrite ohikoak:",
+    "treatmentTip": "Gordetzean, landarea 'Tratamenduan' pasako da",
+    "pestPlaceholder": "Deskribatu izurritea edo sintoma…",
+    "notePlaceholder": "Gehitu ohar bat…",
+    "weightPlaceholder": "Pisua kg-tan (hautazkoa)",
+    "weightKgPlaceholder": "Kantitatea kg-tan…",
+    "weightUnitsPlaceholder": "Ale kopurua…",
+    "units": "ale",
+    "chooseAction": "Aukeratu ekintza bat",
+    "save": "Erregistratu {{action}}",
+    "done": "Erregistratuta!"
+  },
+  "lunar": {
+    "newMoon": "Ilargi berria",
+    "waxingCrescent": "Ilargi igoera",
+    "firstQuarter": "Lehen laurden",
+    "waxingGibbous": "Gibosa hazten",
+    "fullMoon": "Ilargi betea",
+    "waningGibbous": "Gibosa jaisten",
+    "lastQuarter": "Azken laurden",
+    "waningCrescent": "Ilargi beheera",
+    "gardeningLabel": {
+      "frutos": "Fruitu eguna",
+      "hojas": "Hosto eguna",
+      "raices": "Erroa eguna",
+      "flores": "Lore eguna",
+      "descanso": "Atseden eguna"
+    },
+    "recommendation": {
+      "frutos": "Ilargi ona tomateak, pepinoak eta fruituak bildu eta landatzeko.",
+      "hojas": "Letxugak, espinakak eta belar aromatikoak ereiteko egokia.",
+      "raices": "Azenarioak, errabanoak eta tuberkuluak landatzeko ezin hobea.",
+      "flores": "Lore eta landare aromatikoak trasplantatu gaur.",
+      "descanso": "Ilargi berriaren eguna. Atseden eman lurra eta planifikatu."
+    },
+    "monthLabel": {
+      "frutos": "Fruitu hilabetea",
+      "hojas": "Hosto hilabetea",
+      "raices": "Erroa hilabetea",
+      "flores": "Lore hilabetea",
+      "descanso": "Atseden hilabetea"
+    }
+  },
+  "weather": {
+    "clear": "Eguzkitsua",
+    "mostlyClear": "Gehienbat eguzkitsua",
+    "partlyCloudy": "Erdizka hodeitsua",
+    "cloudy": "Hodeitsua",
+    "fog": "Lainoa",
+    "frostFog": "Izoztu lainoa",
+    "drizzle": "Zirrimirria",
+    "lightRain": "Euri arina",
+    "rain": "Euria",
+    "heavyRain": "Euri bizia",
+    "lightSnow": "Elur arina",
+    "snow": "Elurra",
+    "showers": "Zaparradak",
+    "thunderstorm": "Ekaitza",
+    "hailstorm": "Txingorra",
+    "variable": "Aldakorra",
+    "wateringSkip": "💧 Euria aurreikusita ({{rain}}%) — utzi ureztatzea gaur.",
+    "wateringReduce": "💧 Euri aukera ({{rain}}%) — ureztatu neurriz.",
+    "wateringHot": "🌡️ Bero bizia ({{temp}}°C) — ureztatu goiz-goizean.",
+    "wateringNormal": "✅ Ureztatzeko une ona ({{temp}}°C, {{rain}}% euria)."
+  },
+  "zone": {
+    "atlantica": "Atlantikoa",
+    "continental": "Kontinentala",
+    "mediterranea": "Mediterraneoa",
+    "subtropical": "Subtropikala"
+  },
+  "gardenType": {
+    "huerto": "Baratzea",
+    "balcon": "Balkoia / Terraza",
+    "maceta": "Barrualdea / Ontziak",
+    "balconDesc": "Kanpo-ontzian haztegia. Egutegia ontzi-labore egokietara iragaziko da.",
+    "macetaDesc": "Barruko edo leiho haztegia. Egutegia barne-labore egokietara iragaziko da."
+  },
+  "pestStatus": {
+    "none": "Izurririk gabe",
+    "active": "Izurri aktiboa",
+    "treated": "Tratamenduan"
+  },
+  "plantStatus": {
+    "seedling": "Landaretegi",
+    "transplanted": "Transplantatuta",
+    "growing": "Hazten",
+    "flowering": "Loratzen",
+    "fruiting": "Frutatzen",
+    "harvesting": "Uztan",
+    "finished": "Amaituta"
+  },
+  "reminderType": {
+    "watering": "Ureztatzea",
+    "fertilizing": "Ongarritzea",
+    "harvest_check": "Uzta egiaztatzea",
+    "custom": "Pertsonalizatua"
+  },
+  "reminderFrequency": {
+    "daily": "Egunero",
+    "every_2_days": "2 egunero",
+    "every_3_days": "3 egunero",
+    "weekly": "Astero",
+    "once": "Behin"
+  },
+  "entryEdit": {
+    "title": "Sarrera editatu",
+    "save": "Gorde",
+    "delete": "Sarrera ezabatu",
+    "deleteTitle": "Sarrera ezabatu?",
+    "deleteDesc": "Sarrera hau behin betiko ezabatuko da.",
+    "notFound": "Sarrera ez da aurkitu",
+    "changePhoto": "Argazkia aldatu"
+  },
+  "cropCategory": {
+    "frutas": "Fruituak",
+    "hojas": "Hostoak eta entsaladak",
+    "raices": "Sustraiak eta tuberkuluak",
+    "legumbres": "Lekaleak",
+    "cruciferas": "Gurutzatutakoak",
+    "cucurbitaceas": "Kukorbitagoak",
+    "aromaticas": "Aromatikoak",
+    "bulbos": "Bulboak",
+    "medicinales": "Sendabelarrak"
+  },
+  "crops": {
+    "tomate": {
+      "name": "Tomatea"
+    },
+    "pimiento": {
+      "name": "Piperra"
+    },
+    "berenjena": {
+      "name": "Alberjinia"
+    },
+    "fresa": {
+      "name": "Marrubia"
+    },
+    "lechuga": {
+      "name": "Letxuga"
+    },
+    "espinaca": {
+      "name": "Espinaka"
+    },
+    "acelga": {
+      "name": "Zikoria"
+    },
+    "rucula": {
+      "name": "Rúkola"
+    },
+    "canonigos": {
+      "name": "Kanongiak"
+    },
+    "zanahoria": {
+      "name": "Azenarioa"
+    },
+    "rabano": {
+      "name": "Errabano"
+    },
+    "remolacha": {
+      "name": "Erremolatxa"
+    },
+    "patata": {
+      "name": "Patata"
+    },
+    "nabo": {
+      "name": "Nabua"
+    },
+    "judia-verde": {
+      "name": "Babarrun berdea"
+    },
+    "guisante": {
+      "name": "Ilarraren"
+    },
+    "haba": {
+      "name": "Baba"
+    },
+    "brocoli": {
+      "name": "Brokolia"
+    },
+    "coliflor": {
+      "name": "Koliflore"
+    },
+    "col": {
+      "name": "Aza / Errep-oloa"
+    },
+    "kale": {
+      "name": "Kale (Aza kizkurra)"
+    },
+    "calabacin": {
+      "name": "Kalabazina"
+    },
+    "pepino": {
+      "name": "Pepinoa"
+    },
+    "calabaza": {
+      "name": "Kalabaza"
+    },
+    "melon": {
+      "name": "Meloia"
+    },
+    "sandia": {
+      "name": "Sandia"
+    },
+    "albahaca": {
+      "name": "Albahaka"
+    },
+    "perejil": {
+      "name": "Perrexila"
+    },
+    "cilantro": {
+      "name": "Zilantro"
+    },
+    "romero": {
+      "name": "Erromeroa"
+    },
+    "tomillo": {
+      "name": "Ezkaia"
+    },
+    "menta": {
+      "name": "Menta"
+    },
+    "ajo": {
+      "name": "Berakatz"
+    },
+    "cebolla": {
+      "name": "Tipula"
+    },
+    "puerro": {
+      "name": "Porrua"
+    },
+    "guindilla": {
+      "name": "Piper mina / Txile"
+    },
+    "apio": {
+      "name": "Apio"
+    },
+    "esparrago": {
+      "name": "Zainzuria"
+    },
+    "salvia": {
+      "name": "Salbia"
+    },
+    "oregano": {
+      "name": "Oreganoa"
+    },
+    "eneldo": {
+      "name": "Eneldoa"
+    },
+    "hinojo": {
+      "name": "Milagrosa"
+    },
+    "manzanilla": {
+      "name": "Kamomila"
+    },
+    "lavanda": {
+      "name": "Izpiliku"
+    }
+  },
+  "identify": {
+    "title": "Izurria identifikatu",
+    "subtitle": "Argazkia egin kaltetutako aldea",
+    "takePhoto": "Argazkia atera",
+    "fromGallery": "Galeriatik",
+    "analyze": "AArekin aztertu",
+    "analyzing": "Landarea aztertzen…",
+    "retake": "Argazki berria",
+    "healthy": "Zure landarea osasuntsu dago!",
+    "healthyDesc": "Ez da izurririk edo gaixotasunik hauteman",
+    "saveEntry": "Diagnostikoa egunkarian gorde",
+    "saved": "✓ Egunkarian gordeta",
+    "proOnly": "Pro funtzioa",
+    "proOnlyDesc": "IA identifikazioa Pro planean dago eskuragarri.",
+    "upgradePro": "Planak ikusi",
+    "freeCredit": "Doako azterketa 1",
+    "freeCreditDesc": "Probatu IA behin doan. Gero Pro plana beharko duzu.",
+    "freeCreditUsed": "Dagoeneko erabili duzu doako azterketa",
+    "freeCreditUsedDesc": "Igo Pro-ra izurriteak eta gaixotasunak mugagabe identifikatzeko.",
+    "noKeyDesc": "Gehitu EXPO_PUBLIC_ANTHROPIC_KEY .env fitxategian",
+    "error": "Analisatzeko errorea",
+    "errorDesc": "Ezin izan da irudia analisatu. Saiatu berriro.",
+    "confidence": {
+      "alta": "Konfiantza altua",
+      "media": "Konfiantza ertaina",
+      "baja": "Konfiantza baxua"
+    },
+    "problemType": {
+      "plaga": "Izurria",
+      "enfermedad": "Gaixotasuna",
+      "deficiencia": "Gabezia",
+      "saludable": "Osasuntsu"
+    },
+    "symptomsLabel": "Ikusitako sintomak",
+    "treatmentsLabel": "Gomendatutako tratamenduak",
+    "treatmentType": {
+      "organico": "Organikoa",
+      "preventivo": "Prebentiboa",
+      "quimico": "Kimikoa"
+    }
+  }
 }

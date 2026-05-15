@@ -146,7 +146,7 @@ export function usePlantNotifications() {
         await AsyncStorage.setItem(KEYS[type].ids, JSON.stringify(ids));
       }
     })();
-  }, [allPlants.items, allEntries.items, activeGarden?.id]);
+  }, [allPlants.items, allEntries.items, activeGarden?.id, loading]);
 
   async function scheduleForType(
     type: NotifType,
