@@ -23,6 +23,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data';
+import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import type { Garden } from '../../src/models/garden';
 import { PLANT_STATUS_CONFIG, type Plant } from '../../src/models/plant';
 import type { GardenReminder } from '../../src/models/reminder';
@@ -101,7 +102,7 @@ export default function DashboardScreen() {
         tasks.push({ emoji: '🧺', label: t('home.taskHarvest', { name: p.name }), plantId: p.id });
       } else if (p.sowingDate && !['harvesting', 'finished'].includes(p.status)) {
         const crop = CROPS_BY_ID[p.cropId];
-        const dth = crop?.daysToHarvest;
+        const dth = (p.varietyId ? VARIETIES_BY_ID[p.varietyId]?.daysToHarvest : null) ?? crop?.daysToHarvest;
         if (dth) {
           const midDays = Math.round((dth[0] + dth[1]) / 2);
           const estDate = new Date(new Date(p.sowingDate + 'T12:00:00').getTime() + midDays * 86_400_000);

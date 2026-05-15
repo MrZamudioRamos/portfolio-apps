@@ -454,7 +454,10 @@ export default function PlantDetailScreen() {
           <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.cropInfo')}</Text>
           <Card padded style={s.infoCard}>
             <View style={s.infoGrid}>
-              <InfoItem label={t('plantDetail.harvest')} value={t('plantDetail.harvestDays', { min: crop.daysToHarvest[0], max: crop.daysToHarvest[1] })} />
+              {(() => {
+                const dth = (plant.varietyId ? VARIETIES_BY_ID[plant.varietyId]?.daysToHarvest : null) ?? crop.daysToHarvest;
+                return <InfoItem label={t('plantDetail.harvest')} value={t('plantDetail.harvestDays', { min: dth[0], max: dth[1] })} />;
+              })()}
               <InfoItem label={t('plantDetail.light')} value={SUN_LABEL[crop.sunNeeds]} />
               <InfoItem label={t('plantDetail.water')} value={WATER_LABEL[crop.waterNeeds]} />
               <InfoItem label={t('plantDetail.spacing')} value={`${crop.spacing} cm`} />

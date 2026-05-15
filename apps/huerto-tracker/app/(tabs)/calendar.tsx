@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS, CROPS_BY_ID, CATEGORY_CONFIG, type CropCategory } from '../../src/data/crops';
+import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import { getSeasonalTip } from '../../src/data/seasonalTips';
 import type { CropInfo } from '../../src/data/crops';
 import { getLunarDay, getMonthGardeningProfile } from '../../src/utils/lunar';
@@ -44,7 +45,8 @@ export default function CalendarScreen() {
       if (p.firstHarvestDate) {
         estDate = new Date(p.firstHarvestDate + 'T12:00:00');
       } else if (p.sowingDate) {
-        const midDays = Math.round((crop.daysToHarvest[0] + crop.daysToHarvest[1]) / 2);
+        const dth = (p.varietyId ? VARIETIES_BY_ID[p.varietyId]?.daysToHarvest : null) ?? crop.daysToHarvest;
+        const midDays = Math.round((dth[0] + dth[1]) / 2);
         estDate = new Date(new Date(p.sowingDate + 'T12:00:00').getTime() + midDays * 86_400_000);
       }
       if (!estDate) return;
