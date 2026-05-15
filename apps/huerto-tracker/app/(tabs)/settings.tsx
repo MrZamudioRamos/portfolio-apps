@@ -223,6 +223,7 @@ export default function SettingsScreen() {
             label={t('settings.tools.stats')}
             colors={colors}
             s={s}
+            badge={isPro ? undefined : 'Pro parcial'}
             onPress={() => router.push('/stats')}
           />
           <Separator colors={colors} />
@@ -231,6 +232,7 @@ export default function SettingsScreen() {
             label={t('costs.title')}
             colors={colors}
             s={s}
+            badge={isPro ? undefined : 'Pro'}
             onPress={() => router.push('/costs' as any)}
           />
           <Separator colors={colors} />

@@ -31,7 +31,8 @@ export function usePurchases() {
     AsyncStorage.multiGet([PRO_KEY, PLAN_KEY])
       .then(([[, status], [, plan]]) => {
         setIsPro(status === 'true');
-        setActivePlan((plan as PlanId | null) ?? null);
+        const validPlan: PlanId | null = plan === 'monthly' || plan === 'annual' ? plan : null;
+        setActivePlan(validPlan);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -59,7 +60,8 @@ export function usePurchases() {
       const found = status === 'true';
       if (found) {
         setIsPro(true);
-        setActivePlan((plan as PlanId | null) ?? null);
+        const validPlan: PlanId | null = plan === 'monthly' || plan === 'annual' ? plan : 'annual';
+        setActivePlan(validPlan);
       }
       return { success: true, found };
     } catch {
