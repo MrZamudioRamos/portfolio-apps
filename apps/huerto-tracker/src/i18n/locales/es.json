@@ -1115,5 +1115,106 @@
       "tools": "Herramientas",
       "other": "Otros"
     }
+  },
+  "diseases": {
+    "mildiu": {
+      "name": "Mildiu",
+      "symptoms": "Manchas amarillas en el haz de las hojas, pelusa grisácea en el envés. Las hojas se secan y caen.",
+      "description": "Enfermedad fúngica causada por Peronospora spp. Favorecida por humedad alta y temperaturas frescas.",
+      "visualSigns": ["🟡 Manchas amarillas en haz", "🩶 Pelusa gris en envés", "🍂 Hojas que caen"],
+      "treatments": [
+        { "name": "Caldo bordelés", "instructions": "Aplicar al inicio de síntomas. Repetir cada 7-10 días si persiste lluvia." },
+        { "name": "Ventilación", "instructions": "Mejorar el espaciado entre plantas y regar al pie, nunca por encima." },
+        { "name": "Fungicida cúprico", "instructions": "Aplicar según ficha técnica, evitar en floración para proteger polinizadores." }
+      ]
+    },
+    "oidio": {
+      "name": "Oídio",
+      "symptoms": "Polvillo blanco en hojas, tallos y frutos. Las hojas afectadas se enrollan y secan.",
+      "description": "Hongo superficial (Erysiphe spp.) que prospera con días cálidos y noches frías, con humedad ambiental alta.",
+      "visualSigns": ["⚪ Polvillo blanco superficial", "🌀 Hojas enrolladas", "🔴 Frutos con manchas blancas"],
+      "treatments": [
+        { "name": "Leche diluida", "instructions": "Mezclar 1 parte de leche en 9 de agua y pulverizar semanalmente." },
+        { "name": "Bicarbonato sódico", "instructions": "5 g por litro de agua + unas gotas de jabón neutro. Pulverizar cada 7 días." },
+        { "name": "Azufre mojable", "instructions": "Aplicar a primera hora de la mañana. No usar con temperaturas > 30 °C." }
+      ]
+    },
+    "botrytis": {
+      "name": "Botrytis (Moho gris)",
+      "symptoms": "Podredumbre blanda cubierta de pelusa gris-parda. Afecta tallos, hojas y frutos en condiciones húmedas.",
+      "description": "Botrytis cinerea es uno de los hongos más comunes en huertas. Muy activo en primavera-otoño con alta humedad.",
+      "visualSigns": ["🩶 Pelusa gris-parda visible", "🟤 Tejido blando podrido", "💧 Peor en zonas húmedas"],
+      "treatments": [
+        { "name": "Poda de partes afectadas", "instructions": "Eliminar y destruir (no compostar) tejido infectado inmediatamente." },
+        { "name": "Trichoderma", "instructions": "Aplicar biofungicida a base de Trichoderma harzianum en preventivo." },
+        { "name": "Fungicida sistémico", "instructions": "Usar rotando materias activas para evitar resistencias." }
+      ]
+    },
+    "pulgon": {
+      "name": "Pulgón",
+      "symptoms": "Colonias de pequeños insectos (verdes, negros o grises) en brotes y envés de hojas. Hojas deformadas y presencia de melaza.",
+      "description": "Los pulgones chupan savia debilitando la planta y transmitiendo virus. Son atraídos por el exceso de nitrógeno.",
+      "visualSigns": ["🐜 Colonias en brotes", "🍬 Melaza pegajosa", "🌀 Hojas deformadas", "🐜 Hormigas cerca"],
+      "treatments": [
+        { "name": "Jabón potásico", "instructions": "Pulverizar directamente sobre las colonias, mojando bien el envés. Repetir 2-3 veces con 5 días de intervalo." },
+        { "name": "Plantas repelentes", "instructions": "Plantar albahaca, lavanda o menta cerca para repeler pulgones." },
+        { "name": "Aceite de neem", "instructions": "Mezclar 5 ml de aceite de neem emulsionado + 2 ml de jabón neutro por litro. Pulverizar al atardecer." }
+      ]
+    },
+    "mosca_blanca": {
+      "name": "Mosca blanca",
+      "symptoms": "Nubecitas de pequeñas moscas blancas al mover las plantas. Hojas con melaza y fumagina negra.",
+      "description": "Trialeurodes vaporariorum. Los adultos y larvas chupan savia. Ciclo corto en verano, muy difícil de erradicar.",
+      "visualSigns": ["☁️ Nube blanca al mover", "⬛ Fumagina negra", "🍬 Melaza pegajosa"],
+      "treatments": [
+        { "name": "Trampas amarillas adhesivas", "instructions": "Colocar a la altura del follaje. Cambiar cuando estén llenas." },
+        { "name": "Jabón potásico + aceite de neem", "instructions": "Mezcla sinérgica aplicada al atardecer para no perjudicar a insectos beneficiosos." },
+        { "name": "Encarsia formosa", "instructions": "Parásito natural. Introducir en invernadero siguiendo las instrucciones del proveedor." }
+      ]
+    },
+    "araña_roja": {
+      "name": "Araña roja",
+      "symptoms": "Punteado amarillento en hojas, telaraña fina en el envés. Hojas bronceadas y caída prematura.",
+      "description": "Tetranychus urticae. Muy activa en verano con calor y sequía. Se multiplica rápidamente.",
+      "visualSigns": ["🕸️ Telaraña fina en envés", "🟡 Punteado amarillo", "🟤 Hojas bronceadas"],
+      "treatments": [
+        { "name": "Aumentar humedad", "instructions": "Pulverizar agua en el ambiente al atardecer. No en las propias hojas." },
+        { "name": "Aceite de neem", "instructions": "Aplicar en envés donde viven los ácaros. Repetir cada 5-7 días." },
+        { "name": "Phytoseiulus persimilis", "instructions": "Ácaro predador. Efectivo en invernadero con temperatura > 20 °C." }
+      ]
+    },
+    "trips": {
+      "name": "Trips",
+      "symptoms": "Plateado o bronceado en hojas y frutos. Pequeños raspados. Transmite el virus del bronceado del tomate.",
+      "description": "Frankiniella occidentalis. Muy difícil de controlar una vez establecido. Prefiere tiempo cálido y seco.",
+      "visualSigns": ["⚪ Zonas plateadas en hojas", "🟤 Frutos bronceados", "🔍 Insectos alargados < 1mm"],
+      "treatments": [
+        { "name": "Trampas azules adhesivas", "instructions": "Monitorizar y detectar infestaciones tempranas." },
+        { "name": "Spinosad", "instructions": "Producto de origen natural, autorizado en producción ecológica. Respetar periodos de espera." },
+        { "name": "Amblyseius cucumeris", "instructions": "Ácaro predador de trips. Introducir en preventivo o al detectar primeros adultos." }
+      ]
+    },
+    "clorosis_ferrica": {
+      "name": "Clorosis férrica",
+      "symptoms": "Amarillamiento entre nervios de hojas jóvenes mientras los nervios permanecen verdes.",
+      "description": "Falta de hierro asimilable, normalmente por pH alto del sustrato o exceso de cal en el agua de riego.",
+      "visualSigns": ["💛 Hoja amarilla con nervios verdes", "🌿 Solo hojas jóvenes", "🌱 Crecimiento lento"],
+      "treatments": [
+        { "name": "Quelato de hierro", "instructions": "Aplicar al sustrato o foliarmente (0,5 g/L). Repetir a las 2 semanas si es necesario." },
+        { "name": "Acidificar el riego", "instructions": "Añadir unas gotas de vinagre o ácido cítrico al agua de riego para bajar el pH a 6-6,5." },
+        { "name": "Compost", "instructions": "La materia orgánica mejora la disponibilidad de micronutrientes en el suelo." }
+      ]
+    },
+    "carencia_calcio": {
+      "name": "Carencia de calcio",
+      "symptoms": "Pudrición apical en tomates y pimientos. Bordes de hojas interiores marrones en lechugas (tip burn).",
+      "description": "La necrosis apical no es falta de calcio en el suelo, sino falta de transporte por riego irregular o exceso de potasio.",
+      "visualSigns": ["🟤 Mancha oscura en punta del fruto", "🍅 Base del tomate negra", "🥬 Bordes marrones en lechuga"],
+      "treatments": [
+        { "name": "Riego regular", "instructions": "Mantener humedad constante en el sustrato evitando ciclos de sequía y encharcamiento." },
+        { "name": "Foliar de calcio", "instructions": "Pulverizar nitrato cálcico diluido (0,2%) directamente sobre los frutos afectados." },
+        { "name": "Acolchado", "instructions": "El mulching reduce la evaporación y estabiliza la humedad del suelo." }
+      ]
+    }
   }
 }

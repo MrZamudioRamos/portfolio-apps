@@ -15,6 +15,7 @@ export interface CropInfo {
   id: string;
   name: string;
   emoji: string;
+  imageUrl?: string;
   category: CropCategory;
   sowingMonths: Record<ClimateZone, number[]>;
   harvestMonths: Record<ClimateZone, number[]>;

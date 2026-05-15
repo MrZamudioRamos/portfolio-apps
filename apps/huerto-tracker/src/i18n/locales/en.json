@@ -1132,5 +1132,106 @@
       "tools": "Tools",
       "other": "Other"
     }
+  },
+  "diseases": {
+    "mildiu": {
+      "name": "Downy Mildew",
+      "symptoms": "Yellow spots on the upper leaf surface, grey-purple mould on the underside. Leaves dry out and drop.",
+      "description": "Fungal disease caused by Peronospora spp. Favoured by high humidity and cool temperatures.",
+      "visualSigns": ["🟡 Yellow spots on upper side", "🩶 Grey mould on underside", "🍂 Falling leaves"],
+      "treatments": [
+        { "name": "Bordeaux mixture", "instructions": "Apply at first symptoms. Repeat every 7–10 days in wet weather." },
+        { "name": "Improve ventilation", "instructions": "Increase plant spacing and water at the base, never overhead." },
+        { "name": "Copper fungicide", "instructions": "Apply as per label. Avoid during flowering to protect pollinators." }
+      ]
+    },
+    "oidio": {
+      "name": "Powdery Mildew",
+      "symptoms": "White powdery coating on leaves, stems and fruit. Affected leaves curl and dry out.",
+      "description": "Superficial fungus (Erysiphe spp.) that thrives in warm days and cool nights with high ambient humidity.",
+      "visualSigns": ["⚪ White powdery coating", "🌀 Curled leaves", "🔴 White spots on fruit"],
+      "treatments": [
+        { "name": "Diluted milk", "instructions": "Mix 1 part milk in 9 parts water and spray weekly." },
+        { "name": "Baking soda", "instructions": "5 g per litre of water + a few drops of dish soap. Spray every 7 days." },
+        { "name": "Wettable sulphur", "instructions": "Apply early morning. Do not use when temperatures exceed 30 °C." }
+      ]
+    },
+    "botrytis": {
+      "name": "Botrytis (Grey Mould)",
+      "symptoms": "Soft rot covered with grey-brown mould. Affects stems, leaves and fruit in humid conditions.",
+      "description": "Botrytis cinerea is one of the most common fungi in vegetable gardens. Very active in spring–autumn with high humidity.",
+      "visualSigns": ["🩶 Grey-brown mould visible", "🟤 Soft rotting tissue", "💧 Worse in humid areas"],
+      "treatments": [
+        { "name": "Prune affected parts", "instructions": "Remove and destroy (do not compost) infected tissue immediately." },
+        { "name": "Trichoderma", "instructions": "Apply Trichoderma harzianum biofungicide preventively." },
+        { "name": "Systemic fungicide", "instructions": "Rotate active ingredients to avoid resistance." }
+      ]
+    },
+    "pulgon": {
+      "name": "Aphids",
+      "symptoms": "Colonies of small insects (green, black or grey) on new growth and leaf undersides. Distorted leaves and sticky honeydew.",
+      "description": "Aphids suck sap, weakening the plant and spreading viruses. Attracted by excess nitrogen.",
+      "visualSigns": ["🐜 Colonies on new growth", "🍬 Sticky honeydew", "🌀 Distorted leaves", "🐜 Ants nearby"],
+      "treatments": [
+        { "name": "Potassium soap", "instructions": "Spray directly on colonies, thoroughly wetting the leaf underside. Repeat 2–3 times, 5 days apart." },
+        { "name": "Repellent plants", "instructions": "Plant basil, lavender or mint nearby to repel aphids." },
+        { "name": "Neem oil", "instructions": "Mix 5 ml emulsified neem oil + 2 ml dish soap per litre. Spray at dusk." }
+      ]
+    },
+    "mosca_blanca": {
+      "name": "Whitefly",
+      "symptoms": "Clouds of tiny white flies when plants are disturbed. Leaves coated with honeydew and sooty black mould.",
+      "description": "Trialeurodes vaporariorum. Adults and larvae suck sap. Rapid summer cycle, very difficult to eradicate.",
+      "visualSigns": ["☁️ White cloud when disturbed", "⬛ Sooty black mould", "🍬 Sticky honeydew"],
+      "treatments": [
+        { "name": "Yellow sticky traps", "instructions": "Place at foliage height. Replace when full." },
+        { "name": "Soap + neem oil mix", "instructions": "Synergistic spray applied at dusk to avoid harming beneficial insects." },
+        { "name": "Encarsia formosa", "instructions": "Natural parasite. Introduce in greenhouse following supplier instructions." }
+      ]
+    },
+    "araña_roja": {
+      "name": "Spider Mites",
+      "symptoms": "Yellow stippling on leaves, fine webbing on the underside. Bronzed, prematurely falling leaves.",
+      "description": "Tetranychus urticae. Very active in hot, dry summer conditions. Multiplies rapidly.",
+      "visualSigns": ["🕸️ Fine webbing on underside", "🟡 Yellow stippling", "🟤 Bronzed leaves"],
+      "treatments": [
+        { "name": "Increase humidity", "instructions": "Mist the surrounding air at dusk. Avoid wetting the leaves directly." },
+        { "name": "Neem oil", "instructions": "Apply to leaf undersides where mites live. Repeat every 5–7 days." },
+        { "name": "Phytoseiulus persimilis", "instructions": "Predatory mite. Effective in greenhouses above 20 °C." }
+      ]
+    },
+    "trips": {
+      "name": "Thrips",
+      "symptoms": "Silver or bronze patches on leaves and fruit. Tiny scraping marks. Spreads Tomato Spotted Wilt Virus.",
+      "description": "Frankliniella occidentalis. Very hard to control once established. Prefers warm, dry conditions.",
+      "visualSigns": ["⚪ Silver patches on leaves", "🟤 Bronzed fruit", "🔍 Elongated insects < 1mm"],
+      "treatments": [
+        { "name": "Blue sticky traps", "instructions": "Monitor to detect infestations early." },
+        { "name": "Spinosad", "instructions": "Natural-origin product, approved for organic production. Observe pre-harvest intervals." },
+        { "name": "Amblyseius cucumeris", "instructions": "Predatory mite for thrips. Introduce preventively or at first sign of adults." }
+      ]
+    },
+    "clorosis_ferrica": {
+      "name": "Iron Chlorosis",
+      "symptoms": "Yellowing between veins on young leaves while the veins remain green.",
+      "description": "Insufficient available iron, usually caused by high substrate pH or excess lime in irrigation water.",
+      "visualSigns": ["💛 Yellow leaf with green veins", "🌿 Only young leaves", "🌱 Slow growth"],
+      "treatments": [
+        { "name": "Iron chelate", "instructions": "Apply to substrate or as foliar spray (0.5 g/L). Repeat after 2 weeks if needed." },
+        { "name": "Acidify irrigation water", "instructions": "Add a few drops of vinegar or citric acid to lower pH to 6–6.5." },
+        { "name": "Compost", "instructions": "Organic matter improves micronutrient availability in the soil." }
+      ]
+    },
+    "carencia_calcio": {
+      "name": "Calcium Deficiency",
+      "symptoms": "Blossom end rot in tomatoes and peppers. Brown inner leaf edges in lettuce (tip burn).",
+      "description": "Apical necrosis is not a lack of soil calcium but a transport failure caused by irregular watering or excess potassium.",
+      "visualSigns": ["🟤 Dark spot at fruit tip", "🍅 Black base on tomato", "🥬 Brown edges on lettuce"],
+      "treatments": [
+        { "name": "Regular watering", "instructions": "Keep substrate evenly moist, avoiding drought and waterlogging cycles." },
+        { "name": "Calcium foliar spray", "instructions": "Spray diluted calcium nitrate (0.2%) directly on affected fruit." },
+        { "name": "Mulching", "instructions": "Mulch reduces evaporation and stabilises soil moisture." }
+      ]
+    }
   }
 }

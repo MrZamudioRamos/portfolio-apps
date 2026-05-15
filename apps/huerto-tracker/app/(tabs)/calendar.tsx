@@ -4,9 +4,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS, CROPS_BY_ID, CATEGORY_CONFIG, type CropCategory } from '../../src/data/crops';
+import { CROP_IMAGES } from '../../src/data/cropImages';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import { getSeasonalTip } from '../../src/data/seasonalTips';
 import type { CropInfo } from '../../src/data/crops';
@@ -26,6 +27,7 @@ export default function CalendarScreen() {
   const [month, setMonth] = useState(now.getMonth() + 1); // 1-12
   const [year, setYear] = useState(now.getFullYear());
   const [categoryFilter, setCategoryFilter] = useState<CropCategory | null>(null);
+  const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
   const { activeGarden: garden } = useActiveGarden();
   const allPlants = useCollection<Plant>('plants');
@@ -145,8 +147,20 @@ export default function CalendarScreen() {
     const [minDays, maxDays] = item.daysToHarvest;
     const category = CATEGORY_CONFIG[item.category];
     const containerInfo = getContainerInfo(item.id);
+    const cropImageUrl = CROP_IMAGES[item.id];
+    const showImage = !!cropImageUrl && !imageError[item.id];
     return (
       <Card padded style={s.cropCard}>
+        {showImage && (
+          <View style={[s.cropImageWrapper, { backgroundColor: colors.surfaceAlt }]}>
+            <Image
+              source={{ uri: cropImageUrl }}
+              style={s.cropImage}
+              resizeMode="cover"
+              onError={() => setImageError((prev) => ({ ...prev, [item.id]: true }))}
+            />
+          </View>
+        )}
         <View style={s.cropHeader}>
           <Text style={s.cropEmoji}>{item.emoji}</Text>
           <View style={{ flex: 1, marginLeft: spacing.md }}>
@@ -490,6 +504,15 @@ const makeStyles = (
     catChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     listContent: { paddingHorizontal: spacing.xl, paddingBottom: 40, gap: spacing.md },
     cropCard: { gap: spacing.sm },
+    cropImageWrapper: {
+      borderRadius: radii.md,
+      overflow: 'hidden',
+      marginBottom: spacing.xs,
+    },
+    cropImage: {
+      width: '100%',
+      height: 140,
+    },
     cropHeader: { flexDirection: 'row', alignItems: 'center' },
     cropEmoji: { fontSize: 36 },
     cropName: { fontSize: fontSize.lg, fontWeight: fontWeight.semibold },

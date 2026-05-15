@@ -64,6 +64,18 @@ export default function DiseaseGuideScreen() {
     { key: 'deficiencia', label: t('diseaseGuide.filterDeficiency') },
   ];
 
+  const getDiseaseContent = (disease: DiseaseInfo) => {
+    const rawSigns = t(`diseases.${disease.id}.visualSigns`, { returnObjects: true, defaultValue: disease.visualSigns });
+    const rawTreatments = t(`diseases.${disease.id}.treatments`, { returnObjects: true, defaultValue: disease.treatments });
+    return {
+      name: t(`diseases.${disease.id}.name`, { defaultValue: disease.name }),
+      symptoms: t(`diseases.${disease.id}.symptoms`, { defaultValue: disease.symptoms }),
+      description: t(`diseases.${disease.id}.description`, { defaultValue: disease.description }),
+      visualSigns: (Array.isArray(rawSigns) ? rawSigns : disease.visualSigns) as string[],
+      treatments: (Array.isArray(rawTreatments) ? rawTreatments : disease.treatments) as DiseaseInfo['treatments'],
+    };
+  };
+
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
@@ -95,7 +107,7 @@ export default function DiseaseGuideScreen() {
       </View>
 
       {/* Type filters */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: spacing.lg, marginBottom: spacing.md }} contentContainerStyle={{ gap: spacing.sm, alignItems: 'center' }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.md }} contentContainerStyle={{ gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.xs }}>
         {FILTERS.map((f) => {
           const active = typeFilter === f.key;
           const color = f.key ? TYPE_COLOR[f.key] : colors.primary;
@@ -126,6 +138,7 @@ export default function DiseaseGuideScreen() {
         {filtered.map((disease) => {
           const isOpen = expanded === disease.id;
           const color = TYPE_COLOR[disease.type];
+          const content = getDiseaseContent(disease);
           return (
             <Pressable
               key={disease.id}
@@ -137,7 +150,7 @@ export default function DiseaseGuideScreen() {
                 <View style={s.cardHeader}>
                   <Text style={{ fontSize: 28 }}>{disease.emoji}</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={[s.diseaseName, { color: colors.text }]}>{disease.name}</Text>
+                    <Text style={[s.diseaseName, { color: colors.text }]}>{content.name}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
                       <View style={[s.typeBadge, { backgroundColor: color + '22' }]}>
                         <Text style={[s.typeBadgeText, { color }]}>{t('diseaseGuide.type.' + disease.type)}</Text>
@@ -185,11 +198,11 @@ export default function DiseaseGuideScreen() {
                     </Text>
 
                     {/* Visual signs */}
-                    {disease.visualSigns.length > 0 && (
+                    {content.visualSigns.length > 0 && (
                       <>
                         <Text style={[s.label, { color: colors.textSecondary }]}>{t('diseaseGuide.visualSigns')}</Text>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
-                          {disease.visualSigns.map((sign, i) => (
+                          {content.visualSigns.map((sign, i) => (
                             <View key={i} style={[s.visualSignChip, { backgroundColor: color + '15', borderColor: color + '44' }]}>
                               <Text style={[s.visualSignText, { color }]}>{sign}</Text>
                             </View>
@@ -200,14 +213,14 @@ export default function DiseaseGuideScreen() {
 
                     {/* Symptoms */}
                     <Text style={[s.label, { color: colors.textSecondary }]}>{t('diseaseGuide.symptoms')}</Text>
-                    <Text style={[s.body, { color: colors.text }]}>{disease.symptoms}</Text>
+                    <Text style={[s.body, { color: colors.text }]}>{content.symptoms}</Text>
 
                     {/* Description */}
-                    <Text style={[s.body, { color: colors.textSecondary, fontStyle: 'italic' }]}>{disease.description}</Text>
+                    <Text style={[s.body, { color: colors.textSecondary, fontStyle: 'italic' }]}>{content.description}</Text>
 
                     {/* Treatments */}
                     <Text style={[s.label, { color: colors.textSecondary }]}>{t('diseaseGuide.treatments')}</Text>
-                    {disease.treatments.map((tr, i) => (
+                    {content.treatments.map((tr, i) => (
                       <View key={i} style={[s.treatmentRow, { borderTopColor: colors.border }]}>
                         <View style={[s.treatmentTypeBadge, { backgroundColor: TREATMENT_COLOR[tr.type] + '22' }]}>
                           <Text style={[s.treatmentTypeText, { color: TREATMENT_COLOR[tr.type] }]}>
