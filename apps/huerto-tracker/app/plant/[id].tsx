@@ -154,6 +154,33 @@ export default function PlantDetailScreen() {
     router.replace(`/plant/${newPlant.id}` as any);
   }
 
+  async function handleSuccessionSow() {
+    const today = new Date().toISOString().split('T')[0];
+    const batchNum = entries.items.filter((e) => e.plantId !== id && e.type === 'sowing').length + 2;
+    const newPlant = await plants.create({
+      gardenId: plant!.gardenId,
+      cropId: plant!.cropId,
+      name: `${plant!.name} (tanda ${batchNum})`,
+      variety: plant!.variety,
+      varietyId: plant!.varietyId,
+      sowingDate: today,
+      status: 'seedling',
+      soilPh: plant!.soilPh,
+      soilTexture: plant!.soilTexture,
+      soilNotes: plant!.soilNotes,
+      bedName: plant!.bedName,
+      harvestGoalKg: plant!.harvestGoalKg,
+    });
+    await entries.create({
+      gardenId: plant!.gardenId,
+      plantId: newPlant.id,
+      type: 'sowing',
+      date: today,
+      notes: t('plantDetail.successionNote', { original: plant!.name }),
+    });
+    router.push(`/plant/${newPlant.id}` as any);
+  }
+
   function handleDelete() {
     Alert.alert(
       t('plantDetail.deleteTitle', { name: plant!.name }),
@@ -794,6 +821,16 @@ export default function PlantDetailScreen() {
               style={{ flex: 1 }}
             />
           </View>
+
+          {/* Succession sowing */}
+          <Pressable onPress={handleSuccessionSow} style={[s.duplicateBtn, { backgroundColor: '#4CAF5012', borderColor: '#4CAF5044', borderWidth: 1, borderRadius: radii.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md }]}>
+            <Text style={{ fontSize: 16 }}>🌱</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.duplicateText, { color: '#4CAF50' }]}>{t('plantDetail.successionSow')}</Text>
+              <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary }}>{t('plantDetail.successionSowDesc')}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color="#4CAF50" />
+          </Pressable>
 
           {/* Duplicate */}
           <Pressable onPress={handleDuplicate} style={s.duplicateBtn}>

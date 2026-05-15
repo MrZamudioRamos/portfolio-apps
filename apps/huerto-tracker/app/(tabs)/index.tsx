@@ -7,9 +7,12 @@ import { GardenWidget } from '../../src/widgets/GardenWidget';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Image,
+  KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -67,6 +70,10 @@ export default function DashboardScreen() {
   );
 
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
+  const [showWaterAllModal, setShowWaterAllModal] = useState(false);
+  const [waterAllLiters, setWaterAllLiters] = useState('');
+  const [waterAllMethod, setWaterAllMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>('hand');
+  const [waterAllSaving, setWaterAllSaving] = useState(false);
   const [weeklyExpanded, setWeeklyExpanded] = useState(true);
   const [plantSearch, setPlantSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<import('../../src/models/plant').PlantStatus | null>(null);
@@ -202,27 +209,41 @@ export default function DashboardScreen() {
     });
   }, [garden, plants.count, reminders.items]);
 
-  async function handleWaterAll() {
+  function handleWaterAll() {
+    if (!garden?.id || plants.count === 0) return;
+    setWaterAllLiters('');
+    setWaterAllMethod('hand');
+    setShowWaterAllModal(true);
+  }
+
+  async function confirmWaterAll() {
     const gardenId = garden?.id;
-    if (!gardenId || plants.count === 0) return;
-    Alert.alert(
-      t('home.waterAllTitle'),
-      t('home.waterAllMessage', { count: plants.count }),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('home.waterAllConfirm'),
-          onPress: async () => {
-            const today = new Date().toISOString().split('T')[0];
-            await Promise.all(
-              plants.items.map((p) =>
-                entries.create({ gardenId, plantId: p.id, type: 'watering', date: today })
-              )
-            );
-          },
-        },
-      ]
-    );
+    if (!gardenId) return;
+    setWaterAllSaving(true);
+    const today = new Date().toISOString().split('T')[0];
+    const activePlants = plants.items.filter((p) => p.status !== 'finished');
+    const litersNum = parseFloat(waterAllLiters);
+    const perPlantLiters = !isNaN(litersNum) && litersNum > 0 && activePlants.length > 0
+      ? (litersNum / activePlants.length).toFixed(1)
+      : undefined;
+    try {
+      await Promise.all(
+        activePlants.map((p) =>
+          entries.create({
+            gardenId,
+            plantId: p.id,
+            type: 'watering',
+            date: today,
+            ...(perPlantLiters || waterAllMethod !== 'hand'
+              ? { data: { ...(perPlantLiters ? { liters: perPlantLiters } : {}), method: waterAllMethod } }
+              : {}),
+          })
+        )
+      );
+      setShowWaterAllModal(false);
+    } finally {
+      setWaterAllSaving(false);
+    }
   }
 
   const s = useMemo(
@@ -792,6 +813,57 @@ export default function DashboardScreen() {
         visible={quickLogPlant !== null}
         onClose={() => setQuickLogPlant(null)}
       />
+
+      {/* Bulk water modal */}
+      <Modal visible={showWaterAllModal} transparent animationType="slide" onRequestClose={() => setShowWaterAllModal(false)}>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => setShowWaterAllModal(false)} />
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ justifyContent: 'flex-end' }}>
+          <Pressable onPress={() => {}} style={[{ backgroundColor: colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing.xl, paddingBottom: 36, gap: spacing.lg }]}>
+            <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: spacing.sm }} />
+            <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text }}>
+              💧 {t('home.waterAllTitle')}
+            </Text>
+            <Text style={{ fontSize: fontSize.sm, color: colors.textSecondary }}>
+              {t('home.waterAllMessage', { count: plants.items.filter(p => p.status !== 'finished').length })}
+            </Text>
+            <View>
+              <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary, marginBottom: spacing.xs, fontWeight: fontWeight.semibold }}>
+                {t('entryNew.liters')} ({t('home.waterAllLitersHint')})
+              </Text>
+              <TextInput
+                value={waterAllLiters}
+                onChangeText={setWaterAllLiters}
+                placeholder="50"
+                placeholderTextColor={colors.textDisabled}
+                keyboardType="decimal-pad"
+                style={{ borderWidth: 1.5, borderRadius: radii.md, padding: spacing.lg, fontSize: fontSize.md, backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+              />
+            </View>
+            <View>
+              <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary, marginBottom: spacing.xs, fontWeight: fontWeight.semibold }}>
+                {t('entryNew.waterMethod')}
+              </Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
+                {(['hand','drip','sprinkler','flood'] as const).map((m) => (
+                  <Pressable key={m} onPress={() => setWaterAllMethod(m)}
+                    style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radii.md, borderWidth: 1.5, gap: 6, backgroundColor: waterAllMethod === m ? colors.primary + '22' : colors.surface, borderColor: waterAllMethod === m ? colors.primary : colors.border }}>
+                    <Text style={{ fontSize: 16 }}>{m === 'hand' ? '🪣' : m === 'drip' ? '💧' : m === 'sprinkler' ? '🌦️' : '🌊'}</Text>
+                    <Text style={{ fontSize: fontSize.sm, color: waterAllMethod === m ? colors.primary : colors.textSecondary, fontWeight: fontWeight.medium }}>{t('waterMethod.' + m)}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+            <Pressable
+              onPress={confirmWaterAll}
+              disabled={waterAllSaving}
+              style={[{ backgroundColor: '#29B6F6', paddingVertical: spacing.lg, borderRadius: radii.lg, alignItems: 'center', opacity: waterAllSaving ? 0.6 : 1 }]}>
+              {waterAllSaving ? <ActivityIndicator color="#fff" /> : (
+                <Text style={{ color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('home.waterAllConfirm')}</Text>
+              )}
+            </Pressable>
+          </Pressable>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }

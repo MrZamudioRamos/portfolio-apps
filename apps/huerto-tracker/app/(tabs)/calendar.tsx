@@ -1,17 +1,19 @@
 import { useColors, useTheme, Card, EmptyState, Button, type Theme } from '@portfolio/ui';
+import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS, CATEGORY_CONFIG, type CropCategory } from '../../src/data/crops';
+import { CROPS, CROPS_BY_ID, CATEGORY_CONFIG, type CropCategory } from '../../src/data/crops';
 import { getSeasonalTip } from '../../src/data/seasonalTips';
 import type { CropInfo } from '../../src/data/crops';
 import { getLunarDay, getMonthGardeningProfile } from '../../src/utils/lunar';
 import { isContainerFriendly, getContainerInfo } from '../../src/data/containers';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import type { Plant } from '../../src/models/plant';
 
 export default function CalendarScreen() {
   const colors = useColors();
@@ -25,6 +27,35 @@ export default function CalendarScreen() {
   const [categoryFilter, setCategoryFilter] = useState<CropCategory | null>(null);
 
   const { activeGarden: garden } = useActiveGarden();
+  const allPlants = useCollection<Plant>('plants');
+  const gardenPlants = useMemo(
+    () => allPlants.items.filter((p) => p.gardenId === garden?.id && p.status !== 'finished'),
+    [allPlants.items, garden?.id]
+  );
+
+  const upcomingHarvests = useMemo(() => {
+    const today = new Date();
+    const in45DaysMs = today.getTime() + 45 * 86_400_000;
+    const results: { plant: Plant; estDate: Date; daysLeft: number; isReady: boolean }[] = [];
+    gardenPlants.forEach((p) => {
+      const crop = CROPS_BY_ID[p.cropId];
+      if (!crop) return;
+      let estDate: Date | null = null;
+      if (p.firstHarvestDate) {
+        estDate = new Date(p.firstHarvestDate + 'T12:00:00');
+      } else if (p.sowingDate) {
+        const midDays = Math.round((crop.daysToHarvest[0] + crop.daysToHarvest[1]) / 2);
+        estDate = new Date(new Date(p.sowingDate + 'T12:00:00').getTime() + midDays * 86_400_000);
+      }
+      if (!estDate) return;
+      const daysLeft = Math.ceil((estDate.getTime() - today.getTime()) / 86_400_000);
+      if (daysLeft <= 45 || p.status === 'harvesting') {
+        results.push({ plant: p, estDate, daysLeft, isReady: daysLeft <= 0 || p.status === 'harvesting' || p.status === 'fruiting' });
+      }
+    });
+    return results.sort((a, b) => a.daysLeft - b.daysLeft);
+  }, [gardenPlants]);
+
   const zone = garden?.climateZone ?? 'mediterranea';
   const gardenType = garden?.gardenType ?? 'huerto';
   const isContainer = gardenType !== 'huerto';
@@ -245,6 +276,36 @@ export default function CalendarScreen() {
         </View>
       </View>
 
+      {/* Upcoming harvests */}
+      {upcomingHarvests.length > 0 && (
+        <View style={{ marginTop: spacing.sm }}>
+          <Text style={[{ fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, color: colors.textSecondary, marginBottom: spacing.xs, paddingHorizontal: spacing.xl }]}>
+            🧺 {t('calendar.upcomingHarvests')}
+          </Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm }}>
+            {upcomingHarvests.slice(0, 8).map(({ plant, daysLeft, isReady }) => {
+              const crop = CROPS_BY_ID[plant.cropId];
+              const color = isReady ? '#FF7043' : daysLeft <= 7 ? '#FFA726' : '#4CAF50';
+              return (
+                <Pressable
+                  key={plant.id}
+                  onPress={() => router.push(`/plant/${plant.id}` as any)}
+                  style={[s.harvestCard, { backgroundColor: color + '18', borderColor: color + '66' }]}
+                >
+                  <Text style={{ fontSize: 22 }}>{crop?.emoji ?? '🌱'}</Text>
+                  <Text style={[s.harvestCardName, { color: colors.text }]} numberOfLines={1}>{plant.name}</Text>
+                  <View style={[s.harvestDaysBadge, { backgroundColor: color + '33' }]}>
+                    <Text style={[s.harvestDaysText, { color }]}>
+                      {isReady ? '🍽️ ' + t('calendar.harvestReady') : `${daysLeft}d`}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
+
       {/* Seasonal tip */}
       <View style={[s.lunarBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, marginTop: spacing.sm }]}>
         <Text style={{ fontSize: 22 }}>{seasonalTip.emoji}</Text>
@@ -444,4 +505,20 @@ const makeStyles = (
       paddingTop: spacing.md,
       borderTopWidth: StyleSheet.hairlineWidth,
     },
+    harvestCard: {
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.lg,
+      borderWidth: 1.5,
+      gap: 4,
+      minWidth: 80,
+    },
+    harvestCardName: { fontSize: 10, fontWeight: fontWeight.semibold, textAlign: 'center' },
+    harvestDaysBadge: {
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: radii.full,
+    },
+    harvestDaysText: { fontSize: 11, fontWeight: fontWeight.bold },
   });

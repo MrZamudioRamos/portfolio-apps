@@ -62,7 +62,8 @@
     "sortNewest": "Recientes",
     "showFinished": "{{count}} finalizadas ocultas · Mostrar",
     "hideFinished": "Ocultar finalizadas",
-    "taskCarencia": "{{name}}: no cosechar {{days}} día(s) más (carencia)"
+    "taskCarencia": "{{name}}: no cosechar {{days}} día(s) más (carencia)",
+    "waterAllLitersHint": "se repartirán entre plantas activas"
   },
   "calendar": {
     "title": "Calendario de siembra",
@@ -83,7 +84,9 @@
     "addToGarden": "Añadir al huerto",
     "hemisphereSurBanner": "Hemisferio Sur activo · meses invertidos respecto al norte",
     "catAll": "Todos",
-    "today": "Hoy"
+    "today": "Hoy",
+    "upcomingHarvests": "Próximas cosechas",
+    "harvestReady": "Lista"
   },
   "diary": {
     "title": "Diario",
@@ -501,7 +504,10 @@
     "soilSection": "Suelo",
     "soilPh": "pH",
     "bedName": "Parcela",
-    "soilTexture": "Textura"
+    "soilTexture": "Textura",
+    "successionSow": "Nueva tanda (siembra escalonada)",
+    "successionSowDesc": "Crea nueva planta del mismo cultivo sembrada hoy",
+    "successionNote": "Siembra escalonada de {{original}}"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",
