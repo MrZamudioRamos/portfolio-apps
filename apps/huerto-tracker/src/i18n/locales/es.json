@@ -590,7 +590,16 @@
     "frostAlerts": "Alertas de helada",
     "frostAlertsDesc": "Recibe una notificación cuando se prevean temperaturas bajo 2°C en los próximos días.",
     "frostNoProvince": "Configura tu provincia en el huerto para activar las alertas de helada.",
-    "more": "más"
+    "more": "más",
+    "plantLabel": "PLANTAS",
+    "transplantTitle": "Aviso de trasplante",
+    "transplantDesc": "Alerta a las 6 semanas de siembra para trasplantar al bancal",
+    "harvestTitle": "Cosecha inminente",
+    "harvestDesc": "Aviso 3 días antes de la fecha estimada de cosecha",
+    "treatmentTitle": "Carencia vencida",
+    "treatmentDesc": "Notificación cuando termina el período de espera tras un tratamiento",
+    "plantCount_one": "{{count}} planta programada",
+    "plantCount_other": "{{count}} plantas programadas"
   },
   "stats": {
     "title": "Estadísticas",

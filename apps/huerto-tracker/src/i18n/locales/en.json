@@ -1,1092 +1,1101 @@
-﻿{
-    "tabs":  {
-                 "home":  "My Garden",
-                 "calendar":  "Calendar",
-                 "diary":  "Journal",
-                 "settings":  "Settings"
-             },
-    "common":  {
-                   "cancel":  "Cancel",
-                   "delete":  "Delete",
-                   "save":  "Save",
-                   "saving":  "Saving…",
-                   "back":  "← Back",
-                   "close":  "Close",
-                   "continue":  "Continue →",
-                   "error":  "Error",
-                   "ok":  "OK",
-                   "search":  "Search…",
-                   "version":  "Version",
-                   "loading":  "Loading…",
-                   "viewAll":  "View all",
-                   "more":  "more"
-               },
-    "home":  {
-                 "title":  "My Garden",
-                 "streak":  "🔥 {{count}} days",
-                 "stats":  {
-                               "plants":  "Plants",
-                               "harvesting":  "Harvesting",
-                               "reminders":  "Reminders",
-                               "pests":  "With pest",
-                               "needsWater":  "Need water",
-                               "yearKg":  "Harvested this year"
-                           },
-                 "weatherLoading":  "🌤️ Loading weather…",
-                 "lunarDay":  "Day",
-                 "viewStats":  "View statistics",
-                 "sowNowTitle":  "Sow now",
-                 "sowSoonTitle":  "Coming up",
-                 "sowNowEmpty":  "No crops to sow this month in your zone.",
-                 "sowAdd":  "Add",
-                 "weeklyTasks":  "This week",
-                 "weeklyTasksEmpty":  "All caught up. Great work! 🎉",
-                 "taskWater":  "Water {{name}}",
-                 "taskTransplant":  "Transplant {{name}} soon",
-                 "taskHarvest":  "{{name}} ready to harvest",
-                 "taskPest":  "Treat pest on {{name}}",
-                 "myPlants":  "My plants",
-                 "waterAll":  "💧 Water all",
-                 "waterAllTitle":  "Water all",
-                 "waterAllMessage":  "Log watering for {{count}} plants?",
-                 "waterAllConfirm":  "Water all",
-                 "emptyTitle":  "No plants yet",
-                 "emptyDesc":  "Add your first plant to start tracking your garden.",
-                 "addPlant":  "Add plant",
-                 "searchPlants":  "Search plant…",
-                 "taskEstHarvest":  "🧺 {{name}} nearing harvest",
-                 "taskNeglected":  "👁️ {{name}} with no activity ({{days}} days)",
-                 "filterAll":  "All",
-                 "sortDefault":  "Order",
-                 "sortName":  "A-Z",
-                 "sortNewest":  "Newest",
-                 "showFinished":  "{{count}} finished hidden · Show",
-                 "hideFinished":  "Hide finished"
-             },
-    "calendar":  {
-                     "title":  "Sowing calendar",
-                     "zone":  "Zone {{zone}}",
-                     "containerBanner":  "Showing only container-friendly crops",
-                     "lunarProfile":  "Monthly lunar profile",
-                     "lunarBasis":  "Based on synodic cycle",
-                     "lunarDayIllum":  "Day {{day}} · {{illum}}% illuminated",
-                     "cropsCount":  "{{count}} crops to sow in {{month}}",
-                     "companions":  "🤝 Companions",
-                     "emptyCrops":  "Nothing to sow in {{month}}",
-                     "emptyCropsDesc":  "No recommended crops for your zone this month. Check nearby months.",
-                     "fullSun":  "☀️ Full sun",
-                     "partialShade":  "⛅ Partial shade",
-                     "shade":  "🌑 Shade",
-                     "days":  "🗓 {{min}}–{{max}} days",
-                     "containerInfo":  "🪴 Min. {{liters}} L pot · {{tip}}",
-                     "addToGarden":  "Add to garden",
-                     "hemisphereSurBanner":  "Southern Hemisphere active · months reversed compared to the north",
-                     "catAll":  "All",
-                     "today":  "Today"
-                 },
-    "diary":  {
-                  "title":  "Journal",
-                  "filters":  {
-                                  "all":  "All",
-                                  "watering":  "Watering",
-                                  "sowing":  "Sowing",
-                                  "harvest":  "Harvest",
-                                  "fertilizing":  "Fertilizing",
-                                  "transplant":  "Transplant",
-                                  "pest":  "Pest",
-                                  "treatment":  "Treatment",
-                                  "pruning":  "Pruning",
-                                  "photo":  "Photo",
-                                  "note":  "Note"
-                              },
-                  "emptyTitle":  "Your journal is empty",
-                  "emptyDesc":  "Log your first activity: a watering, sowing, or harvest.",
-                  "newEntry":  "New entry",
-                  "search":  "Search diary…"
-              },
-    "settings":  {
-                     "title":  "Settings",
-                     "sections":  {
-                                      "account":  "ACCOUNT",
-                                      "garden":  "MY GARDEN",
-                                      "subscription":  "SUBSCRIPTION",
-                                      "tools":  "TOOLS",
-                                      "summary":  "SUMMARY",
-                                      "notifications":  "NOTIFICATIONS",
-                                      "data":  "DATA",
-                                      "app":  "APP",
-                                      "language":  "LANGUAGE"
-                                  },
-                     "account":  {
-                                     "guestTitle":  "Guest mode",
-                                     "guestDesc":  "Create an account to sync your garden and keep your data safe.",
-                                     "signIn":  "Sign in",
-                                     "email":  "Email",
-                                     "signOut":  "Sign out",
-                                     "signOutTitle":  "Sign out?",
-                                     "signOutDesc":  "Your local data will be kept."
-                                 },
-                     "garden":  {
-                                    "name":  "Name",
-                                    "province":  "Province",
-                                    "climateZone":  "Climate zone",
-                                    "map":  "Garden map",
-                                    "edit":  "Edit garden",
-                                    "manageGardens":  "Manage gardens"
-                                },
-                     "subscription":  {
-                                          "proPlan":  "⭐ Pro Plan",
-                                          "freePlan":  "Free plan",
-                                          "activeAnnual":  "Annual subscription active",
-                                          "activeMonthly":  "Monthly subscription active",
-                                          "freeLimit":  "Up to 5 plants per garden",
-                                          "viewPlans":  "View plans"
-                                      },
-                     "tools":  {
-                                   "companions":  "Companion planting guide",
-                                   "stats":  "View statistics",
-                                   "diseaseGuide":  "Pest \u0026 disease guide"
-                               },
-                     "summary":  {
-                                     "activePlants":  "Active plants",
-                                     "diaryEntries":  "Journal entries",
-                                     "reminders":  "Reminders"
-                                 },
-                     "notifications":  {
-                                           "seasonal":  "Seasonal alerts"
-                                       },
-                     "data":  {
-                                  "backup":  "Backup",
-                                  "deleteAll":  "Delete all data",
-                                  "deleteTitle":  "Delete all data?",
-                                  "deleteDesc":  "All plants, journal entries, and reminders will be permanently deleted. This action cannot be undone.",
-                                  "deleteConfirm":  "Delete all"
-                              },
-                     "app":  {
-                                 "version":  "Version",
-                                 "rate":  "Rate on App Store",
-                                 "privacy":  "Privacy policy",
-                                 "contact":  "Contact"
-                             }
-                 },
-    "auth":  {
-                 "title":  "Create your account",
-                 "subtitle":  "Sync your garden across all your devices and never lose your data.",
-                 "connecting":  "Connecting…",
-                 "continueGoogle":  "Continue with Google",
-                 "continueApple":  "Continue with Apple",
-                 "or":  "or",
-                 "emailLink":  "✉️ Use email link",
-                 "emailPlaceholder":  "you@email.com",
-                 "sendMagicLink":  "Send magic link",
-                 "sending":  "Sending…",
-                 "continueGuest":  "Continue without account (max 3 plants)",
-                 "errorGoogle":  "Could not sign in with Google.",
-                 "errorApple":  "Could not sign in with Apple.",
-                 "errorEmailRequired":  "Email required",
-                 "errorEmailRequiredDesc":  "Please enter your email address.",
-                 "errorMagicLink":  "Could not send the link. Check the email address."
-             },
-    "magicSent":  {
-                      "title":  "Check your email",
-                      "message":  "We\u0027ve sent a magic link to {{email}}. Tap the link on your phone to sign in automatically.",
-                      "note":  "The link expires in 1 hour. If you don\u0027t see it, check your spam folder.",
-                      "changeEmail":  "Change email",
-                      "continueGuest":  "Continue without account for now"
-                  },
-    "companions":  {
-                       "title":  "Companions",
-                       "proSub":  "Full guide available in Pro",
-                       "proUnlock":  "Pro — Unlock full guide",
-                       "browse":  "Explore",
-                       "check":  "Check",
-                       "searchCrop":  "Search crop…",
-                       "searchFirst":  "Search first crop…",
-                       "searchSecond":  "Search second crop…",
-                       "goodNeighbors":  "Good neighbors",
-                       "badNeighbors":  "Bad neighbors",
-                       "noAssociations":  "No companion data available",
-                       "unlockRemaining":  "Unlock {{count}} more crops with Pro",
-                       "firstCrop":  "First crop",
-                       "secondCrop":  "Second crop",
-                       "goodMatch":  "Great combination!",
-                       "badMatch":  "Don\u0027t plant them together",
-                       "neutral":  "Compatible but neutral",
-                       "companionNote":  "These crops benefit each other. Plant them {{spacing}} cm apart.",
-                       "incompatibleNote":  "These crops may inhibit each other or attract pests. Keep them apart.",
-                       "checkEmpty":  "Select two crops to check if they\u0027re compatible."
-                   },
-    "entryNew":  {
-                     "title":  "New entry",
-                     "saving":  "Saving…",
-                     "save":  "Save",
-                     "activityType":  "ACTIVITY TYPE",
-                     "plant":  "PLANT (optional)",
-                     "general":  "General",
-                     "date":  "DATE",
-                     "datePlaceholder":  "YYYY-MM-DD",
-                     "notes":  "NOTES (optional)",
-                     "notesPlaceholder":  "What did you observe? How was the plant?",
-                     "harvest":  "HARVEST",
-                     "weightKg":  "Weight (kg)",
-                     "units":  "Units",
-                     "photo":  "PHOTO (optional)",
-                     "addPhoto":  "Add photo",
-                     "saveEntry":  "Save entry",
-                     "today":  "Today",
-                     "yesterday":  "Yesterday",
-                     "twoDaysAgo":  "2 days ago"
-                 },
-    "gardenEdit":  {
-                       "title":  "Edit garden",
-                       "nameLabel":  "GARDEN NAME",
-                       "namePlaceholder":  "My garden",
-                       "typeLabel":  "GARDEN TYPE",
-                       "noGarden":  "No garden configured",
-                       "provinceLabel":  "PROVINCE",
-                       "provincePlaceholder":  "Select province…",
-                       "selectProvince":  "Select your province or region",
-                       "searchProvince":  "Search province…",
-                       "containerTip":  "The calendar will filter crops suitable for containers.",
-                       "save":  "Save changes",
-                       "nameRequired":  "Name required",
-                       "nameRequiredDesc":  "Give your garden a name.",
-                       "provinceRequired":  "Province required",
-                       "provinceRequiredDesc":  "Select your province for the sowing calendar.",
-                       "gridSizeLabel":  "MAP SIZE",
-                       "cells":  "plots",
-                       "gridProTitle":  "Pro Feature",
-                       "gridProDesc":  "Change the map size with the Pro plan.",
-                       "hemisphereLabel":  "HEMISPHERE",
-                       "hemisphereNorte":  "North",
-                       "hemisphereSur":  "South",
-                       "hemisphereSurTip":  "The calendar will reverse months for the southern hemisphere (Argentina, Chile, Uruguay…)"
-                   },
-    "gardens":  {
-                    "title":  "My gardens",
-                    "hint":  "Tap a garden to make it active. Plants on the home screen are filtered by the active garden.",
-                    "active":  "Active",
-                    "createTitle":  "New garden",
-                    "fieldName":  "Name",
-                    "fieldNamePlaceholder":  "E.g. Rooftop garden",
-                    "fieldType":  "Type",
-                    "fieldProvince":  "Province",
-                    "fieldProvincePlaceholder":  "Select province",
-                    "cantDeleteLast":  "You cannot delete the only garden.",
-                    "deleteTitle":  "Delete {{name}}",
-                    "deleteDesc":  "Only the garden will be deleted, not the associated plants or diary entries."
-                },
-    "diseaseGuide":  {
-                         "title":  "Disease Guide",
-                         "subtitle":  "Pests, diseases and deficiencies",
-                         "search":  "Search pest, symptom or crop…",
-                         "filterAll":  "All",
-                         "filterPest":  "🐛 Pest",
-                         "filterDisease":  "🍂 Disease",
-                         "filterDeficiency":  "💛 Deficiency",
-                         "empty":  "No results for that search.",
-                         "affectedCrops":  "Affected crops",
-                         "symptoms":  "Symptoms",
-                         "treatments":  "Treatments",
-                         "type":  {
-                                      "plaga":  "Pest",
-                                      "enfermedad":  "Disease",
-                                      "deficiencia":  "Deficiency"
-                                  },
-                         "treatment":  {
-                                           "organico":  "Organic",
-                                           "preventivo":  "Preventive",
-                                           "quimico":  "Chemical"
-                                       },
-                         "visualSigns":  "Visual signs",
-                         "severityHigh":  "High severity",
-                         "severityMed":  "Medium severity",
-                         "severityLow":  "Low severity"
-                     },
-    "gardenMap":  {
-                      "title":  "Garden map",
-                      "summary":  "{{placed}} / {{total}} plants placed · {{cols}}×{{rows}} plots",
-                      "south":  "South",
-                      "assignPlant":  "Assign plant",
-                      "searchPlant":  "Search plant…",
-                      "noPlants":  "No plants yet.\nAdd plants from the dashboard.",
-                      "allPlaced":  "All plants are already placed.",
-                      "legendOccupied":  "Plot with plant",
-                      "legendEmpty":  "Empty plot",
-                      "emptyNote":  "Add plants from the dashboard first to place them on the map.",
-                      "viewPlant":  "View plant",
-                      "removeFromMap":  "Remove from map",
-                      "removeTitle":  "Remove from map",
-                      "removeDesc":  "Remove {{name}} from this plot?",
-                      "remove":  "Remove",
-                      "movePlant":  "Move",
-                      "moveModeHint":  "Tap the destination plot · Press ✕ to cancel",
-                      "moveCancelled":  "Move cancelled",
-                      "shareTitle":  "My Garden",
-                      "shareNotAvailable":  "Sharing is not available on this device.",
-                      "shareError":  "Could not capture the map."
-                  },
-    "onboarding":  {
-                       "step1Title":  "Your digital garden",
-                       "step1Desc":  "Plan your sowing, track your harvest, and never forget to water.",
-                       "start":  "Get started →",
-                       "step2Title":  "Where is your garden?",
-                       "step2Desc":  "Select your province or region to personalise the sowing calendar.",
-                       "selectProvince":  "Select your province or region",
-                       "zone":  "Zone {{label}}",
-                       "continue":  "Continue →",
-                       "back":  "Back",
-                       "step3Title":  "Create your first garden",
-                       "step3Desc":  "Give your growing space a name.",
-                       "gardenTypeLabel":  "What kind of space do you have?",
-                       "gardenNamePlaceholder":  "E.g. My terrace, North balcony...",
-                       "create":  "Create garden 🌱",
-                       "provinceSearch":  "Search province or region...",
-                       "closeSearch":  "Close",
-                       "regions":  "regions",
-                       "step4Title":  "Garden created! 🌱",
-                       "step4Desc":  "All set. Would you like to add your first plant now?",
-                       "addFirstPlant":  "Add first plant",
-                       "skipToGarden":  "See my garden",
-                       "feature1Title":  "Moon \u0026 sowing",
-                       "feature1Desc":  "Sow at the optimal time based on the lunar cycle",
-                       "feature2Title":  "Live weather",
-                       "feature2Desc":  "Watering tips based on the weather forecast",
-                       "feature3Title":  "Companion plants",
-                       "feature3Desc":  "Discover which crops grow well together",
-                       "hemisphereLabel":  "Which hemisphere are you in?",
-                       "hemisphereNorte":  "North",
-                       "hemisphereSur":  "South"
-                   },
-    "paywall":  {
-                    "titlePro":  "You\u0027re Pro!",
-                    "title":  "Grow your garden\nwithout limits",
-                    "subtitlePro":  "Active subscription · {{plan}} plan",
-                    "subtitle":  "Unlock everything you need to become a true gardener.",
-                    "features":  {
-                                     "gardens":  "Unlimited gardens (free: up to 2)",
-                                     "plants":  "Unlimited plants (free: up to 20)",
-                                     "calendar":  "Full sowing calendar with alerts",
-                                     "companions":  "Companion planting guide",
-                                     "charts":  "Harvest and productivity charts",
-                                     "pdf":  "Export journal as PDF",
-                                     "reminders":  "Unlimited watering reminders",
-                                     "backup":  "Auto cloud sync (free: manual export)"
-                                 },
-                    "choosePlan":  "CHOOSE YOUR PLAN",
-                    "monthly":  "Monthly",
-                    "annual":  "Annual",
-                    "popular":  "⭐ Most popular",
-                    "cancelAnytime":  "Cancel anytime",
-                    "processing":  "Processing…",
-                    "ctaTrial":  "Start 7-day free trial",
-                    "ctaDone":  "Done",
-                    "trialNote":  "Cancel anytime. No commitments.",
-                    "restore":  "Restore purchases",
-                    "legal":  "Payment will be charged to your App Store account. The subscription automatically renews unless cancelled at least 24 hours before the end of the current period.",
-                    "successTitle":  "Welcome to Pro! 🌻",
-                    "successDesc":  "Your subscription is active. Enjoy all features without limits.",
-                    "successBtn":  "Let\u0027s go!",
-                    "errorPurchase":  "Could not complete the purchase. Please try again.",
-                    "restoreSuccessTitle":  "Purchases restored!",
-                    "restoreSuccessDesc":  "Your Pro subscription is active.",
-                    "restoreNoneTitle":  "No previous purchases",
-                    "restoreNoneDesc":  "We couldn\u0027t find any active subscription linked to your account.",
-                    "restoreError":  "Could not connect. Please try again.",
-                    "lifetimeBadge":  "No subscription",
-                    "lifetimeSub":  "One-time payment. No renewals"
-                },
-    "plantEdit":  {
-                      "title":  "Edit plant",
-                      "save":  "Save changes",
-                      "changePhoto":  "Change photo",
-                      "cropFixed":  "Fixed crop",
-                      "harvestGoalLabel":  "Harvest goal (kg)",
-                      "harvestGoalPlaceholder":  "e.g. 5.0",
-                      "notesLabel":  "NOTES (optional)",
-                      "notesPlaceholder":  "Observations, personal notes…"
-                  },
-    "plantNew":  {
-                     "title":  "New plant",
-                     "cropLabel":  "CROP",
-                     "selectCrop":  "Select crop",
-                     "changeCrop":  "Change",
-                     "nameLabel":  "NAME",
-                     "namePlaceholder":  "Your plant\u0027s name",
-                     "varietyLabel":  "VARIETY (optional)",
-                     "varietyPlaceholder":  "E.g. Cherry, Romana, Black Krim...",
-                     "sowingDate":  "SOWING DATE",
-                     "photo":  "PHOTO (optional)",
-                     "addPhoto":  "Add photo",
-                     "addPlant":  "Add plant 🌱",
-                     "cropSearch":  "Search crop...",
-                     "cropPickerTitle":  "Select crop",
-                     "varietyGeneric":  "Generic",
-                     "goodWith":  "Good companions: "
-                 },
-    "plantDetail":  {
-                        "notFound":  "Plant not found",
-                        "statusSection":  "Status",
-                        "cropInfo":  "Crop information",
-                        "harvest":  "Harvest",
-                        "harvestDays":  "{{min}}–{{max}} days",
-                        "light":  "Light",
-                        "water":  "Water",
-                        "spacing":  "Spacing",
-                        "sunFull":  "Full sun",
-                        "sunPartial":  "Partial shade",
-                        "sunShade":  "Shade",
-                        "waterHigh":  "High",
-                        "waterMedium":  "Medium",
-                        "waterLow":  "Low",
-                        "goodNeighbors":  "Good neighbors",
-                        "badNeighbors":  "Bad neighbors",
-                        "reminders":  "Reminders",
-                        "active":  "Active",
-                        "paused":  "Paused",
-                        "diary":  "Journal",
-                        "noEntries":  "No entries yet. Log your first activity!",
-                        "pestSection":  "Pest status",
-                        "commonPests":  "COMMON PESTS ON {{crop}}",
-                        "newEntry":  "New entry",
-                        "reminder":  "Reminder",
-                        "deletePlant":  "Delete plant",
-                        "deleteTitle":  "Delete {{name}}?",
-                        "deleteDesc":  "The plant and all its journal entries and reminders will be deleted.",
-                        "sownOn":  "🌰 Sown {{date}}",
-                        "daysGrowing_one":  "{{count}} day",
-                        "daysGrowing_other":  "{{count}} days",
-                        "estimatedHarvest":  "🧺 Est. harvest {{date}}",
-                        "harvestSummary_one":  "1 harvest logged",
-                        "harvestSummary_other":  "{{count}} harvests logged",
-                        "units":  "units",
-                        "goalProgress":  "Season goal",
-                        "photoTimeline":  "📸 Progress photos",
-                        "transplantCta":  "Ready to transplant?",
-                        "transplantCtaDesc":  "{{days}} days in seedling tray",
-                        "transplantModalTitle":  "Log transplant",
-                        "transplantDateLabel":  "TRANSPLANT DATE",
-                        "transplantConfirm":  "Confirm transplant",
-                        "duplicate":  "Duplicate plant"
-                    },
-    "reminderEdit":  {
-                         "title":  "Edit reminder",
-                         "save":  "Save changes",
-                         "enabledLabel":  "Reminder active",
-                         "enabledOn":  "Notifications are enabled",
-                         "enabledOff":  "Notifications are disabled",
-                         "delete":  "Delete reminder",
-                         "deleteTitle":  "Delete reminder?",
-                         "deleteDesc":  "The notification will be cancelled and the reminder will be deleted.",
-                         "saveError":  "Could not save the reminder.",
-                         "notFound":  "Reminder not found"
-                     },
-    "reminderNew":  {
-                        "title":  "New reminder",
-                        "typeLabel":  "TYPE",
-                        "titleLabel":  "TITLE",
-                        "frequencyLabel":  "FREQUENCY",
-                        "hourLabel":  "HOUR",
-                        "minuteLabel":  "MINUTES",
-                        "create":  "Create reminder",
-                        "noGardenTitle":  "No garden",
-                        "noGardenDesc":  "Complete onboarding first.",
-                        "saveError":  "Could not create the reminder."
-                    },
-    "backup":  {
-                   "title":  "Backup",
-                   "autoSyncLabel":  "AUTO SYNC",
-                   "icloudSync":  "Sync with iCloud",
-                   "icloudSyncDesc":  "Automatically saves a backup to your iCloud folder when you leave the app.",
-                   "lastBackup":  "Last backup",
-                   "never":  "Never",
-                   "icloudTip":  "To enable iCloud sync go to Settings \u003e Your name \u003e iCloud \u003e Apps Using iCloud and enable HuertoTracker.",
-                   "manualLabel":  "MANUAL",
-                   "exportTitle":  "Export backup",
-                   "exportDesc":  "Save the file to Files, Drive, or share it.",
-                   "export":  "Export",
-                   "importTitle2":  "Import backup",
-                   "importDesc2":  "Restore from a .json file. Replaces all data.",
-                   "import":  "Import",
-                   "pdfLabel":  "SEASON REPORT",
-                   "pdfTitle":  "Export PDF report",
-                   "pdfDesc":  "Summary of your garden: plants, harvests and year activity.",
-                   "pdfGenerate":  "Generate PDF",
-                   "includesLabel":  "WHAT\u0027S INCLUDED",
-                   "includeGarden":  "Garden and zone settings",
-                   "includePlants":  "All your plants",
-                   "includeEntries":  "Journal entries",
-                   "includeReminders":  "Configured reminders",
-                   "footerNote":  "Backup does not include photos (stored in device gallery) or subscription status.",
-                   "proTitle":  "Pro feature",
-                   "proDesc":  "Automatic iCloud sync is available on the Pro plan.",
-                   "viewPlans":  "View plans",
-                   "importTitle":  "Import backup",
-                   "importDesc":  "This will replace ALL current data with data from the backup file. The app will need to restart.\n\nContinue?",
-                   "importConfirm":  "Import",
-                   "restoredTitle":  "Data restored ✓",
-                   "restoredDesc":  "Close and reopen the app for changes to take effect.",
-                   "exportError":  "Could not export backup. Please try again."
-               },
-    "notifications":  {
-                          "title":  "Notifications",
-                          "seasonalLabel":  "SEASONAL ALERTS",
-                          "sowingReminders":  "Sowing reminders",
-                          "sowingRemindersDesc":  "Monthly alert on the 1st with what you can sow",
-                          "basedOnZone":  "Based on your climate zone:",
-                          "nextAlertLabel":  "NEXT ALERT",
-                          "nextAlertDate":  "{{month}} 1st",
-                          "nextAlertCrops_one":  "{{count}} crop to sow",
-                          "nextAlertCrops_other":  "{{count}} crops to sow",
-                          "howLabel":  "HOW IT WORKS",
-                          "how1Title":  "Monthly alert",
-                          "how1Desc":  "You get a notification on the 1st of each month at 9:00 AM.",
-                          "how2Title":  "Zone-personalised",
-                          "how2Desc":  "Suggested crops are calculated based on your climate zone in Spain.",
-                          "how3Title":  "Offline",
-                          "how3Desc":  "Alerts are scheduled on the device. No internet needed.",
-                          "noZoneWarning":  "Complete onboarding to activate personalised zone alerts.",
-                          "frostLabel":  "FROST",
-                          "frostAlerts":  "Frost alerts",
-                          "frostAlertsDesc":  "Get a notification when temperatures below 2°C are forecast in the coming days.",
-                          "frostNoProvince":  "Set your province in the garden settings to enable frost alerts.",
-                          "more":  "more"
-                      },
-    "stats":  {
-                  "title":  "Statistics",
-                  "entries":  "Entries",
-                  "harvests":  "Harvests",
-                  "activeDays_one":  "active day",
-                  "activeDays_other":  "active days",
-                  "harvested":  "Harvested",
-                  "monthlyActivity":  "Monthly activity",
-                  "noActivity":  "No activity yet. Start logging something!",
-                  "activityBreakdown":  "Activity breakdown",
-                  "topPlants":  "Most active plants",
-                  "topCrops":  "Most harvested crops",
-                  "harvestByYear":  "Harvest by year",
-                  "currentYear":  "This year",
-                  "achievements":  "Achievements",
-                  "entryCount_one":  "{{count}} entry",
-                  "entryCount_other":  "{{count}} entries",
-                  "harvestCount_one":  "{{count}} harvest",
-                  "harvestCount_other":  "{{count}} harvests",
-                  "successRate":  "Success rate",
-                  "avgDaysToHarvest":  "Avg. days to harvest"
-              },
-    "welcome":  {
-                    "title":  "Huerto Tracker",
-                    "subtitle":  "Track your garden, plan your sowing, and harvest more and better.",
-                    "features":  {
-                                     "calendar":  "Sowing calendar",
-                                     "calendarDesc":  "Sow at the optimal time for your climate zone.",
-                                     "diary":  "Garden journal",
-                                     "diaryDesc":  "Log waterings, prunings, and harvests with photos.",
-                                     "reminders":  "Reminders",
-                                     "remindersDesc":  "Never forget to water or fertilise your plants.",
-                                     "sync":  "Sync",
-                                     "syncDesc":  "Your data safe in the cloud, across all your devices."
-                                 },
-                    "createAccount":  "Create free account",
-                    "explore":  "Explore without account",
-                    "note":  "Free account includes up to 10 plants and cloud sync."
-                },
-    "quickLog":  {
-                     "water":  "Water",
-                     "harvest":  "Harvest",
-                     "pest":  "Pest",
-                     "fertilize":  "Fertilize",
-                     "prune":  "Prune",
-                     "note":  "Note",
-                     "commonPests":  "Common pests on {{crop}}:",
-                     "treatmentTip":  "On save, the plant will be marked as \u0027Under treatment\u0027",
-                     "pestPlaceholder":  "Describe the pest or symptom…",
-                     "notePlaceholder":  "Add a note…",
-                     "weightPlaceholder":  "Weight in kg (optional)",
-                     "weightKgPlaceholder":  "Amount in kg…",
-                     "weightUnitsPlaceholder":  "Number of units…",
-                     "units":  "pcs",
-                     "chooseAction":  "Choose an action",
-                     "save":  "Log {{action}}",
-                     "done":  "Logged!"
-                 },
-    "lunar":  {
-                  "newMoon":  "New Moon",
-                  "waxingCrescent":  "Waxing Crescent",
-                  "firstQuarter":  "First Quarter",
-                  "waxingGibbous":  "Waxing Gibbous",
-                  "fullMoon":  "Full Moon",
-                  "waningGibbous":  "Waning Gibbous",
-                  "lastQuarter":  "Last Quarter",
-                  "waningCrescent":  "Waning Crescent",
-                  "gardeningLabel":  {
-                                         "frutos":  "Fruit day",
-                                         "hojas":  "Leaf day",
-                                         "raices":  "Root day",
-                                         "flores":  "Flower day",
-                                         "descanso":  "Rest day"
-                                     },
-                  "recommendation":  {
-                                         "frutos":  "Good moon for harvesting and planting tomatoes, cucumbers and fruits.",
-                                         "hojas":  "Ideal for sowing lettuces, spinach and aromatic herbs.",
-                                         "raices":  "Perfect for carrots, radishes and root vegetables.",
-                                         "flores":  "Transplant flowers and aromatic plants today.",
-                                         "descanso":  "New moon day. Rest the soil and plan ahead."
-                                     },
-                  "monthLabel":  {
-                                     "frutos":  "Fruit month",
-                                     "hojas":  "Leaf month",
-                                     "raices":  "Root month",
-                                     "flores":  "Flower month",
-                                     "descanso":  "Rest month"
-                                 }
-              },
-    "weather":  {
-                    "clear":  "Clear",
-                    "mostlyClear":  "Mostly clear",
-                    "partlyCloudy":  "Partly cloudy",
-                    "cloudy":  "Cloudy",
-                    "fog":  "Fog",
-                    "frostFog":  "Freezing fog",
-                    "drizzle":  "Drizzle",
-                    "lightRain":  "Light rain",
-                    "rain":  "Rain",
-                    "heavyRain":  "Heavy rain",
-                    "lightSnow":  "Light snow",
-                    "snow":  "Snow",
-                    "showers":  "Showers",
-                    "thunderstorm":  "Thunderstorm",
-                    "hailstorm":  "Hailstorm",
-                    "variable":  "Variable",
-                    "wateringSkip":  "💧 Rain forecast ({{rain}}%) — skip watering today.",
-                    "wateringReduce":  "💧 Chance of rain ({{rain}}%) — water sparingly.",
-                    "wateringHot":  "🌡️ Intense heat ({{temp}}°C) — water early in the morning.",
-                    "wateringNormal":  "✅ Good time to water ({{temp}}°C, {{rain}}% rain)."
-                },
-    "zone":  {
-                 "atlantica":  "Atlantic",
-                 "continental":  "Continental",
-                 "mediterranea":  "Mediterranean",
-                 "subtropical":  "Subtropical"
-             },
-    "gardenType":  {
-                       "huerto":  "Garden",
-                       "balcon":  "Balcony / Terrace",
-                       "maceta":  "Indoor / Pots",
-                       "balconDesc":  "Growing in containers outdoors. The calendar will filter crops suitable for containers.",
-                       "macetaDesc":  "Growing indoors or on windowsills. The calendar will filter crops suitable for indoor growing."
-                   },
-    "pestStatus":  {
-                       "none":  "No pests",
-                       "active":  "Active pest",
-                       "treated":  "Under treatment"
-                   },
-    "plantStatus":  {
-                        "seedling":  "Seedling",
-                        "transplanted":  "Transplanted",
-                        "growing":  "Growing",
-                        "flowering":  "Flowering",
-                        "fruiting":  "Fruiting",
-                        "harvesting":  "Harvesting",
-                        "finished":  "Done"
-                    },
-    "reminderType":  {
-                         "watering":  "Watering",
-                         "fertilizing":  "Fertilizing",
-                         "harvest_check":  "Check harvest",
-                         "custom":  "Custom"
-                     },
-    "reminderFrequency":  {
-                              "daily":  "Daily",
-                              "every_2_days":  "Every 2 days",
-                              "every_3_days":  "Every 3 days",
-                              "weekly":  "Weekly",
-                              "once":  "Once"
-                          },
-    "entryEdit":  {
-                      "title":  "Edit entry",
-                      "save":  "Save",
-                      "delete":  "Delete entry",
-                      "deleteTitle":  "Delete entry?",
-                      "deleteDesc":  "This entry will be permanently deleted.",
-                      "notFound":  "Entry not found",
-                      "changePhoto":  "Change photo"
-                  },
-    "cropCategory":  {
-                         "frutas":  "Fruits",
-                         "hojas":  "Leaves \u0026 salads",
-                         "raices":  "Roots \u0026 tubers",
-                         "legumbres":  "Legumes",
-                         "cruciferas":  "Brassicas",
-                         "cucurbitaceas":  "Cucurbits",
-                         "aromaticas":  "Herbs",
-                         "bulbos":  "Bulbs",
-                         "medicinales":  "Medicinal plants"
-                     },
-    "crops":  {
-                  "tomate":  {
-                                 "name":  "Tomato",
-                                 "tips":  "Remove suckers regularly to focus energy on the fruits. Water at the base, never on the leaves."
-                             },
-                  "pimiento":  {
-                                   "name":  "Pepper",
-                                   "tips":  "Needs warm nights to set fruit well. On terraces, place it against a south-facing wall."
-                               },
-                  "berenjena":  {
-                                    "name":  "Aubergine",
-                                    "tips":  "The most heat-demanding crop in the nightshade family. Harvest before the skin loses its shine."
-                                },
-                  "fresa":  {
-                                "name":  "Strawberry",
-                                "tips":  "Plant in autumn to harvest in spring. Mulch with straw to retain moisture and prevent fruit touching the soil."
-                            },
-                  "lechuga":  {
-                                  "name":  "Lettuce",
-                                  "tips":  "Stagger sowings every 2–3 weeks for a continuous supply. In heat it bolts quickly; choose heat-resistant varieties."
-                              },
-                  "espinaca":  {
-                                   "name":  "Spinach",
-                                   "tips":  "Cool-season crop. Harvest outer leaves and the heart will keep producing for several weeks."
-                               },
-                  "acelga":  {
-                                 "name":  "Swiss Chard",
-                                 "tips":  "Very productive and hardy. Cut from the outside leaving the heart; one plant can last more than a year."
-                             },
-                  "rucula":  {
-                                 "name":  "Rocket",
-                                 "tips":  "Grows in 4 weeks. Gets very peppery and bolts in heat; sow in partial shade in summer."
-                             },
-                  "canonigos":  {
-                                    "name":  "Lamb\u0027s Lettuce",
-                                    "tips":  "Ideal autumn-winter crop to keep the garden productive in the cold season. Sow densely."
-                                },
-                  "zanahoria":  {
-                                    "name":  "Carrot",
-                                    "tips":  "Needs deep, loose soil without stones for the root to grow straight. Thin to 8 cm when seedlings are 5 cm tall."
-                                },
-                  "rabano":  {
-                                 "name":  "Radish",
-                                 "tips":  "The fastest crop in the garden, ideal for filling gaps. Harvest promptly or it becomes woody and overly peppery."
-                             },
-                  "remolacha":  {
-                                    "name":  "Beetroot",
-                                    "tips":  "Each seed is a fruit containing several seeds; thin to 10 cm leaving the most vigorous seedling."
-                                },
-                  "patata":  {
-                                 "name":  "Potato",
-                                 "tips":  "Earth up soil around the stem as it grows for more tubers. Harvest when the plant yellows."
-                             },
-                  "nabo":  {
-                               "name":  "Turnip",
-                               "tips":  "Rustic autumn crop. Harvest small (5–7 cm) for best flavour; larger ones become bitter and fibrous."
-                           },
-                  "judia-verde":  {
-                                      "name":  "Green Bean",
-                                      "tips":  "Harvest frequently while pods still bend; letting them mature exhausts the plant. Climbing varieties need 1.5 m support."
-                                  },
-                  "guisante":  {
-                                   "name":  "Pea",
-                                   "tips":  "Cool-season crop. Provide support from the start. Harvest when pods are well-filled but still green."
-                               },
-                  "haba":  {
-                               "name":  "Broad Bean",
-                               "tips":  "Sow in autumn for greater yield. Pinch the main stem when first fruits appear to control black aphid."
-                           },
-                  "brocoli":  {
-                                  "name":  "Broccoli",
-                                  "tips":  "Harvest the central head before it flowers. Plants will keep producing small side shoots for weeks."
-                              },
-                  "coliflor":  {
-                                   "name":  "Cauliflower",
-                                   "tips":  "When the curd forms, fold the outer leaves over it to blanch and protect it from the sun."
-                               },
-                  "col":  {
-                              "name":  "Cabbage",
-                              "tips":  "Very frost-hardy. Plant in firm soil and earth up around the stem so it doesn\u0027t topple in the wind."
-                          },
-                  "kale":  {
-                               "name":  "Kale",
-                               "tips":  "Harvest lower and outer leaves; the plant keeps growing from the top. Cold improves its flavour, making it sweeter."
-                           },
-                  "calabacin":  {
-                                    "name":  "Courgette",
-                                    "tips":  "A single plant can yield 3–4 kg per week. Harvest at 15–20 cm so the plant doesn\u0027t exhaust itself."
-                                },
-                  "pepino":  {
-                                 "name":  "Cucumber",
-                                 "tips":  "Train on a trellis to save space on terraces. Harvest daily when production is at its peak."
-                             },
-                  "calabaza":  {
-                                   "name":  "Pumpkin",
-                                   "tips":  "Needs lots of space; on small terraces use small-fruited or climbing varieties. Ready when the stem dries."
-                               },
-                  "melon":  {
-                                "name":  "Melon",
-                                "tips":  "Prune to 2–3 fruits per plant for large, sweet melons. Reduce watering once fruits have set to concentrate sugar."
-                            },
-                  "sandia":  {
-                                 "name":  "Watermelon",
-                                 "tips":  "Tap the fruit gently: a hollow sound means ripe. The tendril closest to the fruit should be dry at harvest."
-                             },
-                  "albahaca":  {
-                                   "name":  "Basil",
-                                   "tips":  "Pinch to encourage branching and prevent bolting. The best tomato companion: repels whitefly and aphids."
-                               },
-                  "perejil":  {
-                                  "name":  "Parsley",
-                                  "tips":  "Slow to germinate (3–4 weeks). Soak seeds 24 h before sowing to speed it up. Cut from the outside, leaving the heart."
-                              },
-                  "cilantro":  {
-                                   "name":  "Coriander",
-                                   "tips":  "Bolts quickly in heat; sow in partial shade or in staggered sowings every 3 weeks for continuous production."
-                               },
-                  "romero":  {
-                                 "name":  "Rosemary",
-                                 "tips":  "Hardy perennial. Better to propagate by cuttings in spring than from seed. Does not tolerate waterlogging."
-                             },
-                  "tomillo":  {
-                                  "name":  "Thyme",
-                                  "tips":  "Mediterranean herb that withstands drought well. Prune after flowering to keep it compact and productive."
-                              },
-                  "menta":  {
-                                "name":  "Mint",
-                                "tips":  "Very invasive: always plant in a pot or with an underground barrier. Prefers partial shade in summer."
-                            },
-                  "ajo":  {
-                              "name":  "Garlic",
-                              "tips":  "Plant individual cloves tip-up, 5 cm deep. When half the leaves dry out, it\u0027s time to harvest."
-                          },
-                  "cebolla":  {
-                                  "name":  "Onion",
-                                  "tips":  "Bend the leaves when they fall naturally and leave the bulb to cure in the ground for 2 weeks. Store cool and dry."
-                              },
-                  "puerro":  {
-                                 "name":  "Leek",
-                                 "tips":  "Transplant into deep holes and earth up gradually to blanch the stem. Stays in the ground all autumn-winter; harvest as needed."
-                             },
-                  "guindilla":  {
-                                    "name":  "Chilli / Chile",
-                                    "tips":  "Controlled water stress increases capsaicin and heat. Harvest green or let ripen to red for maximum flavour."
-                                },
-                  "apio":  {
-                               "name":  "Celery",
-                               "tips":  "Needs constant moisture or stalks turn fibrous and bitter. Earth up around the stems to blanch and soften them."
-                           },
-                  "esparrago":  {
-                                    "name":  "Asparagus",
-                                    "tips":  "Perennial crop: do not harvest until year 3 so roots establish well. Then produces for 15–20 years with minimal effort."
-                                },
-                  "salvia":  {
-                                 "name":  "Sage",
-                                 "tips":  "Mediterranean perennial. Its flowers attract pollinators. Cut back after flowering to keep it compact and productive season after season."
-                             },
-                  "oregano":  {
-                                  "name":  "Oregano",
-                                  "tips":  "Heat and drought intensify the flavour. Cut before it flowers for maximum aroma. Dry bunches hanging upside down."
-                              },
-                  "eneldo":  {
-                                 "name":  "Dill",
-                                 "tips":  "Bolts quickly in summer; sow in succession every 3 weeks. Never plant next to fennel — they cross-pollinate and lose their characteristic flavour."
-                             },
-                  "hinojo":  {
-                                 "name":  "Fennel",
-                                 "tips":  "Suppresses growth of almost everything nearby. Plant in an isolated corner or a separate pot to enjoy its benefits without harming the garden."
-                             },
-                  "manzanilla":  {
-                                     "name":  "Chamomile",
-                                     "tips":  "Harvest flowers at full opening for highest oil concentration. Excellent companion that repels harmful insects and attracts pollinators."
-                                 },
-                  "lavanda":  {
-                                  "name":  "Lavender",
-                                  "tips":  "Drought-tolerant perennial. Prune after flowering to prevent it becoming woody. Excellent for repelling aphids and moths."
-                              }
-              },
-    "varieties":  {
-                      "tomate-cherry":  "Cherry",
-                      "tomate-pera":  "Plum / Roma",
-                      "tomate-raf":  "Raf",
-                      "tomate-kumato":  "Kumato",
-                      "tomate-corazon-buey":  "Beefsteak",
-                      "tomate-rama":  "On the Vine",
-                      "pimiento-padron":  "Padrón",
-                      "pimiento-italiano":  "Italian",
-                      "pimiento-california":  "California / Bell",
-                      "pimiento-piquillo":  "Piquillo",
-                      "pimiento-guindilla":  "Cayenne / Chilli",
-                      "berenjena-negra":  "Black / Long",
-                      "berenjena-italiana":  "Italian",
-                      "berenjena-blanca":  "White",
-                      "berenjena-rayada":  "Striped",
-                      "pepino-espanol":  "Spanish Long",
-                      "pepino-holandes":  "Dutch / Seedless",
-                      "pepino-mini":  "Mini / Snack",
-                      "pepino-encurtir":  "Pickling",
-                      "calabacin-verde":  "Green Italian",
-                      "calabacin-amarillo":  "Yellow",
-                      "calabacin-redondo":  "Round",
-                      "calabaza-cacahuete":  "Butternut",
-                      "calabaza-hokkaido":  "Hokkaido",
-                      "calabaza-halloween":  "Jack-o-Lantern",
-                      "melon-piel-sapo":  "Piel de Sapo",
-                      "melon-cantalupo":  "Cantaloupe",
-                      "melon-galia":  "Galia",
-                      "sandia-sugar-baby":  "Sugar Baby",
-                      "sandia-crimson-sweet":  "Crimson Sweet",
-                      "sandia-sin-pepitas":  "Seedless",
-                      "fresa-camarosa":  "Camarosa",
-                      "fresa-elsanta":  "Elsanta",
-                      "fresa-fresón":  "Fresón",
-                      "fresa-silvestre":  "Wild / Alpine",
-                      "lechuga-batavia":  "Batavia",
-                      "lechuga-romana":  "Romaine",
-                      "lechuga-iceberg":  "Iceberg",
-                      "lechuga-hoja-roble":  "Oak Leaf",
-                      "lechuga-lollo-rosso":  "Lollo Rosso",
-                      "lechuga-maravilla":  "Maravilla",
-                      "espinaca-giant-nobel":  "Giant Nobel",
-                      "espinaca-viroflay":  "Viroflay",
-                      "espinaca-baby":  "Baby",
-                      "acelga-blanca":  "White Stem",
-                      "acelga-amarilla":  "Yellow",
-                      "acelga-roja":  "Red (Ruby Chard)",
-                      "acelga-rainbow":  "Rainbow",
-                      "zanahoria-nantes":  "Nantes",
-                      "zanahoria-chantenay":  "Chantenay",
-                      "zanahoria-imperator":  "Imperator",
-                      "zanahoria-baby":  "Baby / Mini",
-                      "zanahoria-morada":  "Purple",
-                      "rabano-redondo-rojo":  "Round Red",
-                      "rabano-largo-blanco":  "White Long (Daikon)",
-                      "rabano-french-breakfast":  "French Breakfast",
-                      "remolacha-detroit":  "Detroit Red",
-                      "remolacha-chioggia":  "Chioggia",
-                      "remolacha-amarilla":  "Yellow",
-                      "patata-monalisa":  "Monalisa",
-                      "patata-kennebec":  "Kennebec",
-                      "patata-agria":  "Agria",
-                      "patata-red-pontiac":  "Red Pontiac",
-                      "patata-ratte":  "Ratte",
-                      "judia-plana":  "Flat / Runner",
-                      "judia-redonda":  "Round / Bobby",
-                      "judia-boby":  "Dwarf / Bush",
-                      "judia-purple-queen":  "Purple Queen",
-                      "guisante-lincoln":  "Lincoln",
-                      "guisante-tirabuzón":  "Mangetout",
-                      "guisante-sugar-snap":  "Sugar Snap",
-                      "cebolla-morada":  "Red / Purple",
-                      "cebolla-blanca":  "White",
-                      "cebolla-amarilla":  "Yellow",
-                      "cebolla-calçot":  "Calçot",
-                      "cebolla-cebolleta":  "Spring Onion",
-                      "ajo-blanco-comun":  "White (Common)",
-                      "ajo-morado":  "Purple",
-                      "ajo-rosado":  "Pink",
-                      "ajo-negro":  "Black (Fermented)",
-                      "brocoli-calabrese":  "Calabrese",
-                      "brocoli-romanesco":  "Romanesco",
-                      "brocoli-morado":  "Purple",
-                      "albahaca-genovesa":  "Genovese",
-                      "albahaca-morada":  "Purple",
-                      "albahaca-thai":  "Thai",
-                      "albahaca-limon":  "Lemon"
-                  },
-    "identify":  {
-                     "title":  "Identify pest",
-                     "subtitle":  "Photograph the affected part of your plant",
-                     "takePhoto":  "Take photo",
-                     "fromGallery":  "From gallery",
-                     "analyze":  "Analyze with AI",
-                     "analyzing":  "Analyzing your plant…",
-                     "retake":  "New photo",
-                     "healthy":  "Your plant looks healthy!",
-                     "healthyDesc":  "No pests or diseases were detected",
-                     "saveEntry":  "Save diagnosis to journal",
-                     "saved":  "✓ Saved to journal",
-                     "proOnly":  "Pro feature",
-                     "proOnlyDesc":  "AI identification is available on the Pro plan.",
-                     "upgradePro":  "View plans",
-                     "freeCredit":  "1 free analysis",
-                     "freeCreditDesc":  "Try AI once for free. After that you\u0027ll need the Pro plan.",
-                     "freeCreditUsed":  "You\u0027ve used your free analysis",
-                     "freeCreditUsedDesc":  "Upgrade to Pro to identify pests and diseases without limits.",
-                     "noKeyDesc":  "Add EXPO_PUBLIC_ANTHROPIC_KEY to .env file",
-                     "error":  "Analysis error",
-                     "errorDesc":  "Could not analyze the image. Please try again.",
-                     "confidence":  {
-                                        "alta":  "High confidence",
-                                        "media":  "Medium confidence",
-                                        "baja":  "Low confidence"
-                                    },
-                     "problemType":  {
-                                         "plaga":  "Pest",
-                                         "enfermedad":  "Disease",
-                                         "deficiencia":  "Deficiency",
-                                         "saludable":  "Healthy"
-                                     },
-                     "symptomsLabel":  "Observed symptoms",
-                     "treatmentsLabel":  "Recommended treatments",
-                     "treatmentType":  {
-                                           "organico":  "Organic",
-                                           "preventivo":  "Preventive",
-                                           "quimico":  "Chemical"
-                                       }
-                 },
-    "seasonalTips":  {
-        "atlantica":  {
-            "1":  "Make the most of dry days to till and prepare the soil.",
-            "2":  "Sow potatoes and cabbages outdoors once soil temperature exceeds 5°C.",
-            "3":  "Time to transplant tomato and pepper seedlings under cover.",
-            "4":  "Take advantage of the rain to plant green beans and peas.",
-            "5":  "Sow courgette and cucumber outdoors; look after the pollinators.",
-            "6":  "Water at dusk to reduce evaporation; protect fruit from excess moisture.",
-            "7":  "Harvest tomatoes and peppers before heavy rain arrives.",
-            "8":  "Peak harvest month: pick regularly to encourage more production.",
-            "9":  "Sow spinach, Swiss chard and autumn lettuces.",
-            "10":  "Plant garlic and winter onions before the first frost.",
-            "11":  "Work compost into the soil to improve structure for next year.",
-            "12":  "Plan next season's garden and order seeds from catalogues."
-        },
-        "mediterranea":  {
-            "1":  "Start pepper and aubergine seedlings indoors; frost risk still present outside.",
-            "2":  "Transplant strawberries and plant broad beans; cool weather suits them.",
-            "3":  "Sow tomatoes under cover; transplant lettuces and cabbages outdoors.",
-            "4":  "Move tomatoes and peppers outside once night temperatures stay above 10°C.",
-            "5":  "Install drip irrigation before the heat; sow green beans and courgette.",
-            "6":  "Harvest garlic and onions; mulch to conserve soil moisture.",
-            "7":  "Peak tomato production: harvest daily to encourage new fruit.",
-            "8":  "Sow summer beans and prepare autumn beds in shadier spots.",
-            "9":  "Sow Swiss chard, spinach and autumn lettuces; heat is easing.",
-            "10":  "Plant garlic and onions; prepare beds with compost for winter.",
-            "11":  "Transplant broccoli and cauliflower; autumn rain helps them establish.",
-            "12":  "Protect frost-sensitive plants and plan crop rotation."
-        },
-        "continental":  {
-            "1":  "Start seedlings indoors; cold still prevents outdoor sowing.",
-            "2":  "Begin tomato, pepper and aubergine seedlings under cover.",
-            "3":  "Transplant lettuces and peas; wait until frost risk has passed.",
-            "4":  "Sow beans and Swiss chard outdoors; transplant tomatoes only if frost-free.",
-            "5":  "Water regularly: nights are still cool but days can be warm.",
-            "6":  "Harvest early garlic and onions; maintain irrigation during dry spells.",
-            "7":  "Harvest tomatoes and cucurbits; increase watering on days above 35°C.",
-            "8":  "Sow spinach and late lettuces; intensive summer harvest.",
-            "9":  "Heat is easing: sow cabbages, broccoli and Swiss chard.",
-            "10":  "Plant winter garlic; clear beds and apply compost.",
-            "11":  "Late cabbage harvest; cover with fleece if frost threatens.",
-            "12":  "Protect the most tender plants; plan next year's rotation."
-        },
-        "subtropical":  {
-            "1":  "Sow tomatoes, peppers and cucumbers: temperatures are ideal.",
-            "2":  "Plant strawberries and sow lettuces; mild weather aids establishment.",
-            "3":  "Transplant cucurbits; make the most of any spring rains.",
-            "4":  "Increase watering as temperatures rise; mulch to retain moisture.",
-            "5":  "Shade crops from excess sun with a shade net.",
-            "6":  "Rainy season: water moderately and watch for fungal disease.",
-            "7":  "Peak rainfall: good drainage is key; harvest before rot sets in.",
-            "8":  "Sow beans and sweet corn; warm nights encourage germination.",
-            "9":  "Late summer harvest; sow lettuces and spinach in the shade.",
-            "10":  "Cool weather: ideal for brassicas, carrots and beetroot.",
-            "11":  "Sow cabbages and broccoli; cool temperatures improve flavour.",
-            "12":  "Harvest and plan: summer crops are finishing their cycle."
-        }
+{
+  "tabs": {
+    "home": "My Garden",
+    "calendar": "Calendar",
+    "diary": "Journal",
+    "settings": "Settings"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "save": "Save",
+    "saving": "Saving…",
+    "back": "← Back",
+    "close": "Close",
+    "continue": "Continue →",
+    "error": "Error",
+    "ok": "OK",
+    "search": "Search…",
+    "version": "Version",
+    "loading": "Loading…",
+    "viewAll": "View all",
+    "more": "more"
+  },
+  "home": {
+    "title": "My Garden",
+    "streak": "🔥 {{count}} days",
+    "stats": {
+      "plants": "Plants",
+      "harvesting": "Harvesting",
+      "reminders": "Reminders",
+      "pests": "With pest",
+      "needsWater": "Need water",
+      "yearKg": "Harvested this year"
+    },
+    "weatherLoading": "🌤️ Loading weather…",
+    "lunarDay": "Day",
+    "viewStats": "View statistics",
+    "sowNowTitle": "Sow now",
+    "sowSoonTitle": "Coming up",
+    "sowNowEmpty": "No crops to sow this month in your zone.",
+    "sowAdd": "Add",
+    "weeklyTasks": "This week",
+    "weeklyTasksEmpty": "All caught up. Great work! 🎉",
+    "taskWater": "Water {{name}}",
+    "taskTransplant": "Transplant {{name}} soon",
+    "taskHarvest": "{{name}} ready to harvest",
+    "taskPest": "Treat pest on {{name}}",
+    "myPlants": "My plants",
+    "waterAll": "💧 Water all",
+    "waterAllTitle": "Water all",
+    "waterAllMessage": "Log watering for {{count}} plants?",
+    "waterAllConfirm": "Water all",
+    "emptyTitle": "No plants yet",
+    "emptyDesc": "Add your first plant to start tracking your garden.",
+    "addPlant": "Add plant",
+    "searchPlants": "Search plant…",
+    "taskEstHarvest": "🧺 {{name}} nearing harvest",
+    "taskNeglected": "👁️ {{name}} with no activity ({{days}} days)",
+    "filterAll": "All",
+    "sortDefault": "Order",
+    "sortName": "A-Z",
+    "sortNewest": "Newest",
+    "showFinished": "{{count}} finished hidden · Show",
+    "hideFinished": "Hide finished"
+  },
+  "calendar": {
+    "title": "Sowing calendar",
+    "zone": "Zone {{zone}}",
+    "containerBanner": "Showing only container-friendly crops",
+    "lunarProfile": "Monthly lunar profile",
+    "lunarBasis": "Based on synodic cycle",
+    "lunarDayIllum": "Day {{day}} · {{illum}}% illuminated",
+    "cropsCount": "{{count}} crops to sow in {{month}}",
+    "companions": "🤝 Companions",
+    "emptyCrops": "Nothing to sow in {{month}}",
+    "emptyCropsDesc": "No recommended crops for your zone this month. Check nearby months.",
+    "fullSun": "☀️ Full sun",
+    "partialShade": "⛅ Partial shade",
+    "shade": "🌑 Shade",
+    "days": "🗓 {{min}}–{{max}} days",
+    "containerInfo": "🪴 Min. {{liters}} L pot · {{tip}}",
+    "addToGarden": "Add to garden",
+    "hemisphereSurBanner": "Southern Hemisphere active · months reversed compared to the north",
+    "catAll": "All",
+    "today": "Today"
+  },
+  "diary": {
+    "title": "Journal",
+    "filters": {
+      "all": "All",
+      "watering": "Watering",
+      "sowing": "Sowing",
+      "harvest": "Harvest",
+      "fertilizing": "Fertilizing",
+      "transplant": "Transplant",
+      "pest": "Pest",
+      "treatment": "Treatment",
+      "pruning": "Pruning",
+      "photo": "Photo",
+      "note": "Note"
+    },
+    "emptyTitle": "Your journal is empty",
+    "emptyDesc": "Log your first activity: a watering, sowing, or harvest.",
+    "newEntry": "New entry",
+    "search": "Search diary…"
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "account": "ACCOUNT",
+      "garden": "MY GARDEN",
+      "subscription": "SUBSCRIPTION",
+      "tools": "TOOLS",
+      "summary": "SUMMARY",
+      "notifications": "NOTIFICATIONS",
+      "data": "DATA",
+      "app": "APP",
+      "language": "LANGUAGE"
+    },
+    "account": {
+      "guestTitle": "Guest mode",
+      "guestDesc": "Create an account to sync your garden and keep your data safe.",
+      "signIn": "Sign in",
+      "email": "Email",
+      "signOut": "Sign out",
+      "signOutTitle": "Sign out?",
+      "signOutDesc": "Your local data will be kept."
+    },
+    "garden": {
+      "name": "Name",
+      "province": "Province",
+      "climateZone": "Climate zone",
+      "map": "Garden map",
+      "edit": "Edit garden",
+      "manageGardens": "Manage gardens"
+    },
+    "subscription": {
+      "proPlan": "⭐ Pro Plan",
+      "freePlan": "Free plan",
+      "activeAnnual": "Annual subscription active",
+      "activeMonthly": "Monthly subscription active",
+      "freeLimit": "Up to 5 plants per garden",
+      "viewPlans": "View plans"
+    },
+    "tools": {
+      "companions": "Companion planting guide",
+      "stats": "View statistics",
+      "diseaseGuide": "Pest & disease guide"
+    },
+    "summary": {
+      "activePlants": "Active plants",
+      "diaryEntries": "Journal entries",
+      "reminders": "Reminders"
+    },
+    "notifications": {
+      "seasonal": "Seasonal alerts"
+    },
+    "data": {
+      "backup": "Backup",
+      "deleteAll": "Delete all data",
+      "deleteTitle": "Delete all data?",
+      "deleteDesc": "All plants, journal entries, and reminders will be permanently deleted. This action cannot be undone.",
+      "deleteConfirm": "Delete all"
+    },
+    "app": {
+      "version": "Version",
+      "rate": "Rate on App Store",
+      "privacy": "Privacy policy",
+      "contact": "Contact"
     }
+  },
+  "auth": {
+    "title": "Create your account",
+    "subtitle": "Sync your garden across all your devices and never lose your data.",
+    "connecting": "Connecting…",
+    "continueGoogle": "Continue with Google",
+    "continueApple": "Continue with Apple",
+    "or": "or",
+    "emailLink": "✉️ Use email link",
+    "emailPlaceholder": "you@email.com",
+    "sendMagicLink": "Send magic link",
+    "sending": "Sending…",
+    "continueGuest": "Continue without account (max 3 plants)",
+    "errorGoogle": "Could not sign in with Google.",
+    "errorApple": "Could not sign in with Apple.",
+    "errorEmailRequired": "Email required",
+    "errorEmailRequiredDesc": "Please enter your email address.",
+    "errorMagicLink": "Could not send the link. Check the email address."
+  },
+  "magicSent": {
+    "title": "Check your email",
+    "message": "We've sent a magic link to {{email}}. Tap the link on your phone to sign in automatically.",
+    "note": "The link expires in 1 hour. If you don't see it, check your spam folder.",
+    "changeEmail": "Change email",
+    "continueGuest": "Continue without account for now"
+  },
+  "companions": {
+    "title": "Companions",
+    "proSub": "Full guide available in Pro",
+    "proUnlock": "Pro — Unlock full guide",
+    "browse": "Explore",
+    "check": "Check",
+    "searchCrop": "Search crop…",
+    "searchFirst": "Search first crop…",
+    "searchSecond": "Search second crop…",
+    "goodNeighbors": "Good neighbors",
+    "badNeighbors": "Bad neighbors",
+    "noAssociations": "No companion data available",
+    "unlockRemaining": "Unlock {{count}} more crops with Pro",
+    "firstCrop": "First crop",
+    "secondCrop": "Second crop",
+    "goodMatch": "Great combination!",
+    "badMatch": "Don't plant them together",
+    "neutral": "Compatible but neutral",
+    "companionNote": "These crops benefit each other. Plant them {{spacing}} cm apart.",
+    "incompatibleNote": "These crops may inhibit each other or attract pests. Keep them apart.",
+    "checkEmpty": "Select two crops to check if they're compatible."
+  },
+  "entryNew": {
+    "title": "New entry",
+    "saving": "Saving…",
+    "save": "Save",
+    "activityType": "ACTIVITY TYPE",
+    "plant": "PLANT (optional)",
+    "general": "General",
+    "date": "DATE",
+    "datePlaceholder": "YYYY-MM-DD",
+    "notes": "NOTES (optional)",
+    "notesPlaceholder": "What did you observe? How was the plant?",
+    "harvest": "HARVEST",
+    "weightKg": "Weight (kg)",
+    "units": "Units",
+    "photo": "PHOTO (optional)",
+    "addPhoto": "Add photo",
+    "saveEntry": "Save entry",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "twoDaysAgo": "2 days ago"
+  },
+  "gardenEdit": {
+    "title": "Edit garden",
+    "nameLabel": "GARDEN NAME",
+    "namePlaceholder": "My garden",
+    "typeLabel": "GARDEN TYPE",
+    "noGarden": "No garden configured",
+    "provinceLabel": "PROVINCE",
+    "provincePlaceholder": "Select province…",
+    "selectProvince": "Select your province or region",
+    "searchProvince": "Search province…",
+    "containerTip": "The calendar will filter crops suitable for containers.",
+    "save": "Save changes",
+    "nameRequired": "Name required",
+    "nameRequiredDesc": "Give your garden a name.",
+    "provinceRequired": "Province required",
+    "provinceRequiredDesc": "Select your province for the sowing calendar.",
+    "gridSizeLabel": "MAP SIZE",
+    "cells": "plots",
+    "gridProTitle": "Pro Feature",
+    "gridProDesc": "Change the map size with the Pro plan.",
+    "hemisphereLabel": "HEMISPHERE",
+    "hemisphereNorte": "North",
+    "hemisphereSur": "South",
+    "hemisphereSurTip": "The calendar will reverse months for the southern hemisphere (Argentina, Chile, Uruguay…)"
+  },
+  "gardens": {
+    "title": "My gardens",
+    "hint": "Tap a garden to make it active. Plants on the home screen are filtered by the active garden.",
+    "active": "Active",
+    "createTitle": "New garden",
+    "fieldName": "Name",
+    "fieldNamePlaceholder": "E.g. Rooftop garden",
+    "fieldType": "Type",
+    "fieldProvince": "Province",
+    "fieldProvincePlaceholder": "Select province",
+    "cantDeleteLast": "You cannot delete the only garden.",
+    "deleteTitle": "Delete {{name}}",
+    "deleteDesc": "Only the garden will be deleted, not the associated plants or diary entries."
+  },
+  "diseaseGuide": {
+    "title": "Disease Guide",
+    "subtitle": "Pests, diseases and deficiencies",
+    "search": "Search pest, symptom or crop…",
+    "filterAll": "All",
+    "filterPest": "🐛 Pest",
+    "filterDisease": "🍂 Disease",
+    "filterDeficiency": "💛 Deficiency",
+    "empty": "No results for that search.",
+    "affectedCrops": "Affected crops",
+    "symptoms": "Symptoms",
+    "treatments": "Treatments",
+    "type": {
+      "plaga": "Pest",
+      "enfermedad": "Disease",
+      "deficiencia": "Deficiency"
+    },
+    "treatment": {
+      "organico": "Organic",
+      "preventivo": "Preventive",
+      "quimico": "Chemical"
+    },
+    "visualSigns": "Visual signs",
+    "severityHigh": "High severity",
+    "severityMed": "Medium severity",
+    "severityLow": "Low severity"
+  },
+  "gardenMap": {
+    "title": "Garden map",
+    "summary": "{{placed}} / {{total}} plants placed · {{cols}}×{{rows}} plots",
+    "south": "South",
+    "assignPlant": "Assign plant",
+    "searchPlant": "Search plant…",
+    "noPlants": "No plants yet.\nAdd plants from the dashboard.",
+    "allPlaced": "All plants are already placed.",
+    "legendOccupied": "Plot with plant",
+    "legendEmpty": "Empty plot",
+    "emptyNote": "Add plants from the dashboard first to place them on the map.",
+    "viewPlant": "View plant",
+    "removeFromMap": "Remove from map",
+    "removeTitle": "Remove from map",
+    "removeDesc": "Remove {{name}} from this plot?",
+    "remove": "Remove",
+    "movePlant": "Move",
+    "moveModeHint": "Tap the destination plot · Press ✕ to cancel",
+    "moveCancelled": "Move cancelled",
+    "shareTitle": "My Garden",
+    "shareNotAvailable": "Sharing is not available on this device.",
+    "shareError": "Could not capture the map."
+  },
+  "onboarding": {
+    "step1Title": "Your digital garden",
+    "step1Desc": "Plan your sowing, track your harvest, and never forget to water.",
+    "start": "Get started →",
+    "step2Title": "Where is your garden?",
+    "step2Desc": "Select your province or region to personalise the sowing calendar.",
+    "selectProvince": "Select your province or region",
+    "zone": "Zone {{label}}",
+    "continue": "Continue →",
+    "back": "Back",
+    "step3Title": "Create your first garden",
+    "step3Desc": "Give your growing space a name.",
+    "gardenTypeLabel": "What kind of space do you have?",
+    "gardenNamePlaceholder": "E.g. My terrace, North balcony...",
+    "create": "Create garden 🌱",
+    "provinceSearch": "Search province or region...",
+    "closeSearch": "Close",
+    "regions": "regions",
+    "step4Title": "Garden created! 🌱",
+    "step4Desc": "All set. Would you like to add your first plant now?",
+    "addFirstPlant": "Add first plant",
+    "skipToGarden": "See my garden",
+    "feature1Title": "Moon & sowing",
+    "feature1Desc": "Sow at the optimal time based on the lunar cycle",
+    "feature2Title": "Live weather",
+    "feature2Desc": "Watering tips based on the weather forecast",
+    "feature3Title": "Companion plants",
+    "feature3Desc": "Discover which crops grow well together",
+    "hemisphereLabel": "Which hemisphere are you in?",
+    "hemisphereNorte": "North",
+    "hemisphereSur": "South"
+  },
+  "paywall": {
+    "titlePro": "You're Pro!",
+    "title": "Grow your garden\nwithout limits",
+    "subtitlePro": "Active subscription · {{plan}} plan",
+    "subtitle": "Unlock everything you need to become a true gardener.",
+    "features": {
+      "gardens": "Unlimited gardens (free: up to 2)",
+      "plants": "Unlimited plants (free: up to 20)",
+      "calendar": "Full sowing calendar with alerts",
+      "companions": "Companion planting guide",
+      "charts": "Harvest and productivity charts",
+      "pdf": "Export journal as PDF",
+      "reminders": "Unlimited watering reminders",
+      "backup": "Auto cloud sync (free: manual export)"
+    },
+    "choosePlan": "CHOOSE YOUR PLAN",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "popular": "⭐ Most popular",
+    "cancelAnytime": "Cancel anytime",
+    "processing": "Processing…",
+    "ctaTrial": "Start 7-day free trial",
+    "ctaDone": "Done",
+    "trialNote": "Cancel anytime. No commitments.",
+    "restore": "Restore purchases",
+    "legal": "Payment will be charged to your App Store account. The subscription automatically renews unless cancelled at least 24 hours before the end of the current period.",
+    "successTitle": "Welcome to Pro! 🌻",
+    "successDesc": "Your subscription is active. Enjoy all features without limits.",
+    "successBtn": "Let's go!",
+    "errorPurchase": "Could not complete the purchase. Please try again.",
+    "restoreSuccessTitle": "Purchases restored!",
+    "restoreSuccessDesc": "Your Pro subscription is active.",
+    "restoreNoneTitle": "No previous purchases",
+    "restoreNoneDesc": "We couldn't find any active subscription linked to your account.",
+    "restoreError": "Could not connect. Please try again.",
+    "lifetimeBadge": "No subscription",
+    "lifetimeSub": "One-time payment. No renewals"
+  },
+  "plantEdit": {
+    "title": "Edit plant",
+    "save": "Save changes",
+    "changePhoto": "Change photo",
+    "cropFixed": "Fixed crop",
+    "harvestGoalLabel": "Harvest goal (kg)",
+    "harvestGoalPlaceholder": "e.g. 5.0",
+    "notesLabel": "NOTES (optional)",
+    "notesPlaceholder": "Observations, personal notes…"
+  },
+  "plantNew": {
+    "title": "New plant",
+    "cropLabel": "CROP",
+    "selectCrop": "Select crop",
+    "changeCrop": "Change",
+    "nameLabel": "NAME",
+    "namePlaceholder": "Your plant's name",
+    "varietyLabel": "VARIETY (optional)",
+    "varietyPlaceholder": "E.g. Cherry, Romana, Black Krim...",
+    "sowingDate": "SOWING DATE",
+    "photo": "PHOTO (optional)",
+    "addPhoto": "Add photo",
+    "addPlant": "Add plant 🌱",
+    "cropSearch": "Search crop...",
+    "cropPickerTitle": "Select crop",
+    "varietyGeneric": "Generic",
+    "goodWith": "Good companions: "
+  },
+  "plantDetail": {
+    "notFound": "Plant not found",
+    "statusSection": "Status",
+    "cropInfo": "Crop information",
+    "harvest": "Harvest",
+    "harvestDays": "{{min}}–{{max}} days",
+    "light": "Light",
+    "water": "Water",
+    "spacing": "Spacing",
+    "sunFull": "Full sun",
+    "sunPartial": "Partial shade",
+    "sunShade": "Shade",
+    "waterHigh": "High",
+    "waterMedium": "Medium",
+    "waterLow": "Low",
+    "goodNeighbors": "Good neighbors",
+    "badNeighbors": "Bad neighbors",
+    "reminders": "Reminders",
+    "active": "Active",
+    "paused": "Paused",
+    "diary": "Journal",
+    "noEntries": "No entries yet. Log your first activity!",
+    "pestSection": "Pest status",
+    "commonPests": "COMMON PESTS ON {{crop}}",
+    "newEntry": "New entry",
+    "reminder": "Reminder",
+    "deletePlant": "Delete plant",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteDesc": "The plant and all its journal entries and reminders will be deleted.",
+    "sownOn": "🌰 Sown {{date}}",
+    "daysGrowing_one": "{{count}} day",
+    "daysGrowing_other": "{{count}} days",
+    "estimatedHarvest": "🧺 Est. harvest {{date}}",
+    "harvestSummary_one": "1 harvest logged",
+    "harvestSummary_other": "{{count}} harvests logged",
+    "units": "units",
+    "goalProgress": "Season goal",
+    "photoTimeline": "📸 Progress photos",
+    "transplantCta": "Ready to transplant?",
+    "transplantCtaDesc": "{{days}} days in seedling tray",
+    "transplantModalTitle": "Log transplant",
+    "transplantDateLabel": "TRANSPLANT DATE",
+    "transplantConfirm": "Confirm transplant",
+    "duplicate": "Duplicate plant"
+  },
+  "reminderEdit": {
+    "title": "Edit reminder",
+    "save": "Save changes",
+    "enabledLabel": "Reminder active",
+    "enabledOn": "Notifications are enabled",
+    "enabledOff": "Notifications are disabled",
+    "delete": "Delete reminder",
+    "deleteTitle": "Delete reminder?",
+    "deleteDesc": "The notification will be cancelled and the reminder will be deleted.",
+    "saveError": "Could not save the reminder.",
+    "notFound": "Reminder not found"
+  },
+  "reminderNew": {
+    "title": "New reminder",
+    "typeLabel": "TYPE",
+    "titleLabel": "TITLE",
+    "frequencyLabel": "FREQUENCY",
+    "hourLabel": "HOUR",
+    "minuteLabel": "MINUTES",
+    "create": "Create reminder",
+    "noGardenTitle": "No garden",
+    "noGardenDesc": "Complete onboarding first.",
+    "saveError": "Could not create the reminder."
+  },
+  "backup": {
+    "title": "Backup",
+    "autoSyncLabel": "AUTO SYNC",
+    "icloudSync": "Sync with iCloud",
+    "icloudSyncDesc": "Automatically saves a backup to your iCloud folder when you leave the app.",
+    "lastBackup": "Last backup",
+    "never": "Never",
+    "icloudTip": "To enable iCloud sync go to Settings > Your name > iCloud > Apps Using iCloud and enable HuertoTracker.",
+    "manualLabel": "MANUAL",
+    "exportTitle": "Export backup",
+    "exportDesc": "Save the file to Files, Drive, or share it.",
+    "export": "Export",
+    "importTitle2": "Import backup",
+    "importDesc2": "Restore from a .json file. Replaces all data.",
+    "import": "Import",
+    "pdfLabel": "SEASON REPORT",
+    "pdfTitle": "Export PDF report",
+    "pdfDesc": "Summary of your garden: plants, harvests and year activity.",
+    "pdfGenerate": "Generate PDF",
+    "includesLabel": "WHAT'S INCLUDED",
+    "includeGarden": "Garden and zone settings",
+    "includePlants": "All your plants",
+    "includeEntries": "Journal entries",
+    "includeReminders": "Configured reminders",
+    "footerNote": "Backup does not include photos (stored in device gallery) or subscription status.",
+    "proTitle": "Pro feature",
+    "proDesc": "Automatic iCloud sync is available on the Pro plan.",
+    "viewPlans": "View plans",
+    "importTitle": "Import backup",
+    "importDesc": "This will replace ALL current data with data from the backup file. The app will need to restart.\n\nContinue?",
+    "importConfirm": "Import",
+    "restoredTitle": "Data restored ✓",
+    "restoredDesc": "Close and reopen the app for changes to take effect.",
+    "exportError": "Could not export backup. Please try again."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "seasonalLabel": "SEASONAL ALERTS",
+    "sowingReminders": "Sowing reminders",
+    "sowingRemindersDesc": "Monthly alert on the 1st with what you can sow",
+    "basedOnZone": "Based on your climate zone:",
+    "nextAlertLabel": "NEXT ALERT",
+    "nextAlertDate": "{{month}} 1st",
+    "nextAlertCrops_one": "{{count}} crop to sow",
+    "nextAlertCrops_other": "{{count}} crops to sow",
+    "howLabel": "HOW IT WORKS",
+    "how1Title": "Monthly alert",
+    "how1Desc": "You get a notification on the 1st of each month at 9:00 AM.",
+    "how2Title": "Zone-personalised",
+    "how2Desc": "Suggested crops are calculated based on your climate zone in Spain.",
+    "how3Title": "Offline",
+    "how3Desc": "Alerts are scheduled on the device. No internet needed.",
+    "noZoneWarning": "Complete onboarding to activate personalised zone alerts.",
+    "frostLabel": "FROST",
+    "frostAlerts": "Frost alerts",
+    "frostAlertsDesc": "Get a notification when temperatures below 2°C are forecast in the coming days.",
+    "frostNoProvince": "Set your province in the garden settings to enable frost alerts.",
+    "more": "more",
+    "plantLabel": "PLANTS",
+    "transplantTitle": "Transplant reminder",
+    "transplantDesc": "Alert at 6 weeks from sowing to move seedling to the bed",
+    "harvestTitle": "Harvest incoming",
+    "harvestDesc": "Alert 3 days before the estimated harvest date",
+    "treatmentTitle": "Treatment clearance",
+    "treatmentDesc": "Notification when the waiting period after a treatment expires",
+    "plantCount_one": "{{count}} plant scheduled",
+    "plantCount_other": "{{count}} plants scheduled"
+  },
+  "stats": {
+    "title": "Statistics",
+    "entries": "Entries",
+    "harvests": "Harvests",
+    "activeDays_one": "active day",
+    "activeDays_other": "active days",
+    "harvested": "Harvested",
+    "monthlyActivity": "Monthly activity",
+    "noActivity": "No activity yet. Start logging something!",
+    "activityBreakdown": "Activity breakdown",
+    "topPlants": "Most active plants",
+    "topCrops": "Most harvested crops",
+    "harvestByYear": "Harvest by year",
+    "currentYear": "This year",
+    "achievements": "Achievements",
+    "entryCount_one": "{{count}} entry",
+    "entryCount_other": "{{count}} entries",
+    "harvestCount_one": "{{count}} harvest",
+    "harvestCount_other": "{{count}} harvests",
+    "successRate": "Success rate",
+    "avgDaysToHarvest": "Avg. days to harvest"
+  },
+  "welcome": {
+    "title": "Huerto Tracker",
+    "subtitle": "Track your garden, plan your sowing, and harvest more and better.",
+    "features": {
+      "calendar": "Sowing calendar",
+      "calendarDesc": "Sow at the optimal time for your climate zone.",
+      "diary": "Garden journal",
+      "diaryDesc": "Log waterings, prunings, and harvests with photos.",
+      "reminders": "Reminders",
+      "remindersDesc": "Never forget to water or fertilise your plants.",
+      "sync": "Sync",
+      "syncDesc": "Your data safe in the cloud, across all your devices."
+    },
+    "createAccount": "Create free account",
+    "explore": "Explore without account",
+    "note": "Free account includes up to 10 plants and cloud sync."
+  },
+  "quickLog": {
+    "water": "Water",
+    "harvest": "Harvest",
+    "pest": "Pest",
+    "fertilize": "Fertilize",
+    "prune": "Prune",
+    "note": "Note",
+    "commonPests": "Common pests on {{crop}}:",
+    "treatmentTip": "On save, the plant will be marked as 'Under treatment'",
+    "pestPlaceholder": "Describe the pest or symptom…",
+    "notePlaceholder": "Add a note…",
+    "weightPlaceholder": "Weight in kg (optional)",
+    "weightKgPlaceholder": "Amount in kg…",
+    "weightUnitsPlaceholder": "Number of units…",
+    "units": "pcs",
+    "chooseAction": "Choose an action",
+    "save": "Log {{action}}",
+    "done": "Logged!"
+  },
+  "lunar": {
+    "newMoon": "New Moon",
+    "waxingCrescent": "Waxing Crescent",
+    "firstQuarter": "First Quarter",
+    "waxingGibbous": "Waxing Gibbous",
+    "fullMoon": "Full Moon",
+    "waningGibbous": "Waning Gibbous",
+    "lastQuarter": "Last Quarter",
+    "waningCrescent": "Waning Crescent",
+    "gardeningLabel": {
+      "frutos": "Fruit day",
+      "hojas": "Leaf day",
+      "raices": "Root day",
+      "flores": "Flower day",
+      "descanso": "Rest day"
+    },
+    "recommendation": {
+      "frutos": "Good moon for harvesting and planting tomatoes, cucumbers and fruits.",
+      "hojas": "Ideal for sowing lettuces, spinach and aromatic herbs.",
+      "raices": "Perfect for carrots, radishes and root vegetables.",
+      "flores": "Transplant flowers and aromatic plants today.",
+      "descanso": "New moon day. Rest the soil and plan ahead."
+    },
+    "monthLabel": {
+      "frutos": "Fruit month",
+      "hojas": "Leaf month",
+      "raices": "Root month",
+      "flores": "Flower month",
+      "descanso": "Rest month"
+    }
+  },
+  "weather": {
+    "clear": "Clear",
+    "mostlyClear": "Mostly clear",
+    "partlyCloudy": "Partly cloudy",
+    "cloudy": "Cloudy",
+    "fog": "Fog",
+    "frostFog": "Freezing fog",
+    "drizzle": "Drizzle",
+    "lightRain": "Light rain",
+    "rain": "Rain",
+    "heavyRain": "Heavy rain",
+    "lightSnow": "Light snow",
+    "snow": "Snow",
+    "showers": "Showers",
+    "thunderstorm": "Thunderstorm",
+    "hailstorm": "Hailstorm",
+    "variable": "Variable",
+    "wateringSkip": "💧 Rain forecast ({{rain}}%) — skip watering today.",
+    "wateringReduce": "💧 Chance of rain ({{rain}}%) — water sparingly.",
+    "wateringHot": "🌡️ Intense heat ({{temp}}°C) — water early in the morning.",
+    "wateringNormal": "✅ Good time to water ({{temp}}°C, {{rain}}% rain)."
+  },
+  "zone": {
+    "atlantica": "Atlantic",
+    "continental": "Continental",
+    "mediterranea": "Mediterranean",
+    "subtropical": "Subtropical"
+  },
+  "gardenType": {
+    "huerto": "Garden",
+    "balcon": "Balcony / Terrace",
+    "maceta": "Indoor / Pots",
+    "balconDesc": "Growing in containers outdoors. The calendar will filter crops suitable for containers.",
+    "macetaDesc": "Growing indoors or on windowsills. The calendar will filter crops suitable for indoor growing."
+  },
+  "pestStatus": {
+    "none": "No pests",
+    "active": "Active pest",
+    "treated": "Under treatment"
+  },
+  "plantStatus": {
+    "seedling": "Seedling",
+    "transplanted": "Transplanted",
+    "growing": "Growing",
+    "flowering": "Flowering",
+    "fruiting": "Fruiting",
+    "harvesting": "Harvesting",
+    "finished": "Done"
+  },
+  "reminderType": {
+    "watering": "Watering",
+    "fertilizing": "Fertilizing",
+    "harvest_check": "Check harvest",
+    "custom": "Custom"
+  },
+  "reminderFrequency": {
+    "daily": "Daily",
+    "every_2_days": "Every 2 days",
+    "every_3_days": "Every 3 days",
+    "weekly": "Weekly",
+    "once": "Once"
+  },
+  "entryEdit": {
+    "title": "Edit entry",
+    "save": "Save",
+    "delete": "Delete entry",
+    "deleteTitle": "Delete entry?",
+    "deleteDesc": "This entry will be permanently deleted.",
+    "notFound": "Entry not found",
+    "changePhoto": "Change photo"
+  },
+  "cropCategory": {
+    "frutas": "Fruits",
+    "hojas": "Leaves & salads",
+    "raices": "Roots & tubers",
+    "legumbres": "Legumes",
+    "cruciferas": "Brassicas",
+    "cucurbitaceas": "Cucurbits",
+    "aromaticas": "Herbs",
+    "bulbos": "Bulbs",
+    "medicinales": "Medicinal plants"
+  },
+  "crops": {
+    "tomate": {
+      "name": "Tomato",
+      "tips": "Remove suckers regularly to focus energy on the fruits. Water at the base, never on the leaves."
+    },
+    "pimiento": {
+      "name": "Pepper",
+      "tips": "Needs warm nights to set fruit well. On terraces, place it against a south-facing wall."
+    },
+    "berenjena": {
+      "name": "Aubergine",
+      "tips": "The most heat-demanding crop in the nightshade family. Harvest before the skin loses its shine."
+    },
+    "fresa": {
+      "name": "Strawberry",
+      "tips": "Plant in autumn to harvest in spring. Mulch with straw to retain moisture and prevent fruit touching the soil."
+    },
+    "lechuga": {
+      "name": "Lettuce",
+      "tips": "Stagger sowings every 2–3 weeks for a continuous supply. In heat it bolts quickly; choose heat-resistant varieties."
+    },
+    "espinaca": {
+      "name": "Spinach",
+      "tips": "Cool-season crop. Harvest outer leaves and the heart will keep producing for several weeks."
+    },
+    "acelga": {
+      "name": "Swiss Chard",
+      "tips": "Very productive and hardy. Cut from the outside leaving the heart; one plant can last more than a year."
+    },
+    "rucula": {
+      "name": "Rocket",
+      "tips": "Grows in 4 weeks. Gets very peppery and bolts in heat; sow in partial shade in summer."
+    },
+    "canonigos": {
+      "name": "Lamb's Lettuce",
+      "tips": "Ideal autumn-winter crop to keep the garden productive in the cold season. Sow densely."
+    },
+    "zanahoria": {
+      "name": "Carrot",
+      "tips": "Needs deep, loose soil without stones for the root to grow straight. Thin to 8 cm when seedlings are 5 cm tall."
+    },
+    "rabano": {
+      "name": "Radish",
+      "tips": "The fastest crop in the garden, ideal for filling gaps. Harvest promptly or it becomes woody and overly peppery."
+    },
+    "remolacha": {
+      "name": "Beetroot",
+      "tips": "Each seed is a fruit containing several seeds; thin to 10 cm leaving the most vigorous seedling."
+    },
+    "patata": {
+      "name": "Potato",
+      "tips": "Earth up soil around the stem as it grows for more tubers. Harvest when the plant yellows."
+    },
+    "nabo": {
+      "name": "Turnip",
+      "tips": "Rustic autumn crop. Harvest small (5–7 cm) for best flavour; larger ones become bitter and fibrous."
+    },
+    "judia-verde": {
+      "name": "Green Bean",
+      "tips": "Harvest frequently while pods still bend; letting them mature exhausts the plant. Climbing varieties need 1.5 m support."
+    },
+    "guisante": {
+      "name": "Pea",
+      "tips": "Cool-season crop. Provide support from the start. Harvest when pods are well-filled but still green."
+    },
+    "haba": {
+      "name": "Broad Bean",
+      "tips": "Sow in autumn for greater yield. Pinch the main stem when first fruits appear to control black aphid."
+    },
+    "brocoli": {
+      "name": "Broccoli",
+      "tips": "Harvest the central head before it flowers. Plants will keep producing small side shoots for weeks."
+    },
+    "coliflor": {
+      "name": "Cauliflower",
+      "tips": "When the curd forms, fold the outer leaves over it to blanch and protect it from the sun."
+    },
+    "col": {
+      "name": "Cabbage",
+      "tips": "Very frost-hardy. Plant in firm soil and earth up around the stem so it doesn't topple in the wind."
+    },
+    "kale": {
+      "name": "Kale",
+      "tips": "Harvest lower and outer leaves; the plant keeps growing from the top. Cold improves its flavour, making it sweeter."
+    },
+    "calabacin": {
+      "name": "Courgette",
+      "tips": "A single plant can yield 3–4 kg per week. Harvest at 15–20 cm so the plant doesn't exhaust itself."
+    },
+    "pepino": {
+      "name": "Cucumber",
+      "tips": "Train on a trellis to save space on terraces. Harvest daily when production is at its peak."
+    },
+    "calabaza": {
+      "name": "Pumpkin",
+      "tips": "Needs lots of space; on small terraces use small-fruited or climbing varieties. Ready when the stem dries."
+    },
+    "melon": {
+      "name": "Melon",
+      "tips": "Prune to 2–3 fruits per plant for large, sweet melons. Reduce watering once fruits have set to concentrate sugar."
+    },
+    "sandia": {
+      "name": "Watermelon",
+      "tips": "Tap the fruit gently: a hollow sound means ripe. The tendril closest to the fruit should be dry at harvest."
+    },
+    "albahaca": {
+      "name": "Basil",
+      "tips": "Pinch to encourage branching and prevent bolting. The best tomato companion: repels whitefly and aphids."
+    },
+    "perejil": {
+      "name": "Parsley",
+      "tips": "Slow to germinate (3–4 weeks). Soak seeds 24 h before sowing to speed it up. Cut from the outside, leaving the heart."
+    },
+    "cilantro": {
+      "name": "Coriander",
+      "tips": "Bolts quickly in heat; sow in partial shade or in staggered sowings every 3 weeks for continuous production."
+    },
+    "romero": {
+      "name": "Rosemary",
+      "tips": "Hardy perennial. Better to propagate by cuttings in spring than from seed. Does not tolerate waterlogging."
+    },
+    "tomillo": {
+      "name": "Thyme",
+      "tips": "Mediterranean herb that withstands drought well. Prune after flowering to keep it compact and productive."
+    },
+    "menta": {
+      "name": "Mint",
+      "tips": "Very invasive: always plant in a pot or with an underground barrier. Prefers partial shade in summer."
+    },
+    "ajo": {
+      "name": "Garlic",
+      "tips": "Plant individual cloves tip-up, 5 cm deep. When half the leaves dry out, it's time to harvest."
+    },
+    "cebolla": {
+      "name": "Onion",
+      "tips": "Bend the leaves when they fall naturally and leave the bulb to cure in the ground for 2 weeks. Store cool and dry."
+    },
+    "puerro": {
+      "name": "Leek",
+      "tips": "Transplant into deep holes and earth up gradually to blanch the stem. Stays in the ground all autumn-winter; harvest as needed."
+    },
+    "guindilla": {
+      "name": "Chilli / Chile",
+      "tips": "Controlled water stress increases capsaicin and heat. Harvest green or let ripen to red for maximum flavour."
+    },
+    "apio": {
+      "name": "Celery",
+      "tips": "Needs constant moisture or stalks turn fibrous and bitter. Earth up around the stems to blanch and soften them."
+    },
+    "esparrago": {
+      "name": "Asparagus",
+      "tips": "Perennial crop: do not harvest until year 3 so roots establish well. Then produces for 15–20 years with minimal effort."
+    },
+    "salvia": {
+      "name": "Sage",
+      "tips": "Mediterranean perennial. Its flowers attract pollinators. Cut back after flowering to keep it compact and productive season after season."
+    },
+    "oregano": {
+      "name": "Oregano",
+      "tips": "Heat and drought intensify the flavour. Cut before it flowers for maximum aroma. Dry bunches hanging upside down."
+    },
+    "eneldo": {
+      "name": "Dill",
+      "tips": "Bolts quickly in summer; sow in succession every 3 weeks. Never plant next to fennel — they cross-pollinate and lose their characteristic flavour."
+    },
+    "hinojo": {
+      "name": "Fennel",
+      "tips": "Suppresses growth of almost everything nearby. Plant in an isolated corner or a separate pot to enjoy its benefits without harming the garden."
+    },
+    "manzanilla": {
+      "name": "Chamomile",
+      "tips": "Harvest flowers at full opening for highest oil concentration. Excellent companion that repels harmful insects and attracts pollinators."
+    },
+    "lavanda": {
+      "name": "Lavender",
+      "tips": "Drought-tolerant perennial. Prune after flowering to prevent it becoming woody. Excellent for repelling aphids and moths."
+    }
+  },
+  "varieties": {
+    "tomate-cherry": "Cherry",
+    "tomate-pera": "Plum / Roma",
+    "tomate-raf": "Raf",
+    "tomate-kumato": "Kumato",
+    "tomate-corazon-buey": "Beefsteak",
+    "tomate-rama": "On the Vine",
+    "pimiento-padron": "Padrón",
+    "pimiento-italiano": "Italian",
+    "pimiento-california": "California / Bell",
+    "pimiento-piquillo": "Piquillo",
+    "pimiento-guindilla": "Cayenne / Chilli",
+    "berenjena-negra": "Black / Long",
+    "berenjena-italiana": "Italian",
+    "berenjena-blanca": "White",
+    "berenjena-rayada": "Striped",
+    "pepino-espanol": "Spanish Long",
+    "pepino-holandes": "Dutch / Seedless",
+    "pepino-mini": "Mini / Snack",
+    "pepino-encurtir": "Pickling",
+    "calabacin-verde": "Green Italian",
+    "calabacin-amarillo": "Yellow",
+    "calabacin-redondo": "Round",
+    "calabaza-cacahuete": "Butternut",
+    "calabaza-hokkaido": "Hokkaido",
+    "calabaza-halloween": "Jack-o-Lantern",
+    "melon-piel-sapo": "Piel de Sapo",
+    "melon-cantalupo": "Cantaloupe",
+    "melon-galia": "Galia",
+    "sandia-sugar-baby": "Sugar Baby",
+    "sandia-crimson-sweet": "Crimson Sweet",
+    "sandia-sin-pepitas": "Seedless",
+    "fresa-camarosa": "Camarosa",
+    "fresa-elsanta": "Elsanta",
+    "fresa-fresón": "Fresón",
+    "fresa-silvestre": "Wild / Alpine",
+    "lechuga-batavia": "Batavia",
+    "lechuga-romana": "Romaine",
+    "lechuga-iceberg": "Iceberg",
+    "lechuga-hoja-roble": "Oak Leaf",
+    "lechuga-lollo-rosso": "Lollo Rosso",
+    "lechuga-maravilla": "Maravilla",
+    "espinaca-giant-nobel": "Giant Nobel",
+    "espinaca-viroflay": "Viroflay",
+    "espinaca-baby": "Baby",
+    "acelga-blanca": "White Stem",
+    "acelga-amarilla": "Yellow",
+    "acelga-roja": "Red (Ruby Chard)",
+    "acelga-rainbow": "Rainbow",
+    "zanahoria-nantes": "Nantes",
+    "zanahoria-chantenay": "Chantenay",
+    "zanahoria-imperator": "Imperator",
+    "zanahoria-baby": "Baby / Mini",
+    "zanahoria-morada": "Purple",
+    "rabano-redondo-rojo": "Round Red",
+    "rabano-largo-blanco": "White Long (Daikon)",
+    "rabano-french-breakfast": "French Breakfast",
+    "remolacha-detroit": "Detroit Red",
+    "remolacha-chioggia": "Chioggia",
+    "remolacha-amarilla": "Yellow",
+    "patata-monalisa": "Monalisa",
+    "patata-kennebec": "Kennebec",
+    "patata-agria": "Agria",
+    "patata-red-pontiac": "Red Pontiac",
+    "patata-ratte": "Ratte",
+    "judia-plana": "Flat / Runner",
+    "judia-redonda": "Round / Bobby",
+    "judia-boby": "Dwarf / Bush",
+    "judia-purple-queen": "Purple Queen",
+    "guisante-lincoln": "Lincoln",
+    "guisante-tirabuzón": "Mangetout",
+    "guisante-sugar-snap": "Sugar Snap",
+    "cebolla-morada": "Red / Purple",
+    "cebolla-blanca": "White",
+    "cebolla-amarilla": "Yellow",
+    "cebolla-calçot": "Calçot",
+    "cebolla-cebolleta": "Spring Onion",
+    "ajo-blanco-comun": "White (Common)",
+    "ajo-morado": "Purple",
+    "ajo-rosado": "Pink",
+    "ajo-negro": "Black (Fermented)",
+    "brocoli-calabrese": "Calabrese",
+    "brocoli-romanesco": "Romanesco",
+    "brocoli-morado": "Purple",
+    "albahaca-genovesa": "Genovese",
+    "albahaca-morada": "Purple",
+    "albahaca-thai": "Thai",
+    "albahaca-limon": "Lemon"
+  },
+  "identify": {
+    "title": "Identify pest",
+    "subtitle": "Photograph the affected part of your plant",
+    "takePhoto": "Take photo",
+    "fromGallery": "From gallery",
+    "analyze": "Analyze with AI",
+    "analyzing": "Analyzing your plant…",
+    "retake": "New photo",
+    "healthy": "Your plant looks healthy!",
+    "healthyDesc": "No pests or diseases were detected",
+    "saveEntry": "Save diagnosis to journal",
+    "saved": "✓ Saved to journal",
+    "proOnly": "Pro feature",
+    "proOnlyDesc": "AI identification is available on the Pro plan.",
+    "upgradePro": "View plans",
+    "freeCredit": "1 free analysis",
+    "freeCreditDesc": "Try AI once for free. After that you'll need the Pro plan.",
+    "freeCreditUsed": "You've used your free analysis",
+    "freeCreditUsedDesc": "Upgrade to Pro to identify pests and diseases without limits.",
+    "noKeyDesc": "Add EXPO_PUBLIC_ANTHROPIC_KEY to .env file",
+    "error": "Analysis error",
+    "errorDesc": "Could not analyze the image. Please try again.",
+    "confidence": {
+      "alta": "High confidence",
+      "media": "Medium confidence",
+      "baja": "Low confidence"
+    },
+    "problemType": {
+      "plaga": "Pest",
+      "enfermedad": "Disease",
+      "deficiencia": "Deficiency",
+      "saludable": "Healthy"
+    },
+    "symptomsLabel": "Observed symptoms",
+    "treatmentsLabel": "Recommended treatments",
+    "treatmentType": {
+      "organico": "Organic",
+      "preventivo": "Preventive",
+      "quimico": "Chemical"
+    }
+  },
+  "seasonalTips": {
+    "atlantica": {
+      "1": "Make the most of dry days to till and prepare the soil.",
+      "2": "Sow potatoes and cabbages outdoors once soil temperature exceeds 5°C.",
+      "3": "Time to transplant tomato and pepper seedlings under cover.",
+      "4": "Take advantage of the rain to plant green beans and peas.",
+      "5": "Sow courgette and cucumber outdoors; look after the pollinators.",
+      "6": "Water at dusk to reduce evaporation; protect fruit from excess moisture.",
+      "7": "Harvest tomatoes and peppers before heavy rain arrives.",
+      "8": "Peak harvest month: pick regularly to encourage more production.",
+      "9": "Sow spinach, Swiss chard and autumn lettuces.",
+      "10": "Plant garlic and winter onions before the first frost.",
+      "11": "Work compost into the soil to improve structure for next year.",
+      "12": "Plan next season's garden and order seeds from catalogues."
+    },
+    "mediterranea": {
+      "1": "Start pepper and aubergine seedlings indoors; frost risk still present outside.",
+      "2": "Transplant strawberries and plant broad beans; cool weather suits them.",
+      "3": "Sow tomatoes under cover; transplant lettuces and cabbages outdoors.",
+      "4": "Move tomatoes and peppers outside once night temperatures stay above 10°C.",
+      "5": "Install drip irrigation before the heat; sow green beans and courgette.",
+      "6": "Harvest garlic and onions; mulch to conserve soil moisture.",
+      "7": "Peak tomato production: harvest daily to encourage new fruit.",
+      "8": "Sow summer beans and prepare autumn beds in shadier spots.",
+      "9": "Sow Swiss chard, spinach and autumn lettuces; heat is easing.",
+      "10": "Plant garlic and onions; prepare beds with compost for winter.",
+      "11": "Transplant broccoli and cauliflower; autumn rain helps them establish.",
+      "12": "Protect frost-sensitive plants and plan crop rotation."
+    },
+    "continental": {
+      "1": "Start seedlings indoors; cold still prevents outdoor sowing.",
+      "2": "Begin tomato, pepper and aubergine seedlings under cover.",
+      "3": "Transplant lettuces and peas; wait until frost risk has passed.",
+      "4": "Sow beans and Swiss chard outdoors; transplant tomatoes only if frost-free.",
+      "5": "Water regularly: nights are still cool but days can be warm.",
+      "6": "Harvest early garlic and onions; maintain irrigation during dry spells.",
+      "7": "Harvest tomatoes and cucurbits; increase watering on days above 35°C.",
+      "8": "Sow spinach and late lettuces; intensive summer harvest.",
+      "9": "Heat is easing: sow cabbages, broccoli and Swiss chard.",
+      "10": "Plant winter garlic; clear beds and apply compost.",
+      "11": "Late cabbage harvest; cover with fleece if frost threatens.",
+      "12": "Protect the most tender plants; plan next year's rotation."
+    },
+    "subtropical": {
+      "1": "Sow tomatoes, peppers and cucumbers: temperatures are ideal.",
+      "2": "Plant strawberries and sow lettuces; mild weather aids establishment.",
+      "3": "Transplant cucurbits; make the most of any spring rains.",
+      "4": "Increase watering as temperatures rise; mulch to retain moisture.",
+      "5": "Shade crops from excess sun with a shade net.",
+      "6": "Rainy season: water moderately and watch for fungal disease.",
+      "7": "Peak rainfall: good drainage is key; harvest before rot sets in.",
+      "8": "Sow beans and sweet corn; warm nights encourage germination.",
+      "9": "Late summer harvest; sow lettuces and spinach in the shade.",
+      "10": "Cool weather: ideal for brassicas, carrots and beetroot.",
+      "11": "Sow cabbages and broccoli; cool temperatures improve flavour.",
+      "12": "Harvest and plan: summer crops are finishing their cycle."
+    }
+  }
 }

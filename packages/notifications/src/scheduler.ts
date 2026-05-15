@@ -60,3 +60,20 @@ export async function scheduleReminder(input: ScheduleInput): Promise<string> {
     trigger: trigger as any,
   });
 }
+
+export async function scheduleDateAlert(input: {
+  date: Date;
+  title: string;
+  body: string;
+}): Promise<string | null> {
+  if (input.date <= new Date()) return null;
+  try {
+    const T = Notifications.SchedulableTriggerInputTypes;
+    return await Notifications.scheduleNotificationAsync({
+      content: { title: input.title, body: input.body, sound: true },
+      trigger: { type: T.DATE, date: input.date } as any,
+    });
+  } catch {
+    return null;
+  }
+}

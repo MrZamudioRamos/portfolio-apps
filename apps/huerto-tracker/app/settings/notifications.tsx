@@ -9,6 +9,7 @@ import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import { useSeasonalAlerts } from '../../src/hooks/useSeasonalAlerts';
 import { useFrostAlert } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { usePlantNotifications } from '../../src/hooks/usePlantNotifications';
 
 export default function NotificationsSettingsScreen() {
   const colors = useColors();
@@ -17,6 +18,7 @@ export default function NotificationsSettingsScreen() {
   const { enabled, loading, toggle, nextPreview, zone } = useSeasonalAlerts();
   const { activeGarden } = useActiveGarden();
   const { enabled: frostEnabled, loading: frostLoading, toggle: toggleFrost } = useFrostAlert(activeGarden?.province);
+  const plantNotifs = usePlantNotifications();
 
   const zoneConfig = zone ? CLIMATE_ZONE_CONFIG[zone] : null;
 
@@ -102,7 +104,7 @@ export default function NotificationsSettingsScreen() {
               thumbColor="#fff"
             />
           </View>
-          {!garden?.province && (
+          {!activeGarden?.province && (
             <>
               <View style={[s.divider, { backgroundColor: colors.border }]} />
               <Text style={[s.rowSub, { color: colors.textSecondary }]}>
@@ -151,6 +153,80 @@ export default function NotificationsSettingsScreen() {
             </Card>
           </>
         )}
+
+        {/* Plant-level notifications */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('notifications.plantLabel')}</Text>
+        <Card padded style={s.card}>
+          {/* Transplant */}
+          <View style={s.toggleRow}>
+            <View style={[s.iconBox, { backgroundColor: '#4CAF5018' }]}>
+              <Text style={{ fontSize: 20 }}>🪴</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.rowTitle, { color: colors.text }]}>{t('notifications.transplantTitle')}</Text>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>
+                {plantNotifs.counts.transplant > 0
+                  ? t('notifications.plantCount', { count: plantNotifs.counts.transplant })
+                  : t('notifications.transplantDesc')}
+              </Text>
+            </View>
+            <Switch
+              value={plantNotifs.enabled.transplant}
+              onValueChange={(v) => plantNotifs.toggle('transplant', v)}
+              disabled={plantNotifs.loading}
+              trackColor={{ true: '#4CAF50' }}
+              thumbColor="#fff"
+            />
+          </View>
+
+          <View style={[s.divider, { backgroundColor: colors.border }]} />
+
+          {/* Harvest */}
+          <View style={s.toggleRow}>
+            <View style={[s.iconBox, { backgroundColor: '#FF704318' }]}>
+              <Text style={{ fontSize: 20 }}>🧺</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.rowTitle, { color: colors.text }]}>{t('notifications.harvestTitle')}</Text>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>
+                {plantNotifs.counts.harvest > 0
+                  ? t('notifications.plantCount', { count: plantNotifs.counts.harvest })
+                  : t('notifications.harvestDesc')}
+              </Text>
+            </View>
+            <Switch
+              value={plantNotifs.enabled.harvest}
+              onValueChange={(v) => plantNotifs.toggle('harvest', v)}
+              disabled={plantNotifs.loading}
+              trackColor={{ true: '#FF7043' }}
+              thumbColor="#fff"
+            />
+          </View>
+
+          <View style={[s.divider, { backgroundColor: colors.border }]} />
+
+          {/* Treatment clearance */}
+          <View style={s.toggleRow}>
+            <View style={[s.iconBox, { backgroundColor: '#26C6DA18' }]}>
+              <Text style={{ fontSize: 20 }}>🧴</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.rowTitle, { color: colors.text }]}>{t('notifications.treatmentTitle')}</Text>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>
+                {plantNotifs.counts.treatment > 0
+                  ? t('notifications.plantCount', { count: plantNotifs.counts.treatment })
+                  : t('notifications.treatmentDesc')}
+              </Text>
+            </View>
+            <Switch
+              value={plantNotifs.enabled.treatment}
+              onValueChange={(v) => plantNotifs.toggle('treatment', v)}
+              disabled={plantNotifs.loading}
+              trackColor={{ true: '#26C6DA' }}
+              thumbColor="#fff"
+            />
+          </View>
+        </Card>
 
         {/* How it works */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('notifications.howLabel')}</Text>
