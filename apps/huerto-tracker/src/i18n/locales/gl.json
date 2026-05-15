@@ -61,7 +61,9 @@
     "sortName": "A-Z",
     "sortNewest": "Recentes",
     "showFinished": "{{count}} rematadas ocultas · Mostrar",
-    "hideFinished": "Ocultar rematadas"
+    "hideFinished": "Ocultar rematadas",
+    "taskCarencia": "{{name}}: non coseitar {{days}} día(s) máis (carencia)",
+    "waterAllLitersHint": "repartiránse entre as plantas activas"
   },
   "calendar": {
     "title": "Calendario de sementeira",
@@ -102,7 +104,8 @@
     "emptyTitle": "O teu diario está baleiro",
     "emptyDesc": "Rexistra a túa primeira actividade: un rego, unha sementeira ou unha colleita.",
     "newEntry": "Nova entrada",
-    "search": "Buscar no diario…"
+    "search": "Buscar no diario…",
+    "exportCsv": "Exportar CSV"
   },
   "settings": {
     "title": "Axustes",
@@ -167,7 +170,9 @@
       "rate": "Valorar na App Store",
       "privacy": "Política de privacidade",
       "contact": "Contacto"
-    }
+    },
+    "rotation": "Rotación de cultivos",
+    "rotationDesc": "Historial por parcela e recomendacións"
   },
   "auth": {
     "title": "Crea a túa conta",
@@ -466,7 +471,17 @@
     "transplantModalTitle": "Rexistrar transplante",
     "transplantDateLabel": "DATA DO TRANSPLANTE",
     "transplantConfirm": "Confirmar transplante",
-    "duplicate": "Duplicar planta"
+    "duplicate": "Duplicar planta",
+    "treatmentActive": "Tratamento activo",
+    "treatmentSafeIn": "Seguro para coseitar en {{days}} día(s)",
+    "treatmentSafeToday": "Xa é seguro coseitar",
+    "soilSection": "Solo",
+    "soilPh": "pH",
+    "bedName": "Parcela",
+    "soilTexture": "Textura",
+    "successionSow": "Nova quenda (sementeira escalonada)",
+    "successionSowDesc": "Crea unha nova planta do mesmo cultivo sementada hoxe",
+    "successionNote": "Sementeira escalonada de {{original}}"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",
@@ -904,6 +919,96 @@
       "organico": "Orgánico",
       "preventivo": "Preventivo",
       "quimico": "Químico"
+    }
+  },
+  "seasonalTips": {
+    "atlantica": {
+      "1": "Aproveita os días sen choiva para labrar e preparar a terra.",
+      "2": "Sementade patacas e coles no exterior cando o chan supere os 5°C.",
+      "3": "É o momento de transplantar os semilleiros de tomate e pemento ao interior.",
+      "4": "Aproveita a choiva para plantar feixóos verdes e chícharos.",
+      "5": "Sementade calabacín e pepino no exterior; coida os polinizadores.",
+      "6": "Rega ao solpor para evitar a evaporación; protexe os froitos do exceso de humidade.",
+      "7": "Recolle tomates e pementos antes de que cheguen choivas intensas.",
+      "8": "Mes de máxima colleita: recolle regularmente para estimular máis produción.",
+      "9": "Sementade espinacas, acelgas e leituga de outono.",
+      "10": "Planta allos e cebolas de inverno antes das primeiras xeadas.",
+      "11": "Incorpora compost ao chan para mellorar a estrutura para o ano seguinte.",
+      "12": "Planifica a horta da próxima tempada e pide sementes por catálogo."
+    },
+    "mediterranea": {
+      "1": "Sementade en semilleiro interior pemento e berexéna; aínda hai risco de xeadas no exterior.",
+      "2": "Trasplanta amorodos e planta fabas; o tempo fresco favóreos.",
+      "3": "Sementade tomate en semilleiro; trasplanta leituga e coles ao exterior.",
+      "4": "Trasplanta o tomate e o pemento ao exterior cando as noites superen os 10°C.",
+      "5": "Instala goteo antes do calor; sementade feixóos verdes e calabacín.",
+      "6": "Recolle allos e cebolas; acolcha para conservar a humidade do chan.",
+      "7": "Máxima produción de tomate: recolle a diario para estimular novos froitos.",
+      "8": "Sementade feixóos de verán e prepara o bancal de outono en zonas con sombra.",
+      "9": "Sementade acelgas, espinacas e leituga de outono; o calor remite.",
+      "10": "Planta allos e cebolas; prepara bancais con abono para o inverno.",
+      "11": "Trasplanta brócoli e coliflor; as choivas de outono axudan ao arraigamento.",
+      "12": "Protexe as plantas sensíbeis ao frío e planifica a rotación de cultivos."
+    },
+    "continental": {
+      "1": "Prepara semilleiros no interior; o frío aínda impide sementar no exterior.",
+      "2": "Inicia semilleiros de tomate, pemento e berexéna baixo cuberta.",
+      "3": "Trasplanta leituga e chícharos; agarda que non haxa xeadas.",
+      "4": "Sementade feixóos e acelgas no exterior; trasplanta tomate só se non hai risco de xeada.",
+      "5": "Rega con regularidade: as noites aínda son frescas pero o día pode ser caloroso.",
+      "6": "Recolle allos e cebolas temperans; mantén o rego en épocas de seca.",
+      "7": "Recolle tomates e cucurbitáceas; extrema o rego nos días de máis de 35°C.",
+      "8": "Sementade espinacas e leituga tardía; colleita intensiva de verán.",
+      "9": "O calor remite: sementade coles, brócoli e acelgas.",
+      "10": "Planta allos de inverno; limpa bancais e aplica compost.",
+      "11": "Colleita tardía de coles; cobre con manta térmica se hai xeadas.",
+      "12": "Protexe as plantas máis sensíbeis; planifica a rotación do ano seguinte."
+    },
+    "subtropical": {
+      "1": "Sementade tomates, pementos e pepinos: as temperaturas son ideais.",
+      "2": "Planta amorodos e sementade leituga; o clima templado favorece o arraigamento.",
+      "3": "Trasplanta cucurbitáceas; aproveita as choivas de primavera se as hai.",
+      "4": "Aumenta o rego a medida que sobe a temperatura; acolcha para reter humidade.",
+      "5": "Protexe os cultivos do exceso de sol con malla de sombra.",
+      "6": "Tempada de choivas: rega con moderación e vixia os fungos.",
+      "7": "Máximas precipitacións: bo drenaxe é clave; recolle antes de podredumes.",
+      "8": "Sementade feixóos e millo doce; as noites cálidas favorecen a xerminación.",
+      "9": "Colleita de final de verán; sementade leituga e espinacas á sombra.",
+      "10": "Tempo fresco: ideal para crucíferas, cenoras e remolacha.",
+      "11": "Sementade coles e brócoli; as temperaturas frescas melloran o sabor.",
+      "12": "Recolle e planifica: as plantas de verán rematan o seu ciclo."
+    }
+  },
+  "costs": {
+    "title": "Custos e ROI",
+    "summaryLabel": "RESUMO",
+    "totalExpense": "Total gastos",
+    "harvestValue": "Valor colleita",
+    "netProfit": "Beneficio neto:",
+    "netLoss": "Perda neta:",
+    "expensesLabel": "GASTOS",
+    "harvestLabel": "VALOR COLLEITA",
+    "waterLabel": "AUGA",
+    "recentLabel": "ÚTIMOS GASTOS",
+    "totalKg": "Kg colleitados",
+    "pricePerKg": "Prezo estimado",
+    "estimatedValue": "Valor estimado",
+    "totalLiters": "Litros regados",
+    "pricePerLiter": "Prezo da auga",
+    "waterCost": "Custo da auga",
+    "waterAuto": "Auga (auto)",
+    "addExpense": "Engadir gasto",
+    "categoryLabel": "CATEGORÍA",
+    "amountLabel": "IMPORTE",
+    "descLabel": "DESCRICIÓN (opcional)",
+    "descPlaceholder": "Ex. sementes de tomate cherry...",
+    "save": "Gardar gasto",
+    "cat": {
+      "seeds": "Sementes",
+      "fertilizer": "Abono",
+      "treatment": "Tratamentos",
+      "tools": "Ferramentas",
+      "other": "Outros"
     }
   }
 }

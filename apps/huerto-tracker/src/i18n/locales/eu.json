@@ -61,7 +61,9 @@
     "sortName": "A-Z",
     "sortNewest": "Berrienak",
     "showFinished": "{{count}} amaituta ezkutatuta · Ikusi",
-    "hideFinished": "Ezkutatu amaitutakoak"
+    "hideFinished": "Ezkutatu amaitutakoak",
+    "taskCarencia": "{{name}}: ez bildu {{days}} egun gehiago (itxaronaldia)",
+    "waterAllLitersHint": "landare aktiboen artean banatuko dira"
   },
   "calendar": {
     "title": "Erein egutegia",
@@ -102,7 +104,8 @@
     "emptyTitle": "Egunkaria hutsik dago",
     "emptyDesc": "Erregistratu zure lehen jarduera: ureztatze bat, ereintza bat edo uzta bat.",
     "newEntry": "Sarrera berria",
-    "search": "Bilatu egunkarian…"
+    "search": "Bilatu egunkarian…",
+    "exportCsv": "CSV esportatu"
   },
   "settings": {
     "title": "Ezarpenak",
@@ -167,7 +170,9 @@
       "rate": "App Store-n baloratu",
       "privacy": "Pribatutasun politika",
       "contact": "Kontaktua"
-    }
+    },
+    "rotation": "Labore txandakatzea",
+    "rotationDesc": "Lursaileko historia eta gomendioak"
   },
   "auth": {
     "title": "Sortu zure kontua",
@@ -466,7 +471,17 @@
     "transplantModalTitle": "Landaketa erregistratu",
     "transplantDateLabel": "LANDAKETA DATA",
     "transplantConfirm": "Landaketa berretsi",
-    "duplicate": "Bikoiztu landarea"
+    "duplicate": "Bikoiztu landarea",
+    "treatmentActive": "Tratamendua aktibo",
+    "treatmentSafeIn": "Biltzeko segurua {{days}} egun barru",
+    "treatmentSafeToday": "Dagoeneko segurua da biltzea",
+    "soilSection": "Lurra",
+    "soilPh": "pH",
+    "bedName": "Lursaila",
+    "soilTexture": "Textura",
+    "successionSow": "Txanda berria (ereintza eskalatu)",
+    "successionSowDesc": "Sortu gaur ereindako labore bereko landare berria",
+    "successionNote": "Ereintza eskalatuak {{original}}"
   },
   "reminderEdit": {
     "title": "Gogorarazlea editatu",
@@ -904,6 +919,96 @@
       "organico": "Organikoa",
       "preventivo": "Prebentiboa",
       "quimico": "Kimikoa"
+    }
+  },
+  "seasonalTips": {
+    "atlantica": {
+      "1": "Euri-gabe egunak aprobetxatu lurra goldatzeko eta prestatzeko.",
+      "2": "Patata eta azak kanpoan erein lurrak 5°C gainditzen dituenean.",
+      "3": "Unea da tomate eta piper plantak barrura trasplantatzeko.",
+      "4": "Aprobetxatu euria babarrun berdeak eta ilarreak landatzeko.",
+      "5": "Kalabazina eta pepinoa kanpoan erein; polinizatzaileak zaindu.",
+      "6": "Ureztatu ilunabarrean ebaporazioa saihesteko; fruituak hezetasun gehiegitik babestu.",
+      "7": "Bildu tomateak eta piperrak euri handiak iritsi baino lehen.",
+      "8": "Uzta gehieneko hilabetea: bildu sarritan ekoizpen gehiago sustatzeko.",
+      "9": "Erein espinakak, zikoria eta udazkeneko letxugak.",
+      "10": "Landatu baratxuriak eta neguko tipulak lehen izotzak baino lehen.",
+      "11": "Inkorporatu konposta lurrera datorren urterako egitura hobetzeko.",
+      "12": "Planifikatu datorren denboraldiko baratzea eta eskatu haziak katalogoz."
+    },
+    "mediterranea": {
+      "1": "Erein piper eta alberjinia barrualdeko plantelean; kanpoan oraindik izotz arriskua dago.",
+      "2": "Marrubiak transplantatu eta babak landatu; eguraldi freskoak laguntzen die.",
+      "3": "Tomatea plantelean erein; letxugak eta azak kanpoan transplantatu.",
+      "4": "Tomatea eta piperra kanpoan transplantatu gauak 10°C gainditzen dituenean.",
+      "5": "Tanta-tanta ureztatzea instalatu bero baino lehen; babarrun berdeak eta kalabazina erein.",
+      "6": "Bildu baratxuriak eta tipulak; maltzak ezarri lurreko hezetasuna gordetzeko.",
+      "7": "Tomate ekoizpen maximoa: bildu egunero fruitua sustatzeko.",
+      "8": "Udako babarrunak erein eta udazkeneko oheak prestatu itzal-guneetan.",
+      "9": "Zikoria, espinakak eta udazkeneko letxugak erein; beroa arintzen ari da.",
+      "10": "Baratxuriak eta tipulak landatu; oheak ongarriarekin prestatu negurako.",
+      "11": "Brokolia eta koliftorra transplantatu; udazkeneko euriak errotzen laguntzen du.",
+      "12": "Hotza jasatzen ez duten landareak babestu eta labore txandakatzea planifikatu."
+    },
+    "continental": {
+      "1": "Barrualdean plantelak prestatu; hotzak kanpoko ereitea oraindik eragozten du.",
+      "2": "Tomate, piper eta alberjinia plantelak estalpe azpian hasi.",
+      "3": "Letxugak eta ilarreak transplantatu; itxaron izotzik ez egon arte.",
+      "4": "Babarrunak eta zikoria kanpoan erein; tomatea transplantatu izotz-arriskurik ez badago bakarrik.",
+      "5": "Ureztatu erregularki: gauak oraindik freskoak dira baina egunak beroak izan daitezke.",
+      "6": "Bildu goiztiako baratxuriak eta tipulak; ureztatzea mantendu lehortean.",
+      "7": "Bildu tomateak eta kukorbitagoak; ureztatzea handitu 35°C baino gehiagoko egunetan.",
+      "8": "Espinakak eta berantiako letxugak erein; udako uzta intentsiboa.",
+      "9": "Beroa arintzen ari da: azak, brokolia eta zikoria erein.",
+      "10": "Neguko baratxuriak landatu; oheak garbitu eta konposta aplikatu.",
+      "11": "Azaren berantiako uzta; estali vellonarekin izotza bada.",
+      "12": "Landare sentikorragoak babestu; datorren urterako txandakatzea planifikatu."
+    },
+    "subtropical": {
+      "1": "Tomateak, piperrak eta pepinoak erein: tenperaturak aproposak dira.",
+      "2": "Marrubiak landatu eta letxugak erein; eguraldi epelak errotzen laguntzen du.",
+      "3": "Kukorbitagoak transplantatu; udaberriko euriak aprobetxatu badaude.",
+      "4": "Ureztatze gehitu tenperatura igotzen den heinean; maltzak ezarri hezetasuna gordetzeko.",
+      "5": "Eguzkitze gehiegitik babestu laboreek sare batekin.",
+      "6": "Euri garaia: neurriz ureztatu eta onddoen bila egon.",
+      "7": "Prezipitazio maximoak: drainatze ona giltzarria da; usteldu baino lehen bildu.",
+      "8": "Babarrunak eta arto gozoa erein; gau beroak ernamuintza sustatzen dute.",
+      "9": "Uda bukaerako uzta; letxugak eta espinakak itzalean erein.",
+      "10": "Eguraldi freskoa: gurutzatuetarako, azenarioentzat eta erremolatxarentzat ezin hobea.",
+      "11": "Azak eta brokolia erein; tenperatura freskoak zaporea hobetzen dute.",
+      "12": "Bildu eta planifikatu: udako landareak bere zikloa amaitzen ari dira."
+    }
+  },
+  "costs": {
+    "title": "Kostuak eta ROI",
+    "summaryLabel": "LABURPENA",
+    "totalExpense": "Gastu guztira",
+    "harvestValue": "Uzta balioa",
+    "netProfit": "Irabazi garbia:",
+    "netLoss": "Galera garbia:",
+    "expensesLabel": "GASTUAK",
+    "harvestLabel": "UZTA BALIOA",
+    "waterLabel": "URA",
+    "recentLabel": "AZKEN GASTUAK",
+    "totalKg": "Bildutako kg",
+    "pricePerKg": "Prezio estimatua",
+    "estimatedValue": "Balio estimatua",
+    "totalLiters": "Ureztaturiko litroak",
+    "pricePerLiter": "Uraren prezioa",
+    "waterCost": "Uraren kostua",
+    "waterAuto": "Ura (auto)",
+    "addExpense": "Gastua gehitu",
+    "categoryLabel": "KATEGORIA",
+    "amountLabel": "ZENBATEKOA",
+    "descLabel": "DESKRIBAPENA (hautazkoa)",
+    "descPlaceholder": "Ad. cherry tomate haziak...",
+    "save": "Gastua gorde",
+    "cat": {
+      "seeds": "Haziak",
+      "fertilizer": "Ongarria",
+      "treatment": "Tratamenduak",
+      "tools": "Tresnak",
+      "other": "Bestelakoak"
     }
   }
 }

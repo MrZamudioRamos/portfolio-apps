@@ -4,6 +4,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   Pressable,
   ScrollView,
@@ -19,6 +20,7 @@ import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/mo
 import { type Plant } from '../../src/models/plant';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { useTranslation } from 'react-i18next';
+import { useCsvExport } from '../../src/hooks/useCsvExport';
 
 const ALL_TYPES: Array<EntryType | 'all'> = [
   'all', 'watering', 'sowing', 'harvest', 'fertilizing', 'transplant',
@@ -37,6 +39,7 @@ export default function DiaryScreen() {
 
   const entries = useCollection<DiaryEntry>('diary_entries');
   const plants = useCollection<Plant>('plants');
+  const { exportEntries, exporting } = useCsvExport();
 
   useFocusEffect(
     useCallback(() => {
@@ -205,13 +208,27 @@ export default function DiaryScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={s.header}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-          {plantId && (
-            <Pressable onPress={() => router.back()} hitSlop={8}>
-              <Ionicons name="arrow-back" size={22} color={colors.primary} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+            {plantId && (
+              <Pressable onPress={() => router.back()} hitSlop={8}>
+                <Ionicons name="arrow-back" size={22} color={colors.primary} />
+              </Pressable>
+            )}
+            <Text style={[s.headerTitle, { color: colors.text }]}>{t('diary.title')}</Text>
+          </View>
+          {entries.items.length > 0 && (
+            <Pressable
+              onPress={() => exportEntries(entries.items, plants.items)}
+              hitSlop={8}
+              disabled={exporting}
+            >
+              {exporting
+                ? <ActivityIndicator size="small" color={colors.primary} />
+                : <Ionicons name="share-outline" size={22} color={colors.primary} />
+              }
             </Pressable>
           )}
-          <Text style={[s.headerTitle, { color: colors.text }]}>{t('diary.title')}</Text>
         </View>
         {filteredPlant && (
           <View style={[s.plantFilterBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>

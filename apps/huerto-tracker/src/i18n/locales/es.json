@@ -106,7 +106,8 @@
     "emptyTitle": "Tu diario está vacío",
     "emptyDesc": "Registra tu primera actividad: un riego, una siembra o una cosecha.",
     "newEntry": "Nueva entrada",
-    "search": "Buscar en el diario…"
+    "search": "Buscar en el diario…",
+    "exportCsv": "Exportar CSV"
   },
   "settings": {
     "title": "Ajustes",

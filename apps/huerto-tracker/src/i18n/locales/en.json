@@ -61,7 +61,9 @@
     "sortName": "A-Z",
     "sortNewest": "Newest",
     "showFinished": "{{count}} finished hidden · Show",
-    "hideFinished": "Hide finished"
+    "hideFinished": "Hide finished",
+    "taskCarencia": "{{name}}: do not harvest for {{days}} more day(s) (clearance period)",
+    "waterAllLitersHint": "will be split among active plants"
   },
   "calendar": {
     "title": "Sowing calendar",
@@ -102,7 +104,8 @@
     "emptyTitle": "Your journal is empty",
     "emptyDesc": "Log your first activity: a watering, sowing, or harvest.",
     "newEntry": "New entry",
-    "search": "Search diary…"
+    "search": "Search diary…",
+    "exportCsv": "Export CSV"
   },
   "settings": {
     "title": "Settings",

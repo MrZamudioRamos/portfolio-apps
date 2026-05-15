@@ -61,7 +61,9 @@
     "sortName": "A-Z",
     "sortNewest": "Recents",
     "showFinished": "{{count}} finalitzades ocultes · Mostrar",
-    "hideFinished": "Amagar finalitzades"
+    "hideFinished": "Amagar finalitzades",
+    "taskCarencia": "{{name}}: no collir {{days}} dia(s) més (carència)",
+    "waterAllLitersHint": "es repartiran entre les plantes actives"
   },
   "calendar": {
     "title": "Calendari de sembra",
@@ -102,7 +104,8 @@
     "emptyTitle": "El teu diari és buit",
     "emptyDesc": "Registra la teva primera activitat: un reg, una sembra o una collita.",
     "newEntry": "Nova entrada",
-    "search": "Cerca al diari…"
+    "search": "Cerca al diari…",
+    "exportCsv": "Exportar CSV"
   },
   "settings": {
     "title": "Ajustos",
@@ -167,7 +170,9 @@
       "rate": "Valorar a l'App Store",
       "privacy": "Política de privacitat",
       "contact": "Contacte"
-    }
+    },
+    "rotation": "Rotació de cultius",
+    "rotationDesc": "Historial per parcel·la i recomanacions"
   },
   "auth": {
     "title": "Crea el teu compte",
@@ -466,7 +471,17 @@
     "transplantModalTitle": "Registrar trasplantament",
     "transplantDateLabel": "DATA DE TRASPLANTAMENT",
     "transplantConfirm": "Confirmar trasplantament",
-    "duplicate": "Duplicar planta"
+    "duplicate": "Duplicar planta",
+    "treatmentActive": "Tractament actiu",
+    "treatmentSafeIn": "Segur per collir en {{days}} dia(s)",
+    "treatmentSafeToday": "Ja és segur collir",
+    "soilSection": "Sòl",
+    "soilPh": "pH",
+    "bedName": "Parcel·la",
+    "soilTexture": "Textura",
+    "successionSow": "Nova tanda (sembra escalonada)",
+    "successionSowDesc": "Crea una nova planta del mateix cultiu sembrada avui",
+    "successionNote": "Sembra escalonada de {{original}}"
   },
   "reminderEdit": {
     "title": "Editar recordatori",
@@ -904,6 +919,96 @@
       "organico": "Orgànic",
       "preventivo": "Preventiu",
       "quimico": "Químic"
+    }
+  },
+  "seasonalTips": {
+    "atlantica": {
+      "1": "Aprofita els dies sense pluja per llaurar i preparar la terra.",
+      "2": "Sembra patates i cols a l’exterior quan el sòl superi els 5°C.",
+      "3": "Trasplanta els planters de tomàquet i pebrot a l’interior.",
+      "4": "Aprofita la pluja per plantar mongetes i pèsols.",
+      "5": "Sembra carbassó i cogombre a l’exterior; cuida els pol·linitzadors.",
+      "6": "Rega al capvespre per evitar l’evaporació; protegeix els fruits de l’excés d’humitat.",
+      "7": "Recull tomàquets i pebrots abans que arribin pluges intenses.",
+      "8": "Mes de màxima collita: recull regularment per estimular més producció.",
+      "9": "Sembra espinacs, bledes i encians de tardor.",
+      "10": "Planta alls i cebes d’hivern abans de les primeres gelades.",
+      "11": "Incorpora compost al sòl per millorar l’estructura per a l’any vinent.",
+      "12": "Planifica l’hort de la pròxima temporada i demana llavors per catàleg."
+    },
+    "mediterranea": {
+      "1": "Sembra en planter interior pebrot i albergínia; encara hi ha risc de gelades a l’exterior.",
+      "2": "Trasplanta maduixes i planta faves; el temps fresc les afavoreix.",
+      "3": "Sembra tomàquet en planter; trasplanta encians i cols a l’exterior.",
+      "4": "Trasplanta el tomàquet i el pebrot a l’exterior quan les nits superin els 10°C.",
+      "5": "Instal·la degoteig abans de la calor; sembra mongetes i carbassó.",
+      "6": "Recull alls i cebes; encoberta per conservar la humitat del sòl.",
+      "7": "Màxima producció de tomàquet: recull diàriament per estimular nous fruits.",
+      "8": "Sembra mongetes d’estiu i prepara el bancal de tardor a zones amb ombra.",
+      "9": "Sembra bledes, espinacs i encians de tardor; la calor remiteix.",
+      "10": "Planta alls i cebes; prepara bancals amb adob per a l’hivern.",
+      "11": "Trasplanta bròquil i coliflor; les pluges de tardor ajuden a l’arrelament.",
+      "12": "Protegeix les plantes sensibles al fred i planifica la rotació de cultius."
+    },
+    "continental": {
+      "1": "Prepara planters a l’interior; el fred encara impedeix sembrar a l’exterior.",
+      "2": "Inicia planters de tomàquet, pebrot i albergínia sota coberta.",
+      "3": "Trasplanta encians i pèsols; espera que no hi hagi gelades.",
+      "4": "Sembra mongetes i bledes a l’exterior; trasplanta tomàquet només si no hi ha risc de gelada.",
+      "5": "Rega amb regularitat: les nits encara són fresques però el dia pot ser calorós.",
+      "6": "Recull alls i cebes primerenques; mantén el reg en èpoques de sequera.",
+      "7": "Recull tomàquets i cucurbitàcies; extrema el reg els dies de més de 35°C.",
+      "8": "Sembra espinacs i encians tardans; collita intensiva d’estiu.",
+      "9": "La calor remiteix: sembra cols, bròquil i bledes.",
+      "10": "Planta alls d’hivern; neteja bancals i aplica compost.",
+      "11": "Collita tardana de cols; cobreix amb manta tèrmica si hi ha gelades.",
+      "12": "Protegeix les plantes més sensibles; planifica la rotació de l’any vinent."
+    },
+    "subtropical": {
+      "1": "Sembra tomàquets, pebrots i cogombres: les temperatures són ideals.",
+      "2": "Planta maduixes i sembra encians; el clima temperat afavoreix l’arrelament.",
+      "3": "Trasplanta cucurbitàcies; aprofita les pluges de primavera si n’hi ha.",
+      "4": "Augmenta el reg a mesura que puja la temperatura; encoberta per retenir humitat.",
+      "5": "Protegeix els cultius de l’excés de sol amb malla d’ombra.",
+      "6": "Temporada de pluges: rega amb moderació i vigila els fongs.",
+      "7": "Màximes precipitacions: bon drenatge és clau; recull abans de podridures.",
+      "8": "Sembra mongetes i blat de moro dolç; les nits càlides afavoreixen la germinació.",
+      "9": "Collita de final d’estiu; sembra encians i espinacs a l’ombra.",
+      "10": "Temps fresc: ideal per a crucíferes, pastanagues i remolatxes.",
+      "11": "Sembra cols i bròquil; les temperatures fresques milloren el sabor.",
+      "12": "Recull i planifica: les plantes d’estiu acaben el seu cicle."
+    }
+  },
+  "costs": {
+    "title": "Costos i ROI",
+    "summaryLabel": "RESUM",
+    "totalExpense": "Total despeses",
+    "harvestValue": "Valor collita",
+    "netProfit": "Benefici net:",
+    "netLoss": "Pèrdua neta:",
+    "expensesLabel": "DESPESES",
+    "harvestLabel": "VALOR COLLITA",
+    "waterLabel": "AIGUA",
+    "recentLabel": "ÚTIMES DESPESES",
+    "totalKg": "Kg collits",
+    "pricePerKg": "Preu estimat",
+    "estimatedValue": "Valor estimat",
+    "totalLiters": "Litres regats",
+    "pricePerLiter": "Preu de l’aigua",
+    "waterCost": "Cost de l’aigua",
+    "waterAuto": "Aigua (auto)",
+    "addExpense": "Afegir despesa",
+    "categoryLabel": "CATEGORIA",
+    "amountLabel": "IMPORT",
+    "descLabel": "DESCRIPCIÓ (opcional)",
+    "descPlaceholder": "Ex. llavors de tomàquet cherry...",
+    "save": "Desar despesa",
+    "cat": {
+      "seeds": "Llavors",
+      "fertilizer": "Adob",
+      "treatment": "Tractaments",
+      "tools": "Eines",
+      "other": "Altres"
     }
   }
 }
