@@ -3,12 +3,14 @@ import { useSession } from '@portfolio/supabase';
 import { useColors, useTheme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { Redirect, Tabs } from 'expo-router';
 import { Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 const PILL_H = 62;
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 const PILL_MARGIN_TOP = 8;
 const PILL_GAP_BOTTOM = 10; // gap between pill bottom and safe area
 
@@ -66,7 +68,13 @@ export default function TabsLayout() {
                 shadowRadius: 18,
               }}
             >
-              {Platform.OS === 'ios' ? (
+              {glassAvailable ? (
+                <GlassView
+                  style={StyleSheet.absoluteFill}
+                  glassEffectStyle="regular"
+                  colorScheme={isDark ? 'dark' : 'light'}
+                />
+              ) : Platform.OS === 'ios' ? (
                 <BlurView
                   intensity={isDark ? 60 : 80}
                   tint={isDark ? 'dark' : 'light'}

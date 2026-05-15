@@ -1,4 +1,5 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
@@ -20,6 +21,8 @@ import { CROPS_BY_ID } from '../data';
 import type { Plant } from '../models/plant';
 import { getPestsForCrop } from '../data/pests';
 import { useActiveGarden } from '../hooks/useActiveGarden';
+
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 interface QuickAction {
   type: EntryType;
@@ -140,7 +143,8 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
         style={s.kavWrapper}
         pointerEvents="box-none"
       >
-        <View style={[s.sheet, { backgroundColor: colors.surface }]}>
+        <View style={[s.sheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]}>
+          {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
           {/* Handle */}
           <View style={[s.handle, { backgroundColor: colors.border }]} />
 

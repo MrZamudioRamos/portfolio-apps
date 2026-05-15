@@ -4,6 +4,7 @@ import { useSession } from '@portfolio/supabase';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import * as ImagePicker from 'expo-image-picker';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
@@ -28,6 +29,8 @@ import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import { getCompanions } from '../../src/data/companions';
 import type { Plant } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
+
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const SECTIONS = (Object.keys(CATEGORY_CONFIG) as Array<keyof typeof CATEGORY_CONFIG>).map((cat) => ({
   title: cat,
@@ -334,7 +337,8 @@ export default function NewPlantScreen() {
               {showDatePicker && Platform.OS === 'ios' && (
                 <Modal transparent animationType="slide" visible>
                   <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
-                    <Pressable style={[s.dateModalSheet, { backgroundColor: colors.surface }]} onPress={() => {}}>
+                    <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
+                        {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
                       <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
                       <DateTimePicker
                         value={new Date(sowingDate)}

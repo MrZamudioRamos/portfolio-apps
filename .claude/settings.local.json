@@ -22,7 +22,13 @@
       "Bash(xargs grep *)",
       "Bash(git *)",
       "PowerShell(git add *)",
-      "PowerShell(git commit -m $msg)"
+      "PowerShell(git commit -m $msg)",
+      "Bash(python *)",
+      "PowerShell(cd \"C:\\\\WorkSpace\\\\portfolio-apps\\\\apps\\\\huerto-tracker\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -match \"entry/new|plant/new|plant/\\\\[id\\\\]\" })",
+      "PowerShell(cd \"C:\\\\WorkSpace\\\\portfolio-apps\\\\apps\\\\huerto-tracker\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -match \"entry/edit|diary\\\\.tsx\" })",
+      "PowerShell(cd \"C:\\\\WorkSpace\\\\portfolio-apps\\\\apps\\\\huerto-tracker\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -match \"reminder/new|garden/edit|identify|stats\\\\.tsx\" })",
+      "PowerShell(cd \"C:\\\\WorkSpace\\\\portfolio-apps\\\\apps\\\\huerto-tracker\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -match \"plant/edit|calendar\" })",
+      "PowerShell(cd \"C:\\\\WorkSpace\\\\portfolio-apps\\\\apps\\\\huerto-tracker\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -match \"index\\\\.tsx|plant/\\\\[id\\\\]\" })"
     ]
   }
 }

@@ -1,6 +1,7 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -9,6 +10,7 @@ import {
   Alert,
   FlatList,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -28,6 +30,8 @@ import {
   cellIndex,
   useGardenLayout,
 } from '../../src/hooks/useGardenLayout';
+
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 export default function GardenMapScreen() {
   const colors = useColors();
@@ -353,7 +357,8 @@ export default function GardenMapScreen() {
       >
         <Pressable style={s.overlay} onPress={() => setSelectedCell(null)}>
           {/* Stop tap from bubbling through the card */}
-          <Pressable style={[s.contextCard, { backgroundColor: colors.surface, ...shadows.lg }]}>
+          <Pressable style={[s.contextCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden', ...shadows.lg }]}>
+              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
             {selectedPlant && selectedCrop && (
               <>
                 {/* Plant identity */}

@@ -41,6 +41,8 @@ import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringSt
 import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
+
 export default function DashboardScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
@@ -185,8 +187,6 @@ export default function DashboardScreen() {
     () => buildGamificationData(plants.items, entries.items).streak,
     [plants.items, entries.items]
   );
-
-  const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
   const currentMonth = new Date().getMonth() + 1;
   const sowingData = useMemo(() => {
@@ -819,7 +819,8 @@ export default function DashboardScreen() {
       <Modal visible={showWaterAllModal} transparent animationType="slide" onRequestClose={() => setShowWaterAllModal(false)}>
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => setShowWaterAllModal(false)} />
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ justifyContent: 'flex-end' }}>
-          <Pressable onPress={() => {}} style={[{ backgroundColor: colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing.xl, paddingBottom: 36, gap: spacing.lg }]}>
+          <Pressable onPress={() => {}} style={[{ backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing.xl, paddingBottom: 36, gap: spacing.lg, overflow: 'hidden' }]}>
+              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
             <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: spacing.sm }} />
             <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text }}>
               💧 {t('home.waterAllTitle')}

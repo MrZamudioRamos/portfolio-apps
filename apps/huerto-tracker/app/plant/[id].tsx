@@ -3,6 +3,7 @@ import { useCollection } from '@portfolio/storage';
 import { useReminders } from '@portfolio/notifications';
 import { formatDate, formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +11,7 @@ import {
   Alert,
   Image,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -27,6 +29,8 @@ import { ENTRY_TYPE_CONFIG, type DiaryEntry } from '../../src/models/diary-entry
 import { REMINDER_TYPE_CONFIG, type GardenReminder } from '../../src/models/reminder';
 import { getPestsForCrop, PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
+
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const ALL_STATUSES: PlantStatus[] = [
   'seedling', 'transplanted', 'growing', 'flowering', 'fruiting', 'harvesting', 'finished',
@@ -852,7 +856,8 @@ export default function PlantDetailScreen() {
       {/* Transplant modal */}
       <Modal visible={showTransplantModal} transparent animationType="slide">
         <Pressable style={s.modalOverlay} onPress={() => setShowTransplantModal(false)}>
-          <Pressable style={[s.transplantModal, { backgroundColor: colors.surface }]} onPress={(e) => e.stopPropagation()}>
+          <Pressable style={[s.transplantModal, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={(e) => e.stopPropagation()}>
+              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
             <Text style={[s.transplantModalTitle, { color: colors.text }]}>
               {t('plantDetail.transplantModalTitle')}
             </Text>

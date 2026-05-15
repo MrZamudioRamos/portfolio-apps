@@ -18,6 +18,7 @@
     "typescript": "^5.3.0"
   },
   "dependencies": {
-    "expo-blur": "^55.0.14"
+    "expo-blur": "^55.0.14",
+    "expo-glass-effect": "^55.0.11"
   }
 }
