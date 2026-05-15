@@ -175,7 +175,7 @@ export default function GardensScreen() {
                       )}
                     </View>
                     <Text style={[s.gardenSub, { color: colors.textSecondary }]}>
-                      {zc?.emoji} {garden.province} · {gtc?.label ?? ''} · 🌱 {plantCount}
+                      {zc?.emoji} {garden.province} · {garden.gardenType ? t('gardenType.' + garden.gardenType) : ''} · 🌱 {plantCount}
                     </Text>
                   </View>
                   {isActive ? (
@@ -253,7 +253,7 @@ export default function GardensScreen() {
                     >
                       <Text style={{ fontSize: 20 }}>{cfg.emoji}</Text>
                       <Text style={[s.typeChipText, { color: active ? colors.primary : colors.textSecondary }]}>
-                        {cfg.label}
+                        {t('gardenType.' + type)}
                       </Text>
                     </Pressable>
                   );

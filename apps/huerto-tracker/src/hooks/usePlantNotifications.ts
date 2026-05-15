@@ -112,7 +112,7 @@ async function scheduleTreatment(plants: Plant[], entries: DiaryEntry[]): Promis
 export function usePlantNotifications() {
   const { activeGarden } = useActiveGarden();
   const allPlants = useCollection<Plant>('plants');
-  const allEntries = useCollection<DiaryEntry>('diary-entries');
+  const allEntries = useCollection<DiaryEntry>('diary_entries');
 
   const [enabled, setEnabled] = useState<Record<NotifType, boolean>>({
     transplant: false,

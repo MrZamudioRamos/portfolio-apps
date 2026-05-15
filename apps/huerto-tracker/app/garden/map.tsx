@@ -1,6 +1,7 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as Sharing from 'expo-sharing';
@@ -21,7 +22,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ViewShot from 'react-native-view-shot';
 import { CROPS_BY_ID } from '../../src/data/crops';
-import type { Garden } from '../../src/models/garden';
 import type { Plant } from '../../src/models/plant';
 import { PLANT_STATUS_CONFIG } from '../../src/models/plant';
 import {
@@ -38,8 +38,7 @@ export default function GardenMapScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
 
-  const gardens = useCollection<Garden>('gardens');
-  const garden = gardens.items[0];
+  const { activeGarden: garden } = useActiveGarden();
   const gridRows = garden?.gridRows ?? DEFAULT_GRID_ROWS;
   const gridCols = garden?.gridCols ?? DEFAULT_GRID_COLS;
 
@@ -55,17 +54,22 @@ export default function GardenMapScreen() {
 
   useFocusEffect(useCallback(() => { plants.refresh(); }, []));
 
+  const gardenPlants = useMemo(
+    () => plants.items.filter((p) => p.gardenId === garden?.id),
+    [plants.items, garden?.id]
+  );
+
   const placedPlantIds = useMemo(() => new Set(layout.filter(Boolean) as string[]), [layout]);
 
   const availablePlants = useMemo(
     () =>
-      plants.items
+      gardenPlants
         .filter((p) => !placedPlantIds.has(p.id))
         .filter((p) =>
           search.trim() === '' ||
           p.name.toLowerCase().includes(search.toLowerCase())
         ),
-    [plants.items, placedPlantIds, search]
+    [gardenPlants, placedPlantIds, search]
   );
 
   const { t } = useTranslation();
@@ -171,7 +175,7 @@ export default function GardenMapScreen() {
         <View style={{ flex: 1, marginLeft: spacing.md }}>
           <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardenMap.title')}</Text>
           <Text style={[s.headerSub, { color: colors.textSecondary }]}>
-            {t('gardenMap.summary', { placed: placedPlantIds.size, total: plants.count, cols: gridCols, rows: gridRows })}
+            {t('gardenMap.summary', { placed: placedPlantIds.size, total: gardenPlants.length, cols: gridCols, rows: gridRows })}
           </Text>
         </View>
         <Pressable
@@ -270,7 +274,7 @@ export default function GardenMapScreen() {
           </View>
         </View>
 
-        {plants.count === 0 && (
+        {gardenPlants.length === 0 && (
           <Text style={[s.emptyNote, { color: colors.textDisabled }]}>
             {t('gardenMap.emptyNote')}
           </Text>
@@ -309,7 +313,7 @@ export default function GardenMapScreen() {
           {availablePlants.length === 0 ? (
             <View style={s.emptyPicker}>
               <Text style={[{ color: colors.textSecondary, textAlign: 'center', fontSize: fontSize.md }]}>
-                {plants.count === 0 ? t('gardenMap.noPlants') : t('gardenMap.allPlaced')}
+                {gardenPlants.length === 0 ? t('gardenMap.noPlants') : t('gardenMap.allPlaced')}
               </Text>
             </View>
           ) : (
@@ -337,7 +341,7 @@ export default function GardenMapScreen() {
                     </View>
                     <View style={[s.statusPill, { backgroundColor: statusCfg.color + '22' }]}>
                       <Text style={[s.statusPillText, { color: statusCfg.color }]}>
-                        {statusCfg.emoji} {statusCfg.label}
+                        {statusCfg.emoji} {t('plantStatus.' + item.status)}
                       </Text>
                     </View>
                   </Pressable>
