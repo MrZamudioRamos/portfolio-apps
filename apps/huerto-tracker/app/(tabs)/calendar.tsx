@@ -335,7 +335,7 @@ export default function CalendarScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ flexDirection: 'row', paddingHorizontal: spacing.xl, gap: spacing.sm, paddingVertical: spacing.xs, alignItems: 'center' }}
+          contentContainerStyle={{ flexDirection: 'row', paddingHorizontal: spacing.xl, gap: spacing.sm, paddingVertical: spacing.xs }}
           style={{ marginBottom: spacing.xs }}
         >
           <Pressable

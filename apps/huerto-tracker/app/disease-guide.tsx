@@ -190,7 +190,7 @@ export default function DiseaseGuideScreen() {
                     {disease.imageUrl && !imageError[disease.id] && (
                       <View style={[s.imageWrapper, { backgroundColor: colors.surfaceAlt }]}>
                         <Image
-                          source={{ uri: disease.imageUrl, headers: { 'User-Agent': 'HuertoTracker/1.0 (https://github.com/MrZamudioRamos/portfolio-apps)' } }}
+                          source={{ uri: disease.imageUrl }}
                           style={s.diseaseImage}
                           resizeMode="cover"
                           onError={() => setImageError((prev) => ({ ...prev, [disease.id]: true }))}
