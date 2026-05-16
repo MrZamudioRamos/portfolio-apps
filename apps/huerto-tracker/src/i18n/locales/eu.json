@@ -1010,5 +1010,28 @@
       "tools": "Tresnak",
       "other": "Bestelakoak"
     }
+  },
+  "cropFamily": {
+    "solanaceas": "Solanazeak",
+    "cruciferas": "Gurutzatuak",
+    "leguminosas": "Lekadunak",
+    "cucurbitaceas": "Kukurbitazeoak",
+    "aliaceas": "Aliazeak",
+    "raices": "Sustraiak",
+    "hojas": "Hostoak",
+    "aromaticas": "Usaindunak",
+    "frutas": "Fruituak"
+  },
+  "zoneDescription": {
+    "atlantica": "Uda fresko, negu leun, euri ugari urtean zehar",
+    "continental": "Uda beroa, negu hotza, euri gutxi",
+    "mediterranea": "Uda lehor eta beroa, negu leuna",
+    "subtropical": "Tenperatura epelak urte osoan, izotzetarik gabe"
+  },
+  "reminderDefaultTitle": {
+    "watering": "Ureztatzeko ordua",
+    "fertilizing": "Ongarritzeko ordua",
+    "harvest_check": "Uzta egiaztatu",
+    "custom": "Lorategiko gogorarazlea"
   }
 }

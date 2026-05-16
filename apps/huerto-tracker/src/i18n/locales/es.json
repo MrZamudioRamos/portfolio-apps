@@ -1224,5 +1224,28 @@
         { "name": "Acolchado", "instructions": "El mulching reduce la evaporación y estabiliza la humedad del suelo." }
       ]
     }
+  },
+  "cropFamily": {
+    "solanaceas": "Solanáceas",
+    "cruciferas": "Crucíferas",
+    "leguminosas": "Leguminosas",
+    "cucurbitaceas": "Cucurbitáceas",
+    "aliaceas": "Aliáceas",
+    "raices": "Raíces",
+    "hojas": "Hojas",
+    "aromaticas": "Aromáticas",
+    "frutas": "Frutas"
+  },
+  "zoneDescription": {
+    "atlantica": "Veranos frescos, inviernos suaves, lluvia abundante todo el año",
+    "continental": "Veranos calurosos, inviernos fríos, pocas lluvias",
+    "mediterranea": "Veranos secos y calurosos, inviernos suaves",
+    "subtropical": "Temperaturas cálidas todo el año, sin heladas"
+  },
+  "reminderDefaultTitle": {
+    "watering": "Hora de regar",
+    "fertilizing": "Toca abonar",
+    "harvest_check": "Revisa si hay cosecha",
+    "custom": "Recordatorio de huerto"
   }
 }

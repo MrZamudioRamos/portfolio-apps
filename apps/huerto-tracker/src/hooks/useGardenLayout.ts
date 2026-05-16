@@ -17,7 +17,7 @@ export const GRID_PRESETS = [
   { rows: 10, cols: 8 },
 ] as const;
 
-const LAYOUT_KEY = '@portfolio/huerto/garden_layout';
+const layoutKey = (gardenId: string) => `@portfolio/huerto/garden_layout/${gardenId}`;
 
 // null = empty cell, string = plantId
 export type GridLayout = (string | null)[];
@@ -27,6 +27,7 @@ export function cellIndex(row: number, col: number, cols: number): number {
 }
 
 export function useGardenLayout(
+  gardenId: string | undefined,
   gridRows: number = DEFAULT_GRID_ROWS,
   gridCols: number = DEFAULT_GRID_COLS,
 ) {
@@ -35,52 +36,64 @@ export function useGardenLayout(
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(LAYOUT_KEY).then((raw) => {
+    if (!gardenId) {
+      setLayout(Array(gridSize).fill(null));
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    AsyncStorage.getItem(layoutKey(gardenId)).then((raw) => {
       if (raw) {
         try {
           const saved = JSON.parse(raw) as GridLayout;
           // Pad / trim to current gridSize when size changes
           const normalized = Array.from({ length: gridSize }, (_, i) => saved[i] ?? null);
           setLayout(normalized);
-        } catch {}
+        } catch {
+          setLayout(Array(gridSize).fill(null));
+        }
       } else {
         setLayout(Array(gridSize).fill(null));
       }
       setLoading(false);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gridRows, gridCols]);
+  }, [gardenId, gridRows, gridCols]);
 
   async function setCell(index: number, plantId: string | null): Promise<void> {
+    if (!gardenId) return;
     setLayout((prev) => {
       const next = [...prev];
       next[index] = plantId;
-      AsyncStorage.setItem(LAYOUT_KEY, JSON.stringify(next));
+      AsyncStorage.setItem(layoutKey(gardenId), JSON.stringify(next));
       return next;
     });
   }
 
   async function removePlant(plantId: string): Promise<void> {
+    if (!gardenId) return;
     setLayout((prev) => {
       const next = prev.map((cell) => (cell === plantId ? null : cell));
-      AsyncStorage.setItem(LAYOUT_KEY, JSON.stringify(next));
+      AsyncStorage.setItem(layoutKey(gardenId), JSON.stringify(next));
       return next;
     });
   }
 
   async function swapCells(a: number, b: number): Promise<void> {
+    if (!gardenId) return;
     setLayout((prev) => {
       const next = [...prev];
       [next[a], next[b]] = [next[b], next[a]];
-      AsyncStorage.setItem(LAYOUT_KEY, JSON.stringify(next));
+      AsyncStorage.setItem(layoutKey(gardenId), JSON.stringify(next));
       return next;
     });
   }
 
   async function clearAll(): Promise<void> {
+    if (!gardenId) return;
     const empty = Array(gridSize).fill(null);
     setLayout(empty);
-    await AsyncStorage.setItem(LAYOUT_KEY, JSON.stringify(empty));
+    await AsyncStorage.setItem(layoutKey(gardenId), JSON.stringify(empty));
   }
 
   function plantIndexInGrid(plantId: string): number {

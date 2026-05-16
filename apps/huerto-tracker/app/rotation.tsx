@@ -11,57 +11,48 @@ import type { Plant } from '../src/models/plant';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 
 // Crop family groupings for rotation recommendations
-const CROP_FAMILIES: Record<string, { label: string; emoji: string; color: string; crops: string[] }> = {
+const CROP_FAMILIES: Record<string, { emoji: string; color: string; crops: string[] }> = {
   solanaceas: {
-    label: 'Solanáceas',
     emoji: '🍅',
     color: '#FF7043',
     crops: ['tomate', 'pimiento', 'berenjena', 'guindilla'],
   },
   cruciferas: {
-    label: 'Crucíferas',
     emoji: '🥦',
     color: '#4CAF50',
     crops: ['col', 'brocoli', 'coliflor', 'kale', 'rabano', 'nabo'],
   },
   leguminosas: {
-    label: 'Leguminosas',
     emoji: '🫘',
     color: '#8BC34A',
     crops: ['judia-verde', 'guisante', 'haba'],
   },
   cucurbitaceas: {
-    label: 'Cucurbitáceas',
     emoji: '🥒',
     color: '#26C6DA',
     crops: ['calabacin', 'pepino', 'calabaza', 'melon', 'sandia'],
   },
   aliaceas: {
-    label: 'Aliáceas',
     emoji: '🧅',
     color: '#AB47BC',
     crops: ['ajo', 'cebolla', 'puerro'],
   },
   raices: {
-    label: 'Raíces',
     emoji: '🥕',
     color: '#FFA726',
     crops: ['zanahoria', 'remolacha', 'patata'],
   },
   hojas: {
-    label: 'Hojas',
     emoji: '🥗',
     color: '#66BB6A',
     crops: ['lechuga', 'espinaca', 'acelga', 'rucula', 'canonigos'],
   },
   aromaticas: {
-    label: 'Aromáticas',
     emoji: '🌿',
     color: '#9E9E9E',
     crops: ['albahaca', 'perejil', 'cilantro', 'romero', 'tomillo', 'menta', 'salvia', 'oregano', 'eneldo', 'hinojo', 'manzanilla', 'lavanda'],
   },
   frutas: {
-    label: 'Frutas',
     emoji: '🍓',
     color: '#EF5350',
     crops: ['fresa'],
@@ -215,7 +206,7 @@ export default function RotationScreen() {
               {conflicts.length > 0 && (
                 <View style={[s.conflictBox, { backgroundColor: '#EF535008', borderColor: '#EF535044' }]}>
                   <Text style={[s.conflictText, { color: '#EF5350' }]}>
-                    ⚠️ {t('rotation.conflictDetail', { families: conflicts.map((c) => CROP_FAMILIES[c]?.label ?? c).join(', ') })}
+                    ⚠️ {t('rotation.conflictDetail', { families: conflicts.map((c) => t('cropFamily.' + c)).join(', ') })}
                   </Text>
                 </View>
               )}
@@ -233,7 +224,7 @@ export default function RotationScreen() {
                       return (
                         <View key={familyId} style={[s.suggestTag, { backgroundColor: fam.color + '18', borderColor: fam.color + '66' }]}>
                           <Text style={{ fontSize: 12 }}>{fam.emoji}</Text>
-                          <Text style={[s.suggestTagText, { color: fam.color }]}>{fam.label}</Text>
+                          <Text style={[s.suggestTagText, { color: fam.color }]}>{t('cropFamily.' + familyId)}</Text>
                         </View>
                       );
                     })}
@@ -247,10 +238,10 @@ export default function RotationScreen() {
         {/* Family legend */}
         <Text style={[s.legendTitle, { color: colors.textSecondary }]}>{t('rotation.familyGuide')}</Text>
         <Card padded style={{ marginBottom: spacing.xl }}>
-          {Object.values(CROP_FAMILIES).map((fam) => (
-            <View key={fam.label} style={s.legendRow}>
+          {Object.entries(CROP_FAMILIES).map(([familyId, fam]) => (
+            <View key={familyId} style={s.legendRow}>
               <Text style={{ fontSize: 16 }}>{fam.emoji}</Text>
-              <Text style={[s.legendFamily, { color: colors.text }]}>{fam.label}</Text>
+              <Text style={[s.legendFamily, { color: colors.text }]}>{t('cropFamily.' + familyId)}</Text>
               <Text style={[s.legendCrops, { color: colors.textSecondary }]} numberOfLines={1}>
                 {fam.crops.slice(0, 4).join(', ')}{fam.crops.length > 4 ? '…' : ''}
               </Text>

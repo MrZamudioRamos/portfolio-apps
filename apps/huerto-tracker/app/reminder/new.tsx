@@ -32,13 +32,13 @@ export default function ReminderNewScreen() {
   const { activeGarden } = useActiveGarden();
   const reminders = useReminders<GardenReminder>('reminders');
 
+  const { t } = useTranslation();
   const [type, setType] = useState<ReminderType>('watering');
-  const [title, setTitle] = useState(REMINDER_TYPE_CONFIG['watering'].defaultTitle);
+  const [title, setTitle] = useState(() => t('reminderDefaultTitle.watering'));
   const [frequency, setFrequency] = useState<ReminderFrequency>('daily');
   const [hour, setHour] = useState(8);
   const [minute, setMinute] = useState(0);
   const [saving, setSaving] = useState(false);
-  const { t } = useTranslation();
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -47,7 +47,7 @@ export default function ReminderNewScreen() {
 
   function handleTypeChange(tp: ReminderType) {
     setType(tp);
-    setTitle(REMINDER_TYPE_CONFIG[tp].defaultTitle);
+    setTitle(t('reminderDefaultTitle.' + tp));
   }
 
   async function handleSave() {
@@ -62,7 +62,7 @@ export default function ReminderNewScreen() {
         gardenId,
         plantId: plantId ?? undefined,
         type,
-        title: title.trim() || REMINDER_TYPE_CONFIG[type].defaultTitle,
+        title: title.trim() || t('reminderDefaultTitle.' + type),
         frequency,
         time: { hour, minute },
         enabled: true,

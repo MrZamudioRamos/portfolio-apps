@@ -213,7 +213,7 @@ export default function GardenEditScreen() {
         {zoneConfig && (
           <View style={[s.zoneBadge, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
             <Text style={[s.zoneText, { color: colors.textSecondary }]}>
-              {zoneConfig.emoji} {zoneConfig.label} — {zoneConfig.description}
+              {zoneConfig.emoji} {zoneConfig.label} — {t('zoneDescription.' + climateZone)}
             </Text>
           </View>
         )}

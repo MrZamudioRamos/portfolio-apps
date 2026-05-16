@@ -43,7 +43,7 @@ export default function GardenMapScreen() {
   const gridCols = garden?.gridCols ?? DEFAULT_GRID_COLS;
 
   const plants = useCollection<Plant>('plants');
-  const { layout, loading, setCell, swapCells } = useGardenLayout(gridRows, gridCols);
+  const { layout, loading, setCell, swapCells } = useGardenLayout(garden?.id, gridRows, gridCols);
 
   const [pickingCell, setPickingCell] = useState<number | null>(null);
   const [search, setSearch] = useState('');

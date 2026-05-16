@@ -1244,5 +1244,28 @@
         { "name": "Mulching", "instructions": "Mulch reduces evaporation and stabilises soil moisture." }
       ]
     }
+  },
+  "cropFamily": {
+    "solanaceas": "Nightshades",
+    "cruciferas": "Brassicas",
+    "leguminosas": "Legumes",
+    "cucurbitaceas": "Cucurbits",
+    "aliaceas": "Alliums",
+    "raices": "Roots",
+    "hojas": "Leaves",
+    "aromaticas": "Herbs",
+    "frutas": "Fruits"
+  },
+  "zoneDescription": {
+    "atlantica": "Cool summers, mild winters, abundant rain year-round",
+    "continental": "Hot summers, cold winters, sparse rainfall",
+    "mediterranea": "Dry hot summers, mild winters",
+    "subtropical": "Warm temperatures year-round, no frost"
+  },
+  "reminderDefaultTitle": {
+    "watering": "Time to water",
+    "fertilizing": "Time to fertilize",
+    "harvest_check": "Check for harvest",
+    "custom": "Garden reminder"
   }
 }

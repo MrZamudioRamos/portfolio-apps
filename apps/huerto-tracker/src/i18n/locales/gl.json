@@ -1010,5 +1010,28 @@
       "tools": "Ferramentas",
       "other": "Outros"
     }
+  },
+  "cropFamily": {
+    "solanaceas": "Solanáceas",
+    "cruciferas": "Crucíferas",
+    "leguminosas": "Leguminosas",
+    "cucurbitaceas": "Cucurbitáceas",
+    "aliaceas": "Aliáceas",
+    "raices": "Raíces",
+    "hojas": "Follas",
+    "aromaticas": "Aromáticas",
+    "frutas": "Froitas"
+  },
+  "zoneDescription": {
+    "atlantica": "Veráns frescos, invernos suaves, chuvia abundante todo o ano",
+    "continental": "Veráns calorosos, invernos fríos, poucas chuvias",
+    "mediterranea": "Veráns secos e calorosos, invernos suaves",
+    "subtropical": "Temperaturas cálidas todo o ano, sen xeadas"
+  },
+  "reminderDefaultTitle": {
+    "watering": "Hora de regar",
+    "fertilizing": "Toca abonar",
+    "harvest_check": "Comproba se hai colleita",
+    "custom": "Recordatorio de horta"
   }
 }

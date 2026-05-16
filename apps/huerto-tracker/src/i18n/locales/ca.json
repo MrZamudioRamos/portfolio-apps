@@ -1010,5 +1010,28 @@
       "tools": "Eines",
       "other": "Altres"
     }
+  },
+  "cropFamily": {
+    "solanaceas": "Solanàcies",
+    "cruciferas": "Crucíferes",
+    "leguminosas": "Lleguminoses",
+    "cucurbitaceas": "Cucurbitàcies",
+    "aliaceas": "Aliàcies",
+    "raices": "Arrels",
+    "hojas": "Fulles",
+    "aromaticas": "Aromàtiques",
+    "frutas": "Fruites"
+  },
+  "zoneDescription": {
+    "atlantica": "Estius frescos, hiverns suaus, pluja abundant tot l'any",
+    "continental": "Estius calorosos, hiverns freds, poques pluges",
+    "mediterranea": "Estius secs i calorosos, hiverns suaus",
+    "subtropical": "Temperatures càlides tot l'any, sense gelades"
+  },
+  "reminderDefaultTitle": {
+    "watering": "Hora de regar",
+    "fertilizing": "Toca adobar",
+    "harvest_check": "Comprova si hi ha collita",
+    "custom": "Recordatori d'hort"
   }
 }

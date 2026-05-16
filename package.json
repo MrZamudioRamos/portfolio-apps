@@ -16,9 +16,5 @@
   "devDependencies": {
     "turbo": "^2.0.0",
     "typescript": "^5.3.0"
-  },
-  "dependencies": {
-    "expo-blur": "^55.0.14",
-    "expo-glass-effect": "^55.0.11"
   }
 }

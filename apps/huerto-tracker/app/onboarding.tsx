@@ -242,7 +242,7 @@ export default function OnboardingScreen() {
                     {t('onboarding.zone', { label: zoneConfig.label })}
                   </Text>
                   <Text style={[s.zoneDesc, { color: colors.textSecondary }]}>
-                    {zoneConfig.description}
+                    {t('zoneDescription.' + climateZone)}
                   </Text>
                 </View>
               </Card>
