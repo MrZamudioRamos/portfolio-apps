@@ -67,12 +67,19 @@ export default function DiseaseGuideScreen() {
   const getDiseaseContent = (disease: DiseaseInfo) => {
     const rawSigns = t(`diseases.${disease.id}.visualSigns`, { returnObjects: true, defaultValue: disease.visualSigns });
     const rawTreatments = t(`diseases.${disease.id}.treatments`, { returnObjects: true, defaultValue: disease.treatments });
+    const treatments: DiseaseInfo['treatments'] = Array.isArray(rawTreatments)
+      ? rawTreatments.map((tr: { name?: string; instructions?: string }, i: number) => ({
+          type: disease.treatments[i]?.type,
+          name: tr.name ?? disease.treatments[i]?.name ?? '',
+          instructions: tr.instructions ?? disease.treatments[i]?.instructions ?? '',
+        }))
+      : disease.treatments;
     return {
       name: t(`diseases.${disease.id}.name`, { defaultValue: disease.name }),
       symptoms: t(`diseases.${disease.id}.symptoms`, { defaultValue: disease.symptoms }),
       description: t(`diseases.${disease.id}.description`, { defaultValue: disease.description }),
       visualSigns: (Array.isArray(rawSigns) ? rawSigns : disease.visualSigns) as string[],
-      treatments: (Array.isArray(rawTreatments) ? rawTreatments : disease.treatments) as DiseaseInfo['treatments'],
+      treatments,
     };
   };
 
