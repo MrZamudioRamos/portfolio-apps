@@ -18,6 +18,9 @@ import type { GardenReminder } from '../../src/models/reminder';
 import { saveLanguage, SUPPORTED_LANGS, LANG_LABELS, type SupportedLang } from '../../src/i18n';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
+// TODO: replace with real App Store URL once published
+const APP_STORE_URL = 'https://apps.apple.com/app/id<APP_STORE_ID>';
+
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const APP_VERSION = '1.0.0';
@@ -360,7 +363,7 @@ export default function SettingsScreen() {
             label={t('settings.app.rate')}
             colors={colors}
             s={s}
-            onPress={() => Linking.openURL('https://apps.apple.com')}
+            onPress={() => Linking.openURL(APP_STORE_URL)}
           />
           <Separator colors={colors} />
           <RowAction
