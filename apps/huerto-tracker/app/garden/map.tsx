@@ -21,7 +21,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ViewShot from 'react-native-view-shot';
+import { ViewShot, isViewShotAvailable } from '../../src/utils/viewShot';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -76,7 +76,7 @@ export default function GardenMapScreen() {
   const [panelDragPlantId, setPanelDragPlantId] = useState<string | null>(null);
 
   // ── Refs ──────────────────────────────────────────────────────────────────
-  const viewShotRef = useRef<ViewShot>(null);
+  const viewShotRef = useRef<any>(null);
   const gridRef = useRef<View>(null);
   const gridMetrics = useRef({ x: 0, y: 0, w: 0, h: 0 });
   const isDraggingRef = useRef(false);
@@ -316,6 +316,10 @@ export default function GardenMapScreen() {
 
   async function handleShare() {
     if (!viewShotRef.current) return;
+    if (!isViewShotAvailable()) {
+      Alert.alert(t('gardenMap.shareNotAvailable'));
+      return;
+    }
     const canShare = await Sharing.isAvailableAsync();
     if (!canShare) { Alert.alert(t('gardenMap.shareNotAvailable')); return; }
     setSharing(true);
