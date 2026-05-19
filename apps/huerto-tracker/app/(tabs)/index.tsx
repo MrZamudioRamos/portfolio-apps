@@ -155,7 +155,7 @@ export default function DashboardScreen() {
   const yearHarvestKg = useMemo(() => {
     const year = new Date().getFullYear().toString();
     return entries.items
-      .filter((e) => e.type === 'harvest' && e.date.startsWith(year) && (e.data as any)?.unit !== 'units')
+      .filter((e) => e.type === 'harvest' && e.date.startsWith(year) && (e.data as any)?.unit !== 'units' && (!garden?.id || e.gardenId === garden.id))
       .reduce((sum, e) => {
         const w = (e.data as any)?.weight;
         const n = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
@@ -194,7 +194,7 @@ export default function DashboardScreen() {
 
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
   const harvestingCount = plants.items.filter((p) => p.status === 'harvesting').length;
-  const activeReminders = reminders.items.filter((r) => r.enabled).length;
+  const activeReminders = reminders.items.filter((r) => r.enabled && (!garden?.id || r.gardenId === garden.id)).length;
   const activePests = plants.items.filter((p) => p.pestStatus === 'active' || p.pestStatus === 'treated').length;
   const needsWaterCount = useMemo(
     () => getWateringNeedsCount(plants.items, CROPS_BY_ID, entries.items),
@@ -217,7 +217,7 @@ export default function DashboardScreen() {
   useEffect(() => {
     if (!garden) return;
     const nextReminder = reminders.items
-      .filter((r) => r.enabled)
+      .filter((r) => r.enabled && r.gardenId === garden.id)
       .sort((a, b) => a.time.hour * 60 + a.time.minute - (b.time.hour * 60 + b.time.minute))[0];
     GardenWidget.updateSnapshot({
       gardenName: garden.name,

@@ -237,7 +237,7 @@ export default function DiaryScreen() {
                   router.push('/paywall');
                   return;
                 }
-                exportEntries(entries.items, plants.items);
+                exportEntries(gardenEntries, Object.values(plantsById));
               }}
               hitSlop={8}
               disabled={exporting}
