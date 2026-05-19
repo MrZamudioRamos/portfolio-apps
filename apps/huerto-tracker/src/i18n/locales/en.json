@@ -106,7 +106,8 @@
     "emptyDesc": "Log your first activity: a watering, sowing, or harvest.",
     "newEntry": "New entry",
     "search": "Search diary…",
-    "exportCsv": "Export CSV"
+    "exportCsv": "Export CSV",
+    "waitDaysChip": "⏳ {{days}}d withdrawal"
   },
   "settings": {
     "title": "Settings",

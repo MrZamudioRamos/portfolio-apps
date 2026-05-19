@@ -105,7 +105,8 @@
     "emptyDesc": "Rexistra a túa primeira actividade: un rego, unha sementeira ou unha colleita.",
     "newEntry": "Nova entrada",
     "search": "Buscar no diario…",
-    "exportCsv": "Exportar CSV"
+    "exportCsv": "Exportar CSV",
+    "waitDaysChip": "⏳ {{days}}d carencia"
   },
   "settings": {
     "title": "Axustes",

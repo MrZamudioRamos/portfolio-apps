@@ -22,6 +22,7 @@ import { CROPS_BY_ID } from '../../src/data/crops';
 import { useTranslation } from 'react-i18next';
 import { useCsvExport } from '../../src/hooks/useCsvExport';
 import { usePro } from '../../src/hooks/usePro';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
 const ALL_TYPES: Array<EntryType | 'all'> = [
   'all', 'watering', 'sowing', 'harvest', 'fertilizing', 'transplant',
@@ -42,6 +43,7 @@ export default function DiaryScreen() {
   const plants = useCollection<Plant>('plants');
   const { exportEntries, exporting } = useCsvExport();
   const { isPro } = usePro();
+  const { activeGarden } = useActiveGarden();
 
   useFocusEffect(
     useCallback(() => {
@@ -50,13 +52,22 @@ export default function DiaryScreen() {
     }, [])
   );
 
+  const gardenEntries = useMemo(
+    () => activeGarden?.id ? entries.items.filter((e) => e.gardenId === activeGarden.id) : entries.items,
+    [entries.items, activeGarden?.id]
+  );
+
   const plantsById = useMemo(
-    () => Object.fromEntries(plants.items.map((p) => [p.id, p])),
-    [plants.items]
+    () => Object.fromEntries(
+      plants.items
+        .filter((p) => !activeGarden?.id || p.gardenId === activeGarden.id)
+        .map((p) => [p.id, p])
+    ),
+    [plants.items, activeGarden?.id]
   );
 
   const filtered = useMemo(() => {
-    const sorted = [...entries.items].sort(
+    const sorted = [...gardenEntries].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
     const byPlant = plantId ? sorted.filter((e) => e.plantId === plantId) : sorted;
@@ -71,14 +82,14 @@ export default function DiaryScreen() {
         plant?.variety?.toLowerCase().includes(q)
       );
     });
-  }, [entries.items, activeFilter, plantId, searchQuery, plantsById]);
+  }, [gardenEntries, activeFilter, plantId, searchQuery, plantsById]);
 
   const typeCounts = useMemo(() => {
-    const base = plantId ? entries.items.filter((e) => e.plantId === plantId) : entries.items;
+    const base = plantId ? gardenEntries.filter((e) => e.plantId === plantId) : gardenEntries;
     const counts: Record<string, number> = { all: base.length };
     base.forEach((e) => { counts[e.type] = (counts[e.type] ?? 0) + 1; });
     return counts;
-  }, [entries.items, plantId]);
+  }, [gardenEntries, plantId]);
 
   const sections = useMemo(() => {
     const groups = new Map<string, DiaryEntry[]>();
@@ -180,7 +191,7 @@ export default function DiaryScreen() {
                 ) : null}
                 {(item.data as any).waitDays ? (
                   <Text style={[s.harvestChip, { color: '#EF5350', backgroundColor: '#EF535018' }]}>
-                    ⏳ {(item.data as any).waitDays}d carencia
+                    {t('diary.waitDaysChip', { days: (item.data as any).waitDays })}
                   </Text>
                 ) : null}
                 {(item.data as any).amount ? (

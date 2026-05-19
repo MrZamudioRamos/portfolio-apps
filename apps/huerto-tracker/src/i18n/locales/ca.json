@@ -105,7 +105,8 @@
     "emptyDesc": "Registra la teva primera activitat: un reg, una sembra o una collita.",
     "newEntry": "Nova entrada",
     "search": "Cerca al diari…",
-    "exportCsv": "Exportar CSV"
+    "exportCsv": "Exportar CSV",
+    "waitDaysChip": "⏳ {{days}}d carència"
   },
   "settings": {
     "title": "Ajustos",

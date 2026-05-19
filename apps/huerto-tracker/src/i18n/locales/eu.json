@@ -105,7 +105,8 @@
     "emptyDesc": "Erregistratu zure lehen jarduera: ureztatze bat, ereintza bat edo uzta bat.",
     "newEntry": "Sarrera berria",
     "search": "Bilatu egunkarian…",
-    "exportCsv": "CSV esportatu"
+    "exportCsv": "CSV esportatu",
+    "waitDaysChip": "⏳ {{days}}d itxaron-aldia"
   },
   "settings": {
     "title": "Ezarpenak",

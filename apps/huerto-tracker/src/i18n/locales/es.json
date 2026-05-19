@@ -108,7 +108,8 @@
     "emptyDesc": "Registra tu primera actividad: un riego, una siembra o una cosecha.",
     "newEntry": "Nueva entrada",
     "search": "Buscar en el diario…",
-    "exportCsv": "Exportar CSV"
+    "exportCsv": "Exportar CSV",
+    "waitDaysChip": "⏳ {{days}}d carencia"
   },
   "settings": {
     "title": "Ajustes",
