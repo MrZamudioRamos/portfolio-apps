@@ -12,6 +12,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -20,7 +21,22 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CLIMATE_ZONE_CONFIG, PROVINCES, PROVINCE_ZONES } from '../src/data';
 import type { Garden } from '../src/models';
-import { GARDEN_TYPE_CONFIG, type GardenType, type Hemisphere } from '../src/models/garden';
+import {
+  GARDEN_TYPE_CONFIG,
+  type GardenType,
+  type Hemisphere,
+} from '../src/models/garden';
+import {
+  SPACE_TYPE_CONFIG,
+  GROWING_METHOD_CONFIG,
+  SUNLIGHT_CONFIG,
+  EXPERIENCE_CONFIG,
+  type SpaceType,
+  type GrowingMethod,
+  type SunlightLevel,
+  type ExperienceLevel,
+} from '../src/models/user-profile';
+import { useUserProfile } from '../src/hooks/useUserProfile';
 
 const SPAIN_PROVINCES = new Set([
   'A Coruña', 'Lugo', 'Pontevedra', 'Asturias', 'Cantabria', 'Vizcaya', 'Guipúzcoa',
@@ -64,17 +80,27 @@ const LATAM_COUNTRIES: { country: string; emoji: string; regions: string[] }[] =
   },
 ];
 
-type Step = 0 | 1 | 2 | 3;
+type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+const TOTAL_STEPS: Step[] = [0, 1, 2, 3, 4, 5, 6, 7];
 
 export default function OnboardingScreen() {
   const colors = useColors();
-  const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
+  const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { complete } = useOnboarding('huerto');
   const gardens = useCollection<Garden>('gardens');
+  const { save: saveProfile } = useUserProfile();
 
   const { t } = useTranslation();
   const [step, setStep] = useState<Step>(0);
+
+  // Profile state (GrowIt-inspired)
+  const [spaceTypes, setSpaceTypes] = useState<SpaceType[]>([]);
+  const [growingMethods, setGrowingMethods] = useState<GrowingMethod[]>([]);
+  const [sunlight, setSunlight] = useState<SunlightLevel | null>(null);
+  const [experience, setExperience] = useState<ExperienceLevel | null>(null);
+
+  // Garden state
   const [province, setProvince] = useState('');
   const [provinceSearch, setProvinceSearch] = useState('');
   const [showProvincePicker, setShowProvincePicker] = useState(false);
@@ -97,6 +123,13 @@ export default function OnboardingScreen() {
   const filteredProvinces = provincePool.filter((p) =>
     p.toLowerCase().includes(provinceSearch.toLowerCase())
   );
+
+  function toggleSpace(s: SpaceType) {
+    setSpaceTypes((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
+  }
+  function toggleMethod(m: GrowingMethod) {
+    setGrowingMethods((prev) => prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]);
+  }
 
   async function pickPhoto() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -122,8 +155,16 @@ export default function OnboardingScreen() {
         hemisphere,
         ...(photoUri ? { photoUri } : {}),
       });
+      if (sunlight && experience) {
+        await saveProfile({
+          spaceTypes,
+          growingMethods,
+          sunlight,
+          experience,
+        });
+      }
       await complete();
-      setStep(3);
+      setStep(7);
     } finally {
       setSaving(false);
     }
@@ -131,19 +172,23 @@ export default function OnboardingScreen() {
 
   const s = styles(colors, spacing, fontSize, fontWeight, radii);
 
+  const SPACE_KEYS: SpaceType[] = ['backyard', 'balcony', 'indoor', 'farm', 'other'];
+  const METHOD_KEYS: GrowingMethod[] = ['ground', 'raisedBeds', 'indoorContainers', 'outdoorContainers'];
+  const SUN_KEYS: SunlightLevel[] = ['full', 'partial', 'shade'];
+  const EXP_KEYS: ExperienceLevel[] = ['beginner', 'some', 'expert'];
+
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Step dots */}
-      {step > 0 && (
+      {step > 0 && step < 7 && (
         <View style={s.dots}>
-          {([0, 1, 2, 3] as Step[]).map((i) => (
+          {TOTAL_STEPS.slice(1, 7).map((i) => (
             <View
               key={i}
               style={[
                 s.dot,
                 {
-                  backgroundColor:
-                    i <= step ? colors.primary : colors.border,
+                  backgroundColor: i <= step ? colors.primary : colors.border,
                   width: i === step ? 20 : 8,
                 },
               ]}
@@ -180,8 +225,213 @@ export default function OnboardingScreen() {
         </View>
       )}
 
-      {/* ── STEP 1: Provincia ── */}
+      {/* ── STEP 1: Space type (multi) ── */}
       {step === 1 && (
+        <View style={s.stepContainer}>
+          <ScrollView contentContainerStyle={s.stepContent} keyboardShouldPersistTaps="handled">
+            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.spaceTitle')}</Text>
+            <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>{t('onboarding.spaceDesc')}</Text>
+            <Text style={[s.multiHint, { color: colors.textDisabled }]}>{t('onboarding.spaceMultiHint')}</Text>
+
+            <View style={s.optionGrid}>
+              {SPACE_KEYS.map((k) => {
+                const active = spaceTypes.includes(k);
+                return (
+                  <Pressable
+                    key={k}
+                    onPress={() => toggleSpace(k)}
+                    style={[
+                      s.optionCard,
+                      {
+                        backgroundColor: active ? colors.primary + '22' : colors.surface,
+                        borderColor: active ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={s.optionEmoji}>{SPACE_TYPE_CONFIG[k].emoji}</Text>
+                    <Text style={[s.optionLabel, { color: active ? colors.primary : colors.text }]}>
+                      {t('onboarding.space' + k.charAt(0).toUpperCase() + k.slice(1))}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </ScrollView>
+
+          <View style={s.stepActions}>
+            <Pressable onPress={() => setStep(0)} style={s.backButton}>
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
+            </Pressable>
+            <Pressable onPress={() => setStep(2)} style={s.skipButton}>
+              <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
+            </Pressable>
+            <Button
+              title={t('onboarding.continue')}
+              onPress={() => setStep(2)}
+              disabled={spaceTypes.length === 0}
+              size="lg"
+              style={{ flex: 1, marginLeft: spacing.md }}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* ── STEP 2: Growing method (multi) ── */}
+      {step === 2 && (
+        <View style={s.stepContainer}>
+          <ScrollView contentContainerStyle={s.stepContent} keyboardShouldPersistTaps="handled">
+            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.methodTitle')}</Text>
+            <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>{t('onboarding.methodDesc')}</Text>
+            <Text style={[s.multiHint, { color: colors.textDisabled }]}>{t('onboarding.spaceMultiHint')}</Text>
+
+            <View style={s.optionGrid}>
+              {METHOD_KEYS.map((k) => {
+                const active = growingMethods.includes(k);
+                return (
+                  <Pressable
+                    key={k}
+                    onPress={() => toggleMethod(k)}
+                    style={[
+                      s.optionCard,
+                      {
+                        backgroundColor: active ? colors.primary + '22' : colors.surface,
+                        borderColor: active ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={s.optionEmoji}>{GROWING_METHOD_CONFIG[k].emoji}</Text>
+                    <Text style={[s.optionLabel, { color: active ? colors.primary : colors.text }]}>
+                      {t('onboarding.method' + k.charAt(0).toUpperCase() + k.slice(1))}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </ScrollView>
+
+          <View style={s.stepActions}>
+            <Pressable onPress={() => setStep(1)} style={s.backButton}>
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
+            </Pressable>
+            <Pressable onPress={() => setStep(3)} style={s.skipButton}>
+              <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
+            </Pressable>
+            <Button
+              title={t('onboarding.continue')}
+              onPress={() => setStep(3)}
+              disabled={growingMethods.length === 0}
+              size="lg"
+              style={{ flex: 1, marginLeft: spacing.md }}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* ── STEP 3: Sunlight (single) ── */}
+      {step === 3 && (
+        <View style={s.stepContainer}>
+          <View style={s.stepContent}>
+            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.sunTitle')}</Text>
+            <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>{t('onboarding.sunDesc')}</Text>
+
+            <View style={{ gap: spacing.md }}>
+              {SUN_KEYS.map((k) => {
+                const active = sunlight === k;
+                return (
+                  <Pressable
+                    key={k}
+                    onPress={() => setSunlight(k)}
+                    style={[
+                      s.rowOption,
+                      {
+                        backgroundColor: active ? colors.primary + '22' : colors.surface,
+                        borderColor: active ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={s.optionEmoji}>{SUNLIGHT_CONFIG[k].emoji}</Text>
+                    <Text style={[s.rowOptionLabel, { color: active ? colors.primary : colors.text }]}>
+                      {t('onboarding.sun' + k.charAt(0).toUpperCase() + k.slice(1))}
+                    </Text>
+                    {active && <Text style={{ color: colors.primary, fontSize: 20 }}>✓</Text>}
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={s.stepActions}>
+            <Pressable onPress={() => setStep(2)} style={s.backButton}>
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
+            </Pressable>
+            <Button
+              title={t('onboarding.continue')}
+              onPress={() => setStep(4)}
+              disabled={!sunlight}
+              size="lg"
+              style={{ flex: 1, marginLeft: spacing.md }}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* ── STEP 4: Experience (single) ── */}
+      {step === 4 && (
+        <View style={s.stepContainer}>
+          <View style={s.stepContent}>
+            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.expTitle')}</Text>
+            <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>{t('onboarding.expDesc')}</Text>
+
+            <View style={{ gap: spacing.md }}>
+              {EXP_KEYS.map((k) => {
+                const active = experience === k;
+                return (
+                  <Pressable
+                    key={k}
+                    onPress={() => setExperience(k)}
+                    style={[
+                      s.rowOption,
+                      {
+                        backgroundColor: active ? colors.primary + '22' : colors.surface,
+                        borderColor: active ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={s.optionEmoji}>{EXPERIENCE_CONFIG[k].emoji}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[s.rowOptionLabel, { color: active ? colors.primary : colors.text }]}>
+                        {t('onboarding.exp' + k.charAt(0).toUpperCase() + k.slice(1))}
+                      </Text>
+                      {k === 'beginner' && active && (
+                        <Text style={[s.expNote, { color: colors.textSecondary }]}>
+                          {t('onboarding.expBeginnerNote')}
+                        </Text>
+                      )}
+                    </View>
+                    {active && <Text style={{ color: colors.primary, fontSize: 20 }}>✓</Text>}
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={s.stepActions}>
+            <Pressable onPress={() => setStep(3)} style={s.backButton}>
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
+            </Pressable>
+            <Button
+              title={t('onboarding.continue')}
+              onPress={() => setStep(5)}
+              disabled={!experience}
+              size="lg"
+              style={{ flex: 1, marginLeft: spacing.md }}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* ── STEP 5: Provincia ── */}
+      {step === 5 && (
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={s.stepContainer}
@@ -192,7 +442,6 @@ export default function OnboardingScreen() {
               {t('onboarding.step2Desc')}
             </Text>
 
-            {/* Hemisphere selector — before province so LATAM users can find their region */}
             <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('onboarding.hemisphereLabel')}</Text>
             <View style={[s.gardenTypeRow, { marginBottom: spacing.lg }]}>
               {(['norte', 'sur'] as const).map((h) => {
@@ -250,12 +499,12 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={s.stepActions}>
-            <Pressable onPress={() => setStep(0)} style={s.backButton}>
+            <Pressable onPress={() => setStep(4)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
             <Button
               title={t('onboarding.continue')}
-              onPress={() => setStep(2)}
+              onPress={() => setStep(6)}
               disabled={!province}
               size="lg"
               style={{ flex: 1, marginLeft: spacing.md }}
@@ -264,8 +513,8 @@ export default function OnboardingScreen() {
         </KeyboardAvoidingView>
       )}
 
-      {/* ── STEP 2: Crear huerto ── */}
-      {step === 2 && (
+      {/* ── STEP 6: Crear huerto ── */}
+      {step === 6 && (
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={s.stepContainer}
@@ -276,7 +525,6 @@ export default function OnboardingScreen() {
               {t('onboarding.step3Desc')}
             </Text>
 
-            {/* Garden type selector */}
             <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('onboarding.gardenTypeLabel')}</Text>
             <View style={s.gardenTypeRow}>
               {(Object.entries(GARDEN_TYPE_CONFIG) as [GardenType, typeof GARDEN_TYPE_CONFIG[GardenType]][]).map(([key, cfg]) => {
@@ -302,7 +550,6 @@ export default function OnboardingScreen() {
               })}
             </View>
 
-            {/* Photo picker */}
             <Pressable onPress={pickPhoto} style={s.photoPicker}>
               {photoUri ? (
                 <Image source={{ uri: photoUri }} style={s.photoImage} />
@@ -316,7 +563,6 @@ export default function OnboardingScreen() {
               )}
             </Pressable>
 
-            {/* Garden name input */}
             <TextInput
               value={gardenName}
               onChangeText={setGardenName}
@@ -337,7 +583,7 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={s.stepActions}>
-            <Pressable onPress={() => setStep(1)} style={s.backButton}>
+            <Pressable onPress={() => setStep(5)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
             <Button
@@ -352,8 +598,8 @@ export default function OnboardingScreen() {
         </KeyboardAvoidingView>
       )}
 
-      {/* ── STEP 3: Éxito ── */}
-      {step === 3 && (
+      {/* ── STEP 7: Éxito ── */}
+      {step === 7 && (
         <View style={[s.stepContainer, { justifyContent: 'space-between' }]}>
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ fontSize: 80, marginBottom: spacing.xl }}>🎉</Text>
@@ -396,7 +642,6 @@ export default function OnboardingScreen() {
             </Pressable>
           </View>
 
-          {/* LATAM: show country list first */}
           {hemisphere === 'sur' && !selectedCountry ? (
             <FlatList
               data={LATAM_COUNTRIES}
@@ -496,14 +741,38 @@ const styles = (
     },
     dot: { height: 8, borderRadius: 4 },
     stepContainer: { flex: 1, padding: spacing.xl, justifyContent: 'space-between' },
-    stepContent: { flex: 1, justifyContent: 'center' },
+    stepContent: { flexGrow: 1, justifyContent: 'center' },
     stepActions: { flexDirection: 'row', alignItems: 'center' },
-    heroSection: { alignItems: 'center', paddingVertical: spacing['3xl'] },
     heroEmoji: { fontSize: 80, marginBottom: spacing.xl },
     heroTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, textAlign: 'center', marginBottom: spacing.md },
     heroDesc: { fontSize: fontSize.lg, textAlign: 'center', lineHeight: 26 },
     stepTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
-    stepSubtitle: { fontSize: fontSize.md, lineHeight: 22, marginBottom: spacing['2xl'] },
+    stepSubtitle: { fontSize: fontSize.md, lineHeight: 22, marginBottom: spacing.lg },
+    multiHint: { fontSize: fontSize.xs, marginBottom: spacing.lg, fontStyle: 'italic' },
+    optionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, justifyContent: 'space-between' },
+    optionCard: {
+      width: '47%',
+      aspectRatio: 1.1,
+      borderWidth: 1.5,
+      borderRadius: radii.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      padding: spacing.md,
+    },
+    optionEmoji: { fontSize: 36 },
+    optionLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold, textAlign: 'center' },
+    rowOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      padding: spacing.lg,
+      borderWidth: 1.5,
+      borderRadius: radii.lg,
+    },
+    rowOptionLabel: { fontSize: fontSize.md, fontWeight: fontWeight.semibold, flex: 1 },
+    expNote: { fontSize: fontSize.xs, marginTop: 4, lineHeight: 16 },
+    skipButton: { paddingVertical: spacing.md, paddingHorizontal: spacing.sm },
     provinceButton: {
       flexDirection: 'row',
       justifyContent: 'space-between',
