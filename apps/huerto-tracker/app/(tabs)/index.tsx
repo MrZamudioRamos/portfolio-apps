@@ -335,6 +335,20 @@ export default function DashboardScreen() {
                 {item.variety}
               </Text>
             ) : null}
+            {garden && crop && !item.sowingDate && (() => {
+              const months = crop.sowingMonths[garden.climateZone];
+              if (!months || months.length === 0) return null;
+              const monthLabels = (t('cropNew.months', { returnObjects: true }) as string[]) ?? [];
+              const labels = months.map((m) => monthLabels[m - 1]).filter(Boolean);
+              if (labels.length === 0) return null;
+              return (
+                <View style={[s.sowChip, { backgroundColor: '#66BB6A22' }]}>
+                  <Text style={[s.sowChipText, { color: '#2E7D32' }]} numberOfLines={1}>
+                    🌱 {labels.join(', ')}
+                  </Text>
+                </View>
+              );
+            })()}
             <View style={s.plantFooter}>
               <View style={[s.statusBadge, { backgroundColor: statusConfig.color + '22' }]}>
                 <Text style={[s.statusText, { color: statusConfig.color }]}>
@@ -1207,6 +1221,14 @@ const makeStyles = (
     },
     wateredChip: { paddingHorizontal: 5, paddingVertical: 1, borderRadius: radii.full },
     wateredChipText: { fontSize: 9, fontWeight: fontWeight.bold },
+    sowChip: {
+      alignSelf: 'flex-start',
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: radii.full,
+      marginTop: 4,
+    },
+    sowChipText: { fontSize: 9, fontWeight: fontWeight.semibold },
     sortBtn: {
       flexDirection: 'row',
       alignItems: 'center',
