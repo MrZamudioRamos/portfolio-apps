@@ -339,7 +339,9 @@
     "plantsBadge": "landare",
     "notesTitle": "Baratzeko oharrak",
     "notesPlaceholder": "Idatzi zure behaketak…",
-    "notesSave": "Gorde"
+    "notesSave": "Gorde",
+    "unplaced": "Kokatu gabe",
+    "dragHint": "Eutsi sakatuta eta arrastatu"
   },
   "onboarding": {
     "step1Title": "Zure baratze digitala",

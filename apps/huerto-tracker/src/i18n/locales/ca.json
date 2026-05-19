@@ -339,7 +339,9 @@
     "plantsBadge": "plantes",
     "notesTitle": "Notes de l'hort",
     "notesPlaceholder": "Escriu les teves observacions…",
-    "notesSave": "Desar"
+    "notesSave": "Desar",
+    "unplaced": "Sense col·locar",
+    "dragHint": "Mantén premut i arrossega"
   },
   "onboarding": {
     "step1Title": "El teu hort digital",

@@ -339,7 +339,9 @@
     "plantsBadge": "plantas",
     "notesTitle": "Notas da horta",
     "notesPlaceholder": "Escribe as túas observacións…",
-    "notesSave": "Gardar"
+    "notesSave": "Gardar",
+    "unplaced": "Sen colocar",
+    "dragHint": "Mantén premido e arrastra"
   },
   "onboarding": {
     "step1Title": "A túa horta dixital",

@@ -339,7 +339,9 @@
     "plantsBadge": "plantes",
     "notesTitle": "Notes de l'hort",
     "notesPlaceholder": "Escriu les teues observacions…",
-    "notesSave": "Guardar"
+    "notesSave": "Guardar",
+    "unplaced": "Sense col·locar",
+    "dragHint": "Mantín polsat i arrossega"
   },
   "onboarding": {
     "step1Title": "El teu hort digital",

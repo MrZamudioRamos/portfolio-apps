@@ -359,7 +359,9 @@
     "plantsBadge": "plantas",
     "notesTitle": "Notas del huerto",
     "notesPlaceholder": "Escribe tus observaciones…",
-    "notesSave": "Guardar"
+    "notesSave": "Guardar",
+    "unplaced": "Sin colocar",
+    "dragHint": "Mantén pulsado y arrastra"
   },
   "onboarding": {
     "step1Title": "Tu huerto digital",

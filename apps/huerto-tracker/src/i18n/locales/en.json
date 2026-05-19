@@ -338,7 +338,9 @@
     "plantsBadge": "plants",
     "notesTitle": "Garden notes",
     "notesPlaceholder": "Write your observations…",
-    "notesSave": "Save"
+    "notesSave": "Save",
+    "unplaced": "Unplaced",
+    "dragHint": "Hold and drag"
   },
   "onboarding": {
     "step1Title": "Your digital garden",
