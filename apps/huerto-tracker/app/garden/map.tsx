@@ -30,6 +30,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { CROPS_BY_ID } from '../../src/data/crops';
+import { getCompatibilityStatus } from '../../src/data/companions';
 import type { Plant } from '../../src/models/plant';
 import { PLANT_STATUS_CONFIG } from '../../src/models/plant';
 import type { Garden } from '../../src/models/garden';
@@ -346,7 +347,30 @@ export default function GardenMapScreen() {
       const inMoveMode = !isDragging && moveSourceCell !== null;
       const isTarget = isDragging && dragTargetIdx === idx && dragSrcIdxRef.current !== idx;
       const count = plant ? (cropCounts[plant.cropId] ?? 1) : 0;
-      return { idx, plant, crop, statusColor, isSource, inMoveMode, isTarget, count };
+
+      // Companion markers vs right and bottom neighbors
+      let rightMarker: 'companion' | 'incompatible' | null = null;
+      let bottomMarker: 'companion' | 'incompatible' | null = null;
+      if (plant && crop) {
+        if (c + 1 < gridCols) {
+          const rId = layout[cellIndex(r, c + 1, gridCols)];
+          const rPlant = rId ? plants.items.find((p) => p.id === rId) : null;
+          if (rPlant) {
+            const st = getCompatibilityStatus(plant.cropId, rPlant.cropId);
+            if (st !== 'neutral') rightMarker = st;
+          }
+        }
+        if (r + 1 < gridRows) {
+          const bId = layout[cellIndex(r + 1, c, gridCols)];
+          const bPlant = bId ? plants.items.find((p) => p.id === bId) : null;
+          if (bPlant) {
+            const st = getCompatibilityStatus(plant.cropId, bPlant.cropId);
+            if (st !== 'neutral') bottomMarker = st;
+          }
+        }
+      }
+
+      return { idx, plant, crop, statusColor, isSource, inMoveMode, isTarget, count, rightMarker, bottomMarker };
     })
   );
 
@@ -432,7 +456,7 @@ export default function GardenMapScreen() {
             >
               {rows.map((row, r) => (
                 <View key={r} style={s.gridRow}>
-                  {row.map(({ idx, plant, crop, statusColor, isSource, inMoveMode, isTarget, count }) => {
+                  {row.map(({ idx, plant, crop, statusColor, isSource, inMoveMode, isTarget, count, rightMarker, bottomMarker }) => {
                     const cellContent = (
                       <Pressable
                         onPress={() => handleCellPress(idx)}
@@ -473,6 +497,30 @@ export default function GardenMapScreen() {
                             {count > 1 && (
                               <View style={s.badge}>
                                 <Text style={s.badgeText}>{count}x</Text>
+                              </View>
+                            )}
+                            {rightMarker && (
+                              <View
+                                style={[
+                                  s.companionMarkerRight,
+                                  { backgroundColor: rightMarker === 'companion' ? '#4CAF50' : '#EF5350' },
+                                ]}
+                              >
+                                <Text style={s.companionMarkerText}>
+                                  {rightMarker === 'companion' ? '✓' : '✗'}
+                                </Text>
+                              </View>
+                            )}
+                            {bottomMarker && (
+                              <View
+                                style={[
+                                  s.companionMarkerBottom,
+                                  { backgroundColor: bottomMarker === 'companion' ? '#4CAF50' : '#EF5350' },
+                                ]}
+                              >
+                                <Text style={s.companionMarkerText}>
+                                  {bottomMarker === 'companion' ? '✓' : '✗'}
+                                </Text>
                               </View>
                             )}
                           </>
@@ -863,6 +911,35 @@ const makeStyles = (
       paddingHorizontal: 4, paddingVertical: 1,
     },
     badgeText: { fontSize: 8, color: '#fff', fontWeight: '700' },
+    companionMarkerRight: {
+      position: 'absolute',
+      right: -7,
+      top: '50%',
+      marginTop: -7,
+      width: 14,
+      height: 14,
+      borderRadius: 7,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1.5,
+      borderColor: '#fff',
+      zIndex: 5,
+    },
+    companionMarkerBottom: {
+      position: 'absolute',
+      bottom: -7,
+      left: '50%',
+      marginLeft: -7,
+      width: 14,
+      height: 14,
+      borderRadius: 7,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1.5,
+      borderColor: '#fff',
+      zIndex: 5,
+    },
+    companionMarkerText: { fontSize: 8, fontWeight: '900', color: '#fff' },
     legend: { flexDirection: 'row', justifyContent: 'center', gap: spacing.xl, marginTop: spacing.md },
     legendItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     legendDot: { width: 10, height: 10, borderRadius: 5 },
