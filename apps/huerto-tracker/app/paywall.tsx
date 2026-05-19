@@ -1,11 +1,17 @@
 import { usePurchases, type PlanId } from '@portfolio/billing';
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
+import { scheduleDateAlert, requestPermissions } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const TRIAL_REMINDER_KEY = '@portfolio/huerto/trial_reminder_enabled';
+const TRIAL_REMINDER_NOTIF_ID = '@portfolio/huerto/trial_reminder_notif_id';
+const TRIAL_DAYS = 7;
 
 const PRO_FEATURE_KEYS = [
   { emoji: '🏡', key: 'paywall.features.gardens' },
@@ -26,6 +32,18 @@ export default function PaywallScreen() {
   const { t } = useTranslation();
   const { isPro, activePlan, purchasing, offerings, purchase, restore } = usePurchases();
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('annual');
+  const [trialReminderOn, setTrialReminderOn] = useState(true);
+
+  useEffect(() => {
+    AsyncStorage.getItem(TRIAL_REMINDER_KEY).then((raw) => {
+      if (raw !== null) setTrialReminderOn(raw === '1');
+    });
+  }, []);
+
+  async function toggleTrialReminder(value: boolean) {
+    setTrialReminderOn(value);
+    await AsyncStorage.setItem(TRIAL_REMINDER_KEY, value ? '1' : '0');
+  }
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -39,6 +57,18 @@ export default function PaywallScreen() {
     }
     const result = await purchase(selectedPlan);
     if (result.success) {
+      if (trialReminderOn) {
+        const granted = await requestPermissions();
+        if (granted) {
+          const fireAt = new Date(Date.now() + (TRIAL_DAYS - 1) * 86_400_000);
+          const id = await scheduleDateAlert({
+            date: fireAt,
+            title: t('paywall.trialReminderNotifTitle'),
+            body: t('paywall.trialReminderNotifBody'),
+          });
+          if (id) await AsyncStorage.setItem(TRIAL_REMINDER_NOTIF_ID, id);
+        }
+      }
       Alert.alert(
         t('paywall.successTitle'),
         t('paywall.successDesc'),
@@ -181,6 +211,26 @@ export default function PaywallScreen() {
           </>
         )}
 
+        {/* Trial reminder switch */}
+        {!isPro && (
+          <View style={[s.trialSwitchRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={{ fontSize: 22 }}>🔔</Text>
+            <View style={{ flex: 1, marginHorizontal: spacing.md }}>
+              <Text style={[s.trialSwitchTitle, { color: colors.text }]}>
+                {t('paywall.trialReminderTitle')}
+              </Text>
+              <Text style={[s.trialSwitchDesc, { color: colors.textSecondary }]}>
+                {t('paywall.trialReminderDesc', { days: TRIAL_DAYS - 1 })}
+              </Text>
+            </View>
+            <Switch
+              value={trialReminderOn}
+              onValueChange={toggleTrialReminder}
+              trackColor={{ true: colors.primary }}
+            />
+          </View>
+        )}
+
         {/* CTA */}
         {purchasing ? (
           <View style={s.loadingRow}>
@@ -311,4 +361,14 @@ const makeStyles = (
     restoreBtn: { alignItems: 'center', padding: spacing.lg, marginTop: spacing.sm },
     restoreText: { fontSize: fontSize.sm },
     legal: { fontSize: 11, textAlign: 'center', lineHeight: 16, marginTop: spacing.lg },
+    trialSwitchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.md,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      marginTop: spacing.md,
+    },
+    trialSwitchTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    trialSwitchDesc: { fontSize: fontSize.xs, marginTop: 2, lineHeight: 16 },
   });
