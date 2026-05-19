@@ -26,6 +26,7 @@ export interface CropInfo {
   companions: string[];
   incompatible: string[];
   tips: string;
+  isCustom?: boolean;
 }
 
 export const CROPS: CropInfo[] = [

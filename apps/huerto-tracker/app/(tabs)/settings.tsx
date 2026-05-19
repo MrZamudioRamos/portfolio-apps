@@ -255,6 +255,14 @@ export default function SettingsScreen() {
             s={s}
             onPress={() => router.push('/rotation' as any)}
           />
+          <Separator colors={colors} />
+          <RowAction
+            icon="leaf-outline"
+            label={t('customCrop.manage')}
+            colors={colors}
+            s={s}
+            onPress={() => router.push('/crop' as any)}
+          />
         </Card>
 
         {/* ── Estadísticas ── */}

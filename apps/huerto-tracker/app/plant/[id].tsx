@@ -22,6 +22,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
+import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import { getCompanions, getIncompatible } from '../../src/data/companions';
 import { PLANT_STATUS_CONFIG, type Plant, type PlantStatus } from '../../src/models/plant';
@@ -47,9 +48,10 @@ export default function PlantDetailScreen() {
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
   const reminders = useReminders<GardenReminder>('reminders');
+  const { customCropsById } = useCustomCrops();
 
   const plant = plants.getById(id);
-  const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
+  const crop = plant ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId] ?? null) : null;
   const statusConfig = plant ? PLANT_STATUS_CONFIG[plant.status] : null;
   const companions = crop ? getCompanions(crop.id) : [];
   const incompatibles = crop ? getIncompatible(crop.id) : [];
@@ -470,7 +472,9 @@ export default function PlantDetailScreen() {
               <InfoItem label={t('plantDetail.spacing')} value={`${crop.spacing} cm`} />
             </View>
             <View style={[s.tipBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-              <Text style={[s.tipText, { color: colors.textSecondary }]}>💡 {t('crops.' + crop.id + '.tips')}</Text>
+              <Text style={[s.tipText, { color: colors.textSecondary }]}>
+                💡 {crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips')}
+              </Text>
             </View>
           </Card>
 
@@ -771,7 +775,7 @@ export default function PlantDetailScreen() {
               <>
                 <View style={[{ height: StyleSheet.hairlineWidth, backgroundColor: colors.border }]} />
                 <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary, fontWeight: fontWeight.semibold }]}>
-                  {t('plantDetail.commonPests', { crop: t('crops.' + crop?.id + '.name').toUpperCase() })}
+                  {t('plantDetail.commonPests', { crop: (crop?.isCustom ? crop.name : t('crops.' + crop?.id + '.name')).toUpperCase() })}
                 </Text>
                 {pestInfo.slice(0, 3).map((pest) => (
                   <View key={pest.id} style={[s.pestCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>

@@ -24,7 +24,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS, CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, type CropInfo } from '../../src/data/crops';
+import { CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, type CropInfo } from '../../src/data/crops';
+import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import { getCompanions } from '../../src/data/companions';
 import type { Plant } from '../../src/models/plant';
@@ -32,7 +33,7 @@ import type { DiaryEntry } from '../../src/models/diary-entry';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
-const SECTIONS = (Object.keys(CATEGORY_CONFIG) as Array<keyof typeof CATEGORY_CONFIG>).map((cat) => ({
+const STATIC_SECTIONS = (Object.keys(CATEGORY_CONFIG) as Array<keyof typeof CATEGORY_CONFIG>).map((cat) => ({
   title: cat,
   data: CROPS_BY_CATEGORY[cat],
 }));
@@ -55,12 +56,16 @@ export default function NewPlantScreen() {
   const plantLimit = isGuest ? 3 : isPro ? Infinity : 20;
   const atLimit = plants.count >= plantLimit;
 
+  const { collection: customCropsCollection, customCropsById } = useCustomCrops();
+
   const [selectedCropId, setSelectedCropId] = useState<string | null>(paramCropId ?? null);
   const [showCropPicker, setShowCropPicker] = useState(!paramCropId);
   const [cropSearch, setCropSearch] = useState('');
-  const [plantName, setPlantName] = useState(
-    paramCropId ? (t('crops.' + paramCropId + '.name') || CROPS_BY_ID[paramCropId]?.name || '') : ''
-  );
+  const [plantName, setPlantName] = useState(() => {
+    if (!paramCropId) return '';
+    const staticCrop = CROPS_BY_ID[paramCropId];
+    return staticCrop ? (t('crops.' + paramCropId + '.name') || staticCrop.name) : '';
+  });
   const [variety, setVariety] = useState('');
   const [varietyId, setVarietyId] = useState<string | null>(null);
   const [sowingDate, setSowingDate] = useState(new Date().toISOString().split('T')[0]);
@@ -68,25 +73,42 @@ export default function NewPlantScreen() {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const selectedCrop = selectedCropId ? CROPS_BY_ID[selectedCropId] : null;
+  const selectedCrop = selectedCropId
+    ? (CROPS_BY_ID[selectedCropId] ?? customCropsById[selectedCropId] ?? null)
+    : null;
 
   const filteredSections = useMemo(() => {
-    if (!cropSearch.trim()) return SECTIONS;
-    const q = cropSearch.toLowerCase();
-    return SECTIONS.map((s) => ({
-      ...s,
-      data: s.data.filter((c) =>
-        c.name.toLowerCase().includes(q) ||
-        t('crops.' + c.id + '.name').toLowerCase().includes(q)
-      ),
-    })).filter((s) => s.data.length > 0);
-  }, [cropSearch, t]);
+    const q = cropSearch.trim().toLowerCase();
+    const staticSections = STATIC_SECTIONS.map((sec) => ({
+      ...sec,
+      data: q
+        ? sec.data.filter(
+            (c) =>
+              c.name.toLowerCase().includes(q) ||
+              t('crops.' + c.id + '.name').toLowerCase().includes(q)
+          )
+        : sec.data,
+    })).filter((sec) => sec.data.length > 0);
+
+    const customMatches = customCropsCollection.items.filter((cc) =>
+      !q || cc.name.toLowerCase().includes(q)
+    );
+    const mycropsSection =
+      customMatches.length > 0
+        ? [{ title: '__mycrops__' as any, data: customMatches.map((cc) => customCropsById[cc.id]).filter(Boolean) as CropInfo[] }]
+        : [];
+
+    return [...mycropsSection, ...staticSections];
+  }, [cropSearch, t, customCropsCollection.items, customCropsById]);
 
   const cropVarieties = selectedCropId ? (VARIETIES_BY_CROP[selectedCropId] ?? []) : [];
 
   function handleSelectCrop(crop: CropInfo) {
     setSelectedCropId(crop.id);
-    if (!plantName) setPlantName(t('crops.' + crop.id + '.name') || crop.name);
+    if (!plantName) {
+      const label = crop.isCustom ? crop.name : (t('crops.' + crop.id + '.name') || crop.name);
+      setPlantName(label);
+    }
     setShowCropPicker(false);
     setCropSearch('');
     setVarietyId(null);
@@ -421,9 +443,15 @@ export default function NewPlantScreen() {
             keyExtractor={(item) => item.id}
             renderSectionHeader={({ section }) => (
               <View style={[s.categoryHeader, { backgroundColor: colors.background }]}>
-                <Text style={[s.categoryTitle, { color: colors.textSecondary }]}>
-                  {CATEGORY_CONFIG[section.title].emoji} {t('cropCategory.' + section.title).toUpperCase()}
-                </Text>
+                {section.title === '__mycrops__' ? (
+                  <Text style={[s.categoryTitle, { color: colors.textSecondary }]}>
+                    ⭐ {t('customCrop.mycrops').toUpperCase()}
+                  </Text>
+                ) : (
+                  <Text style={[s.categoryTitle, { color: colors.textSecondary }]}>
+                    {(CATEGORY_CONFIG as any)[section.title]?.emoji} {t('cropCategory.' + section.title).toUpperCase()}
+                  </Text>
+                )}
               </View>
             )}
             renderItem={({ item }) => (
@@ -445,7 +473,7 @@ export default function NewPlantScreen() {
                 <Text style={{ fontSize: 28 }}>{item.emoji}</Text>
                 <View style={{ flex: 1, marginLeft: spacing.md }}>
                   <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.medium }}>
-                    {t('crops.' + item.id + '.name')}
+                    {item.isCustom ? item.name : t('crops.' + item.id + '.name')}
                   </Text>
                 </View>
                 {item.id === selectedCropId && (
@@ -453,6 +481,17 @@ export default function NewPlantScreen() {
                 )}
               </Pressable>
             )}
+            ListFooterComponent={
+              <Pressable
+                onPress={() => router.push('/crop/new' as any)}
+                style={[s.cropRow, { borderBottomWidth: 0, justifyContent: 'center', gap: 8, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}
+              >
+                <Ionicons name="add-circle-outline" size={22} color={colors.primary} />
+                <Text style={{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.medium }}>
+                  {t('customCrop.addNew')}
+                </Text>
+              </Pressable>
+            }
             contentContainerStyle={{ paddingBottom: 40 }}
           />
         </SafeAreaView>
