@@ -265,7 +265,10 @@
     "hemisphereLabel": "HEMISPHERE",
     "hemisphereNorte": "North",
     "hemisphereSur": "South",
-    "hemisphereSurTip": "The calendar will reverse months for the southern hemisphere (Argentina, Chile, Uruguay…)"
+    "hemisphereSurTip": "The calendar will reverse months for the southern hemisphere (Argentina, Chile, Uruguay…)",
+    "colorLabel": "MAP COLOR",
+    "notesLabel": "NOTES",
+    "notesPlaceholder": "Observations, watering schedule…"
   },
   "gardens": {
     "title": "My gardens",
@@ -329,7 +332,13 @@
     "moveCancelled": "Move cancelled",
     "shareTitle": "My Garden",
     "shareNotAvailable": "Sharing is not available on this device.",
-    "shareError": "Could not capture the map."
+    "shareError": "Could not capture the map.",
+    "addPlant": "Add plant",
+    "noEmptyCell": "No empty cells available",
+    "plantsBadge": "plants",
+    "notesTitle": "Garden notes",
+    "notesPlaceholder": "Write your observations…",
+    "notesSave": "Save"
   },
   "onboarding": {
     "step1Title": "Your digital garden",

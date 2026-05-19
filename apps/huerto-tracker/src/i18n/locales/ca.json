@@ -266,7 +266,10 @@
     "hemisphereLabel": "HEMISFERI",
     "hemisphereNorte": "Nord",
     "hemisphereSur": "Sud",
-    "hemisphereSurTip": "El calendari invertirà els mesos per adaptar-se a l'hemisferi sud (Argentina, Xile, Uruguai…)"
+    "hemisphereSurTip": "El calendari invertirà els mesos per adaptar-se a l'hemisferi sud (Argentina, Xile, Uruguai…)",
+    "colorLabel": "COLOR DEL MAPA",
+    "notesLabel": "NOTES",
+    "notesPlaceholder": "Observacions, torns de reg…"
   },
   "gardens": {
     "title": "Els meus horts",
@@ -330,7 +333,13 @@
     "moveCancelled": "Moviment cancel·lat",
     "shareTitle": "El meu hort",
     "shareNotAvailable": "Compartir no està disponible en aquest dispositiu.",
-    "shareError": "No s'ha pogut capturar el mapa."
+    "shareError": "No s'ha pogut capturar el mapa.",
+    "addPlant": "Afegir planta",
+    "noEmptyCell": "No hi ha parcel·les buides",
+    "plantsBadge": "plantes",
+    "notesTitle": "Notes de l'hort",
+    "notesPlaceholder": "Escriu les teves observacions…",
+    "notesSave": "Desar"
   },
   "onboarding": {
     "step1Title": "El teu hort digital",

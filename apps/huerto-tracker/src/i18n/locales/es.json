@@ -286,7 +286,10 @@
     "hemisphereLabel": "HEMISFERIO",
     "hemisphereNorte": "Norte",
     "hemisphereSur": "Sur",
-    "hemisphereSurTip": "El calendario invertirá los meses para adaptarse al hemisferio sur (Argentina, Chile, Uruguay…)"
+    "hemisphereSurTip": "El calendario invertirá los meses para adaptarse al hemisferio sur (Argentina, Chile, Uruguay…)",
+    "colorLabel": "COLOR DEL MAPA",
+    "notesLabel": "NOTAS",
+    "notesPlaceholder": "Observaciones, turnos de riego…"
   },
   "gardens": {
     "title": "Mis huertos",
@@ -350,7 +353,13 @@
     "moveCancelled": "Movimiento cancelado",
     "shareTitle": "Mi Huerto",
     "shareNotAvailable": "Compartir no está disponible en este dispositivo.",
-    "shareError": "No se pudo capturar el mapa."
+    "shareError": "No se pudo capturar el mapa.",
+    "addPlant": "Añadir planta",
+    "noEmptyCell": "No hay parcelas vacías",
+    "plantsBadge": "plantas",
+    "notesTitle": "Notas del huerto",
+    "notesPlaceholder": "Escribe tus observaciones…",
+    "notesSave": "Guardar"
   },
   "onboarding": {
     "step1Title": "Tu huerto digital",

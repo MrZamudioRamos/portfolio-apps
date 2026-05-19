@@ -13,6 +13,8 @@ export interface Garden extends BaseItem {
   gridRows?: number;
   gridCols?: number;
   hemisphere?: Hemisphere;
+  color?: string;
+  notes?: string;
 }
 
 export const GARDEN_TYPE_CONFIG: Record<GardenType, { label: string; emoji: string; description: string }> = {

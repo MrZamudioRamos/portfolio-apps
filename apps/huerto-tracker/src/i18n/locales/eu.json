@@ -266,7 +266,10 @@
     "hemisphereLabel": "HEMISFERIO",
     "hemisphereNorte": "Iparraldea",
     "hemisphereSur": "Hegoaldea",
-    "hemisphereSurTip": "Egutegia hegoaldeko hemisferiorako hilabeteak alderantziz jarriko ditu"
+    "hemisphereSurTip": "Egutegia hegoaldeko hemisferiorako hilabeteak alderantziz jarriko ditu",
+    "colorLabel": "MAPAREN KOLOREA",
+    "notesLabel": "OHARRAK",
+    "notesPlaceholder": "Behaketak, ureztatzeko txandak…"
   },
   "gardens": {
     "title": "Nire baratzeak",
@@ -330,7 +333,13 @@
     "moveCancelled": "Mugimendua bertan behera utzi da",
     "shareTitle": "Nire baratzea",
     "shareNotAvailable": "Partekatzea ez dago eskuragarri gailu honetan.",
-    "shareError": "Ezin izan da mapa kapturatu."
+    "shareError": "Ezin izan da mapa kapturatu.",
+    "addPlant": "Landarea gehitu",
+    "noEmptyCell": "Ez dago zelda hutsik",
+    "plantsBadge": "landare",
+    "notesTitle": "Baratzeko oharrak",
+    "notesPlaceholder": "Idatzi zure behaketak…",
+    "notesSave": "Gorde"
   },
   "onboarding": {
     "step1Title": "Zure baratze digitala",

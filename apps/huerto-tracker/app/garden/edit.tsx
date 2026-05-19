@@ -25,6 +25,17 @@ import { GRID_PRESETS, DEFAULT_GRID_ROWS, DEFAULT_GRID_COLS } from '../../src/ho
 
 const ALL_PROVINCES = Object.keys(PROVINCE_ZONES).sort();
 
+const GARDEN_COLORS = [
+  '#7A8C6E', // verde salvia
+  '#8B5A2B', // tierra marrón
+  '#5B7E6E', // verde bosque
+  '#6B8CA6', // azul pizarra
+  '#9B7651', // terracota
+  '#7A6B8A', // lavanda
+  '#8A7A5A', // arena
+  '#4E7A4E', // verde oscuro
+];
+
 export default function GardenEditScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
@@ -39,6 +50,8 @@ export default function GardenEditScreen() {
   const [gridRows, setGridRows] = useState(garden?.gridRows ?? DEFAULT_GRID_ROWS);
   const [gridCols, setGridCols] = useState(garden?.gridCols ?? DEFAULT_GRID_COLS);
   const [hemisphere, setHemisphere] = useState<Hemisphere>(garden?.hemisphere ?? 'norte');
+  const [color, setColor] = useState<string | undefined>(garden?.color);
+  const [notes, setNotes] = useState(garden?.notes ?? '');
   const [provinceSearch, setProvinceSearch] = useState('');
   const [showProvinceModal, setShowProvinceModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -81,6 +94,8 @@ export default function GardenEditScreen() {
         gridRows,
         gridCols,
         hemisphere,
+        color,
+        notes: notes.trim(),
       });
       router.back();
     } finally {
@@ -267,6 +282,45 @@ export default function GardenEditScreen() {
             );
           })}
         </View>
+
+        {/* Map color */}
+        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.colorLabel')}</Text>
+        <View style={s.colorRow}>
+          {GARDEN_COLORS.map((c) => (
+            <Pressable
+              key={c}
+              onPress={() => setColor(color === c ? undefined : c)}
+              style={[
+                s.colorSwatch,
+                { backgroundColor: c },
+                color === c && s.colorSwatchActive,
+              ]}
+            >
+              {color === c && <Ionicons name="checkmark" size={16} color="#fff" />}
+            </Pressable>
+          ))}
+          <Pressable
+            onPress={() => setColor(undefined)}
+            style={[
+              s.colorSwatch,
+              { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: color === undefined ? colors.primary : colors.border },
+            ]}
+          >
+            {color === undefined && <Ionicons name="checkmark" size={16} color={colors.primary} />}
+          </Pressable>
+        </View>
+
+        {/* Notes */}
+        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.notesLabel')}</Text>
+        <TextInput
+          value={notes}
+          onChangeText={setNotes}
+          style={[s.notesInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
+          placeholder={t('gardenEdit.notesPlaceholder')}
+          placeholderTextColor={colors.textDisabled}
+          multiline
+          maxLength={500}
+        />
 
         <Button
           title={saving ? t('common.saving') : t('gardenEdit.save')}
@@ -461,4 +515,29 @@ const makeStyles = (
     },
     presetLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     presetSub: { fontSize: 10 },
+    colorRow: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
+    colorSwatch: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    colorSwatchActive: {
+      borderWidth: 3,
+      borderColor: '#fff',
+      shadowColor: '#000',
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 4,
+    },
+    notesInput: {
+      borderWidth: 1,
+      borderRadius: radii.md,
+      padding: spacing.md,
+      fontSize: fontSize.sm,
+      minHeight: 80,
+      textAlignVertical: 'top',
+    },
   });

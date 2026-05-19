@@ -266,7 +266,10 @@
     "hemisphereLabel": "HEMISFERIO",
     "hemisphereNorte": "Norte",
     "hemisphereSur": "Sur",
-    "hemisphereSurTip": "O calendario invertira os meses para adaptarse ao hemisferio sur (Arxentina, Chile, Uruguai…)"
+    "hemisphereSurTip": "O calendario invertira os meses para adaptarse ao hemisferio sur (Arxentina, Chile, Uruguai…)",
+    "colorLabel": "COR DO MAPA",
+    "notesLabel": "NOTAS",
+    "notesPlaceholder": "Observacións, quendas de rega…"
   },
   "gardens": {
     "title": "As miñas hortas",
@@ -330,7 +333,13 @@
     "moveCancelled": "Movemento cancelado",
     "shareTitle": "A miña horta",
     "shareNotAvailable": "Compartir non está dispoñible neste dispositivo.",
-    "shareError": "Non se puido capturar o mapa."
+    "shareError": "Non se puido capturar o mapa.",
+    "addPlant": "Engadir planta",
+    "noEmptyCell": "Non hai parcelas baleiras",
+    "plantsBadge": "plantas",
+    "notesTitle": "Notas da horta",
+    "notesPlaceholder": "Escribe as túas observacións…",
+    "notesSave": "Gardar"
   },
   "onboarding": {
     "step1Title": "A túa horta dixital",

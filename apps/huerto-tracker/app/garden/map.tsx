@@ -31,6 +31,7 @@ import Animated, {
 import { CROPS_BY_ID } from '../../src/data/crops';
 import type { Plant } from '../../src/models/plant';
 import { PLANT_STATUS_CONFIG } from '../../src/models/plant';
+import type { Garden } from '../../src/models/garden';
 import {
   DEFAULT_GRID_ROWS,
   DEFAULT_GRID_COLS,
@@ -46,8 +47,10 @@ export default function GardenMapScreen() {
   const router = useRouter();
 
   const { activeGarden: garden } = useActiveGarden();
+  const gardens = useCollection<Garden>('gardens');
   const gridRows = garden?.gridRows ?? DEFAULT_GRID_ROWS;
   const gridCols = garden?.gridCols ?? DEFAULT_GRID_COLS;
+  const gridColor = garden?.color ?? colors.border;
 
   const plants = useCollection<Plant>('plants');
   const { layout, loading, setCell, swapCells } = useGardenLayout(garden?.id, gridRows, gridCols);
@@ -60,6 +63,9 @@ export default function GardenMapScreen() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragTargetIdx, setDragTargetIdx] = useState<number | null>(null);
   const [ghostEmoji, setGhostEmoji] = useState('🌱');
+  const [showNotes, setShowNotes] = useState(false);
+  const [notesText, setNotesText] = useState(garden?.notes ?? '');
+  const [savingNotes, setSavingNotes] = useState(false);
 
   const viewShotRef = useRef<ViewShot>(null);
   const gridRef = useRef<View>(null);
@@ -68,6 +74,9 @@ export default function GardenMapScreen() {
   const dragSrcIdxRef = useRef(-1);
   const layoutRef = useRef(layout);
   useEffect(() => { layoutRef.current = layout; }, [layout]);
+
+  // Sync notes when garden loads/changes
+  useEffect(() => { setNotesText(garden?.notes ?? ''); }, [garden?.id, garden?.notes]);
 
   // Shared values for floating ghost
   const ghostX = useSharedValue(0);
@@ -101,6 +110,18 @@ export default function GardenMapScreen() {
         ),
     [gardenPlants, placedPlantIds, search]
   );
+
+  // Count how many grid cells each cropId occupies (for Nx badge)
+  const cropCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const plantId of layout) {
+      if (!plantId) continue;
+      const plant = plants.items.find((p) => p.id === plantId);
+      if (!plant) continue;
+      counts[plant.cropId] = (counts[plant.cropId] ?? 0) + 1;
+    }
+    return counts;
+  }, [layout, plants.items]);
 
   const { t } = useTranslation();
 
@@ -169,7 +190,6 @@ export default function GardenMapScreen() {
   function handleCellPress(index: number) {
     if (isDraggingRef.current) return;
 
-    // Move mode (tap-based fallback)
     if (moveSourceCell !== null) {
       if (index === moveSourceCell) {
         setMoveSourceCell(null);
@@ -197,6 +217,16 @@ export default function GardenMapScreen() {
     }
   }
 
+  function handleFabPress() {
+    const firstEmpty = layout.findIndex((c) => !c);
+    if (firstEmpty === -1) {
+      Alert.alert(t('gardenMap.noEmptyCell'));
+      return;
+    }
+    setSearch('');
+    setPickingCell(firstEmpty);
+  }
+
   async function handleAssign(plant: Plant) {
     if (pickingCell === null) return;
     await setCell(pickingCell, plant.id);
@@ -212,6 +242,17 @@ export default function GardenMapScreen() {
   function handleStartMove() {
     setMoveSourceCell(selectedCell);
     setSelectedCell(null);
+  }
+
+  async function handleSaveNotes() {
+    if (!garden) return;
+    setSavingNotes(true);
+    try {
+      await gardens.update(garden.id, { notes: notesText.trim() });
+      setShowNotes(false);
+    } finally {
+      setSavingNotes(false);
+    }
   }
 
   async function handleShare() {
@@ -246,7 +287,8 @@ export default function GardenMapScreen() {
       const isSource = isDragging ? dragSrcIdxRef.current === idx : moveSourceCell === idx;
       const inMoveMode = !isDragging && moveSourceCell !== null;
       const isTarget = isDragging && dragTargetIdx === idx && dragSrcIdxRef.current !== idx;
-      return { idx, plant, crop, statusColor, isSource, inMoveMode, isTarget };
+      const count = plant ? (cropCounts[plant.cropId] ?? 1) : 0;
+      return { idx, plant, crop, statusColor, isSource, inMoveMode, isTarget, count };
     })
   );
 
@@ -266,6 +308,19 @@ export default function GardenMapScreen() {
               {t('gardenMap.summary', { placed: placedPlantIds.size, total: gardenPlants.length, cols: gridCols, rows: gridRows })}
             </Text>
           </View>
+          {/* Notes button */}
+          <Pressable
+            onPress={() => setShowNotes(true)}
+            hitSlop={12}
+            style={{ marginRight: spacing.sm, opacity: garden?.notes?.trim() ? 1 : 0.55 }}
+          >
+            <Ionicons
+              name={garden?.notes?.trim() ? 'document-text' : 'document-text-outline'}
+              size={20}
+              color={colors.primary}
+            />
+          </Pressable>
+          {/* Share button */}
           <Pressable
             onPress={handleShare}
             disabled={sharing}
@@ -276,7 +331,7 @@ export default function GardenMapScreen() {
           </Pressable>
         </View>
 
-        {/* Move mode banner (tap-based fallback) */}
+        {/* Move mode banner */}
         {moveSourceCell !== null && (
           <Pressable
             onPress={() => setMoveSourceCell(null)}
@@ -300,13 +355,23 @@ export default function GardenMapScreen() {
           </View>
 
           {/* Grid — wrapped in ViewShot for sharing */}
-          <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }} style={[s.viewShot, { backgroundColor: colors.background }]}>
-            {garden?.name ? (
-              <Text style={[s.shareTitle, { color: colors.text }]}>{garden.name}</Text>
-            ) : null}
+          <ViewShot
+            ref={viewShotRef}
+            options={{ format: 'png', quality: 1 }}
+            style={{ borderRadius: radii.lg, overflow: 'hidden' }}
+          >
+            {/* Share card header (visible in shared image) */}
+            <View style={[s.shareHeader, { backgroundColor: garden?.color ?? colors.primary }]}>
+              <Text style={s.shareHeaderName}>{garden?.name ?? t('gardenMap.title')}</Text>
+              <Text style={s.shareHeaderMeta}>
+                {gridCols}×{gridRows} · {placedPlantIds.size} {t('gardenMap.plantsBadge')}
+              </Text>
+            </View>
+
+            {/* Grid */}
             <View
               ref={gridRef}
-              style={[s.grid, { borderColor: colors.border }]}
+              style={[s.grid, { borderColor: gridColor, backgroundColor: gridColor }]}
               onLayout={() => {
                 gridRef.current?.measureInWindow((x, y, w, h) => {
                   gridMetrics.current = { x, y, w, h };
@@ -315,7 +380,7 @@ export default function GardenMapScreen() {
             >
               {rows.map((row, r) => (
                 <View key={r} style={s.gridRow}>
-                  {row.map(({ idx, plant, crop, statusColor, isSource, inMoveMode, isTarget }) => {
+                  {row.map(({ idx, plant, crop, statusColor, isSource, inMoveMode, isTarget, count }) => {
                     const cellContent = (
                       <Pressable
                         onPress={() => handleCellPress(idx)}
@@ -352,6 +417,12 @@ export default function GardenMapScreen() {
                               {plant.name}
                             </Text>
                             <View style={[s.cellDot, { backgroundColor: statusColor ?? colors.primary }]} />
+                            {/* Nx quantity badge */}
+                            {count > 1 && (
+                              <View style={s.badge}>
+                                <Text style={s.badgeText}>{count}x</Text>
+                              </View>
+                            )}
                           </>
                         ) : isTarget ? (
                           <Ionicons name="add-circle" size={18} color="#4CAF50" />
@@ -398,6 +469,11 @@ export default function GardenMapScreen() {
                 </View>
               ))}
             </View>
+
+            {/* Share footer branding */}
+            <View style={[s.shareFooter, { backgroundColor: colors.background }]}>
+              <Text style={[s.shareFooterText, { color: colors.textSecondary }]}>🌱 Huerto Tracker</Text>
+            </View>
           </ViewShot>
 
           {/* Legend */}
@@ -418,8 +494,20 @@ export default function GardenMapScreen() {
             </Text>
           )}
 
-          <View style={{ height: spacing['2xl'] }} />
+          <View style={{ height: 120 }} />
         </ScrollView>
+
+        {/* FAB — Add plant */}
+        <Pressable
+          onPress={handleFabPress}
+          style={({ pressed }) => [
+            s.fab,
+            { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1, ...shadows.md },
+          ]}
+        >
+          <Ionicons name="add" size={22} color="#fff" />
+          <Text style={s.fabText}>{t('gardenMap.addPlant')}</Text>
+        </Pressable>
 
         {/* Plant picker modal */}
         <Modal
@@ -558,9 +646,48 @@ export default function GardenMapScreen() {
             </Pressable>
           </Pressable>
         </Modal>
+
+        {/* Notes bottom sheet */}
+        <Modal
+          visible={showNotes}
+          animationType="slide"
+          transparent
+          onRequestClose={() => setShowNotes(false)}
+        >
+          <Pressable style={s.overlay} onPress={() => setShowNotes(false)}>
+            <Pressable
+              style={[s.notesCard, { backgroundColor: colors.surface, ...shadows.lg }]}
+              onPress={() => {}}
+            >
+              <View style={s.notesHeaderRow}>
+                <Text style={[s.notesTitle, { color: colors.text }]}>{t('gardenMap.notesTitle')}</Text>
+                <Pressable onPress={() => setShowNotes(false)} hitSlop={12}>
+                  <Ionicons name="close" size={22} color={colors.textSecondary} />
+                </Pressable>
+              </View>
+              <TextInput
+                value={notesText}
+                onChangeText={setNotesText}
+                style={[s.notesInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
+                placeholder={t('gardenMap.notesPlaceholder')}
+                placeholderTextColor={colors.textDisabled}
+                multiline
+                maxLength={500}
+                autoFocus
+              />
+              <Pressable
+                onPress={handleSaveNotes}
+                disabled={savingNotes}
+                style={[s.notesSaveBtn, { backgroundColor: colors.primary, opacity: savingNotes ? 0.6 : 1 }]}
+              >
+                <Text style={s.notesSaveBtnText}>{t('gardenMap.notesSave')}</Text>
+              </Pressable>
+            </Pressable>
+          </Pressable>
+        </Modal>
       </SafeAreaView>
 
-      {/* Floating ghost (renders outside SafeAreaView so absoluteX/Y map correctly) */}
+      {/* Floating ghost during drag */}
       {isDragging && (
         <Animated.View pointerEvents="none" style={[s.ghost, ghostAnimStyle]}>
           <Text style={{ fontSize: 40 }}>{ghostEmoji}</Text>
@@ -598,8 +725,18 @@ const makeStyles = (
     },
     moveBannerText: { flex: 1, color: '#fff', fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
     scroll: { paddingHorizontal: spacing.xl, paddingTop: spacing.md },
-    viewShot: { borderRadius: radii.lg, padding: spacing.sm },
-    shareTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, textAlign: 'center', marginBottom: spacing.sm },
+    shareHeader: {
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      alignItems: 'center',
+    },
+    shareHeaderName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: '#fff' },
+    shareHeaderMeta: { fontSize: fontSize.xs, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
+    shareFooter: {
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+    },
+    shareFooterText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     compassRow: { alignItems: 'center', marginBottom: spacing.sm },
     compassBadge: {
       paddingHorizontal: spacing.md,
@@ -609,11 +746,9 @@ const makeStyles = (
     },
     grid: {
       borderWidth: 1,
-      borderRadius: radii.lg,
       overflow: 'hidden',
       gap: 2,
       padding: 2,
-      backgroundColor: colors.border,
     },
     gridRow: { flexDirection: 'row', gap: 2 },
     cell: {
@@ -629,6 +764,16 @@ const makeStyles = (
     cellEmoji: { fontSize: 22 },
     cellLabel: { fontSize: 8, fontWeight: fontWeight.medium, textAlign: 'center' },
     cellDot: { width: 5, height: 5, borderRadius: 3 },
+    badge: {
+      position: 'absolute',
+      bottom: 2,
+      right: 2,
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      borderRadius: 8,
+      paddingHorizontal: 4,
+      paddingVertical: 1,
+    },
+    badgeText: { fontSize: 8, color: '#fff', fontWeight: '700' },
     legend: {
       flexDirection: 'row',
       justifyContent: 'center',
@@ -639,6 +784,18 @@ const makeStyles = (
     legendDot: { width: 10, height: 10, borderRadius: 5 },
     legendText: { fontSize: fontSize.xs },
     emptyNote: { textAlign: 'center', fontSize: fontSize.sm, marginTop: spacing.xl },
+    fab: {
+      position: 'absolute',
+      bottom: spacing.xl,
+      right: spacing.xl,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      borderRadius: radii.full,
+    },
+    fabText: { color: '#fff', fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     modal: { flex: 1 },
     modalHeader: {
       flexDirection: 'row',
@@ -701,6 +858,30 @@ const makeStyles = (
       borderRadius: radii.md,
     },
     contextBtnText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    notesCard: {
+      borderTopLeftRadius: radii.xl,
+      borderTopRightRadius: radii.xl,
+      paddingTop: spacing.xl,
+      paddingBottom: spacing['2xl'],
+      paddingHorizontal: spacing.xl,
+      gap: spacing.md,
+    },
+    notesHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    notesTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    notesInput: {
+      borderWidth: 1,
+      borderRadius: radii.md,
+      padding: spacing.md,
+      fontSize: fontSize.sm,
+      minHeight: 100,
+      textAlignVertical: 'top',
+    },
+    notesSaveBtn: {
+      borderRadius: radii.md,
+      paddingVertical: spacing.md,
+      alignItems: 'center',
+    },
+    notesSaveBtnText: { color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     ghost: {
       position: 'absolute',
       top: 0,
