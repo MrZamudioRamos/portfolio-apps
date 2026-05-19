@@ -1,5 +1,5 @@
 import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
-import { useCollection } from '@portfolio/storage';
+import { createStore, useCollection } from '@portfolio/storage';
 import { useSession } from '@portfolio/supabase';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
@@ -47,7 +47,7 @@ export default function NewPlantScreen() {
 
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
-  const entries = useCollection<DiaryEntry>('diary_entries');
+  const diaryStore = useMemo(() => createStore<DiaryEntry>('diary_entries'), []);
   const { isGuest } = useSession();
   const { isPro } = usePurchases();
 
@@ -135,7 +135,7 @@ export default function NewPlantScreen() {
         status: 'seedling',
         ...(photoUri ? { photoUri } : {}),
       });
-      await entries.create({
+      await diaryStore.create({
         gardenId,
         plantId: newPlant.id,
         type: 'sowing',
