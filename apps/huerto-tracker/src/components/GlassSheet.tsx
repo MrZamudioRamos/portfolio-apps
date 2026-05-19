@@ -1,4 +1,4 @@
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { GlassView, isLiquidGlassAvailable } from '../utils/glassEffect';
 import { Platform, View } from 'react-native';
 import type { ViewProps } from 'react-native';
 

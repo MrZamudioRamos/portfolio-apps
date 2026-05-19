@@ -1,5 +1,5 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { GlassView, isLiquidGlassAvailable } from '../utils/glassEffect';
 import { createStore, useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
