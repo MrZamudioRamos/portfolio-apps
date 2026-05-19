@@ -30,6 +30,12 @@ import { ENTRY_TYPE_CONFIG, type DiaryEntry } from '../../src/models/diary-entry
 import { REMINDER_TYPE_CONFIG, type GardenReminder } from '../../src/models/reminder';
 import { getPestsForCrop, PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { CalendarGantt } from '../../src/components/plant/CalendarGantt';
+import { DifficultyGauge } from '../../src/components/plant/DifficultyGauge';
+import { HowToStages } from '../../src/components/plant/HowToStages';
+
+type CropTab = 'overview' | 'calendar' | 'companions' | 'howto';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -49,6 +55,8 @@ export default function PlantDetailScreen() {
   const entries = useCollection<DiaryEntry>('diary_entries');
   const reminders = useReminders<GardenReminder>('reminders');
   const { customCropsById } = useCustomCrops();
+  const { activeGarden } = useActiveGarden();
+  const [cropTab, setCropTab] = useState<CropTab>('overview');
 
   const plant = plants.getById(id);
   const crop = plant ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId] ?? null) : null;
@@ -459,56 +467,130 @@ export default function PlantDetailScreen() {
             </Card>
           )}
 
-          {/* Crop info */}
+          {/* Crop info — tabbed */}
           <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.cropInfo')}</Text>
-          <Card padded style={s.infoCard}>
-            <View style={s.infoGrid}>
-              {(() => {
-                const dth = (plant.varietyId ? VARIETIES_BY_ID[plant.varietyId]?.daysToHarvest : null) ?? crop.daysToHarvest;
-                return <InfoItem label={t('plantDetail.harvest')} value={t('plantDetail.harvestDays', { min: dth[0], max: dth[1] })} />;
-              })()}
-              <InfoItem label={t('plantDetail.light')} value={SUN_LABEL[crop.sunNeeds]} />
-              <InfoItem label={t('plantDetail.water')} value={WATER_LABEL[crop.waterNeeds]} />
-              <InfoItem label={t('plantDetail.spacing')} value={`${crop.spacing} cm`} />
-            </View>
-            <View style={[s.tipBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-              <Text style={[s.tipText, { color: colors.textSecondary }]}>
-                💡 {crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips')}
-              </Text>
-            </View>
-          </Card>
+          <View style={s.tabBar}>
+            {(['overview', 'calendar', 'companions', 'howto'] as const).map((tab) => {
+              const active = cropTab === tab;
+              return (
+                <Pressable
+                  key={tab}
+                  onPress={() => setCropTab(tab)}
+                  style={[
+                    s.tabBtn,
+                    {
+                      backgroundColor: active ? colors.primary + '22' : colors.surface,
+                      borderColor: active ? colors.primary : colors.border,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      fontSize: fontSize.xs,
+                      fontWeight: active ? fontWeight.bold : fontWeight.medium,
+                      color: active ? colors.primary : colors.textSecondary,
+                    }}
+                  >
+                    {t('plantDetail.tab.' + tab)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
 
-          {/* Companions */}
-          {companions.length > 0 && (
-            <>
-              <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.goodNeighbors')}</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-                  {companions.map((c) => (
-                    <View key={c.id} style={[s.companionChip, { backgroundColor: '#4CAF5022', borderColor: '#4CAF50' }]}>
-                      <Text style={{ fontSize: 20 }}>{c.emoji}</Text>
-                      <Text style={[s.companionName, { color: colors.text }]}>{c.name}</Text>
-                    </View>
-                  ))}
-                </View>
-              </ScrollView>
-            </>
+          {cropTab === 'overview' && (
+            <Card padded style={s.infoCard}>
+              <DifficultyGauge
+                waterNeeds={crop.waterNeeds}
+                sunNeeds={crop.sunNeeds}
+                spacing={crop.spacing}
+              />
+              <View style={s.infoGrid}>
+                {(() => {
+                  const dth = (plant.varietyId ? VARIETIES_BY_ID[plant.varietyId]?.daysToHarvest : null) ?? crop.daysToHarvest;
+                  return <InfoItem label={t('plantDetail.harvest')} value={t('plantDetail.harvestDays', { min: dth[0], max: dth[1] })} />;
+                })()}
+                <InfoItem label={t('plantDetail.light')} value={SUN_LABEL[crop.sunNeeds]} />
+                <InfoItem label={t('plantDetail.water')} value={WATER_LABEL[crop.waterNeeds]} />
+                <InfoItem label={t('plantDetail.spacing')} value={`${crop.spacing} cm`} />
+              </View>
+              <View style={[s.tipBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+                <Text style={[s.tipText, { color: colors.textSecondary }]}>
+                  💡 {crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips')}
+                </Text>
+              </View>
+            </Card>
           )}
 
-          {incompatibles.length > 0 && (
-            <>
-              <Text style={[s.sectionTitle, { color: colors.text, marginTop: spacing.lg }]}>{t('plantDetail.badNeighbors')}</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-                  {incompatibles.map((c) => (
-                    <View key={c.id} style={[s.companionChip, { backgroundColor: '#EF535022', borderColor: '#EF5350' }]}>
-                      <Text style={{ fontSize: 20 }}>{c.emoji}</Text>
-                      <Text style={[s.companionName, { color: colors.text }]}>{c.name}</Text>
-                    </View>
-                  ))}
-                </View>
-              </ScrollView>
-            </>
+          {cropTab === 'calendar' && (
+            <Card padded style={s.infoCard}>
+              {crop.isCustom || !activeGarden ? (
+                <Text style={[s.tipText, { color: colors.textSecondary }]}>
+                  {t('plantDetail.calendar.unavailable')}
+                </Text>
+              ) : (
+                <CalendarGantt
+                  sowingMonths={crop.sowingMonths[activeGarden.climateZone] ?? []}
+                  harvestMonths={crop.harvestMonths[activeGarden.climateZone] ?? []}
+                  climateZone={activeGarden.climateZone}
+                />
+              )}
+            </Card>
+          )}
+
+          {cropTab === 'companions' && (
+            <Card padded style={s.infoCard}>
+              {companions.length > 0 && (
+                <>
+                  <View style={s.companionsHeader}>
+                    <Text style={{ fontSize: 18 }}>✅</Text>
+                    <Text style={[s.companionsTitle, { color: '#2E7D32' }]}>
+                      {t('plantDetail.goodNeighbors')}
+                    </Text>
+                  </View>
+                  <View style={s.companionsGrid}>
+                    {companions.map((c) => (
+                      <View key={c.id} style={[s.companionCard, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
+                        <Text style={{ fontSize: 28 }}>{c.emoji}</Text>
+                        <Text style={[s.companionCardName, { color: colors.text }]}>{c.name}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </>
+              )}
+              {incompatibles.length > 0 && (
+                <>
+                  <View style={[s.companionsHeader, { marginTop: spacing.lg }]}>
+                    <Text style={{ fontSize: 18 }}>⛔</Text>
+                    <Text style={[s.companionsTitle, { color: '#C62828' }]}>
+                      {t('plantDetail.badNeighbors')}
+                    </Text>
+                  </View>
+                  <View style={s.companionsGrid}>
+                    {incompatibles.map((c) => (
+                      <View key={c.id} style={[s.companionCard, { backgroundColor: '#EF535018', borderColor: '#EF5350' }]}>
+                        <Text style={{ fontSize: 28 }}>{c.emoji}</Text>
+                        <Text style={[s.companionCardName, { color: colors.text }]}>{c.name}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </>
+              )}
+              {companions.length === 0 && incompatibles.length === 0 && (
+                <Text style={[s.tipText, { color: colors.textSecondary, textAlign: 'center' }]}>
+                  {t('plantDetail.companions.empty')}
+                </Text>
+              )}
+            </Card>
+          )}
+
+          {cropTab === 'howto' && (
+            <Card padded style={s.infoCard}>
+              <HowToStages
+                cropId={crop.id}
+                fallbackTip={crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips')}
+              />
+            </Card>
           )}
 
           {/* Reminders */}
@@ -1261,4 +1343,29 @@ const makeStyles = (
       padding: spacing.md,
     },
     duplicateText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    tabBar: {
+      flexDirection: 'row',
+      gap: spacing.xs,
+      marginBottom: spacing.md,
+    },
+    tabBtn: {
+      flex: 1,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.xs,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      alignItems: 'center',
+    },
+    companionsHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: spacing.sm },
+    companionsTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    companionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    companionCard: {
+      width: '30%',
+      alignItems: 'center',
+      padding: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      gap: 4,
+    },
+    companionCardName: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
   });

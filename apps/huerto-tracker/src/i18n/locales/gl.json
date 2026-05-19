@@ -518,7 +518,13 @@
     "soilTexture": "Textura",
     "successionSow": "Nova quenda (sementeira escalonada)",
     "successionSowDesc": "Crea unha nova planta do mesmo cultivo sementada hoxe",
-    "successionNote": "Sementeira escalonada de {{original}}"
+    "successionNote": "Sementeira escalonada de {{original}}",
+    "successionName": "{{name}} (quenda {{batch}})",
+    "tab": { "overview": "Datos", "calendar": "Calendario", "companions": "Veciños", "howto": "Como cultivar" },
+    "difficulty": { "title": "Dificultade", "veryEasy": "Moi fácil", "easy": "Fácil", "medium": "Media", "hard": "Difícil", "veryHard": "Moi difícil" },
+    "calendar": { "sowing": "Sementeira", "harvest": "Colleita", "unavailable": "Calendario non dispoñible para cultivos personalizados" },
+    "stage": { "sowing": "Sementeira", "germination": "Xerminación", "growth": "Crecemento", "flowering": "Floración", "harvest": "Colleita" },
+    "companions": { "empty": "Sen asociacións rexistradas" }
   },
   "reminderEdit": {
     "title": "Editar recordatorio",

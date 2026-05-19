@@ -518,7 +518,13 @@
     "soilTexture": "Textura",
     "successionSow": "Txanda berria (ereintza eskalatu)",
     "successionSowDesc": "Sortu gaur ereindako labore bereko landare berria",
-    "successionNote": "Ereintza eskalatuak {{original}}"
+    "successionNote": "Ereintza eskalatuak {{original}}",
+    "successionName": "{{name}} ({{batch}}. txanda)",
+    "tab": { "overview": "Datuak", "calendar": "Egutegia", "companions": "Auzokoak", "howto": "Nola landatu" },
+    "difficulty": { "title": "Zailtasuna", "veryEasy": "Oso erraza", "easy": "Erraza", "medium": "Ertaina", "hard": "Zaila", "veryHard": "Oso zaila" },
+    "calendar": { "sowing": "Ereintza", "harvest": "Uzta", "unavailable": "Egutegia ez dago erabilgarri laborantza pertsonalizatuetarako" },
+    "stage": { "sowing": "Ereintza", "germination": "Ernamuintzea", "growth": "Hazkuntza", "flowering": "Loraketa", "harvest": "Uzta" },
+    "companions": { "empty": "Asoziaziorik ez erregistratuta" }
   },
   "reminderEdit": {
     "title": "Gogorarazlea editatu",

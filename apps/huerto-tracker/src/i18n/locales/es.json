@@ -547,7 +547,12 @@
     "successionSow": "Nueva tanda (siembra escalonada)",
     "successionSowDesc": "Crea nueva planta del mismo cultivo sembrada hoy",
     "successionNote": "Siembra escalonada de {{original}}",
-    "successionName": "{{name}} (tanda {{batch}})"
+    "successionName": "{{name}} (tanda {{batch}})",
+    "tab": { "overview": "Datos", "calendar": "Calendario", "companions": "Vecinos", "howto": "Cómo cultivar" },
+    "difficulty": { "title": "Dificultad", "veryEasy": "Muy fácil", "easy": "Fácil", "medium": "Media", "hard": "Difícil", "veryHard": "Muy difícil" },
+    "calendar": { "sowing": "Siembra", "harvest": "Cosecha", "unavailable": "Calendario no disponible para cultivos personalizados" },
+    "stage": { "sowing": "Siembra", "germination": "Germinación", "growth": "Crecimiento", "flowering": "Floración", "harvest": "Cosecha" },
+    "companions": { "empty": "Sin asociaciones registradas" }
   },
   "reminderEdit": {
     "title": "Editar recordatorio",

@@ -518,7 +518,13 @@
     "soilTexture": "Textura",
     "successionSow": "Nova tanda (sembra escalonada)",
     "successionSowDesc": "Crea una nova planta del mateix cultiu sembrada hui",
-    "successionNote": "Sembra escalonada de {{original}}"
+    "successionNote": "Sembra escalonada de {{original}}",
+    "successionName": "{{name}} (tanda {{batch}})",
+    "tab": { "overview": "Dades", "calendar": "Calendari", "companions": "Veïns", "howto": "Com cultivar" },
+    "difficulty": { "title": "Dificultat", "veryEasy": "Molt fàcil", "easy": "Fàcil", "medium": "Mitjana", "hard": "Difícil", "veryHard": "Molt difícil" },
+    "calendar": { "sowing": "Sembra", "harvest": "Collita", "unavailable": "Calendari no disponible per a cultius personalitzats" },
+    "stage": { "sowing": "Sembra", "germination": "Germinació", "growth": "Creixement", "flowering": "Floració", "harvest": "Collita" },
+    "companions": { "empty": "Sense associacions registrades" }
   },
   "reminderEdit": {
     "title": "Editar recordatori",

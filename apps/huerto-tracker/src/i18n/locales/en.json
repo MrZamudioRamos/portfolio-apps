@@ -512,7 +512,12 @@
     "successionSow": "New batch (succession sowing)",
     "successionSowDesc": "Creates a new plant of the same crop sown today",
     "successionNote": "Succession sowing from {{original}}",
-    "successionName": "{{name}} (batch {{batch}})"
+    "successionName": "{{name}} (batch {{batch}})",
+    "tab": { "overview": "Info", "calendar": "Calendar", "companions": "Neighbors", "howto": "How to grow" },
+    "difficulty": { "title": "Difficulty", "veryEasy": "Very easy", "easy": "Easy", "medium": "Medium", "hard": "Hard", "veryHard": "Very hard" },
+    "calendar": { "sowing": "Sowing", "harvest": "Harvest", "unavailable": "Calendar not available for custom crops" },
+    "stage": { "sowing": "Sowing", "germination": "Germination", "growth": "Growth", "flowering": "Flowering", "harvest": "Harvest" },
+    "companions": { "empty": "No companion data registered" }
   },
   "reminderEdit": {
     "title": "Edit reminder",
