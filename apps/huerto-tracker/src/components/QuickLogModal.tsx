@@ -1,6 +1,6 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
-import { useCollection } from '@portfolio/storage';
+import { createStore, useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -56,7 +56,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
   ];
 
   const { activeGarden } = useActiveGarden();
-  const entries = useCollection<DiaryEntry>('diary_entries');
+  const diaryStore = useMemo(() => createStore<DiaryEntry>('diary_entries'), []);
   const plants = useCollection<Plant>('plants');
 
   const [selected, setSelected] = useState<QuickAction | null>(null);
@@ -101,7 +101,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
       } else if (selected.hasLiters && liters.trim()) {
         entryData = { liters: liters.trim(), method: 'hand' };
       }
-      await entries.create({
+      await diaryStore.create({
         gardenId,
         plantId: plant.id,
         type: selected.type,

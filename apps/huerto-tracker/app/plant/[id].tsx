@@ -160,7 +160,9 @@ export default function PlantDetailScreen() {
 
   async function handleSuccessionSow() {
     const today = new Date().toISOString().split('T')[0];
-    const batchNum = entries.items.filter((e) => e.plantId !== id && e.type === 'sowing').length + 2;
+    const batchNum = plants.items.filter(
+      (p) => p.cropId === plant!.cropId && p.gardenId === plant!.gardenId
+    ).length + 1;
     const newPlant = await plants.create({
       gardenId: plant!.gardenId,
       cropId: plant!.cropId,
