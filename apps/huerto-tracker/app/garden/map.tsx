@@ -1,11 +1,11 @@
-import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as Sharing from 'expo-sharing';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -21,6 +21,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ViewShot from 'react-native-view-shot';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  runOnJS,
+} from 'react-native-reanimated';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import type { Plant } from '../../src/models/plant';
 import { PLANT_STATUS_CONFIG } from '../../src/models/plant';
@@ -50,7 +57,30 @@ export default function GardenMapScreen() {
   const [selectedCell, setSelectedCell] = useState<number | null>(null);
   const [moveSourceCell, setMoveSourceCell] = useState<number | null>(null);
   const [sharing, setSharing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragTargetIdx, setDragTargetIdx] = useState<number | null>(null);
+  const [ghostEmoji, setGhostEmoji] = useState('🌱');
+
   const viewShotRef = useRef<ViewShot>(null);
+  const gridRef = useRef<View>(null);
+  const gridMetrics = useRef({ x: 0, y: 0, w: 0, h: 0 });
+  const isDraggingRef = useRef(false);
+  const dragSrcIdxRef = useRef(-1);
+  const layoutRef = useRef(layout);
+  useEffect(() => { layoutRef.current = layout; }, [layout]);
+
+  // Shared values for floating ghost
+  const ghostX = useSharedValue(0);
+  const ghostY = useSharedValue(0);
+  const ghostScale = useSharedValue(0);
+
+  const ghostAnimStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: ghostX.value },
+      { translateY: ghostY.value },
+      { scale: ghostScale.value },
+    ],
+  }));
 
   useFocusEffect(useCallback(() => { plants.refresh(); }, []));
 
@@ -79,8 +109,67 @@ export default function GardenMapScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
+  function findTargetIdx(absX: number, absY: number): number | null {
+    const { x, y, w, h } = gridMetrics.current;
+    if (w === 0 || h === 0) return null;
+    const relX = absX - x;
+    const relY = absY - y;
+    if (relX < 0 || relY < 0 || relX > w || relY > h) return null;
+    const col = Math.min(Math.floor(relX / (w / gridCols)), gridCols - 1);
+    const row = Math.min(Math.floor(relY / (h / gridRows)), gridRows - 1);
+    return cellIndex(row, col, gridCols);
+  }
+
+  const handleDragStart = useCallback((sourceIdx: number, emoji: string) => {
+    isDraggingRef.current = true;
+    dragSrcIdxRef.current = sourceIdx;
+    setGhostEmoji(emoji);
+    setIsDragging(true);
+    setDragTargetIdx(null);
+    setSelectedCell(null);
+    setMoveSourceCell(null);
+  }, []);
+
+  const handleDragMove = useCallback((absX: number, absY: number) => {
+    if (!isDraggingRef.current) return;
+    setDragTargetIdx(findTargetIdx(absX, absY));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridCols, gridRows]);
+
+  const handleDrop = useCallback((absX: number, absY: number) => {
+    if (!isDraggingRef.current) return;
+    const src = dragSrcIdxRef.current;
+    const tgt = findTargetIdx(absX, absY);
+    if (tgt !== null && tgt !== src) {
+      if (layoutRef.current[tgt]) {
+        swapCells(src, tgt);
+      } else {
+        const srcPlantId = layoutRef.current[src];
+        if (srcPlantId) {
+          setCell(src, null);
+          setCell(tgt, srcPlantId);
+        }
+      }
+    }
+    isDraggingRef.current = false;
+    dragSrcIdxRef.current = -1;
+    setIsDragging(false);
+    setDragTargetIdx(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [swapCells, setCell, gridCols, gridRows]);
+
+  const handleDragFinalize = useCallback(() => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    dragSrcIdxRef.current = -1;
+    setIsDragging(false);
+    setDragTargetIdx(null);
+  }, []);
+
   function handleCellPress(index: number) {
-    // ── Move mode ──
+    if (isDraggingRef.current) return;
+
+    // Move mode (tap-based fallback)
     if (moveSourceCell !== null) {
       if (index === moveSourceCell) {
         setMoveSourceCell(null);
@@ -88,10 +177,8 @@ export default function GardenMapScreen() {
       }
       const targetPlant = layout[index];
       if (targetPlant) {
-        // Swap the two occupied cells
         swapCells(moveSourceCell, index);
       } else {
-        // Move to empty cell
         const srcPlantId = layout[moveSourceCell];
         if (srcPlantId) {
           setCell(moveSourceCell, null);
@@ -102,7 +189,6 @@ export default function GardenMapScreen() {
       return;
     }
 
-    // ── Normal mode ──
     if (layout[index]) {
       setSelectedCell(index);
     } else {
@@ -157,274 +243,330 @@ export default function GardenMapScreen() {
       const plant = plantId ? plants.items.find((p) => p.id === plantId) ?? null : null;
       const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
       const statusColor = plant ? PLANT_STATUS_CONFIG[plant.status].color : null;
-      const isSource = moveSourceCell === idx;
-      const inMoveMode = moveSourceCell !== null;
-      return { idx, plant, crop, statusColor, isSource, inMoveMode };
+      const isSource = isDragging ? dragSrcIdxRef.current === idx : moveSourceCell === idx;
+      const inMoveMode = !isDragging && moveSourceCell !== null;
+      const isTarget = isDragging && dragTargetIdx === idx && dragSrcIdxRef.current !== idx;
+      return { idx, plant, crop, statusColor, isSource, inMoveMode, isTarget };
     })
   );
 
   if (loading) return null;
 
   return (
-    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
-      {/* Header */}
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
-        </Pressable>
-        <View style={{ flex: 1, marginLeft: spacing.md }}>
-          <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardenMap.title')}</Text>
-          <Text style={[s.headerSub, { color: colors.textSecondary }]}>
-            {t('gardenMap.summary', { placed: placedPlantIds.size, total: gardenPlants.length, cols: gridCols, rows: gridRows })}
-          </Text>
-        </View>
-        <Pressable
-          onPress={handleShare}
-          disabled={sharing}
-          hitSlop={12}
-          style={{ opacity: sharing ? 0.4 : 1 }}
-        >
-          <Ionicons name="share-outline" size={22} color={colors.primary} />
-        </Pressable>
-      </View>
-
-      {/* Move mode banner */}
-      {moveSourceCell !== null && (
-        <Pressable
-          onPress={() => setMoveSourceCell(null)}
-          style={[s.moveBanner, { backgroundColor: colors.primary }]}
-        >
-          <Ionicons name="move-outline" size={16} color="#fff" />
-          <Text style={s.moveBannerText}>{t('gardenMap.moveModeHint')}</Text>
-          <Ionicons name="close" size={18} color="#fff" />
-        </Pressable>
-      )}
-
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
-        <View style={s.compassRow}>
-          <View style={[s.compassBadge, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary }]}>☀️ {t('gardenMap.south')}</Text>
+    <View style={{ flex: 1 }}>
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
+        {/* Header */}
+        <View style={[s.header, { borderBottomColor: colors.border }]}>
+          <Pressable onPress={() => router.back()} hitSlop={12}>
+            <Ionicons name="arrow-back" size={24} color={colors.primary} />
+          </Pressable>
+          <View style={{ flex: 1, marginLeft: spacing.md }}>
+            <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardenMap.title')}</Text>
+            <Text style={[s.headerSub, { color: colors.textSecondary }]}>
+              {t('gardenMap.summary', { placed: placedPlantIds.size, total: gardenPlants.length, cols: gridCols, rows: gridRows })}
+            </Text>
           </View>
+          <Pressable
+            onPress={handleShare}
+            disabled={sharing}
+            hitSlop={12}
+            style={{ opacity: sharing ? 0.4 : 1 }}
+          >
+            <Ionicons name="share-outline" size={22} color={colors.primary} />
+          </Pressable>
         </View>
 
-        {/* Grid — wrapped in ViewShot for sharing */}
-        <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }} style={[s.viewShot, { backgroundColor: colors.background }]}>
-          {garden?.name ? (
-            <Text style={[s.shareTitle, { color: colors.text }]}>{garden.name}</Text>
-          ) : null}
-        <View style={[s.grid, { borderColor: colors.border }]}>
-          {rows.map((row, r) => (
-            <View key={r} style={s.gridRow}>
-              {row.map(({ idx, plant, crop, statusColor, isSource, inMoveMode }) => (
-                <Pressable
-                  key={idx}
-                  onPress={() => handleCellPress(idx)}
-                  style={({ pressed }) => [
-                    s.cell,
-                    {
-                      backgroundColor: isSource
-                        ? colors.primary + '28'
-                        : plant
-                        ? colors.surfaceAlt
-                        : inMoveMode
-                        ? colors.primary + '08'
-                        : colors.surface,
-                      borderColor: isSource
-                        ? colors.primary
-                        : plant
-                        ? (statusColor + '55')
-                        : inMoveMode
-                        ? colors.primary + '40'
-                        : colors.border,
-                      borderWidth: isSource ? 2.5 : 1.5,
-                      opacity: pressed ? 0.75 : 1,
-                    },
-                  ]}
-                >
-                  {plant && crop ? (
-                    <>
-                      <Text style={s.cellEmoji}>{crop.emoji}</Text>
-                      <Text style={[s.cellLabel, { color: colors.text }]} numberOfLines={1}>
-                        {plant.name}
-                      </Text>
-                      <View style={[s.cellDot, { backgroundColor: statusColor ?? colors.primary }]} />
-                    </>
-                  ) : inMoveMode ? (
-                    <Ionicons name="add-circle-outline" size={18} color={colors.primary + '60'} />
-                  ) : (
-                    <Ionicons name="add" size={18} color={colors.border} />
-                  )}
-                </Pressable>
-              ))}
-            </View>
-          ))}
-        </View>
-
-        </ViewShot>
-
-        {/* Legend */}
-        <View style={s.legend}>
-          <View style={s.legendItem}>
-            <View style={[s.legendDot, { backgroundColor: colors.primary }]} />
-            <Text style={[s.legendText, { color: colors.textSecondary }]}>{t('gardenMap.legendOccupied')}</Text>
-          </View>
-          <View style={s.legendItem}>
-            <View style={[s.legendDot, { backgroundColor: colors.border }]} />
-            <Text style={[s.legendText, { color: colors.textSecondary }]}>{t('gardenMap.legendEmpty')}</Text>
-          </View>
-        </View>
-
-        {gardenPlants.length === 0 && (
-          <Text style={[s.emptyNote, { color: colors.textDisabled }]}>
-            {t('gardenMap.emptyNote')}
-          </Text>
+        {/* Move mode banner (tap-based fallback) */}
+        {moveSourceCell !== null && (
+          <Pressable
+            onPress={() => setMoveSourceCell(null)}
+            style={[s.moveBanner, { backgroundColor: colors.primary }]}
+          >
+            <Ionicons name="move-outline" size={16} color="#fff" />
+            <Text style={s.moveBannerText}>{t('gardenMap.moveModeHint')}</Text>
+            <Ionicons name="close" size={18} color="#fff" />
+          </Pressable>
         )}
 
-        <View style={{ height: spacing['2xl'] }} />
-      </ScrollView>
-
-      {/* ── Plant picker modal ── */}
-      <Modal
-        visible={pickingCell !== null}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setPickingCell(null)}
-      >
-        <SafeAreaView style={[s.modal, { backgroundColor: colors.background }]} edges={['top']}>
-          <View style={[s.modalHeader, { borderBottomColor: colors.border }]}>
-            <Text style={[s.modalTitle, { color: colors.text }]}>{t('gardenMap.assignPlant')}</Text>
-            <Pressable onPress={() => setPickingCell(null)} hitSlop={12}>
-              <Ionicons name="close" size={24} color={colors.textSecondary} />
-            </Pressable>
-          </View>
-
-          <View style={[s.searchBox, { backgroundColor: colors.surface, borderColor: colors.border, margin: spacing.lg }]}>
-            <Ionicons name="search" size={16} color={colors.textSecondary} />
-            <TextInput
-              value={search}
-              onChangeText={setSearch}
-              placeholder={t('gardenMap.searchPlant')}
-              placeholderTextColor={colors.textDisabled}
-              style={[{ flex: 1, color: colors.text, fontSize: fontSize.md, marginLeft: spacing.sm }]}
-              autoFocus
-            />
-          </View>
-
-          {availablePlants.length === 0 ? (
-            <View style={s.emptyPicker}>
-              <Text style={[{ color: colors.textSecondary, textAlign: 'center', fontSize: fontSize.md }]}>
-                {gardenPlants.length === 0 ? t('gardenMap.noPlants') : t('gardenMap.allPlaced')}
-              </Text>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={s.scroll}
+          scrollEnabled={!isDragging}
+        >
+          <View style={s.compassRow}>
+            <View style={[s.compassBadge, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+              <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary }]}>☀️ {t('gardenMap.south')}</Text>
             </View>
-          ) : (
-            <FlatList
-              data={availablePlants}
-              keyExtractor={(p) => p.id}
-              keyboardShouldPersistTaps="handled"
-              renderItem={({ item }) => {
-                const crop = CROPS_BY_ID[item.cropId];
-                const statusCfg = PLANT_STATUS_CONFIG[item.status];
-                return (
-                  <Pressable
-                    onPress={() => handleAssign(item)}
-                    style={({ pressed }) => [
-                      s.pickRow,
-                      { borderBottomColor: colors.border, backgroundColor: pressed ? colors.surfaceAlt : 'transparent' },
-                    ]}
-                  >
-                    <Text style={{ fontSize: 28 }}>{crop?.emoji ?? '🌱'}</Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[s.pickName, { color: colors.text }]}>{item.name}</Text>
-                      {item.variety && (
-                        <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary }]}>{item.variety}</Text>
-                      )}
-                    </View>
-                    <View style={[s.statusPill, { backgroundColor: statusCfg.color + '22' }]}>
-                      <Text style={[s.statusPillText, { color: statusCfg.color }]}>
-                        {statusCfg.emoji} {t('plantStatus.' + item.status)}
-                      </Text>
-                    </View>
-                  </Pressable>
-                );
+          </View>
+
+          {/* Grid — wrapped in ViewShot for sharing */}
+          <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }} style={[s.viewShot, { backgroundColor: colors.background }]}>
+            {garden?.name ? (
+              <Text style={[s.shareTitle, { color: colors.text }]}>{garden.name}</Text>
+            ) : null}
+            <View
+              ref={gridRef}
+              style={[s.grid, { borderColor: colors.border }]}
+              onLayout={() => {
+                gridRef.current?.measureInWindow((x, y, w, h) => {
+                  gridMetrics.current = { x, y, w, h };
+                });
               }}
-            />
+            >
+              {rows.map((row, r) => (
+                <View key={r} style={s.gridRow}>
+                  {row.map(({ idx, plant, crop, statusColor, isSource, inMoveMode, isTarget }) => {
+                    const cellContent = (
+                      <Pressable
+                        onPress={() => handleCellPress(idx)}
+                        style={({ pressed }) => [
+                          s.cell,
+                          {
+                            backgroundColor: isTarget
+                              ? '#4CAF5030'
+                              : isSource
+                              ? colors.primary + '28'
+                              : plant
+                              ? colors.surfaceAlt
+                              : inMoveMode
+                              ? colors.primary + '08'
+                              : colors.surface,
+                            borderColor: isTarget
+                              ? '#4CAF50'
+                              : isSource
+                              ? colors.primary
+                              : plant
+                              ? (statusColor + '55')
+                              : inMoveMode
+                              ? colors.primary + '40'
+                              : colors.border,
+                            borderWidth: (isSource || isTarget) ? 2.5 : 1.5,
+                            opacity: isDragging && isSource ? 0.35 : pressed ? 0.75 : 1,
+                          },
+                        ]}
+                      >
+                        {plant && crop ? (
+                          <>
+                            <Text style={s.cellEmoji}>{crop.emoji}</Text>
+                            <Text style={[s.cellLabel, { color: colors.text }]} numberOfLines={1}>
+                              {plant.name}
+                            </Text>
+                            <View style={[s.cellDot, { backgroundColor: statusColor ?? colors.primary }]} />
+                          </>
+                        ) : isTarget ? (
+                          <Ionicons name="add-circle" size={18} color="#4CAF50" />
+                        ) : inMoveMode ? (
+                          <Ionicons name="add-circle-outline" size={18} color={colors.primary + '60'} />
+                        ) : (
+                          <Ionicons name="add" size={18} color={colors.border} />
+                        )}
+                      </Pressable>
+                    );
+
+                    if (!plant || !crop) {
+                      return <React.Fragment key={idx}>{cellContent}</React.Fragment>;
+                    }
+
+                    const emoji = crop.emoji;
+                    const panGesture = Gesture.Pan()
+                      .activateAfterLongPress(280)
+                      .onStart((e) => {
+                        ghostX.value = e.absoluteX - 30;
+                        ghostY.value = e.absoluteY - 60;
+                        ghostScale.value = withSpring(1.15);
+                        runOnJS(handleDragStart)(idx, emoji);
+                      })
+                      .onUpdate((e) => {
+                        ghostX.value = e.absoluteX - 30;
+                        ghostY.value = e.absoluteY - 60;
+                        runOnJS(handleDragMove)(e.absoluteX, e.absoluteY);
+                      })
+                      .onEnd((e) => {
+                        runOnJS(handleDrop)(e.absoluteX, e.absoluteY);
+                        ghostScale.value = withSpring(0);
+                      })
+                      .onFinalize(() => {
+                        runOnJS(handleDragFinalize)();
+                      });
+
+                    return (
+                      <GestureDetector key={idx} gesture={panGesture}>
+                        {cellContent}
+                      </GestureDetector>
+                    );
+                  })}
+                </View>
+              ))}
+            </View>
+          </ViewShot>
+
+          {/* Legend */}
+          <View style={s.legend}>
+            <View style={s.legendItem}>
+              <View style={[s.legendDot, { backgroundColor: colors.primary }]} />
+              <Text style={[s.legendText, { color: colors.textSecondary }]}>{t('gardenMap.legendOccupied')}</Text>
+            </View>
+            <View style={s.legendItem}>
+              <View style={[s.legendDot, { backgroundColor: colors.border }]} />
+              <Text style={[s.legendText, { color: colors.textSecondary }]}>{t('gardenMap.legendEmpty')}</Text>
+            </View>
+          </View>
+
+          {gardenPlants.length === 0 && (
+            <Text style={[s.emptyNote, { color: colors.textDisabled }]}>
+              {t('gardenMap.emptyNote')}
+            </Text>
           )}
-        </SafeAreaView>
-      </Modal>
 
-      {/* ── Compact context menu ── */}
-      <Modal
-        visible={selectedCell !== null}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setSelectedCell(null)}
-      >
-        <Pressable style={s.overlay} onPress={() => setSelectedCell(null)}>
-          {/* Stop tap from bubbling through the card */}
-          <Pressable style={[s.contextCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden', ...shadows.lg }]}>
-              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-            {selectedPlant && selectedCrop && (
-              <>
-                {/* Plant identity */}
-                <View style={s.contextHeader}>
-                  <Text style={{ fontSize: 32 }}>{selectedCrop.emoji}</Text>
-                  <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={[s.contextName, { color: colors.text }]} numberOfLines={1}>
-                      {selectedPlant.name}
-                    </Text>
-                    {selectedPlant.variety ? (
-                      <Text style={[s.contextVariety, { color: colors.textSecondary }]} numberOfLines={1}>
-                        {selectedPlant.variety}
-                      </Text>
-                    ) : null}
-                  </View>
-                  <View style={[s.statusDot, { backgroundColor: PLANT_STATUS_CONFIG[selectedPlant.status].color }]} />
-                </View>
+          <View style={{ height: spacing['2xl'] }} />
+        </ScrollView>
 
-                {/* Divider */}
-                <View style={[s.divider, { backgroundColor: colors.border }]} />
+        {/* Plant picker modal */}
+        <Modal
+          visible={pickingCell !== null}
+          animationType="slide"
+          presentationStyle="pageSheet"
+          onRequestClose={() => setPickingCell(null)}
+        >
+          <SafeAreaView style={[s.modal, { backgroundColor: colors.background }]} edges={['top']}>
+            <View style={[s.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[s.modalTitle, { color: colors.text }]}>{t('gardenMap.assignPlant')}</Text>
+              <Pressable onPress={() => setPickingCell(null)} hitSlop={12}>
+                <Ionicons name="close" size={24} color={colors.textSecondary} />
+              </Pressable>
+            </View>
 
-                {/* Action buttons */}
-                <View style={s.contextActions}>
-                  <Pressable
-                    onPress={() => { setSelectedCell(null); router.push(`/plant/${selectedPlant.id}`); }}
-                    style={[s.contextBtn, { backgroundColor: colors.primary + '15' }]}
-                  >
-                    <Ionicons name="eye-outline" size={20} color={colors.primary} />
-                    <Text style={[s.contextBtnText, { color: colors.primary }]}>{t('gardenMap.viewPlant')}</Text>
-                  </Pressable>
+            <View style={[s.searchBox, { backgroundColor: colors.surface, borderColor: colors.border, margin: spacing.lg }]}>
+              <Ionicons name="search" size={16} color={colors.textSecondary} />
+              <TextInput
+                value={search}
+                onChangeText={setSearch}
+                placeholder={t('gardenMap.searchPlant')}
+                placeholderTextColor={colors.textDisabled}
+                style={[{ flex: 1, color: colors.text, fontSize: fontSize.md, marginLeft: spacing.sm }]}
+                autoFocus
+              />
+            </View>
 
-                  <Pressable
-                    onPress={handleStartMove}
-                    style={[s.contextBtn, { backgroundColor: '#FFA72615' }]}
-                  >
-                    <Ionicons name="move-outline" size={20} color="#E69500" />
-                    <Text style={[s.contextBtnText, { color: '#E69500' }]}>{t('gardenMap.movePlant')}</Text>
-                  </Pressable>
-
-                  <Pressable
-                    onPress={() => {
-                      Alert.alert(
-                        t('gardenMap.removeTitle'),
-                        t('gardenMap.removeDesc', { name: selectedPlant.name }),
-                        [
-                          { text: t('common.cancel'), style: 'cancel' },
-                          { text: t('gardenMap.remove'), style: 'destructive', onPress: handleRemoveFromCell },
-                        ]
-                      );
-                    }}
-                    style={[s.contextBtn, { backgroundColor: '#EF535015' }]}
-                  >
-                    <Ionicons name="trash-outline" size={20} color="#EF5350" />
-                    <Text style={[s.contextBtnText, { color: '#EF5350' }]}>{t('gardenMap.remove')}</Text>
-                  </Pressable>
-                </View>
-              </>
+            {availablePlants.length === 0 ? (
+              <View style={s.emptyPicker}>
+                <Text style={[{ color: colors.textSecondary, textAlign: 'center', fontSize: fontSize.md }]}>
+                  {gardenPlants.length === 0 ? t('gardenMap.noPlants') : t('gardenMap.allPlaced')}
+                </Text>
+              </View>
+            ) : (
+              <FlatList
+                data={availablePlants}
+                keyExtractor={(p) => p.id}
+                keyboardShouldPersistTaps="handled"
+                renderItem={({ item }) => {
+                  const crop = CROPS_BY_ID[item.cropId];
+                  const statusCfg = PLANT_STATUS_CONFIG[item.status];
+                  return (
+                    <Pressable
+                      onPress={() => handleAssign(item)}
+                      style={({ pressed }) => [
+                        s.pickRow,
+                        { borderBottomColor: colors.border, backgroundColor: pressed ? colors.surfaceAlt : 'transparent' },
+                      ]}
+                    >
+                      <Text style={{ fontSize: 28 }}>{crop?.emoji ?? '🌱'}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[s.pickName, { color: colors.text }]}>{item.name}</Text>
+                        {item.variety && (
+                          <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary }]}>{item.variety}</Text>
+                        )}
+                      </View>
+                      <View style={[s.statusPill, { backgroundColor: statusCfg.color + '22' }]}>
+                        <Text style={[s.statusPillText, { color: statusCfg.color }]}>
+                          {statusCfg.emoji} {t('plantStatus.' + item.status)}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  );
+                }}
+              />
             )}
+          </SafeAreaView>
+        </Modal>
+
+        {/* Context menu */}
+        <Modal
+          visible={selectedCell !== null}
+          animationType="fade"
+          transparent
+          onRequestClose={() => setSelectedCell(null)}
+        >
+          <Pressable style={s.overlay} onPress={() => setSelectedCell(null)}>
+            <Pressable style={[s.contextCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden', ...shadows.lg }]}>
+              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+              {selectedPlant && selectedCrop && (
+                <>
+                  <View style={s.contextHeader}>
+                    <Text style={{ fontSize: 32 }}>{selectedCrop.emoji}</Text>
+                    <View style={{ flex: 1, marginLeft: spacing.md }}>
+                      <Text style={[s.contextName, { color: colors.text }]} numberOfLines={1}>
+                        {selectedPlant.name}
+                      </Text>
+                      {selectedPlant.variety ? (
+                        <Text style={[s.contextVariety, { color: colors.textSecondary }]} numberOfLines={1}>
+                          {selectedPlant.variety}
+                        </Text>
+                      ) : null}
+                    </View>
+                    <View style={[s.statusDot, { backgroundColor: PLANT_STATUS_CONFIG[selectedPlant.status].color }]} />
+                  </View>
+
+                  <View style={[s.divider, { backgroundColor: colors.border }]} />
+
+                  <View style={s.contextActions}>
+                    <Pressable
+                      onPress={() => { setSelectedCell(null); router.push(`/plant/${selectedPlant.id}`); }}
+                      style={[s.contextBtn, { backgroundColor: colors.primary + '15' }]}
+                    >
+                      <Ionicons name="eye-outline" size={20} color={colors.primary} />
+                      <Text style={[s.contextBtnText, { color: colors.primary }]}>{t('gardenMap.viewPlant')}</Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={handleStartMove}
+                      style={[s.contextBtn, { backgroundColor: '#FFA72615' }]}
+                    >
+                      <Ionicons name="move-outline" size={20} color="#E69500" />
+                      <Text style={[s.contextBtnText, { color: '#E69500' }]}>{t('gardenMap.movePlant')}</Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => {
+                        Alert.alert(
+                          t('gardenMap.removeTitle'),
+                          t('gardenMap.removeDesc', { name: selectedPlant.name }),
+                          [
+                            { text: t('common.cancel'), style: 'cancel' },
+                            { text: t('gardenMap.remove'), style: 'destructive', onPress: handleRemoveFromCell },
+                          ]
+                        );
+                      }}
+                      style={[s.contextBtn, { backgroundColor: '#EF535015' }]}
+                    >
+                      <Ionicons name="trash-outline" size={20} color="#EF5350" />
+                      <Text style={[s.contextBtnText, { color: '#EF5350' }]}>{t('gardenMap.remove')}</Text>
+                    </Pressable>
+                  </View>
+                </>
+              )}
+            </Pressable>
           </Pressable>
-        </Pressable>
-      </Modal>
-    </SafeAreaView>
+        </Modal>
+      </SafeAreaView>
+
+      {/* Floating ghost (renders outside SafeAreaView so absoluteX/Y map correctly) */}
+      {isDragging && (
+        <Animated.View pointerEvents="none" style={[s.ghost, ghostAnimStyle]}>
+          <Text style={{ fontSize: 40 }}>{ghostEmoji}</Text>
+        </Animated.View>
+      )}
+    </View>
   );
 }
 
@@ -559,4 +701,14 @@ const makeStyles = (
       borderRadius: radii.md,
     },
     contextBtnText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    ghost: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: 60,
+      height: 60,
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 999,
+    },
   });

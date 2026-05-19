@@ -6,6 +6,7 @@ import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as Linking from 'expo-linking';
 import React, { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useSyncProvider } from '../src/sync/useSyncProvider';
 
@@ -33,6 +34,7 @@ function AppServices() {
 
 export default function RootLayout() {
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
       <ThemeProvider palette={huertoPalette}>
         <StatusBar style="auto" />
@@ -72,5 +74,6 @@ export default function RootLayout() {
         </Stack>
       </ThemeProvider>
     </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
