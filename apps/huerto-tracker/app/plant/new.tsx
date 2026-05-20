@@ -73,7 +73,8 @@ export default function NewPlantScreen() {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const isAiFilled = scanParam === '1';
-  const initialStatus = (statusParam as any) ?? 'seedling';
+  const VALID_STATUSES: Plant['status'][] = ['seedling','transplanted','growing','flowering','fruiting','harvesting','finished'];
+  const initialStatus: Plant['status'] = VALID_STATUSES.includes(statusParam as Plant['status']) ? (statusParam as Plant['status']) : 'seedling';
 
   const selectedCrop = selectedCropId
     ? (CROPS_BY_ID[selectedCropId] ?? customCropsById[selectedCropId] ?? null)

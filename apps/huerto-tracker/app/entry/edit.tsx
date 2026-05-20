@@ -87,6 +87,7 @@ export default function EditEntryScreen() {
   }
 
   async function handleSave() {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
     setSaving(true);
     let entryData: Record<string, unknown> | undefined;
     if (selectedType === 'harvest' && (harvestWeight || harvestUnits || harvestQuality)) {
