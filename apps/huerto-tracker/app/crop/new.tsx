@@ -1,5 +1,6 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { useSession, deleteRow } from '@portfolio/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -28,6 +29,7 @@ export default function NewCustomCropScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { id: editId } = useLocalSearchParams<{ id?: string }>();
+  const { isGuest } = useSession();
 
   const collection = useCollection<CustomCrop>('custom_crops');
   const existing = editId ? collection.items.find((c) => c.id === editId) : null;
@@ -90,6 +92,7 @@ export default function NewCustomCropScreen() {
           text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
+            if (!isGuest) await Promise.allSettled([deleteRow('custom_crops', editId)]);
             await collection.remove(editId);
             router.back();
           },

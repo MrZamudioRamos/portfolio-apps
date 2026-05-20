@@ -1,5 +1,6 @@
 import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { useSession, deleteRow } from '@portfolio/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -36,6 +37,7 @@ export default function GardensScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { isPro } = usePurchases();
+  const { isGuest } = useSession();
 
   const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
@@ -123,6 +125,8 @@ export default function GardensScreen() {
           text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
+            // CASCADE in Supabase handles garden_layouts deletion
+            if (!isGuest) await Promise.allSettled([deleteRow('gardens', garden.id)]);
             await gardens.remove(garden.id);
             if (effectiveActiveId === garden.id) {
               const remaining = gardens.items.filter((g) => g.id !== garden.id);

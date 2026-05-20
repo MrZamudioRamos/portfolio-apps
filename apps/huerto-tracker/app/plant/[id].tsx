@@ -1,6 +1,7 @@
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useReminders } from '@portfolio/notifications';
+import { useSession, deleteRow } from '@portfolio/supabase';
 import { formatDate, formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
@@ -52,6 +53,7 @@ export default function PlantDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
 
+  const { isGuest } = useSession();
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
   const reminders = useReminders<GardenReminder>('reminders');
@@ -208,10 +210,16 @@ export default function PlantDetailScreen() {
           text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
-            await plants.remove(id);
-            // Remove related entries and reminders
             const relatedEntries = entries.items.filter((e) => e.plantId === id);
             const relatedReminders = reminders.items.filter((r) => r.plantId === id);
+            if (!isGuest) {
+              await Promise.allSettled([
+                deleteRow('plants', id),
+                ...relatedEntries.map((e) => deleteRow('diary_entries', e.id)),
+                ...relatedReminders.map((r) => deleteRow('reminders', r.id)),
+              ]);
+            }
+            await plants.remove(id);
             await Promise.all([
               ...relatedEntries.map((e) => entries.remove(e.id)),
               ...relatedReminders.map((r) => reminders.remove(r.id)),
