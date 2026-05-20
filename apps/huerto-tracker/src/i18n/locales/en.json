@@ -1098,6 +1098,46 @@
       "quimico": "Chemical"
     }
   },
+  "plantScan": {
+    "title": "Identify Plant",
+    "subtitle": "Photograph your plant to identify it",
+    "tipsTitle": "For best results",
+    "tip1": "Natural lighting, no flash",
+    "tip2": "Frame the whole plant",
+    "tip3": "Sharp photo, no blur",
+    "tip4": "One species per photo",
+    "gotIt": "Got it!",
+    "takePhoto": "Take photo",
+    "fromGallery": "From gallery",
+    "analyze": "Identify with AI",
+    "analyzing": "Identifying plant…",
+    "retake": "New photo",
+    "identified": "Plant identified",
+    "notIdentified": "Not identified",
+    "notIdentifiedDesc": "Could not recognise the plant. Select it manually.",
+    "useThis": "Use this plant",
+    "tryManual": "Select manually",
+    "confidence": {
+      "alta": "High confidence",
+      "media": "Medium confidence",
+      "baja": "Low confidence"
+    },
+    "stage": "Detected stage",
+    "growthStage": {
+      "seedling": "Seedling",
+      "vegetative": "Vegetative growth",
+      "flowering": "Flowering",
+      "fruiting": "Fruiting",
+      "dormant": "Dormant"
+    },
+    "aiFilled": "🤖 AI auto-filled · adjust anytime",
+    "error": "Identification error",
+    "errorDesc": "Could not analyse the image. Please try again.",
+    "noKeyDesc": "Add EXPO_PUBLIC_ANTHROPIC_KEY to your .env file",
+    "proTitle": "AI Plant ID — Pro only",
+    "proDesc": "Photograph your plant and AI identifies it automatically.",
+    "upgradePro": "See Pro plans"
+  },
   "seasonalTips": {
     "atlantica": {
       "1": "Make the most of dry days to till and prepare the soil.",

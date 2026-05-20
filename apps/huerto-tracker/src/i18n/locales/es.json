@@ -871,6 +871,46 @@
       "quimico": "Químico"
     }
   },
+  "plantScan": {
+    "title": "Identificar planta",
+    "subtitle": "Fotografía tu planta para identificarla",
+    "tipsTitle": "Para mejores resultados",
+    "tip1": "Iluminación natural, sin flash",
+    "tip2": "Encuadra la planta completa",
+    "tip3": "Foto nítida, sin movimiento",
+    "tip4": "Solo una especie por foto",
+    "gotIt": "¡Entendido!",
+    "takePhoto": "Tomar foto",
+    "fromGallery": "Desde galería",
+    "analyze": "Identificar con IA",
+    "analyzing": "Identificando tu planta…",
+    "retake": "Nueva foto",
+    "identified": "Planta identificada",
+    "notIdentified": "No identificada",
+    "notIdentifiedDesc": "No se pudo reconocer la planta. Selecciónala manualmente.",
+    "useThis": "Usar esta planta",
+    "tryManual": "Seleccionar manualmente",
+    "confidence": {
+      "alta": "Alta confianza",
+      "media": "Confianza media",
+      "baja": "Baja confianza"
+    },
+    "stage": "Estado detectado",
+    "growthStage": {
+      "seedling": "Plántula",
+      "vegetative": "Crecimiento vegetativo",
+      "flowering": "Floración",
+      "fruiting": "Fructificación",
+      "dormant": "Dormante"
+    },
+    "aiFilled": "🤖 Rellenado por IA · puedes ajustar",
+    "error": "Error al identificar",
+    "errorDesc": "No se pudo analizar la imagen. Inténtalo de nuevo.",
+    "noKeyDesc": "Añade EXPO_PUBLIC_ANTHROPIC_KEY en el archivo .env",
+    "proTitle": "Identificación IA — solo Pro",
+    "proDesc": "Fotografía tu planta y la IA la identifica automáticamente.",
+    "upgradePro": "Ver planes Pro"
+  },
   "seasonalTips": {
     "atlantica": {
       "1": "Aprovecha los días sin lluvia para labrar y preparar la tierra.",

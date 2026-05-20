@@ -966,6 +966,46 @@
       "quimico": "Químic"
     }
   },
+  "plantScan": {
+    "title": "Identificar planta",
+    "subtitle": "Fotografies la planta per identificar-la",
+    "tipsTitle": "Per obtenir millors resultats",
+    "tip1": "Il·luminació natural, sense flaix",
+    "tip2": "Enquadra la planta sencera",
+    "tip3": "Foto nítida, sense moviment",
+    "tip4": "Només una espècie per foto",
+    "gotIt": "Entès!",
+    "takePhoto": "Fer foto",
+    "fromGallery": "Des de la galeria",
+    "analyze": "Identificar amb IA",
+    "analyzing": "Identificant la planta…",
+    "retake": "Nova foto",
+    "identified": "Planta identificada",
+    "notIdentified": "No identificada",
+    "notIdentifiedDesc": "No s'ha pogut reconèixer la planta. Selecciona-la manualment.",
+    "useThis": "Usa aquesta planta",
+    "tryManual": "Seleccionar manualment",
+    "confidence": {
+      "alta": "Alta confiança",
+      "media": "Confiança mitjana",
+      "baja": "Baixa confiança"
+    },
+    "stage": "Estat detectat",
+    "growthStage": {
+      "seedling": "Plàntula",
+      "vegetative": "Creixement vegetatiu",
+      "flowering": "Floració",
+      "fruiting": "Fructificació",
+      "dormant": "Dormant"
+    },
+    "aiFilled": "🤖 Omplert per IA · pots ajustar",
+    "error": "Error en identificar",
+    "errorDesc": "No s'ha pogut analitzar la imatge. Torna-ho a provar.",
+    "noKeyDesc": "Afegeix EXPO_PUBLIC_ANTHROPIC_KEY al fitxer .env",
+    "proTitle": "Identificació IA — només Pro",
+    "proDesc": "Fotografies la teva planta i la IA la identifica automàticament.",
+    "upgradePro": "Veure plans Pro"
+  },
   "seasonalTips": {
     "atlantica": {
       "1": "Aprofita els dies sense pluja per llaurar i preparar la terra.",

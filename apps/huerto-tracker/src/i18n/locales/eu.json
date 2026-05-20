@@ -966,6 +966,46 @@
       "quimico": "Kimikoa"
     }
   },
+  "plantScan": {
+    "title": "Landarea identifikatu",
+    "subtitle": "Landarea argazkiatu ezagutzeko",
+    "tipsTitle": "Emaitza hobeak lortzeko",
+    "tip1": "Argi naturala, flash-ik gabe",
+    "tip2": "Landare osoa enkoadratu",
+    "tip3": "Argazki zorrotza, mugimendugabea",
+    "tip4": "Espezie bakarra argazki bakoitzeko",
+    "gotIt": "Ulertu!",
+    "takePhoto": "Argazkia atera",
+    "fromGallery": "Galeriatik",
+    "analyze": "AAren bidez identifikatu",
+    "analyzing": "Landarea identifikatzen…",
+    "retake": "Argazki berria",
+    "identified": "Landarea identifikatuta",
+    "notIdentified": "Ez identifikatuta",
+    "notIdentifiedDesc": "Ezin izan da landarea ezagutu. Eskuz aukeratu.",
+    "useThis": "Landare hau erabili",
+    "tryManual": "Eskuz hautatu",
+    "confidence": {
+      "alta": "Konfiantza altua",
+      "media": "Konfiantza ertaina",
+      "baja": "Konfiantza baxua"
+    },
+    "stage": "Detektatutako fasea",
+    "growthStage": {
+      "seedling": "Landarea",
+      "vegetative": "Hazkunde begetatibo",
+      "flowering": "Loraketa",
+      "fruiting": "Fruituak",
+      "dormant": "Atsedena"
+    },
+    "aiFilled": "🤖 AAk bete du · alda dezakezu",
+    "error": "Identifikazio errorea",
+    "errorDesc": "Ezin izan da irudia aztertu. Saiatu berriro.",
+    "noKeyDesc": "Gehitu EXPO_PUBLIC_ANTHROPIC_KEY .env fitxategian",
+    "proTitle": "AA identifikazioa — Pro soilik",
+    "proDesc": "Argazkia atera eta AAk automatikoki identifikatzen du.",
+    "upgradePro": "Pro planak ikusi"
+  },
   "seasonalTips": {
     "atlantica": {
       "1": "Euri-gabe egunak aprobetxatu lurra goldatzeko eta prestatzeko.",

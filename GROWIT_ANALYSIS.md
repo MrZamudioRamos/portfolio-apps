@@ -165,14 +165,14 @@ Tab Benefits muestra recetas con foto + nombre ("Cauliflower Salad...", "Stacked
 
 ## 3. Roadmap propuesto (priorizado)
 
-### Sprint 8 — Onboarding + retención (alto impacto)
-1. **Onboarding wizard** 5 pasos → modelo `UserProfile` + recomendaciones
-2. **Plant detail tabs**: Calendar gantt + Asociaciones visuales + Cuidados por stage
-3. **Companion overlay en grid** (icono ↻ entre celdas)
-4. **Trial reminder switch** en paywall
-5. **Month chips** en plant cards
+### Sprint 8 ✅ COMPLETO (2026-05-19)
+1. ✅ **Onboarding wizard** 7 pasos → `UserProfile` + i18n
+2. ✅ **Plant detail tabs**: Calendar gantt + Asociaciones + Cuidados por stage + DifficultyGauge
+3. ✅ **Companion overlay en grid** (✓/✗ entre celdas adyacentes)
+4. ✅ **Trial reminder switch** en paywall + notif 6d antes del cobro
+5. ✅ **Month chips** en plant cards
 
-### Sprint 9 — Contenido + IA
+### Sprint 9 — Contenido + IA (iniciado 2026-05-20)
 6. **Plant scan + auto-fill** (reutilizar pipeline diagnose)
 7. **Snap Tips** modal pre-cámara
 8. **FAQ por cultivo** (10-20 preguntas iniciales por cultivo top)

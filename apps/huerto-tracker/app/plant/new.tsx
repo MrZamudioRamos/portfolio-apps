@@ -44,7 +44,7 @@ export default function NewPlantScreen() {
   const router = useRouter();
 
   const { t } = useTranslation();
-  const { cropId: paramCropId } = useLocalSearchParams<{ cropId?: string }>();
+  const { cropId: paramCropId, scan: scanParam, status: statusParam } = useLocalSearchParams<{ cropId?: string; scan?: string; status?: string }>();
 
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
@@ -72,6 +72,8 @@ export default function NewPlantScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const isAiFilled = scanParam === '1';
+  const initialStatus = (statusParam as any) ?? 'seedling';
 
   const selectedCrop = selectedCropId
     ? (CROPS_BY_ID[selectedCropId] ?? customCropsById[selectedCropId] ?? null)
@@ -154,7 +156,7 @@ export default function NewPlantScreen() {
         ...(variety.trim() ? { variety: variety.trim() } : {}),
         ...(varietyId ? { varietyId } : {}),
         sowingDate,
-        status: 'seedling',
+        status: initialStatus,
         ...(photoUri ? { photoUri } : {}),
       });
       await diaryStore.create({
@@ -183,8 +185,17 @@ export default function NewPlantScreen() {
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('plantNew.title')}</Text>
-        <View style={{ width: 24 }} />
+        <Pressable onPress={() => router.push('/plant/scan' as any)} hitSlop={12}>
+          <Ionicons name="scan-outline" size={22} color={colors.primary} />
+        </Pressable>
       </View>
+
+      {/* AI-filled banner */}
+      {isAiFilled && (
+        <View style={[s.aiBanner, { backgroundColor: colors.primary + '18', borderBottomColor: colors.primary + '33' }]}>
+          <Text style={[s.aiBannerText, { color: colors.primary }]}>{t('plantScan.aiFilled')}</Text>
+        </View>
+      )}
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -517,6 +528,12 @@ const makeStyles = (
       borderBottomWidth: StyleSheet.hairlineWidth,
     },
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    aiBanner: {
+      paddingHorizontal: spacing.xl,
+      paddingVertical: spacing.sm,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    aiBannerText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
     formContainer: { padding: spacing.xl, gap: 0 },
     label: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, marginBottom: spacing.sm },
     selectedCrop: {
