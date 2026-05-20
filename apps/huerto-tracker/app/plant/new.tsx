@@ -185,9 +185,7 @@ export default function NewPlantScreen() {
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('plantNew.title')}</Text>
-        <Pressable onPress={() => router.push('/plant/scan' as any)} hitSlop={12}>
-          <Ionicons name="scan-outline" size={22} color={colors.primary} />
-        </Pressable>
+        <View style={{ width: 24 }} />
       </View>
 
       {/* AI-filled banner */}
@@ -224,16 +222,33 @@ export default function NewPlantScreen() {
                   <Text style={[s.changeText, { color: colors.primary }]}>{t('plantNew.changeCrop')}</Text>
                 </Pressable>
               ) : (
-                <Pressable
-                  onPress={() => setShowCropPicker(true)}
-                  style={[s.cropPickerBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}
-                >
-                  <Text style={{ fontSize: 28 }}>🌱</Text>
-                  <Text style={[{ color: colors.textSecondary, fontSize: fontSize.md, marginLeft: spacing.md }]}>
-                    {t('plantNew.selectCrop')}
-                  </Text>
-                  <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
-                </Pressable>
+                <>
+                  {/* Scan CTA — prominent */}
+                  {isPro && (
+                    <Pressable
+                      onPress={() => router.push('/plant/scan' as any)}
+                      style={[s.scanCta, { backgroundColor: colors.primary + '14', borderColor: colors.primary }]}
+                    >
+                      <Ionicons name="scan-outline" size={22} color={colors.primary} />
+                      <View style={{ flex: 1, marginLeft: spacing.md }}>
+                        <Text style={[s.scanCtaTitle, { color: colors.primary }]}>{t('plantNew.scanTitle')}</Text>
+                        <Text style={[s.scanCtaDesc, { color: colors.primary + 'AA' }]}>{t('plantNew.scanDesc')}</Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+                    </Pressable>
+                  )}
+
+                  <Pressable
+                    onPress={() => setShowCropPicker(true)}
+                    style={[s.cropPickerBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, marginTop: isPro ? spacing.sm : 0 }]}
+                  >
+                    <Text style={{ fontSize: 28 }}>🌱</Text>
+                    <Text style={[{ color: colors.textSecondary, fontSize: fontSize.md, marginLeft: spacing.md }]}>
+                      {t('plantNew.selectCrop')}
+                    </Text>
+                    <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
+                  </Pressable>
+                </>
               )}
 
               {/* Companion hint */}
@@ -646,6 +661,15 @@ const makeStyles = (
     varietyChipDays: {
       fontSize: 10,
     },
+    scanCta: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.lg,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+    },
+    scanCtaTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    scanCtaDesc: { fontSize: fontSize.xs, marginTop: 2 },
     companionHint: {
       marginTop: spacing.md,
       padding: spacing.md,

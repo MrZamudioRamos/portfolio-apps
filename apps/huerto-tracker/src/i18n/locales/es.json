@@ -494,7 +494,9 @@
     "cropSearch": "Buscar cultivo...",
     "cropPickerTitle": "Seleccionar cultivo",
     "varietyGeneric": "Genérica",
-    "goodWith": "Buenas compañeras: "
+    "goodWith": "Buenas compañeras: ",
+    "scanTitle": "Identificar planta con IA",
+    "scanDesc": "Fotografía tu planta y la detectamos automáticamente"
   },
   "plantDetail": {
     "notFound": "Planta no encontrada",

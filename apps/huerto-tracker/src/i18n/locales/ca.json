@@ -467,7 +467,9 @@
     "cropSearch": "Cercar cultiu...",
     "cropPickerTitle": "Seleccionar cultiu",
     "varietyGeneric": "Genèrica",
-    "goodWith": "Bones companyes: "
+    "goodWith": "Bones companyes: ",
+    "scanTitle": "Identificar planta amb IA",
+    "scanDesc": "Fotografies la planta i la detectem automàticament"
   },
   "plantDetail": {
     "notFound": "Planta no trobada",

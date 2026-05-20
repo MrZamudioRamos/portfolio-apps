@@ -467,7 +467,9 @@
     "cropSearch": "Search crop...",
     "cropPickerTitle": "Select crop",
     "varietyGeneric": "Generic",
-    "goodWith": "Good companions: "
+    "goodWith": "Good companions: ",
+    "scanTitle": "Identify plant with AI",
+    "scanDesc": "Photograph your plant and we detect it automatically"
   },
   "plantDetail": {
     "notFound": "Plant not found",

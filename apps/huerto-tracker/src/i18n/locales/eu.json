@@ -467,7 +467,9 @@
     "cropSearch": "Laborea bilatu...",
     "cropPickerTitle": "Hautatu laborea",
     "varietyGeneric": "Generikoa",
-    "goodWith": "Lagun onak: "
+    "goodWith": "Lagun onak: ",
+    "scanTitle": "Landarea identifikatu AArekin",
+    "scanDesc": "Argazkia atera eta automatikoki detektatzen dugu"
   },
   "plantDetail": {
     "notFound": "Landarea ez da aurkitu",
