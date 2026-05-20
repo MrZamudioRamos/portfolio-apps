@@ -350,6 +350,8 @@
     "step2Title": "On és el teu hort?",
     "step2Desc": "Selecciona la teua província o regió per a personalitzar el calendari de sembra.",
     "selectProvince": "Selecciona la teua província o regió",
+    "detectLocation": "Detecta la meua ubicació",
+    "detecting": "Detectant...",
     "zone": "Zona {{label}}",
     "continue": "Continuar →",
     "back": "Arrere",

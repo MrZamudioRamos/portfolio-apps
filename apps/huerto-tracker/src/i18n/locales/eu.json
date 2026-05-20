@@ -350,6 +350,8 @@
     "step2Title": "Non dago zure baratzea?",
     "step2Desc": "Hautatu zure probintzia edo eskualdea erein egutegia pertsonalizatzeko.",
     "selectProvince": "Hautatu zure probintzia edo eskualdea",
+    "detectLocation": "Nire kokapena detektatu",
+    "detecting": "Detektatzen...",
     "zone": "{{label}} zona",
     "continue": "Jarraitu →",
     "back": "Atzera",

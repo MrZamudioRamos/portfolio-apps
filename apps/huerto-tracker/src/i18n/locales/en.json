@@ -349,6 +349,8 @@
     "step2Title": "Where is your garden?",
     "step2Desc": "Select your province or region to personalise the sowing calendar.",
     "selectProvince": "Select your province or region",
+    "detectLocation": "Detect my location",
+    "detecting": "Detecting...",
     "zone": "Zone {{label}}",
     "continue": "Continue →",
     "back": "Back",

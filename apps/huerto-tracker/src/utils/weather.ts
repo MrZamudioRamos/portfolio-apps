@@ -17,7 +17,7 @@ export interface WeatherData {
 }
 
 // Capital coordinates for each Spanish province
-const PROVINCE_COORDS: Record<string, [number, number]> = {
+export const PROVINCE_COORDS: Record<string, [number, number]> = {
   'A Coruña':                 [43.362, -8.412],
   'Álava':                    [42.846, -2.672],
   'Albacete':                 [38.994, -1.858],
@@ -173,4 +173,18 @@ export async function fetchWeather(province: string): Promise<WeatherData | null
   } catch {
     return null;
   }
+}
+
+/**
+ * Returns the Spanish province whose capital is closest to the given coordinates.
+ * Uses squared Euclidean distance on lat/lng — accurate enough at Spain's scale.
+ */
+export function getNearestProvince(lat: number, lng: number): string | null {
+  let best: string | null = null;
+  let bestDist = Infinity;
+  for (const [province, [pLat, pLng]] of Object.entries(PROVINCE_COORDS)) {
+    const dist = (lat - pLat) ** 2 + (lng - pLng) ** 2;
+    if (dist < bestDist) { bestDist = dist; best = province; }
+  }
+  return best;
 }

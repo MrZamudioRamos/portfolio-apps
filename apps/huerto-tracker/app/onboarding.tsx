@@ -1,7 +1,9 @@
 import { useOnboarding } from '@portfolio/shared';
 import { Button, Card, useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +22,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CLIMATE_ZONE_CONFIG, PROVINCES, PROVINCE_ZONES } from '../src/data';
+import { getNearestProvince } from '../src/utils/weather';
 import type { Garden } from '../src/models';
 import {
   GARDEN_TYPE_CONFIG,
@@ -105,6 +108,7 @@ export default function OnboardingScreen() {
   const [provinceSearch, setProvinceSearch] = useState('');
   const [showProvincePicker, setShowProvincePicker] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [locating, setLocating] = useState(false);
   const [gardenName, setGardenName] = useState('');
   const [gardenType, setGardenType] = useState<GardenType>('huerto');
   const [hemisphere, setHemisphere] = useState<Hemisphere>('norte');
@@ -129,6 +133,25 @@ export default function OnboardingScreen() {
   }
   function toggleMethod(m: GrowingMethod) {
     setGrowingMethods((prev) => prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]);
+  }
+
+  async function detectLocation() {
+    setLocating(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
+      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
+      const nearest = getNearestProvince(pos.coords.latitude, pos.coords.longitude);
+      if (nearest) {
+        setHemisphere('norte');
+        setProvince(nearest);
+        setSelectedCountry(null);
+      }
+    } catch {
+      // silent — user can still pick manually
+    } finally {
+      setLocating(false);
+    }
   }
 
   async function pickPhoto() {
@@ -468,6 +491,19 @@ export default function OnboardingScreen() {
             </View>
 
             <Pressable
+              onPress={locating ? undefined : detectLocation}
+              style={[
+                s.detectBtn,
+                { backgroundColor: colors.surface, borderColor: colors.border, opacity: locating ? 0.6 : 1 },
+              ]}
+            >
+              <Ionicons name="locate-outline" size={18} color={colors.primary} />
+              <Text style={{ color: colors.primary, fontSize: fontSize.sm, marginLeft: 6, fontWeight: fontWeight.medium }}>
+                {locating ? t('onboarding.detecting') : t('onboarding.detectLocation')}
+              </Text>
+            </Pressable>
+
+            <Pressable
               onPress={() => setShowProvincePicker(true)}
               style={[
                 s.provinceButton,
@@ -773,6 +809,17 @@ const styles = (
     rowOptionLabel: { fontSize: fontSize.md, fontWeight: fontWeight.semibold, flex: 1 },
     expNote: { fontSize: fontSize.xs, marginTop: 4, lineHeight: 16 },
     skipButton: { paddingVertical: spacing.md, paddingHorizontal: spacing.sm },
+    detectBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      borderRadius: radii.full,
+      borderWidth: 1,
+      alignSelf: 'flex-start',
+      marginBottom: spacing.md,
+    },
     provinceButton: {
       flexDirection: 'row',
       justifyContent: 'space-between',

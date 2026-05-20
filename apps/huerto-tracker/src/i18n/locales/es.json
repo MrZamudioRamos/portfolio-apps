@@ -370,6 +370,8 @@
     "step2Title": "¿Dónde está tu huerto?",
     "step2Desc": "Selecciona tu provincia o región para adaptar el calendario de siembra.",
     "selectProvince": "Selecciona tu provincia o región",
+    "detectLocation": "Detectar mi ubicación",
+    "detecting": "Detectando...",
     "zone": "Zona {{label}}",
     "continue": "Continuar →",
     "back": "Atrás",

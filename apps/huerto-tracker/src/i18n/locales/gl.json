@@ -350,6 +350,8 @@
     "step2Title": "Onde está a túa horta?",
     "step2Desc": "Selecciona a túa provincia ou rexión para personalizar o calendario de sementeira.",
     "selectProvince": "Selecciona a túa provincia ou rexión",
+    "detectLocation": "Detectar a miña localización",
+    "detecting": "Detectando...",
     "zone": "Zona {{label}}",
     "continue": "Continuar →",
     "back": "Atrás",
