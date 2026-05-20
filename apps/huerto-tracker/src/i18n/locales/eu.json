@@ -195,10 +195,16 @@
   },
   "magicSent": {
     "title": "Egiaztatu zure emaila",
-    "message": "Esteka magikoa bidali dizugu {{email}} helbidera. Sakatu esteka zure telefonotik automatikoki sartzeko.",
-    "note": "Esteka 1 orduz irauten du. Ez baduzu ikusten, egiaztatu spam karpeta.",
+    "message": "6 digituko kodea bidali dizugu {{email}} helbidera. Sartu hemen sartzeko.",
+    "note": "Kodea 1 orduz irauten du. Ez baduzu ikusten, egiaztatu spam karpeta.",
     "changeEmail": "Emaila aldatu",
-    "continueGuest": "Konturik gabe jarraitu oraingoz"
+    "continueGuest": "Konturik gabe jarraitu oraingoz",
+    "verify": "Egiaztatu",
+    "verifying": "Egiaztatzen…",
+    "errorCodeTitle": "Kode osatugabea",
+    "errorCodeDesc": "Sartu emaileko 6 digitu guztiak.",
+    "errorVerifyTitle": "Kode okerra",
+    "errorVerifyDesc": "Kodea ez da baliozkoa edo iraungitu da. Eskatu berri bat."
   },
   "companions": {
     "title": "Elkarteak",

@@ -198,10 +198,16 @@
   },
   "magicSent": {
     "title": "Revisa tu email",
-    "message": "Te hemos enviado un enlace mágico a {{email}}. Pulsa el enlace desde tu teléfono para entrar automáticamente.",
-    "note": "El enlace caduca en 1 hora. Si no lo ves, revisa la carpeta de spam.",
+    "message": "Te hemos enviado un código de 6 dígitos a {{email}}. Introdúcelo aquí para entrar.",
+    "note": "El código caduca en 1 hora. Si no lo ves, revisa la carpeta de spam.",
     "changeEmail": "Cambiar email",
-    "continueGuest": "Continuar sin cuenta por ahora"
+    "continueGuest": "Continuar sin cuenta por ahora",
+    "verify": "Verificar",
+    "verifying": "Verificando…",
+    "errorCodeTitle": "Código incompleto",
+    "errorCodeDesc": "Introduce los 6 dígitos del email.",
+    "errorVerifyTitle": "Código incorrecto",
+    "errorVerifyDesc": "El código no es válido o ha caducado. Solicita uno nuevo."
   },
   "companions": {
     "title": "Asociaciones",

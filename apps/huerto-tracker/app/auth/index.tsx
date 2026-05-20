@@ -73,8 +73,9 @@ export default function AuthScreen() {
     }
     setLoadingMagic(true);
     try {
-      await signInWithMagicLink(email.trim().toLowerCase());
-      router.push('/auth/magic-sent');
+      const normalizedEmail = email.trim().toLowerCase();
+      await signInWithMagicLink(normalizedEmail);
+      router.push({ pathname: '/auth/magic-sent', params: { email: normalizedEmail } });
     } catch {
       Alert.alert(t('common.error'), t('auth.errorMagicLink'));
     } finally {

@@ -194,10 +194,16 @@
   },
   "magicSent": {
     "title": "Check your email",
-    "message": "We've sent a magic link to {{email}}. Tap the link on your phone to sign in automatically.",
-    "note": "The link expires in 1 hour. If you don't see it, check your spam folder.",
+    "message": "We've sent a 6-digit code to {{email}}. Enter it here to sign in.",
+    "note": "The code expires in 1 hour. If you don't see it, check your spam folder.",
     "changeEmail": "Change email",
-    "continueGuest": "Continue without account for now"
+    "continueGuest": "Continue without account for now",
+    "verify": "Verify",
+    "verifying": "Verifying…",
+    "errorCodeTitle": "Incomplete code",
+    "errorCodeDesc": "Enter all 6 digits from the email.",
+    "errorVerifyTitle": "Incorrect code",
+    "errorVerifyDesc": "The code is invalid or expired. Request a new one."
   },
   "companions": {
     "title": "Companions",

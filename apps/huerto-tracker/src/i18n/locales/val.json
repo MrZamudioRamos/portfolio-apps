@@ -195,10 +195,16 @@
   },
   "magicSent": {
     "title": "Comprova el teu correu",
-    "message": "T'hem enviat un enllaç màgic a {{email}}. Prem l'enllaç des del teu telèfon per a entrar automàticament.",
-    "note": "L'enllaç caduca en 1 hora. Si no el veus, comprova la carpeta de correu brossa.",
+    "message": "T'hem enviat un codi de 6 dígits a {{email}}. Introdueix-lo ací per a entrar.",
+    "note": "El codi caduca en 1 hora. Si no el veus, comprova la carpeta de correu brossa.",
     "changeEmail": "Canviar correu",
-    "continueGuest": "Continuar sense compte per ara"
+    "continueGuest": "Continuar sense compte per ara",
+    "verify": "Verificar",
+    "verifying": "Verificant…",
+    "errorCodeTitle": "Codi incomplet",
+    "errorCodeDesc": "Introdueix els 6 dígits del correu.",
+    "errorVerifyTitle": "Codi incorrecte",
+    "errorVerifyDesc": "El codi no és vàlid o ha caducat. Sol·licita'n un de nou."
   },
   "companions": {
     "title": "Associacions",

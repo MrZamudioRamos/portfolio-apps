@@ -7,7 +7,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 export async function signInWithGoogle(): Promise<void> {
   const supabase = getSupabase();
-  const redirectUrl = AuthSession.makeRedirectUri({ scheme: 'huertotracker', path: 'auth/callback' });
+  const redirectUrl = AuthSession.makeRedirectUri({ scheme: 'semilla', path: 'auth/callback' });
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -53,13 +53,13 @@ export async function signInWithApple(): Promise<void> {
 
 export async function signInWithMagicLink(email: string): Promise<void> {
   const supabase = getSupabase();
-  const redirectUrl = AuthSession.makeRedirectUri({ scheme: 'huertotracker', path: 'auth/callback' });
+  const { error } = await supabase.auth.signInWithOtp({ email });
+  if (error) throw error;
+}
 
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: redirectUrl },
-  });
-
+export async function verifyOtp(email: string, token: string): Promise<void> {
+  const supabase = getSupabase();
+  const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
   if (error) throw error;
 }
 

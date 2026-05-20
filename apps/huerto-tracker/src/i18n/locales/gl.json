@@ -195,10 +195,16 @@
   },
   "magicSent": {
     "title": "Comproba o teu correo",
-    "message": "Enviámosche unha ligazón máxica a {{email}}. Preme a ligazón dende o teu teléfono para entrar automaticamente.",
-    "note": "A ligazón caduca en 1 hora. Se non a ves, comproba a carpeta de spam.",
+    "message": "Enviámosche un código de 6 díxitos a {{email}}. Introdúceo aquí para entrar.",
+    "note": "O código caduca en 1 hora. Se non o ves, comproba a carpeta de spam.",
     "changeEmail": "Cambiar correo",
-    "continueGuest": "Continuar sen conta por agora"
+    "continueGuest": "Continuar sen conta por agora",
+    "verify": "Verificar",
+    "verifying": "Verificando…",
+    "errorCodeTitle": "Código incompleto",
+    "errorCodeDesc": "Introduce os 6 díxitos do correo.",
+    "errorVerifyTitle": "Código incorrecto",
+    "errorVerifyDesc": "O código non é válido ou caducou. Solicita un novo."
   },
   "companions": {
     "title": "Asociacións",
