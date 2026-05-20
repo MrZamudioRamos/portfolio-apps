@@ -342,7 +342,7 @@ export default function DashboardScreen() {
               const labels = months.map((m) => monthLabels[m - 1]).filter(Boolean);
               if (labels.length === 0) return null;
               return (
-                <View style={[s.sowChip, { backgroundColor: '#66BB6A22' }]}>
+                <View style={[s.plantMonthChip, { backgroundColor: '#66BB6A22' }]}>
                   <Text style={[s.sowChipText, { color: '#2E7D32' }]} numberOfLines={1}>
                     🌱 {labels.join(', ')}
                   </Text>
@@ -1221,7 +1221,7 @@ const makeStyles = (
     },
     wateredChip: { paddingHorizontal: 5, paddingVertical: 1, borderRadius: radii.full },
     wateredChipText: { fontSize: 9, fontWeight: fontWeight.bold },
-    sowChip: {
+    plantMonthChip: {
       alignSelf: 'flex-start',
       paddingHorizontal: 6,
       paddingVertical: 2,

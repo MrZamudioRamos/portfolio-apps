@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, type ViewProps } from 'react-native';
 
-type GlassViewProps = ViewProps & { glassEffectStyle?: 'regular' | 'clear' | 'identity' | 'none' };
+type GlassViewProps = ViewProps & { glassEffectStyle?: 'regular' | 'clear' | 'identity' | 'none'; colorScheme?: 'dark' | 'light' };
 
 let _GlassView: React.ComponentType<GlassViewProps> = (props) => React.createElement(View, props);
 let _GlassContainer: React.ComponentType<ViewProps> = (props) => React.createElement(View, props);

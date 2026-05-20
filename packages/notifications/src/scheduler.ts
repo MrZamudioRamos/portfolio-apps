@@ -4,14 +4,16 @@ import type { ReminderFrequency } from './types';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
 });
 
 export async function requestPermissions(): Promise<boolean> {
-  const { status } = await Notifications.requestPermissionsAsync();
-  return status === 'granted';
+  const result = await Notifications.requestPermissionsAsync();
+  return (result as any).granted ?? (result as any).status === 'granted';
 }
 
 export async function cancelReminder(notificationId: string): Promise<void> {

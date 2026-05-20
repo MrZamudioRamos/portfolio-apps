@@ -17,6 +17,7 @@ import {
   Text,
   TextInput,
   View,
+  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
@@ -224,7 +225,7 @@ export default function CostsScreen() {
             <Text style={[s.kpiValue, { color: '#4CAF50' }]}>{fmt(harvestValue, locale)}</Text>
             <Text style={[s.kpiLabel, { color: colors.textSecondary }]}>{t('costs.harvestValue')}</Text>
           </Card>
-          <Card padded style={[s.kpiCard, { borderWidth: 1.5, borderColor: roiColor + '55' }]}>
+          <Card padded style={[s.kpiCard, { borderWidth: 1.5, borderColor: roiColor + '55' }] as unknown as ViewStyle}>
             <Text style={[s.kpiValue, { color: roiColor }]}>
               {roi === null ? '—' : `${roi >= 0 ? '+' : ''}${Math.round(roi)}%`}
             </Text>

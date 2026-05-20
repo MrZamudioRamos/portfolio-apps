@@ -250,18 +250,18 @@ export default function GardenMapScreen() {
       const emoji = crop?.emoji ?? '🌱';
       const gesture = Gesture.Pan()
         .activateAfterLongPress(180)
-        .onStart((e) => {
+        .onStart((e: any) => {
           ghostX.value = e.absoluteX - 30;
           ghostY.value = e.absoluteY - 60;
           ghostScale.value = withSpring(1.2);
           runOnJS(handlePanelDragStart)(plant.id, emoji);
         })
-        .onUpdate((e) => {
+        .onUpdate((e: any) => {
           ghostX.value = e.absoluteX - 30;
           ghostY.value = e.absoluteY - 60;
           runOnJS(handleDragMove)(e.absoluteX, e.absoluteY);
         })
-        .onEnd((e) => {
+        .onEnd((e: any) => {
           runOnJS(handleDrop)(e.absoluteX, e.absoluteY);
           ghostScale.value = withSpring(0);
         })
@@ -448,7 +448,7 @@ export default function GardenMapScreen() {
           </View>
 
           <ViewShot
-            ref={viewShotRef}
+            ref={viewShotRef as any}
             options={{ format: 'png', quality: 1 }}
             style={{ borderRadius: radii.lg, overflow: 'hidden' }}
           >
@@ -555,18 +555,18 @@ export default function GardenMapScreen() {
                     const emoji = crop.emoji;
                     const gridPanGesture = Gesture.Pan()
                       .activateAfterLongPress(280)
-                      .onStart((e) => {
+                      .onStart((e: any) => {
                         ghostX.value = e.absoluteX - 30;
                         ghostY.value = e.absoluteY - 60;
                         ghostScale.value = withSpring(1.15);
                         runOnJS(handleDragStart)(idx, emoji);
                       })
-                      .onUpdate((e) => {
+                      .onUpdate((e: any) => {
                         ghostX.value = e.absoluteX - 30;
                         ghostY.value = e.absoluteY - 60;
                         runOnJS(handleDragMove)(e.absoluteX, e.absoluteY);
                       })
-                      .onEnd((e) => {
+                      .onEnd((e: any) => {
                         runOnJS(handleDrop)(e.absoluteX, e.absoluteY);
                         ghostScale.value = withSpring(0);
                       })

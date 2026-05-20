@@ -19,6 +19,7 @@ import {
   Text,
   TextInput,
   View,
+  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
@@ -440,7 +441,7 @@ export default function PlantDetailScreen() {
 
           {/* Soil info */}
           {(plant.soilPh || plant.soilTexture || plant.soilNotes || plant.bedName) && (
-            <Card padded style={[s.infoCard, { marginBottom: spacing.lg }]}>
+            <Card padded style={[s.infoCard, { marginBottom: spacing.lg }] as unknown as ViewStyle}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm }}>
                 <Text style={{ fontSize: 16 }}>🌍</Text>
                 <Text style={[s.sectionTitle, { color: colors.text, marginTop: 0, marginBottom: 0 }]}>{t('plantDetail.soilSection')}</Text>

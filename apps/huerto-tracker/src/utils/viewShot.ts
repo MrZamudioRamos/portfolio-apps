@@ -7,6 +7,7 @@ export type ViewShotRef = { capture: () => Promise<string> };
 type ViewShotProps = ViewProps & {
   options?: CaptureOptions;
   captureMode?: string;
+  ref?: React.Ref<any>;
 };
 
 let _ViewShot: React.ComponentType<ViewShotProps> = forwardRef<View, ViewShotProps>(
