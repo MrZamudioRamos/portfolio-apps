@@ -2,6 +2,8 @@ import type { Garden } from '../models/garden';
 import type { Plant } from '../models/plant';
 import type { DiaryEntry } from '../models/diary-entry';
 import type { GardenReminder } from '../models/reminder';
+import type { UserProfile } from '../models/user-profile';
+import type { CustomCrop } from '../models/custom-crop';
 
 // ── Garden ───────────────────────────────────────────────────────────────────
 
@@ -15,6 +17,10 @@ export function gardenToRow(g: Garden, userId: string) {
     garden_type: g.gardenType ?? null,
     grid_rows: g.gridRows ?? null,
     grid_cols: g.gridCols ?? null,
+    hemisphere: g.hemisphere ?? null,
+    color: g.color ?? null,
+    notes: g.notes ?? null,
+    photo_uri: g.photoUri ?? null,
     created_at: g.createdAt,
     updated_at: g.updatedAt,
   };
@@ -29,6 +35,78 @@ export function rowToGarden(r: ReturnType<typeof gardenToRow>): Garden {
     gardenType: (r.garden_type as Garden['gardenType']) ?? undefined,
     gridRows: r.grid_rows ?? undefined,
     gridCols: r.grid_cols ?? undefined,
+    hemisphere: (r.hemisphere as Garden['hemisphere']) ?? undefined,
+    color: r.color ?? undefined,
+    notes: r.notes ?? undefined,
+    photoUri: r.photo_uri ?? undefined,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+}
+
+// ── UserProfile ───────────────────────────────────────────────────────────────
+
+export function userProfileToRow(p: UserProfile, userId: string) {
+  return {
+    id: p.id,
+    user_id: userId,
+    space_types: p.spaceTypes,
+    growing_methods: p.growingMethods,
+    sunlight: p.sunlight,
+    experience: p.experience,
+    created_at: p.createdAt,
+    updated_at: p.updatedAt,
+  };
+}
+
+export function rowToUserProfile(r: ReturnType<typeof userProfileToRow>): UserProfile {
+  return {
+    id: r.id,
+    spaceTypes: r.space_types as UserProfile['spaceTypes'],
+    growingMethods: r.growing_methods as UserProfile['growingMethods'],
+    sunlight: r.sunlight as UserProfile['sunlight'],
+    experience: r.experience as UserProfile['experience'],
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+}
+
+// ── CustomCrop ────────────────────────────────────────────────────────────────
+
+export function customCropToRow(c: CustomCrop, userId: string) {
+  return {
+    id: c.id,
+    user_id: userId,
+    name: c.name,
+    emoji: c.emoji,
+    category: c.category,
+    days_to_harvest_min: c.daysToHarvestMin,
+    days_to_harvest_max: c.daysToHarvestMax,
+    sowing_months: c.sowingMonths,
+    harvest_months: c.harvestMonths,
+    sun_needs: c.sunNeeds,
+    water_needs: c.waterNeeds,
+    spacing: c.spacing,
+    notes: c.notes,
+    created_at: c.createdAt,
+    updated_at: c.updatedAt,
+  };
+}
+
+export function rowToCustomCrop(r: ReturnType<typeof customCropToRow>): CustomCrop {
+  return {
+    id: r.id,
+    name: r.name,
+    emoji: r.emoji,
+    category: r.category as CustomCrop['category'],
+    daysToHarvestMin: r.days_to_harvest_min,
+    daysToHarvestMax: r.days_to_harvest_max,
+    sowingMonths: r.sowing_months as number[],
+    harvestMonths: r.harvest_months as number[],
+    sunNeeds: r.sun_needs as CustomCrop['sunNeeds'],
+    waterNeeds: r.water_needs as CustomCrop['waterNeeds'],
+    spacing: r.spacing,
+    notes: r.notes,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };

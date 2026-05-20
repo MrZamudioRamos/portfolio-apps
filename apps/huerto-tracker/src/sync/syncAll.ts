@@ -10,6 +10,8 @@ import {
   plantToRow, rowToPlant,
   entryToRow, rowToEntry,
   reminderToRow, rowToReminder,
+  userProfileToRow, rowToUserProfile,
+  customCropToRow, rowToCustomCrop,
 } from './adapters';
 
 // Keys must match createStore(`@portfolio/${key}`)
@@ -18,6 +20,8 @@ const KEYS = {
   plants:       '@portfolio/plants',
   entries:      '@portfolio/diary_entries',
   reminders:    '@portfolio/reminders',
+  userProfile:  '@portfolio/user-profile',
+  customCrops:  '@portfolio/custom_crops',
 };
 
 async function readLocal<T>(key: string): Promise<T[]> {
@@ -36,18 +40,22 @@ async function writeLocal<T>(key: string, items: T[]): Promise<void> {
  */
 export async function syncToCloud(userId: string): Promise<void> {
   try {
-    const [gardens, plants, entries, reminders] = await Promise.all([
+    const [gardens, plants, entries, reminders, userProfiles, customCrops] = await Promise.all([
       readLocal<Garden>(KEYS.gardens),
       readLocal<Plant>(KEYS.plants),
       readLocal<DiaryEntry>(KEYS.entries),
       readLocal<GardenReminder>(KEYS.reminders),
+      readLocal<import('../models/user-profile').UserProfile>(KEYS.userProfile),
+      readLocal<import('../models/custom-crop').CustomCrop>(KEYS.customCrops),
     ]);
 
     await Promise.all([
-      upsertAll('gardens',      gardens.filter(  (g) => isUUID(g.id)).map((g) => gardenToRow(g, userId))),
-      upsertAll('plants',       plants.filter(   (p) => isUUID(p.id)).map((p) => plantToRow(p, userId))),
-      upsertAll('diary_entries',entries.filter(  (e) => isUUID(e.id)).map((e) => entryToRow(e, userId))),
-      upsertAll('reminders',    reminders.filter((r) => isUUID(r.id)).map((r) => reminderToRow(r, userId))),
+      upsertAll('gardens',       gardens.filter(     (g) => isUUID(g.id)).map((g) => gardenToRow(g, userId))),
+      upsertAll('plants',        plants.filter(      (p) => isUUID(p.id)).map((p) => plantToRow(p, userId))),
+      upsertAll('diary_entries', entries.filter(     (e) => isUUID(e.id)).map((e) => entryToRow(e, userId))),
+      upsertAll('reminders',     reminders.filter(   (r) => isUUID(r.id)).map((r) => reminderToRow(r, userId))),
+      upsertAll('user_profiles', userProfiles.filter((p) => isUUID(p.id)).map((p) => userProfileToRow(p, userId))),
+      upsertAll('custom_crops',  customCrops.filter( (c) => isUUID(c.id)).map((c) => customCropToRow(c, userId))),
     ]);
   } catch (e) {
     console.warn('[sync] syncToCloud failed:', e);
@@ -60,18 +68,22 @@ export async function syncToCloud(userId: string): Promise<void> {
  */
 export async function syncFromCloud(userId: string): Promise<void> {
   try {
-    const [remoteGardens, remotePlants, remoteEntries, remoteReminders] = await Promise.all([
+    const [remoteGardens, remotePlants, remoteEntries, remoteReminders, remoteProfiles, remoteCrops] = await Promise.all([
       pullAll<ReturnType<typeof gardenToRow>>('gardens', userId),
       pullAll<ReturnType<typeof plantToRow>>('plants', userId),
       pullAll<ReturnType<typeof entryToRow>>('diary_entries', userId),
       pullAll<ReturnType<typeof reminderToRow>>('reminders', userId),
+      pullAll<ReturnType<typeof userProfileToRow>>('user_profiles', userId),
+      pullAll<ReturnType<typeof customCropToRow>>('custom_crops', userId),
     ]);
 
     await Promise.all([
-      mergeLocal(KEYS.gardens,   remoteGardens.map(rowToGarden)   as any[]),
-      mergeLocal(KEYS.plants,    remotePlants.map(rowToPlant)      as any[]),
-      mergeLocal(KEYS.entries,   remoteEntries.map(rowToEntry)     as any[]),
-      mergeLocal(KEYS.reminders, remoteReminders.map(rowToReminder) as any[]),
+      mergeLocal(KEYS.gardens,     remoteGardens.map(rowToGarden)       as any[]),
+      mergeLocal(KEYS.plants,      remotePlants.map(rowToPlant)          as any[]),
+      mergeLocal(KEYS.entries,     remoteEntries.map(rowToEntry)         as any[]),
+      mergeLocal(KEYS.reminders,   remoteReminders.map(rowToReminder)    as any[]),
+      mergeLocal(KEYS.userProfile, remoteProfiles.map(rowToUserProfile)  as any[]),
+      mergeLocal(KEYS.customCrops, remoteCrops.map(rowToCustomCrop)      as any[]),
     ]);
   } catch (e) {
     console.warn('[sync] syncFromCloud failed:', e);
