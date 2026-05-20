@@ -72,6 +72,7 @@ export default function GardensScreen() {
         gardenType,
         gridRows: DEFAULT_GRID_ROWS,
         gridCols: DEFAULT_GRID_COLS,
+        hemisphere: 'norte',
       });
       if (created?.id) {
         await AsyncStorage.setItem(ACTIVE_KEY, created.id);

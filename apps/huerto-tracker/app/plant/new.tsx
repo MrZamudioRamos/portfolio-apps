@@ -142,7 +142,7 @@ export default function NewPlantScreen() {
   async function handleSave() {
     if (!selectedCropId || !plantName.trim()) return;
     if (atLimit) {
-      router.replace('/paywall');
+      router.push('/paywall');
       return;
     }
     const gardenId = activeGarden?.id;

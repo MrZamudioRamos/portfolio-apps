@@ -1,8 +1,11 @@
 import { useOnboarding } from '@portfolio/shared';
-import { useSession, signOut } from '@portfolio/supabase';
+import { useSession, signOut, deleteRow } from '@portfolio/supabase';
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
+import { useCustomCrops } from '../../src/hooks/useCustomCrops';
+import { useUserProfile } from '../../src/hooks/useUserProfile';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -38,6 +41,8 @@ export default function SettingsScreen() {
   const reminders = useCollection<GardenReminder>('reminders');
   const { isPro, activePlan } = usePurchases();
   const { isGuest, user } = useSession();
+  const { collection: customCropsCollection } = useCustomCrops();
+  const { profile: userProfile } = useUserProfile();
 
   const { activeGarden: garden } = useActiveGarden();
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
@@ -60,13 +65,43 @@ export default function SettingsScreen() {
           text: t('settings.data.deleteConfirm'),
           style: 'destructive',
           onPress: async () => {
+            // Delete from Supabase before clearing local (ignore errors — may be offline/guest)
+            if (!isGuest) {
+              await Promise.allSettled([
+                ...plants.items.map((p) => deleteRow('plants', p.id)),
+                ...entries.items.map((e) => deleteRow('diary_entries', e.id)),
+                ...reminders.items.map((r) => deleteRow('reminders', r.id)),
+                ...customCropsCollection.items.map((c) => deleteRow('custom_crops', c.id)),
+                ...(userProfile ? [deleteRow('user_profiles', userProfile.id)] : []),
+                // gardens last: cascade deletes garden_layouts in Supabase
+                ...gardens.items.map((g) => deleteRow('gardens', g.id)),
+              ]);
+            }
+
+            // Clear local collections
             await Promise.all([
               ...plants.items.map((p) => plants.remove(p.id)),
               ...entries.items.map((e) => entries.remove(e.id)),
               ...reminders.items.map((r) => reminders.remove(r.id)),
+              ...customCropsCollection.items.map((c) => customCropsCollection.remove(c.id)),
               ...gardens.items.map((g) => gardens.remove(g.id)),
             ]);
+
+            // Clear non-collection AsyncStorage keys (user_profile + all layout keys)
+            const allKeys = await AsyncStorage.getAllKeys();
+            const extraKeys = allKeys.filter(
+              (k) =>
+                k === '@portfolio/user-profile' ||
+                k === '@portfolio/custom_crops' ||
+                k.startsWith('@portfolio/huerto/garden_layout/')
+            );
+            if (extraKeys.length > 0) await AsyncStorage.multiRemove(extraKeys);
+
             await resetOnboarding();
+
+            // Sign out to prevent syncFromCloud restoring Supabase data
+            if (!isGuest) await signOut();
+
             router.replace('/onboarding');
           },
         },
@@ -268,11 +303,11 @@ export default function SettingsScreen() {
         {/* ── Estadísticas ── */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.summary')}</Text>
         <Card padded style={s.card}>
-          <Row icon="leaf-outline" label={t('settings.summary.activePlants')} value={String(plants.count)} colors={colors} s={s} />
+          <Row icon="leaf-outline" label={t('settings.summary.activePlants')} value={String(garden ? plants.items.filter((p) => p.gardenId === garden.id).length : plants.count)} colors={colors} s={s} />
           <Separator colors={colors} />
-          <Row icon="journal-outline" label={t('settings.summary.diaryEntries')} value={String(entries.count)} colors={colors} s={s} />
+          <Row icon="journal-outline" label={t('settings.summary.diaryEntries')} value={String(garden ? entries.items.filter((e) => e.gardenId === garden.id).length : entries.count)} colors={colors} s={s} />
           <Separator colors={colors} />
-          <Row icon="notifications-outline" label={t('settings.summary.reminders')} value={String(reminders.count)} colors={colors} s={s} />
+          <Row icon="notifications-outline" label={t('settings.summary.reminders')} value={String(garden ? reminders.items.filter((r) => r.gardenId === garden.id).length : reminders.count)} colors={colors} s={s} />
         </Card>
 
         {/* ── Idioma ── */}
