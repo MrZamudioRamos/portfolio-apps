@@ -132,6 +132,11 @@ export function plantToRow(p: Plant, userId: string) {
     pest_status: p.pestStatus ?? null,
     photo_uri: p.photoUri ?? null,
     notes: p.notes ?? null,
+    harvest_goal_kg: p.harvestGoalKg ?? null,
+    soil_ph: p.soilPh ?? null,
+    soil_texture: p.soilTexture ?? null,
+    soil_notes: p.soilNotes ?? null,
+    bed_name: p.bedName ?? null,
     created_at: p.createdAt,
     updated_at: p.updatedAt,
   };
@@ -152,6 +157,11 @@ export function rowToPlant(r: ReturnType<typeof plantToRow>): Plant {
     pestStatus: (r.pest_status as Plant['pestStatus']) ?? undefined,
     photoUri: r.photo_uri ?? undefined,
     notes: r.notes ?? undefined,
+    harvestGoalKg: r.harvest_goal_kg != null ? Number(r.harvest_goal_kg) : undefined,
+    soilPh: r.soil_ph ?? undefined,
+    soilTexture: (r.soil_texture as Plant['soilTexture']) ?? undefined,
+    soilNotes: r.soil_notes ?? undefined,
+    bedName: r.bed_name ?? undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
