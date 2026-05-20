@@ -50,7 +50,7 @@ export default function WelcomeScreen() {
       {/* CTAs */}
       <View style={s.ctas}>
         <Pressable
-          onPress={() => router.replace('/auth' as any)}
+          onPress={() => router.push('/auth' as any)}
           style={({ pressed }) => [
             s.btnPrimary,
             { backgroundColor: colors.primary, ...shadows.md, opacity: pressed ? 0.85 : 1 },
