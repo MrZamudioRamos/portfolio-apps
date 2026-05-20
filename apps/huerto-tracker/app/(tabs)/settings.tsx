@@ -419,7 +419,7 @@ export default function SettingsScreen() {
             label={t('settings.app.privacy')}
             colors={colors}
             s={s}
-            onPress={() => Linking.openURL('https://mrzamudioramos.github.io/huerto-tracker/privacy-policy.html')}
+            onPress={() => Linking.openURL('https://semillaapp.app/privacy-policy.html')}
           />
           <Separator colors={colors} />
           <RowAction
