@@ -44,7 +44,7 @@ export default function NewPlantScreen() {
   const router = useRouter();
 
   const { t } = useTranslation();
-  const { cropId: paramCropId, scan: scanParam, status: statusParam } = useLocalSearchParams<{ cropId?: string; scan?: string; status?: string }>();
+  const { cropId: paramCropId, scan: scanParam, status: statusParam, fromOnboarding } = useLocalSearchParams<{ cropId?: string; scan?: string; status?: string; fromOnboarding?: string }>();
 
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
@@ -166,7 +166,8 @@ export default function NewPlantScreen() {
         type: 'sowing',
         date: sowingDate,
       });
-      if (router.canGoBack()) router.back();
+      if (fromOnboarding === '1') router.replace('/(tabs)');
+      else if (router.canGoBack()) router.back();
       else router.replace('/(tabs)');
     } finally {
       setSaving(false);

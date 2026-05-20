@@ -647,7 +647,7 @@ export default function OnboardingScreen() {
           <View style={{ gap: spacing.md }}>
             <Button
               title={t('onboarding.addFirstPlant')}
-              onPress={() => router.replace('/plant/new')}
+              onPress={() => router.replace({ pathname: '/plant/new', params: { fromOnboarding: '1' } } as any)}
               size="lg"
             />
             <Button
