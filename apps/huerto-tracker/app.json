@@ -116,11 +116,16 @@
               "name": "GardenWidget",
               "displayName": "Semilla",
               "entryPoint": "./src/widgets/GardenWidget.tsx",
-              "supportedFamilies": ["systemSmall", "systemMedium"]
+              "supportedFamilies": [
+                "systemSmall",
+                "systemMedium"
+              ]
             }
           ]
         }
-      ]
+      ],
+      "expo-sharing",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

@@ -22,23 +22,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ViewShot, isViewShotAvailable } from '../../src/utils/viewShot';
-// Gesture/Reanimated stubs — Expo Go can't run Reanimated 4 native module.
-// Real implementation works in dev builds / production.
-const _noop = () => _chain;
-const _chain: any = {
-  activateAfterLongPress: _noop,
-  onStart: _noop,
-  onUpdate: _noop,
-  onEnd: _noop,
-  onFinalize: _noop,
-};
-const GestureDetector = ({ children }: any) => children;
-const Gesture = { Pan: () => _chain };
-const useSharedValue = (v: any) => ({ value: v });
-const useAnimatedStyle = (_fn: any) => ({});
-const withSpring = (v: any) => v;
-const runOnJS = (fn: any) => fn;
-const Animated = { View } as any;
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  runOnJS,
+} from 'react-native-reanimated';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { getCompatibilityStatus } from '../../src/data/companions';
 import type { Plant } from '../../src/models/plant';
