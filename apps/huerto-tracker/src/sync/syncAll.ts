@@ -13,6 +13,7 @@ import {
   reminderToRow, rowToReminder,
   userProfileToRow, rowToUserProfile,
   customCropToRow, rowToCustomCrop,
+  costEntryToRow, rowToCostEntry,
   gardenLayoutToRow, rowToGardenLayout,
 } from './adapters';
 
@@ -24,6 +25,7 @@ const KEYS = {
   reminders:    '@portfolio/reminders',
   userProfile:  '@portfolio/user-profile',
   customCrops:  '@portfolio/custom_crops',
+  costEntries:  '@portfolio/cost_entries',
 };
 
 async function readLocal<T>(key: string): Promise<T[]> {
@@ -62,13 +64,14 @@ async function writeLayouts(layouts: { gardenId: string; layout: GridLayout }[])
  */
 export async function syncToCloud(userId: string): Promise<void> {
   try {
-    const [gardens, plants, entries, reminders, userProfiles, customCrops] = await Promise.all([
+    const [gardens, plants, entries, reminders, userProfiles, customCrops, costEntries] = await Promise.all([
       readLocal<Garden>(KEYS.gardens),
       readLocal<Plant>(KEYS.plants),
       readLocal<DiaryEntry>(KEYS.entries),
       readLocal<GardenReminder>(KEYS.reminders),
       readLocal<import('../models/user-profile').UserProfile>(KEYS.userProfile),
       readLocal<import('../models/custom-crop').CustomCrop>(KEYS.customCrops),
+      readLocal<import('../models/cost-entry').CostEntry>(KEYS.costEntries),
     ]);
 
     const validGardenIds = gardens.filter((g) => isUUID(g.id)).map((g) => g.id);
@@ -81,6 +84,7 @@ export async function syncToCloud(userId: string): Promise<void> {
       upsertAll('reminders',      reminders.filter(   (r) => isUUID(r.id)).map((r) => reminderToRow(r, userId))),
       upsertAll('user_profiles',  userProfiles.filter((p) => isUUID(p.id)).map((p) => userProfileToRow(p, userId))),
       upsertAll('custom_crops',   customCrops.filter( (c) => isUUID(c.id)).map((c) => customCropToRow(c, userId))),
+      upsertAll('cost_entries',   costEntries.filter( (c) => isUUID(c.id)).map((c) => costEntryToRow(c, userId))),
       upsertAll('garden_layouts', layouts.map((l) => gardenLayoutToRow(l.gardenId, l.layout, userId))),
     ]);
   } catch (e) {
@@ -94,13 +98,14 @@ export async function syncToCloud(userId: string): Promise<void> {
  */
 export async function syncFromCloud(userId: string): Promise<void> {
   try {
-    const [remoteGardens, remotePlants, remoteEntries, remoteReminders, remoteProfiles, remoteCrops, remoteLayouts] = await Promise.all([
+    const [remoteGardens, remotePlants, remoteEntries, remoteReminders, remoteProfiles, remoteCrops, remoteCosts, remoteLayouts] = await Promise.all([
       pullAll<ReturnType<typeof gardenToRow>>('gardens', userId),
       pullAll<ReturnType<typeof plantToRow>>('plants', userId),
       pullAll<ReturnType<typeof entryToRow>>('diary_entries', userId),
       pullAll<ReturnType<typeof reminderToRow>>('reminders', userId),
       pullAll<ReturnType<typeof userProfileToRow>>('user_profiles', userId),
       pullAll<ReturnType<typeof customCropToRow>>('custom_crops', userId),
+      pullAll<ReturnType<typeof costEntryToRow>>('cost_entries', userId),
       pullAll<ReturnType<typeof gardenLayoutToRow>>('garden_layouts', userId),
     ]);
 
@@ -111,6 +116,7 @@ export async function syncFromCloud(userId: string): Promise<void> {
       mergeLocal(KEYS.reminders,   remoteReminders.map(rowToReminder)    as any[]),
       mergeLocal(KEYS.userProfile, remoteProfiles.map(rowToUserProfile)  as any[]),
       mergeLocal(KEYS.customCrops, remoteCrops.map(rowToCustomCrop)      as any[]),
+      mergeLocal(KEYS.costEntries, remoteCosts.map(rowToCostEntry)       as any[]),
       writeLayouts(remoteLayouts.map(rowToGardenLayout)),
     ]);
   } catch (e) {

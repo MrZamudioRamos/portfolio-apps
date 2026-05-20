@@ -18,6 +18,7 @@ const DATA_KEYS = [
   '@portfolio/reminders',
   '@portfolio/user-profile',
   '@portfolio/custom_crops',
+  '@portfolio/cost_entries',
   '@portfolio/onboarding_completed_huerto',
 ] as const;
 
@@ -31,6 +32,7 @@ interface BackupData {
   reminders: unknown[];
   userProfile: unknown[];
   customCrops: unknown[];
+  costEntries: unknown[];
   onboardingCompleted: boolean;
   gardenLayouts: Record<string, unknown[]>;
 }
@@ -83,6 +85,7 @@ export function useBackup() {
       reminders: safeParseArray(map['@portfolio/reminders']),
       userProfile: safeParseArray(map['@portfolio/user-profile']),
       customCrops: safeParseArray(map['@portfolio/custom_crops']),
+      costEntries: safeParseArray(map['@portfolio/cost_entries']),
       onboardingCompleted: map['@portfolio/onboarding_completed_huerto'] === 'true',
       gardenLayouts,
     };
@@ -157,6 +160,7 @@ export function useBackup() {
         ['@portfolio/reminders',   JSON.stringify(data.reminders ?? [])],
         ['@portfolio/user-profile', JSON.stringify(data.userProfile ?? [])],
         ['@portfolio/custom_crops', JSON.stringify(data.customCrops ?? [])],
+        ['@portfolio/cost_entries', JSON.stringify(data.costEntries ?? [])],
         ['@portfolio/onboarding_completed_huerto', data.onboardingCompleted ? 'true' : 'false'],
       ];
 

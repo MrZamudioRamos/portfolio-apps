@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { useUserProfile } from '../../src/hooks/useUserProfile';
+import type { CostEntry } from '../../src/models/cost-entry';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -43,6 +44,7 @@ export default function SettingsScreen() {
   const { isGuest, user } = useSession();
   const { collection: customCropsCollection } = useCustomCrops();
   const { profile: userProfile } = useUserProfile();
+  const costEntriesCollection = useCollection<CostEntry>('cost_entries');
 
   const { activeGarden: garden } = useActiveGarden();
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
@@ -72,6 +74,7 @@ export default function SettingsScreen() {
                 ...entries.items.map((e) => deleteRow('diary_entries', e.id)),
                 ...reminders.items.map((r) => deleteRow('reminders', r.id)),
                 ...customCropsCollection.items.map((c) => deleteRow('custom_crops', c.id)),
+                ...costEntriesCollection.items.map((c) => deleteRow('cost_entries', c.id)),
                 ...(userProfile ? [deleteRow('user_profiles', userProfile.id)] : []),
                 // gardens last: cascade deletes garden_layouts in Supabase
                 ...gardens.items.map((g) => deleteRow('gardens', g.id)),
@@ -84,6 +87,7 @@ export default function SettingsScreen() {
               ...entries.items.map((e) => entries.remove(e.id)),
               ...reminders.items.map((r) => reminders.remove(r.id)),
               ...customCropsCollection.items.map((c) => customCropsCollection.remove(c.id)),
+              ...costEntriesCollection.items.map((c) => costEntriesCollection.remove(c.id)),
               ...gardens.items.map((g) => gardens.remove(g.id)),
             ]);
 
@@ -93,6 +97,7 @@ export default function SettingsScreen() {
               (k) =>
                 k === '@portfolio/user-profile' ||
                 k === '@portfolio/custom_crops' ||
+                k === '@portfolio/cost_entries' ||
                 k.startsWith('@portfolio/huerto/garden_layout/')
             );
             if (extraKeys.length > 0) await AsyncStorage.multiRemove(extraKeys);

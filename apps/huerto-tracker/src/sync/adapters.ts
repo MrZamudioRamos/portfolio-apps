@@ -4,6 +4,7 @@ import type { DiaryEntry } from '../models/diary-entry';
 import type { GardenReminder } from '../models/reminder';
 import type { UserProfile } from '../models/user-profile';
 import type { CustomCrop } from '../models/custom-crop';
+import type { CostEntry } from '../models/cost-entry';
 import type { GridLayout } from '../hooks/useGardenLayout';
 
 // ── Garden ───────────────────────────────────────────────────────────────────
@@ -228,6 +229,37 @@ export function rowToReminder(r: ReturnType<typeof reminderToRow>): GardenRemind
     time: { hour: r.time_hour, minute: r.time_minute },
     enabled: r.enabled,
     notificationId: r.notification_id ?? undefined,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+}
+
+// ── CostEntry ─────────────────────────────────────────────────────────────────
+
+export function costEntryToRow(c: CostEntry, userId: string) {
+  return {
+    id: c.id,
+    user_id: userId,
+    garden_id: c.gardenId,
+    plant_id: c.plantId ?? null,
+    category: c.category,
+    amount: c.amount,
+    description: c.description ?? null,
+    date: c.date,
+    created_at: c.createdAt,
+    updated_at: c.updatedAt,
+  };
+}
+
+export function rowToCostEntry(r: ReturnType<typeof costEntryToRow>): CostEntry {
+  return {
+    id: r.id,
+    gardenId: r.garden_id,
+    plantId: r.plant_id ?? undefined,
+    category: r.category as CostEntry['category'],
+    amount: Number(r.amount),
+    description: r.description ?? undefined,
+    date: r.date,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
