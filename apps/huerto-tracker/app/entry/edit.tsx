@@ -45,7 +45,7 @@ export default function EditEntryScreen() {
   const [waterLiters, setWaterLiters] = useState(String((entry?.data as any)?.liters ?? ''));
   const [waterMethod, setWaterMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>((entry?.data as any)?.method ?? 'hand');
   // harvest
-  const [harvestWeight, setHarvestWeight] = useState(String(entry?.data?.weight ?? ''));
+  const [harvestWeight, setHarvestWeight] = useState(String((entry?.data as any)?.weightGrams ?? (entry?.data as any)?.weight ?? ''));
   const [harvestUnits, setHarvestUnits] = useState(String(entry?.data?.units ?? ''));
   const [harvestQuality, setHarvestQuality] = useState<number>(Number((entry?.data as any)?.quality ?? 0));
   // fertilizing
@@ -91,7 +91,7 @@ export default function EditEntryScreen() {
     let entryData: Record<string, unknown> | undefined;
     if (selectedType === 'harvest' && (harvestWeight || harvestUnits || harvestQuality)) {
       entryData = {
-        ...(harvestWeight ? { weight: harvestWeight } : {}),
+        ...(harvestWeight ? { weightGrams: parseFloat(harvestWeight) || undefined } : {}),
         ...(harvestUnits ? { units: harvestUnits } : {}),
         ...(harvestQuality ? { quality: harvestQuality } : {}),
       };
