@@ -8,13 +8,16 @@ import { AppState } from 'react-native';
 const BACKUP_FILE = FileSystem.documentDirectory + 'huerto-backup.json';
 const AUTO_BACKUP_KEY = '@portfolio/backup/auto';
 const LAST_BACKUP_KEY = '@portfolio/backup/last';
-const BACKUP_VERSION = 1;
+const BACKUP_VERSION = 2;
+const LAYOUT_KEY_PREFIX = '@portfolio/huerto/garden_layout/';
 
 const DATA_KEYS = [
   '@portfolio/gardens',
   '@portfolio/plants',
   '@portfolio/diary_entries',
   '@portfolio/reminders',
+  '@portfolio/user-profile',
+  '@portfolio/custom_crops',
   '@portfolio/onboarding_completed_huerto',
 ] as const;
 
@@ -26,7 +29,10 @@ interface BackupData {
   plants: unknown[];
   diary_entries: unknown[];
   reminders: unknown[];
+  userProfile: unknown[];
+  customCrops: unknown[];
   onboardingCompleted: boolean;
+  gardenLayouts: Record<string, unknown[]>;
 }
 
 function safeParseArray(raw: string | null): unknown[] {
@@ -52,8 +58,20 @@ export function useBackup() {
   }, []);
 
   const writeBackupFile = useCallback(async (): Promise<string> => {
-    const results = await AsyncStorage.multiGet([...DATA_KEYS]);
-    const map = Object.fromEntries(results.map(([k, v]) => [k, v]));
+    const allKeys = await AsyncStorage.getAllKeys();
+    const layoutKeys = allKeys.filter((k) => k.startsWith(LAYOUT_KEY_PREFIX));
+
+    const [staticResults, layoutResults] = await Promise.all([
+      AsyncStorage.multiGet([...DATA_KEYS]),
+      AsyncStorage.multiGet(layoutKeys),
+    ]);
+    const map = Object.fromEntries(staticResults.map(([k, v]) => [k, v]));
+
+    const gardenLayouts: Record<string, unknown[]> = {};
+    for (const [key, raw] of layoutResults) {
+      const gardenId = key.slice(LAYOUT_KEY_PREFIX.length);
+      gardenLayouts[gardenId] = safeParseArray(raw);
+    }
 
     const data: BackupData = {
       version: BACKUP_VERSION,
@@ -63,7 +81,10 @@ export function useBackup() {
       plants: safeParseArray(map['@portfolio/plants']),
       diary_entries: safeParseArray(map['@portfolio/diary_entries']),
       reminders: safeParseArray(map['@portfolio/reminders']),
+      userProfile: safeParseArray(map['@portfolio/user-profile']),
+      customCrops: safeParseArray(map['@portfolio/custom_crops']),
       onboardingCompleted: map['@portfolio/onboarding_completed_huerto'] === 'true',
+      gardenLayouts,
     };
 
     await FileSystem.writeAsStringAsync(BACKUP_FILE, JSON.stringify(data, null, 2), {
@@ -129,13 +150,21 @@ export function useBackup() {
         return { success: false, error: 'El archivo no es un backup de HuertoTracker.' };
       }
 
-      await AsyncStorage.multiSet([
-        ['@portfolio/gardens', JSON.stringify(data.gardens ?? [])],
-        ['@portfolio/plants', JSON.stringify(data.plants ?? [])],
+      const staticPairs: [string, string][] = [
+        ['@portfolio/gardens',     JSON.stringify(data.gardens ?? [])],
+        ['@portfolio/plants',      JSON.stringify(data.plants ?? [])],
         ['@portfolio/diary_entries', JSON.stringify(data.diary_entries ?? [])],
-        ['@portfolio/reminders', JSON.stringify(data.reminders ?? [])],
+        ['@portfolio/reminders',   JSON.stringify(data.reminders ?? [])],
+        ['@portfolio/user-profile', JSON.stringify(data.userProfile ?? [])],
+        ['@portfolio/custom_crops', JSON.stringify(data.customCrops ?? [])],
         ['@portfolio/onboarding_completed_huerto', data.onboardingCompleted ? 'true' : 'false'],
-      ]);
+      ];
+
+      const layoutPairs: [string, string][] = Object.entries(data.gardenLayouts ?? {}).map(
+        ([gardenId, layout]) => [LAYOUT_KEY_PREFIX + gardenId, JSON.stringify(layout)]
+      );
+
+      await AsyncStorage.multiSet([...staticPairs, ...layoutPairs]);
 
       const now = new Date().toISOString();
       await AsyncStorage.setItem(LAST_BACKUP_KEY, now);
