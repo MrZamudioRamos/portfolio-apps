@@ -32,10 +32,11 @@ import { getPestsForCrop, PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { CalendarGantt } from '../../src/components/plant/CalendarGantt';
+import { CropFaq } from '../../src/components/plant/CropFaq';
 import { DifficultyGauge } from '../../src/components/plant/DifficultyGauge';
 import { HowToStages } from '../../src/components/plant/HowToStages';
 
-type CropTab = 'overview' | 'calendar' | 'companions' | 'howto';
+type CropTab = 'overview' | 'calendar' | 'companions' | 'howto' | 'faq';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -470,7 +471,7 @@ export default function PlantDetailScreen() {
           {/* Crop info — tabbed */}
           <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.cropInfo')}</Text>
           <View style={s.tabBar}>
-            {(['overview', 'calendar', 'companions', 'howto'] as const).map((tab) => {
+            {(['overview', 'calendar', 'companions', 'howto', 'faq'] as const).map((tab) => {
               const active = cropTab === tab;
               return (
                 <Pressable
@@ -591,6 +592,13 @@ export default function PlantDetailScreen() {
                 fallbackTip={crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips')}
               />
             </Card>
+          )}
+
+          {cropTab === 'faq' && (
+            <CropFaq
+              crop={crop}
+              cropName={crop.isCustom ? crop.name : t('crops.' + crop.id + '.name')}
+            />
           )}
 
           {/* Reminders */}

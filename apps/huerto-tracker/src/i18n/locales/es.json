@@ -552,7 +552,7 @@
     "successionSowDesc": "Crea nueva planta del mismo cultivo sembrada hoy",
     "successionNote": "Siembra escalonada de {{original}}",
     "successionName": "{{name}} (tanda {{batch}})",
-    "tab": { "overview": "Datos", "calendar": "Calendario", "companions": "Vecinos", "howto": "Cómo cultivar" },
+    "tab": { "overview": "Datos", "calendar": "Calendario", "companions": "Vecinos", "howto": "Cómo cultivar", "faq": "FAQ" },
     "difficulty": { "title": "Dificultad", "veryEasy": "Muy fácil", "easy": "Fácil", "medium": "Media", "hard": "Difícil", "veryHard": "Muy difícil" },
     "calendar": { "sowing": "Siembra", "harvest": "Cosecha", "unavailable": "Calendario no disponible para cultivos personalizados" },
     "stage": { "sowing": "Siembra", "germination": "Germinación", "growth": "Crecimiento", "flowering": "Floración", "harvest": "Cosecha" },
@@ -870,6 +870,14 @@
       "preventivo": "Preventivo",
       "quimico": "Químico"
     }
+  },
+  "plantFaq": {
+    "loading": "Generando preguntas frecuentes…",
+    "error": "Error al cargar FAQ",
+    "errorDesc": "No se pudieron generar las preguntas. Inténtalo de nuevo.",
+    "noKeyDesc": "Añade EXPO_PUBLIC_ANTHROPIC_KEY en el archivo .env",
+    "retry": "Reintentar",
+    "aiNote": "Respuestas generadas por IA · verifica con un experto agronómico"
   },
   "plantScan": {
     "title": "Identificar planta",

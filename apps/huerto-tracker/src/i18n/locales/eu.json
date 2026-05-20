@@ -524,7 +524,7 @@
     "successionSowDesc": "Sortu gaur ereindako labore bereko landare berria",
     "successionNote": "Ereintza eskalatuak {{original}}",
     "successionName": "{{name}} ({{batch}}. txanda)",
-    "tab": { "overview": "Datuak", "calendar": "Egutegia", "companions": "Auzokoak", "howto": "Nola landatu" },
+    "tab": { "overview": "Datuak", "calendar": "Egutegia", "companions": "Auzokoak", "howto": "Nola landatu", "faq": "FAQ" },
     "difficulty": { "title": "Zailtasuna", "veryEasy": "Oso erraza", "easy": "Erraza", "medium": "Ertaina", "hard": "Zaila", "veryHard": "Oso zaila" },
     "calendar": { "sowing": "Ereintza", "harvest": "Uzta", "unavailable": "Egutegia ez dago erabilgarri laborantza pertsonalizatuetarako" },
     "stage": { "sowing": "Ereintza", "germination": "Ernamuintzea", "growth": "Hazkuntza", "flowering": "Loraketa", "harvest": "Uzta" },
@@ -965,6 +965,14 @@
       "preventivo": "Prebentiboa",
       "quimico": "Kimikoa"
     }
+  },
+  "plantFaq": {
+    "loading": "Galdera ohikoak sortzen…",
+    "error": "Errorea FAQ kargatzean",
+    "errorDesc": "Ezin izan dira galderak sortu. Saiatu berriro.",
+    "noKeyDesc": "Gehitu EXPO_PUBLIC_ANTHROPIC_KEY .env fitxategian",
+    "retry": "Berriro saiatu",
+    "aiNote": "AAk sortutako erantzunak · egiaztatu agronomia-aditu batekin"
   },
   "plantScan": {
     "title": "Landarea identifikatu",

@@ -524,7 +524,7 @@
     "successionSowDesc": "Crea unha nova planta do mesmo cultivo sementada hoxe",
     "successionNote": "Sementeira escalonada de {{original}}",
     "successionName": "{{name}} (quenda {{batch}})",
-    "tab": { "overview": "Datos", "calendar": "Calendario", "companions": "Veciños", "howto": "Como cultivar" },
+    "tab": { "overview": "Datos", "calendar": "Calendario", "companions": "Veciños", "howto": "Como cultivar", "faq": "FAQ" },
     "difficulty": { "title": "Dificultade", "veryEasy": "Moi fácil", "easy": "Fácil", "medium": "Media", "hard": "Difícil", "veryHard": "Moi difícil" },
     "calendar": { "sowing": "Sementeira", "harvest": "Colleita", "unavailable": "Calendario non dispoñible para cultivos personalizados" },
     "stage": { "sowing": "Sementeira", "germination": "Xerminación", "growth": "Crecemento", "flowering": "Floración", "harvest": "Colleita" },
@@ -965,6 +965,14 @@
       "preventivo": "Preventivo",
       "quimico": "Químico"
     }
+  },
+  "plantFaq": {
+    "loading": "Xerando preguntas frecuentes…",
+    "error": "Erro ao cargar FAQ",
+    "errorDesc": "Non se puideron xerar as preguntas. Téntao de novo.",
+    "noKeyDesc": "Engade EXPO_PUBLIC_ANTHROPIC_KEY no ficheiro .env",
+    "retry": "Reintentar",
+    "aiNote": "Respostas xeradas por IA · verifica cun experto agronómico"
   },
   "plantScan": {
     "title": "Identificar planta",
