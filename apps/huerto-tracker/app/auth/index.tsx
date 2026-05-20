@@ -1,4 +1,4 @@
-import { signInWithApple, signInWithGoogle, signInWithMagicLink } from '@portfolio/supabase';
+import { signInWithApple, signInWithGoogle, signInWithMagicLink, signInWithPassword } from '@portfolio/supabase';
 import { useOnboarding } from '@portfolio/shared';
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import * as AppleAuthentication from 'expo-apple-authentication';
@@ -18,6 +18,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+type EmailMode = 'none' | 'password' | 'otp';
+
 export default function AuthScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
@@ -26,10 +28,11 @@ export default function AuthScreen() {
   const { t } = useTranslation();
   const { completed: onboardingDone } = useOnboarding('huerto');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [emailMode, setEmailMode] = useState<EmailMode>('none');
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingApple, setLoadingApple] = useState(false);
-  const [loadingMagic, setLoadingMagic] = useState(false);
-  const [showMagicLink, setShowMagicLink] = useState(false);
+  const [loadingEmail, setLoadingEmail] = useState(false);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -66,12 +69,22 @@ export default function AuthScreen() {
     }
   }
 
-  async function handleMagicLink() {
-    if (!email.trim()) {
-      Alert.alert(t('auth.errorEmailRequired'), t('auth.errorEmailRequiredDesc'));
-      return;
+  async function handlePassword() {
+    if (!email.trim() || !password) return;
+    setLoadingEmail(true);
+    try {
+      await signInWithPassword(email.trim().toLowerCase(), password);
+      router.replace(postAuthRoute);
+    } catch (e: any) {
+      Alert.alert(t('common.error'), e?.message ?? t('auth.errorMagicLink'));
+    } finally {
+      setLoadingEmail(false);
     }
-    setLoadingMagic(true);
+  }
+
+  async function handleMagicLink() {
+    if (!email.trim()) return;
+    setLoadingEmail(true);
     try {
       const normalizedEmail = email.trim().toLowerCase();
       await signInWithMagicLink(normalizedEmail);
@@ -79,7 +92,7 @@ export default function AuthScreen() {
     } catch (e: any) {
       Alert.alert(t('common.error'), e?.message ?? t('auth.errorMagicLink'));
     } finally {
-      setLoadingMagic(false);
+      setLoadingEmail(false);
     }
   }
 
@@ -131,16 +144,24 @@ export default function AuthScreen() {
             <View style={[s.dividerLine, { backgroundColor: colors.border }]} />
           </View>
 
-          {/* Magic link toggle */}
-          {!showMagicLink ? (
-            <Pressable
-              onPress={() => setShowMagicLink(true)}
-              style={({ pressed }) => [s.magicToggle, { opacity: pressed ? 0.7 : 1 }]}
-            >
-              <Text style={[s.magicToggleText, { color: colors.primary }]}>
-                {t('auth.emailLink')}
-              </Text>
-            </Pressable>
+          {/* Email form */}
+          {emailMode === 'none' ? (
+            <View style={{ gap: spacing.sm }}>
+              <Pressable
+                onPress={() => setEmailMode('password')}
+                style={({ pressed }) => [s.emailModeBtn, { borderColor: colors.border, backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 }]}
+              >
+                <Text style={[s.emailModeBtnText, { color: colors.text }]}>🔑 {t('auth.emailPassword')}</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setEmailMode('otp')}
+                style={({ pressed }) => [s.magicToggle, { opacity: pressed ? 0.7 : 1 }]}
+              >
+                <Text style={[s.magicToggleText, { color: colors.primary }]}>
+                  {t('auth.emailLink')}
+                </Text>
+              </Pressable>
+            </View>
           ) : (
             <View style={s.magicForm}>
               <TextInput
@@ -153,17 +174,35 @@ export default function AuthScreen() {
                 value={email}
                 onChangeText={setEmail}
               />
+              {emailMode === 'password' && (
+                <TextInput
+                  style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+                  placeholder={t('auth.passwordPlaceholder')}
+                  placeholderTextColor={colors.textDisabled}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  value={password}
+                  onChangeText={setPassword}
+                />
+              )}
               <Pressable
-                onPress={handleMagicLink}
-                disabled={loadingMagic}
+                onPress={emailMode === 'password' ? handlePassword : handleMagicLink}
+                disabled={loadingEmail}
                 style={({ pressed }) => [
                   s.magicBtn,
-                  { backgroundColor: colors.primary, opacity: pressed || loadingMagic ? 0.7 : 1 },
+                  { backgroundColor: colors.primary, opacity: pressed || loadingEmail ? 0.7 : 1 },
                 ]}
               >
                 <Text style={s.magicBtnText}>
-                  {loadingMagic ? t('auth.sending') : t('auth.sendMagicLink')}
+                  {loadingEmail
+                    ? t('auth.sending')
+                    : emailMode === 'password'
+                      ? t('auth.signIn')
+                      : t('auth.sendMagicLink')}
                 </Text>
+              </Pressable>
+              <Pressable onPress={() => setEmailMode('none')} style={{ alignItems: 'center' }}>
+                <Text style={{ color: colors.textDisabled, fontSize: fontSize.sm }}>{t('common.back')}</Text>
               </Pressable>
             </View>
           )}
@@ -214,6 +253,14 @@ const makeStyles = (
     divider: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginVertical: spacing.md },
     dividerLine: { flex: 1, height: StyleSheet.hairlineWidth },
     dividerText: { fontSize: fontSize.sm },
+    emailModeBtn: {
+      height: 48,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    emailModeBtnText: { fontSize: fontSize.md, fontWeight: fontWeight.medium },
     magicToggle: { alignItems: 'center', paddingVertical: spacing.md },
     magicToggleText: { fontSize: fontSize.md },
     magicForm: { gap: spacing.md },

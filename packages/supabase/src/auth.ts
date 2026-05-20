@@ -63,6 +63,12 @@ export async function verifyOtp(email: string, token: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function signInWithPassword(email: string, password: string): Promise<void> {
+  const supabase = getSupabase();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+}
+
 export async function signOut(): Promise<void> {
   const { error } = await getSupabase().auth.signOut();
   if (error) throw error;

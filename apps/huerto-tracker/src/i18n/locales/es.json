@@ -194,7 +194,10 @@
     "errorApple": "No se pudo iniciar sesión con Apple.",
     "errorEmailRequired": "Email requerido",
     "errorEmailRequiredDesc": "Introduce tu dirección de email.",
-    "errorMagicLink": "No se pudo enviar el enlace. Comprueba el email."
+    "errorMagicLink": "No se pudo enviar el enlace. Comprueba el email.",
+    "emailPassword": "Entrar con contraseña",
+    "passwordPlaceholder": "Contraseña",
+    "signIn": "Iniciar sesión"
   },
   "magicSent": {
     "title": "Revisa tu email",

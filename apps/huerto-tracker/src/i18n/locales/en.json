@@ -190,7 +190,10 @@
     "errorApple": "Could not sign in with Apple.",
     "errorEmailRequired": "Email required",
     "errorEmailRequiredDesc": "Please enter your email address.",
-    "errorMagicLink": "Could not send the link. Check the email address."
+    "errorMagicLink": "Could not send the link. Check the email address.",
+    "emailPassword": "Sign in with password",
+    "passwordPlaceholder": "Password",
+    "signIn": "Sign in"
   },
   "magicSent": {
     "title": "Check your email",
