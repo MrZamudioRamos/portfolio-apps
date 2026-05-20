@@ -1,4 +1,5 @@
 import { signInWithApple, signInWithGoogle, signInWithMagicLink } from '@portfolio/supabase';
+import { useOnboarding } from '@portfolio/shared';
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useRouter } from 'expo-router';
@@ -23,6 +24,7 @@ export default function AuthScreen() {
   const router = useRouter();
 
   const { t } = useTranslation();
+  const { completed: onboardingDone } = useOnboarding('huerto');
   const [email, setEmail] = useState('');
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingApple, setLoadingApple] = useState(false);
@@ -34,11 +36,13 @@ export default function AuthScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
+  const postAuthRoute = onboardingDone ? '/(tabs)' : '/onboarding';
+
   async function handleGoogle() {
     setLoadingGoogle(true);
     try {
       await signInWithGoogle();
-      router.replace('/onboarding');
+      router.replace(postAuthRoute);
     } catch (e: any) {
       if (e?.message !== 'User cancelled') {
         Alert.alert(t('common.error'), t('auth.errorGoogle'));
@@ -52,7 +56,7 @@ export default function AuthScreen() {
     setLoadingApple(true);
     try {
       await signInWithApple();
-      router.replace('/onboarding');
+      router.replace(postAuthRoute);
     } catch (e: any) {
       if (e?.code !== 'ERR_REQUEST_CANCELED') {
         Alert.alert(t('common.error'), t('auth.errorApple'));

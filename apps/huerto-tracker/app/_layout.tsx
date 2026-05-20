@@ -1,6 +1,7 @@
 import '../src/i18n';
 import { loadSavedLanguage } from '../src/i18n';
 import { initSupabase, handleDeepLink } from '@portfolio/supabase';
+import { useOnboarding } from '@portfolio/shared';
 import { ThemeProvider, huertoPalette } from '@portfolio/ui';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -17,17 +18,18 @@ initSupabase(
 
 function AppServices() {
   const router = useRouter();
+  const { completed: onboardingDone } = useOnboarding('huerto');
   useSyncProvider();
 
   useEffect(() => {
     loadSavedLanguage();
     const sub = Linking.addEventListener('url', ({ url }) => {
       handleDeepLink(url).then(() => {
-        router.replace('/onboarding');
+        router.replace(onboardingDone ? '/(tabs)' : '/onboarding');
       });
     });
     return () => sub.remove();
-  }, []);
+  }, [onboardingDone]);
 
   return null;
 }
