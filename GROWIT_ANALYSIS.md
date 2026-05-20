@@ -172,12 +172,36 @@ Tab Benefits muestra recetas con foto + nombre ("Cauliflower Salad...", "Stacked
 4. ✅ **Trial reminder switch** en paywall + notif 6d antes del cobro
 5. ✅ **Month chips** en plant cards
 
-### Sprint 9 — Contenido + IA (iniciado 2026-05-20)
-6. **Plant scan + auto-fill** (reutilizar pipeline diagnose)
-7. **Snap Tips** modal pre-cámara
-8. **FAQ por cultivo** (10-20 preguntas iniciales por cultivo top)
-9. **Recetas IA on-demand** con cache
-10. **Tab Explore** con categorías temáticas
+### Sprint 9 — Contenido + IA (parcialmente iniciado 2026-05-20, pausado)
+6. ✅ **Plant scan + auto-fill** (reutilizado pipeline diagnose)
+7. ~~**Snap Tips** modal pre-cámara~~ — descartado (añade fricción sin valor claro)
+8. ~~**FAQ por cultivo**~~ — descartado, contenido estático masivo sin ROI
+9. **Recetas IA on-demand** con cache — PENDIENTE
+10. **Tab Explore** con categorías temáticas — PENDIENTE
+
+### Sesión polish 2026-05-20 (entre Sprint 9 y 10)
+**Bugs críticos resueltos:**
+- ✅ Delete resurrect: `syncFromCloud` resucitaba items borrados → `deleteRow` Supabase antes de `.remove()` local (5 pantallas)
+- ✅ `cost_entries` sin sync → migración 006 + adapter + sync + backup v2
+- ✅ 5 campos `plant` faltaban en adapter+DB → migración 007 + `plantToRow`/`rowToPlant`
+- ✅ `harvest_weight_g` siempre null → `data.weight` (string) → `data.weightGrams` (number)
+- ✅ Validación fecha en diary entries
+- ✅ `initialStatus` cast `as any` en plant/new → validated array
+
+**Auth mejorado:**
+- ✅ Magic link → OTP 6 dígitos (funciona sin deep links, compatible Expo Go)
+- ✅ Login con contraseña (para testing + producción)
+- ✅ Scheme `huertotracker` → `semilla` (match app.json)
+- ✅ Back navigation: welcome usaba `router.replace` → `router.push`
+- ✅ Returning user: auth redirige a `/(tabs)` si onboarding ya completado
+- ✅ Onboarding → plant/new → tabs: fix redirect loop por estado stale
+
+**Otros:**
+- ✅ GPS auto-detect provincia en create/edit garden (además de onboarding)
+- ✅ Privacy policy URL → `https://semillaapp.app/privacy-policy.html`
+- ✅ deleteAllData limpia Supabase + local + AsyncStorage extra keys
+- ✅ Migraciones 004-007 aplicadas en Supabase Dashboard
+- ✅ EXPO_PUBLIC_DEV_PRO=false para testing real
 
 ### Sprint 10 — Refinamiento
 11. **Reminders agrupados** por bucket + tipo
@@ -219,8 +243,35 @@ Para superar a GrowIt sin copiar:
 
 ---
 
-## 6. Pendiente próxima sesión
+## 6. Estado actual y pendiente próxima sesión
 
-Decidir cuál de los Sprint 8 tackleamos primero. Recomendación: **plant detail tabs con calendario gantt** → impacto visual inmediato + base para FAQ/recetas posteriores. Alternativa: **onboarding wizard** → impacto en activación/conversión trial.
+**Base técnica sólida (post-polish):**
+- 0 errores TypeScript
+- Sync Supabase 8 tablas (gardens, plants, diary_entries, reminders, user_profiles, custom_crops, cost_entries, garden_layouts)
+- Backup v2 completo
+- Auth: password + OTP + Google/Apple (producción)
+- Migraciones 001-007 aplicadas en Supabase
 
-Commit actual no pusheado: `36b6df8` (mejoras mapa). `app/garden/map.tsx` tiene cambios sin commitear.
+**Pendiente Sprint 9 (continuar):**
+- Recetas IA on-demand con cache local
+- Tab Explore con categorías temáticas
+
+**Pendiente Sprint 10:**
+- Reminders agrupados por bucket temporal
+- Smart Reminders auto (frecuencia según cultivo + clima)
+- Difficulty gauge visual
+- Like/Dislike por cultivo
+- Tutorial mapa (modal welcome primer uso)
+- Clear cache con tamaño visible
+- Storage/propagation post-harvest
+
+**Nota Expo Go vs producción:**
+- Permisos ubicación no preguntan en Expo Go (Expo Go ya tiene el permiso). En build de producción sí pedirá permiso al usuario.
+- Google Sign-in y Apple Sign-in requieren build nativo (no funcionan en Expo Go).
+- OTP y password login funcionan en Expo Go.
+
+**Para publicar en stores:**
+- Configurar SMTP propio en Supabase (Resend recomendado)
+- Mover `EXPO_PUBLIC_ANTHROPIC_KEY` a Supabase Edge Function (no en cliente)
+- `EXPO_PUBLIC_DEV_PRO=false` ya está correcto
+- EAS Build con `eas build --profile production`
