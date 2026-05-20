@@ -3,8 +3,10 @@ import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getNearestProvince } from '../src/utils/weather';
 import {
   Alert,
   Modal,
@@ -52,6 +54,22 @@ export default function GardensScreen() {
   const [showProvinceModal, setShowProvinceModal] = useState(false);
   const [provinceSearch, setProvinceSearch] = useState('');
   const [saving, setSaving] = useState(false);
+  const [locating, setLocating] = useState(false);
+
+  async function detectLocation() {
+    setLocating(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
+      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
+      const nearest = getNearestProvince(pos.coords.latitude, pos.coords.longitude);
+      if (nearest) setProvince(nearest);
+    } catch {
+      // silent — user can pick manually
+    } finally {
+      setLocating(false);
+    }
+  }
 
   const climateZone: ClimateZone | null = province ? (PROVINCE_ZONES[province] ?? null) : null;
   const zoneConfig = climateZone ? CLIMATE_ZONE_CONFIG[climateZone] : null;
@@ -264,7 +282,19 @@ export default function GardensScreen() {
 
             {/* Province */}
             <View style={s.field}>
-              <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardens.fieldProvince')}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardens.fieldProvince')}</Text>
+                <Pressable
+                  onPress={detectLocation}
+                  disabled={locating}
+                  style={[s.detectBtn, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '44', opacity: locating ? 0.6 : 1 }]}
+                >
+                  <Ionicons name="location-outline" size={13} color={colors.primary} />
+                  <Text style={[s.detectBtnText, { color: colors.primary }]}>
+                    {locating ? t('onboarding.detecting') : t('onboarding.detectLocation')}
+                  </Text>
+                </Pressable>
+              </View>
               <Pressable
                 onPress={() => setShowProvinceModal(true)}
                 style={[s.input, s.provinceBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
@@ -375,6 +405,16 @@ const makeStyles = (
       fontSize: fontSize.md,
     },
     provinceBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    detectBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      borderRadius: radii.full,
+      borderWidth: 1,
+    },
+    detectBtnText: { fontSize: 11, fontWeight: fontWeight.medium },
     typeChip: {
       alignItems: 'center',
       paddingVertical: spacing.md,

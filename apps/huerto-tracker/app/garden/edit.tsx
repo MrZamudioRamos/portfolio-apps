@@ -4,6 +4,7 @@ import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as Location from 'expo-location';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -22,6 +23,7 @@ import { PROVINCE_ZONES, CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import type { ClimateZone, Garden, GardenType, Hemisphere } from '../../src/models/garden';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { GRID_PRESETS, DEFAULT_GRID_ROWS, DEFAULT_GRID_COLS } from '../../src/hooks/useGardenLayout';
+import { getNearestProvince } from '../../src/utils/weather';
 
 const ALL_PROVINCES = Object.keys(PROVINCE_ZONES).sort();
 
@@ -55,7 +57,26 @@ export default function GardenEditScreen() {
   const [provinceSearch, setProvinceSearch] = useState('');
   const [showProvinceModal, setShowProvinceModal] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [locating, setLocating] = useState(false);
   const { t } = useTranslation();
+
+  async function detectLocation() {
+    setLocating(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
+      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
+      const nearest = getNearestProvince(pos.coords.latitude, pos.coords.longitude);
+      if (nearest) {
+        setProvince(nearest);
+        setHemisphere('norte');
+      }
+    } catch {
+      // silent — user can pick manually
+    } finally {
+      setLocating(false);
+    }
+  }
 
   const climateZone: ClimateZone | null = province ? (PROVINCE_ZONES[province] ?? null) : null;
   const zoneConfig = climateZone ? CLIMATE_ZONE_CONFIG[climateZone] : null;
@@ -213,7 +234,19 @@ export default function GardenEditScreen() {
         )}
 
         {/* Province */}
-        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.provinceLabel')}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.lg, marginBottom: spacing.sm }}>
+          <Text style={[s.label, { marginTop: 0, marginBottom: 0, color: colors.textSecondary }]}>{t('gardenEdit.provinceLabel')}</Text>
+          <Pressable
+            onPress={detectLocation}
+            disabled={locating}
+            style={[s.detectBtn, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '44', opacity: locating ? 0.6 : 1 }]}
+          >
+            <Ionicons name="location-outline" size={13} color={colors.primary} />
+            <Text style={[s.detectBtnText, { color: colors.primary }]}>
+              {locating ? t('onboarding.detecting') : t('onboarding.detectLocation')}
+            </Text>
+          </Pressable>
+        </View>
         <Pressable
           onPress={() => { setProvinceSearch(''); setShowProvinceModal(true); }}
           style={[s.picker, { backgroundColor: colors.surface, borderColor: colors.border }]}
@@ -432,6 +465,16 @@ const makeStyles = (
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.md,
     },
+    detectBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      borderRadius: radii.full,
+      borderWidth: 1,
+    },
+    detectBtnText: { fontSize: 11, fontWeight: fontWeight.medium },
     zoneBadge: {
       marginTop: spacing.sm,
       padding: spacing.md,
