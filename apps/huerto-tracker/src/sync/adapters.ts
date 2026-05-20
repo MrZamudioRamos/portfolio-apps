@@ -4,6 +4,7 @@ import type { DiaryEntry } from '../models/diary-entry';
 import type { GardenReminder } from '../models/reminder';
 import type { UserProfile } from '../models/user-profile';
 import type { CustomCrop } from '../models/custom-crop';
+import type { GridLayout } from '../hooks/useGardenLayout';
 
 // ── Garden ───────────────────────────────────────────────────────────────────
 
@@ -229,5 +230,24 @@ export function rowToReminder(r: ReturnType<typeof reminderToRow>): GardenRemind
     notificationId: r.notification_id ?? undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+  };
+}
+
+// ── GardenLayout ──────────────────────────────────────────────────────────────
+
+export function gardenLayoutToRow(gardenId: string, layout: GridLayout, userId: string) {
+  return {
+    id: gardenId,
+    user_id: userId,
+    garden_id: gardenId,
+    layout,
+    updated_at: new Date().toISOString(),
+  };
+}
+
+export function rowToGardenLayout(r: ReturnType<typeof gardenLayoutToRow>): { gardenId: string; layout: GridLayout } {
+  return {
+    gardenId: r.garden_id,
+    layout: (r.layout ?? []) as GridLayout,
   };
 }
