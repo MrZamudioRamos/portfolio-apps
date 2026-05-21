@@ -26,8 +26,11 @@ import { GARDEN_TYPE_CONFIG } from '../src/models/garden';
 import { DEFAULT_GRID_ROWS, DEFAULT_GRID_COLS } from '../src/hooks/useGardenLayout';
 import { usePro as usePurchases } from '../src/hooks/usePro';
 import type { Plant } from '../src/models/plant';
+import type { DiaryEntry } from '../src/models/diary-entry';
+import type { GardenReminder } from '../src/models/reminder';
 
 const ACTIVE_KEY = '@portfolio/active_garden_id';
+const LAYOUT_KEY = (id: string) => `@portfolio/huerto/garden_layout/${id}`;
 const ALL_PROVINCES = Object.keys(PROVINCE_ZONES).sort();
 const FREE_GARDEN_LIMIT = 2;
 
@@ -41,6 +44,8 @@ export default function GardensScreen() {
 
   const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
+  const entries = useCollection<DiaryEntry>('diary_entries');
+  const reminders = useCollection<GardenReminder>('reminders');
   const [activeId, setActiveIdState] = useState<string | null>(null);
 
   React.useEffect(() => {
@@ -125,9 +130,19 @@ export default function GardensScreen() {
           text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
-            // CASCADE in Supabase handles garden_layouts deletion
+            // Supabase: garden CASCADE deletes plants/entries/reminders/layouts
             if (!isGuest) await Promise.allSettled([deleteRow('gardens', garden.id)]);
-            await gardens.remove(garden.id);
+            // Local: remove garden + all children (cascade doesn't apply to AsyncStorage)
+            const gardenPlants = plants.items.filter((p) => p.gardenId === garden.id);
+            const gardenEntries = entries.items.filter((e) => e.gardenId === garden.id);
+            const gardenReminders = reminders.items.filter((r) => r.gardenId === garden.id);
+            await Promise.all([
+              gardens.remove(garden.id),
+              ...gardenPlants.map((p) => plants.remove(p.id)),
+              ...gardenEntries.map((e) => entries.remove(e.id)),
+              ...gardenReminders.map((r) => reminders.remove(r.id)),
+              AsyncStorage.removeItem(LAYOUT_KEY(garden.id)),
+            ]);
             if (effectiveActiveId === garden.id) {
               const remaining = gardens.items.filter((g) => g.id !== garden.id);
               if (remaining.length > 0) {

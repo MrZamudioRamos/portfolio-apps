@@ -1,5 +1,6 @@
 import { useOnboarding } from '@portfolio/shared';
 import { useSession, signOut, deleteRow, deleteAllForUser } from '@portfolio/supabase';
+import { cancelAllReminders } from '@portfolio/notifications';
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -103,6 +104,7 @@ export default function SettingsScreen() {
             );
             if (extraKeys.length > 0) await AsyncStorage.multiRemove(extraKeys);
 
+            await cancelAllReminders();
             await resetOnboarding();
 
             // Sign out to prevent syncFromCloud restoring Supabase data
@@ -156,7 +158,7 @@ export default function SettingsScreen() {
                 onPress={() => {
                   Alert.alert(t('settings.account.signOutTitle'), t('settings.account.signOutDesc'), [
                     { text: t('common.cancel'), style: 'cancel' },
-                    { text: t('settings.account.signOut'), style: 'destructive', onPress: () => signOut() },
+                    { text: t('settings.account.signOut'), style: 'destructive', onPress: async () => { await signOut(); } },
                   ]);
                 }}
                 destructive
