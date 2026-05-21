@@ -1,5 +1,5 @@
 import { useOnboarding } from '@portfolio/shared';
-import { useSession, signOut, deleteRow } from '@portfolio/supabase';
+import { useSession, signOut, deleteRow, deleteAllForUser } from '@portfolio/supabase';
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -67,17 +67,18 @@ export default function SettingsScreen() {
           text: t('settings.data.deleteConfirm'),
           style: 'destructive',
           onPress: async () => {
-            // Delete from Supabase before clearing local (ignore errors — may be offline/guest)
-            if (!isGuest) {
+            // Delete all user data from Supabase by user_id (covers unsynced rows too)
+            if (!isGuest && user?.id) {
               await Promise.allSettled([
-                ...plants.items.map((p) => deleteRow('plants', p.id)),
-                ...entries.items.map((e) => deleteRow('diary_entries', e.id)),
-                ...reminders.items.map((r) => deleteRow('reminders', r.id)),
-                ...customCropsCollection.items.map((c) => deleteRow('custom_crops', c.id)),
-                ...costEntriesCollection.items.map((c) => deleteRow('cost_entries', c.id)),
-                ...(userProfile ? [deleteRow('user_profiles', userProfile.id)] : []),
-                // gardens last: cascade deletes garden_layouts in Supabase
-                ...gardens.items.map((g) => deleteRow('gardens', g.id)),
+                deleteAllForUser('diary_entries', user.id),
+                deleteAllForUser('reminders', user.id),
+                deleteAllForUser('plants', user.id),
+                deleteAllForUser('cost_entries', user.id),
+                deleteAllForUser('custom_crops', user.id),
+                deleteAllForUser('garden_layouts', user.id),
+                deleteAllForUser('user_profiles', user.id),
+                // gardens last: cascade deletes garden_layouts
+                deleteAllForUser('gardens', user.id),
               ]);
             }
 

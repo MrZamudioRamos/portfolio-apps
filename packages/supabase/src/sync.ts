@@ -19,3 +19,8 @@ export async function deleteRow(tableName: string, id: string): Promise<void> {
   const { error } = await getSupabase().from(tableName).delete().eq('id', id);
   if (error) throw error;
 }
+
+export async function deleteAllForUser(tableName: string, userId: string): Promise<void> {
+  const { error } = await getSupabase().from(tableName).delete().eq('user_id', userId);
+  if (error) throw error;
+}

@@ -1,5 +1,5 @@
 export { initSupabase, getSupabase } from './client';
-export { pullAll, upsertAll, deleteRow } from './sync';
+export { pullAll, upsertAll, deleteRow, deleteAllForUser } from './sync';
 export { useSession } from './useSession';
 export type { SessionState } from './useSession';
 export { signInWithGoogle, signInWithApple, signInWithMagicLink, verifyOtp, signInWithPassword, signOut, handleDeepLink } from './auth';
