@@ -625,7 +625,7 @@ export default function OnboardingScreen() {
             <Button
               title={t('onboarding.create')}
               onPress={handleCreate}
-              disabled={!gardenName.trim()}
+              disabled={!gardenName.trim() || !climateZone}
               loading={saving}
               size="lg"
               style={{ flex: 1, marginLeft: spacing.md }}

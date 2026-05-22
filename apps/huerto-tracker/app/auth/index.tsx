@@ -209,7 +209,7 @@ export default function AuthScreen() {
 
           {/* Guest link */}
           <Pressable
-            onPress={() => router.replace('/onboarding')}
+            onPress={() => router.replace(onboardingDone ? '/(tabs)' : '/onboarding')}
             style={({ pressed }) => [s.guestLink, { opacity: pressed ? 0.6 : 1 }]}
           >
             <Text style={[s.guestText, { color: colors.textDisabled }]}>

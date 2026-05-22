@@ -1,3 +1,4 @@
+import { useOnboarding } from '@portfolio/shared';
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
@@ -10,6 +11,7 @@ export default function WelcomeScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
+  const { completed: onboardingDone } = useOnboarding('huerto');
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -60,7 +62,7 @@ export default function WelcomeScreen() {
         </Pressable>
 
         <Pressable
-          onPress={() => router.replace('/onboarding')}
+          onPress={() => router.replace(onboardingDone ? '/(tabs)' : '/onboarding')}
           style={({ pressed }) => [
             s.btnSecondary,
             { borderColor: colors.border, opacity: pressed ? 0.7 : 1 },

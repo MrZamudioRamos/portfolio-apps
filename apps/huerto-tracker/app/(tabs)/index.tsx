@@ -68,6 +68,7 @@ export default function DashboardScreen() {
     useCallback(() => {
       allPlants.refresh();
       reminders.refresh();
+      entries.refresh();
       if (garden?.province) checkFrost(garden.province);
     }, [garden?.province])
   );
@@ -157,7 +158,7 @@ export default function DashboardScreen() {
     return entries.items
       .filter((e) => e.type === 'harvest' && e.date.startsWith(year) && (e.data as any)?.unit !== 'units' && (!garden?.id || e.gardenId === garden.id))
       .reduce((sum, e) => {
-        const w = (e.data as any)?.weight;
+        const w = (e.data as any)?.weightGrams ?? (e.data as any)?.weight;
         const n = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
         return sum + (isNaN(n) ? 0 : n);
       }, 0);

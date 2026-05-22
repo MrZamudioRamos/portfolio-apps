@@ -3,6 +3,8 @@ import { useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { syncFromCloud, syncToCloud } from './syncAll';
 
+const FOREGROUND_SYNC_DEBOUNCE_MS = 30_000;
+
 /**
  * Mounts in _layout.tsx. Handles:
  * 1. First login (guest → authenticated): push local data to cloud, then pull.
@@ -36,12 +38,17 @@ export function useSyncProvider() {
     syncFromCloud(userId);
   }, [isAuthenticated, loading, userId]);
 
-  // Sync on app foreground
+  // Sync on app foreground (debounced — AppState 'active' fires on every picker/alert close)
   useEffect(() => {
     if (!userId) return;
 
+    let lastSyncAt = 0;
+
     function handleAppState(next: AppStateStatus) {
       if (next === 'active' && userId) {
+        const now = Date.now();
+        if (now - lastSyncAt < FOREGROUND_SYNC_DEBOUNCE_MS) return;
+        lastSyncAt = now;
         syncFromCloud(userId).then(() => syncToCloud(userId));
       }
     }
