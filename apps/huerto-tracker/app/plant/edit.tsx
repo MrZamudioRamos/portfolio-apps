@@ -23,6 +23,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import type { Plant } from '../../src/models/plant';
+import type { CustomCrop } from '../../src/models/custom-crop';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -34,8 +35,20 @@ export default function EditPlantScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const plants = useCollection<Plant>('plants');
+  const customCrops = useCollection<CustomCrop>('custom_crops');
   const plant = plants.getById(id);
-  const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
+  const customCropsById = useMemo(
+    () => Object.fromEntries(customCrops.items.map((c) => [c.id, c])),
+    [customCrops.items]
+  );
+  const crop = plant
+    ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId] ?? {
+        id: plant.cropId, name: plant.cropId, emoji: '🌿',
+        category: 'vegetable' as const, sowingMonths: {} as any,
+        daysToHarvest: null as any, sunNeeds: 'medium' as any, waterNeeds: 'medium' as any,
+        isCustom: true,
+      })
+    : null;
 
   const [plantName, setPlantName] = useState(plant?.name ?? '');
   const [variety, setVariety] = useState(plant?.variety ?? '');
@@ -147,7 +160,7 @@ export default function EditPlantScreen() {
           <View style={[s.cropRow, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
             <Text style={{ fontSize: 32 }}>{crop.emoji}</Text>
             <View style={{ flex: 1, marginLeft: spacing.md }}>
-              <Text style={[s.cropName, { color: colors.text }]}>{t('crops.' + crop.id + '.name')}</Text>
+              <Text style={[s.cropName, { color: colors.text }]}>{t('crops.' + crop.id + '.name', { defaultValue: crop.name })}</Text>
               <Text style={[s.cropCategory, { color: colors.textSecondary }]}>
                 {t('cropCategory.' + crop.category)}
               </Text>

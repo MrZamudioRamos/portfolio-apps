@@ -61,7 +61,7 @@ export function useBackup() {
 
   const writeBackupFile = useCallback(async (): Promise<string> => {
     const allKeys = await AsyncStorage.getAllKeys();
-    const layoutKeys = allKeys.filter((k) => k.startsWith(LAYOUT_KEY_PREFIX));
+    const layoutKeys = allKeys.filter((k) => k.startsWith(LAYOUT_KEY_PREFIX) && !k.endsWith('/ts'));
 
     const [staticResults, layoutResults] = await Promise.all([
       AsyncStorage.multiGet([...DATA_KEYS]),
@@ -164,8 +164,12 @@ export function useBackup() {
         ['@portfolio/onboarding_completed_huerto', data.onboardingCompleted ? 'true' : 'false'],
       ];
 
-      const layoutPairs: [string, string][] = Object.entries(data.gardenLayouts ?? {}).map(
-        ([gardenId, layout]) => [LAYOUT_KEY_PREFIX + gardenId, JSON.stringify(layout)]
+      const restoredAt = new Date().toISOString();
+      const layoutPairs: [string, string][] = Object.entries(data.gardenLayouts ?? {}).flatMap(
+        ([gardenId, layout]) => [
+          [LAYOUT_KEY_PREFIX + gardenId, JSON.stringify(layout)] as [string, string],
+          [LAYOUT_KEY_PREFIX + gardenId + '/ts', restoredAt] as [string, string],
+        ]
       );
 
       await AsyncStorage.multiSet([...staticPairs, ...layoutPairs]);
