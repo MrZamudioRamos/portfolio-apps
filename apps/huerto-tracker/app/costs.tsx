@@ -118,10 +118,14 @@ export default function CostsScreen() {
   // Harvest kg from diary
   const harvestData = useMemo(() => {
     const harvests = yearDiary.filter((e) => e.type === 'harvest' && (e.data as any)?.unit !== 'units');
-    const totalKg = harvests.reduce((sum, e) => sum + (parseFloat((e.data as any)?.weight ?? '0') || 0), 0);
+    const totalKg = harvests.reduce((sum, e) => {
+      const d = e.data as any;
+      return sum + (parseFloat((d?.weightGrams ?? d?.weight) ?? '0') || 0);
+    }, 0);
     const byPlant: Record<string, number> = {};
     for (const h of harvests) {
-      if (h.plantId) byPlant[h.plantId] = (byPlant[h.plantId] ?? 0) + (parseFloat((h.data as any)?.weight ?? '0') || 0);
+      const d = h.data as any;
+      if (h.plantId) byPlant[h.plantId] = (byPlant[h.plantId] ?? 0) + (parseFloat((d?.weightGrams ?? d?.weight) ?? '0') || 0);
     }
     return { totalKg, byPlant };
   }, [yearDiary]);

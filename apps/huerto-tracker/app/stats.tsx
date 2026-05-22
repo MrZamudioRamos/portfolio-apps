@@ -110,7 +110,8 @@ export default function StatsScreen() {
 
     // Harvest weight total (stored as kg, may be string or number)
     const totalWeight = harvestEntries.reduce((sum, e) => {
-      const w = (e.data as any)?.weight;
+      const d = e.data as any;
+      const w = d?.weightGrams ?? d?.weight;
       const parsed = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
       return sum + (isNaN(parsed) ? 0 : parsed);
     }, 0);
@@ -122,8 +123,9 @@ export default function StatsScreen() {
         const plant = allPlants.find((p) => p.id === e.plantId);
         if (plant) {
           const prev = cropHarvestData.get(plant.cropId) ?? { count: 0, kg: 0, qualitySum: 0, qualityCount: 0 };
-          const w = (e.data as any)?.weight;
-          const unit = (e.data as any)?.unit;
+          const d = e.data as any;
+          const w = d?.weightGrams ?? d?.weight;
+          const unit = d?.unit;
           const parsed = unit !== 'units' && typeof w !== 'undefined'
             ? (typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0)
             : 0;
@@ -153,7 +155,8 @@ export default function StatsScreen() {
     harvestEntries.forEach((e) => {
       const year = new Date(e.date).getFullYear();
       const prev = harvestByYear.get(year) ?? { count: 0, kg: 0 };
-      const w = (e.data as any)?.weight;
+      const dt = e.data as any;
+      const w = dt?.weightGrams ?? dt?.weight;
       const parsed = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
       harvestByYear.set(year, { count: prev.count + 1, kg: prev.kg + (isNaN(parsed) ? 0 : parsed) });
     });
