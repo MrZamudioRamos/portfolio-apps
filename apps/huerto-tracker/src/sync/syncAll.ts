@@ -6,6 +6,7 @@ import type { Plant } from '../models/plant';
 import type { DiaryEntry } from '../models/diary-entry';
 import type { GardenReminder } from '../models/reminder';
 import type { GridLayout } from '../hooks/useGardenLayout';
+import { layoutTsKey } from '../hooks/useGardenLayout';
 import {
   gardenToRow, rowToGarden,
   plantToRow, rowToPlant,
@@ -40,21 +41,26 @@ async function writeLocal<T>(key: string, items: T[]): Promise<void> {
 
 const LAYOUT_KEY = (gardenId: string) => `@portfolio/huerto/garden_layout/${gardenId}`;
 
-async function readLayouts(gardenIds: string[]): Promise<{ gardenId: string; layout: GridLayout }[]> {
+async function readLayouts(gardenIds: string[]): Promise<{ gardenId: string; layout: GridLayout; updatedAt: string }[]> {
   return Promise.all(
     gardenIds.map(async (id) => {
-      const raw = await AsyncStorage.getItem(LAYOUT_KEY(id));
-      const layout: GridLayout = raw ? JSON.parse(raw) : [];
-      return { gardenId: id, layout };
+      const [rawLayout, rawTs] = await Promise.all([
+        AsyncStorage.getItem(LAYOUT_KEY(id)),
+        AsyncStorage.getItem(layoutTsKey(id)),
+      ]);
+      const layout: GridLayout = rawLayout ? JSON.parse(rawLayout) : [];
+      const updatedAt = rawTs ?? new Date(0).toISOString();
+      return { gardenId: id, layout, updatedAt };
     })
   );
 }
 
-async function writeLayouts(layouts: { gardenId: string; layout: GridLayout }[]): Promise<void> {
+async function writeLayouts(layouts: { gardenId: string; layout: GridLayout; updatedAt?: string }[]): Promise<void> {
   await Promise.all(
-    layouts.map(({ gardenId, layout }) =>
-      AsyncStorage.setItem(LAYOUT_KEY(gardenId), JSON.stringify(layout))
-    )
+    layouts.map(async ({ gardenId, layout, updatedAt }) => {
+      await AsyncStorage.setItem(LAYOUT_KEY(gardenId), JSON.stringify(layout));
+      if (updatedAt) await AsyncStorage.setItem(layoutTsKey(gardenId), updatedAt);
+    })
   );
 }
 
@@ -85,7 +91,7 @@ export async function syncToCloud(userId: string): Promise<void> {
       upsertAll('user_profiles',  userProfiles.filter((p) => isUUID(p.id)).map((p) => userProfileToRow(p, userId))),
       upsertAll('custom_crops',   customCrops.filter( (c) => isUUID(c.id)).map((c) => customCropToRow(c, userId))),
       upsertAll('cost_entries',   costEntries.filter( (c) => isUUID(c.id)).map((c) => costEntryToRow(c, userId))),
-      upsertAll('garden_layouts', layouts.map((l) => gardenLayoutToRow(l.gardenId, l.layout, userId))),
+      upsertAll('garden_layouts', layouts.map((l) => gardenLayoutToRow(l.gardenId, l.layout, userId, l.updatedAt))),
     ]);
   } catch (e) {
     console.warn('[sync] syncToCloud failed:', e);
@@ -109,6 +115,16 @@ export async function syncFromCloud(userId: string): Promise<void> {
       pullAll<ReturnType<typeof gardenLayoutToRow>>('garden_layouts', userId),
     ]);
 
+    // For layouts: only overwrite local if remote is strictly newer (preserves offline edits)
+    const remoteMapped = remoteLayouts.map(rowToGardenLayout);
+    const localTsList = await Promise.all(
+      remoteMapped.map(({ gardenId }) => AsyncStorage.getItem(layoutTsKey(gardenId)))
+    );
+    const layoutsToWrite = remoteMapped.filter(({ updatedAt }, i) => {
+      const localTs = localTsList[i];
+      return !localTs || updatedAt > localTs;
+    });
+
     await Promise.all([
       mergeLocal(KEYS.gardens,     remoteGardens.map(rowToGarden)       as any[]),
       mergeLocal(KEYS.plants,      remotePlants.map(rowToPlant)          as any[]),
@@ -117,7 +133,7 @@ export async function syncFromCloud(userId: string): Promise<void> {
       mergeLocal(KEYS.userProfile, remoteProfiles.map(rowToUserProfile)  as any[]),
       mergeLocal(KEYS.customCrops, remoteCrops.map(rowToCustomCrop)      as any[]),
       mergeLocal(KEYS.costEntries, remoteCosts.map(rowToCostEntry)       as any[]),
-      writeLayouts(remoteLayouts.map(rowToGardenLayout)),
+      writeLayouts(layoutsToWrite),
     ]);
   } catch (e) {
     console.warn('[sync] syncFromCloud failed:', e);

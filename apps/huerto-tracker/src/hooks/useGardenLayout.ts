@@ -18,6 +18,7 @@ export const GRID_PRESETS = [
 ] as const;
 
 const layoutKey = (gardenId: string) => `@portfolio/huerto/garden_layout/${gardenId}`;
+export const layoutTsKey = (gardenId: string) => `@portfolio/huerto/garden_layout/${gardenId}/ts`;
 
 // null = empty cell, string = plantId
 export type GridLayout = (string | null)[];
@@ -60,12 +61,18 @@ export function useGardenLayout(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gardenId, gridRows, gridCols]);
 
+  function writeLayout(gardenId: string, layout: GridLayout) {
+    const now = new Date().toISOString();
+    AsyncStorage.setItem(layoutKey(gardenId), JSON.stringify(layout));
+    AsyncStorage.setItem(layoutTsKey(gardenId), now);
+  }
+
   async function setCell(index: number, plantId: string | null): Promise<void> {
     if (!gardenId) return;
     setLayout((prev) => {
       const next = [...prev];
       next[index] = plantId;
-      AsyncStorage.setItem(layoutKey(gardenId), JSON.stringify(next));
+      writeLayout(gardenId, next);
       return next;
     });
   }
@@ -74,7 +81,7 @@ export function useGardenLayout(
     if (!gardenId) return;
     setLayout((prev) => {
       const next = prev.map((cell) => (cell === plantId ? null : cell));
-      AsyncStorage.setItem(layoutKey(gardenId), JSON.stringify(next));
+      writeLayout(gardenId, next);
       return next;
     });
   }
@@ -84,7 +91,7 @@ export function useGardenLayout(
     setLayout((prev) => {
       const next = [...prev];
       [next[a], next[b]] = [next[b], next[a]];
-      AsyncStorage.setItem(layoutKey(gardenId), JSON.stringify(next));
+      writeLayout(gardenId, next);
       return next;
     });
   }
@@ -93,7 +100,7 @@ export function useGardenLayout(
     if (!gardenId) return;
     const empty = Array(gridSize).fill(null);
     setLayout(empty);
-    await AsyncStorage.setItem(layoutKey(gardenId), JSON.stringify(empty));
+    writeLayout(gardenId, empty);
   }
 
   function plantIndexInGrid(plantId: string): number {

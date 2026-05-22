@@ -277,19 +277,20 @@ export function rowToCostEntry(r: ReturnType<typeof costEntryToRow>): CostEntry 
 
 // ── GardenLayout ──────────────────────────────────────────────────────────────
 
-export function gardenLayoutToRow(gardenId: string, layout: GridLayout, userId: string) {
+export function gardenLayoutToRow(gardenId: string, layout: GridLayout, userId: string, updatedAt?: string) {
   return {
     id: gardenId,
     user_id: userId,
     garden_id: gardenId,
     layout,
-    updated_at: new Date().toISOString(),
+    updated_at: updatedAt ?? new Date().toISOString(),
   };
 }
 
-export function rowToGardenLayout(r: ReturnType<typeof gardenLayoutToRow>): { gardenId: string; layout: GridLayout } {
+export function rowToGardenLayout(r: ReturnType<typeof gardenLayoutToRow>): { gardenId: string; layout: GridLayout; updatedAt: string } {
   return {
     gardenId: r.garden_id,
     layout: (r.layout ?? []) as GridLayout,
+    updatedAt: r.updated_at,
   };
 }

@@ -62,7 +62,14 @@ export default function PlantDetailScreen() {
   const [cropTab, setCropTab] = useState<CropTab>('overview');
 
   const plant = plants.getById(id);
-  const crop = plant ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId] ?? null) : null;
+  const crop = plant
+    ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId] ?? {
+        id: plant.cropId, name: plant.cropId, emoji: '🌿',
+        category: 'vegetable' as const, sowingMonths: {} as any,
+        daysToHarvest: null as any, sunNeeds: 'medium' as any, waterNeeds: 'medium' as any,
+        isCustom: true,
+      })
+    : null;
   const statusConfig = plant ? PLANT_STATUS_CONFIG[plant.status] : null;
   const companions = crop ? getCompanions(crop.id) : [];
   const incompatibles = crop ? getIncompatible(crop.id) : [];
