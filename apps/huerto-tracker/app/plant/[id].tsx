@@ -95,10 +95,26 @@ export default function PlantDetailScreen() {
   const harvestSummary = useMemo(() => {
     const harvests = entries.items.filter((e) => e.plantId === id && e.type === 'harvest');
     if (harvests.length === 0) return null;
-    const kgEntries = harvests.filter((e) => (e.data as any)?.unit !== 'units' && (e.data as any)?.weight);
-    const unitEntries = harvests.filter((e) => (e.data as any)?.unit === 'units' && (e.data as any)?.weight);
-    const totalKg = kgEntries.reduce((s, e) => s + (parseFloat((e.data as any).weight) || 0), 0);
-    const totalUnits = unitEntries.reduce((s, e) => s + (parseFloat((e.data as any).weight) || 0), 0);
+    // new format: weightGrams (kg value, misnamed) | old format: weight + unit !== 'units'
+    const kgEntries = harvests.filter((e) => {
+      const d = e.data as any;
+      return d?.weightGrams != null || (d?.weight != null && d?.unit !== 'units');
+    });
+    // new format: data.units (count) | old format: data.unit === 'units' + data.weight
+    const unitEntries = harvests.filter((e) => {
+      const d = e.data as any;
+      return d?.units != null || (d?.unit === 'units' && d?.weight != null);
+    });
+    const totalKg = kgEntries.reduce((s, e) => {
+      const d = e.data as any;
+      const w = d?.weightGrams ?? d?.weight;
+      return s + (typeof w === 'number' ? w : parseFloat(String(w)) || 0);
+    }, 0);
+    const totalUnits = unitEntries.reduce((s, e) => {
+      const d = e.data as any;
+      const u = d?.units ?? (d?.unit === 'units' ? d?.weight : null);
+      return s + (typeof u === 'number' ? u : parseFloat(String(u)) || 0);
+    }, 0);
     return { count: harvests.length, totalKg: totalKg > 0 ? totalKg : null, totalUnits: totalUnits > 0 ? totalUnits : null };
   }, [entries.items, id]);
 
