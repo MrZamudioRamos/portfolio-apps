@@ -26,6 +26,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, type CropInfo } from '../../src/data/crops';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
+import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import { getCompanions } from '../../src/data/companions';
 import type { Plant } from '../../src/models/plant';
@@ -68,7 +69,7 @@ export default function NewPlantScreen() {
   });
   const [variety, setVariety] = useState('');
   const [varietyId, setVarietyId] = useState<string | null>(null);
-  const [sowingDate, setSowingDate] = useState(new Date().toISOString().split('T')[0]);
+  const [sowingDate, setSowingDate] = useState(todayStr());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -341,7 +342,7 @@ export default function NewPlantScreen() {
                 {([0, 1] as const).map((days) => {
                   const d = new Date();
                   d.setDate(d.getDate() - days);
-                  const dateStr = d.toISOString().split('T')[0];
+                  const dateStr = dateToStr(d);
                   const active = sowingDate === dateStr;
                   const label = days === 0 ? t('entryNew.today') : t('entryNew.yesterday');
                   return (
@@ -380,7 +381,7 @@ export default function NewPlantScreen() {
                   display="default"
                   onChange={(_, date) => {
                     setShowDatePicker(false);
-                    if (date) setSowingDate(date.toISOString().split('T')[0]);
+                    if (date) setSowingDate(dateToStr(date));
                   }}
                 />
               )}
@@ -395,7 +396,7 @@ export default function NewPlantScreen() {
                         mode="date"
                         display="spinner"
                         onChange={(_, date) => {
-                          if (date) setSowingDate(date.toISOString().split('T')[0]);
+                          if (date) setSowingDate(dateToStr(date));
                         }}
                         style={{ width: '100%' }}
                       />

@@ -23,6 +23,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { usePro } from '../src/hooks/usePro';
 import { CROPS_BY_ID } from '../src/data/crops';
+import { todayStr } from '../src/utils/dateStr';
 import type { DiaryEntry } from '../src/models/diary-entry';
 import type { Plant } from '../src/models/plant';
 import { COST_CATEGORY_CONFIG, type CostCategory, type CostEntry } from '../src/models/cost-entry';
@@ -153,7 +154,7 @@ export default function CostsScreen() {
       category: newCategory,
       amount,
       description: newDesc.trim() || undefined,
-      date: new Date().toISOString().split('T')[0],
+      date: todayStr(),
     });
     setNewAmount('');
     setNewDesc('');

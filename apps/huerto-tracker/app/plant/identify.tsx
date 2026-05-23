@@ -21,6 +21,7 @@ import type { Plant } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import { identifyPest, type PestDiagnosis } from '../../src/utils/pestIdentify';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { todayStr } from '../../src/utils/dateStr';
 
 const TYPE_COLOR: Record<string, string> = {
   plaga: '#EF5350',
@@ -127,7 +128,7 @@ export default function IdentifyPlantScreen() {
       gardenId,
       plantId: plantId ?? undefined,
       type: diagnosis.detected ? 'pest' : 'note',
-      date: new Date().toISOString().split('T')[0],
+      date: todayStr(),
       notes,
       ...(photo ? { photoUri: photo.uri } : {}),
     });

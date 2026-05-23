@@ -22,6 +22,7 @@ import type { Plant } from '../models/plant';
 import { getPestsForCrop } from '../data/pests';
 import { useActiveGarden } from '../hooks/useActiveGarden';
 import { useCustomCrops } from '../hooks/useCustomCrops';
+import { todayStr } from '../utils/dateStr';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -107,7 +108,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
         gardenId,
         plantId: plant.id,
         type: selected.type,
-        date: new Date().toISOString().split('T')[0],
+        date: todayStr(),
         ...(note.trim() ? { notes: note.trim() } : {}),
         ...(entryData ? { data: entryData } : {}),
       });

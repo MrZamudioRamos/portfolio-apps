@@ -22,6 +22,7 @@ import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/mo
 import type { Plant } from '../../src/models/plant';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { dateToStr, todayStr } from '../../src/utils/dateStr';
 
 const ALL_TYPES: EntryType[] = [
   'watering', 'sowing', 'transplant', 'fertilizing',
@@ -45,7 +46,7 @@ export default function NewEntryScreen() {
   const [selectedType, setSelectedType] = useState<EntryType>('watering');
   const [selectedPlantId, setSelectedPlantId] = useState<string | undefined>(paramPlantId);
   const [notes, setNotes] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(todayStr());
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   // watering
   const [waterLiters, setWaterLiters] = useState('');
@@ -222,7 +223,7 @@ export default function NewEntryScreen() {
               {([0, 1, 2] as const).map((days) => {
                 const d = new Date();
                 d.setDate(d.getDate() - days);
-                const dateStr = d.toISOString().split('T')[0];
+                const dateStr = dateToStr(d);
                 const active = date === dateStr;
                 const label = days === 0 ? t('entryNew.today') : days === 1 ? t('entryNew.yesterday') : t('entryNew.twoDaysAgo');
                 return (

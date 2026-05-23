@@ -26,7 +26,7 @@ export function getNeedsWater(
   if (plantWaterings.length === 0) {
     // Never watered — check against sowing date
     if (!plant.sowingDate) return true;
-    const sow = new Date(plant.sowingDate);
+    const sow = new Date(plant.sowingDate + 'T12:00:00');
     const daysSinceSow = (Date.now() - sow.getTime()) / 86_400_000;
     return daysSinceSow >= threshold;
   }

@@ -39,7 +39,7 @@ async function scheduleTransplant(plants: Plant[]): Promise<string[]> {
   const ids: string[] = [];
   for (const plant of plants) {
     if (!plant.sowingDate || plant.status === 'finished') continue;
-    const sow = new Date(plant.sowingDate);
+    const sow = new Date(plant.sowingDate + 'T12:00:00');
     const target = new Date(sow.getTime() + TRANSPLANT_WEEKS * 7 * 86400000);
     target.setHours(9, 0, 0, 0);
     if (target <= now) continue;
@@ -60,7 +60,7 @@ async function scheduleHarvest(plants: Plant[]): Promise<string[]> {
   const ids: string[] = [];
   for (const plant of plants) {
     if (!plant.firstHarvestDate || plant.status === 'finished') continue;
-    const harvest = new Date(plant.firstHarvestDate);
+    const harvest = new Date(plant.firstHarvestDate + 'T12:00:00');
     const target = new Date(harvest.getTime() - 3 * 86400000);
     target.setHours(9, 0, 0, 0);
     if (target <= now) continue;
@@ -94,7 +94,7 @@ async function scheduleTreatment(plants: Plant[], entries: DiaryEntry[]): Promis
     const plant = plants.find((p) => p.id === plantId);
     if (!plant || plant.status === 'finished') continue;
     const waitDays = (entry.data?.waitDays as number) ?? 0;
-    const target = new Date(new Date(entry.date).getTime() + waitDays * 86400000);
+    const target = new Date(new Date(entry.date + 'T12:00:00').getTime() + waitDays * 86400000);
     target.setHours(9, 0, 0, 0);
     if (target <= now) continue;
     const crop = CROPS.find((c) => c.id === plant.cropId);
@@ -179,14 +179,14 @@ export function usePlantNotifications() {
     (p) =>
       p.sowingDate &&
       p.status !== 'finished' &&
-      new Date(p.sowingDate).getTime() + TRANSPLANT_WEEKS * 7 * 86400000 > now.getTime()
+      new Date(p.sowingDate + 'T12:00:00').getTime() + TRANSPLANT_WEEKS * 7 * 86400000 > now.getTime()
   ).length;
 
   const harvestCount = gardenPlants.filter(
     (p) =>
       p.firstHarvestDate &&
       p.status !== 'finished' &&
-      new Date(p.firstHarvestDate).getTime() > now.getTime()
+      new Date(p.firstHarvestDate + 'T12:00:00').getTime() > now.getTime()
   ).length;
 
   const treatmentCount = (() => {
@@ -195,7 +195,7 @@ export function usePlantNotifications() {
       if (e.type !== 'treatment' || !e.plantId) continue;
       const waitDays = (e.data?.waitDays as number) ?? 0;
       if (!waitDays) continue;
-      const clearDate = new Date(e.date).getTime() + waitDays * 86400000;
+      const clearDate = new Date(e.date + 'T12:00:00').getTime() + waitDays * 86400000;
       if (clearDate > now.getTime()) seen.add(e.plantId);
     }
     return seen.size;

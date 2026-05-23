@@ -25,6 +25,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
+import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import { getCompanions, getIncompatible } from '../../src/data/companions';
 import { PLANT_STATUS_CONFIG, type Plant, type PlantStatus } from '../../src/models/plant';
@@ -157,9 +158,7 @@ export default function PlantDetailScreen() {
   };
 
   const [showTransplantModal, setShowTransplantModal] = useState(false);
-  const [transplantDateInput, setTransplantDateInput] = useState(
-    () => new Date().toISOString().split('T')[0]
-  );
+  const [transplantDateInput, setTransplantDateInput] = useState(todayStr);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -195,7 +194,7 @@ export default function PlantDetailScreen() {
   }
 
   async function handleSuccessionSow() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = todayStr();
     const batchNum = plants.items.filter(
       (p) => p.cropId === plant!.cropId && p.gardenId === plant!.gardenId
     ).length + 1;
@@ -313,7 +312,7 @@ export default function PlantDetailScreen() {
                   {t('plantDetail.sownOn', { date: formatDate(plant.sowingDate) })}
                 </Text>
                 {(() => {
-                  const days = Math.floor((Date.now() - new Date(plant.sowingDate).getTime()) / 86_400_000);
+                  const days = Math.floor((Date.now() - new Date(plant.sowingDate + 'T12:00:00').getTime()) / 86_400_000);
                   if (days < 1) return null;
                   return (
                     <View style={[s.daysChip, { backgroundColor: colors.primary + '18' }]}>
@@ -329,7 +328,7 @@ export default function PlantDetailScreen() {
                   ? VARIETIES_BY_ID[plant.varietyId]?.daysToHarvest
                   : crop.daysToHarvest;
                 if (!dth) return null;
-                const sow = new Date(plant.sowingDate);
+                const sow = new Date(plant.sowingDate + 'T12:00:00');
                 const midDays = Math.round((dth[0] + dth[1]) / 2);
                 const harvestDate = new Date(sow.getTime() + midDays * 86_400_000);
                 const today = new Date();
@@ -989,7 +988,7 @@ export default function PlantDetailScreen() {
               {([0, 1] as const).map((days) => {
                 const d = new Date();
                 d.setDate(d.getDate() - days);
-                const dateStr = d.toISOString().split('T')[0];
+                const dateStr = dateToStr(d);
                 const active = transplantDateInput === dateStr;
                 const label = days === 0 ? t('entryNew.today') : t('entryNew.yesterday');
                 return (

@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
+import { dateToStr, todayStr } from '../../src/utils/dateStr';
 
 const ALL_TYPES: EntryType[] = [
   'watering', 'sowing', 'transplant', 'fertilizing',
@@ -39,7 +40,7 @@ export default function EditEntryScreen() {
 
   const [selectedType, setSelectedType] = useState<EntryType>(entry?.type ?? 'watering');
   const [notes, setNotes] = useState(entry?.notes ?? '');
-  const [date, setDate] = useState(entry?.date ?? new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(entry?.date ?? todayStr());
   const [photoUri, setPhotoUri] = useState<string | null>(entry?.photoUri ?? null);
   // watering
   const [waterLiters, setWaterLiters] = useState(String((entry?.data as any)?.liters ?? ''));
@@ -195,7 +196,7 @@ export default function EditEntryScreen() {
               {([0, 1, 2] as const).map((days) => {
                 const d = new Date();
                 d.setDate(d.getDate() - days);
-                const dateStr = d.toISOString().split('T')[0];
+                const dateStr = dateToStr(d);
                 const active = date === dateStr;
                 const label = days === 0 ? t('entryNew.today') : days === 1 ? t('entryNew.yesterday') : t('entryNew.twoDaysAgo');
                 return (

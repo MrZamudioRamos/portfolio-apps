@@ -24,6 +24,7 @@ import { CROPS_BY_ID } from '../../src/data/crops';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import type { Plant } from '../../src/models/plant';
 import type { CustomCrop } from '../../src/models/custom-crop';
+import { dateToStr } from '../../src/utils/dateStr';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -283,7 +284,7 @@ export default function EditPlantScreen() {
               display="default"
               onChange={(_, date) => {
                 setShowDatePicker(false);
-                if (date) setSowingDate(date.toISOString().split('T')[0]);
+                if (date) setSowingDate(dateToStr(date));
               }}
             />
           )}
@@ -298,7 +299,7 @@ export default function EditPlantScreen() {
                     mode="date"
                     display="spinner"
                     onChange={(_, date) => {
-                      if (date) setSowingDate(date.toISOString().split('T')[0]);
+                      if (date) setSowingDate(dateToStr(date));
                     }}
                     style={{ width: '100%' }}
                   />

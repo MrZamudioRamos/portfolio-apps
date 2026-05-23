@@ -7,6 +7,14 @@ import type { CustomCrop } from '../models/custom-crop';
 import type { CostEntry } from '../models/cost-entry';
 import type { GridLayout } from '../hooks/useGardenLayout';
 
+// Skip local-only file:// URIs when syncing to cloud — they don't exist on other devices.
+// Multi-device photo sync would require uploading to Supabase Storage (not yet implemented).
+function syncablePhotoUri(uri: string | undefined): string | null {
+  if (!uri) return null;
+  if (uri.startsWith('http://') || uri.startsWith('https://')) return uri;
+  return null;
+}
+
 // ── Garden ───────────────────────────────────────────────────────────────────
 
 export function gardenToRow(g: Garden, userId: string) {
@@ -22,7 +30,7 @@ export function gardenToRow(g: Garden, userId: string) {
     hemisphere: g.hemisphere ?? null,
     color: g.color ?? null,
     notes: g.notes ?? null,
-    photo_uri: g.photoUri ?? null,
+    photo_uri: syncablePhotoUri(g.photoUri),
     created_at: g.createdAt,
     updated_at: g.updatedAt,
   };
@@ -130,7 +138,7 @@ export function plantToRow(p: Plant, userId: string) {
     transplant_date: p.transplantDate ?? null,
     first_harvest_date: p.firstHarvestDate ?? null,
     pest_status: p.pestStatus ?? null,
-    photo_uri: p.photoUri ?? null,
+    photo_uri: syncablePhotoUri(p.photoUri),
     notes: p.notes ?? null,
     harvest_goal_kg: p.harvestGoalKg ?? null,
     soil_ph: p.soilPh ?? null,
@@ -177,7 +185,7 @@ export function entryToRow(e: DiaryEntry, userId: string) {
     plant_id: e.plantId ?? null,
     type: e.type,
     notes: e.notes ?? null,
-    photo_uri: e.photoUri ?? null,
+    photo_uri: syncablePhotoUri(e.photoUri),
     harvest_weight_g: (e.data?.weightGrams as number) ?? null,
     harvest_unit: (e.data?.unit as string) ?? null,
     entry_data: e.data ?? null,

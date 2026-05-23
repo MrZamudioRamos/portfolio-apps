@@ -24,6 +24,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
+import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import type { Garden } from '../../src/models/garden';
 import { PLANT_STATUS_CONFIG, type Plant } from '../../src/models/plant';
@@ -100,8 +101,8 @@ export default function DashboardScreen() {
   const weeklyTasks = useMemo(() => {
     const tasks: Array<{ emoji: string; label: string; plantId: string }> = [];
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-    const in7DaysStr = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const todayDateStr = dateToStr(today);
+    const in7DaysStr = dateToStr(new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000));
 
     plants.items.forEach((p) => {
       const crop = CROPS_BY_ID[p.cropId] ?? customCropsById[p.cropId];
@@ -113,18 +114,18 @@ export default function DashboardScreen() {
       if (p.pestStatus === 'active') {
         tasks.push({ emoji: '🐛', label: t('home.taskPest', { name: p.name }), plantId: p.id });
       }
-      if (p.transplantDate && p.transplantDate >= todayStr && p.transplantDate <= in7DaysStr) {
+      if (p.transplantDate && p.transplantDate >= todayDateStr && p.transplantDate <= in7DaysStr) {
         tasks.push({ emoji: '🪴', label: t('home.taskTransplant', { name: p.name }), plantId: p.id });
       }
-      if (p.firstHarvestDate && p.firstHarvestDate >= todayStr && p.firstHarvestDate <= in7DaysStr) {
+      if (p.firstHarvestDate && p.firstHarvestDate >= todayDateStr && p.firstHarvestDate <= in7DaysStr) {
         tasks.push({ emoji: '🧺', label: t('home.taskHarvest', { name: p.name }), plantId: p.id });
       } else if (p.sowingDate && !['harvesting', 'finished'].includes(p.status)) {
         const dth = (p.varietyId ? VARIETIES_BY_ID[p.varietyId]?.daysToHarvest : null) ?? crop?.daysToHarvest;
         if (dth) {
           const midDays = Math.round((dth[0] + dth[1]) / 2);
           const estDate = new Date(new Date(p.sowingDate + 'T12:00:00').getTime() + midDays * 86_400_000);
-          const estStr = estDate.toISOString().split('T')[0];
-          if (estStr >= todayStr && estStr <= in7DaysStr) {
+          const estStr = dateToStr(estDate);
+          if (estStr >= todayDateStr && estStr <= in7DaysStr) {
             tasks.push({ emoji: '🧺', label: t('home.taskEstHarvest', { name: p.name }), plantId: p.id });
           }
         }
@@ -243,7 +244,7 @@ export default function DashboardScreen() {
     const gardenId = garden?.id;
     if (!gardenId) return;
     setWaterAllSaving(true);
-    const today = new Date().toISOString().split('T')[0];
+    const today = todayStr();
     const activePlants = plants.items.filter((p) => p.status !== 'finished');
     const litersNum = parseFloat(waterAllLiters);
     const perPlantLiters = !isNaN(litersNum) && litersNum > 0 && activePlants.length > 0
