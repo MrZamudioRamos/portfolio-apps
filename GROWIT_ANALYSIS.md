@@ -275,3 +275,21 @@ Para superar a GrowIt sin copiar:
 - Mover `EXPO_PUBLIC_ANTHROPIC_KEY` a Supabase Edge Function (no en cliente)
 - `EXPO_PUBLIC_DEV_PRO=false` ya está correcto
 - EAS Build con `eas build --profile production`
+
+---
+
+## 7. Decisiones arquitecturales pendientes
+
+### AsyncStorage → expo-sqlite (Sprint 10-11, condicional)
+
+**Situación actual:** `@portfolio/storage` usa AsyncStorage. Cada colección = un JSON blob en una key. `useCollection` carga TODO en memoria y filtra en JS.
+
+**Límite:** ~1.000-2.000 items por colección sin degradación notable. Con usuarios muy activos (3+ años, 3+ entradas/día) `diary_entries` puede llegar a 2-3MB → parse lento en dispositivos gama baja.
+
+**Migración propuesta (si analytics lo justifica):**
+- Backend: `expo-sqlite` + `Drizzle ORM` (WAL mode, transacciones, índices)
+- La interfaz de `useCollection` (`items`, `create`, `remove`, `refresh`) no cambia → componentes sin tocar
+- Migración sólo dentro de `@portfolio/storage`
+- Prioridad: `diary_entries` primero (mayor volumen), resto después
+
+**Decisión:** Ship con AsyncStorage. Revisar en Sprint 10-11 si hay usuarios activos con 500+ entradas. Supabase es la fuente de verdad → datos seguros aunque AsyncStorage sea lento.
