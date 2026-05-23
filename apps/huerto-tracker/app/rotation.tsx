@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../src/data/crops';
 import type { Plant } from '../src/models/plant';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
+import { useCustomCrops } from '../src/hooks/useCustomCrops';
 
 // Crop family groupings for rotation recommendations
 const CROP_FAMILIES: Record<string, { emoji: string; color: string; crops: string[] }> = {
@@ -86,6 +87,7 @@ export default function RotationScreen() {
   const { t } = useTranslation();
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
+  const { customCropsById } = useCustomCrops();
 
   const gardenPlants = useMemo(
     () => plants.items.filter((p) => p.gardenId === activeGarden?.id),
@@ -110,7 +112,7 @@ export default function RotationScreen() {
       bedPlants.forEach((p) => {
         const year = p.sowingDate ? new Date(p.sowingDate + 'T12:00:00').getFullYear() : currentYear;
         if (!byYear.has(year)) byYear.set(year, []);
-        const crop = CROPS_BY_ID[p.cropId];
+        const crop = CROPS_BY_ID[p.cropId] ?? customCropsById[p.cropId];
         if (crop) byYear.get(year)!.push({ crop, plant: p, family: getCropFamily(p.cropId) });
       });
 
@@ -133,7 +135,7 @@ export default function RotationScreen() {
 
       return { bedName, byYear, sortedYears, conflicts, suggestions, currentFamilies };
     });
-  }, [gardenPlants, currentYear, t]);
+  }, [gardenPlants, currentYear, t, customCropsById]);
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
 

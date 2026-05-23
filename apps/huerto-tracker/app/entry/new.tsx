@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -77,7 +78,10 @@ export default function NewEntryScreen() {
 
   async function handleSave() {
     if (!gardenId) return;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(new Date(date + 'T12:00:00').getTime())) {
+      Alert.alert(t('entryNew.invalidDateTitle'), t('entryNew.invalidDateMsg'));
+      return;
+    }
     setSaving(true);
     let entryData: Record<string, unknown> | undefined;
     if (selectedType === 'harvest' && (harvestWeight || harvestUnits || harvestQuality)) {

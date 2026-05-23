@@ -15,6 +15,7 @@ import { getLunarDay, getMonthGardeningProfile } from '../../src/utils/lunar';
 import { isContainerFriendly, getContainerInfo } from '../../src/data/containers';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import type { Plant } from '../../src/models/plant';
 
 export default function CalendarScreen() {
@@ -31,6 +32,7 @@ export default function CalendarScreen() {
 
   const { activeGarden: garden } = useActiveGarden();
   const allPlants = useCollection<Plant>('plants');
+  const { customCropsById } = useCustomCrops();
   const gardenPlants = useMemo(
     () => allPlants.items.filter((p) => p.gardenId === garden?.id && p.status !== 'finished'),
     [allPlants.items, garden?.id]
@@ -41,7 +43,7 @@ export default function CalendarScreen() {
     const in45DaysMs = today.getTime() + 45 * 86_400_000;
     const results: { plant: Plant; estDate: Date; daysLeft: number; isReady: boolean }[] = [];
     gardenPlants.forEach((p) => {
-      const crop = CROPS_BY_ID[p.cropId];
+      const crop = CROPS_BY_ID[p.cropId] ?? customCropsById[p.cropId];
       if (!crop) return;
       let estDate: Date | null = null;
       if (p.firstHarvestDate) {
@@ -58,7 +60,7 @@ export default function CalendarScreen() {
       }
     });
     return results.sort((a, b) => a.daysLeft - b.daysLeft);
-  }, [gardenPlants]);
+  }, [gardenPlants, customCropsById]);
 
   const zone = garden?.climateZone ?? 'mediterranea';
   const gardenType = garden?.gardenType ?? 'huerto';
@@ -300,7 +302,7 @@ export default function CalendarScreen() {
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm }}>
             {upcomingHarvests.slice(0, 8).map(({ plant, daysLeft, isReady }) => {
-              const crop = CROPS_BY_ID[plant.cropId];
+              const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
               const color = isReady ? '#FF7043' : daysLeft <= 7 ? '#FFA726' : '#4CAF50';
               return (
                 <Pressable

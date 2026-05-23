@@ -13,6 +13,7 @@ import { ENTRY_TYPE_CONFIG } from '../src/models/diary-entry';
 import type { Plant } from '../src/models/plant';
 import { buildGamificationData, evaluateBadges, sortBadges, getUnlockedCount, TIER_COLORS } from '../src/utils/gamification';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
+import { useCustomCrops } from '../src/hooks/useCustomCrops';
 
 const BAR_MAX_H = 72;
 
@@ -52,6 +53,7 @@ export default function StatsScreen() {
   const entries = useCollection<DiaryEntry>('diary_entries');
   const { isPro } = usePro();
   const { activeGarden } = useActiveGarden();
+  const { customCropsById } = useCustomCrops();
 
   const gardenId = activeGarden?.id;
   const gamData = useMemo(
@@ -104,7 +106,7 @@ export default function StatsScreen() {
       .slice(0, 5)
       .map(([plantId, count]) => {
         const plant = allPlants.find((p) => p.id === plantId);
-        const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
+        const crop = plant ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId]) : null;
         return { plantId, count, name: plant?.name ?? '—', emoji: crop?.emoji ?? '🌱' };
       });
 
@@ -143,7 +145,7 @@ export default function StatsScreen() {
       .sort((a, b) => (b[1].kg || b[1].count) - (a[1].kg || a[1].count))
       .slice(0, 4)
       .map(([cropId, data]) => ({
-        crop: CROPS_BY_ID[cropId],
+        crop: CROPS_BY_ID[cropId] ?? customCropsById[cropId],
         count: data.count,
         kg: data.kg,
         avgQuality: data.qualityCount > 0 ? data.qualitySum / data.qualityCount : null,
@@ -209,7 +211,7 @@ export default function StatsScreen() {
       litersPerKg,
       avgQuality,
     };
-  }, [entries.items, plants.items, i18n.language, activeGarden?.id]);
+  }, [entries.items, plants.items, i18n.language, activeGarden?.id, customCropsById]);
 
   const { t } = useTranslation();
 

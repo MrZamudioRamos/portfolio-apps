@@ -239,6 +239,8 @@
     "general": "General",
     "date": "DATE",
     "datePlaceholder": "YYYY-MM-DD",
+    "invalidDateTitle": "Invalid date",
+    "invalidDateMsg": "Use the format YYYY-MM-DD (e.g. 2026-05-23).",
     "notes": "NOTES (optional)",
     "notesPlaceholder": "What did you observe? How was the plant?",
     "harvest": "HARVEST",

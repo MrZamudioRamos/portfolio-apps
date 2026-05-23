@@ -243,6 +243,8 @@
     "general": "General",
     "date": "FECHA",
     "datePlaceholder": "AAAA-MM-DD",
+    "invalidDateTitle": "Fecha inválida",
+    "invalidDateMsg": "Usa el formato AAAA-MM-DD (por ejemplo 2026-05-23).",
     "today": "Hoy",
     "yesterday": "Ayer",
     "twoDaysAgo": "Hace 2 días",

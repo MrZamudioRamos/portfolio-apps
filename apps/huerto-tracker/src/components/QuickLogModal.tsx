@@ -21,6 +21,7 @@ import { CROPS_BY_ID } from '../data';
 import type { Plant } from '../models/plant';
 import { getPestsForCrop } from '../data/pests';
 import { useActiveGarden } from '../hooks/useActiveGarden';
+import { useCustomCrops } from '../hooks/useCustomCrops';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -56,6 +57,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
   ];
 
   const { activeGarden } = useActiveGarden();
+  const { customCropsById } = useCustomCrops();
   const diaryStore = useMemo(() => createStore<DiaryEntry>('diary_entries'), []);
   const plants = useCollection<Plant>('plants');
 
@@ -68,7 +70,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
 
-  const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
+  const crop = plant ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId]) : null;
   const gardenId = activeGarden?.id ?? '';
   const suggestedPests = plant && crop ? getPestsForCrop(crop.id).slice(0, 3) : [];
 

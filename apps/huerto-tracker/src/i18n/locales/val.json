@@ -237,6 +237,8 @@
     "general": "General",
     "date": "DATA",
     "datePlaceholder": "AAAA-MM-DD",
+    "invalidDateTitle": "Data invàlida",
+    "invalidDateMsg": "Utilitza el format AAAA-MM-DD (per exemple 2026-05-23).",
     "notes": "NOTES (opcional)",
     "notesPlaceholder": "Què has observat? Com estava la planta?",
     "harvest": "COLLITA",

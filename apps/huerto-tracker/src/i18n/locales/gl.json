@@ -237,6 +237,8 @@
     "general": "Xeral",
     "date": "DATA",
     "datePlaceholder": "AAAA-MM-DD",
+    "invalidDateTitle": "Data non válida",
+    "invalidDateMsg": "Usa o formato AAAA-MM-DD (por exemplo 2026-05-23).",
     "notes": "NOTAS (opcional)",
     "notesPlaceholder": "Que observaches? Como estaba a planta?",
     "harvest": "COLLEITA",

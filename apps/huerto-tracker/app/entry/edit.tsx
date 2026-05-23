@@ -87,7 +87,10 @@ export default function EditEntryScreen() {
   }
 
   async function handleSave() {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(new Date(date + 'T12:00:00').getTime())) {
+      Alert.alert(t('entryNew.invalidDateTitle'), t('entryNew.invalidDateMsg'));
+      return;
+    }
     setSaving(true);
     let entryData: Record<string, unknown> | undefined;
     if (selectedType === 'harvest' && (harvestWeight || harvestUnits || harvestQuality)) {

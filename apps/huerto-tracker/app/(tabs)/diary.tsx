@@ -21,6 +21,7 @@ import { type Plant } from '../../src/models/plant';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { useTranslation } from 'react-i18next';
 import { useCsvExport } from '../../src/hooks/useCsvExport';
+import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { usePro } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
@@ -42,6 +43,7 @@ export default function DiaryScreen() {
   const entries = useCollection<DiaryEntry>('diary_entries');
   const plants = useCollection<Plant>('plants');
   const { exportEntries, exporting } = useCsvExport();
+  const { customCropsById } = useCustomCrops();
   const { isPro } = usePro();
   const { activeGarden } = useActiveGarden();
 
@@ -237,7 +239,7 @@ export default function DiaryScreen() {
                   router.push('/paywall');
                   return;
                 }
-                exportEntries(gardenEntries, Object.values(plantsById));
+                exportEntries(gardenEntries, Object.values(plantsById), customCropsById);
               }}
               hitSlop={8}
               disabled={exporting}

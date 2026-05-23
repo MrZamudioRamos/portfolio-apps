@@ -23,6 +23,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data';
+import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import type { Garden } from '../../src/models/garden';
 import { PLANT_STATUS_CONFIG, type Plant } from '../../src/models/plant';
@@ -53,6 +54,7 @@ export default function DashboardScreen() {
   const allPlants = useCollection<Plant>('plants');
   const reminders = useCollection<GardenReminder>('reminders');
   const entries = useCollection<DiaryEntry>('diary_entries');
+  const { customCropsById } = useCustomCrops();
 
   // Filter plants to active garden
   const gardenPlantItems = useMemo(
@@ -102,7 +104,7 @@ export default function DashboardScreen() {
     const in7DaysStr = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     plants.items.forEach((p) => {
-      const crop = CROPS_BY_ID[p.cropId];
+      const crop = CROPS_BY_ID[p.cropId] ?? customCropsById[p.cropId];
       const plantEntries = entriesByPlant.get(p.id) ?? [];
 
       if (getNeedsWater(p, crop, plantEntries)) {
@@ -151,7 +153,7 @@ export default function DashboardScreen() {
       }
     });
     return tasks;
-  }, [plants.items, entriesByPlant, t]);
+  }, [plants.items, entriesByPlant, t, customCropsById]);
 
   const yearHarvestKg = useMemo(() => {
     const year = new Date().getFullYear().toString();
@@ -286,7 +288,7 @@ export default function DashboardScreen() {
   }
 
   function renderPlantCard({ item }: { item: Plant }) {
-    const crop = CROPS_BY_ID[item.cropId];
+    const crop = CROPS_BY_ID[item.cropId] ?? customCropsById[item.cropId];
     const statusConfig = PLANT_STATUS_CONFIG[item.status];
     const plantEntries = entriesByPlant.get(item.id) ?? [];
     const needsWater = getNeedsWater(item, crop, plantEntries);

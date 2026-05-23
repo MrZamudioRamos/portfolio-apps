@@ -1,5 +1,6 @@
 import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { useReminders } from '@portfolio/notifications';
 import { useSession, deleteRow } from '@portfolio/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -45,7 +46,7 @@ export default function GardensScreen() {
   const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
-  const reminders = useCollection<GardenReminder>('reminders');
+  const reminders = useReminders<GardenReminder>('reminders');
   const [activeId, setActiveIdState] = useState<string | null>(null);
 
   React.useEffect(() => {

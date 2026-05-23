@@ -3,6 +3,7 @@ import * as Sharing from 'expo-sharing';
 import { useState } from 'react';
 import type { DiaryEntry } from '../models/diary-entry';
 import type { Plant } from '../models/plant';
+import type { CropInfo } from '../data/crops';
 import { CROPS_BY_ID } from '../data/crops';
 import { ENTRY_TYPE_CONFIG } from '../models/diary-entry';
 
@@ -19,7 +20,11 @@ const HEADERS = [
 export function useCsvExport() {
   const [exporting, setExporting] = useState(false);
 
-  async function exportEntries(entries: DiaryEntry[], plants: Plant[]): Promise<void> {
+  async function exportEntries(
+    entries: DiaryEntry[],
+    plants: Plant[],
+    customCropsById: Record<string, CropInfo> = {},
+  ): Promise<void> {
     if (exporting) return;
     setExporting(true);
     try {
@@ -29,8 +34,10 @@ export function useCsvExport() {
         .sort((a, b) => b.date.localeCompare(a.date))
         .map((e) => {
           const plant = e.plantId ? plantsById[e.plantId] : null;
-          const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
+          const crop = plant ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId]) : null;
           const d = (e.data ?? {}) as Record<string, unknown>;
+          const isHarvest = e.type === 'harvest';
+          const isFert = e.type === 'fertilizing';
           return [
             e.date,
             ENTRY_TYPE_CONFIG[e.type]?.label ?? e.type,
@@ -38,12 +45,12 @@ export function useCsvExport() {
             crop?.name ?? '',
             e.notes ?? '',
             d.liters ?? '',
-            d.weight ?? '',
-            d.unit ?? '',
+            d.weightGrams ?? d.weight ?? '',
+            isHarvest ? d.unit ?? '' : '',
             d.quality ?? '',
             d.product ?? '',
             d.amount ?? '',
-            d.amountUnit ?? '',
+            isFert ? d.unit ?? '' : '',
             d.dose ?? '',
             d.waitDays ?? '',
           ].map(escapeCsv).join(',');

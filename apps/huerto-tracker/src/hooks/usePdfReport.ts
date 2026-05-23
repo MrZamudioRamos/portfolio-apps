@@ -2,6 +2,7 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useState } from 'react';
 import { CROPS_BY_ID } from '../data/crops';
+import type { CropInfo } from '../data/crops';
 import { PLANT_STATUS_CONFIG } from '../models/plant';
 import type { Plant } from '../models/plant';
 import type { Garden } from '../models/garden';
@@ -17,14 +18,19 @@ function buildHtml(
   garden: Garden,
   plants: Plant[],
   entries: DiaryEntry[],
-  t: (key: string, opts?: any) => string
+  t: (key: string, opts?: any) => string,
+  customCropsById: Record<string, CropInfo> = {},
 ): string {
+  const harvestWeight = (e: DiaryEntry): number => {
+    const d = e.data as any;
+    return parseNum(d?.weightGrams ?? d?.weight);
+  };
   const year = new Date().getFullYear();
   const harvestEntries = entries.filter((e) => e.type === 'harvest');
   const waterEntries = entries.filter((e) => e.type === 'watering');
   const treatmentEntries = entries.filter((e) => e.type === 'treatment');
 
-  const totalKg = harvestEntries.reduce((sum, e) => sum + parseNum((e.data as any)?.weight), 0);
+  const totalKg = harvestEntries.reduce((sum, e) => sum + harvestWeight(e), 0);
   const totalLiters = waterEntries.reduce((sum, e) => sum + parseNum((e.data as any)?.liters), 0);
   const qualityHarvests = harvestEntries.filter((e) => (e.data as any)?.quality);
   const avgQuality = qualityHarvests.length > 0
@@ -37,10 +43,10 @@ function buildHtml(
 
   const plantRows = plants
     .map((p) => {
-      const crop = CROPS_BY_ID[p.cropId];
+      const crop = CROPS_BY_ID[p.cropId] ?? customCropsById[p.cropId];
       const status = PLANT_STATUS_CONFIG[p.status];
       const plantHarvests = harvestEntries.filter((e) => e.plantId === p.id);
-      const plantKg = plantHarvests.reduce((sum, e) => sum + parseNum((e.data as any)?.weight), 0);
+      const plantKg = plantHarvests.reduce((sum, e) => sum + harvestWeight(e), 0);
       const plantLiters = waterEntries.filter((e) => e.plantId === p.id).reduce((sum, e) => sum + parseNum((e.data as any)?.liters), 0);
       const qualH = plantHarvests.filter((e) => (e.data as any)?.quality);
       const pAvgQ = qualH.length > 0 ? (qualH.reduce((s, e) => s + parseNum((e.data as any).quality), 0) / qualH.length).toFixed(1) : null;
@@ -90,7 +96,7 @@ function buildHtml(
         : null;
       return `<tr>
         <td>${e.date}</td>
-        <td>${plant ? `${CROPS_BY_ID[plant.cropId]?.emoji ?? '🌱'} ${plant.name}` : '—'}</td>
+        <td>${plant ? `${(CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId])?.emoji ?? '🌱'} ${plant.name}` : '—'}</td>
         <td>${d?.product ?? '—'}</td>
         <td>${d?.dose ?? '—'}</td>
         <td>${waitDays > 0 ? `${waitDays}d (hasta ${safeDate})` : '—'}</td>
@@ -195,11 +201,12 @@ export function usePdfReport() {
     garden: Garden,
     plants: Plant[],
     entries: DiaryEntry[],
-    t: (key: string, opts?: any) => string
+    t: (key: string, opts?: any) => string,
+    customCropsById: Record<string, CropInfo> = {},
   ): Promise<void> {
     setGenerating(true);
     try {
-      const html = buildHtml(garden, plants, entries, t);
+      const html = buildHtml(garden, plants, entries, t, customCropsById);
       const { uri } = await Print.printToFileAsync({ html, base64: false });
       const canShare = await Sharing.isAvailableAsync();
       if (canShare) {

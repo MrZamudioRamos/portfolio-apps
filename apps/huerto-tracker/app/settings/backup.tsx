@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBackup } from '../../src/hooks/useBackup';
+import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { usePdfReport } from '../../src/hooks/usePdfReport';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import type { Plant } from '../../src/models/plant';
@@ -30,6 +31,7 @@ export default function BackupScreen() {
     toggleAutoBackup,
   } = useBackup();
   const { generating, generateAndShare } = usePdfReport();
+  const { customCropsById } = useCustomCrops();
 
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
@@ -230,7 +232,7 @@ export default function BackupScreen() {
               onPress={() => {
                 if (!isPro) { router.push('/paywall'); return; }
                 if (!activeGarden) return;
-                generateAndShare(activeGarden, plants.items, entries.items, t);
+                generateAndShare(activeGarden, plants.items, entries.items, t, customCropsById);
               }}
               disabled={generating}
             />

@@ -237,6 +237,8 @@
     "general": "Orokorra",
     "date": "DATA",
     "datePlaceholder": "UUUU-HH-EE",
+    "invalidDateTitle": "Data baliogabea",
+    "invalidDateMsg": "Erabili UUUU-HH-EE formatua (adibidez 2026-05-23).",
     "notes": "OHARRAK (hautazkoa)",
     "notesPlaceholder": "Zer ikusi zenuen? Nolako zen landarea?",
     "harvest": "UZTA",
