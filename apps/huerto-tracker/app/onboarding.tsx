@@ -21,10 +21,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CLIMATE_ZONE_CONFIG, CROPS_BY_ID, PROVINCE_ZONES } from '../src/data';
+import { CLIMATE_ZONE_CONFIG, PROVINCE_ZONES } from '../src/data';
 import { getNearestProvince } from '../src/utils/weather';
-import { todayStr } from '../src/utils/dateStr';
-import type { Garden, Plant } from '../src/models';
+import type { Garden } from '../src/models';
 import {
   GARDEN_TYPE_CONFIG,
   type GardenType,
@@ -136,7 +135,6 @@ export default function OnboardingScreen() {
   const router = useRouter();
   const { complete } = useOnboarding('huerto');
   const gardens = useCollection<Garden>('gardens');
-  const plants = useCollection<Plant>('plants');
   const { save: saveProfile } = useUserProfile();
 
   const { t } = useTranslation();
@@ -215,7 +213,7 @@ export default function OnboardingScreen() {
     if (!gardenName.trim() || !province || !climateZone) return;
     setSaving(true);
     try {
-      const garden = await gardens.create({
+      await gardens.create({
         name: gardenName.trim(),
         climateZone,
         province,
@@ -231,32 +229,10 @@ export default function OnboardingScreen() {
           experience,
         });
       }
-      await seedStarterPlants(garden.id);
       await complete();
       setStep(7);
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function seedStarterPlants(gardenId: string) {
-    const SEED_PRIORITY = ['tomate', 'lechuga', 'zanahoria', 'pimiento', 'albahaca', 'pepino', 'rabano', 'espinaca', 'judia-verde'];
-    const month = new Date().getMonth() + 1;
-    const sowableNow = SEED_PRIORITY.filter((id) => {
-      const crop = CROPS_BY_ID[id];
-      return crop && climateZone && crop.sowingMonths[climateZone]?.includes(month);
-    });
-    const candidates = sowableNow.length >= 2 ? sowableNow : SEED_PRIORITY;
-    for (const cropId of candidates.slice(0, 3)) {
-      const crop = CROPS_BY_ID[cropId];
-      if (!crop) continue;
-      await plants.create({
-        gardenId,
-        cropId,
-        name: crop.name,
-        status: 'seedling',
-        sowingDate: todayStr(),
-      } as Omit<Plant, 'id' | 'createdAt' | 'updatedAt'>);
     }
   }
 
