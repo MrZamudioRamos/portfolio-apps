@@ -114,28 +114,30 @@ export default function DiseaseGuideScreen() {
       </View>
 
       {/* Type filters */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.md }} contentContainerStyle={{ gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.xs, alignItems: 'center' }}>
-        {FILTERS.map((f) => {
-          const active = typeFilter === f.key;
-          const color = f.key ? TYPE_COLOR[f.key] : colors.primary;
-          return (
-            <Pressable
-              key={f.key ?? 'all'}
-              onPress={() => setTypeFilter(f.key)}
-              style={[
-                s.filterChip,
-                {
-                  backgroundColor: active ? color + '22' : colors.surfaceAlt,
-                  borderColor: active ? color : colors.border,
-                },
-              ]}
-            >
-              <Text style={[s.filterChipText, { color: active ? color : colors.textSecondary }]}>
-                {f.label}
-              </Text>
-            </Pressable>
-          );
-        })}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.md }} contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.xs }}>
+        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+          {FILTERS.map((f) => {
+            const active = typeFilter === f.key;
+            const color = f.key ? TYPE_COLOR[f.key] : colors.primary;
+            return (
+              <Pressable
+                key={f.key ?? 'all'}
+                onPress={() => setTypeFilter(f.key)}
+                style={[
+                  s.filterChip,
+                  {
+                    backgroundColor: active ? color + '22' : colors.surfaceAlt,
+                    borderColor: active ? color : colors.border,
+                  },
+                ]}
+              >
+                <Text style={[s.filterChipText, { color: active ? color : colors.textSecondary }]}>
+                  {f.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </ScrollView>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: spacing.lg, paddingTop: 0, paddingBottom: 60 }}>

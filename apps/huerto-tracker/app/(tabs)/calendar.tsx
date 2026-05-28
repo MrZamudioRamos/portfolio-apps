@@ -337,44 +337,46 @@ export default function CalendarScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: spacing.sm, paddingHorizontal: spacing.xl, paddingVertical: spacing.xs }}
+          contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingVertical: spacing.xs }}
           style={{ marginBottom: spacing.xs }}
         >
-          <Pressable
-            onPress={() => setCategoryFilter(null)}
-            style={[
-              s.catChip,
-              {
-                backgroundColor: !categoryFilter ? colors.primary + '22' : colors.surfaceAlt,
-                borderColor: !categoryFilter ? colors.primary : colors.border,
-              },
-            ]}
-          >
-            <Text style={[s.catChipText, { color: !categoryFilter ? colors.primary : colors.textSecondary }]}>
-              {t('calendar.catAll')}
-            </Text>
-          </Pressable>
-          {presentCategories.map((cat) => {
-            const cfg = CATEGORY_CONFIG[cat];
-            const active = categoryFilter === cat;
-            return (
-              <Pressable
-                key={cat}
-                onPress={() => setCategoryFilter(active ? null : cat)}
-                style={[
-                  s.catChip,
-                  {
-                    backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
-                    borderColor: active ? colors.primary : colors.border,
-                  },
-                ]}
-              >
-                <Text style={[s.catChipText, { color: active ? colors.primary : colors.textSecondary }]}>
-                  {cfg.emoji} {t(`cropCategory.${cat}`, { defaultValue: cfg.label })}
-                </Text>
-              </Pressable>
-            );
-          })}
+          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+            <Pressable
+              onPress={() => setCategoryFilter(null)}
+              style={[
+                s.catChip,
+                {
+                  backgroundColor: !categoryFilter ? colors.primary + '22' : colors.surfaceAlt,
+                  borderColor: !categoryFilter ? colors.primary : colors.border,
+                },
+              ]}
+            >
+              <Text style={[s.catChipText, { color: !categoryFilter ? colors.primary : colors.textSecondary }]}>
+                {t('calendar.catAll')}
+              </Text>
+            </Pressable>
+            {presentCategories.map((cat) => {
+              const cfg = CATEGORY_CONFIG[cat];
+              const active = categoryFilter === cat;
+              return (
+                <Pressable
+                  key={cat}
+                  onPress={() => setCategoryFilter(active ? null : cat)}
+                  style={[
+                    s.catChip,
+                    {
+                      backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
+                      borderColor: active ? colors.primary : colors.border,
+                    },
+                  ]}
+                >
+                  <Text style={[s.catChipText, { color: active ? colors.primary : colors.textSecondary }]}>
+                    {cfg.emoji} {t(`cropCategory.${cat}`, { defaultValue: cfg.label })}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </ScrollView>
       )}
 
