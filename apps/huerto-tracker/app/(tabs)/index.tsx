@@ -1,4 +1,4 @@
-import { useColors, useTheme, Card, EmptyState, StatCard, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Card, StatCard, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -445,51 +445,53 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <>
-            {/* Stats row */}
-            <View style={s.statsRow}>
-              <StatCard
-                emoji="🌱"
-                value={plants.count}
-                label={t('home.stats.plants')}
-                onPress={() => router.push('/plant/new')}
-              />
-              <StatCard
-                emoji="🧺"
-                value={harvestingCount}
-                label={t('home.stats.harvesting')}
-                onPress={() => setStatusFilter(statusFilter === 'harvesting' ? null : 'harvesting')}
-              />
-              <StatCard
-                emoji="🔔"
-                value={activeReminders}
-                label={t('home.stats.reminders')}
-                onPress={() => router.push('/settings/notifications' as any)}
-              />
-              {activePests > 0 && (
+            {/* Stats row — hidden on first use */}
+            {plants.count > 0 && (
+              <View style={s.statsRow}>
                 <StatCard
-                  emoji="🐛"
-                  value={activePests}
-                  label={t('home.stats.pests')}
-                  onPress={() => router.push('/disease-guide' as any)}
+                  emoji="🌱"
+                  value={plants.count}
+                  label={t('home.stats.plants')}
+                  onPress={() => router.push('/plant/new')}
                 />
-              )}
-              {needsWaterCount > 0 && (
                 <StatCard
-                  emoji="💧"
-                  value={needsWaterCount}
-                  label={t('home.stats.needsWater')}
-                  onPress={handleWaterAll}
+                  emoji="🧺"
+                  value={harvestingCount}
+                  label={t('home.stats.harvesting')}
+                  onPress={() => setStatusFilter(statusFilter === 'harvesting' ? null : 'harvesting')}
                 />
-              )}
-              {yearHarvestKg > 0 && (
                 <StatCard
-                  emoji="⚖️"
-                  value={`${yearHarvestKg.toFixed(1)}kg`}
-                  label={t('home.stats.yearKg')}
-                  onPress={() => router.push('/stats')}
+                  emoji="🔔"
+                  value={activeReminders}
+                  label={t('home.stats.reminders')}
+                  onPress={() => router.push('/settings/notifications' as any)}
                 />
-              )}
-            </View>
+                {activePests > 0 && (
+                  <StatCard
+                    emoji="🐛"
+                    value={activePests}
+                    label={t('home.stats.pests')}
+                    onPress={() => router.push('/disease-guide' as any)}
+                  />
+                )}
+                {needsWaterCount > 0 && (
+                  <StatCard
+                    emoji="💧"
+                    value={needsWaterCount}
+                    label={t('home.stats.needsWater')}
+                    onPress={handleWaterAll}
+                  />
+                )}
+                {yearHarvestKg > 0 && (
+                  <StatCard
+                    emoji="⚖️"
+                    value={`${yearHarvestKg.toFixed(1)}kg`}
+                    label={t('home.stats.yearKg')}
+                    onPress={() => router.push('/stats')}
+                  />
+                )}
+              </View>
+            )}
 
             {/* Lunar widget */}
             <Pressable
@@ -705,18 +707,38 @@ export default function DashboardScreen() {
               </View>
             )}
 
-            {/* Stats link */}
-            <Pressable
-              onPress={() => router.push('/stats')}
-              style={({ pressed }) => [
-                s.statsLink,
-                { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 },
-              ]}
-            >
-              <Ionicons name="bar-chart-outline" size={16} color={colors.primary} />
-              <Text style={[s.statsLinkText, { color: colors.primary }]}>{t('home.viewStats')}</Text>
-              <Ionicons name="chevron-forward" size={14} color={colors.primary} />
-            </Pressable>
+            {/* Stats link — solo con plantas */}
+            {plants.count > 0 && (
+              <Pressable
+                onPress={() => router.push('/stats')}
+                style={({ pressed }) => [
+                  s.statsLink,
+                  { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 },
+                ]}
+              >
+                <Ionicons name="bar-chart-outline" size={16} color={colors.primary} />
+                <Text style={[s.statsLinkText, { color: colors.primary }]}>{t('home.viewStats')}</Text>
+                <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+              </Pressable>
+            )}
+
+            {/* Tarjeta bienvenida — solo en primer uso (sin plantas) */}
+            {plants.count === 0 && !plants.loading && (
+              <View style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
+                <Text style={[s.firstUseTitle, { color: colors.text }]}>{t('home.firstUseTitle', { name: garden?.name })}</Text>
+                <Text style={[s.firstUseDesc, { color: colors.textSecondary }]}>{t('home.firstUseDesc')}</Text>
+                <Pressable
+                  onPress={() => router.push('/plant/new')}
+                  style={({ pressed }) => [
+                    s.firstUseCta,
+                    { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
+                  ]}
+                >
+                  <Ionicons name="add-circle-outline" size={20} color="#fff" />
+                  <Text style={[s.firstUseCtaText]}>{t('home.firstUseCta')}</Text>
+                </Pressable>
+              </View>
+            )}
 
             {/* Section title + Regar todo */}
             {plants.count > 0 && (
@@ -837,17 +859,7 @@ export default function DashboardScreen() {
             )}
           </>
         }
-        ListEmptyComponent={
-          !plants.loading ? (
-            <EmptyState
-              emoji="🌱"
-              title={t('home.emptyTitle')}
-              description={t('home.emptyDesc')}
-              ctaLabel={t('home.addPlant')}
-              onCta={() => router.push('/plant/new')}
-            />
-          ) : null
-        }
+        ListEmptyComponent={null}
         renderItem={renderPlantCard}
       />
 
@@ -1249,4 +1261,36 @@ const makeStyles = (
       marginBottom: spacing.sm,
     },
     showFinishedText: { fontSize: fontSize.xs, textDecorationLine: 'underline' },
+    firstUseCard: {
+      marginHorizontal: spacing.xl,
+      marginBottom: spacing.xl,
+      borderRadius: radii.xl,
+      padding: spacing.xl,
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    firstUseTitle: {
+      fontSize: fontSize.xl,
+      fontWeight: fontWeight.bold,
+      textAlign: 'center',
+    },
+    firstUseDesc: {
+      fontSize: fontSize.md,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    firstUseCta: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginTop: spacing.sm,
+      paddingHorizontal: spacing.xl,
+      paddingVertical: spacing.lg,
+      borderRadius: radii.full,
+    },
+    firstUseCtaText: {
+      color: '#fff',
+      fontSize: fontSize.md,
+      fontWeight: fontWeight.bold,
+    },
   });
