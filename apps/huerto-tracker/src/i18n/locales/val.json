@@ -75,6 +75,7 @@
     "lunarProfile": "Perfil lunar del mes",
     "lunarBasis": "Basat en el cicle sinòdic",
     "lunarDayIllum": "Dia {{day}} · {{illum}}% il·luminada",
+    "cropsCount_one": "{{count}} cultiu per a sembrar en {{month}}",
     "cropsCount": "{{count}} cultius per a sembrar en {{month}}",
     "companions": "🤝 Associacions",
     "emptyCrops": "Sense sembres en {{month}}",

@@ -75,6 +75,7 @@
     "lunarProfile": "Hilaren ilargi profila",
     "lunarBasis": "Ziklo sinodikoan oinarrituta",
     "lunarDayIllum": "{{day}}. eguna · {{illum}}% argiztatua",
+    "cropsCount_one": "{{month}}an ereiteko {{count}} labore",
     "cropsCount": "{{month}}an ereiteko {{count}} labore",
     "companions": "🤝 Elkarteak",
     "emptyCrops": "{{month}}an ez dago ereintzarik",

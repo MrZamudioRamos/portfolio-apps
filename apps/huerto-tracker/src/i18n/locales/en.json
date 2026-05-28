@@ -76,6 +76,7 @@
     "lunarProfile": "Monthly lunar profile",
     "lunarBasis": "Based on synodic cycle",
     "lunarDayIllum": "Day {{day}} · {{illum}}% illuminated",
+    "cropsCount_one": "{{count}} crop to sow in {{month}}",
     "cropsCount": "{{count}} crops to sow in {{month}}",
     "companions": "🤝 Companions",
     "emptyCrops": "Nothing to sow in {{month}}",

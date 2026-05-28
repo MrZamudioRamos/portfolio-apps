@@ -23,6 +23,7 @@
   },
   "home": {
     "title": "Mi Huerto",
+    "streak_one": "🔥 {{count}} día",
     "streak": "🔥 {{count}} días",
     "stats": {
       "plants": "Plantas",
@@ -48,6 +49,7 @@
     "myPlants": "Mis plantas",
     "waterAll": "💧 Regar todo",
     "waterAllTitle": "Regar todo",
+    "waterAllMessage_one": "¿Registrar riego para la {{count}} planta?",
     "waterAllMessage": "¿Registrar riego para las {{count}} plantas?",
     "waterAllConfirm": "Regar todas",
     "emptyTitle": "Aún no hay plantas",
@@ -63,6 +65,7 @@
     "sortDefault": "Orden",
     "sortName": "A–Z",
     "sortNewest": "Recientes",
+    "showFinished_one": "{{count}} finalizada oculta · Mostrar",
     "showFinished": "{{count}} finalizadas ocultas · Mostrar",
     "hideFinished": "Ocultar finalizadas",
     "taskCarencia": "{{name}}: no cosechar {{days}} día(s) más (carencia)",
@@ -76,6 +79,7 @@
     "lunarProfile": "Perfil lunar del mes",
     "lunarBasis": "Basado en ciclo sinódico",
     "lunarDayIllum": "Día {{day}} · {{illum}}% iluminada",
+    "cropsCount_one": "{{count}} cultivo para sembrar en {{month}}",
     "cropsCount": "{{count}} cultivos para sembrar en {{month}}",
     "companions": "🤝 Asociaciones",
     "emptyCrops": "Sin siembras en {{month}}",
