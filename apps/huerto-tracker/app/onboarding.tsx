@@ -519,31 +519,6 @@ export default function OnboardingScreen() {
               {t('onboarding.step2Desc')}
             </Text>
 
-            <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('onboarding.hemisphereLabel')}</Text>
-            <View style={[s.gardenTypeRow, { marginBottom: spacing.lg }]}>
-              {(['norte', 'sur'] as const).map((h) => {
-                const active = hemisphere === h;
-                return (
-                  <Pressable
-                    key={h}
-                    onPress={() => { setHemisphere(h); setProvince(''); setSelectedCountry(null); }}
-                    style={[
-                      s.gardenTypeBtn,
-                      {
-                        backgroundColor: active ? colors.primary + '22' : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
-                      },
-                    ]}
-                  >
-                    <Text style={{ fontSize: 24 }}>{h === 'norte' ? '🌍' : '🌎'}</Text>
-                    <Text style={[s.gardenTypeName, { color: active ? colors.primary : colors.textSecondary }]}>
-                      {t('onboarding.hemisphere' + h.charAt(0).toUpperCase() + h.slice(1))}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
             <Pressable
               onPress={locating ? undefined : detectLocation}
               style={[
@@ -568,7 +543,11 @@ export default function OnboardingScreen() {
               ]}
             >
               <Text style={{ color: province ? colors.text : colors.textDisabled, fontSize: fontSize.md }}>
-                {province || t('onboarding.selectProvince')}
+                {province
+                  ? `${selectedCountry} › ${province}`
+                  : selectedCountry
+                    ? `${selectedCountry} › ...`
+                    : t('onboarding.selectProvince')}
               </Text>
               <Text style={{ fontSize: 18 }}>›</Text>
             </Pressable>
@@ -734,11 +713,16 @@ export default function OnboardingScreen() {
 
           {!selectedCountry ? (
             <FlatList
-              data={hemisphere === 'norte' ? NORTE_COUNTRIES : LATAM_COUNTRIES}
+              data={[...NORTE_COUNTRIES, ...LATAM_COUNTRIES]}
               keyExtractor={(item) => item.country}
               renderItem={({ item }) => (
                 <Pressable
-                  onPress={() => setSelectedCountry(item.country)}
+                  onPress={() => {
+                    const isNorte = NORTE_COUNTRIES.some((c) => c.country === item.country);
+                    setHemisphere(isNorte ? 'norte' : 'sur');
+                    setSelectedCountry(item.country);
+                    setProvince('');
+                  }}
                   style={[s.provinceRow, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}
                 >
                   <Text style={{ fontSize: 28, marginRight: spacing.md }}>{item.emoji}</Text>
