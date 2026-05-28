@@ -457,7 +457,7 @@
     "restoreSuccessDesc": "Your Pro subscription is active.",
     "restoreNoneTitle": "No previous purchases",
     "restoreNoneDesc": "We couldn't find any active subscription linked to your account.",
-    "restoreError": "Could not connect. Please try again.",
+    "restoreError": "Could not connect. Please try again."
   },
   "plantEdit": {
     "title": "Edit plant",

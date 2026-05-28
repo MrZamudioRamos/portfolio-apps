@@ -454,7 +454,7 @@
     "restoreSuccessDesc": "La teua subscripció Pro està activa.",
     "restoreNoneTitle": "Sense compres anteriors",
     "restoreNoneDesc": "No hem trobat cap subscripció activa associada al teu compte.",
-    "restoreError": "No s'ha pogut connectar. Torna-ho a intentar.",
+    "restoreError": "No s'ha pogut connectar. Torna-ho a intentar."
   },
   "plantEdit": {
     "title": "Editar planta",

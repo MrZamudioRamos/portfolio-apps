@@ -454,7 +454,7 @@
     "restoreSuccessDesc": "Zure Pro harpidetza aktiboa dago.",
     "restoreNoneTitle": "Ez dago aurreko erosketa",
     "restoreNoneDesc": "Ez dugu aurkitu zure kontuarekin lotutako harpidetza aktiborik.",
-    "restoreError": "Ezin izan da konektatu. Saiatu berriro.",
+    "restoreError": "Ezin izan da konektatu. Saiatu berriro."
   },
   "plantEdit": {
     "title": "Landarea editatu",
