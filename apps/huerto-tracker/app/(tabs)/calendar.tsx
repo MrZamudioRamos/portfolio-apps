@@ -300,26 +300,28 @@ export default function CalendarScreen() {
           <Text style={[{ fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, color: colors.textSecondary, marginBottom: spacing.xs, paddingHorizontal: spacing.xl }]}>
             🧺 {t('calendar.upcomingHarvests')}
           </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm, alignItems: 'center' }}>
-            {upcomingHarvests.slice(0, 8).map(({ plant, daysLeft, isReady }) => {
-              const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
-              const color = isReady ? '#FF7043' : daysLeft <= 7 ? '#FFA726' : '#4CAF50';
-              return (
-                <Pressable
-                  key={plant.id}
-                  onPress={() => router.push(`/plant/${plant.id}` as any)}
-                  style={[s.harvestCard, { backgroundColor: color + '18', borderColor: color + '66' }]}
-                >
-                  <Text style={{ fontSize: 22 }}>{crop?.emoji ?? '🌱'}</Text>
-                  <Text style={[s.harvestCardName, { color: colors.text }]} numberOfLines={1}>{plant.name}</Text>
-                  <View style={[s.harvestDaysBadge, { backgroundColor: color + '33' }]}>
-                    <Text style={[s.harvestDaysText, { color }]}>
-                      {isReady ? '🍽️ ' + t('calendar.harvestReady') : `${daysLeft}d`}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingVertical: spacing.xs }}>
+            <View style={{ flexDirection: 'row', gap: spacing.sm, alignSelf: 'flex-start' }}>
+              {upcomingHarvests.slice(0, 8).map(({ plant, daysLeft, isReady }) => {
+                const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
+                const color = isReady ? '#FF7043' : daysLeft <= 7 ? '#FFA726' : '#4CAF50';
+                return (
+                  <Pressable
+                    key={plant.id}
+                    onPress={() => router.push(`/plant/${plant.id}` as any)}
+                    style={[s.harvestCard, { backgroundColor: color + '18', borderColor: color + '66' }]}
+                  >
+                    <Text style={{ fontSize: 22 }}>{crop?.emoji ?? '🌱'}</Text>
+                    <Text style={[s.harvestCardName, { color: colors.text }]} numberOfLines={1}>{plant.name}</Text>
+                    <View style={[s.harvestDaysBadge, { backgroundColor: color + '33' }]}>
+                      <Text style={[s.harvestDaysText, { color }]}>
+                        {isReady ? '🍽️ ' + t('calendar.harvestReady') : `${daysLeft}d`}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
           </ScrollView>
         </View>
       )}
@@ -340,7 +342,7 @@ export default function CalendarScreen() {
           contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingVertical: spacing.xs }}
           style={{ marginBottom: spacing.xs }}
         >
-          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+          <View style={{ flexDirection: 'row', gap: spacing.sm, alignSelf: 'flex-start' }}>
             <Pressable
               onPress={() => setCategoryFilter(null)}
               style={[
