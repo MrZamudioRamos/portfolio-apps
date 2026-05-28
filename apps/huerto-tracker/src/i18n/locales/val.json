@@ -408,7 +408,9 @@
     "expBeginner": "Mai he cultivat",
     "expBeginnerNote": "No et preocupes! La meitat dels nostres usuaris comencen ací.",
     "expSome": "He cultivat en el passat",
-    "expExpert": "Tinc àmplia experiència"
+    "expExpert": "Tinc àmplia experiència",
+    "skipProfile": "Ometre perfil",
+    "selectCountry": "Selecciona el teu país"
   },
   "paywall": {
     "titlePro": "Ja eres Pro!",

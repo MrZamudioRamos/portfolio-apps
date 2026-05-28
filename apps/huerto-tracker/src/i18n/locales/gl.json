@@ -408,7 +408,9 @@
     "expBeginner": "Nunca cultivei",
     "expBeginnerNote": "Non te preocupes! A metade dos nosos usuarios empezan aquí.",
     "expSome": "Cultivei no pasado",
-    "expExpert": "Teño ampla experiencia"
+    "expExpert": "Teño ampla experiencia",
+    "skipProfile": "Omitir perfil",
+    "selectCountry": "Selecciona o teu país"
   },
   "paywall": {
     "titlePro": "Xa es Pro!",

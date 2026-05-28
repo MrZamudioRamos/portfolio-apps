@@ -102,6 +102,71 @@ export const PROVINCE_ZONES: Record<string, ClimateZone> = {
   'Lima': 'mediterranea',
   'São Paulo': 'subtropical',
   'Santiago de Cuba': 'subtropical',
+
+  // Portugal
+  'Norte (Portugal)': 'atlantica',
+  'Centro (Portugal)': 'continental',
+  'Lisboa': 'mediterranea',
+  'Alentejo': 'mediterranea',
+  'Algarve': 'mediterranea',
+  'Azores': 'atlantica',
+
+  // Francia
+  'Île-de-France': 'continental',
+  'Bretagne': 'atlantica',
+  'Normandie': 'atlantica',
+  'Nouvelle-Aquitaine': 'atlantica',
+  'Pays de la Loire': 'atlantica',
+  'Grand Est': 'continental',
+  'Bourgogne-Franche-Comté': 'continental',
+  'Auvergne-Rhône-Alpes': 'continental',
+  'Occitanie': 'mediterranea',
+  "Provence-Alpes-Côte d'Azur": 'mediterranea',
+  'Corse': 'mediterranea',
+
+  // Italia
+  'Piemonte': 'continental',
+  'Lombardia': 'continental',
+  'Veneto': 'continental',
+  'Emilia-Romagna': 'continental',
+  'Toscana': 'mediterranea',
+  'Lazio': 'mediterranea',
+  'Campania': 'mediterranea',
+  'Puglia': 'mediterranea',
+  'Sicilia': 'mediterranea',
+  'Sardegna': 'mediterranea',
+
+  // Alemania
+  'Bayern': 'continental',
+  'Baden-Württemberg': 'continental',
+  'Hessen': 'continental',
+  'Nordrhein-Westfalen': 'atlantica',
+  'Niedersachsen': 'atlantica',
+  'Rheinland-Pfalz': 'continental',
+  'Brandenburg': 'continental',
+  'Sachsen': 'continental',
+  'Berlin': 'continental',
+  'Hamburg': 'atlantica',
+
+  // Países Bajos
+  'Noord-Holland': 'atlantica',
+  'Zuid-Holland': 'atlantica',
+  'Utrecht': 'atlantica',
+  'Noord-Brabant': 'atlantica',
+  'Gelderland': 'atlantica',
+
+  // Bélgica
+  'Bruselas': 'atlantica',
+  'Flandes': 'atlantica',
+  'Valonia': 'continental',
+
+  // Grecia
+  'Ática': 'mediterranea',
+  'Macedonia Central': 'mediterranea',
+  'Creta': 'mediterranea',
+  'Islas del Egeo': 'mediterranea',
+  'Tesalia': 'continental',
+  'Peloponeso': 'mediterranea',
 };
 
 export const PROVINCES: string[] = Object.keys(PROVINCE_ZONES).sort((a, b) =>

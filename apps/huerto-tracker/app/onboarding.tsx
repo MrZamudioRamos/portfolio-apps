@@ -41,16 +41,59 @@ import {
 } from '../src/models/user-profile';
 import { useUserProfile } from '../src/hooks/useUserProfile';
 
-const SPAIN_PROVINCES = new Set([
-  'A Coruña', 'Lugo', 'Pontevedra', 'Asturias', 'Cantabria', 'Vizcaya', 'Guipúzcoa',
-  'Ourense', 'Álava', 'Navarra', 'La Rioja', 'Madrid', 'Toledo', 'Ciudad Real', 'Cuenca',
-  'Guadalajara', 'Albacete', 'Ávila', 'Segovia', 'Soria', 'Burgos', 'Palencia',
-  'Valladolid', 'Zamora', 'Salamanca', 'León', 'Zaragoza', 'Huesca', 'Teruel', 'Lleida',
-  'Cáceres', 'Badajoz', 'Córdoba', 'Jaén', 'Barcelona', 'Tarragona', 'Girona',
-  'Valencia', 'Alicante', 'Castellón', 'Murcia', 'Almería', 'Málaga', 'Granada',
-  'Baleares', 'Sevilla', 'Cádiz', 'Huelva', 'Ceuta', 'Melilla', 'Las Palmas',
-  'Santa Cruz de Tenerife',
-]);
+const NORTE_COUNTRIES: { country: string; emoji: string; regions: string[] }[] = [
+  {
+    country: 'España', emoji: '🇪🇸',
+    regions: [
+      'A Coruña', 'Albacete', 'Alicante', 'Almería', 'Asturias', 'Ávila', 'Badajoz',
+      'Baleares', 'Barcelona', 'Burgos', 'Cáceres', 'Cádiz', 'Cantabria', 'Castellón',
+      'Ceuta', 'Ciudad Real', 'Córdoba', 'Cuenca', 'Girona', 'Granada', 'Guadalajara',
+      'Guipúzcoa', 'Huelva', 'Huesca', 'Jaén', 'La Rioja', 'Las Palmas', 'León',
+      'Lleida', 'Lugo', 'Madrid', 'Málaga', 'Melilla', 'Murcia', 'Navarra', 'Ourense',
+      'Palencia', 'Pontevedra', 'Salamanca', 'Santa Cruz de Tenerife', 'Segovia',
+      'Sevilla', 'Soria', 'Tarragona', 'Teruel', 'Toledo', 'Valencia', 'Valladolid',
+      'Vizcaya', 'Zamora', 'Zaragoza', 'Álava',
+    ],
+  },
+  {
+    country: 'Portugal', emoji: '🇵🇹',
+    regions: ['Alentejo', 'Algarve', 'Azores', 'Centro (Portugal)', 'Lisboa', 'Norte (Portugal)'],
+  },
+  {
+    country: 'Francia', emoji: '🇫🇷',
+    regions: [
+      'Auvergne-Rhône-Alpes', 'Bourgogne-Franche-Comté', 'Bretagne', 'Corse',
+      'Grand Est', 'Île-de-France', 'Normandie', 'Nouvelle-Aquitaine',
+      'Occitanie', 'Pays de la Loire', "Provence-Alpes-Côte d'Azur",
+    ],
+  },
+  {
+    country: 'Italia', emoji: '🇮🇹',
+    regions: [
+      'Campania', 'Emilia-Romagna', 'Lazio', 'Lombardia', 'Piemonte',
+      'Puglia', 'Sardegna', 'Sicilia', 'Toscana', 'Veneto',
+    ],
+  },
+  {
+    country: 'Alemania', emoji: '🇩🇪',
+    regions: [
+      'Baden-Württemberg', 'Bayern', 'Berlin', 'Brandenburg', 'Hamburg',
+      'Hessen', 'Niedersachsen', 'Nordrhein-Westfalen', 'Rheinland-Pfalz', 'Sachsen',
+    ],
+  },
+  {
+    country: 'Países Bajos', emoji: '🇳🇱',
+    regions: ['Gelderland', 'Noord-Brabant', 'Noord-Holland', 'Utrecht', 'Zuid-Holland'],
+  },
+  {
+    country: 'Bélgica', emoji: '🇧🇪',
+    regions: ['Bruselas', 'Flandes', 'Valonia'],
+  },
+  {
+    country: 'Grecia', emoji: '🇬🇷',
+    regions: ['Ática', 'Creta', 'Islas del Egeo', 'Macedonia Central', 'Peloponeso', 'Tesalia'],
+  },
+];
 
 const LATAM_COUNTRIES: { country: string; emoji: string; regions: string[] }[] = [
   {
@@ -118,11 +161,11 @@ export default function OnboardingScreen() {
   const climateZone = province ? PROVINCE_ZONES[province] : null;
   const zoneConfig = climateZone ? CLIMATE_ZONE_CONFIG[climateZone] : null;
 
-  const provincePool = hemisphere === 'norte'
-    ? PROVINCES.filter((p) => SPAIN_PROVINCES.has(p))
-    : selectedCountry
-      ? (LATAM_COUNTRIES.find((c) => c.country === selectedCountry)?.regions ?? [])
-      : [];
+  const provincePool = selectedCountry
+    ? (hemisphere === 'norte'
+        ? (NORTE_COUNTRIES.find((c) => c.country === selectedCountry)?.regions ?? [])
+        : (LATAM_COUNTRIES.find((c) => c.country === selectedCountry)?.regions ?? []))
+    : [];
 
   const filteredProvinces = provincePool.filter((p) =>
     p.toLowerCase().includes(provinceSearch.toLowerCase())
@@ -145,7 +188,7 @@ export default function OnboardingScreen() {
       if (nearest) {
         setHemisphere('norte');
         setProvince(nearest);
-        setSelectedCountry(null);
+        setSelectedCountry('España');
       }
     } catch {
       // silent — user can still pick manually
@@ -244,7 +287,12 @@ export default function OnboardingScreen() {
               ))}
             </View>
           </View>
-          <Button title={t('onboarding.start')} onPress={() => setStep(1)} size="lg" />
+          <View style={{ gap: spacing.sm }}>
+            <Button title={t('onboarding.start')} onPress={() => setStep(1)} size="lg" />
+            <Pressable onPress={() => setStep(5)} style={{ alignItems: 'center', paddingVertical: spacing.sm }}>
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('onboarding.skipProfile')}</Text>
+            </Pressable>
+          </View>
         </View>
       )}
 
@@ -387,6 +435,9 @@ export default function OnboardingScreen() {
             <Pressable onPress={() => setStep(2)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
+            <Pressable onPress={() => setStep(4)} style={s.skipButton}>
+              <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
+            </Pressable>
             <Button
               title={t('onboarding.continue')}
               onPress={() => setStep(4)}
@@ -441,6 +492,9 @@ export default function OnboardingScreen() {
           <View style={s.stepActions}>
             <Pressable onPress={() => setStep(3)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
+            </Pressable>
+            <Pressable onPress={() => setStep(5)} style={s.skipButton}>
+              <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
             </Pressable>
             <Button
               title={t('onboarding.continue')}
@@ -664,12 +718,12 @@ export default function OnboardingScreen() {
       <Modal visible={showProvincePicker} animationType="slide" presentationStyle="pageSheet">
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
           <View style={s.modalHeader}>
-            {hemisphere === 'sur' && selectedCountry ? (
+            {selectedCountry ? (
               <Pressable onPress={() => { setSelectedCountry(null); setProvinceSearch(''); }}>
                 <Text style={{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }}>← {selectedCountry}</Text>
               </Pressable>
             ) : (
-              <Text style={[s.modalTitle, { color: colors.text }]}>{t('onboarding.selectProvince')}</Text>
+              <Text style={[s.modalTitle, { color: colors.text }]}>{t('onboarding.selectCountry')}</Text>
             )}
             <Pressable onPress={() => { setShowProvincePicker(false); setProvinceSearch(''); }}>
               <Text style={{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }}>
@@ -678,9 +732,9 @@ export default function OnboardingScreen() {
             </Pressable>
           </View>
 
-          {hemisphere === 'sur' && !selectedCountry ? (
+          {!selectedCountry ? (
             <FlatList
-              data={LATAM_COUNTRIES}
+              data={hemisphere === 'norte' ? NORTE_COUNTRIES : LATAM_COUNTRIES}
               keyExtractor={(item) => item.country}
               renderItem={({ item }) => (
                 <Pressable

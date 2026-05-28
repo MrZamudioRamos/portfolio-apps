@@ -411,7 +411,9 @@
     "expBeginner": "I've never grown food",
     "expBeginnerNote": "Don't worry! Half of our users start here.",
     "expSome": "I've grown some in the past",
-    "expExpert": "I have extensive experience"
+    "expExpert": "I have extensive experience",
+    "skipProfile": "Skip profile",
+    "selectCountry": "Select your country"
   },
   "paywall": {
     "titlePro": "You're Pro!",

@@ -70,6 +70,71 @@ export const PROVINCE_COORDS: Record<string, [number, number]> = {
   'Vizcaya':                  [43.263, -2.935],
   'Zamora':                   [41.503, -5.745],
   'Zaragoza':                 [41.656, -0.878],
+
+  // Portugal
+  'Norte (Portugal)':           [41.549, -8.428],
+  'Centro (Portugal)':          [39.825, -8.294],
+  'Lisboa':                     [38.717, -9.139],
+  'Alentejo':                   [38.571, -7.913],
+  'Algarve':                    [37.019, -7.930],
+  'Azores':                     [37.741, -25.669],
+
+  // Francia
+  'Île-de-France':              [48.857, 2.352],
+  'Bretagne':                   [48.114, -1.679],
+  'Normandie':                  [49.443, 1.099],
+  'Nouvelle-Aquitaine':         [44.837, -0.580],
+  'Pays de la Loire':           [47.218, -1.554],
+  'Grand Est':                  [48.574, 7.752],
+  'Bourgogne-Franche-Comté':    [47.322, 5.041],
+  'Auvergne-Rhône-Alpes':       [45.748, 4.847],
+  'Occitanie':                  [43.611, 3.877],
+  "Provence-Alpes-Côte d'Azur": [43.297, 5.381],
+  'Corse':                      [41.919, 8.738],
+
+  // Italia
+  'Piemonte':                   [45.063, 7.684],
+  'Lombardia':                  [45.464, 9.190],
+  'Veneto':                     [45.440, 12.333],
+  'Emilia-Romagna':             [44.495, 11.342],
+  'Toscana':                    [43.769, 11.256],
+  'Lazio':                      [41.902, 12.496],
+  'Campania':                   [40.853, 14.268],
+  'Puglia':                     [41.126, 16.866],
+  'Sicilia':                    [37.600, 13.660],
+  'Sardegna':                   [39.221, 9.121],
+
+  // Alemania
+  'Bayern':                     [48.137, 11.576],
+  'Baden-Württemberg':          [48.775, 9.182],
+  'Hessen':                     [50.110, 8.682],
+  'Nordrhein-Westfalen':        [51.227, 6.773],
+  'Niedersachsen':              [52.375, 9.732],
+  'Rheinland-Pfalz':            [49.993, 8.247],
+  'Brandenburg':                [52.396, 13.064],
+  'Sachsen':                    [51.049, 13.738],
+  'Berlin':                     [52.520, 13.405],
+  'Hamburg':                    [53.550, 9.993],
+
+  // Países Bajos
+  'Noord-Holland':              [52.377, 4.897],
+  'Zuid-Holland':               [52.078, 4.309],
+  'Utrecht':                    [52.091, 5.122],
+  'Noord-Brabant':              [51.689, 5.303],
+  'Gelderland':                 [51.983, 5.914],
+
+  // Bélgica
+  'Bruselas':                   [50.850, 4.352],
+  'Flandes':                    [51.053, 3.721],
+  'Valonia':                    [50.468, 4.872],
+
+  // Grecia
+  'Ática':                      [37.984, 23.728],
+  'Macedonia Central':          [40.640, 22.944],
+  'Creta':                      [35.329, 25.131],
+  'Islas del Egeo':             [37.447, 25.341],
+  'Tesalia':                    [39.637, 22.419],
+  'Peloponeso':                 [37.631, 22.924],
 };
 
 // Maps WMO weather code to an i18n key and emoji

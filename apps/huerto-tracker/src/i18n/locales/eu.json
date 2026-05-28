@@ -408,7 +408,9 @@
     "expBeginner": "Inoiz ez dut landatu",
     "expBeginnerNote": "Lasai! Gure erabiltzaileen erdiak hemen hasten dira.",
     "expSome": "Iraganean landatu dut",
-    "expExpert": "Esperientzia handia daukat"
+    "expExpert": "Esperientzia handia daukat",
+    "skipProfile": "Profila saltatu",
+    "selectCountry": "Aukeratu zure herrialdea"
   },
   "paywall": {
     "titlePro": "Pro zara dagoeneko!",
