@@ -73,12 +73,12 @@ export default function EditPlantScreen() {
     setPlantName(plant.name);
     setVariety(plant.variety ?? '');
     setVarietyId(plant.varietyId ?? null);
-    setSowingDate(plant.sowingDate);
+    setSowingDate(plant.sowingDate ?? '');
     setPhotoUri(plant.photoUri ?? null);
     setHarvestGoalKg(plant.harvestGoalKg ? String(plant.harvestGoalKg) : '');
     setNotes(plant.notes ?? '');
     setSoilPh(plant.soilPh ?? '');
-    setSoilTexture(plant.soilTexture);
+    setSoilTexture(plant.soilTexture ?? undefined);
     setSoilNotes(plant.soilNotes ?? '');
     setBedName(plant.bedName ?? '');
   }, [plant?.id]);
