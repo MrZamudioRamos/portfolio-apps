@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -37,7 +36,6 @@ export default function DiseaseGuideScreen() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<DiseaseType | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -113,34 +111,37 @@ export default function DiseaseGuideScreen() {
         )}
       </View>
 
-      {/* Type filters */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40, marginBottom: spacing.md }} contentContainerStyle={{ paddingHorizontal: spacing.lg, alignItems: 'center' }}>
-        <View style={{ flexDirection: 'row', gap: spacing.sm, alignSelf: 'flex-start' }}>
-          {FILTERS.map((f) => {
-            const active = typeFilter === f.key;
-            const color = f.key ? TYPE_COLOR[f.key] : colors.primary;
-            return (
-              <Pressable
-                key={f.key ?? 'all'}
-                onPress={() => setTypeFilter(f.key)}
-                style={[
-                  s.filterChip,
-                  {
-                    backgroundColor: active ? color + '22' : colors.surfaceAlt,
-                    borderColor: active ? color : colors.border,
-                  },
-                ]}
-              >
-                <Text style={[s.filterChipText, { color: active ? color : colors.textSecondary }]}>
-                  {f.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </ScrollView>
-
+      {/* Chips + disease list share one outer scroll — eliminates flex-sibling gap */}
       <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.lg, paddingTop: 0, paddingBottom: 60 }}>
+        {/* Type filters — negative margin negates content padding so chips span full width */}
+        <View style={{ marginHorizontal: -spacing.lg, marginBottom: spacing.md }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.sm }}>
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+              {FILTERS.map((f) => {
+                const active = typeFilter === f.key;
+                const color = f.key ? TYPE_COLOR[f.key] : colors.primary;
+                return (
+                  <Pressable
+                    key={f.key ?? 'all'}
+                    onPress={() => setTypeFilter(f.key)}
+                    style={[
+                      s.filterChip,
+                      {
+                        backgroundColor: active ? color + '22' : colors.surfaceAlt,
+                        borderColor: active ? color : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={[s.filterChipText, { color: active ? color : colors.textSecondary }]}>
+                      {f.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </ScrollView>
+        </View>
+
         {filtered.length === 0 && (
           <Text style={[s.emptyText, { color: colors.textDisabled }]}>{t('diseaseGuide.empty')}</Text>
         )}
@@ -187,18 +188,6 @@ export default function DiseaseGuideScreen() {
                 {isOpen && (
                   <>
                     <View style={[s.divider, { backgroundColor: colors.border }]} />
-
-                    {/* Disease image */}
-                    {disease.imageUrl && !imageError[disease.id] && (
-                      <View style={[s.imageWrapper, { backgroundColor: colors.surfaceAlt }]}>
-                        <Image
-                          source={{ uri: disease.imageUrl }}
-                          style={s.diseaseImage}
-                          resizeMode="cover"
-                          onError={() => setImageError((prev) => ({ ...prev, [disease.id]: true }))}
-                        />
-                      </View>
-                    )}
 
                     {/* Affected crops */}
                     <Text style={[s.label, { color: colors.textSecondary }]}>{t('diseaseGuide.affectedCrops')}</Text>
@@ -331,13 +320,4 @@ const makeStyles = (
       borderWidth: 1,
     },
     visualSignText: { fontSize: 11, fontWeight: fontWeight.medium },
-    imageWrapper: {
-      borderRadius: radii.md,
-      overflow: 'hidden',
-      marginBottom: spacing.xs,
-    },
-    diseaseImage: {
-      width: '100%',
-      height: 180,
-    },
   });

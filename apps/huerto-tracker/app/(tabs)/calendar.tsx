@@ -334,69 +334,7 @@ export default function CalendarScreen() {
         </Text>
       </View>
 
-      {/* Category filter chips */}
-      {presentCategories.length > 1 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ height: 40, marginBottom: spacing.xs }}
-          contentContainerStyle={{ paddingHorizontal: spacing.xl, alignItems: 'center' }}
-        >
-          <View style={{ flexDirection: 'row', gap: spacing.sm, alignSelf: 'flex-start' }}>
-            <Pressable
-              onPress={() => setCategoryFilter(null)}
-              style={[
-                s.catChip,
-                {
-                  backgroundColor: !categoryFilter ? colors.primary + '22' : colors.surfaceAlt,
-                  borderColor: !categoryFilter ? colors.primary : colors.border,
-                },
-              ]}
-            >
-              <Text style={[s.catChipText, { color: !categoryFilter ? colors.primary : colors.textSecondary }]}>
-                {t('calendar.catAll')}
-              </Text>
-            </Pressable>
-            {presentCategories.map((cat) => {
-              const cfg = CATEGORY_CONFIG[cat];
-              const active = categoryFilter === cat;
-              return (
-                <Pressable
-                  key={cat}
-                  onPress={() => setCategoryFilter(active ? null : cat)}
-                  style={[
-                    s.catChip,
-                    {
-                      backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
-                      borderColor: active ? colors.primary : colors.border,
-                    },
-                  ]}
-                >
-                  <Text style={[s.catChipText, { color: active ? colors.primary : colors.textSecondary }]}>
-                    {cfg.emoji} {t(`cropCategory.${cat}`, { defaultValue: cfg.label })}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </ScrollView>
-      )}
-
-      {/* Subtitle + link to companions */}
-      <View style={s.subTitleRow}>
-        <Text style={[s.subTitle, { color: colors.textSecondary, flex: 1, marginBottom: 0 }]}>
-          {availableCrops.length > 0
-            ? t('calendar.cropsCount', { count: availableCrops.length, month: monthName })
-            : null}
-        </Text>
-        <Pressable
-          onPress={() => router.push('/companions')}
-          style={({ pressed }) => [s.companionsLink, { borderColor: colors.primary, opacity: pressed ? 0.7 : 1 }]}
-        >
-          <Text style={[s.companionsLinkText, { color: colors.primary }]}>{t('calendar.companions')}</Text>
-        </Pressable>
-      </View>
-
+      {/* Chips + subtitle inside FlatList header — no flex-sibling gap */}
       <FlatList
         data={availableCrops}
         keyExtractor={(item) => item.id}
@@ -404,6 +342,68 @@ export default function CalendarScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <View style={{ marginHorizontal: -spacing.xl }}>
+            {presentCategories.length > 1 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingVertical: spacing.sm }}
+              >
+                <View style={{ flexDirection: 'row', gap: spacing.sm, alignSelf: 'flex-start' }}>
+                  <Pressable
+                    onPress={() => setCategoryFilter(null)}
+                    style={[
+                      s.catChip,
+                      {
+                        backgroundColor: !categoryFilter ? colors.primary + '22' : colors.surfaceAlt,
+                        borderColor: !categoryFilter ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={[s.catChipText, { color: !categoryFilter ? colors.primary : colors.textSecondary }]}>
+                      {t('calendar.catAll')}
+                    </Text>
+                  </Pressable>
+                  {presentCategories.map((cat) => {
+                    const cfg = CATEGORY_CONFIG[cat];
+                    const active = categoryFilter === cat;
+                    return (
+                      <Pressable
+                        key={cat}
+                        onPress={() => setCategoryFilter(active ? null : cat)}
+                        style={[
+                          s.catChip,
+                          {
+                            backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
+                            borderColor: active ? colors.primary : colors.border,
+                          },
+                        ]}
+                      >
+                        <Text style={[s.catChipText, { color: active ? colors.primary : colors.textSecondary }]}>
+                          {cfg.emoji} {t(`cropCategory.${cat}`, { defaultValue: cfg.label })}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            )}
+            <View style={s.subTitleRow}>
+              <Text style={[s.subTitle, { color: colors.textSecondary, flex: 1, marginBottom: 0 }]}>
+                {availableCrops.length > 0
+                  ? t('calendar.cropsCount', { count: availableCrops.length, month: monthName })
+                  : null}
+              </Text>
+              <Pressable
+                onPress={() => router.push('/companions')}
+                style={({ pressed }) => [s.companionsLink, { borderColor: colors.primary, opacity: pressed ? 0.7 : 1 }]}
+              >
+                <Text style={[s.companionsLinkText, { color: colors.primary }]}>{t('calendar.companions')}</Text>
+              </Pressable>
+            </View>
+          </View>
+        }
         ListEmptyComponent={
           <EmptyState
             emoji="💤"
