@@ -153,7 +153,8 @@
     "tools": {
       "companions": "Guia d'associacions",
       "stats": "Veure estadístiques",
-      "diseaseGuide": "Guia de plagues i malalties"
+      "diseaseGuide": "Guia de plagues i malalties",
+      "catalog": "Catàleg de plantes"
     },
     "summary": {
       "activePlants": "Plantes actives",
@@ -491,6 +492,7 @@
     "notFound": "Planta no trobada",
     "statusSection": "Estat",
     "cropInfo": "Informació del cultiu",
+    "viewInCatalog": "Veure guia completa",
     "harvest": "Collita",
     "harvestDays": "{{min}}–{{max}} dies",
     "light": "Llum",
@@ -945,7 +947,91 @@
     },
     "lavanda": {
       "name": "Lavanda"
+    },
+    "maiz": {
+      "name": "Blat de moro"
+    },
+    "frambuesa": {
+      "name": "Gerd"
+    },
+    "arandano": {
+      "name": "Nabiu"
+    },
+    "escarola": {
+      "name": "Escarola"
+    },
+    "berros": {
+      "name": "Créixens"
+    },
+    "boniato": {
+      "name": "Moniato"
+    },
+    "chirivi": {
+      "name": "Xirivia"
+    },
+    "lenteja": {
+      "name": "Llentia"
+    },
+    "garbanzo": {
+      "name": "Cigró"
+    },
+    "edamame": {
+      "name": "Edamame / Soja"
+    },
+    "chalota": {
+      "name": "Escalunya"
+    },
+    "cebollino": {
+      "name": "Cibulet"
+    },
+    "estragon": {
+      "name": "Estragó"
+    },
+    "mejorana": {
+      "name": "Marduix"
+    },
+    "stevia": {
+      "name": "Stevia"
+    },
+    "ruibarbo": {
+      "name": "Ruibarbre"
+    },
+    "verbena": {
+      "name": "Marialluïsa"
+    },
+    "borraja": {
+      "name": "Borratja"
+    },
+    "coles-bruselas": {
+      "name": "Cols de Brussel·les"
+    },
+    "pak-choi": {
+      "name": "Pak-choi"
     }
+  },
+  "catalog": {
+    "title": "Catàleg de plantes",
+    "subtitle_one": "{{count}} cultiu",
+    "subtitle": "{{count}} cultius",
+    "search": "Cerca cultiu…",
+    "filterAll": "Tots",
+    "empty": "Sense resultats. Prova un altre terme.",
+    "sowing": "SEMBRA",
+    "harvest": "COLLITA",
+    "sun": {
+      "full": "Ple sol",
+      "partial": "Mitja ombra",
+      "shade": "Ombra"
+    },
+    "water": {
+      "high": "💧💧💧 Reg alt",
+      "medium": "💧💧 Reg mitjà",
+      "low": "💧 Reg baix"
+    },
+    "companions": "BONS VEÏNS",
+    "incompatible": "EVITAR A PROP DE",
+    "tips": "CONSELLS",
+    "addToGarden": "Afegir a l'hort"
   },
   "identify": {
     "title": "Identificar plaga",

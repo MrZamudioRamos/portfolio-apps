@@ -153,7 +153,8 @@
     "tools": {
       "companions": "Guía de asociacións",
       "stats": "Ver estatísticas",
-      "diseaseGuide": "Guía de pragas e enfermidades"
+      "diseaseGuide": "Guía de pragas e enfermidades",
+      "catalog": "Catálogo de plantas"
     },
     "summary": {
       "activePlants": "Plantas activas",
@@ -491,6 +492,7 @@
     "notFound": "Planta non atopada",
     "statusSection": "Estado",
     "cropInfo": "Información do cultivo",
+    "viewInCatalog": "Ver guía completa",
     "harvest": "Colleita",
     "harvestDays": "{{min}}–{{max}} días",
     "light": "Luz",
@@ -945,7 +947,91 @@
     },
     "lavanda": {
       "name": "Lavanda"
+    },
+    "maiz": {
+      "name": "Millo"
+    },
+    "frambuesa": {
+      "name": "Framboesa"
+    },
+    "arandano": {
+      "name": "Arando"
+    },
+    "escarola": {
+      "name": "Escarola"
+    },
+    "berros": {
+      "name": "Berros"
+    },
+    "boniato": {
+      "name": "Boniato / Batata"
+    },
+    "chirivi": {
+      "name": "Cherivía"
+    },
+    "lenteja": {
+      "name": "Lentella"
+    },
+    "garbanzo": {
+      "name": "Garavanzo"
+    },
+    "edamame": {
+      "name": "Edamame / Soia"
+    },
+    "chalota": {
+      "name": "Chalota"
+    },
+    "cebollino": {
+      "name": "Cebolino"
+    },
+    "estragon": {
+      "name": "Estragón"
+    },
+    "mejorana": {
+      "name": "Maiorana"
+    },
+    "stevia": {
+      "name": "Stevia"
+    },
+    "ruibarbo": {
+      "name": "Ruibarbo"
+    },
+    "verbena": {
+      "name": "Herba Luísa"
+    },
+    "borraja": {
+      "name": "Borraxe"
+    },
+    "coles-bruselas": {
+      "name": "Coles de Bruxelas"
+    },
+    "pak-choi": {
+      "name": "Pak choi"
     }
+  },
+  "catalog": {
+    "title": "Catálogo de plantas",
+    "subtitle_one": "{{count}} cultivo",
+    "subtitle": "{{count}} cultivos",
+    "search": "Buscar cultivo…",
+    "filterAll": "Todos",
+    "empty": "Sen resultados. Proba outro termo.",
+    "sowing": "SEMENTEIRA",
+    "harvest": "COLLEITA",
+    "sun": {
+      "full": "Pleno sol",
+      "partial": "Media sombra",
+      "shade": "Sombra"
+    },
+    "water": {
+      "high": "💧💧💧 Rega alta",
+      "medium": "💧💧 Rega media",
+      "low": "💧 Rega baixa"
+    },
+    "companions": "BOS VECIÑOS",
+    "incompatible": "EVITAR PRETO DE",
+    "tips": "CONSELLOS",
+    "addToGarden": "Engadir á horta"
   },
   "identify": {
     "title": "Identificar praga",

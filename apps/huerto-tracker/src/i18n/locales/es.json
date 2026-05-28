@@ -525,6 +525,7 @@
     "notFound": "Planta no encontrada",
     "statusSection": "Estado",
     "cropInfo": "Información del cultivo",
+    "viewInCatalog": "Ver guía completa",
     "harvest": "Cosecha",
     "harvestDays": "{{min}}–{{max}} días",
     "light": "Luz",

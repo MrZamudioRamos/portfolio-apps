@@ -492,6 +492,7 @@
     "notFound": "Landarea ez da aurkitu",
     "statusSection": "Egoera",
     "cropInfo": "Laborearen informazioa",
+    "viewInCatalog": "Ikusi gida osoa",
     "harvest": "Uzta",
     "harvestDays": "{{min}}–{{max}} egun",
     "light": "Argia",

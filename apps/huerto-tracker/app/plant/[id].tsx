@@ -499,7 +499,21 @@ export default function PlantDetailScreen() {
           )}
 
           {/* Crop info — tabbed */}
-          <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.cropInfo')}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.cropInfo')}</Text>
+            {plant && CROPS_BY_ID[plant.cropId] && (
+              <Pressable
+                onPress={() => router.push(`/catalog?focus=${plant.cropId}` as any)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}
+                hitSlop={8}
+              >
+                <Ionicons name="library-outline" size={13} color={colors.primary} />
+                <Text style={{ fontSize: fontSize.xs, color: colors.primary, fontWeight: fontWeight.medium }}>
+                  {t('plantDetail.viewInCatalog')}
+                </Text>
+              </Pressable>
+            )}
+          </View>
           <View style={s.tabBar}>
             {(['overview', 'calendar', 'companions', 'howto'] as const).map((tab) => {
               const active = cropTab === tab;

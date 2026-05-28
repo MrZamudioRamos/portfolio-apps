@@ -1,6 +1,6 @@
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -23,6 +23,18 @@ const MONTHS = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 const SUN_EMOJI: Record<string, string> = { full: '☀️', partial: '⛅', shade: '🌑' };
 const WATER_EMOJI: Record<string, string> = { high: '💧💧💧', medium: '💧💧', low: '💧' };
 
+const norm = (x: string) => x.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+
+// Map normalized crop id + Spanish name → crop id, to resolve companion strings to catalog entries.
+const CROP_ID_BY_NAME: Record<string, string> = (() => {
+  const m: Record<string, string> = {};
+  for (const c of CROPS) {
+    m[norm(c.id)] = c.id;
+    m[norm(c.name)] = c.id;
+  }
+  return m;
+})();
+
 export default function CatalogScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
@@ -31,9 +43,12 @@ export default function CatalogScreen() {
   const { activeGarden } = useActiveGarden();
   const zone = (activeGarden?.climateZone ?? 'mediterranea') as ClimateZone;
 
-  const [search, setSearch] = useState('');
+  const { focus } = useLocalSearchParams<{ focus?: string }>();
+  const focusCrop = typeof focus === 'string' && CROPS.some((c) => c.id === focus) ? focus : undefined;
+
+  const [search, setSearch] = useState(() => (focusCrop ? t(`crops.${focusCrop}.name`, { defaultValue: focusCrop }) : ''));
   const [catFilter, setCatFilter] = useState<CropCategory | null>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(focusCrop ?? null);
   const [imgErr, setImgErr] = useState<Record<string, boolean>>({});
 
   const FILTERS = useMemo(() => [
@@ -58,6 +73,34 @@ export default function CatalogScreen() {
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
+
+  const goToCrop = (id: string) => {
+    setCatFilter(null);
+    setExpanded(id);
+    setSearch(t(`crops.${id}.name`, { defaultValue: id }));
+  };
+
+  const renderAssoc = (items: string[], color: string, bg: string, border: string) =>
+    items.map((c, i) => {
+      const id = CROP_ID_BY_NAME[norm(c)];
+      const label = id ? t(`crops.${id}.name`, { defaultValue: c }) : c;
+      if (!id) {
+        return (
+          <View key={i} style={[s.assocChip, { backgroundColor: bg, borderColor: border }]}>
+            <Text style={[s.assocTxt, { color }]}>{label}</Text>
+          </View>
+        );
+      }
+      return (
+        <Pressable
+          key={i}
+          onPress={() => goToCrop(id)}
+          style={({ pressed }) => [s.assocChip, { backgroundColor: bg, borderColor: border, opacity: pressed ? 0.6 : 1 }]}
+        >
+          <Text style={[s.assocTxt, { color }]}>{label} ›</Text>
+        </Pressable>
+      );
+    });
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -248,11 +291,7 @@ export default function CatalogScreen() {
                       <>
                         <Text style={[s.label, { color: colors.textSecondary }]}>{t('catalog.companions')}</Text>
                         <View style={s.assocRow}>
-                          {crop.companions.map((c, i) => (
-                            <View key={i} style={[s.assocChip, { backgroundColor: '#4CAF5015', borderColor: '#4CAF5044' }]}>
-                              <Text style={[s.assocTxt, { color: '#4CAF50' }]}>{c}</Text>
-                            </View>
-                          ))}
+                          {renderAssoc(crop.companions, '#4CAF50', '#4CAF5015', '#4CAF5044')}
                         </View>
                       </>
                     )}
@@ -262,11 +301,7 @@ export default function CatalogScreen() {
                       <>
                         <Text style={[s.label, { color: colors.textSecondary }]}>{t('catalog.incompatible')}</Text>
                         <View style={s.assocRow}>
-                          {crop.incompatible.map((c, i) => (
-                            <View key={i} style={[s.assocChip, { backgroundColor: '#F4433615', borderColor: '#F4433644' }]}>
-                              <Text style={[s.assocTxt, { color: '#F44336' }]}>{c}</Text>
-                            </View>
-                          ))}
+                          {renderAssoc(crop.incompatible, '#F44336', '#F4433615', '#F4433644')}
                         </View>
                       </>
                     )}

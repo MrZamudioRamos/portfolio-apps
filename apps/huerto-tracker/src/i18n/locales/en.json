@@ -154,7 +154,8 @@
     "tools": {
       "companions": "Companion planting guide",
       "stats": "View statistics",
-      "diseaseGuide": "Pest & disease guide"
+      "diseaseGuide": "Pest & disease guide",
+      "catalog": "Plant catalog"
     },
     "summary": {
       "activePlants": "Active plants",
@@ -494,6 +495,7 @@
     "notFound": "Plant not found",
     "statusSection": "Status",
     "cropInfo": "Crop information",
+    "viewInCatalog": "View full guide",
     "harvest": "Harvest",
     "harvestDays": "{{min}}–{{max}} days",
     "light": "Light",
@@ -991,7 +993,111 @@
     "lavanda": {
       "name": "Lavender",
       "tips": "Drought-tolerant perennial. Prune after flowering to prevent it becoming woody. Excellent for repelling aphids and moths."
+    },
+    "maiz": {
+      "name": "Corn",
+      "tips": "Plant in blocks of at least 4 rows to ensure wind pollination. Needs rich soil and generous watering."
+    },
+    "frambuesa": {
+      "name": "Raspberry",
+      "tips": "Perennial that fruits in its second year. Prune the canes that have already fruited in autumn. Needs a stake or trellis to support the canes."
+    },
+    "arandano": {
+      "name": "Blueberry",
+      "tips": "Requires very acidic soil (pH 4–5.5). Plant at least 2 varieties to encourage cross-pollination. Takes 2-3 years to produce well."
+    },
+    "escarola": {
+      "name": "Endive",
+      "tips": "Autumn-winter crop. Blanch the heart by tying the outer leaves for 10-15 days before harvesting to reduce bitterness."
+    },
+    "berros": {
+      "name": "Watercress",
+      "tips": "Needs constant moisture or running water. Ideal near irrigation sources or in water trays. Harvest the shoots before it flowers."
+    },
+    "boniato": {
+      "name": "Sweet potato",
+      "tips": "Needs loose, well-drained soil. Trim the trailing stems to focus energy on the tubers. Cure 1-2 weeks before storing."
+    },
+    "chirivi": {
+      "name": "Parsnip",
+      "tips": "Slow germination (2-3 weeks). Cold improves its flavor, making it sweeter. Can be left in the ground all winter and harvested as needed."
+    },
+    "lenteja": {
+      "name": "Lentil",
+      "tips": "Very low-maintenance crop that fixes nitrogen in the soil. Harvest when the pods are dry and brown. Tolerates drought well."
+    },
+    "garbanzo": {
+      "name": "Chickpea",
+      "tips": "Resistant to drought and heat. Does not tolerate waterlogging. Harvest dry for storage or green for immediate use."
+    },
+    "edamame": {
+      "name": "Edamame / Soybean",
+      "tips": "Harvest when the pods are full and green for edamame. For dry soybeans, wait until the pod dries. Fixes nitrogen, improving the soil."
+    },
+    "chalota": {
+      "name": "Shallot",
+      "tips": "A single bulb produces 6-12 new bulbs. Cure in a dry, ventilated place for 2-3 weeks before storing. Milder flavor than onion."
+    },
+    "cebollino": {
+      "name": "Chives",
+      "tips": "Very productive perennial. Cut from the base leaving 3-4 cm so it regrows. Its flowers attract pollinators and are edible."
+    },
+    "estragon": {
+      "name": "Tarragon",
+      "tips": "French tarragon is superior to Russian but produces no fertile seeds; propagate by division or cuttings. Use fresh to preserve its anise flavor."
+    },
+    "mejorana": {
+      "name": "Marjoram",
+      "tips": "Similar to oregano but sweeter and more delicate. Cut before it flowers for maximum aroma. Can be dried or frozen to preserve all winter."
+    },
+    "stevia": {
+      "name": "Stevia",
+      "tips": "Harvest before flowering when the stevioside content is highest. Dry the leaves in the shade to preserve their sweetening power."
+    },
+    "ruibarbo": {
+      "name": "Rhubarb",
+      "tips": "Do not harvest the first year so the plant can establish. Harvest only the stalks (never the leaves, which are toxic). Very hardy perennial."
+    },
+    "verbena": {
+      "name": "Lemon verbena",
+      "tips": "Semi-woody perennial shrub. In cold climates it loses its leaves in winter. Harvest the leaves before flowering for infusions and baking."
+    },
+    "borraja": {
+      "name": "Borage",
+      "tips": "Its blue flowers attract pollinators and repel the tomato hornworm. Flowers and young leaves are edible (cucumber flavor). Self-seeds easily."
+    },
+    "coles-bruselas": {
+      "name": "Brussels sprouts",
+      "tips": "Cold improves their flavor, making them sweeter. Remove lower leaves to encourage sprout development. Harvest from the bottom up."
+    },
+    "pak-choi": {
+      "name": "Pak choi",
+      "tips": "Fast-growing. Bolts to seed in heat; sow in partial shade or the cool season. Harvest whole or just the outer leaves."
     }
+  },
+  "catalog": {
+    "title": "Plant catalog",
+    "subtitle_one": "{{count}} crop",
+    "subtitle": "{{count}} crops",
+    "search": "Search crop…",
+    "filterAll": "All",
+    "empty": "No results. Try another term.",
+    "sowing": "SOWING",
+    "harvest": "HARVEST",
+    "sun": {
+      "full": "Full sun",
+      "partial": "Partial shade",
+      "shade": "Shade"
+    },
+    "water": {
+      "high": "💧💧💧 High water",
+      "medium": "💧💧 Medium water",
+      "low": "💧 Low water"
+    },
+    "companions": "GOOD NEIGHBORS",
+    "incompatible": "AVOID NEAR",
+    "tips": "TIPS",
+    "addToGarden": "Add to garden"
   },
   "varieties": {
     "tomate-cherry": "Cherry",
