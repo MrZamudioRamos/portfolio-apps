@@ -114,7 +114,7 @@ export default function DiseaseGuideScreen() {
       </View>
 
       {/* Type filters */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.md }} contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.xs }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 40, marginBottom: spacing.md }} contentContainerStyle={{ paddingHorizontal: spacing.lg, alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', gap: spacing.sm, alignSelf: 'flex-start' }}>
           {FILTERS.map((f) => {
             const active = typeFilter === f.key;
