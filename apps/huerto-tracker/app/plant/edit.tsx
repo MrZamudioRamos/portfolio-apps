@@ -4,7 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
@@ -66,6 +66,22 @@ export default function EditPlantScreen() {
   const [soilNotes, setSoilNotes] = useState(plant?.soilNotes ?? '');
   const [bedName, setBedName] = useState(plant?.bedName ?? '');
   const [saving, setSaving] = useState(false);
+
+  // Sync form fields when plant loads from AsyncStorage (useState initializer only runs once)
+  useEffect(() => {
+    if (!plant) return;
+    setPlantName(plant.name);
+    setVariety(plant.variety ?? '');
+    setVarietyId(plant.varietyId ?? null);
+    setSowingDate(plant.sowingDate);
+    setPhotoUri(plant.photoUri ?? null);
+    setHarvestGoalKg(plant.harvestGoalKg ? String(plant.harvestGoalKg) : '');
+    setNotes(plant.notes ?? '');
+    setSoilPh(plant.soilPh ?? '');
+    setSoilTexture(plant.soilTexture);
+    setSoilNotes(plant.soilNotes ?? '');
+    setBedName(plant.bedName ?? '');
+  }, [plant?.id]);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),

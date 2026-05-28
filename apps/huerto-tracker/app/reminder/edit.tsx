@@ -38,8 +38,8 @@ export default function ReminderEditScreen() {
   const [type, setType] = useState<ReminderType>(reminder?.type ?? 'watering');
   const [title, setTitle] = useState(reminder?.title ?? '');
   const [frequency, setFrequency] = useState<ReminderFrequency>(reminder?.frequency ?? 'daily');
-  const [hour, setHour] = useState(reminder?.time.hour ?? 8);
-  const [minute, setMinute] = useState(reminder?.time.minute ?? 0);
+  const [hour, setHour] = useState(reminder?.time?.hour ?? 8);
+  const [minute, setMinute] = useState(reminder?.time?.minute ?? 0);
   const [enabled, setEnabled] = useState(reminder?.enabled ?? true);
   const [saving, setSaving] = useState(false);
 
