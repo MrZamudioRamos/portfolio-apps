@@ -51,15 +51,15 @@ export default function DashboardScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
 
-  const { activeGarden: garden, gardens: allGardens } = useActiveGarden();
+  const { activeGarden: garden, gardens: allGardens, gardensLoading } = useActiveGarden();
   const allPlants = useCollection<Plant>('plants');
   const reminders = useCollection<GardenReminder>('reminders');
   const entries = useCollection<DiaryEntry>('diary_entries');
   const { customCropsById } = useCustomCrops();
 
-  // Filter plants to active garden
+  // Filter plants to active garden; show [] while garden is still loading to avoid mixing all-garden data
   const gardenPlantItems = useMemo(
-    () => (garden ? allPlants.items.filter((p) => p.gardenId === garden.id) : allPlants.items),
+    () => (!garden ? [] : allPlants.items.filter((p) => p.gardenId === garden.id)),
     [allPlants.items, garden?.id]
   );
   const plants = useMemo(
@@ -73,7 +73,7 @@ export default function DashboardScreen() {
       reminders.refresh();
       entries.refresh();
       if (garden?.province) checkFrost(garden.province);
-    }, [garden?.province])
+    }, [garden?.id, garden?.province])
   );
 
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
@@ -165,7 +165,7 @@ export default function DashboardScreen() {
         const n = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
         return sum + (isNaN(n) ? 0 : n);
       }, 0);
-  }, [entries.items]);
+  }, [entries.items, garden?.id]);
 
   const lastWateredByPlant = useMemo(() => {
     const idx = new Map<string, string>();

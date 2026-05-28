@@ -51,11 +51,12 @@ export default function NewPlantScreen() {
   const plants = useCollection<Plant>('plants');
   const diaryStore = useMemo(() => createStore<DiaryEntry>('diary_entries'), []);
   const { isGuest } = useSession();
-  const { isPro } = usePurchases();
+  const { isPro, loading: proLoading } = usePurchases();
 
   // Tier limits: guest = 3, free registered = 20, pro = unlimited
+  // Guard with proLoading: isPro starts false while AsyncStorage loads — don't gate on stale value
   const plantLimit = isGuest ? 3 : isPro ? Infinity : 20;
-  const atLimit = plants.count >= plantLimit;
+  const atLimit = !proLoading && plants.count >= plantLimit;
 
   const { collection: customCropsCollection, customCropsById } = useCustomCrops();
 

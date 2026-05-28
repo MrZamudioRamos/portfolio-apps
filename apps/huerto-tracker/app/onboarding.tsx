@@ -231,6 +231,8 @@ export default function OnboardingScreen() {
       }
       await complete();
       setStep(7);
+    } catch (e) {
+      console.error('[onboarding] handleCreate failed:', e);
     } finally {
       setSaving(false);
     }
