@@ -140,7 +140,7 @@ export default function DiseaseGuideScreen() {
         </View>
       </ScrollView>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: spacing.lg, paddingTop: 0, paddingBottom: 60 }}>
+      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.lg, paddingTop: 0, paddingBottom: 60 }}>
         {filtered.length === 0 && (
           <Text style={[s.emptyText, { color: colors.textDisabled }]}>{t('diseaseGuide.empty')}</Text>
         )}

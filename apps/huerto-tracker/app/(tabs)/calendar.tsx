@@ -401,6 +401,7 @@ export default function CalendarScreen() {
         data={availableCrops}
         keyExtractor={(item) => item.id}
         renderItem={renderCropItem}
+        style={{ flex: 1 }}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
