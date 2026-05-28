@@ -292,6 +292,14 @@ export default function SettingsScreen() {
           />
           <Separator colors={colors} />
           <RowAction
+            icon="library-outline"
+            label={t('settings.tools.catalog')}
+            colors={colors}
+            s={s}
+            onPress={() => router.push('/catalog' as any)}
+          />
+          <Separator colors={colors} />
+          <RowAction
             icon="refresh-circle-outline"
             label={t('settings.rotation')}
             colors={colors}

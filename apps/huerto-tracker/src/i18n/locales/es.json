@@ -159,7 +159,8 @@
     "tools": {
       "companions": "Guía de asociaciones",
       "stats": "Ver estadísticas",
-      "diseaseGuide": "Guía de plagas y enfermedades"
+      "diseaseGuide": "Guía de plagas y enfermedades",
+      "catalog": "Catálogo de plantas"
     },
     "summary": {
       "activePlants": "Plantas activas",
@@ -1177,6 +1178,86 @@
     "lavanda": {
       "name": "Lavanda",
       "tips": "Perenne muy resistente a la sequía. Corta los tallos florales a 1/3 tras la floración para mantener forma compacta. Atrae abejas y repele polillas y pulgones."
+    },
+    "maiz": {
+      "name": "Maíz",
+      "tips": "Planta en bloques de al menos 4 filas para asegurar la polinización por viento. Necesita suelo rico y riegos abundantes."
+    },
+    "frambuesa": {
+      "name": "Frambuesa",
+      "tips": "Planta perenne que fructifica el segundo año. Poda los tallos que ya fructificaron en otoño. Necesita tutor o espaldera para sujetar los tallos."
+    },
+    "arandano": {
+      "name": "Arándano",
+      "tips": "Requiere suelo muy ácido (pH 4–5,5). Planta al menos 2 variedades para favorecer la polinización cruzada. Tarda 2-3 años en producir bien."
+    },
+    "coles-bruselas": {
+      "name": "Coles de Bruselas",
+      "tips": "El frío mejora su sabor haciéndolas más dulces. Elimina hojas inferiores para favorecer el desarrollo de las coles. Cosecha de abajo arriba."
+    },
+    "pak-choi": {
+      "name": "Pak choi",
+      "tips": "De crecimiento rápido. Sube a semilla con el calor; siembra en semisombra o en estación fresca. Cosecha entera o solo las hojas exteriores."
+    },
+    "escarola": {
+      "name": "Escarola",
+      "tips": "Cultivo otoño-invierno. Blanquea el corazón atando las hojas exteriores durante 10-15 días antes de cosechar para reducir el amargor."
+    },
+    "berros": {
+      "name": "Berros",
+      "tips": "Necesita humedad constante o agua corriente. Ideal junto a fuentes de riego o en bandejas con agua. Cosecha los brotes antes de que florezca."
+    },
+    "boniato": {
+      "name": "Boniato / Batata",
+      "tips": "Necesita suelo suelto y bien drenado. Poda los tallos rastreros para concentrar energía en los tubérculos. Cura 1-2 semanas antes de guardar."
+    },
+    "chirivi": {
+      "name": "Chirivía",
+      "tips": "Germinación lenta (2-3 semanas). El frío mejora su sabor haciéndola más dulce. Puede dejarse en tierra todo el invierno y cosechar según necesidad."
+    },
+    "lenteja": {
+      "name": "Lenteja",
+      "tips": "Cultivo muy poco exigente que fija nitrógeno en el suelo. Cosecha cuando las vainas estén secas y marrones. Tolera bien la sequía."
+    },
+    "garbanzo": {
+      "name": "Garbanzo",
+      "tips": "Resistente a la sequía y al calor. No tolera el encharcamiento. Cosecha en seco para almacenar o en verde para consumo inmediato."
+    },
+    "edamame": {
+      "name": "Edamame / Soja",
+      "tips": "Cosecha cuando las vainas estén llenas y verdes para edamame. Para soja seca espera a que la vaina se seque. Fija nitrógeno mejorando el suelo."
+    },
+    "chalota": {
+      "name": "Chalota",
+      "tips": "Un solo bulbo produce 6-12 nuevos bulbos. Cura en lugar seco y ventilado 2-3 semanas antes de guardar. Sabor más suave que la cebolla."
+    },
+    "cebollino": {
+      "name": "Cebollino",
+      "tips": "Perenne muy productivo. Corta desde la base dejando 3-4 cm para que rebrote. Sus flores atraen polinizadores y son comestibles."
+    },
+    "estragon": {
+      "name": "Estragón",
+      "tips": "El estragón francés es superior al ruso pero no da semillas fértiles; multiplica por división o esquejes. Usa fresco para conservar su sabor anisado."
+    },
+    "mejorana": {
+      "name": "Mejorana",
+      "tips": "Similar al orégano pero más dulce y delicada. Corta antes de que florezca para máximo aroma. Se puede secar o congelar para conservar todo el invierno."
+    },
+    "stevia": {
+      "name": "Stevia",
+      "tips": "Cosecha antes de la floración cuando el contenido en esteviósido es máximo. Seca las hojas a la sombra para conservar su potencia endulzante."
+    },
+    "ruibarbo": {
+      "name": "Ruibarbo",
+      "tips": "No coseches el primer año para que la planta se establezca. Cosecha solo los tallos (nunca las hojas, que son tóxicas). Planta perenne muy resistente."
+    },
+    "verbena": {
+      "name": "Verbena de limón",
+      "tips": "Arbusto perenne semileñoso. En invierno pierde las hojas en climas fríos. Cosecha las hojas antes de la floración para infusiones y repostería."
+    },
+    "borraja": {
+      "name": "Borraja",
+      "tips": "Sus flores azules atraen polinizadores y ahuyentan el gusano del tomate. Flores y hojas jóvenes son comestibles (sabor a pepino). Se autorresiembra fácilmente."
     }
   },
   "waterMethod": {
@@ -1197,6 +1278,30 @@
     "clay": "Arcilloso",
     "silty": "Limoso",
     "peaty": "Turboso"
+  },
+  "catalog": {
+    "title": "Catálogo de plantas",
+    "subtitle_one": "{{count}} cultivo",
+    "subtitle": "{{count}} cultivos",
+    "search": "Buscar cultivo…",
+    "filterAll": "Todos",
+    "empty": "Sin resultados. Prueba otro término.",
+    "sowing": "SIEMBRA",
+    "harvest": "COSECHA",
+    "sun": {
+      "full": "Pleno sol",
+      "partial": "Semisombra",
+      "shade": "Sombra"
+    },
+    "water": {
+      "high": "💧💧💧 Riego alto",
+      "medium": "💧💧 Riego medio",
+      "low": "💧 Riego bajo"
+    },
+    "companions": "BUENOS VECINOS",
+    "incompatible": "EVITAR JUNTO A",
+    "tips": "CONSEJOS",
+    "addToGarden": "Añadir al huerto"
   },
   "rotation": {
     "title": "Rotación de cultivos",

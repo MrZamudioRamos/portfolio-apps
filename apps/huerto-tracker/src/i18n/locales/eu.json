@@ -153,7 +153,8 @@
     "tools": {
       "companions": "Elkartze gida",
       "stats": "Estatistikak ikusi",
-      "diseaseGuide": "Izurri eta gaixotasun-gida"
+      "diseaseGuide": "Izurri eta gaixotasun-gida",
+      "catalog": "Landare katalogoa"
     },
     "summary": {
       "activePlants": "Landare aktiboak",
@@ -945,7 +946,51 @@
     },
     "lavanda": {
       "name": "Izpiliku"
-    }
+    },
+    "maiz": { "name": "Artoa" },
+    "frambuesa": { "name": "Mugurdia" },
+    "arandano": { "name": "Ahabi urdina" },
+    "coles-bruselas": { "name": "Bruselako azak" },
+    "pak-choi": { "name": "Pak choi" },
+    "escarola": { "name": "Eskariola" },
+    "berros": { "name": "Iturri-belarrak" },
+    "boniato": { "name": "Batata" },
+    "chirivi": { "name": "Chiribía" },
+    "lenteja": { "name": "Dilistak" },
+    "garbanzo": { "name": "Txitxirioak" },
+    "edamame": { "name": "Edamame / Soja" },
+    "chalota": { "name": "Txalota" },
+    "cebollino": { "name": "Tipula-bedarrak" },
+    "estragon": { "name": "Estragon" },
+    "mejorana": { "name": "Mejorana" },
+    "stevia": { "name": "Stevia" },
+    "ruibarbo": { "name": "Ruibarboa" },
+    "verbena": { "name": "Limoi-berbena" },
+    "borraja": { "name": "Boraja" }
+  },
+  "catalog": {
+    "title": "Landare katalogoa",
+    "subtitle_one": "{{count}} labore",
+    "subtitle": "{{count}} labore",
+    "search": "Laborea bilatu…",
+    "filterAll": "Guztiak",
+    "empty": "Emaitzarik ez. Beste termino bat probatu.",
+    "sowing": "EREINTZA",
+    "harvest": "UZTA",
+    "sun": {
+      "full": "Eguzki betea",
+      "partial": "Itzal partziala",
+      "shade": "Itzala"
+    },
+    "water": {
+      "high": "💧💧💧 Ureztatzea altua",
+      "medium": "💧💧 Ureztatzea ertaina",
+      "low": "💧 Ureztatzea baxua"
+    },
+    "companions": "AUZOKIDE ONAK",
+    "incompatible": "SAIHESTU ONDOAN",
+    "tips": "AHOLKUAK",
+    "addToGarden": "Baratzera gehitu"
   },
   "identify": {
     "title": "Izurria identifikatu",
