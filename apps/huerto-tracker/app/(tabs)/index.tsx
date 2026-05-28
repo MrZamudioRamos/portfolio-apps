@@ -212,10 +212,10 @@ export default function DashboardScreen() {
   );
 
   const currentMonth = new Date().getMonth() + 1;
-  const sowingData = useMemo(() => {
-    if (!garden?.climateZone) return null;
-    return getSowingNow(garden.climateZone, currentMonth);
-  }, [garden?.climateZone, currentMonth]);
+  const sowingData = useMemo(
+    () => getSowingNow(garden?.climateZone ?? 'mediterranea', currentMonth),
+    [garden?.climateZone, currentMonth]
+  );
 
   // Update home screen widget snapshot whenever garden data changes
   useEffect(() => {
@@ -602,8 +602,26 @@ export default function DashboardScreen() {
               </View>
             )}
 
+            {/* Tarjeta bienvenida — solo en primer uso (sin plantas) */}
+            {plants.count === 0 && !plants.loading && (
+              <View style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
+                <Text style={[s.firstUseTitle, { color: colors.text }]}>{t('home.firstUseTitle', { name: garden?.name })}</Text>
+                <Text style={[s.firstUseDesc, { color: colors.textSecondary }]}>{t('home.firstUseDesc')}</Text>
+                <Pressable
+                  onPress={() => router.push('/plant/new')}
+                  style={({ pressed }) => [
+                    s.firstUseCta,
+                    { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
+                  ]}
+                >
+                  <Ionicons name="add-circle-outline" size={20} color="#fff" />
+                  <Text style={[s.firstUseCtaText]}>{t('home.firstUseCta')}</Text>
+                </Pressable>
+              </View>
+            )}
+
             {/* Sow Now card */}
-            {sowingData && (sowingData.now.length > 0 || sowingData.soon.length > 0) && (
+            {(sowingData.now.length > 0 || sowingData.soon.length > 0) && (
               <View style={[s.sowCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                 {sowingData.now.length > 0 && (
                   <>
@@ -720,24 +738,6 @@ export default function DashboardScreen() {
                 <Text style={[s.statsLinkText, { color: colors.primary }]}>{t('home.viewStats')}</Text>
                 <Ionicons name="chevron-forward" size={14} color={colors.primary} />
               </Pressable>
-            )}
-
-            {/* Tarjeta bienvenida — solo en primer uso (sin plantas) */}
-            {plants.count === 0 && !plants.loading && (
-              <View style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
-                <Text style={[s.firstUseTitle, { color: colors.text }]}>{t('home.firstUseTitle', { name: garden?.name })}</Text>
-                <Text style={[s.firstUseDesc, { color: colors.textSecondary }]}>{t('home.firstUseDesc')}</Text>
-                <Pressable
-                  onPress={() => router.push('/plant/new')}
-                  style={({ pressed }) => [
-                    s.firstUseCta,
-                    { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
-                  ]}
-                >
-                  <Ionicons name="add-circle-outline" size={20} color="#fff" />
-                  <Text style={[s.firstUseCtaText]}>{t('home.firstUseCta')}</Text>
-                </Pressable>
-              </View>
             )}
 
             {/* Section title + Regar todo */}

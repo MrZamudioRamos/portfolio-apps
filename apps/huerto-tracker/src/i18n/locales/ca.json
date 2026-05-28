@@ -51,7 +51,7 @@
     "waterAllMessage": "Registrar reg per a les {{count}} plantes?",
     "waterAllConfirm": "Regar totes",
     "firstUseTitle": "{{name}} està llest 🌱",
-    "firstUseDesc": "Toca un cultiu de dalt per afegir-lo, o usa el botó de baix.",
+    "firstUseDesc": "Toca un cultiu de baix per afegir-lo, o usa el botó +.",
     "firstUseCta": "Afegir la meva primera planta",
     "emptyTitle": "Encara no hi ha plantes",
     "emptyDesc": "Afegeix la teva primera planta per començar a registrar el teu hort.",

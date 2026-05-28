@@ -51,7 +51,7 @@
     "waterAllMessage": "Log watering for {{count}} plants?",
     "waterAllConfirm": "Water all",
     "firstUseTitle": "{{name}} is ready 🌱",
-    "firstUseDesc": "Tap a crop above to add it, or use the button below.",
+    "firstUseDesc": "Tap a crop below to add it, or use the + button.",
     "firstUseCta": "Add my first plant",
     "emptyTitle": "No plants yet",
     "emptyDesc": "Add your first plant to start tracking your garden.",

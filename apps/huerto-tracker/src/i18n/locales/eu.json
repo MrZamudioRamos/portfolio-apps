@@ -51,7 +51,7 @@
     "waterAllMessage": "{{count}} landareen ureztatze bat erregistratu?",
     "waterAllConfirm": "Denak ureztatu",
     "firstUseTitle": "{{name}} prest dago 🌱",
-    "firstUseDesc": "Ukitu goiko laboreetako bat gehitzeko, edo erabili beheko botoia.",
+    "firstUseDesc": "Ukitu beheko laboreetako bat gehitzeko, edo erabili + botoia.",
     "firstUseCta": "Nire lehen landarea gehitu",
     "emptyTitle": "Oraindik ez dago landarerik",
     "emptyDesc": "Gehitu zure lehen landarea baratzea erregistratzen hasteko.",

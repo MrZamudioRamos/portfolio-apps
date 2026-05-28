@@ -51,7 +51,7 @@
     "waterAllMessage": "Rexistrar rego para as {{count}} plantas?",
     "waterAllConfirm": "Regar todas",
     "firstUseTitle": "{{name}} está listo 🌱",
-    "firstUseDesc": "Toca un cultivo de arriba para engadilo, ou usa o botón de abaixo.",
+    "firstUseDesc": "Toca un cultivo de abaixo para engadilo, ou usa o botón +.",
     "firstUseCta": "Engadir a miña primeira planta",
     "emptyTitle": "Aínda non hai plantas",
     "emptyDesc": "Engade a túa primeira planta para comezar a rexistrar a túa horta.",
