@@ -259,7 +259,7 @@ export default function SettingsScreen() {
           <RowAction
             icon="git-network-outline"
             label={t('settings.tools.companions')}
-            badge={isPro ? undefined : 'Pro'}
+            badge={isPro ? undefined : 'Pro parcial'}
             colors={colors}
             s={s}
             onPress={() => router.push('/companions')}
