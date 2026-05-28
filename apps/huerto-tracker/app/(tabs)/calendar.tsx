@@ -300,7 +300,7 @@ export default function CalendarScreen() {
           <Text style={[{ fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, color: colors.textSecondary, marginBottom: spacing.xs, paddingHorizontal: spacing.xl }]}>
             🧺 {t('calendar.upcomingHarvests')}
           </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm, alignItems: 'center' }}>
             {upcomingHarvests.slice(0, 8).map(({ plant, daysLeft, isReady }) => {
               const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
               const color = isReady ? '#FF7043' : daysLeft <= 7 ? '#FFA726' : '#4CAF50';
