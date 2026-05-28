@@ -428,6 +428,13 @@ export default function DashboardScreen() {
           </Pressable>
         )}
         <Pressable
+          onPress={() => router.push('/catalog' as any)}
+          style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
+          hitSlop={8}
+        >
+          <Ionicons name="library-outline" size={20} color={colors.primary} />
+        </Pressable>
+        <Pressable
           onPress={() => router.push('/garden/map')}
           style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
           hitSlop={8}
