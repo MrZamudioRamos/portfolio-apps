@@ -1505,6 +1505,18 @@
     "harvest_check": "Check for harvest",
     "custom": "Garden reminder"
   },
+  "rotation": {
+    "title": "Crop rotation",
+    "noBed": "No bed",
+    "conflict": "Conflict",
+    "conflictDetail": "Same family ({{families}}) repeated this year. Risk of soil diseases.",
+    "suggest": "Good options for next cycle:",
+    "familyGuide": "BOTANICAL FAMILIES",
+    "empty": "Assign beds to your plants",
+    "emptyDesc": "Edit each plant and add a bed name (e.g. \"Bed A\") to see rotation history and recommendations.",
+    "notApplicable": "Rotation not applicable",
+    "notApplicableDesc": "Crop rotation applies to gardens with beds. In balcony or pot setups each container is independent."
+  },
   "customCrop": {
     "mycrops": "My crops",
     "addNew": "Add custom crop",

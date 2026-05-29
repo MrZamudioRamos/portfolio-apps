@@ -211,6 +211,11 @@ export default function OnboardingScreen() {
 
   async function handleCreate() {
     if (!gardenName.trim() || !province || !climateZone) return;
+    if (gardens.items.length > 0) {
+      await complete();
+      router.replace('/(tabs)');
+      return;
+    }
     setSaving(true);
     try {
       await gardens.create({

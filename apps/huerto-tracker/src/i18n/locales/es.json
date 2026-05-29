@@ -1322,7 +1322,9 @@
     "suggest": "Buenas opciones para el próximo ciclo:",
     "familyGuide": "FAMILIAS BOTÁNICAS",
     "empty": "Asigna parcelas a tus plantas",
-    "emptyDesc": "Edita cada planta y añade un nombre de parcela (ej. \"Bancal A\") para ver el historial de rotación y recomendaciones."
+    "emptyDesc": "Edita cada planta y añade un nombre de parcela (ej. \"Bancal A\") para ver el historial de rotación y recomendaciones.",
+    "notApplicable": "Rotación no aplicable",
+    "notApplicableDesc": "La rotación de cultivos es para huertos con bancales. En terraza o macetas cada contenedor es independiente."
   },
   "costs": {
     "title": "Costes y ROI",

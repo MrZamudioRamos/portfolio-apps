@@ -3,6 +3,7 @@ import { useCollection } from '@portfolio/storage';
 import * as ImagePicker from 'expo-image-picker';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -35,6 +36,7 @@ export default function EditPlantScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
 
+  const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
   const customCrops = useCollection<CustomCrop>('custom_crops');
   const plant = plants.getById(id);
@@ -88,7 +90,7 @@ export default function EditPlantScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  if (!plant || !crop) {
+  if (!plant || !crop || (activeGarden && plant.gardenId !== activeGarden.id)) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
         <Pressable onPress={() => router.back()} style={s.backBtn}>

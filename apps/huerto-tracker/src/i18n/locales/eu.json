@@ -1207,6 +1207,18 @@
     "harvest_check": "Uzta egiaztatu",
     "custom": "Lorategiko gogorarazlea"
   },
+  "rotation": {
+    "title": "Labore txandakatzea",
+    "noBed": "Ohirik gabe",
+    "conflict": "Gatazka",
+    "conflictDetail": "Familia bera ({{families}}) urte berean errepikatuta. Lurzoruaren gaixotasun arriskua.",
+    "suggest": "Hurrengo ziklorako aukera onak:",
+    "familyGuide": "FAMILIA BOTANIKOAK",
+    "empty": "Esleitu ohiak zure landareetara",
+    "emptyDesc": "Editatu landare bakoitza eta gehitu ohi izen bat (adib. \"Ohi A\") txandakatze historia ikusteko.",
+    "notApplicable": "Txandakatzea ez da aplikagarri",
+    "notApplicableDesc": "Labore txandakatzea ohiak dituzten baratzeetarako da. Balkoian edo ontziak badituzu, ontzi bakoitza independentea da."
+  },
   "customCrop": {
     "mycrops": "Nire laboreak",
     "addNew": "Labore pertsonalizatua gehitu",

@@ -1247,6 +1247,18 @@
     "harvest_check": "Comprova si hi ha collita",
     "custom": "Recordatori d'hort"
   },
+  "rotation": {
+    "title": "Rotació de cultius",
+    "noBed": "Sense parcel·la",
+    "conflict": "Conflicte",
+    "conflictDetail": "Mateixa família ({{families}}) repetida este any. Risc de malalties del sòl.",
+    "suggest": "Bones opcions per al pròxim cicle:",
+    "familyGuide": "FAMÍLIES BOTÀNIQUES",
+    "empty": "Assigna parcel·les a les teues plantes",
+    "emptyDesc": "Edita cada planta i afig un nom de parcel·la (p. ex. \"Bancal A\") per a veure l'historial de rotació.",
+    "notApplicable": "Rotació no aplicable",
+    "notApplicableDesc": "La rotació de cultius és per a horts amb bancals. En terrassa o testos cada contenidor és independent."
+  },
   "customCrop": {
     "mycrops": "Els meus cultius",
     "addNew": "Afegir cultiu personalitzat",

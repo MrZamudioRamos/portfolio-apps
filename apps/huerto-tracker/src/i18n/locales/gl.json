@@ -1247,6 +1247,18 @@
     "harvest_check": "Comproba se hai colleita",
     "custom": "Recordatorio de horta"
   },
+  "rotation": {
+    "title": "Rotación de cultivos",
+    "noBed": "Sen parcela",
+    "conflict": "Conflito",
+    "conflictDetail": "Mesma familia ({{families}}) repetida este ano. Risco de enfermidades do solo.",
+    "suggest": "Boas opcións para o próximo ciclo:",
+    "familyGuide": "FAMILIAS BOTÁNICAS",
+    "empty": "Asigna parcelas ás túas plantas",
+    "emptyDesc": "Edita cada planta e engade un nome de parcela (ex. \"Bancal A\") para ver o historial de rotación.",
+    "notApplicable": "Rotación non aplicable",
+    "notApplicableDesc": "A rotación de cultivos é para hortas con bancais. En terraza ou macetas cada contedor é independente."
+  },
   "customCrop": {
     "mycrops": "Os meus cultivos",
     "addNew": "Engadir cultivo personalizado",

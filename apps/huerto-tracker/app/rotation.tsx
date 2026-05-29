@@ -150,7 +150,13 @@ export default function RotationScreen() {
       </View>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-        {bedData.length === 0 ? (
+        {(activeGarden?.gardenType === 'balcon' || activeGarden?.gardenType === 'maceta') ? (
+          <View style={s.emptyState}>
+            <Text style={{ fontSize: 48 }}>🪴</Text>
+            <Text style={[s.emptyTitle, { color: colors.text }]}>{t('rotation.notApplicable')}</Text>
+            <Text style={[s.emptyDesc, { color: colors.textSecondary }]}>{t('rotation.notApplicableDesc')}</Text>
+          </View>
+        ) : bedData.length === 0 ? (
           <View style={s.emptyState}>
             <Text style={{ fontSize: 48 }}>🌱</Text>
             <Text style={[s.emptyTitle, { color: colors.text }]}>{t('rotation.empty')}</Text>
