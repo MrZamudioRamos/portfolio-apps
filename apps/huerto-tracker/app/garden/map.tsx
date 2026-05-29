@@ -44,6 +44,7 @@ import { getCompatibilityStatus } from '../../src/data/companions';
 import type { Plant } from '../../src/models/plant';
 import { PLANT_STATUS_CONFIG } from '../../src/models/plant';
 import type { Garden } from '../../src/models/garden';
+import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import {
   DEFAULT_GRID_ROWS,
   DEFAULT_GRID_COLS,
@@ -66,6 +67,9 @@ export default function GardenMapScreen() {
   const gridRows = garden?.gridRows ?? DEFAULT_GRID_ROWS;
   const gridCols = garden?.gridCols ?? DEFAULT_GRID_COLS;
   const gridColor = garden?.color ?? colors.border;
+  const gardenType = garden?.gardenType ?? 'huerto';
+  const isPotMode = gardenType === 'balcon' || gardenType === 'maceta';
+  const gardenTypeCfg = GARDEN_TYPE_CONFIG[gardenType];
 
   const plants = useCollection<Plant>('plants');
   const { layout, loading, setCell, swapCells } = useGardenLayout(garden?.id, gridRows, gridCols);
@@ -402,7 +406,12 @@ export default function GardenMapScreen() {
             <Ionicons name="arrow-back" size={24} color={colors.primary} />
           </Pressable>
           <View style={{ flex: 1, marginLeft: spacing.md }}>
-            <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardenMap.title')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
+              <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardenMap.title')}</Text>
+              <View style={[s.typeBadge, { backgroundColor: colors.primary + '20' }]}>
+                <Text style={{ fontSize: 12 }}>{gardenTypeCfg.emoji}</Text>
+              </View>
+            </View>
             <Text style={[s.headerSub, { color: colors.textSecondary }]}>
               {t('gardenMap.summary', { placed: placedPlantIds.size, total: gardenPlants.length, cols: gridCols, rows: gridRows })}
             </Text>
@@ -422,6 +431,16 @@ export default function GardenMapScreen() {
             <Ionicons name="share-outline" size={22} color={colors.primary} />
           </Pressable>
         </View>
+
+        {/* ── Pot mode banner ── */}
+        {isPotMode && moveSourceCell === null && (
+          <View style={[s.potBanner, { backgroundColor: '#8B572A18', borderBottomColor: '#8B572A30' }]}>
+            <Text style={{ fontSize: 14 }}>{gardenTypeCfg.emoji}</Text>
+            <Text style={[s.potBannerText, { color: '#8B572A' }]}>
+              {t('gardenType.' + gardenType)} · {t('gardenMap.potModeHint')}
+            </Text>
+          </View>
+        )}
 
         {/* ── Move mode banner ── */}
         {moveSourceCell !== null && (
@@ -485,6 +504,8 @@ export default function GardenMapScreen() {
                               ? colors.surfaceAlt
                               : inMoveMode
                               ? colors.primary + '08'
+                              : isPotMode
+                              ? '#8B572A18'
                               : colors.surface,
                             borderColor: isTarget
                               ? colors.primary
@@ -494,10 +515,13 @@ export default function GardenMapScreen() {
                               ? (statusColor + '55')
                               : inMoveMode
                               ? colors.primary + '40'
+                              : isPotMode
+                              ? '#8B572A55'
                               : colors.border,
                             borderWidth: (isSource || isTarget) ? 2.5 : 1.5,
                             borderStyle: isTarget ? 'dashed' : 'solid',
                             opacity: isDragging && isSource ? 0.35 : pressed ? 0.75 : 1,
+                            ...(isPotMode ? { borderRadius: 999, aspectRatio: 1 } : {}),
                           },
                         ]}
                       >
@@ -897,6 +921,13 @@ const makeStyles = (
     },
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     headerSub: { fontSize: fontSize.xs, marginTop: 1 },
+    typeBadge: { borderRadius: radii.full, paddingHorizontal: 6, paddingVertical: 2 },
+    potBanner: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+      gap: spacing.sm, paddingVertical: 6, paddingHorizontal: spacing.lg,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    potBannerText: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
     moveBanner: {
       flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
       gap: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg,

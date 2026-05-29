@@ -346,6 +346,7 @@
     "remove": "Quitar",
     "movePlant": "Mover",
     "moveModeHint": "Toca a parcela de destino · Preme ✕ para cancelar",
+    "potModeHint": "Cada cela representa un testo",
     "moveCancelled": "Movemento cancelado",
     "shareTitle": "A miña horta",
     "shareNotAvailable": "Compartir non está dispoñible neste dispositivo.",

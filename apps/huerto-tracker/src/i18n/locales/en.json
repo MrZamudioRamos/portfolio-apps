@@ -350,6 +350,7 @@
     "remove": "Remove",
     "movePlant": "Move",
     "moveModeHint": "Tap the destination plot · Press ✕ to cancel",
+    "potModeHint": "Each cell represents a pot",
     "moveCancelled": "Move cancelled",
     "shareTitle": "My Garden",
     "shareNotAvailable": "Sharing is not available on this device.",

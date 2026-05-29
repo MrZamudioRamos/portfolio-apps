@@ -369,6 +369,7 @@
     "remove": "Quitar",
     "movePlant": "Mover",
     "moveModeHint": "Toca la parcela de destino · Pulsa ✕ para cancelar",
+    "potModeHint": "Cada celda representa una maceta",
     "moveCancelled": "Movimiento cancelado",
     "shareTitle": "Mi Huerto",
     "shareNotAvailable": "Compartir no está disponible en este dispositivo.",
