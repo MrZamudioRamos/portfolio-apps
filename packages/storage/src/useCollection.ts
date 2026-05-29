@@ -8,6 +8,8 @@ export interface UseCollectionResult<T extends BaseItem> {
   update: (id: string, data: Partial<Omit<T, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<T | null>;
   remove: (id: string) => Promise<void>;
   removeMany: (ids: string[]) => Promise<void>;
+  softRemove: (id: string) => Promise<void>;
+  softRemoveMany: (ids: string[]) => Promise<void>;
   getById: (id: string) => T | undefined;
   refresh: () => Promise<void>;
   count: number;
@@ -22,9 +24,11 @@ export function useCollection<T extends BaseItem>(key: string): UseCollectionRes
     setLoading(true);
     try {
       const all = await store.getAll();
-      const sorted = [...all].sort(
-        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      );
+      // Hide soft-deleted rows from the UI; they're kept in storage so the
+      // deletion can still sync to other devices.
+      const sorted = all
+        .filter((item) => !item.deletedAt)
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
       setItems(sorted);
     } finally {
       setLoading(false);
@@ -69,6 +73,22 @@ export function useCollection<T extends BaseItem>(key: string): UseCollectionRes
     [store, refresh]
   );
 
+  const softRemove = useCallback(
+    async (id: string) => {
+      await store.softRemove(id);
+      await refresh();
+    },
+    [store, refresh]
+  );
+
+  const softRemoveMany = useCallback(
+    async (ids: string[]) => {
+      await store.softRemoveMany(ids);
+      await refresh();
+    },
+    [store, refresh]
+  );
+
   const getById = useCallback(
     (id: string) => items.find((item) => item.id === id),
     [items]
@@ -81,6 +101,8 @@ export function useCollection<T extends BaseItem>(key: string): UseCollectionRes
     update,
     remove,
     removeMany,
+    softRemove,
+    softRemoveMany,
     getById,
     refresh,
     count: items.length,

@@ -1,8 +1,6 @@
 import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useReminders } from '@portfolio/notifications';
-import { useSession } from '@portfolio/supabase';
-import { removeFromCloud } from '../src/sync/pendingDeletes';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -42,7 +40,6 @@ export default function GardensScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { isPro } = usePurchases();
-  const { isGuest } = useSession();
 
   const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
@@ -132,19 +129,17 @@ export default function GardensScreen() {
           text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
-            // Supabase: garden CASCADE deletes plants/entries/reminders/layouts.
-            // Queue tombstone so an offline delete still propagates on next sync.
-            if (!isGuest) await removeFromCloud('gardens', [garden.id]);
-            // Local: remove garden + all children (cascade doesn't apply to AsyncStorage).
-            // removeMany is one atomic write per store — safe vs parallel batches.
+            // Soft-delete garden + all children. There's no DB cascade for
+            // soft-delete, so each child gets its own tombstone; they sync to
+            // other devices on the next push.
             const gardenPlants = plants.items.filter((p) => p.gardenId === garden.id);
             const gardenEntries = entries.items.filter((e) => e.gardenId === garden.id);
             const gardenReminders = reminders.items.filter((r) => r.gardenId === garden.id);
             await Promise.all([
-              gardens.remove(garden.id),
-              plants.removeMany(gardenPlants.map((p) => p.id)),
-              entries.removeMany(gardenEntries.map((e) => e.id)),
-              reminders.removeMany(gardenReminders.map((r) => r.id)),
+              gardens.softRemove(garden.id),
+              plants.softRemoveMany(gardenPlants.map((p) => p.id)),
+              entries.softRemoveMany(gardenEntries.map((e) => e.id)),
+              reminders.softRemoveMany(gardenReminders.map((r) => r.id)),
               AsyncStorage.removeItem(LAYOUT_KEY(garden.id)),
             ]);
             if (effectiveActiveId === garden.id) {

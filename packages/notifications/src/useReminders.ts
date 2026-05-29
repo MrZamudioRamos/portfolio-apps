@@ -1,5 +1,4 @@
 import { useCollection } from '@portfolio/storage';
-import type { BaseItem } from '@portfolio/storage';
 import { useEffect } from 'react';
 import { requestPermissions, scheduleReminder, cancelReminder } from './scheduler';
 import type { SchedulableReminder } from './types';
@@ -18,7 +17,7 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
     if (data.enabled) {
       notificationId = await scheduleReminder(data).catch(() => undefined);
     }
-    await collection.create({ ...data, notificationId } as Omit<T, keyof BaseItem>);
+    await collection.create({ ...data, notificationId } as Omit<T, 'id' | 'createdAt' | 'updatedAt'>);
   }
 
   async function toggle(id: string, enabled: boolean): Promise<void> {
@@ -54,6 +53,11 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
 
   async function removeMany(ids: string[]): Promise<void> {
     if (ids.length === 0) return;
+    await cancelNotifs(ids);
+    await collection.removeMany(ids);
+  }
+
+  async function cancelNotifs(ids: string[]): Promise<void> {
     await Promise.all(
       ids.map((id) => {
         const reminder = collection.getById(id);
@@ -62,7 +66,18 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
           : Promise.resolve();
       })
     );
-    await collection.removeMany(ids);
+  }
+
+  async function softRemove(id: string): Promise<void> {
+    const reminder = collection.getById(id);
+    if (reminder?.notificationId) await cancelReminder(reminder.notificationId).catch(() => {});
+    await collection.softRemove(id);
+  }
+
+  async function softRemoveMany(ids: string[]): Promise<void> {
+    if (ids.length === 0) return;
+    await cancelNotifs(ids);
+    await collection.softRemoveMany(ids);
   }
 
   function filter(predicate: (item: T) => boolean): T[] {
@@ -77,6 +92,8 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
     toggle,
     remove,
     removeMany,
+    softRemove,
+    softRemoveMany,
     getById: collection.getById,
     filter,
     refresh: collection.refresh,

@@ -15,6 +15,8 @@ export interface BaseItem {
   id: string;
   createdAt: string;
   updatedAt: string;
+  /** Soft-delete tombstone. Set => row is deleted but kept so the deletion syncs. */
+  deletedAt?: string;
 }
 
 export interface Store<T extends BaseItem> {
@@ -23,8 +25,12 @@ export interface Store<T extends BaseItem> {
   create: (data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>) => Promise<T>;
   update: (id: string, data: Partial<Omit<T, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<T | null>;
   remove: (id: string) => Promise<void>;
-  /** Atomic batch delete — single read-modify-write, safe vs parallel callers. */
+  /** Atomic batch hard-delete — single read-modify-write, safe vs parallel callers. */
   removeMany: (ids: string[]) => Promise<void>;
+  /** Soft-delete: mark deletedAt so the deletion can sync to other devices. */
+  softRemove: (id: string) => Promise<void>;
+  /** Atomic batch soft-delete. */
+  softRemoveMany: (ids: string[]) => Promise<void>;
   clear: () => Promise<void>;
   count: () => Promise<number>;
 }
@@ -58,6 +64,20 @@ export function createStore<T extends BaseItem>(key: string): Store<T> {
 
   async function writeAll(items: T[]): Promise<void> {
     await AsyncStorage.setItem(storageKey, JSON.stringify(items));
+  }
+
+  function softRemoveManyImpl(ids: string[]): Promise<void> {
+    if (ids.length === 0) return Promise.resolve();
+    const idSet = new Set(ids);
+    return withLock(async () => {
+      const items = await readAll();
+      const now = new Date().toISOString();
+      await writeAll(
+        items.map((item) =>
+          idSet.has(item.id) ? { ...item, deletedAt: now, updatedAt: now } : item
+        )
+      );
+    });
   }
 
   return {
@@ -117,6 +137,14 @@ export function createStore<T extends BaseItem>(key: string): Store<T> {
         const items = await readAll();
         await writeAll(items.filter((item) => !idSet.has(item.id)));
       });
+    },
+
+    softRemove(id) {
+      return softRemoveManyImpl([id]);
+    },
+
+    softRemoveMany(ids) {
+      return softRemoveManyImpl(ids);
     },
 
     clear() {
