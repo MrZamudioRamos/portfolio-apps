@@ -651,7 +651,13 @@
     "frostPushBody": "Temperatura mínima de {{temp}}°C prevista o {{date}}. Protexe as túas plantas sensibles.",
     "seasonalPushTitle": "🌱 {{month}}: tempo de sementar",
     "seasonalPushBody": "Podes sementar: {{crops}}",
-    "seasonalPushMore": " e {{count}} máis"
+    "seasonalPushMore": " e {{count}} máis",
+    "transplantPushTitle": "🌱 Transplanta {{label}}",
+    "transplantPushBody": "Leva {{weeks}} semanas no semilleiro. Móvea ao bancal.",
+    "harvestPushTitle": "🧺 {{label}} case lista",
+    "harvestPushBody": "Colleita prevista en 3 días. Revisa o punto de madurez.",
+    "treatmentPushTitle": "🧴 Carencia vencida: {{label}}",
+    "treatmentPushBody": "Pasaron {{days}} días desde o último tratamento. Xa podes colleitar."
   },
   "stats": {
     "title": "Estatísticas",

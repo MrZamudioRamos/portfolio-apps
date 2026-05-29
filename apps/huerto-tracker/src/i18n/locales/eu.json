@@ -651,7 +651,13 @@
     "frostPushBody": "{{temp}}°C-ko tenperatura minimoa aurreikusten da {{date}}. Babestu landare sentikorrak.",
     "seasonalPushTitle": "🌱 {{month}}: ereiteko garaia",
     "seasonalPushBody": "Erein dezakezu: {{crops}}",
-    "seasonalPushMore": " eta {{count}} gehiago"
+    "seasonalPushMore": " eta {{count}} gehiago",
+    "transplantPushTitle": "🌱 Birlandatu {{label}}",
+    "transplantPushBody": "{{weeks}} aste daramatza mintegian. Eraman ohera.",
+    "harvestPushTitle": "🧺 {{label}} ia prest",
+    "harvestPushBody": "Uzta 3 egun barru aurreikusten da. Egiaztatu heldutasuna.",
+    "treatmentPushTitle": "🧴 Karentzia amaitua: {{label}}",
+    "treatmentPushBody": "{{days}} egun igaro dira azken tratamendutik. Orain bil dezakezu."
   },
   "stats": {
     "title": "Estatistikak",

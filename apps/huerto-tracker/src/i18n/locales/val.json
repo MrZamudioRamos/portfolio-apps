@@ -651,7 +651,13 @@
     "frostPushBody": "Temperatura mínima de {{temp}}°C prevista el {{date}}. Protegix les plantes sensibles.",
     "seasonalPushTitle": "🌱 {{month}}: temps de sembrar",
     "seasonalPushBody": "Pots sembrar: {{crops}}",
-    "seasonalPushMore": " i {{count}} més"
+    "seasonalPushMore": " i {{count}} més",
+    "transplantPushTitle": "🌱 Trasplanta {{label}}",
+    "transplantPushBody": "Porta {{weeks}} setmanes al planter. Mou-la al bancal.",
+    "harvestPushTitle": "🧺 {{label}} quasi a punt",
+    "harvestPushBody": "Collita prevista d'ací a 3 dies. Revisa el punt de maduresa.",
+    "treatmentPushTitle": "🧴 Carència vençuda: {{label}}",
+    "treatmentPushBody": "Han passat {{days}} dies des de l'últim tractament. Ja pots collir."
   },
   "stats": {
     "title": "Estadístiques",
