@@ -23,12 +23,28 @@ export interface Store<T extends BaseItem> {
   create: (data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>) => Promise<T>;
   update: (id: string, data: Partial<Omit<T, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<T | null>;
   remove: (id: string) => Promise<void>;
+  /** Atomic batch delete — single read-modify-write, safe vs parallel callers. */
+  removeMany: (ids: string[]) => Promise<void>;
   clear: () => Promise<void>;
   count: () => Promise<number>;
 }
 
 export function createStore<T extends BaseItem>(key: string): Store<T> {
   const storageKey = `@portfolio/${key}`;
+
+  // Serialize every mutation through a promise chain so concurrent
+  // read-modify-write ops can't clobber each other (AsyncStorage has no
+  // atomic update). Parallel callers queue instead of racing.
+  let writeLock: Promise<unknown> = Promise.resolve();
+  function withLock<R>(fn: () => Promise<R>): Promise<R> {
+    const run = writeLock.then(fn, fn);
+    // Keep the chain alive even if fn rejects.
+    writeLock = run.then(
+      () => undefined,
+      () => undefined
+    );
+    return run;
+  }
 
   async function readAll(): Promise<T[]> {
     const raw = await AsyncStorage.getItem(storageKey);
@@ -54,42 +70,59 @@ export function createStore<T extends BaseItem>(key: string): Store<T> {
       return items.find((item) => item.id === id) ?? null;
     },
 
-    async create(data) {
-      const items = await readAll();
-      const now = new Date().toISOString();
-      const newItem = {
-        ...data,
-        id: generateId(),
-        createdAt: now,
-        updatedAt: now,
-      } as unknown as T;
-      items.push(newItem);
-      await writeAll(items);
-      return newItem;
+    create(data) {
+      return withLock(async () => {
+        const items = await readAll();
+        const now = new Date().toISOString();
+        const newItem = {
+          ...data,
+          id: generateId(),
+          createdAt: now,
+          updatedAt: now,
+        } as unknown as T;
+        items.push(newItem);
+        await writeAll(items);
+        return newItem;
+      });
     },
 
-    async update(id, data) {
-      const items = await readAll();
-      const index = items.findIndex((item) => item.id === id);
-      if (index === -1) return null;
-      const updated = {
-        ...items[index],
-        ...data,
-        id,
-        updatedAt: new Date().toISOString(),
-      } as T;
-      items[index] = updated;
-      await writeAll(items);
-      return updated;
+    update(id, data) {
+      return withLock(async () => {
+        const items = await readAll();
+        const index = items.findIndex((item) => item.id === id);
+        if (index === -1) return null;
+        const updated = {
+          ...items[index],
+          ...data,
+          id,
+          updatedAt: new Date().toISOString(),
+        } as T;
+        items[index] = updated;
+        await writeAll(items);
+        return updated;
+      });
     },
 
-    async remove(id) {
-      const items = await readAll();
-      await writeAll(items.filter((item) => item.id !== id));
+    remove(id) {
+      return withLock(async () => {
+        const items = await readAll();
+        await writeAll(items.filter((item) => item.id !== id));
+      });
     },
 
-    async clear() {
-      await AsyncStorage.removeItem(storageKey);
+    removeMany(ids) {
+      if (ids.length === 0) return Promise.resolve();
+      const idSet = new Set(ids);
+      return withLock(async () => {
+        const items = await readAll();
+        await writeAll(items.filter((item) => !idSet.has(item.id)));
+      });
+    },
+
+    clear() {
+      return withLock(async () => {
+        await AsyncStorage.removeItem(storageKey);
+      });
     },
 
     async count() {

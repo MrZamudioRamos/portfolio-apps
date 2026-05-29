@@ -1,6 +1,7 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
-import { useSession, deleteRow } from '@portfolio/supabase';
+import { useSession } from '@portfolio/supabase';
+import { removeFromCloud } from '../../src/sync/pendingDeletes';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -92,7 +93,7 @@ export default function NewCustomCropScreen() {
           text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
-            if (!isGuest) await Promise.allSettled([deleteRow('custom_crops', editId)]);
+            if (!isGuest) await removeFromCloud('custom_crops', [editId]);
             await collection.remove(editId);
             router.back();
           },

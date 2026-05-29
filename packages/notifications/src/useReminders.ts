@@ -52,6 +52,19 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
     await collection.remove(id);
   }
 
+  async function removeMany(ids: string[]): Promise<void> {
+    if (ids.length === 0) return;
+    await Promise.all(
+      ids.map((id) => {
+        const reminder = collection.getById(id);
+        return reminder?.notificationId
+          ? cancelReminder(reminder.notificationId).catch(() => {})
+          : Promise.resolve();
+      })
+    );
+    await collection.removeMany(ids);
+  }
+
   function filter(predicate: (item: T) => boolean): T[] {
     return collection.items.filter(predicate);
   }
@@ -63,6 +76,7 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
     update,
     toggle,
     remove,
+    removeMany,
     getById: collection.getById,
     filter,
     refresh: collection.refresh,

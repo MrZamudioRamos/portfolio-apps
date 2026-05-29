@@ -1,7 +1,8 @@
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useReminders } from '@portfolio/notifications';
-import { useSession, deleteRow } from '@portfolio/supabase';
+import { useSession } from '@portfolio/supabase';
+import { removeFromCloud } from '../../src/sync/pendingDeletes';
 import { formatDate, formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
@@ -237,16 +238,17 @@ export default function PlantDetailScreen() {
             const relatedEntries = entries.items.filter((e) => e.plantId === id);
             const relatedReminders = reminders.items.filter((r) => r.plantId === id);
             if (!isGuest) {
-              await Promise.allSettled([
-                deleteRow('plants', id),
-                ...relatedEntries.map((e) => deleteRow('diary_entries', e.id)),
-                ...relatedReminders.map((r) => deleteRow('reminders', r.id)),
+              // Queue tombstones (offline-safe) for plant + its children.
+              await Promise.all([
+                removeFromCloud('plants', [id]),
+                removeFromCloud('diary_entries', relatedEntries.map((e) => e.id)),
+                removeFromCloud('reminders', relatedReminders.map((r) => r.id)),
               ]);
             }
             await plants.remove(id);
             await Promise.all([
-              ...relatedEntries.map((e) => entries.remove(e.id)),
-              ...relatedReminders.map((r) => reminders.remove(r.id)),
+              entries.removeMany(relatedEntries.map((e) => e.id)),
+              reminders.removeMany(relatedReminders.map((r) => r.id)),
             ]);
             router.back();
           },

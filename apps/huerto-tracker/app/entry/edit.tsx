@@ -1,6 +1,7 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
-import { useSession, deleteRow } from '@portfolio/supabase';
+import { useSession } from '@portfolio/supabase';
+import { removeFromCloud } from '../../src/sync/pendingDeletes';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
@@ -140,7 +141,7 @@ export default function EditEntryScreen() {
         text: t('common.delete'),
         style: 'destructive',
         onPress: async () => {
-          if (!isGuest) await Promise.allSettled([deleteRow('diary_entries', id)]);
+          if (!isGuest) await removeFromCloud('diary_entries', [id]);
           await entries.remove(id);
           router.back();
         },

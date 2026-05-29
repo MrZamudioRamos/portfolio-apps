@@ -1,5 +1,5 @@
 import { useOnboarding } from '@portfolio/shared';
-import { useSession, signOut, deleteRow, deleteAllForUser } from '@portfolio/supabase';
+import { useSession, signOut, deleteAllForUser } from '@portfolio/supabase';
 import { cancelAllReminders } from '@portfolio/notifications';
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
@@ -83,23 +83,24 @@ export default function SettingsScreen() {
               ]);
             }
 
-            // Clear local collections
+            // Clear local collections (removeMany = one atomic write per store)
             await Promise.all([
-              ...plants.items.map((p) => plants.remove(p.id)),
-              ...entries.items.map((e) => entries.remove(e.id)),
-              ...reminders.items.map((r) => reminders.remove(r.id)),
-              ...customCropsCollection.items.map((c) => customCropsCollection.remove(c.id)),
-              ...costEntriesCollection.items.map((c) => costEntriesCollection.remove(c.id)),
-              ...gardens.items.map((g) => gardens.remove(g.id)),
+              plants.removeMany(plants.items.map((p) => p.id)),
+              entries.removeMany(entries.items.map((e) => e.id)),
+              reminders.removeMany(reminders.items.map((r) => r.id)),
+              customCropsCollection.removeMany(customCropsCollection.items.map((c) => c.id)),
+              costEntriesCollection.removeMany(costEntriesCollection.items.map((c) => c.id)),
+              gardens.removeMany(gardens.items.map((g) => g.id)),
             ]);
 
-            // Clear non-collection AsyncStorage keys (user_profile + all layout keys)
+            // Clear non-collection AsyncStorage keys (user_profile, layouts, pending deletes)
             const allKeys = await AsyncStorage.getAllKeys();
             const extraKeys = allKeys.filter(
               (k) =>
                 k === '@portfolio/user-profile' ||
                 k === '@portfolio/custom_crops' ||
                 k === '@portfolio/cost_entries' ||
+                k === '@portfolio/pending_deletes' ||
                 k.startsWith('@portfolio/huerto/garden_layout/')
             );
             if (extraKeys.length > 0) await AsyncStorage.multiRemove(extraKeys);

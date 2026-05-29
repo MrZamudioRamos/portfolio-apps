@@ -7,6 +7,7 @@ import type { DiaryEntry } from '../models/diary-entry';
 import type { GardenReminder } from '../models/reminder';
 import type { GridLayout } from '../hooks/useGardenLayout';
 import { layoutTsKey } from '../hooks/useGardenLayout';
+import { flushPendingDeletes, getPendingDeleteIds } from './pendingDeletes';
 import {
   gardenToRow, rowToGarden,
   plantToRow, rowToPlant,
@@ -70,6 +71,9 @@ async function writeLayouts(layouts: { gardenId: string; layout: GridLayout; upd
  */
 export async function syncToCloud(userId: string): Promise<void> {
   try {
+    // Push pending tombstones first so deletes propagate before re-upserting.
+    await flushPendingDeletes();
+
     const [gardens, plants, entries, reminders, userProfiles, customCrops, costEntries] = await Promise.all([
       readLocal<Garden>(KEYS.gardens),
       readLocal<Plant>(KEYS.plants),
@@ -125,14 +129,27 @@ export async function syncFromCloud(userId: string): Promise<void> {
       return !localTs || updatedAt > localTs;
     });
 
+    // Don't re-add items the user deleted offline (tombstones not yet flushed).
+    const [delGardens, delPlants, delEntries, delReminders, delProfiles, delCrops, delCosts] = await Promise.all([
+      getPendingDeleteIds('gardens'),
+      getPendingDeleteIds('plants'),
+      getPendingDeleteIds('diary_entries'),
+      getPendingDeleteIds('reminders'),
+      getPendingDeleteIds('user_profiles'),
+      getPendingDeleteIds('custom_crops'),
+      getPendingDeleteIds('cost_entries'),
+    ]);
+    const drop = <T extends { id: string }>(rows: T[], del: Set<string>) =>
+      del.size === 0 ? rows : rows.filter((r) => !del.has(r.id));
+
     await Promise.all([
-      mergeLocal(KEYS.gardens,     remoteGardens.map(rowToGarden)       as any[]),
-      mergeLocal(KEYS.plants,      remotePlants.map(rowToPlant)          as any[]),
-      mergeLocal(KEYS.entries,     remoteEntries.map(rowToEntry)         as any[]),
-      mergeLocal(KEYS.reminders,   remoteReminders.map(rowToReminder)    as any[]),
-      mergeLocal(KEYS.userProfile, remoteProfiles.map(rowToUserProfile)  as any[]),
-      mergeLocal(KEYS.customCrops, remoteCrops.map(rowToCustomCrop)      as any[]),
-      mergeLocal(KEYS.costEntries, remoteCosts.map(rowToCostEntry)       as any[]),
+      mergeLocal(KEYS.gardens,     drop(remoteGardens.map(rowToGarden), delGardens)      as any[]),
+      mergeLocal(KEYS.plants,      drop(remotePlants.map(rowToPlant), delPlants)         as any[]),
+      mergeLocal(KEYS.entries,     drop(remoteEntries.map(rowToEntry), delEntries)       as any[]),
+      mergeLocal(KEYS.reminders,   drop(remoteReminders.map(rowToReminder), delReminders) as any[]),
+      mergeLocal(KEYS.userProfile, drop(remoteProfiles.map(rowToUserProfile), delProfiles) as any[]),
+      mergeLocal(KEYS.customCrops, drop(remoteCrops.map(rowToCustomCrop), delCrops)       as any[]),
+      mergeLocal(KEYS.costEntries, drop(remoteCosts.map(rowToCostEntry), delCosts)        as any[]),
       writeLayouts(layoutsToWrite),
     ]);
   } catch (e) {

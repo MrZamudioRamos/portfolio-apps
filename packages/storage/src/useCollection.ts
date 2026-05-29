@@ -7,6 +7,7 @@ export interface UseCollectionResult<T extends BaseItem> {
   create: (data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>) => Promise<T>;
   update: (id: string, data: Partial<Omit<T, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<T | null>;
   remove: (id: string) => Promise<void>;
+  removeMany: (ids: string[]) => Promise<void>;
   getById: (id: string) => T | undefined;
   refresh: () => Promise<void>;
   count: number;
@@ -60,6 +61,14 @@ export function useCollection<T extends BaseItem>(key: string): UseCollectionRes
     [store, refresh]
   );
 
+  const removeMany = useCallback(
+    async (ids: string[]) => {
+      await store.removeMany(ids);
+      await refresh();
+    },
+    [store, refresh]
+  );
+
   const getById = useCallback(
     (id: string) => items.find((item) => item.id === id),
     [items]
@@ -71,6 +80,7 @@ export function useCollection<T extends BaseItem>(key: string): UseCollectionRes
     create,
     update,
     remove,
+    removeMany,
     getById,
     refresh,
     count: items.length,

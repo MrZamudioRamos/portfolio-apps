@@ -1,6 +1,7 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useReminders, type ReminderFrequency } from '@portfolio/notifications';
-import { useSession, deleteRow } from '@portfolio/supabase';
+import { useSession } from '@portfolio/supabase';
+import { removeFromCloud } from '../../src/sync/pendingDeletes';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -96,7 +97,7 @@ export default function ReminderEditScreen() {
           text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
-            if (!isGuest) await Promise.allSettled([deleteRow('reminders', id)]);
+            if (!isGuest) await removeFromCloud('reminders', [id]);
             await reminders.remove(id);
             router.back();
           },
