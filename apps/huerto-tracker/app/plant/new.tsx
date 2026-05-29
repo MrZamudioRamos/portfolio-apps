@@ -174,6 +174,10 @@ export default function NewPlantScreen() {
         date: sowingDate,
       });
       if (fromOnboarding === '1') router.replace('/(tabs)');
+      // Scan flow: /plant/scan did router.replace into THIS screen, leaving the
+      // original /plant/new underneath. A plain back() would land on that stale
+      // form, so dismiss the whole add stack instead.
+      else if (isAiFilled && router.canGoBack()) router.dismissAll();
       else if (router.canGoBack()) router.back();
       else router.replace('/(tabs)');
     } finally {

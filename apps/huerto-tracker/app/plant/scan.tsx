@@ -265,7 +265,7 @@ export default function PlantScanScreen() {
             )}
 
             <Pressable
-              onPress={() => router.replace('/plant/new')}
+              onPress={() => (router.canGoBack() ? router.back() : router.replace('/plant/new'))}
               style={[s.manualBtn, { borderColor: colors.border }]}
             >
               <Text style={[s.manualBtnText, { color: colors.textSecondary }]}>
