@@ -52,7 +52,7 @@ export default function DashboardScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
 
-  const { activeGarden: garden, gardens: allGardens, gardensLoading } = useActiveGarden();
+  const { activeGarden: garden, gardens: allGardens, gardensLoading, refreshActiveId } = useActiveGarden();
   const allPlants = useCollection<Plant>('plants');
   const reminders = useCollection<GardenReminder>('reminders');
   const entries = useCollection<DiaryEntry>('diary_entries');
@@ -70,6 +70,7 @@ export default function DashboardScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      refreshActiveId();
       allPlants.refresh();
       reminders.refresh();
       entries.refresh();

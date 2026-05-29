@@ -5,7 +5,7 @@ import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -43,8 +43,13 @@ export default function GardenEditScreen() {
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const gardens = useCollection<Garden>('gardens');
-  const { activeGarden: garden } = useActiveGarden();
+  const { activeGarden } = useActiveGarden();
   const { isPro } = usePurchases();
+
+  const [selectedGardenId, setSelectedGardenId] = useState<string | null>(null);
+  const [showGardenPicker, setShowGardenPicker] = useState(false);
+
+  const garden = gardens.items.find((g) => g.id === (selectedGardenId ?? activeGarden?.id)) ?? activeGarden;
 
   const [name, setName] = useState(garden?.name ?? '');
   const [province, setProvince] = useState(garden?.province ?? '');
@@ -59,6 +64,19 @@ export default function GardenEditScreen() {
   const [saving, setSaving] = useState(false);
   const [locating, setLocating] = useState(false);
   const { t } = useTranslation();
+
+  // Reset form fields whenever the selected garden changes
+  useEffect(() => {
+    if (!garden) return;
+    setName(garden.name ?? '');
+    setProvince(garden.province ?? '');
+    setGardenType(garden.gardenType ?? 'huerto');
+    setGridRows(garden.gridRows ?? DEFAULT_GRID_ROWS);
+    setGridCols(garden.gridCols ?? DEFAULT_GRID_COLS);
+    setHemisphere(garden.hemisphere ?? 'norte');
+    setColor(garden.color);
+    setNotes(garden.notes ?? '');
+  }, [garden?.id]);
 
   async function detectLocation() {
     setLocating(true);
@@ -144,6 +162,20 @@ export default function GardenEditScreen() {
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardenEdit.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
+
+      {/* Garden selector — only show when multiple gardens exist */}
+      {gardens.items.length > 1 && (
+        <Pressable
+          onPress={() => setShowGardenPicker(true)}
+          style={[s.gardenSelector, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}
+        >
+          <Text style={{ fontSize: 20 }}>{GARDEN_TYPE_CONFIG[garden?.gardenType ?? 'huerto'].emoji}</Text>
+          <Text style={[s.gardenSelectorName, { color: colors.text }]} numberOfLines={1}>
+            {garden?.name ?? t('gardenEdit.noGarden')}
+          </Text>
+          <Ionicons name="swap-horizontal" size={16} color={colors.textSecondary} />
+        </Pressable>
+      )}
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -366,6 +398,47 @@ export default function GardenEditScreen() {
         <View style={{ height: spacing['2xl'] }} />
       </ScrollView>
 
+      {/* Garden picker modal */}
+      <Modal
+        visible={showGardenPicker}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowGardenPicker(false)}
+      >
+        <SafeAreaView style={[s.modal, { backgroundColor: colors.background }]} edges={['top']}>
+          <View style={[s.modalHeader, { borderBottomColor: colors.border }]}>
+            <Text style={[s.modalTitle, { color: colors.text }]}>{t('gardenEdit.selectGarden')}</Text>
+            <Pressable onPress={() => setShowGardenPicker(false)} hitSlop={12}>
+              <Ionicons name="close" size={24} color={colors.textSecondary} />
+            </Pressable>
+          </View>
+          <FlatList
+            data={gardens.items}
+            keyExtractor={(g) => g.id}
+            renderItem={({ item: g }) => {
+              const isSelected = g.id === garden?.id;
+              const cfg = GARDEN_TYPE_CONFIG[g.gardenType ?? 'huerto'];
+              return (
+                <Pressable
+                  onPress={() => { setSelectedGardenId(g.id); setShowGardenPicker(false); }}
+                  style={[
+                    s.provinceRow,
+                    { borderBottomColor: colors.border },
+                    isSelected && { backgroundColor: colors.primary + '12' },
+                  ]}
+                >
+                  <Text style={{ fontSize: 22 }}>{cfg.emoji}</Text>
+                  <Text style={[s.provinceName, { color: isSelected ? colors.primary : colors.text }]} numberOfLines={1}>
+                    {g.name}
+                  </Text>
+                  {isSelected && <Ionicons name="checkmark" size={18} color={colors.primary} />}
+                </Pressable>
+              );
+            }}
+          />
+        </SafeAreaView>
+      </Modal>
+
       {/* Province modal */}
       <Modal
         visible={showProvinceModal}
@@ -443,6 +516,13 @@ const makeStyles = (
       borderBottomWidth: 1,
     },
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    gardenSelector: {
+      flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+      marginHorizontal: spacing.xl, marginTop: spacing.md, marginBottom: 0,
+      paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
+      borderRadius: radii.lg, borderWidth: 1,
+    },
+    gardenSelectorName: { flex: 1, fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     body: { padding: spacing.xl },
     label: {
       fontSize: fontSize.xs,

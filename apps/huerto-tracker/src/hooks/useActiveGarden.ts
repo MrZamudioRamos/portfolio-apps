@@ -27,5 +27,11 @@ export function useActiveGarden() {
     setActiveId(id);
   }
 
-  return { activeGarden, gardens: gardens.items, switchGarden, gardensLoading: gardens.loading };
+  async function refreshActiveId() {
+    const id = await AsyncStorage.getItem(ACTIVE_KEY);
+    setActiveId(id);
+    if (!loaded) setLoaded(true);
+  }
+
+  return { activeGarden, gardens: gardens.items, switchGarden, refreshActiveId, gardensLoading: gardens.loading };
 }

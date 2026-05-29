@@ -291,6 +291,7 @@
     "provinceLabel": "PROVINCIA",
     "provincePlaceholder": "Seleccionar provincia…",
     "selectProvince": "Selecciona tu provincia",
+    "selectGarden": "Seleccionar huerto a editar",
     "searchProvince": "Buscar provincia…",
     "containerTip": "El calendario filtrará cultivos aptos para contenedores.",
     "save": "Guardar cambios",

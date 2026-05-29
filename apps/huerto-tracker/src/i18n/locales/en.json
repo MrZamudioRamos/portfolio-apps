@@ -273,6 +273,7 @@
     "provincePlaceholder": "Select province…",
     "selectProvince": "Select your province or region",
     "searchProvince": "Search province…",
+    "selectGarden": "Select garden to edit",
     "containerTip": "The calendar will filter crops suitable for containers.",
     "save": "Save changes",
     "nameRequired": "Name required",

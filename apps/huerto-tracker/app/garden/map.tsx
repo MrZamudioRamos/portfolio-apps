@@ -417,6 +417,13 @@ export default function GardenMapScreen() {
             </Text>
           </View>
           <Pressable
+            onPress={() => router.push('/garden/edit')}
+            hitSlop={12}
+            style={{ marginRight: spacing.sm }}
+          >
+            <Ionicons name="settings-outline" size={20} color={colors.primary} />
+          </Pressable>
+          <Pressable
             onPress={() => setShowNotes(true)}
             hitSlop={12}
             style={{ marginRight: spacing.sm, opacity: garden?.notes?.trim() ? 1 : 0.5 }}
