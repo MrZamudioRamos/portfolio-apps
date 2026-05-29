@@ -166,9 +166,9 @@ export default function DiaryScreen() {
 
             {item.data && Object.keys(item.data).length > 0 ? (
               <View style={s.harvestData}>
-                {(item.data as any).weight ? (
+                {((item.data as any).weightGrams ?? (item.data as any).weight) ? (
                   <Text style={[s.harvestChip, { color: '#FF7043', backgroundColor: '#FF704318' }]}>
-                    ⚖️ {(item.data as any).weight} kg
+                    ⚖️ {(item.data as any).weightGrams ?? (item.data as any).weight} kg
                   </Text>
                 ) : null}
                 {(item.data as any).units ? (

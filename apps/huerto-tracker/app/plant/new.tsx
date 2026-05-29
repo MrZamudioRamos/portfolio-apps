@@ -451,7 +451,7 @@ export default function NewPlantScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
           <View style={[s.modalHeader, { borderBottomColor: colors.border }]}>
             <Text style={[s.modalTitle, { color: colors.text }]}>{t('plantNew.cropPickerTitle')}</Text>
-            <Pressable onPress={() => { setShowCropPicker(false); setCropSearch(''); }}>
+            <Pressable onPress={() => { setShowCropPicker(false); setCropSearch(''); setPickerImgErr({}); }}>
               <Text style={{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }}>
                 {t('common.close')}
               </Text>
@@ -459,7 +459,7 @@ export default function NewPlantScreen() {
           </View>
 
           <View style={[s.searchBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={{ fontSize: 16, marginRight: 6 }}>🔍</Text>
+            <Ionicons name="search" size={16} color={colors.textSecondary} />
             <TextInput
               value={cropSearch}
               onChangeText={setCropSearch}
