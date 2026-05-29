@@ -34,12 +34,13 @@ function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute
   const { hour, minute } = time;
   const T = Notifications.SchedulableTriggerInputTypes;
   switch (frequency) {
+    // expo-notifications has no native "every N days at a fixed time" trigger:
+    // TIME_INTERVAL repeats fire at the creation clock-time, ignoring the
+    // chosen hour:minute. We honor the chosen time by firing DAILY instead.
     case 'daily':
-      return { type: T.DAILY, hour, minute };
     case 'every_2_days':
-      return { type: T.TIME_INTERVAL, seconds: 172800, repeats: true };
     case 'every_3_days':
-      return { type: T.TIME_INTERVAL, seconds: 259200, repeats: true };
+      return { type: T.DAILY, hour, minute };
     case 'weekly':
       return { type: T.WEEKLY, weekday: 2, hour, minute };
     case 'once': {

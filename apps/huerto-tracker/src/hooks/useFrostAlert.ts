@@ -5,6 +5,7 @@ import { fetchWeather } from '../utils/weather';
 
 const ENABLED_KEY = '@portfolio/frost_alert/enabled';
 const LAST_CHECK_KEY = '@portfolio/frost_alert/last_check';
+const LAST_ALERTED_KEY = '@portfolio/frost_alert/last_alerted_date';
 const FROST_THRESHOLD = 2;
 const CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6 hours
 
@@ -55,8 +56,13 @@ export async function checkFrost(province: string): Promise<void> {
     );
     if (frostDays.length === 0) return;
 
+    // Dedup by event: don't re-alert the same upcoming frost on every 6h check.
+    const eventDate = frostDays[0].date;
+    const lastAlerted = await AsyncStorage.getItem(LAST_ALERTED_KEY);
+    if (lastAlerted === eventDate) return;
+
     const minTemp = Math.min(...frostDays.map((d) => d.tempMin));
-    const dateStr = new Date(frostDays[0].date + 'T12:00:00').toLocaleDateString(undefined, {
+    const dateStr = new Date(eventDate + 'T12:00:00').toLocaleDateString(undefined, {
       weekday: 'long',
       day: 'numeric',
       month: 'short',
@@ -70,6 +76,7 @@ export async function checkFrost(province: string): Promise<void> {
       },
       trigger: null, // immediate
     });
+    await AsyncStorage.setItem(LAST_ALERTED_KEY, eventDate);
   } catch {
     // Network or other errors silently ignored
   }
