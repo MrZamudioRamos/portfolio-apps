@@ -129,8 +129,8 @@ export default function PlantDetailScreen() {
   }, [entries.items, id]);
 
   const plantReminders = useMemo(
-    () => reminders.items.filter((r) => r.plantId === id),
-    [reminders.items, id]
+    () => reminders.items.filter((r) => r.plantId === id && (!plant || r.gardenId === plant.gardenId)),
+    [reminders.items, id, plant?.gardenId]
   );
 
   const treatmentCarencia = useMemo(() => {
