@@ -57,8 +57,6 @@ export default function IdentifyPlantScreen() {
   const plant = plantId ? plants.getById(plantId) : null;
   const resolvedCropId = cropId ?? plant?.cropId;
   const crop = resolvedCropId ? CROPS_BY_ID[resolvedCropId] : null;
-  const gardenId = activeGarden?.id;
-
   const [photo, setPhoto] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [diagnosis, setDiagnosis] = useState<PestDiagnosis | null>(null);
@@ -119,6 +117,7 @@ export default function IdentifyPlantScreen() {
   }
 
   async function saveToDiary() {
+    const gardenId = activeGarden?.id;
     if (!diagnosis || !gardenId) return;
     const notes = diagnosis.detected
       ? `${diagnosis.name}\n${diagnosis.description}${diagnosis.symptoms ? '\n' + diagnosis.symptoms : ''}`

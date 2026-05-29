@@ -108,10 +108,14 @@ export default function NewEntryScreen() {
         ...(treatWaitDays ? { waitDays: Number(treatWaitDays) } : {}),
       };
     }
+    // Only include plantId if the plant belongs to this garden (guards deep-link injection)
+    const validPlantId = selectedPlantId && plants.items.some(
+      (p) => p.id === selectedPlantId && p.gardenId === gardenId
+    ) ? selectedPlantId : undefined;
     try {
       await entries.create({
         gardenId,
-        ...(selectedPlantId ? { plantId: selectedPlantId } : {}),
+        ...(validPlantId ? { plantId: validPlantId } : {}),
         type: selectedType,
         date,
         ...(notes.trim() ? { notes: notes.trim() } : {}),

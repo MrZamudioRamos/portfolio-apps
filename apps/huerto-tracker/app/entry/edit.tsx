@@ -3,6 +3,7 @@ import { useCollection } from '@portfolio/storage';
 import { useSession, deleteRow } from '@portfolio/supabase';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -35,6 +36,7 @@ export default function EditEntryScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const { isGuest } = useSession();
+  const { activeGarden } = useActiveGarden();
   const entries = useCollection<DiaryEntry>('diary_entries');
   const entry = entries.getById(id);
 
@@ -64,7 +66,7 @@ export default function EditEntryScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  if (!entry) {
+  if (!entry || (activeGarden && entry.gardenId !== activeGarden.id)) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
         <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }}>

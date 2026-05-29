@@ -232,7 +232,13 @@ export default function BackupScreen() {
               onPress={() => {
                 if (!isPro) { router.push('/paywall'); return; }
                 if (!activeGarden) return;
-                generateAndShare(activeGarden, plants.items, entries.items, t, customCropsById);
+                generateAndShare(
+                  activeGarden,
+                  plants.items.filter((p) => p.gardenId === activeGarden.id),
+                  entries.items.filter((e) => e.gardenId === activeGarden.id),
+                  t,
+                  customCropsById,
+                );
               }}
               disabled={generating}
             />
