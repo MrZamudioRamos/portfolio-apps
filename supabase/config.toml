@@ -5,3 +5,6 @@ project_id = "huerto-tracker"
 
 [functions.ai-vision]
 verify_jwt = true
+
+[functions.delete-account]
+verify_jwt = true

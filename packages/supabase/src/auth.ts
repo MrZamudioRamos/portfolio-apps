@@ -74,6 +74,18 @@ export async function signOut(): Promise<void> {
   if (error) throw error;
 }
 
+/**
+ * Permanently delete the signed-in user's account (and all their data, via DB
+ * cascade) through the `delete-account` Edge Function. Throws on failure so the
+ * caller can keep the account intact and show an error.
+ */
+export async function deleteAccount(): Promise<void> {
+  const { data, error } = await getSupabase().functions.invoke('delete-account');
+  if (error || (data && (data as { error?: string }).error)) {
+    throw new Error('DELETE_ACCOUNT_FAILED');
+  }
+}
+
 export async function handleDeepLink(url: string): Promise<void> {
   const supabase = getSupabase();
   if (url.includes('access_token') || url.includes('code=')) {
