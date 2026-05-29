@@ -999,7 +999,10 @@
       "easy": "Erraza",
       "medium": "Ertaina",
       "hard": "Zaila"
-    }
+    },
+    "containerFilter": "Ontzia",
+    "containerMin": "Gutxienez {{liters}} L ontzia",
+    "containerNo": "🚫 Ez ontzia"
   },
   "identify": {
     "title": "Izurria identifikatu",

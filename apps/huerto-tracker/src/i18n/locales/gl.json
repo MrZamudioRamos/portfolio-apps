@@ -1039,7 +1039,10 @@
       "easy": "Sinxelo",
       "medium": "Medio",
       "hard": "Difícil"
-    }
+    },
+    "containerFilter": "Maceta",
+    "containerMin": "Mín. {{liters}} L maceta",
+    "containerNo": "🚫 Non apto maceta"
   },
   "identify": {
     "title": "Identificar praga",

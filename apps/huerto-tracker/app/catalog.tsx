@@ -14,7 +14,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS, CATEGORY_CONFIG, CROP_DIFFICULTY, type CropCategory, type CropDifficulty } from '../src/data/crops';
+import { CROPS, CATEGORY_CONFIG, CROP_DIFFICULTY, CROP_CONTAINER_MIN, type CropCategory, type CropDifficulty } from '../src/data/crops';
 import { CROP_IMAGES } from '../src/data/cropImages';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import type { ClimateZone } from '../src/models/garden';
@@ -49,6 +49,7 @@ export default function CatalogScreen() {
   const [search, setSearch] = useState(() => (focusCrop ? t(`crops.${focusCrop}.name`, { defaultValue: focusCrop }) : ''));
   const [catFilter, setCatFilter] = useState<CropCategory | null>(null);
   const [diffFilter, setDiffFilter] = useState<CropDifficulty | null>(null);
+  const [containerOnly, setContainerOnly] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(focusCrop ?? null);
   const [imgErr, setImgErr] = useState<Record<string, boolean>>({});
 
@@ -65,11 +66,15 @@ export default function CatalogScreen() {
     return CROPS.filter((c) => {
       if (catFilter && c.category !== catFilter) return false;
       if (diffFilter && (CROP_DIFFICULTY[c.id] ?? 'medium') !== diffFilter) return false;
+      if (containerOnly) {
+        const min = CROP_CONTAINER_MIN[c.id];
+        if (min === null || min === undefined) return false;
+      }
       if (!q) return true;
       const name = t(`crops.${c.id}.name`, { defaultValue: c.name }).toLowerCase();
       return name.includes(q) || c.name.toLowerCase().includes(q);
     });
-  }, [search, catFilter, diffFilter, t]);
+  }, [search, catFilter, diffFilter, containerOnly, t]);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -208,6 +213,19 @@ export default function CatalogScreen() {
                   </Pressable>
                 );
               })}
+              <Pressable
+                onPress={() => setContainerOnly(v => !v)}
+                style={[s.chip, {
+                  backgroundColor: containerOnly ? '#795548' + '22' : colors.surfaceAlt,
+                  borderColor: containerOnly ? '#795548' : colors.border,
+                  flexDirection: 'row', alignItems: 'center', gap: 5,
+                }]}
+              >
+                <Text style={{ fontSize: 12 }}>🪴</Text>
+                <Text style={[s.chipText, { color: containerOnly ? '#795548' : colors.textSecondary }]}>
+                  {t('catalog.containerFilter')}
+                </Text>
+              </Pressable>
             </View>
           </ScrollView>
         </View>
@@ -227,6 +245,8 @@ export default function CatalogScreen() {
           const harMs = crop.harvestMonths[zone] ?? [];
           const diff = CROP_DIFFICULTY[crop.id] ?? 'medium';
           const diffColor = diff === 'easy' ? '#4CAF50' : diff === 'hard' ? '#F44336' : '#FF9800';
+          const containerMin = CROP_CONTAINER_MIN[crop.id];
+          const isPotFriendly = containerMin !== null && containerMin !== undefined;
 
           return (
             <Pressable
@@ -274,7 +294,7 @@ export default function CatalogScreen() {
                       </Text>
                     </View>
                     <Text style={[s.metaLine, { color: colors.textSecondary }]}>
-                      {SUN_EMOJI[crop.sunNeeds]} · {WATER_EMOJI[crop.waterNeeds]} · 🗓 {crop.daysToHarvest[0]}–{crop.daysToHarvest[1]}d
+                      {SUN_EMOJI[crop.sunNeeds]} · {WATER_EMOJI[crop.waterNeeds]} · 🗓 {crop.daysToHarvest[0]}–{crop.daysToHarvest[1]}d{isPotFriendly ? ` · 🪴${containerMin}L` : ''}
                     </Text>
                   </View>
                   <Ionicons
@@ -341,6 +361,19 @@ export default function CatalogScreen() {
                       <View style={[s.detailChip, { backgroundColor: colors.surfaceAlt }]}>
                         <Text style={[s.detailTxt, { color: colors.textSecondary }]}>📏 {crop.spacing} cm</Text>
                       </View>
+                      {isPotFriendly ? (
+                        <View style={[s.detailChip, { backgroundColor: '#79554818' }]}>
+                          <Text style={[s.detailTxt, { color: '#795548' }]}>
+                            🪴 {t('catalog.containerMin', { liters: containerMin })}
+                          </Text>
+                        </View>
+                      ) : (
+                        <View style={[s.detailChip, { backgroundColor: colors.surfaceAlt }]}>
+                          <Text style={[s.detailTxt, { color: colors.textDisabled }]}>
+                            {t('catalog.containerNo')}
+                          </Text>
+                        </View>
+                      )}
                     </View>
 
                     {/* Good neighbors */}

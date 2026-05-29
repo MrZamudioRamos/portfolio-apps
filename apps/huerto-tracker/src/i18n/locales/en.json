@@ -1107,7 +1107,10 @@
       "easy": "Easy",
       "medium": "Medium",
       "hard": "Hard"
-    }
+    },
+    "containerFilter": "Container",
+    "containerMin": "Min. {{liters}} L pot",
+    "containerNo": "🚫 Not for containers"
   },
   "varieties": {
     "tomate-cherry": "Cherry",

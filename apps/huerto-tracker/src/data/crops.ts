@@ -1777,3 +1777,77 @@ export const CROP_DIFFICULTY: Record<string, CropDifficulty> = {
   estragon:  'medium',
   verbena:   'medium',
 };
+
+// Litros mínimos de maceta por planta. null = no apto para maceta (necesita suelo o espacio excesivo).
+export const CROP_CONTAINER_MIN: Record<string, number | null> = {
+  // ── Hierbas y aromáticas — maceta pequeña ─────────────────
+  tomillo:    3,
+  perejil:    3,
+  oregano:    3,
+  cebollino:  3,
+  mejorana:   3,
+  manzanilla: 3,
+  rucula:     3,
+  canonigos:  3,
+  rabano:     3,
+  menta:      5,
+  stevia:     5,
+  estragon:   5,
+  berros:     5,
+  borraja:    5,
+  verbena:    5,
+  // ── Hojas y ensaladas — maceta mediana ────────────────────
+  lechuga:    8,
+  espinaca:   8,
+  'pak-choi': 8,
+  albahaca:   8,
+  cilantro:   8,
+  eneldo:     8,
+  escarola:   10,
+  acelga:     10,
+  kale:       10,
+  salvia:     10,
+  lavanda:    10,
+  hinojo:     12,
+  // ── Legumbres y bulbos ────────────────────────────────────
+  guisante:   10,
+  'judia-verde': 10,
+  edamame:    10,
+  haba:       10,
+  lenteja:    10,
+  garbanzo:   10,
+  ajo:        10,
+  cebolla:    10,
+  puerro:     10,
+  chalota:    10,
+  // ── Raíces ───────────────────────────────────────────────
+  nabo:       12,
+  remolacha:  12,
+  zanahoria:  15,
+  chirivi:    20,
+  // ── Frutas y solanáceas ───────────────────────────────────
+  fresa:      15,
+  pimiento:   15,
+  guindilla:  15,
+  berenjena:  15,
+  pepino:     15,
+  romero:     15,
+  tomate:     20,
+  calabacin:  20,
+  brocoli:    20,
+  col:        20,
+  coliflor:   20,
+  'coles-bruselas': 20,
+  patata:     20,
+  boniato:    25,
+  frambuesa:  25,
+  ruibarbo:   30,
+  arandano:   40,
+  esparrago:  40,
+  // ── No aptos para maceta ──────────────────────────────────
+  maiz:       null,  // necesita varios pies juntos para polinización
+  calabaza:   null,  // excesivo volumen y rastreo
+  melon:      null,
+  sandia:     null,
+  apio:       15,    // técnicamente posible pero exigente en humedad
+};

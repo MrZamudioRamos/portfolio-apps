@@ -1039,7 +1039,10 @@
       "easy": "Fàcil",
       "medium": "Mitjà",
       "hard": "Difícil"
-    }
+    },
+    "containerFilter": "Test",
+    "containerMin": "Mín. {{liters}} L test",
+    "containerNo": "🚫 No apte per test"
   },
   "identify": {
     "title": "Identificar plaga",

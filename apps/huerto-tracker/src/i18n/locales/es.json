@@ -1307,7 +1307,10 @@
       "easy": "Fácil",
       "medium": "Medio",
       "hard": "Difícil"
-    }
+    },
+    "containerFilter": "Maceta",
+    "containerMin": "Mín. {{liters}} L maceta",
+    "containerNo": "🚫 No apto maceta"
   },
   "rotation": {
     "title": "Rotación de cultivos",
