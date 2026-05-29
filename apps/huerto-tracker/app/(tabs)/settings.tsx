@@ -22,6 +22,7 @@ import type { DiaryEntry } from '../../src/models/diary-entry';
 import type { GardenReminder } from '../../src/models/reminder';
 import { saveLanguage, SUPPORTED_LANGS, LANG_LABELS, type SupportedLang } from '../../src/i18n';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { syncToCloud } from '../../src/sync/syncAll';
 
 // TODO: replace with real App Store URL once published
 const APP_STORE_URL = 'https://apps.apple.com/app/id<APP_STORE_ID>';
@@ -58,8 +59,9 @@ export default function SettingsScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  // Wipe every local store + scheduled notifications + onboarding flag.
-  async function clearLocalData() {
+  // Wipe every local store + scheduled notifications (+ onboarding flag unless
+  // keepOnboarding). Used by sign-out, data wipe and account deletion.
+  async function clearLocalData(opts?: { keepOnboarding?: boolean }) {
     await Promise.all([
       plants.removeMany(plants.items.map((p) => p.id)),
       entries.removeMany(entries.items.map((e) => e.id)),
@@ -87,7 +89,7 @@ export default function SettingsScreen() {
     if (extraKeys.length > 0) await AsyncStorage.multiRemove(extraKeys);
 
     await cancelAllReminders();
-    await resetOnboarding();
+    if (!opts?.keepOnboarding) await resetOnboarding();
   }
 
   function deleteAllData() {
@@ -208,7 +210,19 @@ export default function SettingsScreen() {
                 onPress={() => {
                   Alert.alert(t('settings.account.signOutTitle'), t('settings.account.signOutDesc'), [
                     { text: t('common.cancel'), style: 'cancel' },
-                    { text: t('settings.account.signOut'), style: 'destructive', onPress: async () => { await signOut(); } },
+                    {
+                      text: t('settings.account.signOut'),
+                      style: 'destructive',
+                      onPress: async () => {
+                        // Push any unsynced changes while the session is still
+                        // valid, then wipe local data so the next account on this
+                        // device doesn't see the previous user's plants/gardens.
+                        if (user?.id) { try { await syncToCloud(user.id); } catch {} }
+                        await clearLocalData({ keepOnboarding: true });
+                        await signOut().catch(() => {});
+                        router.replace('/welcome');
+                      },
+                    },
                   ]);
                 }}
                 destructive
