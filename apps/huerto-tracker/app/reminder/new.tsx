@@ -19,7 +19,9 @@ import { REMINDER_TYPE_CONFIG, type GardenReminder, type ReminderType } from '..
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
 const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'custom'];
-const FREQUENCIES: ReminderFrequency[] = ['daily', 'every_2_days', 'every_3_days', 'weekly', 'once'];
+// every_2_days/every_3_days removed: expo can't fire them at a fixed time, so
+// they were mapped to daily — keeping them in the picker would mislead users.
+const FREQUENCIES: ReminderFrequency[] = ['daily', 'weekly', 'once'];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = [0, 15, 30, 45];
 

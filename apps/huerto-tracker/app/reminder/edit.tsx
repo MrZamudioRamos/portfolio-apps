@@ -21,7 +21,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { REMINDER_TYPE_CONFIG, type GardenReminder, type ReminderType } from '../../src/models/reminder';
 
 const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'custom'];
-const FREQUENCIES: ReminderFrequency[] = ['daily', 'every_2_days', 'every_3_days', 'weekly', 'once'];
+// every_2_days/every_3_days removed: expo can't fire them at a fixed time, so
+// they were mapped to daily — keeping them in the picker would mislead users.
+const FREQUENCIES: ReminderFrequency[] = ['daily', 'weekly', 'once'];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = [0, 15, 30, 45];
 
@@ -38,7 +40,11 @@ export default function ReminderEditScreen() {
 
   const [type, setType] = useState<ReminderType>(reminder?.type ?? 'watering');
   const [title, setTitle] = useState(reminder?.title ?? '');
-  const [frequency, setFrequency] = useState<ReminderFrequency>(reminder?.frequency ?? 'daily');
+  // Normalize retired frequencies (every_2_days/every_3_days now behave as daily)
+  // so the picker shows a valid, highlighted selection.
+  const initialFrequency: ReminderFrequency =
+    reminder && FREQUENCIES.includes(reminder.frequency) ? reminder.frequency : 'daily';
+  const [frequency, setFrequency] = useState<ReminderFrequency>(initialFrequency);
   const [hour, setHour] = useState(reminder?.time?.hour ?? 8);
   const [minute, setMinute] = useState(reminder?.time?.minute ?? 0);
   const [enabled, setEnabled] = useState(reminder?.enabled ?? true);
