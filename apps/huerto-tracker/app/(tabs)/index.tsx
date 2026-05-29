@@ -23,6 +23,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data';
+import { CROP_IMAGES } from '../../src/data/cropImages';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
@@ -77,6 +78,7 @@ export default function DashboardScreen() {
   );
 
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
+  const [cardImgErr, setCardImgErr] = useState<Record<string, boolean>>({});
   const [showWaterAllModal, setShowWaterAllModal] = useState(false);
   const [waterAllLiters, setWaterAllLiters] = useState('');
   const [waterAllMethod, setWaterAllMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>('hand');
@@ -303,6 +305,13 @@ export default function DashboardScreen() {
           <View style={[s.plantImageBox, { backgroundColor: colors.surfaceAlt }]}>
             {item.photoUri ? (
               <Image source={{ uri: item.photoUri }} style={s.plantPhoto} />
+            ) : CROP_IMAGES[item.cropId] && !cardImgErr[item.id] ? (
+              <Image
+                source={{ uri: CROP_IMAGES[item.cropId] }}
+                style={s.plantPhoto}
+                resizeMode="cover"
+                onError={() => setCardImgErr(p => ({ ...p, [item.id]: true }))}
+              />
             ) : (
               <Text style={s.plantEmoji}>{crop?.emoji ?? '🌱'}</Text>
             )}

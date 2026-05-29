@@ -25,6 +25,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, type CropInfo } from '../../src/data/crops';
+import { CROP_IMAGES } from '../../src/data/cropImages';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
@@ -63,6 +64,7 @@ export default function NewPlantScreen() {
   const [selectedCropId, setSelectedCropId] = useState<string | null>(paramCropId ?? null);
   const [showCropPicker, setShowCropPicker] = useState(!paramCropId);
   const [cropSearch, setCropSearch] = useState('');
+  const [pickerImgErr, setPickerImgErr] = useState<Record<string, boolean>>({});
   const [plantName, setPlantName] = useState(() => {
     if (!paramCropId) return '';
     const staticCrop = CROPS_BY_ID[paramCropId];
@@ -500,7 +502,18 @@ export default function NewPlantScreen() {
                   },
                 ]}
               >
-                <Text style={{ fontSize: 28 }}>{item.emoji}</Text>
+                {CROP_IMAGES[item.id] && !pickerImgErr[item.id] ? (
+                  <Image
+                    source={{ uri: CROP_IMAGES[item.id] }}
+                    style={s.pickerThumb}
+                    resizeMode="cover"
+                    onError={() => setPickerImgErr(p => ({ ...p, [item.id]: true }))}
+                  />
+                ) : (
+                  <View style={[s.pickerThumb, { backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' }]}>
+                    <Text style={{ fontSize: 24 }}>{item.emoji}</Text>
+                  </View>
+                )}
                 <View style={{ flex: 1, marginLeft: spacing.md }}>
                   <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.medium }}>
                     {item.isCustom ? item.name : t('crops.' + item.id + '.name')}
@@ -616,8 +629,14 @@ const makeStyles = (
       flexDirection: 'row',
       alignItems: 'center',
       paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.md,
+      paddingVertical: spacing.sm,
       borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    pickerThumb: {
+      width: 52,
+      height: 52,
+      borderRadius: radii.md,
+      overflow: 'hidden',
     },
     dateBtnsRow: { flexDirection: 'row', gap: spacing.sm },
     datePickerBtn: {
