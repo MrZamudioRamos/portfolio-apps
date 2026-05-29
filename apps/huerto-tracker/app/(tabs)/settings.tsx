@@ -1,5 +1,5 @@
 import { useOnboarding } from '@portfolio/shared';
-import { useSession, signOut, deleteAllForUser } from '@portfolio/supabase';
+import { useSession, signOut, deleteAccount, deleteAllForUser } from '@portfolio/supabase';
 import { cancelAllReminders } from '@portfolio/notifications';
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
@@ -22,6 +22,7 @@ import type { DiaryEntry } from '../../src/models/diary-entry';
 import type { GardenReminder } from '../../src/models/reminder';
 import { saveLanguage, SUPPORTED_LANGS, LANG_LABELS, type SupportedLang } from '../../src/i18n';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { syncToCloud } from '../../src/sync/syncAll';
 
 // TODO: replace with real App Store URL once published
 const APP_STORE_URL = 'https://apps.apple.com/app/id<APP_STORE_ID>';
@@ -58,6 +59,39 @@ export default function SettingsScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
+  // Wipe every local store + scheduled notifications (+ onboarding flag unless
+  // keepOnboarding). Used by sign-out, data wipe and account deletion.
+  async function clearLocalData(opts?: { keepOnboarding?: boolean }) {
+    await Promise.all([
+      plants.removeMany(plants.items.map((p) => p.id)),
+      entries.removeMany(entries.items.map((e) => e.id)),
+      reminders.removeMany(reminders.items.map((r) => r.id)),
+      customCropsCollection.removeMany(customCropsCollection.items.map((c) => c.id)),
+      costEntriesCollection.removeMany(costEntriesCollection.items.map((c) => c.id)),
+      gardens.removeMany(gardens.items.map((g) => g.id)),
+    ]);
+
+    // Hard-clear every collection key (also drops soft-delete tombstones that
+    // the filtered .items above don't include) + layouts.
+    const allKeys = await AsyncStorage.getAllKeys();
+    const extraKeys = allKeys.filter(
+      (k) =>
+        k === '@portfolio/gardens' ||
+        k === '@portfolio/plants' ||
+        k === '@portfolio/diary_entries' ||
+        k === '@portfolio/reminders' ||
+        k === '@portfolio/user-profile' ||
+        k === '@portfolio/custom_crops' ||
+        k === '@portfolio/cost_entries' ||
+        k === '@portfolio/pending_deletes' ||
+        k.startsWith('@portfolio/huerto/garden_layout/')
+    );
+    if (extraKeys.length > 0) await AsyncStorage.multiRemove(extraKeys);
+
+    await cancelAllReminders();
+    if (!opts?.keepOnboarding) await resetOnboarding();
+  }
+
   function deleteAllData() {
     Alert.alert(
       t('settings.data.deleteTitle'),
@@ -83,40 +117,52 @@ export default function SettingsScreen() {
               ]);
             }
 
-            // Clear local collections (removeMany = one atomic write per store)
-            await Promise.all([
-              plants.removeMany(plants.items.map((p) => p.id)),
-              entries.removeMany(entries.items.map((e) => e.id)),
-              reminders.removeMany(reminders.items.map((r) => r.id)),
-              customCropsCollection.removeMany(customCropsCollection.items.map((c) => c.id)),
-              costEntriesCollection.removeMany(costEntriesCollection.items.map((c) => c.id)),
-              gardens.removeMany(gardens.items.map((g) => g.id)),
-            ]);
-
-            // Hard-clear every collection key (also drops soft-delete tombstones
-            // that the filtered .items above don't include) + layouts.
-            const allKeys = await AsyncStorage.getAllKeys();
-            const extraKeys = allKeys.filter(
-              (k) =>
-                k === '@portfolio/gardens' ||
-                k === '@portfolio/plants' ||
-                k === '@portfolio/diary_entries' ||
-                k === '@portfolio/reminders' ||
-                k === '@portfolio/user-profile' ||
-                k === '@portfolio/custom_crops' ||
-                k === '@portfolio/cost_entries' ||
-                k === '@portfolio/pending_deletes' ||
-                k.startsWith('@portfolio/huerto/garden_layout/')
-            );
-            if (extraKeys.length > 0) await AsyncStorage.multiRemove(extraKeys);
-
-            await cancelAllReminders();
-            await resetOnboarding();
+            await clearLocalData();
 
             // Sign out to prevent syncFromCloud restoring Supabase data
             if (!isGuest) await signOut();
 
             router.replace('/onboarding');
+          },
+        },
+      ]
+    );
+  }
+
+  function handleDeleteAccount() {
+    // Two-step confirm: account deletion is irreversible (Apple 5.1.1(v)).
+    Alert.alert(
+      t('settings.account.deleteAccountTitle'),
+      t('settings.account.deleteAccountDesc'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('settings.account.deleteAccountConfirm'),
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              t('settings.account.deleteAccountFinalTitle'),
+              t('settings.account.deleteAccountFinalDesc'),
+              [
+                { text: t('common.cancel'), style: 'cancel' },
+                {
+                  text: t('settings.account.deleteAccountConfirm'),
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      // Server deletes the auth user; DB cascade wipes all cloud data.
+                      await deleteAccount();
+                    } catch {
+                      Alert.alert(t('settings.account.deleteAccountError'));
+                      return;
+                    }
+                    await clearLocalData();
+                    await signOut().catch(() => {});
+                    router.replace('/welcome');
+                  },
+                },
+              ]
+            );
           },
         },
       ]
@@ -164,9 +210,30 @@ export default function SettingsScreen() {
                 onPress={() => {
                   Alert.alert(t('settings.account.signOutTitle'), t('settings.account.signOutDesc'), [
                     { text: t('common.cancel'), style: 'cancel' },
-                    { text: t('settings.account.signOut'), style: 'destructive', onPress: async () => { await signOut(); } },
+                    {
+                      text: t('settings.account.signOut'),
+                      style: 'destructive',
+                      onPress: async () => {
+                        // Push any unsynced changes while the session is still
+                        // valid, then wipe local data so the next account on this
+                        // device doesn't see the previous user's plants/gardens.
+                        if (user?.id) { try { await syncToCloud(user.id); } catch {} }
+                        await clearLocalData({ keepOnboarding: true });
+                        await signOut().catch(() => {});
+                        router.replace('/welcome');
+                      },
+                    },
                   ]);
                 }}
+                destructive
+              />
+              <Separator colors={colors} />
+              <RowAction
+                icon="trash-outline"
+                label={t('settings.account.deleteAccount')}
+                colors={colors}
+                s={s}
+                onPress={handleDeleteAccount}
                 destructive
               />
             </>

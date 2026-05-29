@@ -135,7 +135,21 @@
       "email": "Emaila",
       "signOut": "Itxi saioa",
       "signOutTitle": "Saioa itxi?",
-      "signOutDesc": "Zure datu lokalak gordeko dira."
+      "signOutDesc": "Zure datu lokalak gordeko dira.",
+
+      "deleteAccount": "Kontua ezabatu",
+
+      "deleteAccountTitle": "Kontua ezabatu nahi duzu?",
+
+      "deleteAccountDesc": "Zure kontua eta datu guztiak (baratzeak, landareak, egunkaria) betiko ezabatuko dira. Ezin da desegin.",
+
+      "deleteAccountConfirm": "Kontua ezabatu",
+
+      "deleteAccountFinalTitle": "Azken berrespena",
+
+      "deleteAccountFinalDesc": "Ekintza hau itzulezina da. Ziur zaude kontua betiko ezabatu nahi duzula?",
+
+      "deleteAccountError": "Ezin izan da kontua ezabatu. Saiatu berriro."
     },
     "garden": {
       "name": "Izena",

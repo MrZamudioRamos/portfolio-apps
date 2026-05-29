@@ -136,7 +136,21 @@
       "email": "Email",
       "signOut": "Sign out",
       "signOutTitle": "Sign out?",
-      "signOutDesc": "Your local data will be kept."
+      "signOutDesc": "Your local data will be kept.",
+
+      "deleteAccount": "Delete account",
+
+      "deleteAccountTitle": "Delete your account?",
+
+      "deleteAccountDesc": "This permanently deletes your account and all your data (gardens, plants, diary). This cannot be undone.",
+
+      "deleteAccountConfirm": "Delete account",
+
+      "deleteAccountFinalTitle": "Final confirmation",
+
+      "deleteAccountFinalDesc": "This action is irreversible. Are you sure you want to delete your account forever?",
+
+      "deleteAccountError": "Could not delete your account. Please try again."
     },
     "garden": {
       "name": "Name",

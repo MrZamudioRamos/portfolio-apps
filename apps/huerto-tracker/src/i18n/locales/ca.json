@@ -135,7 +135,21 @@
       "email": "Correu",
       "signOut": "Tancar sessió",
       "signOutTitle": "Tancar sessió?",
-      "signOutDesc": "Les teves dades locals es conservaran."
+      "signOutDesc": "Les teves dades locals es conservaran.",
+
+      "deleteAccount": "Eliminar compte",
+
+      "deleteAccountTitle": "Vols eliminar el compte?",
+
+      "deleteAccountDesc": "S'esborraran permanentment el teu compte i totes les teves dades (horts, plantes, diari). No es pot desfer.",
+
+      "deleteAccountConfirm": "Eliminar compte",
+
+      "deleteAccountFinalTitle": "Confirmació final",
+
+      "deleteAccountFinalDesc": "Aquesta acció és irreversible. Segur que vols eliminar el compte per sempre?",
+
+      "deleteAccountError": "No s'ha pogut eliminar el compte. Torna-ho a provar."
     },
     "garden": {
       "name": "Nom",
