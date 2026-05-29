@@ -1034,7 +1034,12 @@
     "companions": "BONS VEÏNS",
     "incompatible": "EVITAR A PROP DE",
     "tips": "CONSELLS",
-    "addToGarden": "Afegir a l'hort"
+    "addToGarden": "Afegir a l'hort",
+    "difficulty": {
+      "easy": "Fàcil",
+      "medium": "Mitjà",
+      "hard": "Difícil"
+    }
   },
   "identify": {
     "title": "Identificar plaga",

@@ -994,7 +994,12 @@
     "companions": "AUZOKIDE ONAK",
     "incompatible": "SAIHESTU ONDOAN",
     "tips": "AHOLKUAK",
-    "addToGarden": "Baratzera gehitu"
+    "addToGarden": "Baratzera gehitu",
+    "difficulty": {
+      "easy": "Erraza",
+      "medium": "Ertaina",
+      "hard": "Zaila"
+    }
   },
   "identify": {
     "title": "Izurria identifikatu",

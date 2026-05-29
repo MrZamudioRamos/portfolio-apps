@@ -1102,7 +1102,12 @@
     "companions": "GOOD NEIGHBORS",
     "incompatible": "AVOID NEAR",
     "tips": "TIPS",
-    "addToGarden": "Add to garden"
+    "addToGarden": "Add to garden",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    }
   },
   "varieties": {
     "tomate-cherry": "Cherry",

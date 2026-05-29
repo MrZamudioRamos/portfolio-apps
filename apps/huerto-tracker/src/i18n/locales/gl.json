@@ -1034,7 +1034,12 @@
     "companions": "BOS VECIÑOS",
     "incompatible": "EVITAR PRETO DE",
     "tips": "CONSELLOS",
-    "addToGarden": "Engadir á horta"
+    "addToGarden": "Engadir á horta",
+    "difficulty": {
+      "easy": "Sinxelo",
+      "medium": "Medio",
+      "hard": "Difícil"
+    }
   },
   "identify": {
     "title": "Identificar praga",

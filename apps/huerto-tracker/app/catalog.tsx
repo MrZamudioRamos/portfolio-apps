@@ -14,7 +14,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS, CATEGORY_CONFIG, type CropCategory } from '../src/data/crops';
+import { CROPS, CATEGORY_CONFIG, CROP_DIFFICULTY, type CropCategory, type CropDifficulty } from '../src/data/crops';
 import { CROP_IMAGES } from '../src/data/cropImages';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import type { ClimateZone } from '../src/models/garden';
@@ -48,6 +48,7 @@ export default function CatalogScreen() {
 
   const [search, setSearch] = useState(() => (focusCrop ? t(`crops.${focusCrop}.name`, { defaultValue: focusCrop }) : ''));
   const [catFilter, setCatFilter] = useState<CropCategory | null>(null);
+  const [diffFilter, setDiffFilter] = useState<CropDifficulty | null>(null);
   const [expanded, setExpanded] = useState<string | null>(focusCrop ?? null);
   const [imgErr, setImgErr] = useState<Record<string, boolean>>({});
 
@@ -63,11 +64,12 @@ export default function CatalogScreen() {
     const q = search.toLowerCase().trim();
     return CROPS.filter((c) => {
       if (catFilter && c.category !== catFilter) return false;
+      if (diffFilter && (CROP_DIFFICULTY[c.id] ?? 'medium') !== diffFilter) return false;
       if (!q) return true;
       const name = t(`crops.${c.id}.name`, { defaultValue: c.name }).toLowerCase();
       return name.includes(q) || c.name.toLowerCase().includes(q);
     });
-  }, [search, catFilter, t]);
+  }, [search, catFilter, diffFilter, t]);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -144,8 +146,8 @@ export default function CatalogScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: spacing.lg, paddingTop: 0, paddingBottom: 80 }}
       >
-        {/* Category chips — negative margin negates content padding */}
-        <View style={{ marginHorizontal: -spacing.lg, marginBottom: spacing.md }}>
+        {/* Category chips */}
+        <View style={{ marginHorizontal: -spacing.lg, marginBottom: spacing.xs }}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -173,6 +175,43 @@ export default function CatalogScreen() {
           </ScrollView>
         </View>
 
+        {/* Difficulty chips */}
+        <View style={{ marginHorizontal: -spacing.lg, marginBottom: spacing.md }}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.xs }}
+          >
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+              {([null, 'easy', 'medium', 'hard'] as (CropDifficulty | null)[]).map((d) => {
+                const active = diffFilter === d;
+                const label = d === null
+                  ? t('catalog.filterAll')
+                  : t(`catalog.difficulty.${d}`);
+                const dotColor = d === 'easy' ? '#4CAF50' : d === 'medium' ? '#FF9800' : d === 'hard' ? '#F44336' : undefined;
+                return (
+                  <Pressable
+                    key={d ?? 'all-diff'}
+                    onPress={() => setDiffFilter(d)}
+                    style={[s.chip, {
+                      backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
+                      borderColor: active ? colors.primary : colors.border,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 5,
+                    }]}
+                  >
+                    {dotColor && <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: dotColor }} />}
+                    <Text style={[s.chipText, { color: active ? colors.primary : colors.textSecondary }]}>
+                      {label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </ScrollView>
+        </View>
+
         {filtered.length === 0 && (
           <Text style={[s.emptyText, { color: colors.textDisabled }]}>{t('catalog.empty')}</Text>
         )}
@@ -186,6 +225,8 @@ export default function CatalogScreen() {
           const showImg = !!imgUrl && !imgErr[crop.id];
           const sowMs = crop.sowingMonths[zone] ?? [];
           const harMs = crop.harvestMonths[zone] ?? [];
+          const diff = CROP_DIFFICULTY[crop.id] ?? 'medium';
+          const diffColor = diff === 'easy' ? '#4CAF50' : diff === 'hard' ? '#F44336' : '#FF9800';
 
           return (
             <Pressable
@@ -224,6 +265,12 @@ export default function CatalogScreen() {
                     <View style={[s.catBadge, { backgroundColor: colors.primary + '18' }]}>
                       <Text style={[s.catBadgeText, { color: colors.primary }]}>
                         {catCfg.emoji} {t(`cropCategory.${crop.category}`, { defaultValue: catCfg.label })}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4 }}>
+                      <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: diffColor }} />
+                      <Text style={[s.metaLine, { color: diffColor, marginTop: 0, fontWeight: fontWeight.semibold }]}>
+                        {t(`catalog.difficulty.${diff}`)}
                       </Text>
                     </View>
                     <Text style={[s.metaLine, { color: colors.textSecondary }]}>

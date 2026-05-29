@@ -1302,7 +1302,12 @@
     "companions": "BUENOS VECINOS",
     "incompatible": "EVITAR JUNTO A",
     "tips": "CONSEJOS",
-    "addToGarden": "Añadir al huerto"
+    "addToGarden": "Añadir al huerto",
+    "difficulty": {
+      "easy": "Fácil",
+      "medium": "Medio",
+      "hard": "Difícil"
+    }
   },
   "rotation": {
     "title": "Rotación de cultivos",
