@@ -61,7 +61,7 @@ export default function GardenMapScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
 
-  const { activeGarden: garden } = useActiveGarden();
+  const { activeGarden: garden, refreshActiveId } = useActiveGarden();
   const gardens = useCollection<Garden>('gardens');
   const { customCropsById } = useCustomCrops();
   const gridRows = garden?.gridRows ?? DEFAULT_GRID_ROWS;
@@ -121,7 +121,7 @@ export default function GardenMapScreen() {
     ],
   }));
 
-  useFocusEffect(useCallback(() => { plants.refresh(); }, []));
+  useFocusEffect(useCallback(() => { refreshActiveId(); plants.refresh(); }, []));
 
   // ── Derived data ──────────────────────────────────────────────────────────
   const gardenPlants = useMemo(

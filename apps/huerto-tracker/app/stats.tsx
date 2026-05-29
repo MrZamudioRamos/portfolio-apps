@@ -1,9 +1,9 @@
 import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { usePro } from '../src/hooks/usePro';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -52,14 +52,16 @@ export default function StatsScreen() {
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
   const { isPro } = usePro();
-  const { activeGarden } = useActiveGarden();
+  const { activeGarden, refreshActiveId } = useActiveGarden();
+
+  useFocusEffect(useCallback(() => { refreshActiveId(); }, []));
   const { customCropsById } = useCustomCrops();
 
   const gardenId = activeGarden?.id;
   const gamData = useMemo(
     () => {
-      const filteredPlants = gardenId ? plants.items.filter((p) => p.gardenId === gardenId) : plants.items;
-      const filteredEntries = gardenId ? entries.items.filter((e) => e.gardenId === gardenId) : entries.items;
+      const filteredPlants = gardenId ? plants.items.filter((p) => p.gardenId === gardenId) : [];
+      const filteredEntries = gardenId ? entries.items.filter((e) => e.gardenId === gardenId) : [];
       return buildGamificationData(filteredPlants, filteredEntries);
     },
     [plants.items, entries.items, gardenId]

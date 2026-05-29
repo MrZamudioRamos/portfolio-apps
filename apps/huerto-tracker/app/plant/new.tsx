@@ -57,7 +57,10 @@ export default function NewPlantScreen() {
   // Tier limits: guest = 3, free registered = 20, pro = unlimited
   // Guard with proLoading: isPro starts false while AsyncStorage loads — don't gate on stale value
   const plantLimit = isGuest ? 3 : isPro ? Infinity : 20;
-  const atLimit = !proLoading && plants.count >= plantLimit;
+  const gardenPlantCount = activeGarden?.id
+    ? plants.items.filter((p) => p.gardenId === activeGarden.id).length
+    : plants.count;
+  const atLimit = !proLoading && gardenPlantCount >= plantLimit;
 
   const { collection: customCropsCollection, customCropsById } = useCustomCrops();
 

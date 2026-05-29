@@ -45,24 +45,25 @@ export default function DiaryScreen() {
   const { exportEntries, exporting } = useCsvExport();
   const { customCropsById } = useCustomCrops();
   const { isPro } = usePro();
-  const { activeGarden } = useActiveGarden();
+  const { activeGarden, refreshActiveId } = useActiveGarden();
 
   useFocusEffect(
     useCallback(() => {
+      refreshActiveId();
       entries.refresh();
       plants.refresh();
     }, [])
   );
 
   const gardenEntries = useMemo(
-    () => activeGarden?.id ? entries.items.filter((e) => e.gardenId === activeGarden.id) : entries.items,
+    () => activeGarden?.id ? entries.items.filter((e) => e.gardenId === activeGarden.id) : [],
     [entries.items, activeGarden?.id]
   );
 
   const plantsById = useMemo(
     () => Object.fromEntries(
       plants.items
-        .filter((p) => !activeGarden?.id || p.gardenId === activeGarden.id)
+        .filter((p) => activeGarden?.id && p.gardenId === activeGarden.id)
         .map((p) => [p.id, p])
     ),
     [plants.items, activeGarden?.id]

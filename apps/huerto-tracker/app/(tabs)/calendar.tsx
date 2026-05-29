@@ -1,8 +1,8 @@
 import { useColors, useTheme, Card, EmptyState, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,7 +30,9 @@ export default function CalendarScreen() {
   const [categoryFilter, setCategoryFilter] = useState<CropCategory | null>(null);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
-  const { activeGarden: garden } = useActiveGarden();
+  const { activeGarden: garden, refreshActiveId } = useActiveGarden();
+
+  useFocusEffect(useCallback(() => { refreshActiveId(); }, []));
   const allPlants = useCollection<Plant>('plants');
   const { customCropsById } = useCustomCrops();
   const gardenPlants = useMemo(

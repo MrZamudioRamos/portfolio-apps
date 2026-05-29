@@ -3,8 +3,8 @@ import { useCollection } from '@portfolio/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../src/utils/glassEffect';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -48,7 +48,9 @@ export default function CostsScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const { isPro } = usePro();
-  const { activeGarden } = useActiveGarden();
+  const { activeGarden, refreshActiveId } = useActiveGarden();
+
+  useFocusEffect(useCallback(() => { refreshActiveId(); }, []));
 
   const plants = useCollection<Plant>('plants');
   const diaryEntries = useCollection<DiaryEntry>('diary_entries');
@@ -99,12 +101,12 @@ export default function CostsScreen() {
   const yearStr = String(year);
 
   const yearDiary = useMemo(
-    () => diaryEntries.items.filter((e) => e.date.startsWith(yearStr) && (!gardenId || e.gardenId === gardenId)),
+    () => gardenId ? diaryEntries.items.filter((e) => e.date.startsWith(yearStr) && e.gardenId === gardenId) : [],
     [diaryEntries.items, yearStr, gardenId]
   );
 
   const yearCosts = useMemo(
-    () => costEntries.items.filter((e) => e.date.startsWith(yearStr) && (!gardenId || e.gardenId === gardenId)),
+    () => gardenId ? costEntries.items.filter((e) => e.date.startsWith(yearStr) && e.gardenId === gardenId) : [],
     [costEntries.items, yearStr, gardenId]
   );
 
