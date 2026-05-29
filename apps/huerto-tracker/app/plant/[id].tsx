@@ -24,6 +24,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
+import { CROP_IMAGES } from '../../src/data/cropImages';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
@@ -61,6 +62,7 @@ export default function PlantDetailScreen() {
   const { customCropsById } = useCustomCrops();
   const { activeGarden } = useActiveGarden();
   const [cropTab, setCropTab] = useState<CropTab>('overview');
+  const [cropImgErr, setCropImgErr] = useState(false);
 
   const plant = plants.getById(id);
   const crop = plant
@@ -263,6 +265,13 @@ export default function PlantDetailScreen() {
           </Pressable>
           {plant.photoUri ? (
             <Image source={{ uri: plant.photoUri }} style={s.heroPhoto} />
+          ) : CROP_IMAGES[plant.cropId] && !cropImgErr ? (
+            <Image
+              source={{ uri: CROP_IMAGES[plant.cropId] }}
+              style={s.heroPhoto}
+              resizeMode="cover"
+              onError={() => setCropImgErr(true)}
+            />
           ) : (
             <Text style={s.heroEmoji}>{crop.emoji}</Text>
           )}

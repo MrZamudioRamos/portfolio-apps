@@ -242,6 +242,16 @@ export default function CatalogScreen() {
                   <>
                     <View style={[s.divider, { backgroundColor: colors.border }]} />
 
+                    {/* Hero image */}
+                    {showImg && (
+                      <Image
+                        source={{ uri: imgUrl }}
+                        style={[s.heroImg, { borderRadius: radii.md }]}
+                        resizeMode="cover"
+                        onError={() => setImgErr((p) => ({ ...p, [crop.id]: true }))}
+                      />
+                    )}
+
                     {/* Sowing calendar heatmap */}
                     <Text style={[s.label, { color: colors.textSecondary }]}>{t('catalog.sowing')}</Text>
                     <View style={s.monthRow}>
@@ -366,6 +376,7 @@ const makeStyles = (
     card: { gap: spacing.sm },
     cropRow: { flexDirection: 'row', alignItems: 'center' },
     thumb: { width: 58, height: 58, borderWidth: 1 },
+    heroImg: { width: '100%', height: 180, marginBottom: 4 },
     cropName: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
     catBadge: {
       alignSelf: 'flex-start',
