@@ -1,3 +1,5 @@
+import { getSupabase } from '@portfolio/supabase';
+
 export interface PestDiagnosis {
   detected: boolean;
   name: string;
@@ -55,84 +57,31 @@ function mediaTypeFromUri(uri: string): string {
   return 'image/jpeg';
 }
 
-const LANG_NAMES: Record<string, string> = {
-  es: 'Spanish', en: 'English', ca: 'Catalan', eu: 'Basque', gl: 'Galician', val: 'Valencian',
-};
+function fail(code: string): Error & { code: string } {
+  const err = new Error(code) as Error & { code: string };
+  err.code = code;
+  return err;
+}
 
 export async function identifyPest(
   imageUri: string,
   cropName: string,
   language: string
 ): Promise<PestDiagnosis> {
-  const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_KEY;
-  if (!apiKey) {
-    const err = new Error('NO_KEY') as Error & { code: string };
-    err.code = 'NO_KEY';
-    throw err;
-  }
-
+  // Image stays client-side (it's a local file); only base64 is sent to our
+  // Edge Function, which holds the Anthropic key and calls the model.
   const base64 = await imageToBase64(imageUri);
   const mediaType = mediaTypeFromUri(imageUri);
-  const lang = LANG_NAMES[language] ?? 'Spanish';
 
-  const systemPrompt = `You are a plant pathology expert. Analyze the plant image and respond ONLY with valid JSON (no other text):
-{
-  "detected": true or false,
-  "name": "problem name in ${lang}",
-  "type": one of: "plaga", "enfermedad", "deficiencia", "saludable",
-  "confidence": one of: "alta", "media", "baja",
-  "description": "1-2 sentences in ${lang}",
-  "symptoms": "visible symptoms in ${lang}",
-  "treatments": [
-    {"type": one of: "organico","preventivo","quimico", "name": "...", "instructions": "..."}
-  ]
-}
-If plant is healthy: detected=false, type="saludable", symptoms="", treatments=[].
-All text must be in ${lang}.`;
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: base64 },
-            },
-            { type: 'text', text: `Analyze this ${cropName} plant for pests, diseases, or deficiencies.` },
-          ],
-        },
-      ],
-    }),
+  const { data, error } = await getSupabase().functions.invoke('ai-vision', {
+    body: { mode: 'identify-pest', base64, mediaType, language, cropName },
   });
 
-  if (!response.ok) {
-    const body = await response.text().catch(() => '');
-    console.error('[pestIdentify] API error', response.status, body);
-    const err = new Error(`HTTP ${response.status}`) as Error & { code: string };
-    err.code = 'API_ERROR';
-    throw err;
+  if (error || !data) {
+    console.error('[pestIdentify] edge function error', error);
+    throw fail('API_ERROR');
   }
+  if ((data as { code?: string }).code) throw fail((data as { code: string }).code);
 
-  const data = await response.json() as { content?: Array<{ text: string }> };
-  const text = data.content?.[0]?.text ?? '';
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) {
-    console.error('[pestIdentify] Could not parse JSON from response:', text);
-    const err = new Error('PARSE_ERROR') as Error & { code: string };
-    err.code = 'PARSE_ERROR';
-    throw err;
-  }
-
-  return JSON.parse(match[0]) as PestDiagnosis;
+  return data as PestDiagnosis;
 }
