@@ -649,7 +649,13 @@
     "harvestPushTitle": "🧺 {{label}} nearly ready",
     "harvestPushBody": "Harvest expected in 3 days. Check ripeness.",
     "treatmentPushTitle": "🧴 Clearance expired: {{label}}",
-    "treatmentPushBody": "{{days}} days since the last treatment. You can harvest now."
+    "treatmentPushBody": "{{days}} days since the last treatment. You can harvest now.",
+    "monthsFull": ["January","February","March","April","May","June","July","August","September","October","November","December"],
+    "frostPushTitle": "🌡️ Frost alert",
+    "frostPushBody": "Low of {{temp}}°C expected on {{date}}. Protect your sensitive plants.",
+    "seasonalPushTitle": "🌱 {{month}}: time to sow",
+    "seasonalPushBody": "You can sow: {{crops}}",
+    "seasonalPushMore": " and {{count}} more"
   },
   "stats": {
     "title": "Statistics",

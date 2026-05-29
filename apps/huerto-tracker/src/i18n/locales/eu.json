@@ -645,7 +645,13 @@
     "treatmentTitle": "Tratamendu-itxaronaldia amaitu",
     "treatmentDesc": "Jakinarazpena tratamendu baten osteko itxaronaldia amaitzean",
     "plantCount_one": "{{count}} landare programatua",
-    "plantCount_other": "{{count}} landare programatu"
+    "plantCount_other": "{{count}} landare programatu",
+    "monthsFull": ["Urtarrila","Otsaila","Martxoa","Apirila","Maiatza","Ekaina","Uztaila","Abuztua","Iraila","Urria","Azaroa","Abendua"],
+    "frostPushTitle": "🌡️ Izozte abisua",
+    "frostPushBody": "{{temp}}°C-ko tenperatura minimoa aurreikusten da {{date}}. Babestu landare sentikorrak.",
+    "seasonalPushTitle": "🌱 {{month}}: ereiteko garaia",
+    "seasonalPushBody": "Erein dezakezu: {{crops}}",
+    "seasonalPushMore": " eta {{count}} gehiago"
   },
   "stats": {
     "title": "Estatistikak",

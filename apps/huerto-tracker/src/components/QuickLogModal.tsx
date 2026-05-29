@@ -115,8 +115,6 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
       // Auto-update pestStatus on plant
       if (selected.type === 'pest') {
         await plants.update(plant.id, { pestStatus: 'active' });
-      } else if (selected.type === 'treatment' && plant.pestStatus === 'active') {
-        await plants.update(plant.id, { pestStatus: 'treated' });
       }
       setDone(true);
       setTimeout(() => { handleClose(); }, 900);
@@ -216,15 +214,6 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
                       </Pressable>
                     ))}
                   </View>
-                </View>
-              )}
-
-              {/* Treatment tip if plant has active pest */}
-              {selected?.type === 'treatment' && plant.pestStatus === 'active' && (
-                <View style={[s.pestSuggestions, { backgroundColor: '#FF980010', borderColor: '#FF9800' }]}>
-                  <Text style={[s.pestSuggestLabel, { color: '#FF9800' }]}>
-                    🧴 {t('quickLog.treatmentTip')}
-                  </Text>
                 </View>
               )}
 

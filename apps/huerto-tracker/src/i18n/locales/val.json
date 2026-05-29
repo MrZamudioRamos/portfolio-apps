@@ -645,7 +645,13 @@
     "treatmentTitle": "Carència vençuda",
     "treatmentDesc": "Notificació quan acaba el període d'espera després d'un tractament",
     "plantCount_one": "{{count}} planta programada",
-    "plantCount_other": "{{count}} plantes programades"
+    "plantCount_other": "{{count}} plantes programades",
+    "monthsFull": ["Gener","Febrer","Març","Abril","Maig","Juny","Juliol","Agost","Setembre","Octubre","Novembre","Desembre"],
+    "frostPushTitle": "🌡️ Alerta de gelada",
+    "frostPushBody": "Temperatura mínima de {{temp}}°C prevista el {{date}}. Protegix les plantes sensibles.",
+    "seasonalPushTitle": "🌱 {{month}}: temps de sembrar",
+    "seasonalPushBody": "Pots sembrar: {{crops}}",
+    "seasonalPushMore": " i {{count}} més"
   },
   "stats": {
     "title": "Estadístiques",

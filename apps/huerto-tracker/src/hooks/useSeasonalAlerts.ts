@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCollection } from '@portfolio/storage';
 import {
   requestPermissions,
   scheduleMonthlyAlerts,
@@ -8,14 +7,16 @@ import {
 import { useEffect, useState } from 'react';
 import { CROPS } from '../data/crops';
 import type { Garden } from '../models/garden';
+import { useActiveGarden } from './useActiveGarden';
+import i18n from '../i18n';
 
 const ENABLED_KEY = '@portfolio/seasonal_alerts/enabled';
 const IDS_KEY = '@portfolio/seasonal_alerts/ids';
 
-const MONTH_LABELS = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-];
+function monthName(month: number): string {
+  const months = i18n.t('notifications.monthsFull', { returnObjects: true }) as string[];
+  return months[month - 1] ?? String(month);
+}
 
 function buildAlerts(zone: Garden['climateZone']) {
   const now = new Date();
@@ -33,15 +34,17 @@ function buildAlerts(zone: Garden['climateZone']) {
       .slice(0, 3)
       .map((c) => `${c.emoji} ${c.name}`)
       .join(', ');
-    const extra = sowable.length > 3 ? ` y ${sowable.length - 3} más` : '';
+    const extra = sowable.length > 3
+      ? i18n.t('notifications.seasonalPushMore', { count: sowable.length - 3 })
+      : '';
 
     alerts.push({
       year,
       month,
       hour: 9,
       minute: 0,
-      title: `🌱 ${MONTH_LABELS[month - 1]}: tiempo de sembrar`,
-      body: `Puedes sembrar: ${names}${extra}`,
+      title: i18n.t('notifications.seasonalPushTitle', { month: monthName(month) }),
+      body: i18n.t('notifications.seasonalPushBody', { crops: `${names}${extra}` }),
     });
   }
 
@@ -49,7 +52,7 @@ function buildAlerts(zone: Garden['climateZone']) {
 }
 
 export function useSeasonalAlerts() {
-  const gardens = useCollection<Garden>('gardens');
+  const { activeGarden, gardensLoading } = useActiveGarden();
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -60,11 +63,12 @@ export function useSeasonalAlerts() {
     });
   }, []);
 
-  const zone = gardens.items[0]?.climateZone ?? null;
+  // Use the active garden's climate zone (multi-garden may span zones)
+  const zone = activeGarden?.climateZone ?? null;
 
   // Recompute schedule when zone changes while enabled
   useEffect(() => {
-    if (!enabled || !zone || gardens.loading) return;
+    if (!enabled || !zone || gardensLoading) return;
     reschedule();
   }, [zone, enabled]);
 
@@ -103,7 +107,7 @@ export function useSeasonalAlerts() {
     const crops = CROPS.filter((c) => c.sowingMonths[zone]?.includes(m));
     if (crops.length === 0) return null;
     return {
-      monthLabel: MONTH_LABELS[m - 1],
+      monthLabel: monthName(m),
       crops: crops.slice(0, 4),
       total: crops.length,
     };

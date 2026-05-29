@@ -645,7 +645,13 @@
     "treatmentTitle": "Carencia vencida",
     "treatmentDesc": "Notificación cando remata o período de espera tras un tratamento",
     "plantCount_one": "{{count}} planta programada",
-    "plantCount_other": "{{count}} plantas programadas"
+    "plantCount_other": "{{count}} plantas programadas",
+    "monthsFull": ["Xaneiro","Febreiro","Marzo","Abril","Maio","Xuño","Xullo","Agosto","Setembro","Outubro","Novembro","Decembro"],
+    "frostPushTitle": "🌡️ Alerta de xeada",
+    "frostPushBody": "Temperatura mínima de {{temp}}°C prevista o {{date}}. Protexe as túas plantas sensibles.",
+    "seasonalPushTitle": "🌱 {{month}}: tempo de sementar",
+    "seasonalPushBody": "Podes sementar: {{crops}}",
+    "seasonalPushMore": " e {{count}} máis"
   },
   "stats": {
     "title": "Estatísticas",

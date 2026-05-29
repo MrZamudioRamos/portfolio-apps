@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useState } from 'react';
 import { fetchWeather } from '../utils/weather';
+import i18n from '../i18n';
 
 const ENABLED_KEY = '@portfolio/frost_alert/enabled';
 const LAST_CHECK_KEY = '@portfolio/frost_alert/last_check';
@@ -70,8 +71,8 @@ export async function checkFrost(province: string): Promise<void> {
 
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: '🌡️ Alerta de helada',
-        body: `Temperatura mínima de ${minTemp}°C prevista el ${dateStr}. Protege tus plantas sensibles.`,
+        title: i18n.t('notifications.frostPushTitle'),
+        body: i18n.t('notifications.frostPushBody', { temp: minTemp, date: dateStr }),
         sound: true,
       },
       trigger: null, // immediate

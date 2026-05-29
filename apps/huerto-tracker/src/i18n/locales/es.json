@@ -682,7 +682,13 @@
     "harvestPushTitle": "🧺 {{label}} casi lista",
     "harvestPushBody": "Cosecha prevista en 3 días. Revisa el punto de madurez.",
     "treatmentPushTitle": "🧴 Carencia vencida: {{label}}",
-    "treatmentPushBody": "Han pasado {{days}} días desde el último tratamiento. Ya puedes cosechar."
+    "treatmentPushBody": "Han pasado {{days}} días desde el último tratamiento. Ya puedes cosechar.",
+    "monthsFull": ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"],
+    "frostPushTitle": "🌡️ Alerta de helada",
+    "frostPushBody": "Temperatura mínima de {{temp}}°C prevista el {{date}}. Protege tus plantas sensibles.",
+    "seasonalPushTitle": "🌱 {{month}}: tiempo de sembrar",
+    "seasonalPushBody": "Puedes sembrar: {{crops}}",
+    "seasonalPushMore": " y {{count}} más"
   },
   "stats": {
     "title": "Estadísticas",
