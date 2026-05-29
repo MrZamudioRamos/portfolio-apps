@@ -1,8 +1,6 @@
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useReminders } from '@portfolio/notifications';
-import { useSession } from '@portfolio/supabase';
-import { removeFromCloud } from '../../src/sync/pendingDeletes';
 import { formatDate, formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
@@ -56,7 +54,6 @@ export default function PlantDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const { isGuest } = useSession();
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
   const reminders = useReminders<GardenReminder>('reminders');
@@ -237,18 +234,11 @@ export default function PlantDetailScreen() {
           onPress: async () => {
             const relatedEntries = entries.items.filter((e) => e.plantId === id);
             const relatedReminders = reminders.items.filter((r) => r.plantId === id);
-            if (!isGuest) {
-              // Queue tombstones (offline-safe) for plant + its children.
-              await Promise.all([
-                removeFromCloud('plants', [id]),
-                removeFromCloud('diary_entries', relatedEntries.map((e) => e.id)),
-                removeFromCloud('reminders', relatedReminders.map((r) => r.id)),
-              ]);
-            }
-            await plants.remove(id);
+            // Soft-delete plant + its children; tombstones sync on next push.
+            await plants.softRemove(id);
             await Promise.all([
-              entries.removeMany(relatedEntries.map((e) => e.id)),
-              reminders.removeMany(relatedReminders.map((r) => r.id)),
+              entries.softRemoveMany(relatedEntries.map((e) => e.id)),
+              reminders.softRemoveMany(relatedReminders.map((r) => r.id)),
             ]);
             router.back();
           },

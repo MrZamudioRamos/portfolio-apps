@@ -33,6 +33,7 @@ export function gardenToRow(g: Garden, userId: string) {
     photo_uri: syncablePhotoUri(g.photoUri),
     created_at: g.createdAt,
     updated_at: g.updatedAt,
+    deleted_at: g.deletedAt ?? null,
   };
 }
 
@@ -51,6 +52,7 @@ export function rowToGarden(r: ReturnType<typeof gardenToRow>): Garden {
     photoUri: r.photo_uri ?? undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    deletedAt: r.deleted_at ?? undefined,
   };
 }
 
@@ -66,6 +68,7 @@ export function userProfileToRow(p: UserProfile, userId: string) {
     experience: p.experience,
     created_at: p.createdAt,
     updated_at: p.updatedAt,
+    deleted_at: p.deletedAt ?? null,
   };
 }
 
@@ -78,6 +81,7 @@ export function rowToUserProfile(r: ReturnType<typeof userProfileToRow>): UserPr
     experience: r.experience as UserProfile['experience'],
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    deletedAt: r.deleted_at ?? undefined,
   };
 }
 
@@ -100,6 +104,7 @@ export function customCropToRow(c: CustomCrop, userId: string) {
     notes: c.notes,
     created_at: c.createdAt,
     updated_at: c.updatedAt,
+    deleted_at: c.deletedAt ?? null,
   };
 }
 
@@ -119,6 +124,7 @@ export function rowToCustomCrop(r: ReturnType<typeof customCropToRow>): CustomCr
     notes: r.notes,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    deletedAt: r.deleted_at ?? undefined,
   };
 }
 
@@ -147,6 +153,7 @@ export function plantToRow(p: Plant, userId: string) {
     bed_name: p.bedName ?? null,
     created_at: p.createdAt,
     updated_at: p.updatedAt,
+    deleted_at: p.deletedAt ?? null,
   };
 }
 
@@ -172,6 +179,7 @@ export function rowToPlant(r: ReturnType<typeof plantToRow>): Plant {
     bedName: r.bed_name ?? undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    deletedAt: r.deleted_at ?? undefined,
   };
 }
 
@@ -191,6 +199,8 @@ export function entryToRow(e: DiaryEntry, userId: string) {
     entry_data: e.data ?? null,
     recorded_at: e.date,
     created_at: e.createdAt,
+    updated_at: e.updatedAt,
+    deleted_at: e.deletedAt ?? null,
   };
 }
 
@@ -212,7 +222,8 @@ export function rowToEntry(r: ReturnType<typeof entryToRow>): DiaryEntry {
     photoUri: r.photo_uri ?? undefined,
     data,
     createdAt: r.created_at,
-    updatedAt: r.created_at,
+    updatedAt: r.updated_at ?? r.created_at,
+    deletedAt: r.deleted_at ?? undefined,
   };
 }
 
@@ -233,6 +244,7 @@ export function reminderToRow(r: GardenReminder, userId: string) {
     notification_id: r.notificationId ?? null,
     created_at: r.createdAt,
     updated_at: r.updatedAt,
+    deleted_at: r.deletedAt ?? null,
   };
 }
 
@@ -249,6 +261,7 @@ export function rowToReminder(r: ReturnType<typeof reminderToRow>): GardenRemind
     notificationId: r.notification_id ?? undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    deletedAt: r.deleted_at ?? undefined,
   };
 }
 
@@ -266,6 +279,7 @@ export function costEntryToRow(c: CostEntry, userId: string) {
     date: c.date,
     created_at: c.createdAt,
     updated_at: c.updatedAt,
+    deleted_at: c.deletedAt ?? null,
   };
 }
 
@@ -280,6 +294,7 @@ export function rowToCostEntry(r: ReturnType<typeof costEntryToRow>): CostEntry 
     date: r.date,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    deletedAt: r.deleted_at ?? undefined,
   };
 }
 

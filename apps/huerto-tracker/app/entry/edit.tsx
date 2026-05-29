@@ -1,7 +1,5 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
-import { useSession } from '@portfolio/supabase';
-import { removeFromCloud } from '../../src/sync/pendingDeletes';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
@@ -36,7 +34,6 @@ export default function EditEntryScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const { isGuest } = useSession();
   const { activeGarden } = useActiveGarden();
   const entries = useCollection<DiaryEntry>('diary_entries');
   const entry = entries.getById(id);
@@ -141,8 +138,9 @@ export default function EditEntryScreen() {
         text: t('common.delete'),
         style: 'destructive',
         onPress: async () => {
-          if (!isGuest) await removeFromCloud('diary_entries', [id]);
-          await entries.remove(id);
+          // Soft-delete: marks deletedAt locally and syncs the tombstone on
+          // next push, so the deletion reaches other devices too.
+          await entries.softRemove(id);
           router.back();
         },
       },

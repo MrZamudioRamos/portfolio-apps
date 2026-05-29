@@ -93,10 +93,15 @@ export default function SettingsScreen() {
               gardens.removeMany(gardens.items.map((g) => g.id)),
             ]);
 
-            // Clear non-collection AsyncStorage keys (user_profile, layouts, pending deletes)
+            // Hard-clear every collection key (also drops soft-delete tombstones
+            // that the filtered .items above don't include) + layouts.
             const allKeys = await AsyncStorage.getAllKeys();
             const extraKeys = allKeys.filter(
               (k) =>
+                k === '@portfolio/gardens' ||
+                k === '@portfolio/plants' ||
+                k === '@portfolio/diary_entries' ||
+                k === '@portfolio/reminders' ||
                 k === '@portfolio/user-profile' ||
                 k === '@portfolio/custom_crops' ||
                 k === '@portfolio/cost_entries' ||
