@@ -23,6 +23,7 @@
   },
   "home": {
     "title": "My Garden",
+    "streak_one": "🔥 {{count}} day",
     "streak": "🔥 {{count}} days",
     "stats": {
       "plants": "Plants",
@@ -48,6 +49,7 @@
     "myPlants": "My plants",
     "waterAll": "💧 Water all",
     "waterAllTitle": "Water all",
+    "waterAllMessage_one": "Log watering for {{count}} plant?",
     "waterAllMessage": "Log watering for {{count}} plants?",
     "waterAllConfirm": "Water all",
     "firstUseTitle": "{{name}} is ready 🌱",
@@ -63,6 +65,7 @@
     "sortDefault": "Order",
     "sortName": "A-Z",
     "sortNewest": "Newest",
+    "showFinished_one": "{{count}} finished hidden · Show",
     "showFinished": "{{count}} finished hidden · Show",
     "hideFinished": "Hide finished",
     "taskCarencia": "{{name}}: do not harvest for {{days}} more day(s) (clearance period)",
@@ -177,7 +180,9 @@
       "rate": "Rate on App Store",
       "privacy": "Privacy policy",
       "contact": "Contact"
-    }
+    },
+    "rotation": "Crop rotation",
+    "rotationDesc": "Bed history and recommendations"
   },
   "auth": {
     "title": "Create your account",

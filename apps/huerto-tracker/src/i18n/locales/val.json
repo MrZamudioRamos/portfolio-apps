@@ -23,6 +23,7 @@
   },
   "home": {
     "title": "El Meu Hort",
+    "streak_one": "🔥 {{count}} dia",
     "streak": "🔥 {{count}} dies",
     "stats": {
       "plants": "Plantes",
@@ -48,6 +49,7 @@
     "myPlants": "Les meues plantes",
     "waterAll": "💧 Regar tot",
     "waterAllTitle": "Regar tot",
+    "waterAllMessage_one": "Registrar reg per a {{count}} planta?",
     "waterAllMessage": "Registrar reg per a les {{count}} plantes?",
     "waterAllConfirm": "Regar totes",
     "firstUseTitle": "{{name}} està llest 🌱",
@@ -63,6 +65,7 @@
     "sortDefault": "Ordre",
     "sortName": "A-Z",
     "sortNewest": "Recents",
+    "showFinished_one": "{{count}} finalitzada oculta · Mostrar",
     "showFinished": "{{count}} finalitzades ocultes · Mostrar",
     "hideFinished": "Amagar finalitzades",
     "taskCarencia": "{{name}}: no collir {{days}} dia(s) més (carència)",

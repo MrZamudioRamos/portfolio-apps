@@ -23,6 +23,7 @@
   },
   "home": {
     "title": "A Miña Horta",
+    "streak_one": "🔥 {{count}} día",
     "streak": "🔥 {{count}} días",
     "stats": {
       "plants": "Plantas",
@@ -48,6 +49,7 @@
     "myPlants": "As miñas plantas",
     "waterAll": "💧 Regar todo",
     "waterAllTitle": "Regar todo",
+    "waterAllMessage_one": "Rexistrar rego para {{count}} planta?",
     "waterAllMessage": "Rexistrar rego para as {{count}} plantas?",
     "waterAllConfirm": "Regar todas",
     "firstUseTitle": "{{name}} está listo 🌱",
@@ -63,6 +65,7 @@
     "sortDefault": "Orde",
     "sortName": "A-Z",
     "sortNewest": "Recentes",
+    "showFinished_one": "{{count}} rematada oculta · Mostrar",
     "showFinished": "{{count}} rematadas ocultas · Mostrar",
     "hideFinished": "Ocultar rematadas",
     "taskCarencia": "{{name}}: non coseitar {{days}} día(s) máis (carencia)",

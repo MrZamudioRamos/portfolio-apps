@@ -23,6 +23,7 @@
   },
   "home": {
     "title": "Nire Baratzea",
+    "streak_one": "🔥 {{count}} egun",
     "streak": "🔥 {{count}} egun",
     "stats": {
       "plants": "Landareak",
@@ -48,6 +49,7 @@
     "myPlants": "Nire landareak",
     "waterAll": "💧 Denak ureztatu",
     "waterAllTitle": "Denak ureztatu",
+    "waterAllMessage_one": "{{count}} landarearen ureztatze bat erregistratu?",
     "waterAllMessage": "{{count}} landareen ureztatze bat erregistratu?",
     "waterAllConfirm": "Denak ureztatu",
     "firstUseTitle": "{{name}} prest dago 🌱",
@@ -63,6 +65,7 @@
     "sortDefault": "Ordena",
     "sortName": "A-Z",
     "sortNewest": "Berrienak",
+    "showFinished_one": "{{count}} amaituta ezkutatuta · Ikusi",
     "showFinished": "{{count}} amaituta ezkutatuta · Ikusi",
     "hideFinished": "Ezkutatu amaitutakoak",
     "taskCarencia": "{{name}}: ez bildu {{days}} egun gehiago (itxaronaldia)",
