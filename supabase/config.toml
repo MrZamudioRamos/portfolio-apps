@@ -1,0 +1,7 @@
+# Supabase CLI project config. Used for `supabase functions deploy`.
+# Migrations live in packages/supabase/migrations and are applied via the
+# dashboard; this project dir is only for Edge Functions.
+project_id = "huerto-tracker"
+
+[functions.ai-vision]
+verify_jwt = true
