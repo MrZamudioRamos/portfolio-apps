@@ -84,6 +84,7 @@ export default function SettingsScreen() {
         k === '@portfolio/custom_crops' ||
         k === '@portfolio/cost_entries' ||
         k === '@portfolio/pending_deletes' ||
+        k === '@portfolio/active_garden_id' ||
         k.startsWith('@portfolio/huerto/garden_layout/')
     );
     if (extraKeys.length > 0) await AsyncStorage.multiRemove(extraKeys);

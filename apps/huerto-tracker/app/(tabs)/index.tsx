@@ -1,5 +1,6 @@
 import { useColors, useTheme, Card, StatCard, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { useSession } from '@portfolio/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
@@ -53,7 +54,17 @@ export default function DashboardScreen() {
   const { t, i18n } = useTranslation();
 
   const { activeGarden: garden, gardens: allGardens, gardensLoading, refreshActiveId } = useActiveGarden();
+  const { isGuest } = useSession();
   const allPlants = useCollection<Plant>('plants');
+
+  // A guest with no garden (e.g. after sign-out/account-deletion wipe) would
+  // land on a broken empty dashboard. Send them to onboarding to create one.
+  // Authenticated users aren't bounced — their gardens arrive via cloud sync.
+  useEffect(() => {
+    if (isGuest && !gardensLoading && allGardens.length === 0) {
+      router.replace('/onboarding');
+    }
+  }, [isGuest, gardensLoading, allGardens.length]);
   const reminders = useCollection<GardenReminder>('reminders');
   const entries = useCollection<DiaryEntry>('diary_entries');
   const { customCropsById } = useCustomCrops();
@@ -622,7 +633,7 @@ export default function DashboardScreen() {
             {/* Tarjeta bienvenida — solo en primer uso (sin plantas) */}
             {plants.count === 0 && !plants.loading && (
               <View style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
-                <Text style={[s.firstUseTitle, { color: colors.text }]}>{t('home.firstUseTitle', { name: garden?.name })}</Text>
+                <Text style={[s.firstUseTitle, { color: colors.text }]}>{t('home.firstUseTitle', { name: garden?.name ?? t('home.defaultGardenName') })}</Text>
                 <Text style={[s.firstUseDesc, { color: colors.textSecondary }]}>{t('home.firstUseDesc')}</Text>
                 <Pressable
                   onPress={() => router.push('/plant/new')}
