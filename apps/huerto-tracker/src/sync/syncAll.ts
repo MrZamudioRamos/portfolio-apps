@@ -7,6 +7,7 @@ import type { DiaryEntry } from '../models/diary-entry';
 import type { GardenReminder } from '../models/reminder';
 import type { GridLayout } from '../hooks/useGardenLayout';
 import { layoutTsKey } from '../hooks/useGardenLayout';
+import { uploadLocalPhotos } from './photoSync';
 import {
   gardenToRow, rowToGarden,
   plantToRow, rowToPlant,
@@ -81,6 +82,20 @@ export async function syncToCloud(userId: string): Promise<void> {
       readLocal<import('../models/user-profile').UserProfile>(KEYS.userProfile),
       readLocal<import('../models/custom-crop').CustomCrop>(KEYS.customCrops),
       readLocal<import('../models/cost-entry').CostEntry>(KEYS.costEntries),
+    ]);
+
+    // Upload any local file:// photos to Storage and rewrite their photoUri to
+    // the public URL, then persist locally so the row carries a syncable URL
+    // (adapters drop non-http photoUris). Without this, photos never sync.
+    const [plantsChanged, entriesChanged, gardensChanged] = await Promise.all([
+      uploadLocalPhotos(plants, userId),
+      uploadLocalPhotos(entries, userId),
+      uploadLocalPhotos(gardens, userId),
+    ]);
+    await Promise.all([
+      plantsChanged ? writeLocal(KEYS.plants, plants) : Promise.resolve(),
+      entriesChanged ? writeLocal(KEYS.entries, entries) : Promise.resolve(),
+      gardensChanged ? writeLocal(KEYS.gardens, gardens) : Promise.resolve(),
     ]);
 
     const validGardenIds = gardens.filter((g) => isUUID(g.id)).map((g) => g.id);
