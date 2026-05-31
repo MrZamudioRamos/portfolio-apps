@@ -1,6 +1,7 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import * as ImagePicker from 'expo-image-picker';
+import { persistPickedImage } from '../../src/utils/persistImage';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
@@ -112,7 +113,7 @@ export default function EditPlantScreen() {
       aspect: [1, 1],
       quality: 0.7,
     });
-    if (!result.canceled) setPhotoUri(result.assets[0].uri);
+    if (!result.canceled) setPhotoUri(await persistPickedImage(result.assets[0].uri));
   }
 
   const cropVarieties = plant ? (VARIETIES_BY_CROP[plant.cropId] ?? []) : [];

@@ -33,6 +33,7 @@ import { getCompanions } from '../../src/data/companions';
 import type { Plant } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import { track, EVENTS } from '../../src/analytics';
+import { persistPickedImage } from '../../src/utils/persistImage';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -145,7 +146,7 @@ export default function NewPlantScreen() {
       aspect: [1, 1],
       quality: 0.7,
     });
-    if (!result.canceled) setPhotoUri(result.assets[0].uri);
+    if (!result.canceled) setPhotoUri(await persistPickedImage(result.assets[0].uri));
   }
 
   async function handleSave() {

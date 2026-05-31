@@ -41,6 +41,7 @@ import {
 } from '../src/models/user-profile';
 import { useUserProfile } from '../src/hooks/useUserProfile';
 import { track, EVENTS } from '../src/analytics';
+import { persistPickedImage } from '../src/utils/persistImage';
 
 const NORTE_COUNTRIES: { country: string; emoji: string; regions: string[] }[] = [
   {
@@ -207,7 +208,7 @@ export default function OnboardingScreen() {
       aspect: [1, 1],
       quality: 0.7,
     });
-    if (!result.canceled) setPhotoUri(result.assets[0].uri);
+    if (!result.canceled) setPhotoUri(await persistPickedImage(result.assets[0].uri));
   }
 
   async function handleCreate() {

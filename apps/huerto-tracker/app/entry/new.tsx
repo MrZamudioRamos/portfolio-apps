@@ -1,6 +1,7 @@
 import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import * as ImagePicker from 'expo-image-picker';
+import { persistPickedImage } from '../../src/utils/persistImage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
@@ -74,7 +75,7 @@ export default function NewEntryScreen() {
       aspect: [4, 3],
       quality: 0.7,
     });
-    if (!result.canceled) setPhotoUri(result.assets[0].uri);
+    if (!result.canceled) setPhotoUri(await persistPickedImage(result.assets[0].uri));
   }
 
   async function handleSave() {
