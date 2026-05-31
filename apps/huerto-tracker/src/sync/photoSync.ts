@@ -3,20 +3,30 @@ import { generateId } from '@portfolio/storage';
 
 const BUCKET = 'photos';
 
-// expo-file-system moved readAsStringAsync to /legacy in SDK 54+. Try both.
+// expo-file-system moved readAsStringAsync to /legacy in SDK 54+. Metro needs
+// static require() literals, so we try each module explicitly.
+type FsLike = { readAsStringAsync?: (u: string, o: { encoding: string }) => Promise<string> };
+
 async function readBase64(uri: string): Promise<string | null> {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  for (const mod of ['expo-file-system', 'expo-file-system/legacy']) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const fs = require(mod) as { readAsStringAsync?: (u: string, o: { encoding: string }) => Promise<string> };
-      if (typeof fs?.readAsStringAsync === 'function') {
-        const b64 = await fs.readAsStringAsync(uri, { encoding: 'base64' });
-        if (b64) return b64;
-      }
-    } catch {
-      /* try next */
+  try {
+    const fs = require('expo-file-system') as FsLike;
+    if (typeof fs?.readAsStringAsync === 'function') {
+      const b64 = await fs.readAsStringAsync(uri, { encoding: 'base64' });
+      if (b64) return b64;
     }
+  } catch {
+    /* fall through */
+  }
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  try {
+    const fs = require('expo-file-system/legacy') as FsLike;
+    if (typeof fs?.readAsStringAsync === 'function') {
+      const b64 = await fs.readAsStringAsync(uri, { encoding: 'base64' });
+      if (b64) return b64;
+    }
+  } catch {
+    /* give up */
   }
   return null;
 }
