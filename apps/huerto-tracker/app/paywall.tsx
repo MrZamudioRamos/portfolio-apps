@@ -8,6 +8,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { track, EVENTS } from '../src/analytics';
 
 const TRIAL_REMINDER_KEY = '@portfolio/huerto/trial_reminder_enabled';
 const TRIAL_REMINDER_NOTIF_ID = '@portfolio/huerto/trial_reminder_notif_id';
@@ -35,6 +36,7 @@ export default function PaywallScreen() {
   const [trialReminderOn, setTrialReminderOn] = useState(true);
 
   useEffect(() => {
+    track(EVENTS.paywallViewed);
     AsyncStorage.getItem(TRIAL_REMINDER_KEY).then((raw) => {
       if (raw !== null) setTrialReminderOn(raw === '1');
     });
@@ -57,6 +59,7 @@ export default function PaywallScreen() {
     }
     const result = await purchase(selectedPlan);
     if (result.success) {
+      track(EVENTS.purchaseCompleted, { plan: selectedPlan });
       if (trialReminderOn) {
         const granted = await requestPermissions();
         if (granted) {

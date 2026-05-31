@@ -1,7 +1,8 @@
 import '../src/i18n';
 import { loadSavedLanguage } from '../src/i18n';
-import { initSupabase, handleDeepLink } from '@portfolio/supabase';
+import { initSupabase, handleDeepLink, useSession } from '@portfolio/supabase';
 import { useOnboarding } from '@portfolio/shared';
+import { initAnalytics, track, identifyUser, EVENTS, Sentry } from '../src/analytics';
 import { ThemeProvider, huertoPalette } from '@portfolio/ui';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -16,12 +17,16 @@ initSupabase(
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+initAnalytics();
+
 function AppServices() {
   const router = useRouter();
   const { completed: onboardingDone } = useOnboarding('huerto');
+  const { user } = useSession();
   useSyncProvider();
 
   useEffect(() => {
+    track(EVENTS.appOpen);
     loadSavedLanguage();
     const sub = Linking.addEventListener('url', ({ url }) => {
       handleDeepLink(url).then(() => {
@@ -31,10 +36,15 @@ function AppServices() {
     return () => sub.remove();
   }, [onboardingDone]);
 
+  // Tie analytics + Sentry errors to the signed-in user.
+  useEffect(() => {
+    if (user?.id) identifyUser(user.id);
+  }, [user?.id]);
+
   return null;
 }
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
@@ -80,3 +90,5 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+export default Sentry.wrap(RootLayout);

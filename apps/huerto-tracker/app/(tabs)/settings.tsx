@@ -23,6 +23,7 @@ import type { GardenReminder } from '../../src/models/reminder';
 import { saveLanguage, SUPPORTED_LANGS, LANG_LABELS, type SupportedLang } from '../../src/i18n';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { syncToCloud } from '../../src/sync/syncAll';
+import { resetAnalyticsUser } from '../../src/analytics';
 
 // TODO: replace with real App Store URL once published
 const APP_STORE_URL = 'https://apps.apple.com/app/id<APP_STORE_ID>';
@@ -159,6 +160,7 @@ export default function SettingsScreen() {
                     }
                     await clearLocalData();
                     await signOut().catch(() => {});
+                    resetAnalyticsUser();
                     router.replace('/welcome');
                   },
                 },
@@ -221,6 +223,7 @@ export default function SettingsScreen() {
                         if (user?.id) { try { await syncToCloud(user.id); } catch {} }
                         await clearLocalData({ keepOnboarding: true });
                         await signOut().catch(() => {});
+                        resetAnalyticsUser();
                         router.replace('/welcome');
                       },
                     },

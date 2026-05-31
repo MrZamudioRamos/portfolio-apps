@@ -40,6 +40,7 @@ import {
   type ExperienceLevel,
 } from '../src/models/user-profile';
 import { useUserProfile } from '../src/hooks/useUserProfile';
+import { track, EVENTS } from '../src/analytics';
 
 const NORTE_COUNTRIES: { country: string; emoji: string; regions: string[] }[] = [
   {
@@ -235,6 +236,7 @@ export default function OnboardingScreen() {
         });
       }
       await complete();
+      track(EVENTS.onboardingCompleted, { experience, gardenType });
       setStep(7);
     } catch (e) {
       console.error('[onboarding] handleCreate failed:', e);
