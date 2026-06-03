@@ -158,6 +158,38 @@ export default function CostsScreen() {
   const netProfit = harvestValue - totalCost;
   const roi = totalCost > 0 ? (netProfit / totalCost) * 100 : null;
 
+  // Per-plant ROI: cost entries linked to a plant + harvest kg from diary
+  // Water is garden-level (hard to attribute per-plant) so excluded here.
+  const plantRoi = useMemo(() => {
+    const costByPlant: Record<string, number> = {};
+    for (const e of yearCosts) {
+      if (e.plantId) costByPlant[e.plantId] = (costByPlant[e.plantId] ?? 0) + e.amount;
+    }
+    const allPlantIds = new Set([...Object.keys(costByPlant), ...Object.keys(harvestData.byPlant)]);
+    return Array.from(allPlantIds)
+      .map((plantId) => {
+        const plant = plants.items.find((p) => p.id === plantId);
+        if (!plant) return null;
+        const crop = CROPS_BY_ID[plant.cropId];
+        const costTotal = costByPlant[plantId] ?? 0;
+        const harvestKg = harvestData.byPlant[plantId] ?? 0;
+        const harvestVal = harvestKg * harvestPrice;
+        const net = harvestVal - costTotal;
+        const roiPct = costTotal > 0 ? (net / costTotal) * 100 : harvestVal > 0 ? Infinity : null;
+        return { plant, crop, costTotal, harvestKg, harvestVal, net, roiPct };
+      })
+      .filter(Boolean)
+      .sort((a, b) => (b!.net) - (a!.net)) as Array<{
+        plant: Plant;
+        crop: typeof CROPS_BY_ID[string] | undefined;
+        costTotal: number;
+        harvestKg: number;
+        harvestVal: number;
+        net: number;
+        roiPct: number | null;
+      }>;
+  }, [yearCosts, harvestData.byPlant, plants.items, harvestPrice]);
+
   async function addCost() {
     const amount = parseFloat(newAmount.replace(',', '.'));
     if (isNaN(amount) || amount <= 0 || !gardenId) return;
@@ -394,6 +426,58 @@ export default function CostsScreen() {
             <Text style={[s.costAmt, { color: '#29B6F6', fontWeight: fontWeight.bold }]}>{fmt(waterCost, locale)}</Text>
           </View>
         </Card>
+
+        {/* ── Per-plant ROI ── */}
+        {plantRoi.length > 0 && (
+          <>
+            <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('costs.perPlantLabel')}</Text>
+            <Card padded style={s.card}>
+              {plantRoi.map((row, i) => {
+                const netColor = row.net >= 0 ? colors.success : colors.error;
+                const roiLabel = row.roiPct === null
+                  ? '—'
+                  : row.roiPct === Infinity
+                    ? '∞%'
+                    : `${row.roiPct >= 0 ? '+' : ''}${Math.round(row.roiPct)}%`;
+                return (
+                  <View key={row.plant.id}>
+                    {i > 0 && <View style={[s.divider, { backgroundColor: colors.border }]} />}
+                    <View style={[s.costRow, { paddingVertical: spacing.md }]}>
+                      {/* Plant info */}
+                      <View style={[s.catIcon, { backgroundColor: colors.surfaceAlt }]}>
+                        <Text style={{ fontSize: 18 }}>{row.crop?.emoji ?? '🌱'}</Text>
+                      </View>
+                      <View style={{ flex: 1, marginLeft: spacing.sm }}>
+                        <Text style={[s.costLabel, { color: colors.text }]} numberOfLines={1}>{row.plant.name}</Text>
+                        <View style={{ flexDirection: 'row', gap: spacing.md, marginTop: 2 }}>
+                          {row.costTotal > 0 && (
+                            <Text style={[s.costSub, { color: colors.error }]}>
+                              -{fmt(row.costTotal, locale)}
+                            </Text>
+                          )}
+                          {row.harvestKg > 0 && (
+                            <Text style={[s.costSub, { color: colors.success }]}>
+                              +{fmt(row.harvestVal, locale)} ({row.harvestKg.toFixed(2)} kg)
+                            </Text>
+                          )}
+                        </View>
+                      </View>
+                      {/* Net + ROI badge */}
+                      <View style={{ alignItems: 'flex-end', gap: 2 }}>
+                        <Text style={[s.costAmt, { color: netColor }]}>
+                          {row.net >= 0 ? '+' : ''}{fmt(row.net, locale)}
+                        </Text>
+                        <View style={[s.roiBadge, { backgroundColor: netColor + '20' }]}>
+                          <Text style={[s.roiBadgeText, { color: netColor }]}>{roiLabel}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                );
+              })}
+            </Card>
+          </>
+        )}
 
         {/* Cost entries list */}
         {yearCosts.length > 0 && (
@@ -719,4 +803,10 @@ const makeStyles = (
       borderWidth: 1.5,
     },
     dateBtnText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    roiBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: radii.full,
+    },
+    roiBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
   });

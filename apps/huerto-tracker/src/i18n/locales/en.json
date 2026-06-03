@@ -1438,7 +1438,8 @@
     "showAll": "See all ({{count}})",
     "showLess": "Show less",
     "plantLabel": "PLANT (optional)",
-    "noPlant": "General"
+    "noPlant": "General",
+    "perPlantLabel": "PER PLANT"
   },
   "diseases": {
     "mildiu": {
