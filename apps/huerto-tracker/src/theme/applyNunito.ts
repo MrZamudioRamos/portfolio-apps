@@ -1,4 +1,3 @@
-import React from 'react';
 import { StyleSheet, Text, TextInput } from 'react-native';
 
 // Map the fontWeight used across the app to the matching Nunito family
@@ -22,19 +21,15 @@ function patch(Component: any): void {
   const original = Component?.render;
   if (typeof original !== 'function' || Component.__nunitoPatched) return;
 
-  Component.render = function patchedRender(...args: any[]) {
-    const element = original.apply(this, args);
-    try {
-      const props = args[0] ?? {};
-      const flat = StyleSheet.flatten(props.style) || {};
-      // Respect an explicit fontFamily; otherwise derive it from the weight.
-      const family = flat.fontFamily ?? WEIGHT_TO_FAMILY[String(flat.fontWeight ?? '400')] ?? 'Nunito_400Regular';
-      return React.cloneElement(element, {
-        style: [{ fontFamily: family }, props.style],
-      });
-    } catch {
-      return element;
-    }
+  // Inject fontFamily into the INPUT props (before the original render), so the
+  // component applies it to the real native text element. Modifying the output
+  // element doesn't work because Text.render wraps it in a context provider.
+  Component.render = function patchedRender(props: any, ref: any) {
+    const flat = StyleSheet.flatten(props?.style) || {};
+    const family =
+      flat.fontFamily ?? WEIGHT_TO_FAMILY[String(flat.fontWeight ?? '400')] ?? 'Nunito_400Regular';
+    const nextProps = { ...props, style: [{ fontFamily: family }, props?.style] };
+    return original.call(this, nextProps, ref);
   };
   Component.__nunitoPatched = true;
 }
