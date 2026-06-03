@@ -44,9 +44,9 @@ export const huertoDarkColors: AppColors = {
   primaryDark: '#43A047',
   secondary: '#FFD54F',      // sun yellow (lighter for dark)
   background: '#0D160D',     // deep green-black (kept — looks premium)
-  surface: '#162516',
-  surfaceAlt: '#1C2E1C',
-  border: '#2C402C',
+  surface: '#1B2D1B',        // lifted for clearer card separation on the dark bg
+  surfaceAlt: '#243824',
+  border: '#3A573A',         // stronger so cards read as cards
   text: '#ECF7E9',
   textSecondary: '#A8C8A0',
   textDisabled: '#4A6741',
