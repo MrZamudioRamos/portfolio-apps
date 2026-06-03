@@ -76,11 +76,11 @@ export default function CompanionsScreen() {
             <>
               {companions.length > 0 && (
                 <View style={s.chipSection}>
-                  <Text style={[s.chipSectionLabel, { color: '#2E7D32' }]}>🤝 {t('companions.goodNeighbors')}</Text>
+                  <Text style={[s.chipSectionLabel, { color: colors.success }]}>🤝 {t('companions.goodNeighbors')}</Text>
                   <View style={s.chipRow}>
                     {companions.map((c) => (
                       <View key={c.id} style={[s.chip, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
-                        <Text style={s.chipText}>{c.emoji} {t('crops.' + c.id + '.name')}</Text>
+                        <Text style={[s.chipText, { color: colors.text }]}>{c.emoji} {t('crops.' + c.id + '.name')}</Text>
                       </View>
                     ))}
                   </View>
@@ -89,11 +89,11 @@ export default function CompanionsScreen() {
 
               {incompatible.length > 0 && (
                 <View style={s.chipSection}>
-                  <Text style={[s.chipSectionLabel, { color: '#C62828' }]}>❌ {t('companions.badNeighbors')}</Text>
+                  <Text style={[s.chipSectionLabel, { color: colors.error }]}>❌ {t('companions.badNeighbors')}</Text>
                   <View style={s.chipRow}>
                     {incompatible.map((c) => (
                       <View key={c.id} style={[s.chip, { backgroundColor: '#EF535018', borderColor: '#EF5350' }]}>
-                        <Text style={s.chipText}>{c.emoji} {t('crops.' + c.id + '.name')}</Text>
+                        <Text style={[s.chipText, { color: colors.text }]}>{c.emoji} {t('crops.' + c.id + '.name')}</Text>
                       </View>
                     ))}
                   </View>
