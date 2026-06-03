@@ -136,19 +136,12 @@
       "signOut": "Itxi saioa",
       "signOutTitle": "Saioa itxi?",
       "signOutDesc": "Zure datu lokalak gordeko dira.",
-
       "deleteAccount": "Kontua ezabatu",
-
       "deleteAccountTitle": "Kontua ezabatu nahi duzu?",
-
       "deleteAccountDesc": "Zure kontua eta datu guztiak (baratzeak, landareak, egunkaria) betiko ezabatuko dira. Ezin da desegin.",
-
       "deleteAccountConfirm": "Kontua ezabatu",
-
       "deleteAccountFinalTitle": "Azken berrespena",
-
       "deleteAccountFinalDesc": "Ekintza hau itzulezina da. Ziur zaude kontua betiko ezabatu nahi duzula?",
-
       "deleteAccountError": "Ezin izan da kontua ezabatu. Saiatu berriro."
     },
     "garden": {
@@ -563,11 +556,36 @@
     "successionSowDesc": "Sortu gaur ereindako labore bereko landare berria",
     "successionNote": "Ereintza eskalatuak {{original}}",
     "successionName": "{{name}} ({{batch}}. txanda)",
-    "tab": { "overview": "Datuak", "calendar": "Egutegia", "companions": "Auzokoak", "howto": "Nola landatu", "faq": "FAQ" },
-    "difficulty": { "title": "Zailtasuna", "veryEasy": "Oso erraza", "easy": "Erraza", "medium": "Ertaina", "hard": "Zaila", "veryHard": "Oso zaila" },
-    "calendar": { "sowing": "Ereintza", "harvest": "Uzta", "unavailable": "Egutegia ez dago erabilgarri laborantza pertsonalizatuetarako" },
-    "stage": { "sowing": "Ereintza", "germination": "Ernamuintzea", "growth": "Hazkuntza", "flowering": "Loraketa", "harvest": "Uzta" },
-    "companions": { "empty": "Asoziaziorik ez erregistratuta" }
+    "tab": {
+      "overview": "Datuak",
+      "calendar": "Egutegia",
+      "companions": "Auzokoak",
+      "howto": "Nola landatu",
+      "faq": "FAQ"
+    },
+    "difficulty": {
+      "title": "Zailtasuna",
+      "veryEasy": "Oso erraza",
+      "easy": "Erraza",
+      "medium": "Ertaina",
+      "hard": "Zaila",
+      "veryHard": "Oso zaila"
+    },
+    "calendar": {
+      "sowing": "Ereintza",
+      "harvest": "Uzta",
+      "unavailable": "Egutegia ez dago erabilgarri laborantza pertsonalizatuetarako"
+    },
+    "stage": {
+      "sowing": "Ereintza",
+      "germination": "Ernamuintzea",
+      "growth": "Hazkuntza",
+      "flowering": "Loraketa",
+      "harvest": "Uzta"
+    },
+    "companions": {
+      "empty": "Asoziaziorik ez erregistratuta"
+    }
   },
   "reminderEdit": {
     "title": "Gogorarazlea editatu",
@@ -660,7 +678,20 @@
     "treatmentDesc": "Jakinarazpena tratamendu baten osteko itxaronaldia amaitzean",
     "plantCount_one": "{{count}} landare programatua",
     "plantCount_other": "{{count}} landare programatu",
-    "monthsFull": ["Urtarrila","Otsaila","Martxoa","Apirila","Maiatza","Ekaina","Uztaila","Abuztua","Iraila","Urria","Azaroa","Abendua"],
+    "monthsFull": [
+      "Urtarrila",
+      "Otsaila",
+      "Martxoa",
+      "Apirila",
+      "Maiatza",
+      "Ekaina",
+      "Uztaila",
+      "Abuztua",
+      "Iraila",
+      "Urria",
+      "Azaroa",
+      "Abendua"
+    ],
     "frostPushTitle": "🌡️ Izozte abisua",
     "frostPushBody": "{{temp}}°C-ko tenperatura minimoa aurreikusten da {{date}}. Babestu landare sentikorrak.",
     "seasonalPushTitle": "🌱 {{month}}: ereiteko garaia",
@@ -979,26 +1010,66 @@
     "lavanda": {
       "name": "Izpiliku"
     },
-    "maiz": { "name": "Artoa" },
-    "frambuesa": { "name": "Mugurdia" },
-    "arandano": { "name": "Ahabi urdina" },
-    "coles-bruselas": { "name": "Bruselako azak" },
-    "pak-choi": { "name": "Pak choi" },
-    "escarola": { "name": "Eskariola" },
-    "berros": { "name": "Iturri-belarrak" },
-    "boniato": { "name": "Batata" },
-    "chirivi": { "name": "Chiribía" },
-    "lenteja": { "name": "Dilistak" },
-    "garbanzo": { "name": "Txitxirioak" },
-    "edamame": { "name": "Edamame / Soja" },
-    "chalota": { "name": "Txalota" },
-    "cebollino": { "name": "Tipula-bedarrak" },
-    "estragon": { "name": "Estragon" },
-    "mejorana": { "name": "Mejorana" },
-    "stevia": { "name": "Stevia" },
-    "ruibarbo": { "name": "Ruibarboa" },
-    "verbena": { "name": "Limoi-berbena" },
-    "borraja": { "name": "Boraja" }
+    "maiz": {
+      "name": "Artoa"
+    },
+    "frambuesa": {
+      "name": "Mugurdia"
+    },
+    "arandano": {
+      "name": "Ahabi urdina"
+    },
+    "coles-bruselas": {
+      "name": "Bruselako azak"
+    },
+    "pak-choi": {
+      "name": "Pak choi"
+    },
+    "escarola": {
+      "name": "Eskariola"
+    },
+    "berros": {
+      "name": "Iturri-belarrak"
+    },
+    "boniato": {
+      "name": "Batata"
+    },
+    "chirivi": {
+      "name": "Chiribía"
+    },
+    "lenteja": {
+      "name": "Dilistak"
+    },
+    "garbanzo": {
+      "name": "Txitxirioak"
+    },
+    "edamame": {
+      "name": "Edamame / Soja"
+    },
+    "chalota": {
+      "name": "Txalota"
+    },
+    "cebollino": {
+      "name": "Tipula-bedarrak"
+    },
+    "estragon": {
+      "name": "Estragon"
+    },
+    "mejorana": {
+      "name": "Mejorana"
+    },
+    "stevia": {
+      "name": "Stevia"
+    },
+    "ruibarbo": {
+      "name": "Ruibarboa"
+    },
+    "verbena": {
+      "name": "Limoi-berbena"
+    },
+    "borraja": {
+      "name": "Boraja"
+    }
   },
   "catalog": {
     "title": "Landare katalogoa",
@@ -1208,7 +1279,15 @@
       "treatment": "Tratamenduak",
       "tools": "Tresnak",
       "other": "Bestelakoak"
-    }
+    },
+    "emptyTitle": "Oraindik ez dago gasturik",
+    "emptyDesc": "Hazi, ongarri edo tresnak erregistratu zure baratzeko ROI kalkulatzeko.",
+    "deleteTitle": "Gastua ezabatu",
+    "deleteDesc": "Ezabatu {{desc}} ({{amount}})?",
+    "showAll": "Denak ikusi ({{count}})",
+    "showLess": "Gutxiago ikusi",
+    "plantLabel": "LANDAREA (aukerakoa)",
+    "noPlant": "Orokorra"
   },
   "cropFamily": {
     "solanaceas": "Solanazeak",
@@ -1276,6 +1355,19 @@
     "save": "Laborea gorde",
     "deleteTitle": "Laborea ezabatu",
     "deleteMsg": "Labore hau erabiltzen duten landareak ez dira ezabatuko.",
-    "months": ["Urt","Ots","Mar","Api","Mai","Eka","Uzt","Abu","Ira","Urr","Aza","Abe"]
+    "months": [
+      "Urt",
+      "Ots",
+      "Mar",
+      "Api",
+      "Mai",
+      "Eka",
+      "Uzt",
+      "Abu",
+      "Ira",
+      "Urr",
+      "Aza",
+      "Abe"
+    ]
   }
 }

@@ -7,6 +7,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
   Modal,
@@ -23,10 +24,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { usePro } from '../src/hooks/usePro';
 import { CROPS_BY_ID } from '../src/data/crops';
-import { todayStr } from '../src/utils/dateStr';
+import { dateToStr, todayStr } from '../src/utils/dateStr';
 import type { DiaryEntry } from '../src/models/diary-entry';
 import type { Plant } from '../src/models/plant';
 import { COST_CATEGORY_CONFIG, type CostCategory, type CostEntry } from '../src/models/cost-entry';
+import { Illustration } from '../src/components/Illustration';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -67,7 +69,10 @@ export default function CostsScreen() {
   const [newCategory, setNewCategory] = useState<CostCategory>('seeds');
   const [newAmount, setNewAmount] = useState('');
   const [newDesc, setNewDesc] = useState('');
+  const [newDate, setNewDate] = useState(todayStr());
+  const [newPlantId, setNewPlantId] = useState<string | undefined>(undefined);
   const [saving, setSaving] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -99,6 +104,12 @@ export default function CostsScreen() {
 
   const gardenId = activeGarden?.id ?? '';
   const yearStr = String(year);
+
+  // Plants for optional linking (needs gardenId)
+  const gardenPlants = useMemo(
+    () => plants.items.filter((p) => p.gardenId === gardenId && p.status !== 'finished'),
+    [plants.items, gardenId]
+  );
 
   const yearDiary = useMemo(
     () => gardenId ? diaryEntries.items.filter((e) => e.date.startsWith(yearStr) && e.gardenId === gardenId) : [],
@@ -156,13 +167,33 @@ export default function CostsScreen() {
       category: newCategory,
       amount,
       description: newDesc.trim() || undefined,
-      date: todayStr(),
+      date: newDate || todayStr(),
+      ...(newPlantId ? { plantId: newPlantId } : {}),
     });
     setNewAmount('');
     setNewDesc('');
+    setNewDate(todayStr());
     setNewCategory('seeds');
+    setNewPlantId(undefined);
     setSaving(false);
     setShowAddModal(false);
+  }
+
+  function deleteCost(entry: CostEntry) {
+    Alert.alert(
+      t('costs.deleteTitle'),
+      t('costs.deleteDesc', { desc: entry.description || t(`costs.cat.${entry.category}`), amount: fmt(entry.amount, locale) }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.delete'),
+          style: 'destructive',
+          onPress: async () => {
+            await costEntries.remove(entry.id);
+          },
+        },
+      ]
+    );
   }
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii, shadows), [colors, spacing, fontSize, fontWeight, radii, shadows]);
@@ -221,6 +252,15 @@ export default function CostsScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
+        {/* ── Empty state ── */}
+        {yearCosts.length === 0 && harvestData.totalKg === 0 && (
+          <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Illustration name="empty-basket" size={110} />
+            <Text style={[s.emptyTitle, { color: colors.text }]}>{t('costs.emptyTitle')}</Text>
+            <Text style={[s.emptyDesc, { color: colors.textSecondary }]}>{t('costs.emptyDesc')}</Text>
+          </View>
+        )}
+
         {/* ── Summary KPI row ── */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('costs.summaryLabel')}</Text>
         <View style={s.kpiRow}>
@@ -242,9 +282,9 @@ export default function CostsScreen() {
 
         {/* Net profit banner */}
         {totalCost > 0 && (
-          <View style={[s.netBanner, { backgroundColor: (netProfit >= 0 ? '#4CAF50' : '#EF5350') + '15', borderColor: (netProfit >= 0 ? '#4CAF50' : '#EF5350') + '40' }]}>
-            <Ionicons name={netProfit >= 0 ? 'trending-up' : 'trending-down'} size={18} color={netProfit >= 0 ? '#4CAF50' : '#EF5350'} />
-            <Text style={[s.netText, { color: netProfit >= 0 ? '#4CAF50' : '#EF5350' }]}>
+          <View style={[s.netBanner, { backgroundColor: (netProfit >= 0 ? colors.success : colors.error) + '20', borderColor: (netProfit >= 0 ? colors.success : colors.error) + '44' }]}>
+            <Ionicons name={netProfit >= 0 ? 'trending-up' : 'trending-down'} size={18} color={netProfit >= 0 ? colors.success : colors.error} />
+            <Text style={[s.netText, { color: netProfit >= 0 ? colors.success : colors.error }]}>
               {netProfit >= 0 ? t('costs.netProfit') : t('costs.netLoss')} {fmt(Math.abs(netProfit), locale)}
             </Text>
           </View>
@@ -355,16 +395,26 @@ export default function CostsScreen() {
           </View>
         </Card>
 
-        {/* Recent cost entries list */}
+        {/* Cost entries list */}
         {yearCosts.length > 0 && (
           <>
-            <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('costs.recentLabel')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.xl, marginBottom: spacing.sm }}>
+              <Text style={[s.sectionLabel, { color: colors.textSecondary, marginTop: 0, marginBottom: 0 }]}>{t('costs.recentLabel')}</Text>
+              {yearCosts.length > 10 && (
+                <Pressable onPress={() => setShowAll((v) => !v)} hitSlop={8}>
+                  <Text style={[{ color: colors.primary, fontSize: fontSize.xs, fontWeight: fontWeight.semibold }]}>
+                    {showAll ? t('costs.showLess') : t('costs.showAll', { count: yearCosts.length })}
+                  </Text>
+                </Pressable>
+              )}
+            </View>
             <Card padded style={s.card}>
               {[...yearCosts]
                 .sort((a, b) => b.date.localeCompare(a.date))
-                .slice(0, 10)
-                .map((e, i, arr) => {
+                .slice(0, showAll ? undefined : 10)
+                .map((e, i) => {
                   const cfg = COST_CATEGORY_CONFIG[e.category];
+                  const linkedPlant = e.plantId ? plants.items.find((p) => p.id === e.plantId) : null;
                   return (
                     <View key={e.id}>
                       {i > 0 && <View style={[s.divider, { backgroundColor: colors.border }]} />}
@@ -374,9 +424,14 @@ export default function CostsScreen() {
                           <Text style={[s.costLabel, { color: colors.text }]}>
                             {e.description || t(`costs.cat.${e.category}`)}
                           </Text>
-                          <Text style={[s.costSub, { color: colors.textSecondary }]}>{e.date}</Text>
+                          <Text style={[s.costSub, { color: colors.textSecondary }]}>
+                            {e.date}{linkedPlant ? ` · ${linkedPlant.name}` : ''}
+                          </Text>
                         </View>
-                        <Text style={[s.costAmt, { color: '#EF5350' }]}>-{fmt(e.amount, locale)}</Text>
+                        <Text style={[s.costAmt, { color: colors.error }]}>-{fmt(e.amount, locale)}</Text>
+                        <Pressable onPress={() => deleteCost(e)} hitSlop={10} style={{ marginLeft: spacing.sm }}>
+                          <Ionicons name="trash-outline" size={18} color={colors.textDisabled} />
+                        </Pressable>
                       </View>
                     </View>
                   );
@@ -426,6 +481,66 @@ export default function CostsScreen() {
                 })}
               </View>
             </ScrollView>
+
+            {/* Date */}
+            <Text style={[s.modalLabel, { color: colors.textSecondary }]}>{t('entryNew.date')}</Text>
+            <View style={s.dateBtnsRow}>
+              {([0, 1, 2] as const).map((days) => {
+                const d = new Date();
+                d.setDate(d.getDate() - days);
+                const ds = dateToStr(d);
+                const active = newDate === ds;
+                const label = days === 0 ? t('entryNew.today') : days === 1 ? t('entryNew.yesterday') : t('entryNew.twoDaysAgo');
+                return (
+                  <Pressable
+                    key={days}
+                    onPress={() => setNewDate(ds)}
+                    style={[s.dateBtn, { backgroundColor: active ? colors.primary + '20' : colors.surfaceAlt, borderColor: active ? colors.primary : colors.border }]}
+                  >
+                    <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>{label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <TextInput
+              value={newDate}
+              onChangeText={setNewDate}
+              placeholder="YYYY-MM-DD"
+              placeholderTextColor={colors.textDisabled}
+              style={[s.descInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surfaceAlt }]}
+              keyboardType="numeric"
+            />
+
+            {/* Plant (optional) */}
+            {gardenPlants.length > 0 && (
+              <>
+                <Text style={[s.modalLabel, { color: colors.textSecondary }]}>{t('costs.plantLabel')}</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.sm }}>
+                  <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+                    <Pressable
+                      onPress={() => setNewPlantId(undefined)}
+                      style={[s.catChip, { backgroundColor: !newPlantId ? colors.primary + '22' : colors.surfaceAlt, borderColor: !newPlantId ? colors.primary : colors.border }]}
+                    >
+                      <Text style={[s.catChipText, { color: !newPlantId ? colors.primary : colors.textSecondary }]}>{t('costs.noPlant')}</Text>
+                    </Pressable>
+                    {gardenPlants.map((p) => {
+                      const crop = CROPS_BY_ID[p.cropId];
+                      const active = newPlantId === p.id;
+                      return (
+                        <Pressable
+                          key={p.id}
+                          onPress={() => setNewPlantId(active ? undefined : p.id)}
+                          style={[s.catChip, { backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt, borderColor: active ? colors.primary : colors.border }]}
+                        >
+                          <Text style={{ fontSize: 14 }}>{crop?.emoji ?? '🌱'}</Text>
+                          <Text style={[s.catChipText, { color: active ? colors.primary : colors.textSecondary }]} numberOfLines={1}>{p.name}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </ScrollView>
+              </>
+            )}
 
             {/* Amount */}
             <Text style={[s.modalLabel, { color: colors.textSecondary }]}>{t('costs.amountLabel')}</Text>
@@ -585,4 +700,23 @@ const makeStyles = (
       marginTop: spacing.md,
     },
     saveBtnText: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    emptyCard: {
+      alignItems: 'center',
+      padding: spacing['2xl'],
+      borderRadius: radii.xl,
+      borderWidth: 1,
+      marginTop: spacing.xl,
+      gap: spacing.md,
+    },
+    emptyTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, textAlign: 'center' },
+    emptyDesc: { fontSize: fontSize.sm, textAlign: 'center', lineHeight: 20 },
+    dateBtnsRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm },
+    dateBtn: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+    },
+    dateBtnText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
   });

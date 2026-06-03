@@ -136,19 +136,12 @@
       "signOut": "Pechar sesión",
       "signOutTitle": "Pechar sesión?",
       "signOutDesc": "Os teus datos locais conservaranse.",
-
       "deleteAccount": "Eliminar conta",
-
       "deleteAccountTitle": "Queres eliminar a túa conta?",
-
       "deleteAccountDesc": "Eliminaranse permanentemente a túa conta e todos os teus datos (hortos, plantas, diario). Non se pode desfacer.",
-
       "deleteAccountConfirm": "Eliminar conta",
-
       "deleteAccountFinalTitle": "Confirmación final",
-
       "deleteAccountFinalDesc": "Esta acción é irreversible. Seguro que queres eliminar a túa conta para sempre?",
-
       "deleteAccountError": "Non se puido eliminar a conta. Téntao de novo."
     },
     "garden": {
@@ -563,11 +556,36 @@
     "successionSowDesc": "Crea unha nova planta do mesmo cultivo sementada hoxe",
     "successionNote": "Sementeira escalonada de {{original}}",
     "successionName": "{{name}} (quenda {{batch}})",
-    "tab": { "overview": "Datos", "calendar": "Calendario", "companions": "Veciños", "howto": "Como cultivar", "faq": "FAQ" },
-    "difficulty": { "title": "Dificultade", "veryEasy": "Moi fácil", "easy": "Fácil", "medium": "Media", "hard": "Difícil", "veryHard": "Moi difícil" },
-    "calendar": { "sowing": "Sementeira", "harvest": "Colleita", "unavailable": "Calendario non dispoñible para cultivos personalizados" },
-    "stage": { "sowing": "Sementeira", "germination": "Xerminación", "growth": "Crecemento", "flowering": "Floración", "harvest": "Colleita" },
-    "companions": { "empty": "Sen asociacións rexistradas" }
+    "tab": {
+      "overview": "Datos",
+      "calendar": "Calendario",
+      "companions": "Veciños",
+      "howto": "Como cultivar",
+      "faq": "FAQ"
+    },
+    "difficulty": {
+      "title": "Dificultade",
+      "veryEasy": "Moi fácil",
+      "easy": "Fácil",
+      "medium": "Media",
+      "hard": "Difícil",
+      "veryHard": "Moi difícil"
+    },
+    "calendar": {
+      "sowing": "Sementeira",
+      "harvest": "Colleita",
+      "unavailable": "Calendario non dispoñible para cultivos personalizados"
+    },
+    "stage": {
+      "sowing": "Sementeira",
+      "germination": "Xerminación",
+      "growth": "Crecemento",
+      "flowering": "Floración",
+      "harvest": "Colleita"
+    },
+    "companions": {
+      "empty": "Sen asociacións rexistradas"
+    }
   },
   "reminderEdit": {
     "title": "Editar recordatorio",
@@ -660,7 +678,20 @@
     "treatmentDesc": "Notificación cando remata o período de espera tras un tratamento",
     "plantCount_one": "{{count}} planta programada",
     "plantCount_other": "{{count}} plantas programadas",
-    "monthsFull": ["Xaneiro","Febreiro","Marzo","Abril","Maio","Xuño","Xullo","Agosto","Setembro","Outubro","Novembro","Decembro"],
+    "monthsFull": [
+      "Xaneiro",
+      "Febreiro",
+      "Marzo",
+      "Abril",
+      "Maio",
+      "Xuño",
+      "Xullo",
+      "Agosto",
+      "Setembro",
+      "Outubro",
+      "Novembro",
+      "Decembro"
+    ],
     "frostPushTitle": "🌡️ Alerta de xeada",
     "frostPushBody": "Temperatura mínima de {{temp}}°C prevista o {{date}}. Protexe as túas plantas sensibles.",
     "seasonalPushTitle": "🌱 {{month}}: tempo de sementar",
@@ -1248,7 +1279,15 @@
       "treatment": "Tratamentos",
       "tools": "Ferramentas",
       "other": "Outros"
-    }
+    },
+    "emptyTitle": "Sen gastos aínda",
+    "emptyDesc": "Rexistra sementes, abono ou ferramentas para calcular o ROI do teu horto.",
+    "deleteTitle": "Borrar gasto",
+    "deleteDesc": "Borrar {{desc}} ({{amount}})?",
+    "showAll": "Ver todos ({{count}})",
+    "showLess": "Ver menos",
+    "plantLabel": "PLANTA (opcional)",
+    "noPlant": "Xeral"
   },
   "cropFamily": {
     "solanaceas": "Solanáceas",
@@ -1316,6 +1355,19 @@
     "save": "Gardar cultivo",
     "deleteTitle": "Eliminar cultivo",
     "deleteMsg": "As plantas que usan este cultivo non se eliminarán.",
-    "months": ["Xan","Feb","Mar","Abr","Mai","Xuñ","Xul","Ago","Set","Out","Nov","Dec"]
+    "months": [
+      "Xan",
+      "Feb",
+      "Mar",
+      "Abr",
+      "Mai",
+      "Xuñ",
+      "Xul",
+      "Ago",
+      "Set",
+      "Out",
+      "Nov",
+      "Dec"
+    ]
   }
 }
