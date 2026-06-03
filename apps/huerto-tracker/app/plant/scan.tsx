@@ -18,6 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { scanPlant, type PlantScanResult } from '../../src/utils/plantScan';
+import { Illustration } from '../../src/components/Illustration';
 
 const CONFIDENCE_COLOR: Record<string, string> = {
   alta: '#4CAF50',
@@ -258,7 +259,7 @@ export default function PlantScanScreen() {
             ) : (
               /* Not identified */
               <View style={[s.notFound, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-                <Text style={s.notFoundEmoji}>🔍</Text>
+                <Illustration name="not-found" size={96} />
                 <Text style={[s.notFoundTitle, { color: colors.text }]}>{t('plantScan.notIdentified')}</Text>
                 <Text style={[s.notFoundDesc, { color: colors.textSecondary }]}>{t('plantScan.notIdentifiedDesc')}</Text>
               </View>

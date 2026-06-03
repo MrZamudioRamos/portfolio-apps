@@ -20,39 +20,39 @@ export interface ColorPalette {
   dark: AppColors;
 }
 
-// ── Huerto (greens) ──────────────────────────────────────────────────────────
+// ── Huerto — "Fresco y amable" (vivid greens + lime + sun) ───────────────────
 export const huertoColors: AppColors = {
-  primary: '#2D7A3A',
-  primaryLight: '#4CAF50',
-  primaryDark: '#1B5E20',
-  secondary: '#8B6914',
-  background: '#FAFAF5',
+  primary: '#43A047',        // vivid friendly green
+  primaryLight: '#76C77A',   // soft green
+  primaryDark: '#2E7D32',    // pressed/strong green
+  secondary: '#FBC02D',      // sun yellow accent (warm pop)
+  background: '#F7FBF1',     // near-white with a faint lime cast (cards pop)
   surface: '#FFFFFF',
-  surfaceAlt: '#F1F8E9',
-  border: '#C8E6C9',
-  text: '#1A2E1A',
-  textSecondary: '#4A6741',
-  textDisabled: '#A5C8A5',
-  success: '#388E3C',
-  warning: '#F9A825',
-  error: '#C62828',
+  surfaceAlt: '#EEF7DF',     // lime-tinted surface
+  border: '#D6EBC2',         // light lime-green border
+  text: '#16240F',           // deep warm green-black
+  textSecondary: '#5A7052',
+  textDisabled: '#AEC7A0',
+  success: '#43A047',
+  warning: '#FB8C00',        // friendly orange (vs harsh amber)
+  error: '#E5533D',          // warm coral-red (less clinical than crimson)
 };
 
 export const huertoDarkColors: AppColors = {
-  primary: '#66BB6A',
-  primaryLight: '#81C784',
-  primaryDark: '#4CAF50',
-  secondary: '#CDAA7D',
-  background: '#0D160D',
-  surface: '#162516',
-  surfaceAlt: '#1C2E1C',
-  border: '#2A3E2A',
-  text: '#E8F5E9',
-  textSecondary: '#A5C8A5',
+  primary: '#7CC47F',        // brighter green for dark bg
+  primaryLight: '#A5D6A7',
+  primaryDark: '#43A047',
+  secondary: '#FFD54F',      // sun yellow (lighter for dark)
+  background: '#0D160D',     // deep green-black (kept — looks premium)
+  surface: '#1B2D1B',        // lifted for clearer card separation on the dark bg
+  surfaceAlt: '#243824',
+  border: '#3A573A',         // stronger so cards read as cards
+  text: '#ECF7E9',
+  textSecondary: '#A8C8A0',
   textDisabled: '#4A6741',
-  success: '#66BB6A',
-  warning: '#FFD54F',
-  error: '#EF5350',
+  success: '#7CC47F',
+  warning: '#FFB74D',
+  error: '#EF6E5B',
 };
 
 export const huertoPalette: ColorPalette = { light: huertoColors, dark: huertoDarkColors };

@@ -44,6 +44,7 @@ import { PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringStatus';
 import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { Illustration } from '../../src/components/Illustration';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -433,8 +434,8 @@ export default function DashboardScreen() {
               </View>
             )}
             {streak >= 2 && (
-              <View style={[s.streakBadge, { backgroundColor: '#FF6D0022' }]}>
-                <Text style={s.streakBadgeText}>{t('home.streak', { count: streak })}</Text>
+              <View style={[s.streakBadge, { backgroundColor: colors.secondary + '2A' }]}>
+                <Text style={[s.streakBadgeText, { color: colors.warning }]}>🔥 {t('home.streak', { count: streak })}</Text>
               </View>
             )}
           </View>
@@ -633,6 +634,7 @@ export default function DashboardScreen() {
             {/* Tarjeta bienvenida — solo en primer uso (sin plantas) */}
             {plants.count === 0 && !plants.loading && (
               <View style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
+                <Illustration name="seedling" size={132} />
                 <Text style={[s.firstUseTitle, { color: colors.text }]}>{t('home.firstUseTitle', { name: garden?.name ?? t('home.defaultGardenName') })}</Text>
                 <Text style={[s.firstUseDesc, { color: colors.textSecondary }]}>{t('home.firstUseDesc')}</Text>
                 <Pressable

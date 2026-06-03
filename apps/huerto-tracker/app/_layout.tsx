@@ -11,6 +11,16 @@ import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useSyncProvider } from '../src/sync/useSyncProvider';
+import * as SplashScreen from 'expo-splash-screen';
+import {
+  useFonts,
+  Nunito_400Regular,
+  Nunito_500Medium,
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+  Nunito_800ExtraBold,
+} from '@expo-google-fonts/nunito';
+import { applyNunito } from '../src/theme/applyNunito';
 
 initSupabase(
   process.env.EXPO_PUBLIC_SUPABASE_URL!,
@@ -18,6 +28,10 @@ initSupabase(
 );
 
 initAnalytics();
+
+// Make Nunito the default font (patch must run before any Text renders).
+applyNunito();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function AppServices() {
   const router = useRouter();
@@ -45,6 +59,20 @@ function AppServices() {
 }
 
 function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Nunito_400Regular,
+    Nunito_500Medium,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+    Nunito_800ExtraBold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
