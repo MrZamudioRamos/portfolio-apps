@@ -23,6 +23,7 @@ import { getPestsForCrop } from '../data/pests';
 import { useActiveGarden } from '../hooks/useActiveGarden';
 import { useCustomCrops } from '../hooks/useCustomCrops';
 import { todayStr } from '../utils/dateStr';
+import { successHaptic, tapHaptic } from '../utils/haptics';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -116,6 +117,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
       if (selected.type === 'pest') {
         await plants.update(plant.id, { pestStatus: 'active' });
       }
+      successHaptic();
       setDone(true);
       setTimeout(() => { handleClose(); }, 900);
     } finally {
@@ -181,7 +183,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
                   return (
                     <Pressable
                       key={action.type}
-                      onPress={() => setSelected(active ? null : action)}
+                      onPress={() => { tapHaptic(); setSelected(active ? null : action); }}
                       style={[
                         s.actionBtn,
                         {

@@ -2,6 +2,7 @@ import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import * as ImagePicker from 'expo-image-picker';
 import { persistPickedImage } from '../../src/utils/persistImage';
+import { successHaptic, tapHaptic } from '../../src/utils/haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
@@ -123,6 +124,7 @@ export default function NewEntryScreen() {
         ...(photoUri ? { photoUri } : {}),
         ...(entryData ? { data: entryData } : {}),
       });
+      successHaptic();
       router.back();
     } finally {
       setSaving(false);

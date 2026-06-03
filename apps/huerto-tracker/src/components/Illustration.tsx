@@ -2,7 +2,14 @@ import React from 'react';
 import Svg, { Circle, Ellipse, G, Line, Path, Rect } from 'react-native-svg';
 import { useColors } from '@portfolio/ui';
 
-type IllustrationName = 'seedling' | 'empty-basket' | 'not-found';
+type IllustrationName =
+  | 'seedling'      // home first-use / no plants
+  | 'empty-basket'  // no harvest
+  | 'not-found'     // scan/search no result
+  | 'diary-empty'   // no diary entries
+  | 'calendar'      // calendar empty month
+  | 'crops'         // empty custom crops
+  | 'error';        // generic error
 
 interface Props {
   name?: IllustrationName;
@@ -51,6 +58,79 @@ export function Illustration({ name = 'seedling', size = 140 }: Props) {
         <Line x1={70} y1={70} x2={92} y2={92} stroke={leaf} strokeWidth={9} strokeLinecap="round" />
         <Path d="M52 44 q6 -8 12 0" fill="none" stroke={leafLight} strokeWidth={4} strokeLinecap="round" />
         <Circle cx={92} cy={28} r={7} fill={sun} />
+      </Svg>
+    );
+  }
+
+  if (name === 'diary-empty') {
+    return (
+      <Svg width={size} height={size} viewBox="0 0 120 120">
+        <Circle cx={60} cy={60} r={56} fill={ring} />
+        <Circle cx={88} cy={28} r={8} fill={sun} />
+        {/* notebook */}
+        <Rect x={28} y={36} width={56} height={66} rx={6} fill={colors.surface} />
+        <Rect x={28} y={36} width={10} height={66} rx={6} fill={leafLight} />
+        {/* lines */}
+        <Rect x={46} y={52} width={32} height={4} rx={2} fill={colors.border} />
+        <Rect x={46} y={62} width={24} height={4} rx={2} fill={colors.border} />
+        <Rect x={46} y={72} width={28} height={4} rx={2} fill={colors.border} />
+        {/* pencil */}
+        <Path d="M78 88 L94 72 L100 78 L84 94 Z" fill={sun} />
+        <Path d="M94 72 L100 78 L102 70 Z" fill={pot} />
+        <Path d="M78 88 L84 94 L76 96 Z" fill={soil} />
+      </Svg>
+    );
+  }
+
+  if (name === 'calendar') {
+    return (
+      <Svg width={size} height={size} viewBox="0 0 120 120">
+        <Circle cx={60} cy={60} r={56} fill={ring} />
+        <Circle cx={90} cy={28} r={8} fill={sun} />
+        {/* calendar body */}
+        <Rect x={20} y={38} width={80} height={62} rx={8} fill={colors.surface} />
+        <Rect x={20} y={38} width={80} height={20} rx={8} fill={leaf} />
+        <Rect x={20} y={48} width={80} height={10} fill={leaf} />
+        {/* ring hooks */}
+        <Rect x={38} y={32} width={6} height={14} rx={3} fill={leafLight} />
+        <Rect x={76} y={32} width={6} height={14} rx={3} fill={leafLight} />
+        {/* dots */}
+        {[36,52,68,84].map((x, i) => (
+          <G key={i}>
+            <Circle cx={x} cy={74} r={4} fill={i === 0 ? sun : colors.border} />
+            <Circle cx={x} cy={88} r={4} fill={colors.border} />
+          </G>
+        ))}
+      </Svg>
+    );
+  }
+
+  if (name === 'crops') {
+    return (
+      <Svg width={size} height={size} viewBox="0 0 120 120">
+        <Circle cx={60} cy={60} r={56} fill={ring} />
+        <Circle cx={88} cy={28} r={8} fill={sun} />
+        {/* seed packet */}
+        <Rect x={30} y={40} width={60} height={52} rx={8} fill={colors.surface} />
+        <Rect x={30} y={40} width={60} height={22} rx={8} fill={leaf} />
+        <Rect x={30} y={52} width={60} height={10} fill={leaf} />
+        {/* sprout on packet */}
+        <Path d="M60 62 C60 54 60 48 60 42" stroke="#fff" strokeWidth={3} strokeLinecap="round" fill="none" />
+        <Path d="M60 52 C54 50 50 44 50 38 C56 38 60 44 60 52 Z" fill={leafLight} />
+        {/* + badge */}
+        <Circle cx={80} cy={82} r={14} fill={sun} />
+        <Path d="M80 74 L80 90 M72 82 L88 82" stroke="#fff" strokeWidth={4} strokeLinecap="round" />
+      </Svg>
+    );
+  }
+
+  if (name === 'error') {
+    return (
+      <Svg width={size} height={size} viewBox="0 0 120 120">
+        <Circle cx={60} cy={60} r={56} fill={ring} />
+        <Circle cx={60} cy={60} r={36} fill={colors.surface} />
+        <Path d="M60 42 L60 68" stroke={colors.error} strokeWidth={6} strokeLinecap="round" />
+        <Circle cx={60} cy={78} r={4} fill={colors.error} />
       </Svg>
     );
   }

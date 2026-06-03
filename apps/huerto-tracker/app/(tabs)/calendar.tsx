@@ -1,4 +1,5 @@
 import { useColors, useTheme, Card, EmptyState, Button, type Theme } from '@portfolio/ui';
+import { Illustration } from '../../src/components/Illustration';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -408,7 +409,7 @@ export default function CalendarScreen() {
         }
         ListEmptyComponent={
           <EmptyState
-            emoji="💤"
+            illustration={<Illustration name="calendar" size={120} />}
             title={t('calendar.emptyCrops', { month: monthName })}
             description={t('calendar.emptyCropsDesc')}
           />

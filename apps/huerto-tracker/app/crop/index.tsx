@@ -1,4 +1,5 @@
 import { useColors, useTheme, EmptyState } from '@portfolio/ui';
+import { Illustration } from '../../src/components/Illustration';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -47,7 +48,7 @@ export default function ManageCustomCropsScreen() {
         contentContainerStyle={{ padding: spacing.md, paddingBottom: 40 }}
         ListEmptyComponent={
           <EmptyState
-            emoji="🌱"
+            illustration={<Illustration name="crops" size={120} />}
             title={t('customCrop.empty')}
             description={t('customCrop.emptyDesc')}
             ctaLabel={t('customCrop.addNew')}

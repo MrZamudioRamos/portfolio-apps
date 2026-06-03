@@ -1,4 +1,5 @@
 import { useColors, useTheme, Card, EmptyState, type Theme } from '@portfolio/ui';
+import { Illustration } from '../../src/components/Illustration';
 import { useCollection } from '@portfolio/storage';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -340,7 +341,7 @@ export default function DiaryScreen() {
         ListEmptyComponent={
           !entries.loading ? (
             <EmptyState
-              emoji="📔"
+              illustration={<Illustration name="diary-empty" size={128} />}
               title={t('diary.emptyTitle')}
               description={t('diary.emptyDesc')}
               ctaLabel={t('diary.newEntry')}

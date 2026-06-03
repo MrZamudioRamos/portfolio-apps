@@ -34,6 +34,7 @@ import type { Plant } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import { track, EVENTS } from '../../src/analytics';
 import { persistPickedImage } from '../../src/utils/persistImage';
+import { successHaptic, tapHaptic } from '../../src/utils/haptics';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -176,6 +177,7 @@ export default function NewPlantScreen() {
         date: sowingDate,
       });
       track(EVENTS.plantAdded, { cropId: selectedCropId, fromScan: isAiFilled });
+      successHaptic();
       if (fromOnboarding === '1') router.replace('/(tabs)');
       // Scan flow: /plant/scan did router.replace into THIS screen, leaving the
       // original /plant/new underneath. A plain back() would land on that stale
