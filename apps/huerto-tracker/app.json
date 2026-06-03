@@ -13,7 +13,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "cover",
-      "backgroundColor": "#2D7A3A"
+      "backgroundColor": "#43A047"
     },
     "newArchEnabled": true,
     "ios": {
@@ -66,7 +66,7 @@
       [
         "expo-notifications",
         {
-          "color": "#2D7A3A",
+          "color": "#43A047",
           "defaultChannel": "default",
           "sounds": []
         }

@@ -21,7 +21,7 @@ export const GardenWidget: { updateSnapshot: (props: GardenWidgetProps) => void 
       return (
         <VStack alignment="leading" spacing={6} modifiers={[padding({ all: 4 })]}>
           <Text modifiers={[secondary, font({ size: 11 })]}>
-            {props.lunarEmoji} HuertoTracker
+            {props.lunarEmoji} Semilla
           </Text>
           <Text modifiers={[bold(), font({ size: 28 })]}>
             🌱 {props.plantCount}

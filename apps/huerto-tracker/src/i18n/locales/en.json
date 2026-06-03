@@ -598,7 +598,7 @@
     "icloudSyncDesc": "Automatically saves a backup to your iCloud folder when you leave the app.",
     "lastBackup": "Last backup",
     "never": "Never",
-    "icloudTip": "To enable iCloud sync go to Settings > Your name > iCloud > Apps Using iCloud and enable HuertoTracker.",
+    "icloudTip": "To enable iCloud sync go to Settings > Your name > iCloud > Apps Using iCloud and enable Semilla.",
     "manualLabel": "MANUAL",
     "exportTitle": "Export backup",
     "exportDesc": "Save the file to Files, Drive, or share it.",

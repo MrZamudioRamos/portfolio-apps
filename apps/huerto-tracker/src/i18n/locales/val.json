@@ -600,7 +600,7 @@
     "icloudSyncDesc": "Guarda automàticament una còpia de seguretat en la teua carpeta d'iCloud en eixir de l'app.",
     "lastBackup": "Última còpia",
     "never": "Mai",
-    "icloudTip": "Per a activar la sincronització iCloud ves a Ajustos > El teu nom > iCloud > Apps que usen iCloud i activa HuertoTracker.",
+    "icloudTip": "Per a activar la sincronització iCloud ves a Ajustos > El teu nom > iCloud > Apps que usen iCloud i activa Semilla.",
     "manualLabel": "MANUAL",
     "exportTitle": "Exportar còpia de seguretat",
     "exportDesc": "Guarda el fitxer en Arxius, Drive o compartix-lo.",

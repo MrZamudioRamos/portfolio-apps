@@ -631,7 +631,7 @@
     "icloudSyncDesc": "Guarda automáticamente un backup en tu carpeta de iCloud al salir de la app.",
     "lastBackup": "Último backup",
     "never": "Nunca",
-    "icloudTip": "Para activar la sincronización iCloud ve a Ajustes > Tu nombre > iCloud > Apps que usan iCloud y activa HuertoTracker.",
+    "icloudTip": "Para activar la sincronización iCloud ve a Ajustes > Tu nombre > iCloud > Apps que usan iCloud y activa Semilla.",
     "manualLabel": "MANUAL",
     "exportTitle": "Exportar backup",
     "exportDesc": "Guarda el archivo en Archivos, Drive o compártelo.",
