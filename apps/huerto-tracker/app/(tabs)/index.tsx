@@ -453,16 +453,7 @@ export default function DashboardScreen() {
           </Pressable>
         )}
 
-        {/* 🗺️ Map — green tinted, just left of settings */}
-        <Pressable
-          onPress={() => router.push('/garden/map')}
-          style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '55', opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
-          hitSlop={8}
-        >
-          <Text style={{ fontSize: 18 }}>🗺️</Text>
-        </Pressable>
-
-        {/* ⚙️ Settings — rightmost, neutral grey */}
+        {/* ⚙️ Settings */}
         <Pressable
           onPress={() => router.push('/(tabs)/settings' as any)}
           style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
@@ -527,6 +518,28 @@ export default function DashboardScreen() {
                   />
                 )}
               </View>
+            )}
+
+            {/* Garden map card — tap to open full map */}
+            {garden && (
+              <Pressable
+                onPress={() => router.push('/garden/map')}
+                style={({ pressed }) => [
+                  s.mapCard,
+                  { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.88 : 1 },
+                ]}
+              >
+                <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '18' }]}>
+                  <Text style={{ fontSize: 32 }}>🗺️</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.mapCardTitle, { color: colors.text }]}>{garden.name}</Text>
+                  <Text style={[s.mapCardSub, { color: colors.textSecondary }]}>
+                    {t('home.mapCardSub', { count: plants.count })}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
+              </Pressable>
             )}
 
             {/* Lunar widget */}
@@ -1170,6 +1183,24 @@ const makeStyles = (
       borderWidth: 1,
     },
     wateringAdviceText: { fontSize: fontSize.xs, lineHeight: 18 },
+    mapCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderRadius: radii.xl,
+      borderWidth: StyleSheet.hairlineWidth,
+      overflow: 'hidden',
+      marginBottom: spacing.md,
+      gap: spacing.md,
+      paddingRight: spacing.md,
+    },
+    mapCardLeft: {
+      width: 64,
+      height: 64,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    mapCardTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    mapCardSub: { fontSize: fontSize.xs, marginTop: 2 },
     lunarCard: {
       flexDirection: 'row',
       alignItems: 'center',

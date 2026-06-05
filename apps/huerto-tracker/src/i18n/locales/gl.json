@@ -70,7 +70,8 @@
     "showFinished": "{{count}} rematadas ocultas · Mostrar",
     "hideFinished": "Ocultar rematadas",
     "taskCarencia": "{{name}}: non coseitar {{days}} día(s) máis (carencia)",
-    "waterAllLitersHint": "repartiránse entre as plantas activas"
+    "waterAllLitersHint": "repartiránse entre as plantas activas",
+    "mapCardSub": "{{count}} plantas · Ver mapa"
   },
   "calendar": {
     "title": "Calendario de sementeira",

@@ -70,7 +70,8 @@
     "showFinished": "{{count}} amaituta ezkutatuta · Ikusi",
     "hideFinished": "Ezkutatu amaitutakoak",
     "taskCarencia": "{{name}}: ez bildu {{days}} egun gehiago (itxaronaldia)",
-    "waterAllLitersHint": "landare aktiboen artean banatuko dira"
+    "waterAllLitersHint": "landare aktiboen artean banatuko dira",
+    "mapCardSub": "{{count}} landare · Mapa ikusi"
   },
   "calendar": {
     "title": "Erein egutegia",

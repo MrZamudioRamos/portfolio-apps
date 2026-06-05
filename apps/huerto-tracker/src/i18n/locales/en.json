@@ -71,7 +71,8 @@
     "hideFinished": "Hide finished",
     "taskCarencia": "{{name}}: do not harvest for {{days}} more day(s) (clearance period)",
     "waterAllLitersHint": "will be split among active plants",
-    "defaultGardenName": "My Garden"
+    "defaultGardenName": "My Garden",
+    "mapCardSub": "{{count}} plants · View map"
   },
   "calendar": {
     "title": "Sowing calendar",

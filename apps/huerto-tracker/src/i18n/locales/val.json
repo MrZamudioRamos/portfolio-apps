@@ -70,7 +70,8 @@
     "showFinished": "{{count}} finalitzades ocultes · Mostrar",
     "hideFinished": "Amagar finalitzades",
     "taskCarencia": "{{name}}: no collir {{days}} dia(s) més (carència)",
-    "waterAllLitersHint": "es repartiran entre les plantes actives"
+    "waterAllLitersHint": "es repartiran entre les plantes actives",
+    "mapCardSub": "{{count}} plantes · Veure mapa"
   },
   "calendar": {
     "title": "Calendari de sembra",
