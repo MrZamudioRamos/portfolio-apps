@@ -44,6 +44,39 @@ import { PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringStatus';
 import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { useGardenLayout, type GridLayout } from '../../src/hooks/useGardenLayout';
+
+// Tiny grid thumbnail — shows occupied vs empty cells at a glance
+function MiniGrid({ layout, cols, rows, primaryColor, surfaceColor }: {
+  layout: GridLayout; cols: number; rows: number;
+  primaryColor: string; surfaceColor: string;
+}) {
+  const occupiedIds = new Set(layout.filter(Boolean));
+  const MAX_COLS = Math.min(cols, 7);
+  const MAX_ROWS = Math.min(rows, 6);
+  const cell = Math.floor(56 / MAX_COLS) - 1;
+  return (
+    <View style={{ width: 64, height: 64, alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+      {Array.from({ length: MAX_ROWS }).map((_, r) => (
+        <View key={r} style={{ flexDirection: 'row', gap: 1 }}>
+          {Array.from({ length: MAX_COLS }).map((_, c) => {
+            const idx = r * cols + c;
+            const pid = layout[idx];
+            return (
+              <View
+                key={c}
+                style={{
+                  width: cell, height: cell, borderRadius: 2,
+                  backgroundColor: pid ? primaryColor + 'CC' : surfaceColor,
+                }}
+              />
+            );
+          })}
+        </View>
+      ))}
+    </View>
+  );
+}
 import { Illustration } from '../../src/components/Illustration';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
@@ -55,6 +88,7 @@ export default function DashboardScreen() {
   const { t, i18n } = useTranslation();
 
   const { activeGarden: garden, gardens: allGardens, gardensLoading, refreshActiveId } = useActiveGarden();
+  const { layout: gardenLayout } = useGardenLayout(garden?.id, garden?.gridRows, garden?.gridCols);
   const { isGuest } = useSession();
   const allPlants = useCollection<Plant>('plants');
 
@@ -529,9 +563,26 @@ export default function DashboardScreen() {
                   { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.88 : 1 },
                 ]}
               >
-                <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '18' }]}>
-                  <Text style={{ fontSize: 32 }}>🗺️</Text>
-                </View>
+                {/* Preview: garden photo or mini grid */}
+                {garden.photoUri ? (
+                  <View style={[s.mapCardLeft, { backgroundColor: colors.surfaceAlt }]}>
+                    <Image
+                      source={{ uri: garden.photoUri }}
+                      style={{ width: 64, height: 64 }}
+                      resizeMode="cover"
+                    />
+                  </View>
+                ) : (
+                  <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '15' }]}>
+                    <MiniGrid
+                      layout={gardenLayout}
+                      cols={garden.gridCols ?? 5}
+                      rows={garden.gridRows ?? 7}
+                      primaryColor={colors.primary}
+                      surfaceColor={colors.surfaceAlt}
+                    />
+                  </View>
+                )}
                 <View style={{ flex: 1 }}>
                   <Text style={[s.mapCardTitle, { color: colors.text }]}>{garden.name}</Text>
                   <Text style={[s.mapCardSub, { color: colors.textSecondary }]}>
@@ -1189,6 +1240,7 @@ const makeStyles = (
       borderRadius: radii.xl,
       borderWidth: StyleSheet.hairlineWidth,
       overflow: 'hidden',
+      marginHorizontal: spacing.xl,
       marginBottom: spacing.md,
       gap: spacing.md,
       paddingRight: spacing.md,
