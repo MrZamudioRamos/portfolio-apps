@@ -450,11 +450,11 @@ export default function DashboardScreen() {
           </Pressable>
         )}
         <Pressable
-          onPress={() => router.push('/catalog' as any)}
+          onPress={() => router.push('/(tabs)/settings' as any)}
           style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
           hitSlop={8}
         >
-          <Ionicons name="library-outline" size={20} color={colors.primary} />
+          <Ionicons name="settings-outline" size={20} color={colors.textSecondary} />
         </Pressable>
         <Pressable
           onPress={() => router.push('/garden/map')}

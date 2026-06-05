@@ -3,7 +3,8 @@
     "home": "A Miña Horta",
     "calendar": "Calendario",
     "diary": "Diario",
-    "settings": "Axustes"
+    "settings": "Axustes",
+    "tools": "Ferramentas"
   },
   "common": {
     "cancel": "Cancelar",
@@ -1370,5 +1371,8 @@
       "Nov",
       "Dec"
     ]
+  },
+  "tools": {
+    "title": "Ferramentas"
   }
 }

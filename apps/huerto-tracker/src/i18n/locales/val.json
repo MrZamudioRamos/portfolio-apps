@@ -3,7 +3,8 @@
     "home": "El Meu Hort",
     "calendar": "Calendari",
     "diary": "Diari",
-    "settings": "Ajustos"
+    "settings": "Ajustos",
+    "tools": "Eines"
   },
   "common": {
     "cancel": "Cancel·lar",
@@ -1370,5 +1371,8 @@
       "Nov",
       "Des"
     ]
+  },
+  "tools": {
+    "title": "Eines"
   }
 }

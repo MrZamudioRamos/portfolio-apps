@@ -146,12 +146,18 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="tools"
+        options={{
+          title: t('tabs.tools'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="grid-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
-          title: t('tabs.settings'),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
-          ),
+          href: null, // hidden from tab bar — accessed via ⚙️ in home header
         }}
       />
     </Tabs>

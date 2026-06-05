@@ -3,7 +3,8 @@
     "home": "Nire Baratzea",
     "calendar": "Egutegia",
     "diary": "Egunkaria",
-    "settings": "Ezarpenak"
+    "settings": "Ezarpenak",
+    "tools": "Tresnak"
   },
   "common": {
     "cancel": "Utzi",
@@ -1370,5 +1371,8 @@
       "Aza",
       "Abe"
     ]
+  },
+  "tools": {
+    "title": "Tresnak"
   }
 }

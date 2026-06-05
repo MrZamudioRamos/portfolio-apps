@@ -3,7 +3,8 @@
     "home": "My Garden",
     "calendar": "Calendar",
     "diary": "Journal",
-    "settings": "Settings"
+    "settings": "Settings",
+    "tools": "Tools"
   },
   "common": {
     "cancel": "Cancel",
@@ -1740,5 +1741,8 @@
       "Nov",
       "Dec"
     ]
+  },
+  "tools": {
+    "title": "Tools"
   }
 }

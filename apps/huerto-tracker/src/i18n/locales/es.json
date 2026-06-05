@@ -3,7 +3,8 @@
     "home": "Mi Huerto",
     "calendar": "Calendario",
     "diary": "Diario",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "tools": "Herramientas"
   },
   "common": {
     "cancel": "Cancelar",
@@ -1708,5 +1709,8 @@
       "Nov",
       "Dic"
     ]
+  },
+  "tools": {
+    "title": "Herramientas"
   }
 }
