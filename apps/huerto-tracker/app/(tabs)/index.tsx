@@ -563,26 +563,9 @@ export default function DashboardScreen() {
                   { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.88 : 1 },
                 ]}
               >
-                {/* Preview: garden photo or mini grid */}
-                {garden.photoUri ? (
-                  <View style={[s.mapCardLeft, { backgroundColor: colors.surfaceAlt }]}>
-                    <Image
-                      source={{ uri: garden.photoUri }}
-                      style={{ width: 64, height: 64 }}
-                      resizeMode="cover"
-                    />
-                  </View>
-                ) : (
-                  <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '15' }]}>
-                    <MiniGrid
-                      layout={gardenLayout}
-                      cols={garden.gridCols ?? 5}
-                      rows={garden.gridRows ?? 7}
-                      primaryColor={colors.primary}
-                      surfaceColor={colors.surfaceAlt}
-                    />
-                  </View>
-                )}
+                <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '18' }]}>
+                  <Text style={{ fontSize: 32 }}>🗺️</Text>
+                </View>
                 <View style={{ flex: 1 }}>
                   <Text style={[s.mapCardTitle, { color: colors.text }]}>{garden.name}</Text>
                   <Text style={[s.mapCardSub, { color: colors.textSecondary }]}>
