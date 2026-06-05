@@ -414,6 +414,16 @@ export default function DashboardScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={s.header}>
+        {/* 🗺️ Garden map — left, primary color so it pops */}
+        <Pressable
+          onPress={() => router.push('/garden/map')}
+          style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '60', opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
+          hitSlop={8}
+        >
+          <Ionicons name="map-outline" size={20} color={colors.primary} />
+        </Pressable>
+
+        {/* Title + badges — center */}
         <View style={{ flex: 1 }}>
           <Text style={[s.headerTitle, { color: colors.text }]} numberOfLines={1}>
             {garden?.name ?? t('home.defaultGardenName')}
@@ -440,28 +450,25 @@ export default function DashboardScreen() {
             )}
           </View>
         </View>
+
+        {/* Swap garden (multi-garden) */}
         {allGardens.length > 1 && (
           <Pressable
             onPress={() => router.push('/gardens' as any)}
-            style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
+            style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginLeft: spacing.sm }]}
             hitSlop={8}
           >
             <Ionicons name="swap-horizontal-outline" size={18} color={colors.primary} />
           </Pressable>
         )}
+
+        {/* ⚙️ Settings — right, neutral grey so it reads as secondary action */}
         <Pressable
           onPress={() => router.push('/(tabs)/settings' as any)}
-          style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
+          style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginLeft: spacing.sm }]}
           hitSlop={8}
         >
           <Ionicons name="settings-outline" size={20} color={colors.textSecondary} />
-        </Pressable>
-        <Pressable
-          onPress={() => router.push('/garden/map')}
-          style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
-          hitSlop={8}
-        >
-          <Ionicons name="map-outline" size={20} color={colors.primary} />
         </Pressable>
       </View>
 
