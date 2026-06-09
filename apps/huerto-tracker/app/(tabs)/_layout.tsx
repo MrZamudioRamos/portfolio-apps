@@ -132,7 +132,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.calendar'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
+            <Ionicons name="sunny-outline" size={size} color={color} />
           ),
         }}
       />

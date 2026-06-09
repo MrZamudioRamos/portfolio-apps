@@ -33,6 +33,7 @@ export default function ToolsScreen() {
     { icon: 'bug-outline',             labelKey: 'settings.tools.diseaseGuide', route: '/disease-guide',  accent: '#EF5350' },
     { icon: 'refresh-circle-outline',  labelKey: 'settings.rotation',          route: '/rotation',       accent: '#26C6DA' },
     { icon: 'leaf-outline',            labelKey: 'customCrop.manage',           route: '/crop',           accent: '#8D6E63' },
+    { icon: 'cloud-upload-outline',    labelKey: 'settings.data.backup',        route: '/settings/backup', accent: '#42A5F5' },
   ];
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
