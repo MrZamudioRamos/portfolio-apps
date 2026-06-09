@@ -35,6 +35,7 @@ export default function ToolsScreen() {
     { icon: 'leaf-outline',            labelKey: 'customCrop.manage',           route: '/crop',           accent: '#8D6E63' },
     { icon: 'cloud-upload-outline',    labelKey: 'settings.data.backup',        route: '/settings/backup', accent: '#42A5F5' },
     { icon: 'chatbubble-ellipses-outline', labelKey: 'chat.title',              route: '/chat',            badge: isPro ? undefined : 'Pro', accent: '#7C3AED' },
+    { icon: 'sunny-outline',               labelKey: 'lightMeter.title',        route: '/light-meter',     accent: '#FFB300' },
   ];
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);

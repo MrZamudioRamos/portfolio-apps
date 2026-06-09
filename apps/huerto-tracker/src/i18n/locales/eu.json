@@ -609,6 +609,22 @@
       "empty": "Asoziaziorik ez erregistratuta"
     }
   },
+  "lightMeter": {
+    "title": "Argi-neurria",
+    "desc": "Ebaluatu leku bateko argia eta aurkitu kultibo egokienak.",
+    "q1": "Zenbat ordu argiztatzen du zuzenean?",
+    "q1a": "0-2h", "q1b": "2-4h", "q1c": "4-6h", "q1d": "+6h",
+    "q2": "Badago oztoporik argia blokeatzen duena?",
+    "q2a": "Eraikinak", "q2b": "Zuhaitzak", "q2c": "Oztopotik libre",
+    "q3": "Non dago lekua?",
+    "q3a": "Barruan/Leihoa", "q3b": "Kanpoa zuzen", "q3c": "Estalitako balkoia",
+    "full": "Eguzkitsu", "fullDesc": "Argi zuzen askorekin. Tomate, piper edo pepinoak haztexa.",
+    "partial": "Itzal erdikoa", "partialDesc": "Argi moderatua. Letxuga, belarrak eta landare batzuetarako.",
+    "shade": "Itzala", "shadeDesc": "Argi gutxi. Itzal-belarrak edo bertsoak.",
+    "recommended": "KULTIBAGARRIAK",
+    "retake": "Beste eremu bat ebaluatu",
+    "calculating": "Kalkulatzen…"
+  },
   "chat": {
     "title": "AI Laguntzailea",
     "contextInfo": "Zure baratzaren berri badakit: {{province}}",

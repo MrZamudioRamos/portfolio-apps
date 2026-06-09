@@ -609,6 +609,22 @@
       "empty": "Sense associacions registrades"
     }
   },
+  "lightMeter": {
+    "title": "Mesurador de llum",
+    "desc": "Avalua la llum disponible en un espai i descobreix quins cultius són ideals.",
+    "q1": "Quantes hores de sol directe rep este espai?",
+    "q1a": "0-2h", "q1b": "2-4h", "q1c": "4-6h", "q1d": "+6h",
+    "q2": "Hi ha obstacles que bloquegen la llum?",
+    "q2a": "Edificis", "q2b": "Arbres", "q2c": "Sense obstacles",
+    "q3": "On és l'espai?",
+    "q3a": "Interior/Finestra", "q3b": "Exterior directe", "q3c": "Balcó cobert",
+    "full": "Ple sol", "fullDesc": "Moltes hores de sol directe. Ideal per a tomàquets, pebrots o cogombres.",
+    "partial": "Semisombra", "partialDesc": "Llum moderada. Encertada per a enciam, espinacs i herbes aromàtiques.",
+    "shade": "Ombra", "shadeDesc": "Poca llum directa. Prova amb herbes d'ombra.",
+    "recommended": "CULTIUS RECOMANATS",
+    "retake": "Avaluar una altra zona",
+    "calculating": "Calculant…"
+  },
   "chat": {
     "title": "Assistent IA",
     "contextInfo": "Conec el teu hort a {{province}}",

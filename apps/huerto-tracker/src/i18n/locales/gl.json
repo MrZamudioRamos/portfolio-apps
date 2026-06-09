@@ -609,6 +609,22 @@
       "empty": "Sen asociacións rexistradas"
     }
   },
+  "lightMeter": {
+    "title": "Medidor de luz",
+    "desc": "Avalía a luz dispoñible nun espazo e descobre que cultivos son ideais.",
+    "q1": "Cantas horas de sol directo recibe este espazo?",
+    "q1a": "0-2h", "q1b": "2-4h", "q1c": "4-6h", "q1d": "+6h",
+    "q2": "Hai obstáculos que bloqueen a luz?",
+    "q2a": "Edificios", "q2b": "Árbores", "q2c": "Sen obstáculos",
+    "q3": "Onde está o espazo?",
+    "q3a": "Interior/Fiestra", "q3b": "Exterior directo", "q3c": "Balcón cuberto",
+    "full": "Pleno sol", "fullDesc": "Moito sol directo. Ideal para tomates, pementos ou pepinos.",
+    "partial": "Semisombra", "partialDesc": "Luz moderada. Leituga, espinacas e herbas aromáticas.",
+    "shade": "Sombra", "shadeDesc": "Pouca luz directa. Proba con herbas de sombra.",
+    "recommended": "CULTIVOS RECOMENDADOS",
+    "retake": "Avaliar outra zona",
+    "calculating": "Calculando…"
+  },
   "chat": {
     "title": "Asistente IA",
     "contextInfo": "Sei sobre a túa horta en {{province}}",

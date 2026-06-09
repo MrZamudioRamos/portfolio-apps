@@ -607,6 +607,32 @@
       "empty": "No companion data registered"
     }
   },
+  "lightMeter": {
+    "title": "Light Meter",
+    "desc": "Assess the available light in a space and discover which crops are ideal.",
+    "q1": "How many hours of direct sun does this space get?",
+    "q1a": "0-2h",
+    "q1b": "2-4h",
+    "q1c": "4-6h",
+    "q1d": "+6h",
+    "q2": "Are there obstacles blocking the light?",
+    "q2a": "Buildings",
+    "q2b": "Trees",
+    "q2c": "No obstacles",
+    "q3": "Where is the space?",
+    "q3a": "Indoor/Window",
+    "q3b": "Direct outdoors",
+    "q3c": "Covered balcony",
+    "full": "Full Sun",
+    "fullDesc": "This space gets plenty of direct light. Perfect for demanding crops like tomatoes, peppers or cucumbers.",
+    "partial": "Partial Shade",
+    "partialDesc": "Moderate or filtered light. Great for lettuce, spinach, herbs and some vegetables.",
+    "shade": "Shade",
+    "shadeDesc": "Little direct light. Try shade herbs, watercress or edible ornamental plants.",
+    "recommended": "RECOMMENDED CROPS",
+    "retake": "Assess another area",
+    "calculating": "Calculating…"
+  },
   "chat": {
     "title": "AI Assistant",
     "contextInfo": "I know your garden in {{province}}",

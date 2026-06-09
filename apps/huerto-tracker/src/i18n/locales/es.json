@@ -638,6 +638,32 @@
       "empty": "Sin asociaciones registradas"
     }
   },
+  "lightMeter": {
+    "title": "Medidor de luz",
+    "desc": "Evalúa la luz disponible en un espacio y descubre qué cultivos son ideales.",
+    "q1": "¿Cuántas horas de sol directo recibe este espacio?",
+    "q1a": "0-2h",
+    "q1b": "2-4h",
+    "q1c": "4-6h",
+    "q1d": "+6h",
+    "q2": "¿Hay obstáculos que bloqueen la luz?",
+    "q2a": "Edificios",
+    "q2b": "Árboles",
+    "q2c": "Sin obstáculos",
+    "q3": "¿Dónde está el espacio?",
+    "q3a": "Interior/Ventana",
+    "q3b": "Exterior directo",
+    "q3c": "Balcón cubierto",
+    "full": "Pleno sol",
+    "fullDesc": "Este espacio recibe mucha luz directa. Ideal para hortalizas exigentes como tomate, pimiento o pepino.",
+    "partial": "Semisombra",
+    "partialDesc": "Luz moderada o filtrada. Perfecta para lechugas, espinacas, hierbas aromáticas y algunas hortalizas.",
+    "shade": "Sombra",
+    "shadeDesc": "Poca luz directa. Prueba con hierbas de sombra, berros o plantas ornamentales comestibles.",
+    "recommended": "CULTIVOS RECOMENDADOS",
+    "retake": "Evaluar otra zona",
+    "calculating": "Calculando…"
+  },
   "chat": {
     "title": "Asistente IA",
     "contextInfo": "Sé sobre tu huerto en {{province}}",
