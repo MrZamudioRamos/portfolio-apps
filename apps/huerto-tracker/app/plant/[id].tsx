@@ -181,6 +181,7 @@ export default function PlantDetailScreen() {
   }
 
   async function handleDuplicate() {
+    const today = todayStr();
     const newPlant = await plants.create({
       gardenId: plant!.gardenId,
       cropId: plant!.cropId,
@@ -189,6 +190,13 @@ export default function PlantDetailScreen() {
       varietyId: plant!.varietyId,
       photoUri: plant!.photoUri,
       status: 'seedling',
+      sowingDate: today,
+    });
+    await entries.create({
+      gardenId: plant!.gardenId,
+      plantId: newPlant.id,
+      type: 'sowing',
+      date: today,
     });
     router.replace(`/plant/${newPlant.id}` as any);
   }
@@ -240,7 +248,8 @@ export default function PlantDetailScreen() {
               entries.softRemoveMany(relatedEntries.map((e) => e.id)),
               reminders.softRemoveMany(relatedReminders.map((r) => r.id)),
             ]);
-            router.back();
+            if (router.canGoBack()) router.back();
+            else router.replace('/(tabs)');
           },
         },
       ]
@@ -554,6 +563,7 @@ export default function PlantDetailScreen() {
               <View style={s.infoGrid}>
                 {(() => {
                   const dth = (plant.varietyId ? VARIETIES_BY_ID[plant.varietyId]?.daysToHarvest : null) ?? crop.daysToHarvest;
+                  if (!dth) return null;
                   return <InfoItem label={t('plantDetail.harvest')} value={t('plantDetail.harvestDays', { min: dth[0], max: dth[1] })} />;
                 })()}
                 <InfoItem label={t('plantDetail.light')} value={SUN_LABEL[crop.sunNeeds]} />
@@ -598,7 +608,7 @@ export default function PlantDetailScreen() {
                     {companions.map((c) => (
                       <View key={c.id} style={[s.companionCard, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
                         <Text style={{ fontSize: 28 }}>{c.emoji}</Text>
-                        <Text style={[s.companionCardName, { color: colors.text }]}>{c.name}</Text>
+                        <Text style={[s.companionCardName, { color: colors.text }]}>{t('crops.' + c.id + '.name', { defaultValue: c.name })}</Text>
                       </View>
                     ))}
                   </View>
@@ -616,7 +626,7 @@ export default function PlantDetailScreen() {
                     {incompatibles.map((c) => (
                       <View key={c.id} style={[s.companionCard, { backgroundColor: '#EF535018', borderColor: '#EF5350' }]}>
                         <Text style={{ fontSize: 28 }}>{c.emoji}</Text>
-                        <Text style={[s.companionCardName, { color: colors.text }]}>{c.name}</Text>
+                        <Text style={[s.companionCardName, { color: colors.text }]}>{t('crops.' + c.id + '.name', { defaultValue: c.name })}</Text>
                       </View>
                     ))}
                   </View>

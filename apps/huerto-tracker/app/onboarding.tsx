@@ -141,6 +141,7 @@ export default function OnboardingScreen() {
 
   const { t } = useTranslation();
   const [step, setStep] = useState<Step>(0);
+  const [skippedProfile, setSkippedProfile] = useState(false);
 
   // Profile state (GrowIt-inspired)
   const [spaceTypes, setSpaceTypes] = useState<SpaceType[]>([]);
@@ -214,6 +215,9 @@ export default function OnboardingScreen() {
   async function handleCreate() {
     if (!gardenName.trim() || !province || !climateZone) return;
     if (gardens.items.length > 0) {
+      if (sunlight && experience) {
+        await saveProfile({ spaceTypes, growingMethods, sunlight, experience });
+      }
       await complete();
       router.replace('/(tabs)');
       return;
@@ -299,7 +303,7 @@ export default function OnboardingScreen() {
           </View>
           <View style={{ gap: spacing.sm }}>
             <Button title={t('onboarding.start')} onPress={() => setStep(1)} size="lg" />
-            <Pressable onPress={() => setStep(5)} style={{ alignItems: 'center', paddingVertical: spacing.sm }}>
+            <Pressable onPress={() => { setSkippedProfile(true); setStep(5); }} style={{ alignItems: 'center', paddingVertical: spacing.sm }}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('onboarding.skipProfile')}</Text>
             </Pressable>
           </View>
@@ -578,7 +582,7 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={s.stepActions}>
-            <Pressable onPress={() => setStep(4)} style={s.backButton}>
+            <Pressable onPress={() => setStep(skippedProfile ? 0 : 4)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
             <Button

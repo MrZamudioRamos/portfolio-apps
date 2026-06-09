@@ -53,6 +53,7 @@ export default function CalendarScreen() {
         estDate = new Date(p.firstHarvestDate + 'T12:00:00');
       } else if (p.sowingDate) {
         const dth = (p.varietyId ? VARIETIES_BY_ID[p.varietyId]?.daysToHarvest : null) ?? crop.daysToHarvest;
+        if (!dth) return;
         const midDays = Math.round((dth[0] + dth[1]) / 2);
         estDate = new Date(new Date(p.sowingDate + 'T12:00:00').getTime() + midDays * 86_400_000);
       }

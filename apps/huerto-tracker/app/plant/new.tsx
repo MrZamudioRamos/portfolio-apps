@@ -232,7 +232,7 @@ export default function NewPlantScreen() {
                 >
                   <Text style={{ fontSize: 32 }}>{selectedCrop.emoji}</Text>
                   <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={[s.cropName, { color: colors.text }]}>{t('crops.' + selectedCrop.id + '.name')}</Text>
+                    <Text style={[s.cropName, { color: colors.text }]}>{selectedCrop.isCustom ? selectedCrop.name : t('crops.' + selectedCrop.id + '.name')}</Text>
                     <Text style={[s.cropCategory, { color: colors.textSecondary }]}>
                       {t('cropCategory.' + selectedCrop.category)}
                     </Text>
