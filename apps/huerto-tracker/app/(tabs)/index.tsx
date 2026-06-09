@@ -9,7 +9,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
   KeyboardAvoidingView,
@@ -32,7 +31,6 @@ import type { Garden } from '../../src/models/garden';
 import { PLANT_STATUS_CONFIG, type Plant } from '../../src/models/plant';
 import type { GardenReminder } from '../../src/models/reminder';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
-import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { getLunarDay } from '../../src/utils/lunar';
 import { getSowingNow } from '../../src/utils/sowingNow';
 import { QuickLogModal } from '../../src/components/QuickLogModal';
@@ -44,38 +42,7 @@ import { PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringStatus';
 import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
-import { useGardenLayout, type GridLayout } from '../../src/hooks/useGardenLayout';
-
-// Tiny grid thumbnail — shows occupied vs empty cells at a glance
-function MiniGrid({ layout, cols, rows, primaryColor, surfaceColor }: {
-  layout: GridLayout; cols: number; rows: number;
-  primaryColor: string; surfaceColor: string;
-}) {
-  const MAX_COLS = Math.min(cols, 7);
-  const MAX_ROWS = Math.min(rows, 6);
-  const cell = Math.floor(56 / MAX_COLS) - 1;
-  return (
-    <View style={{ width: 64, height: 64, alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-      {Array.from({ length: MAX_ROWS }).map((_, r) => (
-        <View key={r} style={{ flexDirection: 'row', gap: 1 }}>
-          {Array.from({ length: MAX_COLS }).map((_, c) => {
-            const idx = r * cols + c;
-            const pid = layout[idx];
-            return (
-              <View
-                key={c}
-                style={{
-                  width: cell, height: cell, borderRadius: 2,
-                  backgroundColor: pid ? primaryColor + 'CC' : surfaceColor,
-                }}
-              />
-            );
-          })}
-        </View>
-      ))}
-    </View>
-  );
-}
+import { useGardenLayout } from '../../src/hooks/useGardenLayout';
 import { Illustration } from '../../src/components/Illustration';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
@@ -91,9 +58,6 @@ export default function DashboardScreen() {
   const { isGuest } = useSession();
   const allPlants = useCollection<Plant>('plants');
 
-  // A guest with no garden (e.g. after sign-out/account-deletion wipe) would
-  // land on a broken empty dashboard. Send them to onboarding to create one.
-  // Authenticated users aren't bounced — their gardens arrive via cloud sync.
   useEffect(() => {
     if (isGuest && !gardensLoading && allGardens.length === 0) {
       router.replace('/onboarding');
@@ -103,7 +67,6 @@ export default function DashboardScreen() {
   const entries = useCollection<DiaryEntry>('diary_entries');
   const { customCropsById } = useCustomCrops();
 
-  // Filter plants to active garden; show [] while garden is still loading to avoid mixing all-garden data
   const gardenPlantItems = useMemo(
     () => (!garden ? [] : allPlants.items.filter((p) => p.gardenId === garden.id)),
     [allPlants.items, garden?.id]
@@ -129,7 +92,6 @@ export default function DashboardScreen() {
   const [waterAllLiters, setWaterAllLiters] = useState('');
   const [waterAllMethod, setWaterAllMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>('hand');
   const [waterAllSaving, setWaterAllSaving] = useState(false);
-  const [weeklyExpanded, setWeeklyExpanded] = useState(true);
   const [plantSearch, setPlantSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<import('../../src/models/plant').PlantStatus | null>(null);
   const [hideFinished, setHideFinished] = useState(true);
@@ -265,7 +227,6 @@ export default function DashboardScreen() {
     [garden?.climateZone, currentMonth]
   );
 
-  // Update home screen widget snapshot whenever garden data changes
   useEffect(() => {
     if (!garden) return;
     const nextReminder = reminders.items
@@ -361,19 +322,16 @@ export default function DashboardScreen() {
             ) : (
               <Text style={s.plantEmoji}>{crop?.emoji ?? '🌱'}</Text>
             )}
-            {/* Pest badge */}
             {item.pestStatus && item.pestStatus !== 'none' && (
               <View style={[s.pestBadge, { backgroundColor: PEST_STATUS_CONFIG[item.pestStatus].color }]}>
                 <Text style={s.pestBadgeText}>{PEST_STATUS_CONFIG[item.pestStatus].emoji}</Text>
               </View>
             )}
-            {/* Water badge */}
             {needsWater && (
               <View style={[s.waterBadge, { backgroundColor: '#29B6F6' }]}>
                 <Text style={s.waterBadgeText}>💧</Text>
               </View>
             )}
-            {/* Quick log button */}
             <Pressable
               onPress={(e) => { e.stopPropagation(); setQuickLogPlant(item); }}
               style={[s.quickLogBtn, { backgroundColor: colors.primary }]}
@@ -443,53 +401,44 @@ export default function DashboardScreen() {
     );
   }
 
+  // Today card accent color based on task urgency
+  const todayAccent = weeklyTasks.some(t => t.emoji === '🐛' || t.emoji === '🧴')
+    ? '#EF5350'
+    : weeklyTasks.length > 0
+    ? '#FFA726'
+    : '#4CAF50';
+
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
-      {/* Header */}
+      {/* Header — simplified: name + compact info strip */}
       <View style={s.header}>
-        {/* Title + badges — left */}
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={[s.headerTitle, { color: colors.text }]} numberOfLines={1}>
             {garden?.name ?? t('home.defaultGardenName')}
           </Text>
-          <View style={s.headerBadgesRow}>
-            {zoneConfig && (
-              <View style={[s.zoneBadge, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-                <Text style={[s.zoneBadgeText, { color: colors.primary }]}>
-                  {zoneConfig.emoji} {t(`zone.${garden.climateZone}`)}
-                </Text>
-              </View>
-            )}
-            {garden?.gardenType && garden.gardenType !== 'huerto' && (
-              <View style={[s.streakBadge, { backgroundColor: '#4CAF5018' }]}>
-                <Text style={[s.streakBadgeText, { color: '#2E7D32' }]}>
-                  {GARDEN_TYPE_CONFIG[garden.gardenType].emoji} {t(`gardenType.${garden.gardenType}`)}
-                </Text>
-              </View>
-            )}
-            {streak >= 2 && (
-              <View style={[s.streakBadge, { backgroundColor: colors.secondary + '2A' }]}>
-                <Text style={[s.streakBadgeText, { color: colors.warning }]}>🔥 {t('home.streak', { count: streak })}</Text>
-              </View>
-            )}
-          </View>
+          <Text style={[s.headerSub, { color: colors.textSecondary }]} numberOfLines={1}>
+            {[
+              weather && !weatherLoading
+                ? `${getWeatherLabel(weather.today.weatherCode).emoji} ${weather.today.tempMax}°`
+                : null,
+              zoneConfig ? `${zoneConfig.emoji} ${t(`zone.${garden.climateZone}`)}` : null,
+              streak >= 2 ? `🔥 ${streak}d` : null,
+            ].filter(Boolean).join(' · ')}
+          </Text>
         </View>
 
-        {/* Right side buttons */}
         {allGardens.length > 1 && (
           <Pressable
             onPress={() => router.push('/gardens' as any)}
-            style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
+            style={({ pressed }) => [s.headerBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
             hitSlop={8}
           >
             <Ionicons name="swap-horizontal-outline" size={18} color={colors.primary} />
           </Pressable>
         )}
-
-        {/* ⚙️ Settings */}
         <Pressable
           onPress={() => router.push('/(tabs)/settings' as any)}
-          style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
+          style={({ pressed }) => [s.headerBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
           hitSlop={8}
         >
           <Ionicons name="settings-outline" size={20} color={colors.textSecondary} />
@@ -505,190 +454,7 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <>
-            {/* Stats row — hidden on first use */}
-            {plants.count > 0 && (
-              <View style={s.statsRow}>
-                <StatCard
-                  emoji="🌱"
-                  value={plants.count}
-                  label={t('home.stats.plants')}
-                  onPress={() => router.push('/plant/new')}
-                />
-                {harvestingCount > 0 && (
-                  <StatCard
-                    emoji="🧺"
-                    value={harvestingCount}
-                    label={t('home.stats.harvesting')}
-                    onPress={() => setStatusFilter(statusFilter === 'harvesting' ? null : 'harvesting')}
-                  />
-                )}
-                {activeReminders > 0 && (
-                  <StatCard
-                    emoji="🔔"
-                    value={activeReminders}
-                    label={t('home.stats.reminders')}
-                    onPress={() => router.push('/settings/notifications' as any)}
-                  />
-                )}
-                {activePests > 0 && (
-                  <StatCard
-                    emoji="🐛"
-                    value={activePests}
-                    label={t('home.stats.pests')}
-                    onPress={() => router.push('/disease-guide' as any)}
-                  />
-                )}
-                {needsWaterCount > 0 && (
-                  <StatCard
-                    emoji="💧"
-                    value={needsWaterCount}
-                    label={t('home.stats.needsWater')}
-                    onPress={handleWaterAll}
-                  />
-                )}
-                {yearHarvestKg > 0 && (
-                  <StatCard
-                    emoji="⚖️"
-                    value={`${yearHarvestKg.toFixed(1)}kg`}
-                    label={t('home.stats.yearKg')}
-                    onPress={() => router.push('/stats')}
-                  />
-                )}
-              </View>
-            )}
-
-            {/* Garden map card — tap to open full map */}
-            {garden && (
-              <Pressable
-                onPress={() => router.push('/garden/map')}
-                style={({ pressed }) => [
-                  s.mapCard,
-                  { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.88 : 1 },
-                ]}
-              >
-                <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '18' }]}>
-                  <Text style={{ fontSize: 32 }}>🗺️</Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={[s.mapCardTitle, { color: colors.text }]}>{garden.name}</Text>
-                  <Text style={[s.mapCardSub, { color: colors.textSecondary }]}>
-                    {t('home.mapCardSub', { count: plants.count })}
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
-              </Pressable>
-            )}
-
-            {/* Lunar widget */}
-            <Pressable
-              onPress={() => router.push('/(tabs)/calendar' as any)}
-              style={({ pressed }) => [
-                s.lunarCard,
-                {
-                  backgroundColor: glassAvailable ? 'transparent' : colors.surface,
-                  borderColor: colors.border,
-                  overflow: 'hidden',
-                  opacity: pressed ? 0.85 : 1,
-                },
-              ]}
-            >
-              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-              <View style={s.lunarLeft}>
-                <Text style={s.lunarMoonEmoji}>{lunar.phaseEmoji}</Text>
-                <View style={[s.lunarIllumBar, { backgroundColor: colors.border }]}>
-                  <View style={[s.lunarIllumFill, { width: `${lunar.illumination}%` as any, backgroundColor: colors.primary }]} />
-                </View>
-                <Text style={[s.lunarIllumText, { color: colors.textSecondary }]}>{lunar.illumination}%</Text>
-              </View>
-              <View style={s.lunarCenter}>
-                <Text style={[s.lunarPhaseName, { color: colors.text }]}>{t(lunar.phaseKey)}</Text>
-                <Text style={[s.lunarGardening, { color: colors.primary }]}>
-                  {lunar.gardeningEmoji} {t(`lunar.gardeningLabel.${lunar.gardeningType}`)}
-                </Text>
-                <Text style={[s.lunarRec, { color: colors.textSecondary }]} numberOfLines={2}>
-                  {t(`lunar.recommendation.${lunar.gardeningType}`)}
-                </Text>
-              </View>
-              <View style={s.lunarRight}>
-                <Text style={[s.lunarDay, { color: colors.textDisabled }]}>{t('home.lunarDay')}</Text>
-                <Text style={[s.lunarDayNum, { color: colors.text }]}>{lunar.dayInCycle}</Text>
-              </View>
-            </Pressable>
-
-            {/* Weather widget */}
-            {(weather || weatherLoading) && (
-              <View style={[s.weatherCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                {weatherLoading || !weather ? (
-                  <View style={s.weatherLoading}>
-                    <Text style={[s.weatherLoadingText, { color: colors.textSecondary }]}>
-                      {t('home.weatherLoading')}
-                    </Text>
-                  </View>
-                ) : (
-                  <>
-                    {/* Today row */}
-                    <View style={s.weatherTodayRow}>
-                      <Text style={s.weatherMainEmoji}>{getWeatherLabel(weather.today.weatherCode).emoji}</Text>
-                      <View style={{ flex: 1 }}>
-                        <Text style={[s.weatherProvince, { color: colors.textSecondary }]}>
-                          {weather.province}
-                        </Text>
-                        <Text style={[s.weatherLabel, { color: colors.text }]}>
-                          {t(getWeatherLabel(weather.today.weatherCode).key)}
-                        </Text>
-                      </View>
-                      <View style={s.weatherTemps}>
-                        <Text style={[s.weatherTempMax, { color: colors.text }]}>{weather.today.tempMax}°</Text>
-                        <Text style={[s.weatherTempMin, { color: colors.textSecondary }]}>{weather.today.tempMin}°</Text>
-                      </View>
-                    </View>
-
-                    {/* Forecast mini row */}
-                    <View style={[s.forecastRow, { borderTopColor: colors.border }]}>
-                      {weather.forecast.map((day) => {
-                        const lbl = getWeatherLabel(day.weatherCode);
-                        const date = new Date(day.date + 'T12:00:00');
-                        const intlLocale = i18n.language === 'val' ? 'ca-ES' : i18n.language;
-                        const dayName = new Intl.DateTimeFormat(intlLocale, { weekday: 'short' }).format(date);
-                        return (
-                          <View key={day.date} style={s.forecastDay}>
-                            <Text style={[s.forecastDayName, { color: colors.textSecondary }]}>
-                              {dayName.charAt(0).toUpperCase() + dayName.slice(1, 3)}
-                            </Text>
-                            <Text style={s.forecastEmoji}>{lbl.emoji}</Text>
-                            <Text style={[s.forecastTemp, { color: colors.text }]}>{day.tempMax}°</Text>
-                            {day.rainProbability > 0 && (
-                              <Text style={s.forecastRain}>💧{day.rainProbability}%</Text>
-                            )}
-                          </View>
-                        );
-                      })}
-                    </View>
-
-                    {/* Watering advice */}
-                    <View style={[
-                      s.wateringAdviceBanner,
-                      {
-                        backgroundColor:
-                          weather.wateringAdvice === 'skip' ? '#29B6F6' + '18' :
-                          weather.wateringAdvice === 'reduce' ? '#FFA726' + '18' :
-                          colors.surfaceAlt,
-                        borderColor:
-                          weather.wateringAdvice === 'skip' ? '#29B6F6' :
-                          weather.wateringAdvice === 'reduce' ? '#FFA726' :
-                          colors.border,
-                      },
-                    ]}>
-                      <Text style={[s.wateringAdviceText, { color: colors.text }]}>
-                        {t(weather.wateringKey, weather.wateringParams)}
-                      </Text>
-                    </View>
-                  </>
-                )}
-              </View>
-            )}
-
-            {/* Tarjeta bienvenida — solo en primer uso (sin plantas) */}
+            {/* Empty state */}
             {plants.count === 0 && !plants.loading && (
               <View style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
                 <Illustration name="seedling" size={132} />
@@ -696,138 +462,75 @@ export default function DashboardScreen() {
                 <Text style={[s.firstUseDesc, { color: colors.textSecondary }]}>{t('home.firstUseDesc')}</Text>
                 <Pressable
                   onPress={() => router.push('/plant/new')}
-                  style={({ pressed }) => [
-                    s.firstUseCta,
-                    { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
-                  ]}
+                  style={({ pressed }) => [s.firstUseCta, { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 }]}
                 >
                   <Ionicons name="add-circle-outline" size={20} color="#fff" />
-                  <Text style={[s.firstUseCtaText]}>{t('home.firstUseCta')}</Text>
+                  <Text style={s.firstUseCtaText}>{t('home.firstUseCta')}</Text>
                 </Pressable>
               </View>
             )}
 
-            {/* Sow Now card */}
-            {(sowingData.now.length > 0 || sowingData.soon.length > 0) && (
-              <View style={[s.sowCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                {sowingData.now.length > 0 && (
-                  <>
-                    <Text style={[s.sowSectionLabel, { color: colors.primary }]}>
-                      🌱 {t('home.sowNowTitle')}
-                    </Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.sowScroll}>
-                      <View style={s.sowRow}>
-                        {sowingData.now.map((crop) => (
-                          <Pressable
-                            key={crop.id}
-                            onPress={() => router.push(`/plant/new?cropId=${crop.id}` as any)}
-                            style={({ pressed }) => [
-                              s.sowChip,
-                              { backgroundColor: colors.primary + '18', borderColor: colors.primary, opacity: pressed ? 0.7 : 1 },
-                            ]}
-                          >
-                            <Text style={s.sowChipEmoji}>{crop.emoji}</Text>
-                            <Text style={[s.sowChipName, { color: colors.text }]} numberOfLines={1}>
-                              {t('crops.' + crop.id + '.name')}
-                            </Text>
-                          </Pressable>
-                        ))}
-                      </View>
-                    </ScrollView>
-                  </>
+            {/* TODAY card — first thing visible when there are plants */}
+            {plants.count > 0 && (
+              <View style={[s.todayCard, { backgroundColor: colors.surface, borderColor: colors.border, borderLeftColor: todayAccent }]}>
+                <Text style={[s.todayTitle, { color: colors.text }]}>
+                  📋 {t('home.weeklyTasks')}
+                  {weeklyTasks.length > 0 && (
+                    <Text style={[s.todayCount, { color: todayAccent }]}> · {weeklyTasks.length}</Text>
+                  )}
+                </Text>
+                {weeklyTasks.length === 0 ? (
+                  <View style={s.todayEmpty}>
+                    <Text style={{ fontSize: 20 }}>✅</Text>
+                    <Text style={[s.todayEmptyText, { color: colors.textSecondary }]}>{t('home.weeklyTasksEmpty')}</Text>
+                  </View>
+                ) : (
+                  weeklyTasks.slice(0, 5).map((task, i) => (
+                    <Pressable
+                      key={i}
+                      onPress={() => router.push(`/plant/${task.plantId}`)}
+                      style={({ pressed }) => [s.todayRow, { borderTopColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
+                    >
+                      <Text style={s.todayEmoji}>{task.emoji}</Text>
+                      <Text style={[s.todayLabel, { color: colors.text }]} numberOfLines={1}>{task.label}</Text>
+                      <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} />
+                    </Pressable>
+                  ))
                 )}
-                {sowingData.soon.length > 0 && (
-                  <>
-                    <Text style={[s.sowSectionLabel, { color: colors.textSecondary, marginTop: sowingData.now.length > 0 ? 10 : 0 }]}>
-                      🕐 {t('home.sowSoonTitle')}
-                    </Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.sowScroll}>
-                      <View style={s.sowRow}>
-                        {sowingData.soon.map((crop) => (
-                          <Pressable
-                            key={crop.id}
-                            onPress={() => router.push(`/plant/new?cropId=${crop.id}` as any)}
-                            style={({ pressed }) => [
-                              s.sowChip,
-                              { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 },
-                            ]}
-                          >
-                            <Text style={s.sowChipEmoji}>{crop.emoji}</Text>
-                            <Text style={[s.sowChipName, { color: colors.textSecondary }]} numberOfLines={1}>
-                              {t('crops.' + crop.id + '.name')}
-                            </Text>
-                          </Pressable>
-                        ))}
-                      </View>
-                    </ScrollView>
-                  </>
+                {weeklyTasks.length > 5 && (
+                  <Text style={[s.todayMore, { color: colors.textSecondary }]}>+{weeklyTasks.length - 5} más</Text>
                 )}
               </View>
             )}
 
-            {/* Weekly tasks */}
+            {/* Stats — horizontal scroll, no wrapping */}
             {plants.count > 0 && (
-              <View style={[s.weeklyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                <Pressable
-                  onPress={() => setWeeklyExpanded((v) => !v)}
-                  style={s.weeklyHeader}
-                  hitSlop={8}
-                >
-                  <Text style={[s.weeklySectionTitle, { color: colors.text }]}>
-                    📋 {t('home.weeklyTasks')}
-                    {weeklyTasks.length > 0 && (
-                      <Text style={[s.weeklyBadge, { color: colors.primary }]}> ({weeklyTasks.length})</Text>
-                    )}
-                  </Text>
-                  <Ionicons
-                    name={weeklyExpanded ? 'chevron-up' : 'chevron-down'}
-                    size={16}
-                    color={colors.textSecondary}
-                  />
-                </Pressable>
-                {weeklyExpanded && (
-                  weeklyTasks.length === 0 ? (
-                    <Text style={[s.weeklyEmpty, { color: colors.textSecondary }]}>
-                      {t('home.weeklyTasksEmpty')}
-                    </Text>
-                  ) : (
-                    weeklyTasks.map((task, i) => (
-                      <Pressable
-                        key={i}
-                        onPress={() => router.push(`/plant/${task.plantId}`)}
-                        style={({ pressed }) => [
-                          s.weeklyRow,
-                          { borderTopColor: colors.border, opacity: pressed ? 0.7 : 1 },
-                        ]}
-                      >
-                        <Text style={s.weeklyEmoji}>{task.emoji}</Text>
-                        <Text style={[s.weeklyLabel, { color: colors.text }]} numberOfLines={1}>
-                          {task.label}
-                        </Text>
-                        <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} />
-                      </Pressable>
-                    ))
-                  )
-                )}
-              </View>
-            )}
-
-            {/* Stats link — solo con plantas */}
-            {plants.count > 0 && (
-              <Pressable
-                onPress={() => router.push('/stats')}
-                style={({ pressed }) => [
-                  s.statsLink,
-                  { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 },
-                ]}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={s.statsRow}
+                style={{ marginBottom: spacing.xl }}
               >
-                <Ionicons name="bar-chart-outline" size={16} color={colors.primary} />
-                <Text style={[s.statsLinkText, { color: colors.primary }]}>{t('home.viewStats')}</Text>
-                <Ionicons name="chevron-forward" size={14} color={colors.primary} />
-              </Pressable>
+                <StatCard emoji="🌱" value={plants.count} label={t('home.stats.plants')} onPress={() => router.push('/plant/new')} />
+                {harvestingCount > 0 && (
+                  <StatCard emoji="🧺" value={harvestingCount} label={t('home.stats.harvesting')} onPress={() => setStatusFilter(statusFilter === 'harvesting' ? null : 'harvesting')} />
+                )}
+                {activeReminders > 0 && (
+                  <StatCard emoji="🔔" value={activeReminders} label={t('home.stats.reminders')} onPress={() => router.push('/settings/notifications' as any)} />
+                )}
+                {activePests > 0 && (
+                  <StatCard emoji="🐛" value={activePests} label={t('home.stats.pests')} onPress={() => router.push('/disease-guide' as any)} />
+                )}
+                {needsWaterCount > 0 && (
+                  <StatCard emoji="💧" value={needsWaterCount} label={t('home.stats.needsWater')} onPress={handleWaterAll} />
+                )}
+                {yearHarvestKg > 0 && (
+                  <StatCard emoji="⚖️" value={`${yearHarvestKg.toFixed(1)}kg`} label={t('home.stats.yearKg')} onPress={() => router.push('/stats')} />
+                )}
+              </ScrollView>
             )}
 
-            {/* Section title + Regar todo */}
+            {/* My Plants section header + controls */}
             {plants.count > 0 && (
               <>
                 <View style={s.sectionRow}>
@@ -835,13 +538,7 @@ export default function DashboardScreen() {
                   <View style={{ flexDirection: 'row', gap: spacing.sm, alignItems: 'center' }}>
                     <Pressable
                       onPress={() => setSortBy((cur) => cur === 'default' ? 'name' : cur === 'name' ? 'newest' : 'default')}
-                      style={[
-                        s.sortBtn,
-                        {
-                          backgroundColor: sortBy !== 'default' ? colors.primary + '18' : colors.surfaceAlt,
-                          borderColor: sortBy !== 'default' ? colors.primary : colors.border,
-                        },
-                      ]}
+                      style={[s.sortBtn, { backgroundColor: sortBy !== 'default' ? colors.primary + '18' : colors.surfaceAlt, borderColor: sortBy !== 'default' ? colors.primary : colors.border }]}
                     >
                       <Ionicons name="swap-vertical-outline" size={13} color={sortBy !== 'default' ? colors.primary : colors.textSecondary} />
                       <Text style={[s.sortBtnText, { color: sortBy !== 'default' ? colors.primary : colors.textSecondary }]}>
@@ -850,10 +547,7 @@ export default function DashboardScreen() {
                     </Pressable>
                     <Pressable
                       onPress={handleWaterAll}
-                      style={({ pressed }) => [
-                        s.waterAllBtn,
-                        { backgroundColor: '#29B6F6' + '22', borderColor: '#29B6F6', opacity: pressed ? 0.7 : 1 },
-                      ]}
+                      style={({ pressed }) => [s.waterAllBtn, { backgroundColor: '#29B6F6' + '22', borderColor: '#29B6F6', opacity: pressed ? 0.7 : 1 }]}
                     >
                       <Text style={s.waterAllText}>{t('home.waterAll')}</Text>
                     </Pressable>
@@ -861,16 +555,12 @@ export default function DashboardScreen() {
                 </View>
                 {hideFinished && finishedCount > 0 && !statusFilter && (
                   <Pressable onPress={() => setHideFinished(false)} style={s.showFinishedLink}>
-                    <Text style={[s.showFinishedText, { color: colors.textSecondary }]}>
-                      {t('home.showFinished', { count: finishedCount })}
-                    </Text>
+                    <Text style={[s.showFinishedText, { color: colors.textSecondary }]}>{t('home.showFinished', { count: finishedCount })}</Text>
                   </Pressable>
                 )}
                 {!hideFinished && finishedCount > 0 && (
                   <Pressable onPress={() => setHideFinished(true)} style={s.showFinishedLink}>
-                    <Text style={[s.showFinishedText, { color: colors.textSecondary }]}>
-                      {t('home.hideFinished')}
-                    </Text>
+                    <Text style={[s.showFinishedText, { color: colors.textSecondary }]}>{t('home.hideFinished')}</Text>
                   </Pressable>
                 )}
                 {plants.count > 4 && (
@@ -905,13 +595,7 @@ export default function DashboardScreen() {
                     >
                       <Pressable
                         onPress={() => setStatusFilter(null)}
-                        style={[
-                          s.filterChip,
-                          {
-                            backgroundColor: !statusFilter ? colors.primary + '22' : colors.surfaceAlt,
-                            borderColor: !statusFilter ? colors.primary : colors.border,
-                          },
-                        ]}
+                        style={[s.filterChip, { backgroundColor: !statusFilter ? colors.primary + '22' : colors.surfaceAlt, borderColor: !statusFilter ? colors.primary : colors.border }]}
                       >
                         <Text style={[s.filterChipText, { color: !statusFilter ? colors.primary : colors.textSecondary }]}>
                           {t('home.filterAll')} ({plants.items.length})
@@ -925,13 +609,7 @@ export default function DashboardScreen() {
                           <Pressable
                             key={st}
                             onPress={() => setStatusFilter(active ? null : st)}
-                            style={[
-                              s.filterChip,
-                              {
-                                backgroundColor: active ? cfg.color + '22' : colors.surfaceAlt,
-                                borderColor: active ? cfg.color : colors.border,
-                              },
-                            ]}
+                            style={[s.filterChip, { backgroundColor: active ? cfg.color + '22' : colors.surfaceAlt, borderColor: active ? cfg.color : colors.border }]}
                           >
                             <Text style={[s.filterChipText, { color: active ? cfg.color : colors.textSecondary }]}>
                               {cfg.emoji} {t('plantStatus.' + st)} ({count})
@@ -947,16 +625,145 @@ export default function DashboardScreen() {
           </>
         }
         ListEmptyComponent={null}
+        ListFooterComponent={
+          <>
+            {/* Sow Now */}
+            {(sowingData.now.length > 0 || sowingData.soon.length > 0) && (
+              <View style={[s.sowCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                {sowingData.now.length > 0 && (
+                  <>
+                    <Text style={[s.sowSectionLabel, { color: colors.primary }]}>🌱 {t('home.sowNowTitle')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.sowScroll}>
+                      <View style={s.sowRow}>
+                        {sowingData.now.map((crop) => (
+                          <Pressable
+                            key={crop.id}
+                            onPress={() => router.push(`/plant/new?cropId=${crop.id}` as any)}
+                            style={({ pressed }) => [s.sowChip, { backgroundColor: colors.primary + '18', borderColor: colors.primary, opacity: pressed ? 0.7 : 1 }]}
+                          >
+                            <Text style={s.sowChipEmoji}>{crop.emoji}</Text>
+                            <Text style={[s.sowChipName, { color: colors.text }]} numberOfLines={1}>{t('crops.' + crop.id + '.name')}</Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  </>
+                )}
+                {sowingData.soon.length > 0 && (
+                  <>
+                    <Text style={[s.sowSectionLabel, { color: colors.textSecondary, marginTop: sowingData.now.length > 0 ? 10 : 0 }]}>🕐 {t('home.sowSoonTitle')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.sowScroll}>
+                      <View style={s.sowRow}>
+                        {sowingData.soon.map((crop) => (
+                          <Pressable
+                            key={crop.id}
+                            onPress={() => router.push(`/plant/new?cropId=${crop.id}` as any)}
+                            style={({ pressed }) => [s.sowChip, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
+                          >
+                            <Text style={s.sowChipEmoji}>{crop.emoji}</Text>
+                            <Text style={[s.sowChipName, { color: colors.textSecondary }]} numberOfLines={1}>{t('crops.' + crop.id + '.name')}</Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  </>
+                )}
+              </View>
+            )}
+
+            {/* Weather */}
+            {(weather || weatherLoading) && (
+              <View style={[s.weatherCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                {weatherLoading || !weather ? (
+                  <View style={s.weatherLoading}>
+                    <Text style={[s.weatherLoadingText, { color: colors.textSecondary }]}>{t('home.weatherLoading')}</Text>
+                  </View>
+                ) : (
+                  <>
+                    <View style={s.weatherTodayRow}>
+                      <Text style={s.weatherMainEmoji}>{getWeatherLabel(weather.today.weatherCode).emoji}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[s.weatherProvince, { color: colors.textSecondary }]}>{weather.province}</Text>
+                        <Text style={[s.weatherLabel, { color: colors.text }]}>{t(getWeatherLabel(weather.today.weatherCode).key)}</Text>
+                      </View>
+                      <View style={s.weatherTemps}>
+                        <Text style={[s.weatherTempMax, { color: colors.text }]}>{weather.today.tempMax}°</Text>
+                        <Text style={[s.weatherTempMin, { color: colors.textSecondary }]}>{weather.today.tempMin}°</Text>
+                      </View>
+                    </View>
+                    <View style={[s.forecastRow, { borderTopColor: colors.border }]}>
+                      {weather.forecast.map((day) => {
+                        const lbl = getWeatherLabel(day.weatherCode);
+                        const date = new Date(day.date + 'T12:00:00');
+                        const intlLocale = i18n.language === 'val' ? 'ca-ES' : i18n.language;
+                        const dayName = new Intl.DateTimeFormat(intlLocale, { weekday: 'short' }).format(date);
+                        return (
+                          <View key={day.date} style={s.forecastDay}>
+                            <Text style={[s.forecastDayName, { color: colors.textSecondary }]}>{dayName.charAt(0).toUpperCase() + dayName.slice(1, 3)}</Text>
+                            <Text style={s.forecastEmoji}>{lbl.emoji}</Text>
+                            <Text style={[s.forecastTemp, { color: colors.text }]}>{day.tempMax}°</Text>
+                            {day.rainProbability > 0 && <Text style={s.forecastRain}>💧{day.rainProbability}%</Text>}
+                          </View>
+                        );
+                      })}
+                    </View>
+                    <View style={[s.wateringAdviceBanner, {
+                      backgroundColor: weather.wateringAdvice === 'skip' ? '#29B6F618' : weather.wateringAdvice === 'reduce' ? '#FFA72618' : colors.surfaceAlt,
+                      borderColor: weather.wateringAdvice === 'skip' ? '#29B6F6' : weather.wateringAdvice === 'reduce' ? '#FFA726' : colors.border,
+                    }]}>
+                      <Text style={[s.wateringAdviceText, { color: colors.text }]}>{t(weather.wateringKey, weather.wateringParams)}</Text>
+                    </View>
+                  </>
+                )}
+              </View>
+            )}
+
+            {/* Lunar */}
+            <Pressable
+              onPress={() => router.push('/(tabs)/calendar' as any)}
+              style={({ pressed }) => [s.lunarCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderColor: colors.border, overflow: 'hidden', opacity: pressed ? 0.85 : 1 }]}
+            >
+              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+              <View style={s.lunarLeft}>
+                <Text style={s.lunarMoonEmoji}>{lunar.phaseEmoji}</Text>
+                <View style={[s.lunarIllumBar, { backgroundColor: colors.border }]}>
+                  <View style={[s.lunarIllumFill, { width: `${lunar.illumination}%` as any, backgroundColor: colors.primary }]} />
+                </View>
+                <Text style={[s.lunarIllumText, { color: colors.textSecondary }]}>{lunar.illumination}%</Text>
+              </View>
+              <View style={s.lunarCenter}>
+                <Text style={[s.lunarPhaseName, { color: colors.text }]}>{t(lunar.phaseKey)}</Text>
+                <Text style={[s.lunarGardening, { color: colors.primary }]}>{lunar.gardeningEmoji} {t(`lunar.gardeningLabel.${lunar.gardeningType}`)}</Text>
+                <Text style={[s.lunarRec, { color: colors.textSecondary }]} numberOfLines={2}>{t(`lunar.recommendation.${lunar.gardeningType}`)}</Text>
+              </View>
+              <View style={s.lunarRight}>
+                <Text style={[s.lunarDay, { color: colors.textDisabled }]}>{t('home.lunarDay')}</Text>
+                <Text style={[s.lunarDayNum, { color: colors.text }]}>{lunar.dayInCycle}</Text>
+              </View>
+            </Pressable>
+
+            {/* Stats link */}
+            {plants.count > 0 && (
+              <Pressable
+                onPress={() => router.push('/stats')}
+                style={({ pressed }) => [s.statsLink, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
+              >
+                <Ionicons name="bar-chart-outline" size={16} color={colors.primary} />
+                <Text style={[s.statsLinkText, { color: colors.primary }]}>{t('home.viewStats')}</Text>
+                <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+              </Pressable>
+            )}
+
+            <View style={{ height: 100 }} />
+          </>
+        }
         renderItem={renderPlantCard}
       />
 
       {/* FAB */}
       <Pressable
         onPress={() => router.push('/plant/new')}
-        style={({ pressed }) => [
-          s.fab,
-          { ...shadows.lg, backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
-        ]}
+        style={({ pressed }) => [s.fab, { ...shadows.lg, backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 }]}
       >
         <Ionicons name="add" size={28} color="#fff" />
       </Pressable>
@@ -972,7 +779,7 @@ export default function DashboardScreen() {
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => setShowWaterAllModal(false)} />
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ justifyContent: 'flex-end' }}>
           <Pressable onPress={() => {}} style={[{ backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing.xl, paddingBottom: 36, gap: spacing.lg, overflow: 'hidden' }]}>
-              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+            {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
             <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: spacing.sm }} />
             <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text }}>
               💧 {t('home.waterAllTitle')}
@@ -1037,38 +844,62 @@ const makeStyles = (
       paddingHorizontal: spacing.xl,
       paddingTop: spacing.lg,
       paddingBottom: spacing.md,
+      gap: spacing.sm,
     },
     headerTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
-    headerBadgesRow: {
+    headerSub: { fontSize: fontSize.xs, marginTop: 1 },
+    headerBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    // Today card
+    todayCard: {
+      marginHorizontal: spacing.xl,
+      marginBottom: spacing.md,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      borderLeftWidth: 4,
+      overflow: 'hidden',
+    },
+    todayTitle: {
+      fontSize: fontSize.sm,
+      fontWeight: fontWeight.bold,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+    },
+    todayCount: { fontWeight: fontWeight.bold },
+    todayRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.xs,
-      marginTop: 2,
-      flexWrap: 'wrap',
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderTopWidth: StyleSheet.hairlineWidth,
     },
-    zoneBadge: {
-      alignSelf: 'flex-start',
-      paddingHorizontal: spacing.sm,
-      paddingVertical: 2,
-      borderRadius: radii.full,
-      borderWidth: 1,
+    todayEmoji: { fontSize: 16, width: 22, textAlign: 'center' },
+    todayLabel: { flex: 1, fontSize: fontSize.sm },
+    todayEmpty: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: 'transparent',
     },
-    zoneBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
-    streakBadge: {
-      paddingHorizontal: spacing.sm,
-      paddingVertical: 2,
-      borderRadius: radii.full,
-    },
-    streakBadgeText: {
-      fontSize: fontSize.xs,
-      fontWeight: fontWeight.bold,
-      color: '#FF6D00',
-    },
+    todayEmptyText: { fontSize: fontSize.sm },
+    todayMore: { fontSize: fontSize.xs, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
+    // Stats
     statsRow: {
       flexDirection: 'row',
       paddingHorizontal: spacing.xl,
       gap: spacing.sm,
-      marginBottom: spacing.xl,
+      paddingVertical: spacing.xs,
     },
     sectionRow: {
       flexDirection: 'row',
@@ -1092,7 +923,7 @@ const makeStyles = (
       fontWeight: fontWeight.semibold,
       color: '#29B6F6',
     },
-    listContent: { paddingBottom: 100 },
+    listContent: { paddingBottom: 0 },
     columnWrapper: {
       paddingHorizontal: spacing.xl,
       gap: spacing.sm,
@@ -1171,14 +1002,7 @@ const makeStyles = (
       borderWidth: 1.5,
     },
     filterChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
-    mapBtn: {
-      width: 40,
-      height: 40,
-      borderRadius: radii.md,
-      borderWidth: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
+    // Footer cards
     weatherCard: {
       marginHorizontal: spacing.xl,
       marginBottom: spacing.md,
@@ -1220,25 +1044,6 @@ const makeStyles = (
       borderWidth: 1,
     },
     wateringAdviceText: { fontSize: fontSize.xs, lineHeight: 18 },
-    mapCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      borderRadius: radii.xl,
-      borderWidth: StyleSheet.hairlineWidth,
-      overflow: 'hidden',
-      marginHorizontal: spacing.xl,
-      marginBottom: spacing.md,
-      gap: spacing.md,
-      paddingRight: spacing.md,
-    },
-    mapCardLeft: {
-      width: 64,
-      height: 64,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    mapCardTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
-    mapCardSub: { fontSize: fontSize.xs, marginTop: 2 },
     lunarCard: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -1262,37 +1067,6 @@ const makeStyles = (
     lunarRight: { alignItems: 'center', minWidth: 32 },
     lunarDay: { fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5 },
     lunarDayNum: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
-    weeklyCard: {
-      marginHorizontal: spacing.xl,
-      marginBottom: spacing.md,
-      borderRadius: radii.lg,
-      borderWidth: 1,
-      overflow: 'hidden',
-    },
-    weeklyHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-    },
-    weeklySectionTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-    weeklyBadge: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-    weeklyEmpty: {
-      fontSize: fontSize.sm,
-      paddingHorizontal: spacing.lg,
-      paddingBottom: spacing.md,
-    },
-    weeklyRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm,
-      borderTopWidth: StyleSheet.hairlineWidth,
-    },
-    weeklyEmoji: { fontSize: 16, width: 22, textAlign: 'center' },
-    weeklyLabel: { flex: 1, fontSize: fontSize.sm },
     statsLink: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -1398,5 +1172,14 @@ const makeStyles = (
       color: '#fff',
       fontSize: fontSize.md,
       fontWeight: fontWeight.bold,
+    },
+    // Legacy alias kept for mapBtn usage → now headerBtn
+    mapBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
   });
