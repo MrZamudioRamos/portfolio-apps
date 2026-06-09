@@ -3,7 +3,8 @@
     "home": "Nire Baratzea",
     "calendar": "Egutegia",
     "diary": "Egunkaria",
-    "settings": "Ezarpenak"
+    "settings": "Ezarpenak",
+    "tools": "Tresnak"
   },
   "common": {
     "cancel": "Utzi",
@@ -69,7 +70,8 @@
     "showFinished": "{{count}} amaituta ezkutatuta · Ikusi",
     "hideFinished": "Ezkutatu amaitutakoak",
     "taskCarencia": "{{name}}: ez bildu {{days}} egun gehiago (itxaronaldia)",
-    "waterAllLitersHint": "landare aktiboen artean banatuko dira"
+    "waterAllLitersHint": "landare aktiboen artean banatuko dira",
+    "mapCardSub": "{{count}} landare · Mapa ikusi"
   },
   "calendar": {
     "title": "Erein egutegia",
@@ -1370,5 +1372,8 @@
       "Aza",
       "Abe"
     ]
+  },
+  "tools": {
+    "title": "Tresnak"
   }
 }

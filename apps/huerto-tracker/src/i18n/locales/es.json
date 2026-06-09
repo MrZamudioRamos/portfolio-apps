@@ -3,7 +3,8 @@
     "home": "Mi Huerto",
     "calendar": "Calendario",
     "diary": "Diario",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "tools": "Herramientas"
   },
   "common": {
     "cancel": "Cancelar",
@@ -70,7 +71,8 @@
     "hideFinished": "Ocultar finalizadas",
     "taskCarencia": "{{name}}: no cosechar {{days}} día(s) más (carencia)",
     "waterAllLitersHint": "se repartirán entre plantas activas",
-    "defaultGardenName": "Mi Huerto"
+    "defaultGardenName": "Mi Huerto",
+    "mapCardSub": "{{count}} plantas · Ver mapa"
   },
   "calendar": {
     "title": "Calendario de siembra",
@@ -1708,5 +1710,8 @@
       "Nov",
       "Dic"
     ]
+  },
+  "tools": {
+    "title": "Herramientas"
   }
 }

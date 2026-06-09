@@ -44,6 +44,39 @@ import { PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringStatus';
 import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { useGardenLayout, type GridLayout } from '../../src/hooks/useGardenLayout';
+
+// Tiny grid thumbnail — shows occupied vs empty cells at a glance
+function MiniGrid({ layout, cols, rows, primaryColor, surfaceColor }: {
+  layout: GridLayout; cols: number; rows: number;
+  primaryColor: string; surfaceColor: string;
+}) {
+  const occupiedIds = new Set(layout.filter(Boolean));
+  const MAX_COLS = Math.min(cols, 7);
+  const MAX_ROWS = Math.min(rows, 6);
+  const cell = Math.floor(56 / MAX_COLS) - 1;
+  return (
+    <View style={{ width: 64, height: 64, alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+      {Array.from({ length: MAX_ROWS }).map((_, r) => (
+        <View key={r} style={{ flexDirection: 'row', gap: 1 }}>
+          {Array.from({ length: MAX_COLS }).map((_, c) => {
+            const idx = r * cols + c;
+            const pid = layout[idx];
+            return (
+              <View
+                key={c}
+                style={{
+                  width: cell, height: cell, borderRadius: 2,
+                  backgroundColor: pid ? primaryColor + 'CC' : surfaceColor,
+                }}
+              />
+            );
+          })}
+        </View>
+      ))}
+    </View>
+  );
+}
 import { Illustration } from '../../src/components/Illustration';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
@@ -55,6 +88,7 @@ export default function DashboardScreen() {
   const { t, i18n } = useTranslation();
 
   const { activeGarden: garden, gardens: allGardens, gardensLoading, refreshActiveId } = useActiveGarden();
+  const { layout: gardenLayout } = useGardenLayout(garden?.id, garden?.gridRows, garden?.gridCols);
   const { isGuest } = useSession();
   const allPlants = useCollection<Plant>('plants');
 
@@ -414,6 +448,7 @@ export default function DashboardScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={s.header}>
+        {/* Title + badges — left */}
         <View style={{ flex: 1 }}>
           <Text style={[s.headerTitle, { color: colors.text }]} numberOfLines={1}>
             {garden?.name ?? t('home.defaultGardenName')}
@@ -440,6 +475,8 @@ export default function DashboardScreen() {
             )}
           </View>
         </View>
+
+        {/* Right side buttons */}
         {allGardens.length > 1 && (
           <Pressable
             onPress={() => router.push('/gardens' as any)}
@@ -449,19 +486,14 @@ export default function DashboardScreen() {
             <Ionicons name="swap-horizontal-outline" size={18} color={colors.primary} />
           </Pressable>
         )}
+
+        {/* ⚙️ Settings */}
         <Pressable
-          onPress={() => router.push('/catalog' as any)}
-          style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
-          hitSlop={8}
-        >
-          <Ionicons name="library-outline" size={20} color={colors.primary} />
-        </Pressable>
-        <Pressable
-          onPress={() => router.push('/garden/map')}
+          onPress={() => router.push('/(tabs)/settings' as any)}
           style={({ pressed }) => [s.mapBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
           hitSlop={8}
         >
-          <Ionicons name="map-outline" size={20} color={colors.primary} />
+          <Ionicons name="settings-outline" size={20} color={colors.textSecondary} />
         </Pressable>
       </View>
 
@@ -520,6 +552,28 @@ export default function DashboardScreen() {
                   />
                 )}
               </View>
+            )}
+
+            {/* Garden map card — tap to open full map */}
+            {garden && (
+              <Pressable
+                onPress={() => router.push('/garden/map')}
+                style={({ pressed }) => [
+                  s.mapCard,
+                  { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.88 : 1 },
+                ]}
+              >
+                <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '18' }]}>
+                  <Text style={{ fontSize: 32 }}>🗺️</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.mapCardTitle, { color: colors.text }]}>{garden.name}</Text>
+                  <Text style={[s.mapCardSub, { color: colors.textSecondary }]}>
+                    {t('home.mapCardSub', { count: plants.count })}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
+              </Pressable>
             )}
 
             {/* Lunar widget */}
@@ -1163,6 +1217,25 @@ const makeStyles = (
       borderWidth: 1,
     },
     wateringAdviceText: { fontSize: fontSize.xs, lineHeight: 18 },
+    mapCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderRadius: radii.xl,
+      borderWidth: StyleSheet.hairlineWidth,
+      overflow: 'hidden',
+      marginHorizontal: spacing.xl,
+      marginBottom: spacing.md,
+      gap: spacing.md,
+      paddingRight: spacing.md,
+    },
+    mapCardLeft: {
+      width: 64,
+      height: 64,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    mapCardTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    mapCardSub: { fontSize: fontSize.xs, marginTop: 2 },
     lunarCard: {
       flexDirection: 'row',
       alignItems: 'center',

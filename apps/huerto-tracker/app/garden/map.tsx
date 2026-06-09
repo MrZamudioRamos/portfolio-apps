@@ -61,7 +61,7 @@ export default function GardenMapScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
 
-  const { activeGarden: garden, refreshActiveId } = useActiveGarden();
+  const { activeGarden: garden, gardens: allGardens, refreshActiveId } = useActiveGarden();
   const gardens = useCollection<Garden>('gardens');
   const { customCropsById } = useCustomCrops();
   const gridRows = garden?.gridRows ?? DEFAULT_GRID_ROWS;
@@ -416,6 +416,15 @@ export default function GardenMapScreen() {
               {t('gardenMap.summary', { placed: placedPlantIds.size, total: gardenPlants.length, cols: gridCols, rows: gridRows })}
             </Text>
           </View>
+          {allGardens.length > 1 && (
+            <Pressable
+              onPress={() => router.push('/gardens' as any)}
+              hitSlop={12}
+              style={{ marginRight: spacing.sm }}
+            >
+              <Ionicons name="swap-horizontal-outline" size={20} color={colors.primary} />
+            </Pressable>
+          )}
           <Pressable
             onPress={() => router.push('/garden/edit')}
             hitSlop={12}
