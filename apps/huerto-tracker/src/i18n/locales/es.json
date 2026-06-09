@@ -531,7 +531,12 @@
     "varietyGeneric": "Genérica",
     "goodWith": "Buenas compañeras: ",
     "scanTitle": "Identificar planta con IA",
-    "scanDesc": "Fotografía tu planta y la detectamos automáticamente"
+    "scanDesc": "Fotografía tu planta y la detectamos automáticamente",
+    "propagationLabel": "MÉTODO DE INICIO",
+    "propSeed": "Semilla",
+    "propCutting": "Esqueje",
+    "propDivision": "División",
+    "propBought": "Compra"
   },
   "plantDetail": {
     "notFound": "Planta no encontrada",
@@ -582,6 +587,12 @@
     "transplantOut": "Exterior",
     "daysToTransplant_one": "{{count}} día para el trasplante",
     "daysToTransplant_other": "{{count}} días para el trasplante",
+    "germinationQ": "¿Ha germinado?",
+    "germinationExpected": "Tiempo esperado: {{days}} días",
+    "germinatedTitle": "¡Ha germinado! 🎉",
+    "germinatedDays_one": "Hace {{count}} día",
+    "germinatedDays_other": "Hace {{count}} días",
+    "germinatedNote": "Germinación registrada",
     "transplantModalTitle": "Registrar trasplante",
     "transplantDateLabel": "FECHA DE TRASPLANTE",
     "transplantConfirm": "Confirmar trasplante",
@@ -626,6 +637,22 @@
     "companions": {
       "empty": "Sin asociaciones registradas"
     }
+  },
+  "chat": {
+    "title": "Asistente IA",
+    "contextInfo": "Sé sobre tu huerto en {{province}}",
+    "placeholder": "Pregunta sobre tu huerto…",
+    "send": "Enviar",
+    "thinking": "Pensando…",
+    "error": "Error al conectar. Comprueba tu conexión e inténtalo de nuevo.",
+    "proTitle": "Asistente IA — Semilla Pro",
+    "proDesc": "Pregunta sobre plagas, siembra, cuidados y más. El asistente conoce tu huerto.",
+    "proBtn": "Activar Semilla Pro",
+    "emptyTitle": "Hola, soy Semilla",
+    "emptyDesc": "Pregúntame lo que quieras sobre tu huerto",
+    "suggest1": "¿Qué puedo sembrar este mes?",
+    "suggest2": "¿Cómo trato la mosca blanca?",
+    "suggest3": "¿Cuándo trasplantar los tomates?"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",

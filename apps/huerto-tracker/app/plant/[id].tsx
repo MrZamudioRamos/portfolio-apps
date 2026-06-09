@@ -25,6 +25,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { INDOOR_START, getSeedlingSchedule } from '../../src/data/indoorStart';
+import type { PropagationMethod } from '../../src/models/plant';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
@@ -532,6 +533,44 @@ export default function PlantDetailScreen() {
                   </Text>
                 )}
               </View>
+            );
+          })()}
+
+          {/* Germination tracker */}
+          {plant.propagationMethod === 'seed' && plant.status === 'seedling' && (() => {
+            if (plant.germinationDate) {
+              const days = Math.floor((Date.now() - new Date(plant.germinationDate + 'T12:00:00').getTime()) / 86_400_000);
+              return (
+                <View style={[s.transplantCta, { backgroundColor: '#4CAF5010', borderColor: '#4CAF5050', marginBottom: spacing.md }]}>
+                  <Text style={{ fontSize: 20 }}>🌿</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.transplantCtaTitle, { color: '#2E7D32' }]}>{t('plantDetail.germinatedTitle')}</Text>
+                    <Text style={[s.transplantCtaDesc, { color: colors.textSecondary }]}>
+                      {t('plantDetail.germinatedDays', { count: days })}
+                    </Text>
+                  </View>
+                </View>
+              );
+            }
+            const cfg = INDOOR_START[crop.id];
+            const expectedDays = cfg ? `${cfg.germinationDays[0]}–${cfg.germinationDays[1]}` : '5–10';
+            return (
+              <Pressable
+                onPress={async () => {
+                  await plants.update(id, { germinationDate: todayStr() });
+                  await entries.create({ gardenId: plant.gardenId, plantId: id, type: 'note', date: todayStr(), notes: '🌿 ' + t('plantDetail.germinatedNote') });
+                }}
+                style={[s.transplantCta, { backgroundColor: '#FFA72610', borderColor: '#FFA72650', marginBottom: spacing.md }]}
+              >
+                <Text style={{ fontSize: 20 }}>🌰</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.transplantCtaTitle, { color: '#E65100' }]}>{t('plantDetail.germinationQ')}</Text>
+                  <Text style={[s.transplantCtaDesc, { color: colors.textSecondary }]}>
+                    {t('plantDetail.germinationExpected', { days: expectedDays })}
+                  </Text>
+                </View>
+                <Ionicons name="checkmark-circle-outline" size={20} color="#E65100" />
+              </Pressable>
             );
           })()}
 

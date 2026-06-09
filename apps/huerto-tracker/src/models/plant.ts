@@ -11,6 +11,8 @@ export type PlantStatus =
 
 export type PestStatus = 'none' | 'active' | 'treated';
 
+export type PropagationMethod = 'seed' | 'cutting' | 'division' | 'bought';
+
 export interface Plant extends BaseItem {
   gardenId: string;
   cropId: string;
@@ -29,6 +31,8 @@ export interface Plant extends BaseItem {
   soilTexture?: 'sandy' | 'loamy' | 'clay' | 'silty' | 'peaty';
   soilNotes?: string;
   bedName?: string;
+  propagationMethod?: PropagationMethod;
+  germinationDate?: string;
 }
 
 export const PLANT_STATUS_CONFIG: Record<

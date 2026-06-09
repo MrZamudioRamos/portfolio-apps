@@ -503,7 +503,12 @@
     "varietyGeneric": "Xenérica",
     "goodWith": "Boas compañeiras: ",
     "scanTitle": "Identificar planta con IA",
-    "scanDesc": "Fotografía a planta e detectámola automaticamente"
+    "scanDesc": "Fotografía a planta e detectámola automaticamente",
+    "propagationLabel": "MÉTODO DE INICIO",
+    "propSeed": "Semente",
+    "propCutting": "Esquexe",
+    "propDivision": "División",
+    "propBought": "Compra"
   },
   "plantDetail": {
     "notFound": "Planta non atopada",
@@ -546,6 +551,12 @@
     "photoTimeline": "📸 Fotos de progreso",
     "transplantCta": "Lista para transplantar?",
     "transplantCtaDesc": "{{days}} dias no semilleiro",
+    "germinationQ": "Xa xerminou?",
+    "germinationExpected": "Tempo esperado: {{days}} días",
+    "germinatedTitle": "Xerminou! 🎉",
+    "germinatedDays_one": "Hai {{count}} día",
+    "germinatedDays_other": "Hai {{count}} días",
+    "germinatedNote": "Xerminación rexistrada",
     "seedlingGuide": "Guía de semilleiro",
     "indoorStart": "Interior",
     "hardening": "Endurece",
@@ -597,6 +608,22 @@
     "companions": {
       "empty": "Sen asociacións rexistradas"
     }
+  },
+  "chat": {
+    "title": "Asistente IA",
+    "contextInfo": "Sei sobre a túa horta en {{province}}",
+    "placeholder": "Pregunta sobre a túa horta…",
+    "send": "Enviar",
+    "thinking": "Pensando…",
+    "error": "Erro de conexión. Comproba a conexión e téntao de novo.",
+    "proTitle": "Asistente IA — Semilla Pro",
+    "proDesc": "Pregunta sobre pragas, sementeira, coidados e máis.",
+    "proBtn": "Activar Semilla Pro",
+    "emptyTitle": "Ola, son Semilla",
+    "emptyDesc": "Pregúntame o que queiras sobre a túa horta",
+    "suggest1": "Que podo sementar este mes?",
+    "suggest2": "Como trato a mosca branca?",
+    "suggest3": "Cando trasplantar os tomates?"
   },
   "reminderEdit": {
     "title": "Editar recordatorio",

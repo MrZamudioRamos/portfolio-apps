@@ -503,7 +503,12 @@
     "varietyGeneric": "Generikoa",
     "goodWith": "Lagun onak: ",
     "scanTitle": "Landarea identifikatu AArekin",
-    "scanDesc": "Argazkia atera eta automatikoki detektatzen dugu"
+    "scanDesc": "Argazkia atera eta automatikoki detektatzen dugu",
+    "propagationLabel": "HASIERA METODOA",
+    "propSeed": "Hazia",
+    "propCutting": "Ebakia",
+    "propDivision": "Zatiketa",
+    "propBought": "Erositako"
   },
   "plantDetail": {
     "notFound": "Landarea ez da aurkitu",
@@ -546,6 +551,12 @@
     "photoTimeline": "📸 Aurrerapen argazkiak",
     "transplantCta": "Landatzeko prest?",
     "transplantCtaDesc": "{{days}} egun hazitegian",
+    "germinationQ": "Erne da?",
+    "germinationExpected": "Espero: {{days}} egun",
+    "germinatedTitle": "Erne da! 🎉",
+    "germinatedDays_one": "Duela {{count}} egun",
+    "germinatedDays_other": "Duela {{count}} egun",
+    "germinatedNote": "Erneera erregistratuta",
     "seedlingGuide": "Hazitegi gida",
     "indoorStart": "Barruan",
     "hardening": "Gogortze",
@@ -597,6 +608,22 @@
     "companions": {
       "empty": "Asoziaziorik ez erregistratuta"
     }
+  },
+  "chat": {
+    "title": "AI Laguntzailea",
+    "contextInfo": "Zure baratzaren berri badakit: {{province}}",
+    "placeholder": "Galdetu zure baratzeari buruz…",
+    "send": "Bidali",
+    "thinking": "Pentsatzen…",
+    "error": "Konexio errorea. Egiaztatu konexioa eta saiatu berriro.",
+    "proTitle": "AI Laguntzailea — Semilla Pro",
+    "proDesc": "Galdetu izurriei, ereintzari, zaintzei eta gehiagori buruz.",
+    "proBtn": "Semilla Pro aktibatu",
+    "emptyTitle": "Kaixo, Semilla naiz",
+    "emptyDesc": "Galdetu nahi duzuna zure baratzeari buruz",
+    "suggest1": "Zer ereingo dut hilabete honetan?",
+    "suggest2": "Nola tratatu haritzurria?",
+    "suggest3": "Noiz trasplantatu tomateak?"
   },
   "reminderEdit": {
     "title": "Gogorarazlea editatu",

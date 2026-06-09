@@ -508,7 +508,12 @@
     "varietyGeneric": "Generic",
     "goodWith": "Good companions: ",
     "scanTitle": "Identify plant with AI",
-    "scanDesc": "Photograph your plant and we detect it automatically"
+    "scanDesc": "Photograph your plant and we detect it automatically",
+    "propagationLabel": "STARTING METHOD",
+    "propSeed": "Seed",
+    "propCutting": "Cutting",
+    "propDivision": "Division",
+    "propBought": "Bought"
   },
   "plantDetail": {
     "notFound": "Plant not found",
@@ -551,6 +556,12 @@
     "photoTimeline": "📸 Progress photos",
     "transplantCta": "Ready to transplant?",
     "transplantCtaDesc": "{{days}} days in seedling tray",
+    "germinationQ": "Has it germinated?",
+    "germinationExpected": "Expected: {{days}} days",
+    "germinatedTitle": "It germinated! 🎉",
+    "germinatedDays_one": "{{count}} day ago",
+    "germinatedDays_other": "{{count}} days ago",
+    "germinatedNote": "Germination recorded",
     "seedlingGuide": "Seedling guide",
     "indoorStart": "Indoor",
     "hardening": "Harden",
@@ -595,6 +606,22 @@
     "companions": {
       "empty": "No companion data registered"
     }
+  },
+  "chat": {
+    "title": "AI Assistant",
+    "contextInfo": "I know your garden in {{province}}",
+    "placeholder": "Ask about your garden…",
+    "send": "Send",
+    "thinking": "Thinking…",
+    "error": "Connection error. Check your connection and try again.",
+    "proTitle": "AI Assistant — Semilla Pro",
+    "proDesc": "Ask about pests, sowing, care and more. The assistant knows your garden.",
+    "proBtn": "Get Semilla Pro",
+    "emptyTitle": "Hi, I'm Semilla",
+    "emptyDesc": "Ask me anything about your garden",
+    "suggest1": "What can I sow this month?",
+    "suggest2": "How do I treat whitefly?",
+    "suggest3": "When should I transplant tomatoes?"
   },
   "reminderEdit": {
     "title": "Edit reminder",

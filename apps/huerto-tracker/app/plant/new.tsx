@@ -30,7 +30,7 @@ import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import { getCompanions } from '../../src/data/companions';
-import type { Plant } from '../../src/models/plant';
+import type { Plant, PropagationMethod } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import { track, EVENTS } from '../../src/analytics';
 import { persistPickedImage } from '../../src/utils/persistImage';
@@ -81,6 +81,7 @@ export default function NewPlantScreen() {
   const [sowingDate, setSowingDate] = useState(todayStr());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [propagationMethod, setPropagationMethod] = useState<PropagationMethod>('seed');
   const [saving, setSaving] = useState(false);
   const isAiFilled = scanParam === '1';
   const VALID_STATUSES: Plant['status'][] = ['seedling','transplanted','growing','flowering','fruiting','harvesting','finished'];
@@ -168,6 +169,7 @@ export default function NewPlantScreen() {
         ...(varietyId ? { varietyId } : {}),
         sowingDate,
         status: initialStatus,
+        propagationMethod,
         ...(photoUri ? { photoUri } : {}),
       });
       await diaryStore.create({
@@ -350,6 +352,37 @@ export default function NewPlantScreen() {
                 placeholderTextColor={colors.textDisabled}
                 style={[s.input, { backgroundColor: colors.surface, borderColor: variety ? colors.primary : colors.border, color: colors.text }]}
               />
+
+              {/* Propagation method */}
+              <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('plantNew.propagationLabel')}</Text>
+              <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md, flexWrap: 'wrap' }}>
+                {([
+                  { value: 'seed',     emoji: '🌱', key: 'plantNew.propSeed' },
+                  { value: 'cutting',  emoji: '✂️', key: 'plantNew.propCutting' },
+                  { value: 'division', emoji: '🌿', key: 'plantNew.propDivision' },
+                  { value: 'bought',   emoji: '🛒', key: 'plantNew.propBought' },
+                ] as const).map((opt) => {
+                  const active = propagationMethod === opt.value;
+                  return (
+                    <Pressable
+                      key={opt.value}
+                      onPress={() => setPropagationMethod(opt.value)}
+                      style={[s.dateBtn, {
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 4,
+                        backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
+                        borderColor: active ? colors.primary : colors.border,
+                      }]}
+                    >
+                      <Text style={{ fontSize: 14 }}>{opt.emoji}</Text>
+                      <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>
+                        {t(opt.key)}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
 
               {/* Sowing date */}
               <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('plantNew.sowingDate')}</Text>

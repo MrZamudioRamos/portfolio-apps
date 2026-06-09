@@ -503,7 +503,12 @@
     "varietyGeneric": "Genèrica",
     "goodWith": "Bones companyes: ",
     "scanTitle": "Identificar planta amb IA",
-    "scanDesc": "Fotografia la planta i la detectem automàticament"
+    "scanDesc": "Fotografia la planta i la detectem automàticament",
+    "propagationLabel": "MÈTODE D'INICI",
+    "propSeed": "Llavor",
+    "propCutting": "Esqueix",
+    "propDivision": "Divisió",
+    "propBought": "Compra"
   },
   "plantDetail": {
     "notFound": "Planta no trobada",
@@ -546,6 +551,12 @@
     "photoTimeline": "📸 Fotos de progrés",
     "transplantCta": "Llesta per a trasplantar?",
     "transplantCtaDesc": "{{days}} dies al planter",
+    "germinationQ": "Ha germinat?",
+    "germinationExpected": "Temps esperat: {{days}} dies",
+    "germinatedTitle": "Ha germinat! 🎉",
+    "germinatedDays_one": "Fa {{count}} dia",
+    "germinatedDays_other": "Fa {{count}} dies",
+    "germinatedNote": "Germinació registrada",
     "seedlingGuide": "Guia de planter",
     "indoorStart": "Interior",
     "hardening": "Enduriment",
@@ -597,6 +608,22 @@
     "companions": {
       "empty": "Sense associacions registrades"
     }
+  },
+  "chat": {
+    "title": "Assistent IA",
+    "contextInfo": "Conec el teu hort a {{province}}",
+    "placeholder": "Pregunta sobre el teu hort…",
+    "send": "Enviar",
+    "thinking": "Pensant…",
+    "error": "Error de connexió. Comprova la connexió i torna-ho a intentar.",
+    "proTitle": "Assistent IA — Semilla Pro",
+    "proDesc": "Pregunta sobre plagues, sembra, cures i més. L'assistent coneix el teu hort.",
+    "proBtn": "Activar Semilla Pro",
+    "emptyTitle": "Hola, soc Semilla",
+    "emptyDesc": "Pregunta'm el que vulgues sobre el teu hort",
+    "suggest1": "Què puc sembrar este mes?",
+    "suggest2": "Com tracte la mosca blanca?",
+    "suggest3": "Quan trasplantar les tomàquetes?"
   },
   "reminderEdit": {
     "title": "Editar recordatori",
