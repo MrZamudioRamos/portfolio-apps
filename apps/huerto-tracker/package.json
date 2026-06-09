@@ -17,6 +17,7 @@
     "@expo/vector-icons": "^15.0.2",
     "@portfolio/billing": "*",
     "@portfolio/notifications": "*",
+    "@portfolio/share": "*",
     "@portfolio/shared": "*",
     "@portfolio/storage": "*",
     "@portfolio/supabase": "*",

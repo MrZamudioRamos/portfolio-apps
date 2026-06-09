@@ -9,6 +9,7 @@
       "@portfolio/shared": ["../../packages/shared/src/index.ts"],
       "@portfolio/notifications": ["../../packages/notifications/src/index.ts"],
       "@portfolio/billing": ["../../packages/billing/src/index.ts"],
+      "@portfolio/share": ["../../packages/share/src/index.ts"],
       "@portfolio/supabase": ["../../packages/supabase/src/index.ts"]
     }
   },

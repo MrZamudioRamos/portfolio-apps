@@ -1,5 +1,6 @@
 import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { useStreak } from '@portfolio/share';
 import * as ImagePicker from 'expo-image-picker';
 import { persistPickedImage } from '../../src/utils/persistImage';
 import { successHaptic, tapHaptic } from '../../src/utils/haptics';
@@ -7,6 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ShareModal, type ShareModalProps } from '../../src/components/ShareModal';
 import {
   Alert,
   Image,
@@ -66,6 +68,8 @@ export default function NewEntryScreen() {
   const [treatDose, setTreatDose] = useState('');
   const [treatWaitDays, setTreatWaitDays] = useState('');
   const [saving, setSaving] = useState(false);
+  const [shareModal, setShareModal] = useState<Omit<ShareModalProps, 'visible' | 'onClose'> | null>(null);
+  const { registerActivity, isMilestone } = useStreak('huerto-tracker');
 
   async function pickPhoto() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -125,7 +129,46 @@ export default function NewEntryScreen() {
         ...(entryData ? { data: entryData } : {}),
       });
       successHaptic();
-      router.back();
+
+      // Streak + share triggers (non-blocking)
+      const { current, isNew } = await registerActivity();
+      let triggered = false;
+
+      // Trigger A: primera cosecha de esta planta
+      if (!triggered && selectedType === 'harvest' && validPlantId) {
+        const prevHarvests = entries.items.filter(
+          (e) => e.plantId === validPlantId && e.type === 'harvest'
+        );
+        if (prevHarvests.length === 0) {
+          const plant = plants.items.find((p) => p.id === validPlantId);
+          const crop = plant ? CROPS_BY_ID[plant.cropId] : null;
+          const sowDays = plant?.sowingDate
+            ? Math.floor((Date.now() - new Date(plant.sowingDate + 'T12:00:00').getTime()) / 86_400_000)
+            : null;
+          setShareModal({
+            eventType: 'first_harvest',
+            title: `Primera cosecha: ${plant?.name ?? ''}`,
+            primaryStat: sowDays != null ? `${sowDays}d` : '🎉',
+            primaryStatLabel: sowDays != null ? 'desde la siembra' : undefined,
+            badgeIcon: crop?.emoji ?? '🧺',
+          });
+          triggered = true;
+        }
+      }
+
+      // Trigger B: milestone de racha (solo si no se mostró cosecha)
+      if (!triggered && isNew && isMilestone(current)) {
+        setShareModal({
+          eventType: 'streak_milestone',
+          title: `Racha de ${current} días cuidando mi huerto`,
+          primaryStat: `${current}`,
+          primaryStatLabel: 'días consecutivos',
+          badgeIcon: '🔥',
+        });
+        triggered = true;
+      }
+
+      if (!triggered) router.back();
     } finally {
       setSaving(false);
     }
@@ -457,6 +500,14 @@ export default function NewEntryScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {shareModal && (
+        <ShareModal
+          {...shareModal}
+          visible
+          onClose={() => { setShareModal(null); router.back(); }}
+        />
+      )}
     </SafeAreaView>
   );
 }

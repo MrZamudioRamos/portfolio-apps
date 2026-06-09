@@ -1,6 +1,7 @@
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useReminders } from '@portfolio/notifications';
+import { ShareModal, type ShareModalProps } from '../../src/components/ShareModal';
 import { formatDate, formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
@@ -63,6 +64,7 @@ export default function PlantDetailScreen() {
   const { activeGarden } = useActiveGarden();
   const [cropTab, setCropTab] = useState<CropTab>('overview');
   const [cropImgErr, setCropImgErr] = useState(false);
+  const [shareModal, setShareModal] = useState<Omit<ShareModalProps, 'visible' | 'onClose'> | null>(null);
 
   const plant = plants.getById(id);
   const crop = plant
@@ -181,6 +183,31 @@ export default function PlantDetailScreen() {
 
   async function handleStatusChange(status: PlantStatus) {
     await plants.update(id, { status });
+
+    // Trigger C: season summary when last active plant is marked finished
+    if (status === 'finished' && plant && activeGarden) {
+      const gardenPlants = plants.items.filter((p) => p.gardenId === plant.gardenId);
+      if (gardenPlants.length >= 3) {
+        const activeCount = gardenPlants.filter((p) => p.id !== id && p.status !== 'finished').length;
+        if (activeCount === 0) {
+          const harvestKg = entries.items
+            .filter((e) => e.gardenId === plant.gardenId && e.type === 'harvest')
+            .reduce((sum, e) => {
+              const w = (e.data as any)?.weightGrams ?? 0;
+              return sum + (typeof w === 'number' ? w : parseFloat(w) || 0);
+            }, 0);
+          setShareModal({
+            eventType: 'season_summary',
+            title: `Temporada completada en ${activeGarden.name}`,
+            primaryStat: `${gardenPlants.length}`,
+            primaryStatLabel: 'cultivos esta temporada',
+            secondaryStat: harvestKg > 0 ? `${(harvestKg / 1000).toFixed(1)} kg` : undefined,
+            secondaryStatLabel: harvestKg > 0 ? 'cosechados' : undefined,
+            badgeIcon: '🏆',
+          });
+        }
+      }
+    }
   }
 
   async function handleDuplicate() {
@@ -1179,6 +1206,14 @@ export default function PlantDetailScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      {shareModal && (
+        <ShareModal
+          {...shareModal}
+          visible
+          onClose={() => setShareModal(null)}
+        />
+      )}
     </SafeAreaView>
   );
 }
