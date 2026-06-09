@@ -5,6 +5,7 @@
   "main": "expo-router/entry",
   "scripts": {
     "dev": "expo start",
+    "dev:tailscale": "set REACT_NATIVE_PACKAGER_HOSTNAME=100.123.72.26 && expo start --clear",
     "build": "expo export",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
