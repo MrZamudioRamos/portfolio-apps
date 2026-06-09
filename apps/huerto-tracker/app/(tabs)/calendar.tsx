@@ -11,6 +11,7 @@ import { CROPS, CROPS_BY_ID, CATEGORY_CONFIG, type CropCategory } from '../../sr
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import { getSeasonalTip } from '../../src/data/seasonalTips';
+import { INDOOR_START } from '../../src/data/indoorStart';
 import type { CropInfo } from '../../src/data/crops';
 import { getLunarDay, getMonthGardeningProfile } from '../../src/utils/lunar';
 import { isContainerFriendly, getContainerInfo } from '../../src/data/containers';
@@ -208,6 +209,15 @@ export default function CalendarScreen() {
         <Text style={[s.tipText, { color: colors.textSecondary, borderTopColor: colors.border }]}>
           💡 {t(`crops.${item.id}.tips`, { defaultValue: item.tips })}
         </Text>
+
+        {INDOOR_START[item.id] && (
+          <View style={[s.indoorBadge, { backgroundColor: '#1565C018', borderColor: '#1565C066' }]}>
+            <Text style={{ fontSize: 12 }}>🏠</Text>
+            <Text style={[s.indoorBadgeText, { color: '#1565C0' }]}>
+              {t('calendar.startIndoors', { weeks: INDOOR_START[item.id]!.indoorWeeks })}
+            </Text>
+          </View>
+        )}
 
         <Button
           title={t('calendar.addToGarden')}
@@ -557,4 +567,15 @@ const makeStyles = (
       borderRadius: radii.full,
     },
     harvestDaysText: { fontSize: 11, fontWeight: fontWeight.bold },
+    indoorBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      marginTop: spacing.xs,
+    },
+    indoorBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
   });

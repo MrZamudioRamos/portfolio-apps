@@ -24,6 +24,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { CROP_IMAGES } from '../../src/data/cropImages';
+import { INDOOR_START, getSeedlingSchedule } from '../../src/data/indoorStart';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
@@ -477,6 +478,60 @@ export default function PlantDetailScreen() {
                 </View>
                 <Ionicons name="chevron-forward" size={16} color="#4CAF50" />
               </Pressable>
+            );
+          })()}
+
+          {/* Seedling guide — indoor start schedule */}
+          {plant.status === 'seedling' && plant.sowingDate && INDOOR_START[crop.id] && (() => {
+            const schedule = getSeedlingSchedule(crop.id, plant.sowingDate);
+            if (!schedule) return null;
+            const now = Date.now();
+            const fmt = (d: Date) => d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+            const hardeningPast = schedule.hardeningStart.getTime() < now;
+            const transplantPast = schedule.transplant.getTime() < now;
+            const daysToTransplant = Math.ceil((schedule.transplant.getTime() - now) / 86_400_000);
+            return (
+              <View style={[{ borderRadius: radii.md, borderWidth: 1.5, padding: spacing.md, marginBottom: spacing.md, borderColor: colors.primary + '44', backgroundColor: colors.primary + '08' }]}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md }}>
+                  <Text style={{ fontSize: 18 }}>🌱</Text>
+                  <Text style={[s.transplantCtaTitle, { color: colors.text }]}>{t('plantDetail.seedlingGuide')}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 0 }}>
+                  {[
+                    { emoji: '🏠', labelKey: 'plantDetail.indoorStart', date: schedule.indoorStart, done: hardeningPast },
+                    { emoji: '☀️', labelKey: 'plantDetail.hardening', date: schedule.hardeningStart, done: transplantPast },
+                    { emoji: '🪴', labelKey: 'plantDetail.transplantOut', date: schedule.transplant, done: transplantPast },
+                  ].map((step, idx, arr) => (
+                    <React.Fragment key={step.labelKey}>
+                      <View style={{ alignItems: 'center', flex: 1 }}>
+                        <View style={[{
+                          width: 36, height: 36, borderRadius: 18,
+                          alignItems: 'center', justifyContent: 'center',
+                          backgroundColor: step.done ? colors.primary + '22' : colors.surfaceAlt,
+                          borderWidth: 1.5,
+                          borderColor: step.done ? colors.primary : colors.border,
+                        }]}>
+                          <Text style={{ fontSize: 14 }}>{step.emoji}</Text>
+                        </View>
+                        <Text style={{ fontSize: 9, color: colors.textSecondary, textAlign: 'center', marginTop: 4, fontWeight: fontWeight.semibold }}>
+                          {t(step.labelKey)}
+                        </Text>
+                        <Text style={{ fontSize: 9, color: step.done ? colors.textDisabled : colors.text, textAlign: 'center' }}>
+                          {fmt(step.date)}
+                        </Text>
+                      </View>
+                      {idx < arr.length - 1 && (
+                        <View style={{ flex: 0.5, height: 2, marginTop: 17, backgroundColor: hardeningPast && idx === 0 ? colors.primary + '55' : colors.border }} />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </View>
+                {daysToTransplant > 0 && (
+                  <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.sm }}>
+                    {t('plantDetail.daysToTransplant', { count: daysToTransplant })}
+                  </Text>
+                )}
+              </View>
             );
           })()}
 

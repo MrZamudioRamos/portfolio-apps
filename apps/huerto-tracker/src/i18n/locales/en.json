@@ -94,7 +94,10 @@
     "addToGarden": "Add to garden",
     "hemisphereSurBanner": "Southern Hemisphere active · months reversed compared to the north",
     "catAll": "All",
-    "today": "Today"
+    "today": "Today",
+    "upcomingHarvests": "Upcoming harvests",
+    "harvestReady": "Ready",
+    "startIndoors": "🏠 Start {{weeks}} weeks before indoors"
   },
   "diary": {
     "title": "Journal",
@@ -548,6 +551,12 @@
     "photoTimeline": "📸 Progress photos",
     "transplantCta": "Ready to transplant?",
     "transplantCtaDesc": "{{days}} days in seedling tray",
+    "seedlingGuide": "Seedling guide",
+    "indoorStart": "Indoor",
+    "hardening": "Harden",
+    "transplantOut": "Outdoor",
+    "daysToTransplant_one": "{{count}} day to transplant",
+    "daysToTransplant_other": "{{count}} days to transplant",
     "transplantModalTitle": "Log transplant",
     "transplantDateLabel": "TRANSPLANT DATE",
     "transplantConfirm": "Confirm transplant",

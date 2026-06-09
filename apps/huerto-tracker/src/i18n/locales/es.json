@@ -96,7 +96,8 @@
     "catAll": "Todos",
     "today": "Hoy",
     "upcomingHarvests": "Próximas cosechas",
-    "harvestReady": "Lista"
+    "harvestReady": "Lista",
+    "startIndoors": "🏠 Iniciar {{weeks}} sem. antes en interior"
   },
   "diary": {
     "title": "Diario",
@@ -575,6 +576,12 @@
     "photoTimeline": "📸 Fotos de progreso",
     "transplantCta": "¿Lista para trasplantar?",
     "transplantCtaDesc": "{{days}} días en semillero",
+    "seedlingGuide": "Guía de semillero",
+    "indoorStart": "Interior",
+    "hardening": "Endurece",
+    "transplantOut": "Exterior",
+    "daysToTransplant_one": "{{count}} día para el trasplante",
+    "daysToTransplant_other": "{{count}} días para el trasplante",
     "transplantModalTitle": "Registrar trasplante",
     "transplantDateLabel": "FECHA DE TRASPLANTE",
     "transplantConfirm": "Confirmar trasplante",

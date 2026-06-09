@@ -93,7 +93,10 @@
     "addToGarden": "Engadir á horta",
     "hemisphereSurBanner": "Hemisferio Sur activo · meses invertidos respecto ao norte",
     "catAll": "Todos",
-    "today": "Hoxe"
+    "today": "Hoxe",
+    "upcomingHarvests": "Próximas colleitas",
+    "harvestReady": "Lista",
+    "startIndoors": "🏠 Iniciar {{weeks}} sem. antes en interior"
   },
   "diary": {
     "title": "Diario",
@@ -543,6 +546,12 @@
     "photoTimeline": "📸 Fotos de progreso",
     "transplantCta": "Lista para transplantar?",
     "transplantCtaDesc": "{{days}} dias no semilleiro",
+    "seedlingGuide": "Guía de semilleiro",
+    "indoorStart": "Interior",
+    "hardening": "Endurece",
+    "transplantOut": "Exterior",
+    "daysToTransplant_one": "{{count}} día para o trasplante",
+    "daysToTransplant_other": "{{count}} días para o trasplante",
     "transplantModalTitle": "Rexistrar transplante",
     "transplantDateLabel": "DATA DO TRANSPLANTE",
     "transplantConfirm": "Confirmar transplante",

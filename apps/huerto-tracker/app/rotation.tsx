@@ -1,11 +1,12 @@
 import { useColors, useTheme, Card } from '@portfolio/ui';
-import { useCollection } from '@portfolio/storage';
+import { createStore } from '@portfolio/storage';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 import { CROPS_BY_ID } from '../src/data/crops';
 import type { Plant } from '../src/models/plant';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
@@ -86,12 +87,17 @@ export default function RotationScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { activeGarden } = useActiveGarden();
-  const plants = useCollection<Plant>('plants');
   const { customCropsById } = useCustomCrops();
 
+  const plantStore = useMemo(() => createStore<Plant>('plants'), []);
+  const [allPlants, setAllPlants] = useState<Plant[]>([]);
+  useFocusEffect(useCallback(() => {
+    plantStore.getAll().then((items) => setAllPlants(items));
+  }, [plantStore]));
+
   const gardenPlants = useMemo(
-    () => plants.items.filter((p) => p.gardenId === activeGarden?.id),
-    [plants.items, activeGarden?.id]
+    () => allPlants.filter((p) => p.gardenId === activeGarden?.id),
+    [allPlants, activeGarden?.id]
   );
 
   const currentYear = new Date().getFullYear();
@@ -188,10 +194,11 @@ export default function RotationScreen() {
                       {entries.map(({ crop, plant, family }) => (
                         <Pressable
                           key={plant.id}
-                          onPress={() => router.push(`/plant/${plant.id}`)}
+                          onPress={() => !plant.deletedAt && router.push(`/plant/${plant.id}`)}
                           style={[s.cropTag, {
-                            backgroundColor: (family?.color ?? '#9E9E9E') + '22',
-                            borderColor: (family?.color ?? '#9E9E9E') + '88',
+                            backgroundColor: (family?.color ?? '#9E9E9E') + (plant.deletedAt ? '11' : '22'),
+                            borderColor: (family?.color ?? '#9E9E9E') + (plant.deletedAt ? '44' : '88'),
+                            opacity: plant.deletedAt ? 0.55 : 1,
                           }]}
                         >
                           <Text style={{ fontSize: 14 }}>{crop.emoji}</Text>

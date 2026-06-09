@@ -93,7 +93,10 @@
     "addToGarden": "Afegir a l'hort",
     "hemisphereSurBanner": "Hemisferi Sud actiu · mesos invertits respecte al nord",
     "catAll": "Tots",
-    "today": "Avui"
+    "today": "Avui",
+    "upcomingHarvests": "Properes collites",
+    "harvestReady": "Llesta",
+    "startIndoors": "🏠 Iniciar {{weeks}} setm. abans a interior"
   },
   "diary": {
     "title": "Diari",
@@ -543,6 +546,12 @@
     "photoTimeline": "📸 Fotos de progrés",
     "transplantCta": "Llesta per trasplantar?",
     "transplantCtaDesc": "{{days}} dies al planter",
+    "seedlingGuide": "Guia de planter",
+    "indoorStart": "Interior",
+    "hardening": "Enduriment",
+    "transplantOut": "Exterior",
+    "daysToTransplant_one": "{{count}} dia per al trasplantament",
+    "daysToTransplant_other": "{{count}} dies per al trasplantament",
     "transplantModalTitle": "Registrar trasplantament",
     "transplantDateLabel": "DATA DE TRASPLANTAMENT",
     "transplantConfirm": "Confirmar trasplantament",

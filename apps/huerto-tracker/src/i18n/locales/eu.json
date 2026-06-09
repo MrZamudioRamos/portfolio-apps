@@ -93,7 +93,10 @@
     "addToGarden": "Baratzera gehitu",
     "hemisphereSurBanner": "Hego hemisferioa aktibo · hilabeteak alderantziz iparraldearekin alderatuta",
     "catAll": "Guztiak",
-    "today": "Gaur"
+    "today": "Gaur",
+    "upcomingHarvests": "Datozen uztak",
+    "harvestReady": "Prest",
+    "startIndoors": "🏠 {{weeks}} aste lehenago barnean hasi"
   },
   "diary": {
     "title": "Egunkaria",
@@ -543,6 +546,12 @@
     "photoTimeline": "📸 Aurrerapen argazkiak",
     "transplantCta": "Landatzeko prest?",
     "transplantCtaDesc": "{{days}} egun hazitegian",
+    "seedlingGuide": "Hazitegi gida",
+    "indoorStart": "Barruan",
+    "hardening": "Gogortze",
+    "transplantOut": "Kanpoan",
+    "daysToTransplant_one": "{{count}} egun transplantatzeko",
+    "daysToTransplant_other": "{{count}} egun transplantatzeko",
     "transplantModalTitle": "Landaketa erregistratu",
     "transplantDateLabel": "LANDAKETA DATA",
     "transplantConfirm": "Landaketa berretsi",
