@@ -32,7 +32,6 @@ import { PLANT_STATUS_CONFIG, type Plant } from '../../src/models/plant';
 import type { GardenReminder } from '../../src/models/reminder';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import { getLunarDay } from '../../src/utils/lunar';
-import { getSowingNow } from '../../src/utils/sowingNow';
 import { QuickLogModal } from '../../src/components/QuickLogModal';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import { useWeather } from '../../src/hooks/useWeather';
@@ -219,12 +218,6 @@ export default function DashboardScreen() {
   const streak = useMemo(
     () => buildGamificationData(plants.items, entries.items).streak,
     [plants.items, entries.items]
-  );
-
-  const currentMonth = new Date().getMonth() + 1;
-  const sowingData = useMemo(
-    () => getSowingNow(garden?.climateZone ?? 'mediterranea', currentMonth),
-    [garden?.climateZone, currentMonth]
   );
 
   useEffect(() => {
@@ -530,6 +523,23 @@ export default function DashboardScreen() {
               </ScrollView>
             )}
 
+            {/* Garden map card */}
+            {garden && (
+              <Pressable
+                onPress={() => router.push('/garden/map')}
+                style={({ pressed }) => [s.mapCard, { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.88 : 1 }]}
+              >
+                <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '18' }]}>
+                  <Text style={{ fontSize: 32 }}>🗺️</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.mapCardTitle, { color: colors.text }]}>{garden.name}</Text>
+                  <Text style={[s.mapCardSub, { color: colors.textSecondary }]}>{t('home.mapCardSub', { count: plants.count })}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
+              </Pressable>
+            )}
+
             {/* My Plants section header + controls */}
             {plants.count > 0 && (
               <>
@@ -627,50 +637,6 @@ export default function DashboardScreen() {
         ListEmptyComponent={null}
         ListFooterComponent={
           <>
-            {/* Sow Now */}
-            {(sowingData.now.length > 0 || sowingData.soon.length > 0) && (
-              <View style={[s.sowCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                {sowingData.now.length > 0 && (
-                  <>
-                    <Text style={[s.sowSectionLabel, { color: colors.primary }]}>🌱 {t('home.sowNowTitle')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.sowScroll}>
-                      <View style={s.sowRow}>
-                        {sowingData.now.map((crop) => (
-                          <Pressable
-                            key={crop.id}
-                            onPress={() => router.push(`/plant/new?cropId=${crop.id}` as any)}
-                            style={({ pressed }) => [s.sowChip, { backgroundColor: colors.primary + '18', borderColor: colors.primary, opacity: pressed ? 0.7 : 1 }]}
-                          >
-                            <Text style={s.sowChipEmoji}>{crop.emoji}</Text>
-                            <Text style={[s.sowChipName, { color: colors.text }]} numberOfLines={1}>{t('crops.' + crop.id + '.name')}</Text>
-                          </Pressable>
-                        ))}
-                      </View>
-                    </ScrollView>
-                  </>
-                )}
-                {sowingData.soon.length > 0 && (
-                  <>
-                    <Text style={[s.sowSectionLabel, { color: colors.textSecondary, marginTop: sowingData.now.length > 0 ? 10 : 0 }]}>🕐 {t('home.sowSoonTitle')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.sowScroll}>
-                      <View style={s.sowRow}>
-                        {sowingData.soon.map((crop) => (
-                          <Pressable
-                            key={crop.id}
-                            onPress={() => router.push(`/plant/new?cropId=${crop.id}` as any)}
-                            style={({ pressed }) => [s.sowChip, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
-                          >
-                            <Text style={s.sowChipEmoji}>{crop.emoji}</Text>
-                            <Text style={[s.sowChipName, { color: colors.textSecondary }]} numberOfLines={1}>{t('crops.' + crop.id + '.name')}</Text>
-                          </Pressable>
-                        ))}
-                      </View>
-                    </ScrollView>
-                  </>
-                )}
-              </View>
-            )}
-
             {/* Weather */}
             {(weather || weatherLoading) && (
               <View style={[s.weatherCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -1002,6 +968,25 @@ const makeStyles = (
       borderWidth: 1.5,
     },
     filterChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    mapCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderRadius: radii.xl,
+      borderWidth: StyleSheet.hairlineWidth,
+      overflow: 'hidden',
+      marginHorizontal: spacing.xl,
+      marginBottom: spacing.md,
+      gap: spacing.md,
+      paddingRight: spacing.md,
+    },
+    mapCardLeft: {
+      width: 64,
+      height: 64,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    mapCardTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    mapCardSub: { fontSize: fontSize.xs, marginTop: 2 },
     // Footer cards
     weatherCard: {
       marginHorizontal: spacing.xl,
