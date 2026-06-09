@@ -196,11 +196,6 @@ export default function LightMeterScreen() {
           );
         })()}
 
-        {!result && allAnswered && (
-          <Text style={[s.questionText, { color: colors.textSecondary, textAlign: 'center' }]}>
-            {t('lightMeter.calculating')}
-          </Text>
-        )}
       </ScrollView>
     </SafeAreaView>
   );

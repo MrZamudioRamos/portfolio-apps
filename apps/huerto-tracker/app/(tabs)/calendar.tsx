@@ -259,7 +259,7 @@ export default function CalendarScreen() {
         >
           <Text style={[s.monthName, { color: colors.text }]}>{monthNameCap}</Text>
           <Text style={[s.yearText, { color: isCurrentMonth ? colors.primary : colors.textSecondary }]}>
-            {year}{!isCurrentMonth ? ' ·  ' + t('calendar.today') : ''}
+            {year}{isCurrentMonth ? ' · ' + t('calendar.today') : ''}
           </Text>
         </Pressable>
         <Pressable onPress={nextMonth} hitSlop={16} style={s.navArrow}>

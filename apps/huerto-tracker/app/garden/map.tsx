@@ -881,7 +881,7 @@ export default function GardenMapScreen() {
           transparent
           onRequestClose={() => setShowNotes(false)}
         >
-          <Pressable style={s.overlay} onPress={() => setShowNotes(false)}>
+          <Pressable style={s.overlay} onPress={() => {}}>
             <Pressable style={[s.notesCard, { backgroundColor: colors.surface, ...shadows.lg }]} onPress={() => {}}>
               <View style={s.notesHeaderRow}>
                 <Text style={[s.notesTitle, { color: colors.text }]}>{t('gardenMap.notesTitle')}</Text>

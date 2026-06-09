@@ -87,7 +87,7 @@ export default function GardenEditScreen() {
       const nearest = getNearestProvince(pos.coords.latitude, pos.coords.longitude);
       if (nearest) {
         setProvince(nearest);
-        setHemisphere('norte');
+        setHemisphere(pos.coords.latitude >= 0 ? 'norte' : 'sur');
       }
     } catch {
       // silent — user can pick manually
