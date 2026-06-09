@@ -7,6 +7,7 @@ import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   Alert,
   Image,
@@ -17,7 +18,6 @@ import {
   StyleSheet,
   Switch,
   Text,
-  TextInput,
   View,
   type ViewStyle,
 } from 'react-native';
@@ -159,6 +159,7 @@ export default function PlantDetailScreen() {
 
   const [showTransplantModal, setShowTransplantModal] = useState(false);
   const [transplantDateInput, setTransplantDateInput] = useState(todayStr);
+  const [showTransplantDatePicker, setShowTransplantDatePicker] = useState(false);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -1035,14 +1036,25 @@ export default function PlantDetailScreen() {
                 );
               })}
             </View>
-            <TextInput
-              value={transplantDateInput}
-              onChangeText={setTransplantDateInput}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor={colors.textDisabled}
-              style={[s.transplantInput, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
-              keyboardType="numeric"
-            />
+            <Pressable
+              onPress={() => setShowTransplantDatePicker(true)}
+              style={[s.transplantInput, { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surfaceAlt, borderColor: transplantDateInput ? colors.primary : colors.border }]}
+            >
+              <Ionicons name="calendar-outline" size={18} color={colors.primary} />
+              <Text style={{ color: colors.text, fontSize: fontSize.md, flex: 1 }}>{transplantDateInput}</Text>
+            </Pressable>
+            {showTransplantDatePicker && (
+              <DateTimePicker
+                value={new Date(transplantDateInput + 'T12:00:00')}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={(_, date) => {
+                  if (Platform.OS === 'android') setShowTransplantDatePicker(false);
+                  if (date) setTransplantDateInput(dateToStr(date));
+                }}
+                style={{ width: '100%' }}
+              />
+            )}
             <View style={{ flexDirection: 'row', gap: spacing.md, marginTop: spacing.xl }}>
               <Pressable
                 onPress={() => setShowTransplantModal(false)}

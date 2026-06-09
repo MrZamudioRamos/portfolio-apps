@@ -51,7 +51,6 @@ function MiniGrid({ layout, cols, rows, primaryColor, surfaceColor }: {
   layout: GridLayout; cols: number; rows: number;
   primaryColor: string; surfaceColor: string;
 }) {
-  const occupiedIds = new Set(layout.filter(Boolean));
   const MAX_COLS = Math.min(cols, 7);
   const MAX_ROWS = Math.min(rows, 6);
   const cell = Math.floor(56 / MAX_COLS) - 1;
@@ -515,18 +514,22 @@ export default function DashboardScreen() {
                   label={t('home.stats.plants')}
                   onPress={() => router.push('/plant/new')}
                 />
-                <StatCard
-                  emoji="🧺"
-                  value={harvestingCount}
-                  label={t('home.stats.harvesting')}
-                  onPress={() => setStatusFilter(statusFilter === 'harvesting' ? null : 'harvesting')}
-                />
-                <StatCard
-                  emoji="🔔"
-                  value={activeReminders}
-                  label={t('home.stats.reminders')}
-                  onPress={() => router.push('/settings/notifications' as any)}
-                />
+                {harvestingCount > 0 && (
+                  <StatCard
+                    emoji="🧺"
+                    value={harvestingCount}
+                    label={t('home.stats.harvesting')}
+                    onPress={() => setStatusFilter(statusFilter === 'harvesting' ? null : 'harvesting')}
+                  />
+                )}
+                {activeReminders > 0 && (
+                  <StatCard
+                    emoji="🔔"
+                    value={activeReminders}
+                    label={t('home.stats.reminders')}
+                    onPress={() => router.push('/settings/notifications' as any)}
+                  />
+                )}
                 {activePests > 0 && (
                   <StatCard
                     emoji="🐛"
