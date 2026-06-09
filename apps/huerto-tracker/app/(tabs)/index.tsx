@@ -28,6 +28,7 @@ import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import type { Garden } from '../../src/models/garden';
+import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { PLANT_STATUS_CONFIG, type Plant } from '../../src/models/plant';
 import type { GardenReminder } from '../../src/models/reminder';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
@@ -41,7 +42,6 @@ import { PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringStatus';
 import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
-import { useGardenLayout } from '../../src/hooks/useGardenLayout';
 import { Illustration } from '../../src/components/Illustration';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
@@ -53,7 +53,6 @@ export default function DashboardScreen() {
   const { t, i18n } = useTranslation();
 
   const { activeGarden: garden, gardens: allGardens, gardensLoading, refreshActiveId } = useActiveGarden();
-  const { layout: gardenLayout } = useGardenLayout(garden?.id, garden?.gridRows, garden?.gridCols);
   const { isGuest } = useSession();
   const allPlants = useCollection<Plant>('plants');
 
@@ -504,7 +503,7 @@ export default function DashboardScreen() {
                 contentContainerStyle={s.statsRow}
                 style={{ marginBottom: spacing.xl }}
               >
-                <StatCard emoji="🌱" value={plants.count} label={t('home.stats.plants')} onPress={() => router.push('/plant/new')} />
+                <StatCard emoji="🌱" value={plants.count} label={t('home.stats.plants')} />
                 {harvestingCount > 0 && (
                   <StatCard emoji="🧺" value={harvestingCount} label={t('home.stats.harvesting')} onPress={() => setStatusFilter(statusFilter === 'harvesting' ? null : 'harvesting')} />
                 )}
@@ -533,7 +532,10 @@ export default function DashboardScreen() {
                   <Text style={{ fontSize: 32 }}>🗺️</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={[s.mapCardTitle, { color: colors.text }]}>{garden.name}</Text>
+                  <Text style={[s.mapCardTitle, { color: colors.text }]}>
+                    {garden.gardenType ? `${GARDEN_TYPE_CONFIG[garden.gardenType]?.emoji ?? '🪴'} ${t(`gardenType.${garden.gardenType}`)}` : garden.name}
+                    {garden.gridRows && garden.gridCols ? ` · ${garden.gridCols}×${garden.gridRows}` : ''}
+                  </Text>
                   <Text style={[s.mapCardSub, { color: colors.textSecondary }]}>{t('home.mapCardSub', { count: plants.count })}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
