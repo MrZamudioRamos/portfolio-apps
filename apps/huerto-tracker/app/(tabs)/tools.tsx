@@ -25,24 +25,26 @@ export default function ToolsScreen() {
   const { t } = useTranslation();
   const { isPro } = usePro();
 
+  // Ordered by everyday value: consult-first (catalog, chat), then insight
+  // (stats, costs), then guides, then occasional utilities, admin last.
   const tools: ToolItem[] = [
+    { icon: 'library-outline',         labelKey: 'settings.tools.catalog',      route: '/catalog',        accent: colors.primary },
+    { icon: 'chatbubble-ellipses-outline', labelKey: 'chat.title',              route: '/chat',            badge: isPro ? undefined : 'Pro', accent: '#7C3AED' },
     { icon: 'bar-chart-outline',       labelKey: 'settings.tools.stats',       route: '/stats',          badge: isPro ? undefined : 'Pro', accent: colors.secondary },
     { icon: 'cash-outline',            labelKey: 'costs.title',                route: '/costs',          badge: isPro ? undefined : 'Pro', accent: '#4CAF50' },
-    { icon: 'library-outline',         labelKey: 'settings.tools.catalog',      route: '/catalog',        accent: colors.primary },
-    { icon: 'git-network-outline',     labelKey: 'settings.tools.companions',   route: '/companions',     badge: isPro ? undefined : 'Pro parcial', accent: '#FF7043' },
     { icon: 'bug-outline',             labelKey: 'settings.tools.diseaseGuide', route: '/disease-guide',  accent: '#EF5350' },
+    { icon: 'git-network-outline',     labelKey: 'settings.tools.companions',   route: '/companions',     badge: isPro ? undefined : 'Pro parcial', accent: '#FF7043' },
     { icon: 'refresh-circle-outline',  labelKey: 'settings.rotation',          route: '/rotation',       accent: '#26C6DA' },
+    { icon: 'sunny-outline',           labelKey: 'lightMeter.title',            route: '/light-meter',     accent: '#FFB300' },
     { icon: 'leaf-outline',            labelKey: 'customCrop.manage',           route: '/crop',           accent: '#8D6E63' },
     { icon: 'cloud-upload-outline',    labelKey: 'settings.data.backup',        route: '/settings/backup', accent: '#42A5F5' },
-    { icon: 'chatbubble-ellipses-outline', labelKey: 'chat.title',              route: '/chat',            badge: isPro ? undefined : 'Pro', accent: '#7C3AED' },
-    { icon: 'sunny-outline',               labelKey: 'lightMeter.title',        route: '/light-meter',     accent: '#FFB300' },
   ];
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
+      <View style={s.header}>
         <Text style={[s.pageTitle, { color: colors.text }]}>{t('tools.title')}</Text>
       </View>
 
@@ -87,11 +89,11 @@ const makeStyles = (
     container: { flex: 1 },
     header: {
       paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.lg,
-      borderBottomWidth: StyleSheet.hairlineWidth,
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.sm,
     },
     pageTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
-    scroll: { padding: spacing.xl, paddingBottom: 40 },
+    scroll: { padding: spacing.xl, paddingTop: spacing.md, paddingBottom: 40 },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
     tile: {
       width: '47.5%',

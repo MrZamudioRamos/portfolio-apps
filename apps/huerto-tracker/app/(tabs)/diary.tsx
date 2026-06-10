@@ -282,7 +282,7 @@ export default function DiaryScreen() {
               style={[
                 s.filterChip,
                 {
-                  backgroundColor: isActive ? colors.primary : colors.surface,
+                  backgroundColor: isActive ? colors.primary + '22' : colors.surface,
                   borderColor: isActive ? colors.primary : colors.border,
                 },
               ]}
@@ -292,11 +292,11 @@ export default function DiaryScreen() {
                   {ENTRY_TYPE_CONFIG[type as EntryType].emoji}
                 </Text>
               )}
-              <Text style={[s.filterLabel, { color: isActive ? '#fff' : colors.text }]}>
+              <Text style={[s.filterLabel, { color: isActive ? colors.primary : colors.text, fontWeight: isActive ? fontWeight.semibold : fontWeight.medium }]}>
                 {t(`diary.filters.${type}`)}
               </Text>
               {count > 0 && (
-                <Text style={[s.filterCount, { color: isActive ? 'rgba(255,255,255,0.8)' : colors.textSecondary }]}>
+                <Text style={[s.filterCount, { color: isActive ? colors.primary : colors.textSecondary }]}>
                   {count}
                 </Text>
               )}

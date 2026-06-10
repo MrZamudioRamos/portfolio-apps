@@ -636,7 +636,14 @@ export default function DashboardScreen() {
             )}
           </>
         }
-        ListEmptyComponent={null}
+        ListEmptyComponent={
+          plants.count > 0 && (plantSearch.trim() || statusFilter) ? (
+            <View style={{ alignItems: 'center', paddingVertical: spacing.xl, gap: spacing.sm }}>
+              <Text style={{ fontSize: 32 }}>🔍</Text>
+              <Text style={{ fontSize: fontSize.sm, color: colors.textSecondary }}>{t('home.noResults')}</Text>
+            </View>
+          ) : null
+        }
         ListFooterComponent={
           <>
             {/* Weather */}
@@ -974,7 +981,7 @@ const makeStyles = (
       flexDirection: 'row',
       alignItems: 'center',
       borderRadius: radii.xl,
-      borderWidth: StyleSheet.hairlineWidth,
+      borderWidth: 1,
       overflow: 'hidden',
       marginHorizontal: spacing.xl,
       marginBottom: spacing.md,

@@ -60,6 +60,7 @@
     "emptyDesc": "Add your first plant to start tracking your garden.",
     "addPlant": "Add plant",
     "searchPlants": "Search plant…",
+    "noResults": "No results — try another filter or search",
     "taskEstHarvest": "🧺 {{name}} nearing harvest",
     "taskNeglected": "👁️ {{name}} with no activity ({{days}} days)",
     "filterAll": "All",

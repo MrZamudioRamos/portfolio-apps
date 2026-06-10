@@ -60,6 +60,7 @@
     "emptyDesc": "Gehitu zure lehen landarea baratzea erregistratzen hasteko.",
     "addPlant": "Landarea gehitu",
     "searchPlants": "Landarea bilatu…",
+    "noResults": "Emaitzarik ez — probatu beste iragazki edo bilaketa bat",
     "taskEstHarvest": "🧺 {{name}} uzta gertu",
     "taskNeglected": "👁️ {{name}} jarduera gabe ({{days}} egun)",
     "filterAll": "Guztiak",

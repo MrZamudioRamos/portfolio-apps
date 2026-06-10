@@ -60,6 +60,7 @@
     "emptyDesc": "Afig la teua primera planta per a començar a registrar el teu hort.",
     "addPlant": "Afig planta",
     "searchPlants": "Cercar planta…",
+    "noResults": "Sense resultats — prova un altre filtre o cerca",
     "taskEstHarvest": "🧺 {{name}} prop de la collita",
     "taskNeglected": "👁️ {{name}} sense activitat ({{days}} dies)",
     "filterAll": "Totes",

@@ -60,6 +60,7 @@
     "firstUseDesc": "Toca uno de los cultivos de abajo para añadirlo, o usa el botón +.",
     "firstUseCta": "Añadir mi primera planta",
     "searchPlants": "Buscar planta…",
+    "noResults": "Sin resultados — prueba otro filtro o búsqueda",
     "taskEstHarvest": "🧺 {{name}} cerca de la cosecha",
     "taskNeglected": "👁️ {{name}} sin actividad ({{days}} días)",
     "filterAll": "Todas",

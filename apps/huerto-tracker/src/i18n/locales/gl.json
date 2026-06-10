@@ -60,6 +60,7 @@
     "emptyDesc": "Engade a túa primeira planta para comezar a rexistrar a túa horta.",
     "addPlant": "Engadir planta",
     "searchPlants": "Buscar planta…",
+    "noResults": "Sen resultados — proba outro filtro ou busca",
     "taskEstHarvest": "🧺 {{name}} preto da colleita",
     "taskNeglected": "👁️ {{name}} sen actividade ({{days}} días)",
     "filterAll": "Todas",

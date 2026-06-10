@@ -267,88 +267,7 @@ export default function CalendarScreen() {
         </Pressable>
       </View>
 
-      {/* Container mode banner */}
-      {isContainer && (
-        <View style={[s.containerBanner, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
-          <Text style={s.containerBannerEmoji}>{GARDEN_TYPE_CONFIG[gardenType].emoji}</Text>
-          <Text style={[s.containerBannerText, { color: colors.text }]}>
-            <Text style={{ fontWeight: fontWeight.semibold }}>{t(`gardenType.${gardenType}`)}</Text>
-            {' — '}{t('calendar.containerBanner')}
-          </Text>
-        </View>
-      )}
-
-      {/* Lunar banner */}
-      <View style={[s.lunarBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-        <View style={s.lunarBannerLeft}>
-          {lunar ? (
-            <>
-              <Text style={s.lunarBannerMoon}>{lunar.phaseEmoji}</Text>
-              <View>
-                <Text style={[s.lunarBannerPhase, { color: colors.text }]}>{t(lunar.phaseKey)}</Text>
-                <Text style={[s.lunarBannerDay, { color: colors.textSecondary }]}>
-                  {t('calendar.lunarDayIllum', { day: lunar.dayInCycle, illum: lunar.illumination })}
-                </Text>
-              </View>
-            </>
-          ) : (
-            <>
-              <Text style={s.lunarBannerMoon}>🌙</Text>
-              <View>
-                <Text style={[s.lunarBannerPhase, { color: colors.text }]}>{t('calendar.lunarProfile')}</Text>
-                <Text style={[s.lunarBannerDay, { color: colors.textSecondary }]}>{t('calendar.lunarBasis')}</Text>
-              </View>
-            </>
-          )}
-        </View>
-        <View style={[s.lunarBannerBadge, { backgroundColor: GARDENING_COLORS[monthProfile] + '22' }]}>
-          <Text style={[s.lunarBannerBadgeText, { color: GARDENING_COLORS[monthProfile] }]}>
-            {GARDENING_EMOJI[monthProfile]} {t(`lunar.monthLabel.${monthProfile}`)}
-          </Text>
-        </View>
-      </View>
-
-      {/* Upcoming harvests */}
-      {upcomingHarvests.length > 0 && (
-        <View style={{ marginTop: spacing.sm }}>
-          <Text style={[{ fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, color: colors.textSecondary, marginBottom: spacing.xs, paddingHorizontal: spacing.xl }]}>
-            🧺 {t('calendar.upcomingHarvests')}
-          </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingVertical: spacing.xs }}>
-            <View style={{ flexDirection: 'row', gap: spacing.sm, alignSelf: 'flex-start' }}>
-              {upcomingHarvests.slice(0, 8).map(({ plant, daysLeft, isReady }) => {
-                const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
-                const color = isReady ? '#FF7043' : daysLeft <= 7 ? '#FFA726' : '#4CAF50';
-                return (
-                  <Pressable
-                    key={plant.id}
-                    onPress={() => router.push(`/plant/${plant.id}` as any)}
-                    style={[s.harvestCard, { backgroundColor: color + '18', borderColor: color + '66' }]}
-                  >
-                    <Text style={{ fontSize: 22 }}>{crop?.emoji ?? '🌱'}</Text>
-                    <Text style={[s.harvestCardName, { color: colors.text }]} numberOfLines={1}>{plant.name}</Text>
-                    <View style={[s.harvestDaysBadge, { backgroundColor: color + '33' }]}>
-                      <Text style={[s.harvestDaysText, { color }]}>
-                        {isReady ? '🍽️ ' + t('calendar.harvestReady') : `${daysLeft}d`}
-                      </Text>
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </ScrollView>
-        </View>
-      )}
-
-      {/* Seasonal tip */}
-      <View style={[s.lunarBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, marginTop: spacing.sm }]}>
-        <Text style={{ fontSize: 22 }}>{seasonalTip.emoji}</Text>
-        <Text style={[{ flex: 1, fontSize: fontSize.sm, lineHeight: 20, color: colors.text }]}>
-          {t(seasonalTip.key)}
-        </Text>
-      </View>
-
-      {/* Chips + subtitle inside FlatList header — no flex-sibling gap */}
+      {/* Banners + chips scroll with the list so the crop list gets the screen */}
       <FlatList
         data={availableCrops}
         keyExtractor={(item) => item.id}
@@ -358,6 +277,87 @@ export default function CalendarScreen() {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={{ marginHorizontal: -spacing.xl }}>
+            {/* Container mode banner */}
+            {isContainer && (
+              <View style={[s.containerBanner, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
+                <Text style={s.containerBannerEmoji}>{GARDEN_TYPE_CONFIG[gardenType].emoji}</Text>
+                <Text style={[s.containerBannerText, { color: colors.text }]}>
+                  <Text style={{ fontWeight: fontWeight.semibold }}>{t(`gardenType.${gardenType}`)}</Text>
+                  {' — '}{t('calendar.containerBanner')}
+                </Text>
+              </View>
+            )}
+
+            {/* Upcoming harvests — the user's own plants come first */}
+            {upcomingHarvests.length > 0 && (
+              <View style={{ marginTop: spacing.sm }}>
+                <Text style={[{ fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, color: colors.textSecondary, marginBottom: spacing.xs, paddingHorizontal: spacing.xl }]}>
+                  🧺 {t('calendar.upcomingHarvests')}
+                </Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingVertical: spacing.xs }}>
+                  <View style={{ flexDirection: 'row', gap: spacing.sm, alignSelf: 'flex-start' }}>
+                    {upcomingHarvests.slice(0, 8).map(({ plant, daysLeft, isReady }) => {
+                      const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
+                      const color = isReady ? '#FF7043' : daysLeft <= 7 ? '#FFA726' : '#4CAF50';
+                      return (
+                        <Pressable
+                          key={plant.id}
+                          onPress={() => router.push(`/plant/${plant.id}` as any)}
+                          style={[s.harvestCard, { backgroundColor: color + '18', borderColor: color + '66' }]}
+                        >
+                          <Text style={{ fontSize: 22 }}>{crop?.emoji ?? '🌱'}</Text>
+                          <Text style={[s.harvestCardName, { color: colors.text }]} numberOfLines={1}>{plant.name}</Text>
+                          <View style={[s.harvestDaysBadge, { backgroundColor: color + '33' }]}>
+                            <Text style={[s.harvestDaysText, { color }]}>
+                              {isReady ? '🍽️ ' + t('calendar.harvestReady') : `${daysLeft}d`}
+                            </Text>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </ScrollView>
+              </View>
+            )}
+
+            {/* Lunar banner */}
+            <View style={[s.lunarBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+              <View style={s.lunarBannerLeft}>
+                {lunar ? (
+                  <>
+                    <Text style={s.lunarBannerMoon}>{lunar.phaseEmoji}</Text>
+                    <View>
+                      <Text style={[s.lunarBannerPhase, { color: colors.text }]}>{t(lunar.phaseKey)}</Text>
+                      <Text style={[s.lunarBannerDay, { color: colors.textSecondary }]}>
+                        {t('calendar.lunarDayIllum', { day: lunar.dayInCycle, illum: lunar.illumination })}
+                      </Text>
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <Text style={s.lunarBannerMoon}>🌙</Text>
+                    <View>
+                      <Text style={[s.lunarBannerPhase, { color: colors.text }]}>{t('calendar.lunarProfile')}</Text>
+                      <Text style={[s.lunarBannerDay, { color: colors.textSecondary }]}>{t('calendar.lunarBasis')}</Text>
+                    </View>
+                  </>
+                )}
+              </View>
+              <View style={[s.lunarBannerBadge, { backgroundColor: GARDENING_COLORS[monthProfile] + '22' }]}>
+                <Text style={[s.lunarBannerBadgeText, { color: GARDENING_COLORS[monthProfile] }]}>
+                  {GARDENING_EMOJI[monthProfile]} {t(`lunar.monthLabel.${monthProfile}`)}
+                </Text>
+              </View>
+            </View>
+
+            {/* Seasonal tip */}
+            <View style={[s.lunarBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, marginTop: spacing.sm }]}>
+              <Text style={{ fontSize: 22 }}>{seasonalTip.emoji}</Text>
+              <Text style={[{ flex: 1, fontSize: fontSize.sm, lineHeight: 20, color: colors.text }]}>
+                {t(seasonalTip.key)}
+              </Text>
+            </View>
+
             {presentCategories.length > 1 && (
               <ScrollView
                 horizontal
