@@ -331,22 +331,6 @@ export default function SettingsScreen() {
         </Card>
 
 
-        {/* ── Idioma ── */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.language')}</Text>
-        <Card padded style={s.card}>
-          <Pressable
-            style={({ pressed }) => [s.rowContainer, { opacity: pressed ? 0.6 : 1 }]}
-            onPress={() => setShowLangModal(true)}
-          >
-            <Ionicons name="language-outline" size={18} color={colors.textSecondary} />
-            <Text style={[s.rowLabel, { color: colors.text }]}>{t('settings.sections.language')}</Text>
-            <Text style={[s.rowValue, { color: colors.textSecondary }]}>
-              {LANG_LABELS[i18n.language as SupportedLang] ?? i18n.language}
-            </Text>
-            <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />
-          </Pressable>
-        </Card>
-
         {/* Language modal */}
         <Modal visible={showLangModal} transparent animationType="fade">
           <Pressable style={s.langModalOverlay} onPress={() => setShowLangModal(false)}>
@@ -420,6 +404,18 @@ export default function SettingsScreen() {
         {/* ── App ── */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.app')}</Text>
         <Card padded style={s.card}>
+          <Pressable
+            style={({ pressed }) => [s.rowContainer, { opacity: pressed ? 0.6 : 1 }]}
+            onPress={() => setShowLangModal(true)}
+          >
+            <Ionicons name="language-outline" size={18} color={colors.textSecondary} />
+            <Text style={[s.rowLabel, { color: colors.text }]}>{t('settings.sections.language')}</Text>
+            <Text style={[s.rowValue, { color: colors.textSecondary }]}>
+              {LANG_LABELS[i18n.language as SupportedLang] ?? i18n.language}
+            </Text>
+            <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />
+          </Pressable>
+          <Separator colors={colors} />
           <Row icon="information-circle-outline" label={t('settings.app.version')} value={APP_VERSION} colors={colors} s={s} />
           <Separator colors={colors} />
           <RowAction

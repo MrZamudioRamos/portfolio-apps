@@ -278,15 +278,15 @@ export default function DashboardScreen() {
 
   function getHealthColor(plant: Plant, needsWater: boolean): string {
     if (plant.status === 'finished') return colors.textDisabled;
-    if (plant.pestStatus === 'active') return '#EF5350';
-    if (needsWater) return '#FFA726';
+    if (plant.pestStatus === 'active') return colors.error;
+    if (needsWater) return colors.warning;
     const lastDate = lastWateredByPlant.get(plant.id) ?? plant.sowingDate;
     if (lastDate) {
       const daysAgo = Math.floor((Date.now() - new Date(lastDate + 'T12:00:00').getTime()) / 86_400_000);
-      if (daysAgo > 14) return '#EF5350';
-      if (daysAgo > 7) return '#FFA726';
+      if (daysAgo > 14) return colors.error;
+      if (daysAgo > 7) return colors.warning;
     }
-    return '#4CAF50';
+    return colors.success;
   }
 
   function renderPlantCard({ item }: { item: Plant }) {
@@ -320,7 +320,7 @@ export default function DashboardScreen() {
               </View>
             )}
             {needsWater && (
-              <View style={[s.waterBadge, { backgroundColor: '#29B6F6' }]}>
+              <View style={[s.waterBadge, { backgroundColor: colors.water }]}>
                 <Text style={s.waterBadgeText}>💧</Text>
               </View>
             )}
@@ -351,8 +351,8 @@ export default function DashboardScreen() {
               const labels = months.map((m) => monthLabels[m - 1]).filter(Boolean);
               if (labels.length === 0) return null;
               return (
-                <View style={[s.plantMonthChip, { backgroundColor: '#66BB6A22' }]}>
-                  <Text style={[s.sowChipText, { color: '#2E7D32' }]} numberOfLines={1}>
+                <View style={[s.plantMonthChip, { backgroundColor: colors.primary + '22' }]}>
+                  <Text style={[s.sowChipText, { color: colors.primaryDark }]} numberOfLines={1}>
                     🌱 {labels.join(', ')}
                   </Text>
                 </View>
@@ -381,8 +381,8 @@ export default function DashboardScreen() {
                 const days = Math.floor((Date.now() - new Date(lastWateredDate + 'T12:00:00').getTime()) / 86_400_000);
                 if (days < 1) return null;
                 return (
-                  <View style={[s.wateredChip, { backgroundColor: '#29B6F618' }]}>
-                    <Text style={[s.wateredChipText, { color: '#29B6F6' }]}>💧{days}d</Text>
+                  <View style={[s.wateredChip, { backgroundColor: colors.water + '18' }]}>
+                    <Text style={[s.wateredChipText, { color: colors.water }]}>💧{days}d</Text>
                   </View>
                 );
               })()}
@@ -395,10 +395,10 @@ export default function DashboardScreen() {
 
   // Today card accent color based on task urgency
   const todayAccent = weeklyTasks.some(t => t.emoji === '🐛' || t.emoji === '🧴')
-    ? '#EF5350'
+    ? colors.error
     : weeklyTasks.length > 0
-    ? '#FFA726'
-    : '#4CAF50';
+    ? colors.warning
+    : colors.success;
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -466,14 +466,14 @@ export default function DashboardScreen() {
             {plants.count > 0 && (
               <View style={[s.todayCard, { backgroundColor: colors.surface, borderColor: colors.border, borderLeftColor: todayAccent }]}>
                 <Text style={[s.todayTitle, { color: colors.text }]}>
-                  📋 {t('home.weeklyTasks')}
+                  {t('home.weeklyTasks')}
                   {weeklyTasks.length > 0 && (
                     <Text style={[s.todayCount, { color: todayAccent }]}> · {weeklyTasks.length}</Text>
                   )}
                 </Text>
                 {weeklyTasks.length === 0 ? (
                   <View style={s.todayEmpty}>
-                    <Text style={{ fontSize: 20 }}>✅</Text>
+                    <Ionicons name="checkmark-circle" size={20} color={colors.success} />
                     <Text style={[s.todayEmptyText, { color: colors.textSecondary }]}>{t('home.weeklyTasksEmpty')}</Text>
                   </View>
                 ) : (
@@ -529,7 +529,7 @@ export default function DashboardScreen() {
                 style={({ pressed }) => [s.mapCard, { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.88 : 1 }]}
               >
                 <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '18' }]}>
-                  <Text style={{ fontSize: 32 }}>🗺️</Text>
+                  <Ionicons name="map-outline" size={30} color={colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={[s.mapCardTitle, { color: colors.text }]}>
@@ -559,9 +559,9 @@ export default function DashboardScreen() {
                     </Pressable>
                     <Pressable
                       onPress={handleWaterAll}
-                      style={({ pressed }) => [s.waterAllBtn, { backgroundColor: '#29B6F6' + '22', borderColor: '#29B6F6', opacity: pressed ? 0.7 : 1 }]}
+                      style={({ pressed }) => [s.waterAllBtn, { backgroundColor: colors.water + '22', borderColor: colors.water, opacity: pressed ? 0.7 : 1 }]}
                     >
-                      <Text style={s.waterAllText}>{t('home.waterAll')}</Text>
+                      <Text style={[s.waterAllText, { color: colors.water }]}>{t('home.waterAll')}</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -683,8 +683,8 @@ export default function DashboardScreen() {
                       })}
                     </View>
                     <View style={[s.wateringAdviceBanner, {
-                      backgroundColor: weather.wateringAdvice === 'skip' ? '#29B6F618' : weather.wateringAdvice === 'reduce' ? '#FFA72618' : colors.surfaceAlt,
-                      borderColor: weather.wateringAdvice === 'skip' ? '#29B6F6' : weather.wateringAdvice === 'reduce' ? '#FFA726' : colors.border,
+                      backgroundColor: weather.wateringAdvice === 'skip' ? colors.water + '18' : weather.wateringAdvice === 'reduce' ? colors.warning + '18' : colors.surfaceAlt,
+                      borderColor: weather.wateringAdvice === 'skip' ? colors.water : weather.wateringAdvice === 'reduce' ? colors.warning : colors.border,
                     }]}>
                       <Text style={[s.wateringAdviceText, { color: colors.text }]}>{t(weather.wateringKey, weather.wateringParams)}</Text>
                     </View>
@@ -757,7 +757,7 @@ export default function DashboardScreen() {
             {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
             <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: spacing.sm }} />
             <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text }}>
-              💧 {t('home.waterAllTitle')}
+              {t('home.waterAllTitle')}
             </Text>
             <Text style={{ fontSize: fontSize.sm, color: colors.textSecondary }}>
               {t('home.waterAllMessage', { count: plants.items.filter(p => p.status !== 'finished').length })}
@@ -792,7 +792,7 @@ export default function DashboardScreen() {
             <Pressable
               onPress={confirmWaterAll}
               disabled={waterAllSaving}
-              style={[{ backgroundColor: '#29B6F6', paddingVertical: spacing.lg, borderRadius: radii.lg, alignItems: 'center', opacity: waterAllSaving ? 0.6 : 1 }]}>
+              style={[{ backgroundColor: colors.water, paddingVertical: spacing.lg, borderRadius: radii.lg, alignItems: 'center', opacity: waterAllSaving ? 0.6 : 1 }]}>
               {waterAllSaving ? <ActivityIndicator color="#fff" /> : (
                 <Text style={{ color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('home.waterAllConfirm')}</Text>
               )}
@@ -896,7 +896,6 @@ const makeStyles = (
     waterAllText: {
       fontSize: fontSize.xs,
       fontWeight: fontWeight.semibold,
-      color: '#29B6F6',
     },
     listContent: { paddingBottom: 0 },
     columnWrapper: {
@@ -1029,7 +1028,7 @@ const makeStyles = (
     forecastDayName: { fontSize: 10, fontWeight: fontWeight.semibold },
     forecastEmoji: { fontSize: 18 },
     forecastTemp: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
-    forecastRain: { fontSize: 9, color: '#29B6F6' },
+    forecastRain: { fontSize: 9, color: colors.water },
     wateringAdviceBanner: {
       margin: spacing.md,
       marginTop: 0,

@@ -72,10 +72,10 @@ export function ShareModal({
           <View style={[s.actions, { gap: spacing.md }]}>
             <Pressable
               onPress={async () => { await share(); onClose(); }}
-              style={[s.shareBtn, { backgroundColor: '#66BB6A', borderRadius: radii.full }]}
+              style={[s.shareBtn, { backgroundColor: colors.primary, borderRadius: radii.full }]}
             >
               <Text style={[s.shareBtnText, { fontSize: fontSize.md, fontWeight: fontWeight.bold }]}>
-                📤 Compartir
+                Compartir
               </Text>
             </Pressable>
             <Pressable onPress={onClose} hitSlop={12}>

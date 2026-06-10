@@ -15,7 +15,6 @@ interface ToolItem {
   labelKey: string;
   route: string;
   badge?: string;
-  accent?: string;
 }
 
 export default function ToolsScreen() {
@@ -28,16 +27,16 @@ export default function ToolsScreen() {
   // Ordered by everyday value: consult-first (catalog, chat), then insight
   // (stats, costs), then guides, then occasional utilities, admin last.
   const tools: ToolItem[] = [
-    { icon: 'library-outline',         labelKey: 'settings.tools.catalog',      route: '/catalog',        accent: colors.primary },
-    { icon: 'chatbubble-ellipses-outline', labelKey: 'chat.title',              route: '/chat',            badge: isPro ? undefined : 'Pro', accent: '#7C3AED' },
-    { icon: 'bar-chart-outline',       labelKey: 'settings.tools.stats',       route: '/stats',          badge: isPro ? undefined : 'Pro', accent: colors.secondary },
-    { icon: 'cash-outline',            labelKey: 'costs.title',                route: '/costs',          badge: isPro ? undefined : 'Pro', accent: '#4CAF50' },
-    { icon: 'bug-outline',             labelKey: 'settings.tools.diseaseGuide', route: '/disease-guide',  accent: '#EF5350' },
-    { icon: 'git-network-outline',     labelKey: 'settings.tools.companions',   route: '/companions',     badge: isPro ? undefined : 'Pro parcial', accent: '#FF7043' },
-    { icon: 'refresh-circle-outline',  labelKey: 'settings.rotation',          route: '/rotation',       accent: '#26C6DA' },
-    { icon: 'sunny-outline',           labelKey: 'lightMeter.title',            route: '/light-meter',     accent: '#FFB300' },
-    { icon: 'leaf-outline',            labelKey: 'customCrop.manage',           route: '/crop',           accent: '#8D6E63' },
-    { icon: 'cloud-upload-outline',    labelKey: 'settings.data.backup',        route: '/settings/backup', accent: '#42A5F5' },
+    { icon: 'library-outline',         labelKey: 'settings.tools.catalog',      route: '/catalog' },
+    { icon: 'chatbubble-ellipses-outline', labelKey: 'chat.title',              route: '/chat',            badge: isPro ? undefined : 'Pro' },
+    { icon: 'bar-chart-outline',       labelKey: 'settings.tools.stats',       route: '/stats',          badge: isPro ? undefined : 'Pro' },
+    { icon: 'cash-outline',            labelKey: 'costs.title',                route: '/costs',          badge: isPro ? undefined : 'Pro' },
+    { icon: 'bug-outline',             labelKey: 'settings.tools.diseaseGuide', route: '/disease-guide' },
+    { icon: 'git-network-outline',     labelKey: 'settings.tools.companions',   route: '/companions',     badge: isPro ? undefined : 'Pro parcial' },
+    { icon: 'refresh-circle-outline',  labelKey: 'settings.rotation',          route: '/rotation' },
+    { icon: 'sunny-outline',           labelKey: 'lightMeter.title',            route: '/light-meter' },
+    { icon: 'leaf-outline',            labelKey: 'customCrop.manage',           route: '/crop' },
+    { icon: 'cloud-upload-outline',    labelKey: 'settings.data.backup',        route: '/settings/backup' },
   ];
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
@@ -58,8 +57,8 @@ export default function ToolsScreen() {
               style={({ pressed }) => [s.tile, { backgroundColor: colors.surface, opacity: pressed ? 0.85 : 1 }]}
             >
               {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-              <View style={[s.iconCircle, { backgroundColor: (tool.accent ?? colors.primary) + '20' }]}>
-                <Ionicons name={tool.icon} size={26} color={tool.accent ?? colors.primary} />
+              <View style={[s.iconCircle, { backgroundColor: colors.primary + '20' }]}>
+                <Ionicons name={tool.icon} size={26} color={colors.primary} />
               </View>
               <Text style={[s.tileLabel, { color: colors.text }]} numberOfLines={2}>
                 {t(tool.labelKey)}

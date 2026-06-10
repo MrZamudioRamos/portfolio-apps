@@ -158,13 +158,13 @@ export default function ChatScreen() {
                       s.bubble,
                       isUser
                         ? { backgroundColor: colors.primary, alignSelf: 'flex-end' }
-                        : { backgroundColor: item.error ? '#EF535018' : colors.surface, borderWidth: 1, borderColor: item.error ? '#EF535044' : colors.border },
+                        : { backgroundColor: item.error ? colors.error + '18' : colors.surface, borderWidth: 1, borderColor: item.error ? colors.error + '44' : colors.border },
                     ]}
                   >
                     <Text
                       style={[
                         s.bubbleText,
-                        { color: isUser ? '#fff' : item.error ? '#EF5350' : colors.text },
+                        { color: isUser ? '#fff' : item.error ? colors.error : colors.text },
                       ]}
                     >
                       {item.content}

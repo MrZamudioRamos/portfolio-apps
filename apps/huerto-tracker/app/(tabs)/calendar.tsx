@@ -199,8 +199,8 @@ export default function CalendarScreen() {
         </View>
 
         {isContainer && containerInfo && (
-          <View style={[s.containerChip, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
-            <Text style={s.containerChipText}>
+          <View style={[s.containerChip, { backgroundColor: colors.success + '18', borderColor: colors.success }]}>
+            <Text style={[s.containerChipText, { color: colors.primaryDark }]}>
               {t('calendar.containerInfo', { liters: containerInfo.minLiters, tip: containerInfo.tip })}
             </Text>
           </View>
@@ -211,9 +211,9 @@ export default function CalendarScreen() {
         </Text>
 
         {INDOOR_START[item.id] && (
-          <View style={[s.indoorBadge, { backgroundColor: '#1565C018', borderColor: '#1565C066' }]}>
+          <View style={[s.indoorBadge, { backgroundColor: colors.info + '18', borderColor: colors.info + '66' }]}>
             <Text style={{ fontSize: 12 }}>🏠</Text>
-            <Text style={[s.indoorBadgeText, { color: '#1565C0' }]}>
+            <Text style={[s.indoorBadgeText, { color: colors.info }]}>
               {t('calendar.startIndoors', { weeks: INDOOR_START[item.id]!.indoorWeeks })}
             </Text>
           </View>
@@ -240,8 +240,8 @@ export default function CalendarScreen() {
             {t('calendar.zone', { zone: t(`zone.${zone}`) })}
           </Text>
           {hemisphere === 'sur' && (
-            <View style={[s.hemisphereTag, { backgroundColor: '#1565C018', borderColor: '#1565C066' }]}>
-              <Text style={{ fontSize: 11, color: '#1565C0' }}>🌎 Sur</Text>
+            <View style={[s.hemisphereTag, { backgroundColor: colors.info + '18', borderColor: colors.info + '66' }]}>
+              <Text style={{ fontSize: 11, color: colors.info }}>🌎 Sur</Text>
             </View>
           )}
         </View>
@@ -279,7 +279,7 @@ export default function CalendarScreen() {
           <View style={{ marginHorizontal: -spacing.xl }}>
             {/* Container mode banner */}
             {isContainer && (
-              <View style={[s.containerBanner, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
+              <View style={[s.containerBanner, { backgroundColor: colors.success + '18', borderColor: colors.success }]}>
                 <Text style={s.containerBannerEmoji}>{GARDEN_TYPE_CONFIG[gardenType].emoji}</Text>
                 <Text style={[s.containerBannerText, { color: colors.text }]}>
                   <Text style={{ fontWeight: fontWeight.semibold }}>{t(`gardenType.${gardenType}`)}</Text>
@@ -292,13 +292,13 @@ export default function CalendarScreen() {
             {upcomingHarvests.length > 0 && (
               <View style={{ marginTop: spacing.sm }}>
                 <Text style={[{ fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, color: colors.textSecondary, marginBottom: spacing.xs, paddingHorizontal: spacing.xl }]}>
-                  🧺 {t('calendar.upcomingHarvests')}
+                  {t('calendar.upcomingHarvests')}
                 </Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingVertical: spacing.xs }}>
                   <View style={{ flexDirection: 'row', gap: spacing.sm, alignSelf: 'flex-start' }}>
                     {upcomingHarvests.slice(0, 8).map(({ plant, daysLeft, isReady }) => {
                       const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
-                      const color = isReady ? '#FF7043' : daysLeft <= 7 ? '#FFA726' : '#4CAF50';
+                      const color = isReady ? colors.error : daysLeft <= 7 ? colors.warning : colors.success;
                       return (
                         <Pressable
                           key={plant.id}
@@ -309,7 +309,7 @@ export default function CalendarScreen() {
                           <Text style={[s.harvestCardName, { color: colors.text }]} numberOfLines={1}>{plant.name}</Text>
                           <View style={[s.harvestDaysBadge, { backgroundColor: color + '33' }]}>
                             <Text style={[s.harvestDaysText, { color }]}>
-                              {isReady ? '🍽️ ' + t('calendar.harvestReady') : `${daysLeft}d`}
+                              {isReady ? t('calendar.harvestReady') : `${daysLeft}d`}
                             </Text>
                           </View>
                         </Pressable>
@@ -481,7 +481,7 @@ const makeStyles = (
       borderRadius: radii.md,
       borderWidth: 1,
     },
-    containerChipText: { fontSize: fontSize.xs, lineHeight: 16, color: '#2E7D32' },
+    containerChipText: { fontSize: fontSize.xs, lineHeight: 16 },
     lunarBanner: {
       flexDirection: 'row',
       alignItems: 'center',

@@ -13,6 +13,10 @@ export interface AppColors {
   success: string;
   warning: string;
   error: string;
+  /** Semantic accent for water/irrigation UI */
+  water: string;
+  /** Semantic accent for informational badges/banners */
+  info: string;
 }
 
 export interface ColorPalette {
@@ -36,6 +40,8 @@ export const huertoColors: AppColors = {
   success: '#43A047',
   warning: '#FB8C00',        // friendly orange (vs harsh amber)
   error: '#E5533D',          // warm coral-red (less clinical than crimson)
+  water: '#29B6F6',          // sky blue for irrigation
+  info: '#1565C0',           // deep blue for info badges
 };
 
 export const huertoDarkColors: AppColors = {
@@ -53,6 +59,8 @@ export const huertoDarkColors: AppColors = {
   success: '#7CC47F',
   warning: '#FFB74D',
   error: '#EF6E5B',
+  water: '#4FC3F7',
+  info: '#64B5F6',
 };
 
 export const huertoPalette: ColorPalette = { light: huertoColors, dark: huertoDarkColors };
@@ -73,6 +81,8 @@ export const mascotaColors: AppColors = {
   success: '#27AE60',
   warning: '#F39C12',
   error: '#C0392B',
+  water: '#29B6F6',
+  info: '#1565C0',
 };
 
 export const mascotaDarkColors: AppColors = {
@@ -90,6 +100,8 @@ export const mascotaDarkColors: AppColors = {
   success: '#66BB6A',
   warning: '#FFD54F',
   error: '#EF5350',
+  water: '#4FC3F7',
+  info: '#64B5F6',
 };
 
 export const mascotaPalette: ColorPalette = { light: mascotaColors, dark: mascotaDarkColors };
@@ -110,6 +122,8 @@ export const cocheColors: AppColors = {
   success: '#2E7D32',
   warning: '#F57F17',
   error: '#B71C1C',
+  water: '#0288D1',
+  info: '#1565C0',
 };
 
 export const cocheDarkColors: AppColors = {
@@ -127,6 +141,8 @@ export const cocheDarkColors: AppColors = {
   success: '#66BB6A',
   warning: '#FFD54F',
   error: '#EF5350',
+  water: '#4FC3F7',
+  info: '#64B5F6',
 };
 
 export const cochePalette: ColorPalette = { light: cocheColors, dark: cocheDarkColors };
@@ -147,6 +163,8 @@ export const stitchColors: AppColors = {
   success: '#2E7D32',
   warning: '#F57F17',
   error: '#B71C1C',
+  water: '#29B6F6',
+  info: '#1565C0',
 };
 
 export const stitchDarkColors: AppColors = {
@@ -164,6 +182,8 @@ export const stitchDarkColors: AppColors = {
   success: '#66BB6A',
   warning: '#FFD54F',
   error: '#EF5350',
+  water: '#4FC3F7',
+  info: '#64B5F6',
 };
 
 export const stitchPalette: ColorPalette = { light: stitchColors, dark: stitchDarkColors };

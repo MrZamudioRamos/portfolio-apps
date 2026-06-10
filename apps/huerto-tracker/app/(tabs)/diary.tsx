@@ -169,7 +169,7 @@ export default function DiaryScreen() {
             {item.data && Object.keys(item.data).length > 0 ? (
               <View style={s.harvestData}>
                 {((item.data as any).weightGrams ?? (item.data as any).weight) ? (
-                  <Text style={[s.harvestChip, { color: '#FF7043', backgroundColor: '#FF704318' }]}>
+                  <Text style={[s.harvestChip, { color: colors.warning, backgroundColor: colors.warning + '18' }]}>
                     ⚖️ {(item.data as any).weightGrams ?? (item.data as any).weight} kg
                   </Text>
                 ) : null}
@@ -179,12 +179,12 @@ export default function DiaryScreen() {
                   </Text>
                 ) : null}
                 {(item.data as any).quality ? (
-                  <Text style={[s.harvestChip, { color: '#F59E0B', backgroundColor: '#F59E0B18' }]}>
+                  <Text style={[s.harvestChip, { color: colors.secondary, backgroundColor: colors.secondary + '18' }]}>
                     {'⭐'.repeat(Number((item.data as any).quality))}
                   </Text>
                 ) : null}
                 {(item.data as any).liters ? (
-                  <Text style={[s.harvestChip, { color: '#29B6F6', backgroundColor: '#29B6F618' }]}>
+                  <Text style={[s.harvestChip, { color: colors.water, backgroundColor: colors.water + '18' }]}>
                     💧 {(item.data as any).liters} L
                   </Text>
                 ) : null}
@@ -194,12 +194,12 @@ export default function DiaryScreen() {
                   </Text>
                 ) : null}
                 {(item.data as any).waitDays ? (
-                  <Text style={[s.harvestChip, { color: '#EF5350', backgroundColor: '#EF535018' }]}>
+                  <Text style={[s.harvestChip, { color: colors.error, backgroundColor: colors.error + '18' }]}>
                     {t('diary.waitDaysChip', { days: (item.data as any).waitDays })}
                   </Text>
                 ) : null}
                 {(item.data as any).amount ? (
-                  <Text style={[s.harvestChip, { color: '#FFA726', backgroundColor: '#FFA72618' }]}>
+                  <Text style={[s.harvestChip, { color: colors.warning, backgroundColor: colors.warning + '18' }]}>
                     {(item.data as any).amount} {(item.data as any).unit ?? ''}
                   </Text>
                 ) : null}
@@ -256,7 +256,7 @@ export default function DiaryScreen() {
         {filteredPlant && (
           <View style={[s.plantFilterBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
             <Text style={[s.plantFilterText, { color: colors.primary }]}>
-              🌱 {filteredPlant.name}
+              {CROPS_BY_ID[filteredPlant.cropId]?.emoji ?? '🌱'} {filteredPlant.name}
             </Text>
             <Pressable onPress={() => router.setParams({ plantId: undefined } as any)} hitSlop={8}>
               <Ionicons name="close-circle" size={16} color={colors.textSecondary} />
