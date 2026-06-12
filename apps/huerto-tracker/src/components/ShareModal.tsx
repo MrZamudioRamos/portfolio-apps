@@ -1,15 +1,15 @@
 import { useColors, useTheme } from '@portfolio/ui';
 import { ShareCard, useShareCard, type ShareCardTheme } from '@portfolio/share';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
-const HUERTO_THEME: ShareCardTheme = {
+const HUERTO_THEME: Omit<ShareCardTheme, 'tagline'> = {
   background: '#1A2E1A',
   primaryColor: '#66BB6A',
   textColor: '#F1F8E9',
   logoComponent: <Text style={{ fontSize: 28 }}>🌱</Text>,
   appName: 'HuertoTracker',
-  tagline: 'Tu huerto urbano',
   handle: 'huertotracker.app',
 };
 
@@ -38,6 +38,7 @@ export function ShareModal({
 }: ShareModalProps) {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
+  const { t } = useTranslation();
 
   const { cardRef, share } = useShareCard({
     app: 'huerto-tracker',
@@ -47,7 +48,7 @@ export function ShareModal({
   });
 
   const cardProps = {
-    theme: HUERTO_THEME,
+    theme: { ...HUERTO_THEME, tagline: t('share.tagline') },
     title,
     primaryStat,
     primaryStatLabel,
@@ -75,12 +76,12 @@ export function ShareModal({
               style={[s.shareBtn, { backgroundColor: colors.primary, borderRadius: radii.full }]}
             >
               <Text style={[s.shareBtnText, { fontSize: fontSize.md, fontWeight: fontWeight.bold }]}>
-                Compartir
+                {t('share.cta')}
               </Text>
             </Pressable>
             <Pressable onPress={onClose} hitSlop={12}>
               <Text style={[s.skipText, { color: colors.textSecondary, fontSize: fontSize.sm }]}>
-                Ahora no
+                {t('share.notNow')}
               </Text>
             </Pressable>
           </View>

@@ -347,7 +347,11 @@ export default function DiaryScreen() {
               ctaLabel={t('diary.newEntry')}
               onCta={() => router.push('/entry/new')}
             />
-          ) : null
+          ) : (
+            <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+              <ActivityIndicator color={colors.primary} />
+            </View>
+          )
         }
       />
 

@@ -22,6 +22,23 @@
     "viewAll": "Veure tot",
     "more": "més"
   },
+  "errorScreen": {
+    "title": "Alguna cosa ha anat malament",
+    "desc": "Les teves dades estan segures. Torna-ho a provar.",
+    "retry": "Reintentar"
+  },
+  "share": {
+    "cta": "Compartir",
+    "notNow": "Ara no",
+    "tagline": "El teu hort urbà",
+    "seasonTitle": "Temporada completada a {{garden}}",
+    "seasonStatLabel": "cultius aquesta temporada",
+    "harvestedLabel": "collits",
+    "firstHarvestTitle": "Primera collita: {{plant}}",
+    "sinceSowingLabel": "des de la sembra",
+    "streakTitle": "Ratxa de {{count}} dies cuidant el meu hort",
+    "streakStatLabel": "dies consecutius"
+  },
   "home": {
     "title": "El meu hort",
     "streak_one": "🔥 {{count}} dia",

@@ -4,10 +4,12 @@ import { initSupabase, handleDeepLink, useSession } from '@portfolio/supabase';
 import { useOnboarding } from '@portfolio/shared';
 import { initAnalytics, track, identifyUser, EVENTS, Sentry } from '../src/analytics';
 import { ThemeProvider, huertoPalette } from '@portfolio/ui';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as Linking from 'expo-linking';
+import i18next from 'i18next';
 import React, { useEffect } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useSyncProvider } from '../src/sync/useSyncProvider';
@@ -32,6 +34,35 @@ initAnalytics();
 // Make Nunito the default font (patch must run before any Text renders).
 applyNunito();
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+// Catches render errors anywhere in the route tree (expo-router convention).
+// Deliberately theme-free: the crash may have happened inside ThemeProvider.
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12, backgroundColor: '#FAFAF5' }}>
+      <Text style={{ fontSize: 48 }}>🥀</Text>
+      <Text style={{ fontSize: 20, fontWeight: '700', color: '#2E2E2E', textAlign: 'center' }}>
+        {i18next.t('errorScreen.title', 'Algo ha salido mal')}
+      </Text>
+      <Text style={{ fontSize: 14, color: '#757575', textAlign: 'center' }}>
+        {i18next.t('errorScreen.desc', 'Tus datos están a salvo. Vuelve a intentarlo.')}
+      </Text>
+      <Pressable
+        onPress={retry}
+        accessibilityRole="button"
+        style={{ marginTop: 8, backgroundColor: '#2E7D32', paddingHorizontal: 28, paddingVertical: 12, borderRadius: 24 }}
+      >
+        <Text style={{ color: '#fff', fontWeight: '700' }}>
+          {i18next.t('errorScreen.retry', 'Reintentar')}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
 
 function AppServices() {
   const router = useRouter();

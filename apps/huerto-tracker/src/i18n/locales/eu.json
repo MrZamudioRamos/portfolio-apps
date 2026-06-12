@@ -22,6 +22,23 @@
     "viewAll": "Guztiak ikusi",
     "more": "gehiago"
   },
+  "errorScreen": {
+    "title": "Zerbait gaizki joan da",
+    "desc": "Zure datuak seguru daude. Saiatu berriro.",
+    "retry": "Berriro saiatu"
+  },
+  "share": {
+    "cta": "Partekatu",
+    "notNow": "Orain ez",
+    "tagline": "Zure hiri-baratzea",
+    "seasonTitle": "Denboraldia osatuta: {{garden}}",
+    "seasonStatLabel": "labore denboraldi honetan",
+    "harvestedLabel": "bilduta",
+    "firstHarvestTitle": "Lehen uzta: {{plant}}",
+    "sinceSowingLabel": "ereitetik",
+    "streakTitle": "{{count}} eguneko bolada nire baratzea zaintzen",
+    "streakStatLabel": "egun jarraian"
+  },
   "home": {
     "title": "Nire Baratzea",
     "streak_one": "🔥 {{count}} egun",

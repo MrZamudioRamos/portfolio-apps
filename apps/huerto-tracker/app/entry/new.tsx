@@ -147,9 +147,9 @@ export default function NewEntryScreen() {
             : null;
           setShareModal({
             eventType: 'first_harvest',
-            title: `Primera cosecha: ${plant?.name ?? ''}`,
+            title: t('share.firstHarvestTitle', { plant: plant?.name ?? '' }),
             primaryStat: sowDays != null ? `${sowDays}d` : '🎉',
-            primaryStatLabel: sowDays != null ? 'desde la siembra' : undefined,
+            primaryStatLabel: sowDays != null ? t('share.sinceSowingLabel') : undefined,
             badgeIcon: crop?.emoji ?? '🧺',
           });
           triggered = true;
@@ -160,9 +160,9 @@ export default function NewEntryScreen() {
       if (!triggered && isNew && isMilestone(current)) {
         setShareModal({
           eventType: 'streak_milestone',
-          title: `Racha de ${current} días cuidando mi huerto`,
+          title: t('share.streakTitle', { count: current }),
           primaryStat: `${current}`,
-          primaryStatLabel: 'días consecutivos',
+          primaryStatLabel: t('share.streakStatLabel'),
           badgeIcon: '🔥',
         });
         triggered = true;

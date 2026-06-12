@@ -4,8 +4,9 @@ import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScalePress } from '../../src/components/ScalePress';
 import { usePro } from '../../src/hooks/usePro';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
@@ -51,10 +52,10 @@ export default function ToolsScreen() {
         {/* 2-column grid for visual richness */}
         <View style={s.grid}>
           {tools.map((tool) => (
-            <Pressable
+            <ScalePress
               key={tool.route}
               onPress={() => router.push(tool.route as any)}
-              style={({ pressed }) => [s.tile, { backgroundColor: colors.surface, opacity: pressed ? 0.85 : 1 }]}
+              style={[s.tile, { backgroundColor: colors.surface }]}
             >
               {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
               <View style={[s.iconCircle, { backgroundColor: colors.primary + '20' }]}>
@@ -69,7 +70,7 @@ export default function ToolsScreen() {
                 </View>
               )}
               <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} style={s.chevron} />
-            </Pressable>
+            </ScalePress>
           ))}
         </View>
       </ScrollView>

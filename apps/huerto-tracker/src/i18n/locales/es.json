@@ -22,6 +22,23 @@
     "viewAll": "Ver todo",
     "more": "más"
   },
+  "errorScreen": {
+    "title": "Algo ha salido mal",
+    "desc": "Tus datos están a salvo. Vuelve a intentarlo.",
+    "retry": "Reintentar"
+  },
+  "share": {
+    "cta": "Compartir",
+    "notNow": "Ahora no",
+    "tagline": "Tu huerto urbano",
+    "seasonTitle": "Temporada completada en {{garden}}",
+    "seasonStatLabel": "cultivos esta temporada",
+    "harvestedLabel": "cosechados",
+    "firstHarvestTitle": "Primera cosecha: {{plant}}",
+    "sinceSowingLabel": "desde la siembra",
+    "streakTitle": "Racha de {{count}} días cuidando mi huerto",
+    "streakStatLabel": "días consecutivos"
+  },
   "home": {
     "title": "Mi Huerto",
     "streak_one": "🔥 {{count}} día",

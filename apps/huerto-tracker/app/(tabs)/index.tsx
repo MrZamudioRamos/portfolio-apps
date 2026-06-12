@@ -34,6 +34,7 @@ import type { GardenReminder } from '../../src/models/reminder';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import { getLunarDay } from '../../src/utils/lunar';
 import { QuickLogModal } from '../../src/components/QuickLogModal';
+import { ScalePress } from '../../src/components/ScalePress';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import { useWeather } from '../../src/hooks/useWeather';
 import { getWeatherLabel } from '../../src/utils/weather';
@@ -296,9 +297,9 @@ export default function DashboardScreen() {
     const needsWater = getNeedsWater(item, crop, plantEntries);
     const healthColor = getHealthColor(item, needsWater);
     return (
-      <Pressable
+      <ScalePress
         onPress={() => router.push(`/plant/${item.id}`)}
-        style={({ pressed }) => [s.plantCard, { opacity: pressed ? 0.85 : 1 }]}
+        style={s.plantCard}
       >
         <Card padded={false} style={s.plantCardInner}>
           <View style={[s.plantImageBox, { backgroundColor: colors.surfaceAlt }]}>
@@ -389,7 +390,7 @@ export default function DashboardScreen() {
             </View>
           </View>
         </Card>
-      </Pressable>
+      </ScalePress>
     );
   }
 
@@ -422,6 +423,8 @@ export default function DashboardScreen() {
         {allGardens.length > 1 && (
           <Pressable
             onPress={() => router.push('/gardens' as any)}
+            accessibilityRole="button"
+            accessibilityLabel={t('gardens.title')}
             style={({ pressed }) => [s.headerBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
             hitSlop={8}
           >
@@ -430,6 +433,8 @@ export default function DashboardScreen() {
         )}
         <Pressable
           onPress={() => router.push('/(tabs)/settings' as any)}
+          accessibilityRole="button"
+          accessibilityLabel={t('tabs.settings')}
           style={({ pressed }) => [s.headerBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
           hitSlop={8}
         >
@@ -446,6 +451,13 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <>
+            {/* Initial load spinner — avoids empty-state flash */}
+            {plants.loading && plants.count === 0 && (
+              <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+                <ActivityIndicator color={colors.primary} />
+              </View>
+            )}
+
             {/* Empty state */}
             {plants.count === 0 && !plants.loading && (
               <View style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
@@ -490,7 +502,7 @@ export default function DashboardScreen() {
                   ))
                 )}
                 {weeklyTasks.length > 5 && (
-                  <Text style={[s.todayMore, { color: colors.textSecondary }]}>+{weeklyTasks.length - 5} más</Text>
+                  <Text style={[s.todayMore, { color: colors.textSecondary }]}>+{weeklyTasks.length - 5} {t('common.more')}</Text>
                 )}
               </View>
             )}
@@ -524,9 +536,9 @@ export default function DashboardScreen() {
 
             {/* Garden map card */}
             {garden && (
-              <Pressable
+              <ScalePress
                 onPress={() => router.push('/garden/map')}
-                style={({ pressed }) => [s.mapCard, { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.88 : 1 }]}
+                style={[s.mapCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
               >
                 <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '18' }]}>
                   <Ionicons name="map-outline" size={30} color={colors.primary} />
@@ -539,7 +551,7 @@ export default function DashboardScreen() {
                   <Text style={[s.mapCardSub, { color: colors.textSecondary }]}>{t('home.mapCardSub', { count: plants.count })}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
-              </Pressable>
+              </ScalePress>
             )}
 
             {/* My Plants section header + controls */}
@@ -586,7 +598,7 @@ export default function DashboardScreen() {
                       style={[{ flex: 1, color: colors.text, fontSize: fontSize.sm, marginLeft: 6 }]}
                     />
                     {plantSearch.length > 0 && (
-                      <Pressable onPress={() => setPlantSearch('')} hitSlop={8}>
+                      <Pressable onPress={() => setPlantSearch('')} hitSlop={8} accessibilityRole="button" accessibilityLabel={t('common.close')}>
                         <Ionicons name="close-circle" size={14} color={colors.textDisabled} />
                       </Pressable>
                     )}
@@ -694,9 +706,9 @@ export default function DashboardScreen() {
             )}
 
             {/* Lunar */}
-            <Pressable
+            <ScalePress
               onPress={() => router.push('/(tabs)/calendar' as any)}
-              style={({ pressed }) => [s.lunarCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderColor: colors.border, overflow: 'hidden', opacity: pressed ? 0.85 : 1 }]}
+              style={[s.lunarCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderColor: colors.border, overflow: 'hidden' }]}
             >
               {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
               <View style={s.lunarLeft}>
@@ -715,7 +727,7 @@ export default function DashboardScreen() {
                 <Text style={[s.lunarDay, { color: colors.textDisabled }]}>{t('home.lunarDay')}</Text>
                 <Text style={[s.lunarDayNum, { color: colors.text }]}>{lunar.dayInCycle}</Text>
               </View>
-            </Pressable>
+            </ScalePress>
 
             {/* Stats link */}
             {plants.count > 0 && (
@@ -736,12 +748,14 @@ export default function DashboardScreen() {
       />
 
       {/* FAB */}
-      <Pressable
+      <ScalePress
         onPress={() => router.push('/plant/new')}
-        style={({ pressed }) => [s.fab, { ...shadows.lg, backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 }]}
+        pressedScale={0.9}
+        accessibilityLabel={t('home.addPlant')}
+        style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary }]}
       >
         <Ionicons name="add" size={28} color="#fff" />
-      </Pressable>
+      </ScalePress>
 
       <QuickLogModal
         plant={quickLogPlant}

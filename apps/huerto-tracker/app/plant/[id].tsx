@@ -198,11 +198,11 @@ export default function PlantDetailScreen() {
             }, 0);
           setShareModal({
             eventType: 'season_summary',
-            title: `Temporada completada en ${activeGarden.name}`,
+            title: t('share.seasonTitle', { garden: activeGarden.name }),
             primaryStat: `${gardenPlants.length}`,
-            primaryStatLabel: 'cultivos esta temporada',
+            primaryStatLabel: t('share.seasonStatLabel'),
             secondaryStat: harvestKg > 0 ? `${(harvestKg / 1000).toFixed(1)} kg` : undefined,
-            secondaryStatLabel: harvestKg > 0 ? 'cosechados' : undefined,
+            secondaryStatLabel: harvestKg > 0 ? t('share.harvestedLabel') : undefined,
             badgeIcon: '🏆',
           });
         }

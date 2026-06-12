@@ -22,6 +22,23 @@
     "viewAll": "View all",
     "more": "more"
   },
+  "errorScreen": {
+    "title": "Something went wrong",
+    "desc": "Your data is safe. Please try again.",
+    "retry": "Retry"
+  },
+  "share": {
+    "cta": "Share",
+    "notNow": "Not now",
+    "tagline": "Your urban garden",
+    "seasonTitle": "Season completed in {{garden}}",
+    "seasonStatLabel": "crops this season",
+    "harvestedLabel": "harvested",
+    "firstHarvestTitle": "First harvest: {{plant}}",
+    "sinceSowingLabel": "since sowing",
+    "streakTitle": "{{count}}-day streak caring for my garden",
+    "streakStatLabel": "days in a row"
+  },
   "home": {
     "title": "My Garden",
     "streak_one": "🔥 {{count}} day",
