@@ -507,6 +507,26 @@ export default function DashboardScreen() {
               </View>
             )}
 
+            {/* AI quick actions — chat + plant scan, always one tap away */}
+            {!plants.loading && (
+              <View style={s.aiQuickRow}>
+                <ScalePress
+                  onPress={() => router.push('/chat' as any)}
+                  style={[s.aiQuickBtn, { backgroundColor: colors.primary + '16', borderColor: colors.primary + '44' }]}
+                >
+                  <Ionicons name="chatbubble-ellipses-outline" size={20} color={colors.primary} />
+                  <Text style={[s.aiQuickText, { color: colors.primaryDark }]} numberOfLines={1}>{t('chat.title')}</Text>
+                </ScalePress>
+                <ScalePress
+                  onPress={() => router.push('/plant/scan' as any)}
+                  style={[s.aiQuickBtn, { backgroundColor: colors.info + '14', borderColor: colors.info + '44' }]}
+                >
+                  <Ionicons name="camera-outline" size={20} color={colors.info} />
+                  <Text style={[s.aiQuickText, { color: colors.info }]} numberOfLines={1}>{t('plantScan.title')}</Text>
+                </ScalePress>
+              </View>
+            )}
+
             {/* Stats — horizontal scroll, no wrapping */}
             {plants.count > 0 && (
               <ScrollView
@@ -883,6 +903,19 @@ const makeStyles = (
     },
     todayEmptyText: { fontSize: fontSize.sm },
     todayMore: { fontSize: fontSize.xs, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
+    // AI quick actions
+    aiQuickRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.xl },
+    aiQuickBtn: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+      borderRadius: radii.xl,
+      borderWidth: 1,
+    },
+    aiQuickText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     // Stats
     statsRow: {
       flexDirection: 'row',
