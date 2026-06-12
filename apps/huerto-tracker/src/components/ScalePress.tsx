@@ -1,10 +1,7 @@
-import React from 'react';
-import { Pressable, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import React, { useRef } from 'react';
+import { Animated, Pressable, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-const SPRING = { damping: 18, stiffness: 320 };
 
 export interface ScalePressProps extends Omit<PressableProps, 'style'> {
   style?: StyleProp<ViewStyle>;
@@ -17,22 +14,24 @@ export interface ScalePressProps extends Omit<PressableProps, 'style'> {
  * style is a plain StyleProp (no ({pressed}) function styles).
  */
 export function ScalePress({ style, pressedScale = 0.96, onPressIn, onPressOut, children, ...rest }: ScalePressProps) {
-  const scale = useSharedValue(1);
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const springTo = (toValue: number) =>
+    Animated.spring(scale, { toValue, useNativeDriver: true, speed: 40, bounciness: 6 }).start();
 
   return (
     <AnimatedPressable
       accessibilityRole="button"
       {...rest}
       onPressIn={(e) => {
-        scale.value = withSpring(pressedScale, SPRING);
+        springTo(pressedScale);
         onPressIn?.(e);
       }}
       onPressOut={(e) => {
-        scale.value = withSpring(1, SPRING);
+        springTo(1);
         onPressOut?.(e);
       }}
-      style={[style, animatedStyle]}
+      style={[style, { transform: [{ scale }] }]}
     >
       {children}
     </AnimatedPressable>
