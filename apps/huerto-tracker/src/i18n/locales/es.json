@@ -684,6 +684,12 @@
   },
   "chat": {
     "title": "Asistente IA",
+    "errorAuth": "Tu sesión ha caducado. Inicia sesión de nuevo para seguir chateando.",
+    "authTitle": "Inicia sesión para chatear",
+    "authDesc": "El asistente necesita una cuenta para responder de forma segura. Es gratis y tus datos siguen siendo tuyos.",
+    "authBtn": "Iniciar sesión",
+    "clearTitle": "Borrar conversación",
+    "clearConfirm": "¿Borrar todo el historial del chat?",
     "contextInfo": "Sé sobre tu huerto en {{province}}",
     "placeholder": "Pregunta sobre tu huerto…",
     "send": "Enviar",

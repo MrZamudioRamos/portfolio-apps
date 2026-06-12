@@ -645,6 +645,12 @@
   },
   "chat": {
     "title": "Assistent IA",
+    "errorAuth": "La teva sessió ha caducat. Inicia sessió de nou per continuar xatejant.",
+    "authTitle": "Inicia sessió per xatejar",
+    "authDesc": "L'assistent necessita un compte per respondre de forma segura. És gratuït i les teves dades continuen sent teves.",
+    "authBtn": "Iniciar sessió",
+    "clearTitle": "Esborrar conversa",
+    "clearConfirm": "Vols esborrar tot l'historial del xat?",
     "contextInfo": "Conec el teu hort a {{province}}",
     "placeholder": "Pregunta sobre el teu hort…",
     "send": "Enviar",

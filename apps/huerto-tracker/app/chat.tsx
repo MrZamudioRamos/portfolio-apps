@@ -1,11 +1,14 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { useSession } from '@portfolio/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -28,7 +31,11 @@ interface UIMessage extends ChatMessage {
 }
 
 let msgCounter = 0;
-function uid() { return String(++msgCounter); }
+// Timestamp prefix keeps ids unique across app restarts (history is persisted).
+function uid() { return `${Date.now()}-${++msgCounter}`; }
+
+const HISTORY_KEY = (gardenId: string) => `chat-history:${gardenId}`;
+const MAX_HISTORY = 50;
 
 export default function ChatScreen() {
   const colors = useColors();
@@ -36,13 +43,47 @@ export default function ChatScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const { isPro } = usePro();
+  const { user } = useSession();
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
 
   const [messages, setMessages] = useState<UIMessage[]>([]);
+  const [hydrated, setHydrated] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const listRef = useRef<FlatList>(null);
+
+  // Restore persisted history for the active garden.
+  useEffect(() => {
+    if (!activeGarden?.id) return;
+    setHydrated(false);
+    AsyncStorage.getItem(HISTORY_KEY(activeGarden.id))
+      .then((raw) => {
+        if (raw) {
+          try { setMessages(JSON.parse(raw)); } catch { /* corrupt — start fresh */ }
+        } else {
+          setMessages([]);
+        }
+      })
+      .finally(() => setHydrated(true));
+  }, [activeGarden?.id]);
+
+  // Persist on every change (capped) — but never before hydration finishes,
+  // or we'd overwrite saved history with the initial empty array.
+  useEffect(() => {
+    if (!hydrated || !activeGarden?.id) return;
+    AsyncStorage.setItem(
+      HISTORY_KEY(activeGarden.id),
+      JSON.stringify(messages.slice(-MAX_HISTORY)),
+    ).catch(() => {});
+  }, [messages, hydrated, activeGarden?.id]);
+
+  const clearChat = useCallback(() => {
+    Alert.alert(t('chat.clearTitle'), t('chat.clearConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: () => setMessages([]) },
+    ]);
+  }, [t]);
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
 
@@ -69,10 +110,11 @@ export default function ChatScreen() {
       }));
       const reply = await sendChatMessage(history, activeGarden, gardenPlants, i18n.language);
       setMessages((prev) => [...prev, { id: uid(), role: 'assistant', content: reply }]);
-    } catch {
+    } catch (e) {
+      const code = e instanceof Error ? e.message : '';
       setMessages((prev) => [
         ...prev,
-        { id: uid(), role: 'assistant', content: t('chat.error'), error: true },
+        { id: uid(), role: 'assistant', content: code === 'AUTH' ? t('chat.errorAuth') : t('chat.error'), error: true },
       ]);
     } finally {
       setLoading(false);
@@ -95,6 +137,11 @@ export default function ChatScreen() {
             </Text>
           )}
         </View>
+        {messages.length > 0 && (
+          <Pressable onPress={clearChat} hitSlop={12} accessibilityRole="button" accessibilityLabel={t('chat.clearTitle')} style={{ marginRight: spacing.md }}>
+            <Ionicons name="trash-outline" size={20} color={colors.textSecondary} />
+          </Pressable>
+        )}
         <View style={[s.aiBadge, { backgroundColor: colors.primary + '22' }]}>
           <Text style={[s.aiBadgeText, { color: colors.primary }]}>AI</Text>
         </View>
@@ -111,6 +158,19 @@ export default function ChatScreen() {
             style={[s.gateBtn, { backgroundColor: colors.primary }]}
           >
             <Text style={[s.gateBtnText]}>{t('chat.proBtn')}</Text>
+          </Pressable>
+        </View>
+      ) : !user ? (
+        /* Auth gate — the Edge Function requires a signed-in user */
+        <View style={s.gate}>
+          <Text style={{ fontSize: 56 }}>🔐</Text>
+          <Text style={[s.gateTitle, { color: colors.text }]}>{t('chat.authTitle')}</Text>
+          <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.authDesc')}</Text>
+          <Pressable
+            onPress={() => router.push('/auth' as any)}
+            style={[s.gateBtn, { backgroundColor: colors.primary }]}
+          >
+            <Text style={[s.gateBtnText]}>{t('chat.authBtn')}</Text>
           </Pressable>
         </View>
       ) : (

@@ -645,6 +645,12 @@
   },
   "chat": {
     "title": "AI Laguntzailea",
+    "errorAuth": "Zure saioa iraungi da. Hasi saioa berriro txateatzen jarraitzeko.",
+    "authTitle": "Hasi saioa txateatzeko",
+    "authDesc": "Laguntzaileak kontu bat behar du modu seguruan erantzuteko. Doan da eta zure datuak zureak dira.",
+    "authBtn": "Hasi saioa",
+    "clearTitle": "Elkarrizketa ezabatu",
+    "clearConfirm": "Txat-historia osoa ezabatu nahi duzu?",
     "contextInfo": "Zure baratzaren berri badakit: {{province}}",
     "placeholder": "Galdetu zure baratzeari buruz…",
     "send": "Bidali",

@@ -653,6 +653,12 @@
   },
   "chat": {
     "title": "AI Assistant",
+    "errorAuth": "Your session has expired. Sign in again to keep chatting.",
+    "authTitle": "Sign in to chat",
+    "authDesc": "The assistant needs an account to reply securely. It's free and your data stays yours.",
+    "authBtn": "Sign in",
+    "clearTitle": "Clear conversation",
+    "clearConfirm": "Delete the whole chat history?",
     "contextInfo": "I know your garden in {{province}}",
     "placeholder": "Ask about your garden…",
     "send": "Send",
