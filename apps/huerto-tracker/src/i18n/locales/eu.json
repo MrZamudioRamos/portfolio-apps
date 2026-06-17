@@ -1226,6 +1226,22 @@
     "retry": "Berriro saiatu",
     "aiNote": "AAk sortutako erantzunak · egiaztatu agronomia-aditu batekin"
   },
+  "plantCoach": {
+    "germWindow": "Erein berria. Normalean {{min}}–{{max}} egunetan ernetzen da: mantendu substratua heze eta epel.",
+    "germNow": "Egun hauetan ernetu beharko luke. Ateratzen denean, aldatu «Hazten» egoerara.",
+    "germLate": "{{days}} egun ernetu gabe. Egiaztatu mintegiaren hezetasuna eta tenperatura.",
+    "toTransplant": "Mintegian. Kanpora trasplantatzeko prest ~{{days}} egunetan.",
+    "transplantNow": "Kanpora ateratzeko prest. Gogortu egun batzuetan eta trasplantatu.",
+    "seedlingGeneric": "Mintegian. Mantendu substratua heze eta argi onarekin.",
+    "growing": "Ondo hazten. Uzta ~{{weeks}} astetan aurreikusten da.",
+    "harvestSoon": "Ia prest: ~{{days}} egun aurreikusitako uztarako.",
+    "harvestDue": "Uzta biltzeko prest egon beharko luke. Begiratu!",
+    "harvesting": "Uzta betean. Bildu maiz produzitzen jarrai dezan.",
+    "flowering": "Loretan. Mantendu ureztatze konstantea ondo lotzeko.",
+    "fruiting": "Fruituekin. Ureztatu erregularki eta zaindu mantenugaiak.",
+    "growingGeneric": "Hazten. Ureztatu eguraldiaren arabera eta zaindu izurriak.",
+    "finished": "Zikloa amaituta. Erregistratu uzta osoa eta pentsatu txandaketan."
+  },
   "sowNow": {
     "title": "Erein orain",
     "subtitle": "Garai ona {{month}}(e)an zure eremurako",

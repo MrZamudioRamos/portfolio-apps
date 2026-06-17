@@ -1226,6 +1226,22 @@
     "retry": "Reintentar",
     "aiNote": "Respostas xeradas por IA · verifica cun experto agronómico"
   },
+  "plantCoach": {
+    "germWindow": "Recén sementada. Adoita agromar en {{min}}–{{max}} días: mantén o substrato húmido e cálido.",
+    "germNow": "Debería agromar estes días. Cando saia, cámbiaa a «Crecendo».",
+    "germLate": "Leva {{days}} días sen agromar. Revisa a humidade e a temperatura do semilleiro.",
+    "toTransplant": "No semilleiro. Lista para transplantar fóra en ~{{days}} días.",
+    "transplantNow": "Xa pode saír fóra. Endurécea uns días e transplántaa.",
+    "seedlingGeneric": "No semilleiro. Mantén o substrato húmido e con boa luz.",
+    "growing": "Crecendo ben. Colleita estimada en ~{{weeks}} semanas.",
+    "harvestSoon": "Case lista: ~{{days}} días para a colleita estimada.",
+    "harvestDue": "Xa debería estar lista para colleitar. Bótalle unha ollada!",
+    "harvesting": "En plena colleita. Recolle a miúdo para que siga producindo.",
+    "flowering": "En flor. Non lle falte rega constante para que calle ben.",
+    "fruiting": "Con froitos. Rega regular e vixía que non lle falten nutrientes.",
+    "growingGeneric": "Crecendo. Rega segundo o tempo e vixía as pragas.",
+    "finished": "Ciclo rematado. Rexistra a túa colleita total e pensa na rotación."
+  },
   "sowNow": {
     "title": "Sementa agora",
     "subtitle": "Boa época en {{month}} para a túa zona",

@@ -1044,6 +1044,22 @@
     "retry": "Reintentar",
     "aiNote": "Respuestas generadas por IA · verifica con un experto agronómico"
   },
+  "plantCoach": {
+    "germWindow": "Recién sembrada. Suele brotar en {{min}}–{{max}} días: mantén el sustrato húmedo y cálido.",
+    "germNow": "Debería brotar estos días. Cuando asome, cámbiala a «Creciendo».",
+    "germLate": "Lleva {{days}} días sin brotar. Revisa la humedad y la temperatura del semillero.",
+    "toTransplant": "En semillero. Lista para trasplantar al exterior en ~{{days}} días.",
+    "transplantNow": "Ya puede salir fuera. Endurécela unos días y trasplántala.",
+    "seedlingGeneric": "En semillero. Mantén el sustrato húmedo y con buena luz.",
+    "growing": "Creciendo bien. Cosecha estimada en ~{{weeks}} semanas.",
+    "harvestSoon": "Casi lista: ~{{days}} días para la cosecha estimada.",
+    "harvestDue": "Ya debería estar lista para cosechar. ¡Échale un vistazo!",
+    "harvesting": "En plena cosecha. Recolecta a menudo para que siga produciendo.",
+    "flowering": "En flor. No le falte riego constante para que cuaje bien.",
+    "fruiting": "Con frutos. Riego regular y revisa que no le falten nutrientes.",
+    "growingGeneric": "Creciendo. Riega según el tiempo y vigila las plagas.",
+    "finished": "Ciclo terminado. Registra tu cosecha total y piensa en la rotación."
+  },
   "sowNow": {
     "title": "Siembra ahora",
     "subtitle": "Buena época en {{month}} para tu zona",

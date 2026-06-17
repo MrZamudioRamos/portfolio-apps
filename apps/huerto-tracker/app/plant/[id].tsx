@@ -26,6 +26,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { INDOOR_START, getSeedlingSchedule } from '../../src/data/indoorStart';
+import { getPlantCoach } from '../../src/utils/plantCoach';
 import type { PropagationMethod } from '../../src/models/plant';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
@@ -335,6 +336,20 @@ export default function PlantDetailScreen() {
               </View>
             )}
           </View>
+
+          {/* Coach line — what's happening now + the next step, in plain words */}
+          {(() => {
+            const coach = getPlantCoach(plant, crop);
+            if (!coach) return null;
+            const tone =
+              coach.tone === 'success' ? colors.success : coach.tone === 'warn' ? colors.warning : colors.info;
+            return (
+              <View style={[s.coachCard, { backgroundColor: tone + '14', borderColor: tone + '44' }]}>
+                <Text style={s.coachEmoji}>{coach.emoji}</Text>
+                <Text style={[s.coachText, { color: colors.text }]}>{t(coach.key, coach.params)}</Text>
+              </View>
+            );
+          })()}
 
           {/* Notes */}
           {plant.notes && (
@@ -1531,6 +1546,17 @@ const makeStyles = (
     },
     notesEmoji: { fontSize: 16, marginTop: 1 },
     notesText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20 },
+    coachCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      padding: spacing.md,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      marginBottom: spacing.lg,
+    },
+    coachEmoji: { fontSize: 22 },
+    coachText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20, fontWeight: fontWeight.medium },
     duplicateBtn: {
       flexDirection: 'row',
       alignItems: 'center',

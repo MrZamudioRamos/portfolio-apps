@@ -1226,6 +1226,22 @@
     "retry": "Tornar a intentar",
     "aiNote": "Respostes generades per IA · verifica amb un expert agronòmic"
   },
+  "plantCoach": {
+    "germWindow": "Tot just sembrada. Sol germinar en {{min}}–{{max}} dies: mantén el substrat humit i càlid.",
+    "germNow": "Hauria de germinar aquests dies. Quan tragui, canvia-la a «Creixent».",
+    "germLate": "Fa {{days}} dies que no germina. Revisa la humitat i la temperatura del planter.",
+    "toTransplant": "Al planter. A punt per trasplantar a fora en ~{{days}} dies.",
+    "transplantNow": "Ja pot sortir a fora. Endureix-la uns dies i trasplanta-la.",
+    "seedlingGeneric": "Al planter. Mantén el substrat humit i amb bona llum.",
+    "growing": "Creix bé. Collita estimada en ~{{weeks}} setmanes.",
+    "harvestSoon": "Gairebé a punt: ~{{days}} dies per a la collita estimada.",
+    "harvestDue": "Ja hauria d'estar a punt per collir. Fes-hi un cop d'ull!",
+    "harvesting": "En plena collita. Cull sovint perquè continuï produint.",
+    "flowering": "En flor. No li falti reg constant perquè qualli bé.",
+    "fruiting": "Amb fruits. Reg regular i vigila que no li faltin nutrients.",
+    "growingGeneric": "Creixent. Rega segons el temps i vigila les plagues.",
+    "finished": "Cicle acabat. Registra la collita total i pensa en la rotació."
+  },
   "sowNow": {
     "title": "Sembra ara",
     "subtitle": "Bona època al {{month}} per a la teva zona",
