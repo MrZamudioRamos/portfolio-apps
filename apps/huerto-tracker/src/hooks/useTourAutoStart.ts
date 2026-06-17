@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type RefObject } from 'react';
 import { useCopilot } from 'react-native-copilot';
 import { useCoachMark } from './useCoachMark';
 
@@ -9,6 +9,9 @@ interface Options {
   firstStep?: string;
   /** Delay before starting, to let targets lay out. Default 800ms. */
   delay?: number;
+  /** Scroll container ref — required for targets inside a FlatList/ScrollView
+   *  so copilot can measure and scroll to them. */
+  scrollRef?: RefObject<any>;
 }
 
 /**
@@ -17,14 +20,19 @@ interface Options {
  * SemillitaTourProvider.
  */
 export function useTourAutoStart(gateKey: string, opts: Options = {}) {
-  const { ready = true, firstStep, delay = 800 } = opts;
+  const { ready = true, firstStep, delay = 800, scrollRef } = opts;
   const tour = useCoachMark(gateKey);
   const { start } = useCopilot();
 
   useEffect(() => {
     if (!tour.show || !ready) return;
     const id = setTimeout(() => {
-      start(firstStep);
+      // copilot calls scrollView.scrollTo() — FlatList lacks it, so hand it
+      // the inner ScrollView via getScrollResponder() when present.
+      const node = scrollRef?.current as any;
+      const scrollable =
+        node && typeof node.getScrollResponder === 'function' ? node.getScrollResponder() : node;
+      start(firstStep, scrollable ?? undefined);
       tour.dismiss();
     }, delay);
     return () => clearTimeout(id);

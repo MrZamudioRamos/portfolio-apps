@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { GardenWidget } from '../../src/widgets/GardenWidget';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -89,11 +89,14 @@ function DashboardInner() {
     }, [garden?.id, garden?.province])
   );
 
+  const listRef = useRef<FlatList<Plant>>(null);
   // First visit: spotlight tour. Start at the named first step — the today/
-  // first-use card is in the FlatList header and registers after the FAB.
+  // first-use card lives in the FlatList header, so copilot needs the list
+  // ref to measure and scroll to it.
   useTourAutoStart('home', {
     ready: !plants.loading,
     firstStep: plants.count > 0 ? 'today' : 'start',
+    scrollRef: listRef,
   });
 
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
@@ -454,6 +457,7 @@ function DashboardInner() {
       </View>
 
       <FlatList
+        ref={listRef}
         data={filteredPlants}
         keyExtractor={(item) => item.id}
         numColumns={2}
