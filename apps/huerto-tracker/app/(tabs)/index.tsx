@@ -1,4 +1,4 @@
-import { useColors, useTheme, Card, StatCard, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useSession } from '@portfolio/supabase';
 import { Ionicons } from '@expo/vector-icons';
@@ -538,53 +538,6 @@ export default function DashboardScreen() {
               </View>
             )}
 
-            {/* Stats — horizontal scroll, no wrapping */}
-            {plants.count > 0 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={s.statsRow}
-                style={{ marginBottom: spacing.xl }}
-              >
-                <StatCard emoji="🌱" value={plants.count} label={t('home.stats.plants')} />
-                {harvestingCount > 0 && (
-                  <StatCard emoji="🧺" value={harvestingCount} label={t('home.stats.harvesting')} onPress={() => setStatusFilter(statusFilter === 'harvesting' ? null : 'harvesting')} />
-                )}
-                {activeReminders > 0 && (
-                  <StatCard emoji="🔔" value={activeReminders} label={t('home.stats.reminders')} onPress={() => router.push('/settings/notifications' as any)} />
-                )}
-                {activePests > 0 && (
-                  <StatCard emoji="🐛" value={activePests} label={t('home.stats.pests')} onPress={() => router.push('/disease-guide' as any)} />
-                )}
-                {needsWaterCount > 0 && (
-                  <StatCard emoji="💧" value={needsWaterCount} label={t('home.stats.needsWater')} onPress={handleWaterAll} />
-                )}
-                {yearHarvestKg > 0 && (
-                  <StatCard emoji="⚖️" value={`${yearHarvestKg.toFixed(1)}kg`} label={t('home.stats.yearKg')} onPress={() => router.push('/stats')} />
-                )}
-              </ScrollView>
-            )}
-
-            {/* Garden map card */}
-            {garden && (
-              <ScalePress
-                onPress={() => router.push('/garden/map')}
-                style={[s.mapCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
-              >
-                <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '18' }]}>
-                  <Ionicons name="map-outline" size={30} color={colors.primary} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={[s.mapCardTitle, { color: colors.text }]}>
-                    {garden.gardenType ? `${GARDEN_TYPE_CONFIG[garden.gardenType]?.emoji ?? '🪴'} ${t(`gardenType.${garden.gardenType}`)}` : garden.name}
-                    {garden.gridRows && garden.gridCols ? ` · ${garden.gridCols}×${garden.gridRows}` : ''}
-                  </Text>
-                  <Text style={[s.mapCardSub, { color: colors.textSecondary }]}>{t('home.mapCardSub', { count: plants.count })}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
-              </ScalePress>
-            )}
-
             {/* My Plants section header + controls */}
             {plants.count > 0 && (
               <>
@@ -689,6 +642,26 @@ export default function DashboardScreen() {
         }
         ListFooterComponent={
           <>
+            {/* Garden map — moved below the fold to keep "Hoy" dominant */}
+            {garden && (
+              <ScalePress
+                onPress={() => router.push('/garden/map')}
+                style={[s.mapCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              >
+                <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '18' }]}>
+                  <Ionicons name="map-outline" size={30} color={colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.mapCardTitle, { color: colors.text }]}>
+                    {garden.gardenType ? `${GARDEN_TYPE_CONFIG[garden.gardenType]?.emoji ?? '🪴'} ${t(`gardenType.${garden.gardenType}`)}` : garden.name}
+                    {garden.gridRows && garden.gridCols ? ` · ${garden.gridCols}×${garden.gridRows}` : ''}
+                  </Text>
+                  <Text style={[s.mapCardSub, { color: colors.textSecondary }]}>{t('home.mapCardSub', { count: plants.count })}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
+              </ScalePress>
+            )}
+
             {/* Weather */}
             {(weather || weatherLoading) && (
               <View style={[s.weatherCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -880,29 +853,35 @@ const makeStyles = (
     // Today card
     todayCard: {
       marginHorizontal: spacing.xl,
-      marginBottom: spacing.md,
-      borderRadius: radii.lg,
+      marginBottom: spacing.xl,
+      borderRadius: radii.xl,
       borderWidth: 1,
-      borderLeftWidth: 4,
+      borderLeftWidth: 5,
       overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.08,
+      shadowRadius: 10,
+      elevation: 4,
     },
     todayTitle: {
-      fontSize: fontSize.sm,
+      fontSize: fontSize.lg,
       fontWeight: fontWeight.bold,
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.md,
     },
     todayCount: { fontWeight: fontWeight.bold },
     todayRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.sm,
+      gap: spacing.md,
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm,
+      paddingVertical: spacing.md,
       borderTopWidth: StyleSheet.hairlineWidth,
     },
-    todayEmoji: { fontSize: 16, width: 22, textAlign: 'center' },
-    todayLabel: { flex: 1, fontSize: fontSize.sm },
+    todayEmoji: { fontSize: 20, width: 26, textAlign: 'center' },
+    todayLabel: { flex: 1, fontSize: fontSize.md },
     todayEmpty: {
       flexDirection: 'row',
       alignItems: 'center',
