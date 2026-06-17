@@ -42,6 +42,7 @@ import {
 import { useUserProfile } from '../src/hooks/useUserProfile';
 import { track, EVENTS } from '../src/analytics';
 import { persistPickedImage } from '../src/utils/persistImage';
+import { CoachBubble } from '../src/components/CoachBubble';
 
 const NORTE_COUNTRIES: { country: string; emoji: string; regions: string[] }[] = [
   {
@@ -280,10 +281,8 @@ export default function OnboardingScreen() {
       {/* ── STEP 0: Bienvenida ── */}
       {step === 0 && (
         <View style={[s.stepContainer, { justifyContent: 'space-between' }]}>
-          <View style={{ flex: 1, justifyContent: 'center' }}>
-            <Text style={s.heroEmoji}>🌱</Text>
-            <Text style={[s.heroTitle, { color: colors.text }]}>{t('onboarding.step1Title')}</Text>
-            <Text style={[s.heroDesc, { color: colors.textSecondary }]}>{t('onboarding.step1Desc')}</Text>
+          <View style={{ flex: 1, justifyContent: 'center', gap: spacing.xl }}>
+            <CoachBubble text={t('onboarding.coachWelcome')} pose="wave" />
 
             <View style={s.featureList}>
               {[
@@ -684,12 +683,11 @@ export default function OnboardingScreen() {
       {/* ── STEP 7: Éxito ── */}
       {step === 7 && (
         <View style={[s.stepContainer, { justifyContent: 'space-between' }]}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 80, marginBottom: spacing.xl }}>🎉</Text>
-            <Text style={[s.stepTitle, { color: colors.text, textAlign: 'center' }]}>{t('onboarding.step4Title')}</Text>
-            <Text style={[s.stepSubtitle, { color: colors.textSecondary, textAlign: 'center' }]}>
-              {t('onboarding.step4Desc')}
-            </Text>
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            <CoachBubble
+              text={t('onboarding.coachCelebrate', { name: gardenName.trim() || t('home.defaultGardenName') })}
+              pose="celebrate"
+            />
           </View>
           <View style={{ gap: spacing.md }}>
             <Button

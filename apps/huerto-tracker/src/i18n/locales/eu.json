@@ -450,6 +450,8 @@
     "expSome": "Iraganean landatu dut",
     "expExpert": "Esperientzia handia daukat",
     "skipProfile": "Profila saltatu",
+    "coachWelcome": "Kaixo! Semillita naiz 🌱 Lagunduko dizut zure baratzea aurrera atera dadin.",
+    "coachCelebrate": "Zure «{{name}}» baratzea prest dago! 🎉 Lehenengoa landatuko dugu?",
     "selectCountry": "Aukeratu zure herrialdea"
   },
   "paywall": {

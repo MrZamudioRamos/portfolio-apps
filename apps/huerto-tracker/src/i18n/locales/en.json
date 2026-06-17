@@ -455,6 +455,8 @@
     "expSome": "I've grown some in the past",
     "expExpert": "I have extensive experience",
     "skipProfile": "Skip profile",
+    "coachWelcome": "Hi! I'm Semillita 🌱 I'll guide you so your garden thrives.",
+    "coachCelebrate": "Your garden “{{name}}” is ready! 🎉 Shall we plant the first one?",
     "selectCountry": "Select your country"
   },
   "paywall": {

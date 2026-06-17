@@ -450,6 +450,8 @@
     "expSome": "He cultivat en el passat",
     "expExpert": "Tinc àmplia experiència",
     "skipProfile": "Ometre perfil",
+    "coachWelcome": "Hola! Soc la Semillita 🌱 T'acompanyaré perquè el teu hort tiri endavant.",
+    "coachCelebrate": "El teu hort «{{name}}» ja està llest! 🎉 Plantem la primera?",
     "selectCountry": "Selecciona el teu país"
   },
   "paywall": {
