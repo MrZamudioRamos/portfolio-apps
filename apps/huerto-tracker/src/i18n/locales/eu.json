@@ -1236,7 +1236,8 @@
     "tourAdd": "Sakatu + botoia zure baratzean landare bat gehitzeko.",
     "calendar": "Hemen ikusten duzu hilabete bakoitzean zer erein eta bildu zure eremuaren arabera. Sakatu laborea datak ikusteko.",
     "diary": "Zure egunkaria: ureztatze, uzta eta ohar bakoitza gordetzen da. Sakatu + gehitzeko.",
-    "tools": "Hemen duzu gainerako guztia: katalogoa, landareak identifikatzea eta tresna aurreratuak behar dituzunean."
+    "tools": "Hemen duzu gainerako guztia: katalogoa, landareak identifikatzea eta tresna aurreratuak behar dituzunean.",
+    "toolsAdvanced": "Eta hemen, tresna aurreratuak esperientzia gehiago duzunerako."
   },
   "plantCoach": {
     "germWindow": "Erein berria. Normalean {{min}}–{{max}} egunetan ernetzen da: mantendu substratua heze eta epel.",

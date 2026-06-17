@@ -45,13 +45,11 @@ import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringSt
 import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Mascot } from '../../src/components/Mascot';
-import { useCoachMark } from '../../src/hooks/useCoachMark';
-import { CopilotProvider, CopilotStep, walkthroughable, useCopilot } from 'react-native-copilot';
-import { SemillitaTooltip } from '../../src/components/SemillitaTooltip';
+import { CopilotStep } from 'react-native-copilot';
+import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
+import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
-
-const WalkView = walkthroughable(View);
 
 function DashboardInner() {
   const colors = useColors();
@@ -61,8 +59,6 @@ function DashboardInner() {
 
   const { activeGarden: garden, gardens: allGardens, gardensLoading, refreshActiveId } = useActiveGarden();
   const { isGuest } = useSession();
-  const tour = useCoachMark('home');
-  const { start: startTour } = useCopilot();
   const allPlants = useCollection<Plant>('plants');
 
   useEffect(() => {
@@ -93,15 +89,12 @@ function DashboardInner() {
     }, [garden?.id, garden?.province])
   );
 
-  // First visit: auto-start the spotlight tour once plants have loaded.
-  useEffect(() => {
-    if (!tour.show || plants.loading) return;
-    const id = setTimeout(() => {
-      startTour();
-      tour.dismiss();
-    }, 700);
-    return () => clearTimeout(id);
-  }, [tour.show, plants.loading]);
+  // First visit: spotlight tour. Start at the named first step — the today/
+  // first-use card is in the FlatList header and registers after the FAB.
+  useTourAutoStart('home', {
+    ready: !plants.loading,
+    firstStep: plants.count > 0 ? 'today' : 'start',
+  });
 
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
   const [cardImgErr, setCardImgErr] = useState<Record<string, boolean>>({});
@@ -848,19 +841,10 @@ function DashboardInner() {
 }
 
 export default function DashboardScreen() {
-  const colors = useColors();
   return (
-    <CopilotProvider
-      overlay="svg"
-      animated
-      backdropColor="rgba(0,0,0,0.75)"
-      arrowColor={colors.surface}
-      tooltipComponent={SemillitaTooltip}
-      tooltipStyle={{ backgroundColor: colors.surface, borderRadius: 20, padding: 16, width: 300 }}
-      stepNumberComponent={() => null}
-    >
+    <SemillitaTourProvider>
       <DashboardInner />
-    </CopilotProvider>
+    </SemillitaTourProvider>
   );
 }
 

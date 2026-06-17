@@ -1054,7 +1054,8 @@
     "tourAdd": "Pulsa el botón + para añadir una planta a tu huerto.",
     "calendar": "Aquí ves qué sembrar y cosechar cada mes según tu zona. Toca un cultivo para ver sus fechas.",
     "diary": "Tu diario: cada riego, cosecha y nota queda registrada. Pulsa + para añadir.",
-    "tools": "Aquí tienes todo lo extra: catálogo, identificar plantas y herramientas avanzadas cuando las necesites."
+    "tools": "Aquí tienes todo lo extra: catálogo, identificar plantas y herramientas avanzadas cuando las necesites.",
+    "toolsAdvanced": "Y aquí, herramientas avanzadas para cuando tengas más experiencia."
   },
   "plantCoach": {
     "germWindow": "Recién sembrada. Suele brotar en {{min}}–{{max}} días: mantén el sustrato húmedo y cálido.",

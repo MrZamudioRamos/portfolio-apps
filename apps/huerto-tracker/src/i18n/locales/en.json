@@ -1397,7 +1397,8 @@
     "tourAdd": "Tap the + button to add a plant to your garden.",
     "calendar": "Here you see what to sow and harvest each month for your zone. Tap a crop for its dates.",
     "diary": "Your diary: every watering, harvest and note is logged. Tap + to add one.",
-    "tools": "Everything extra lives here: catalog, plant ID and advanced tools when you need them."
+    "tools": "Everything extra lives here: catalog, plant ID and advanced tools when you need them.",
+    "toolsAdvanced": "And here, advanced tools for when you have more experience."
   },
   "plantCoach": {
     "germWindow": "Just sown. Usually sprouts in {{min}}–{{max}} days — keep the soil moist and warm.",

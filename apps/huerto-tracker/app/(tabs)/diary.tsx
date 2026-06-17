@@ -25,20 +25,21 @@ import { useCsvExport } from '../../src/hooks/useCsvExport';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { usePro } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
-import { useCoachMark } from '../../src/hooks/useCoachMark';
-import { CoachMark } from '../../src/components/CoachMark';
+import { CopilotStep } from 'react-native-copilot';
+import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
+import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 
 const ALL_TYPES: Array<EntryType | 'all'> = [
   'all', 'watering', 'sowing', 'harvest', 'fertilizing', 'transplant',
   'pest', 'treatment', 'pruning', 'photo', 'note',
 ];
 
-export default function DiaryScreen() {
+function DiaryInner() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
-  const coach = useCoachMark('diary');
+  useTourAutoStart('diary', { firstStep: 'add' });
 
   const [activeFilter, setActiveFilter] = useState<EntryType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -359,17 +360,27 @@ export default function DiaryScreen() {
       />
 
       {/* FAB */}
-      <Pressable
-        onPress={() => router.push(plantId ? `/entry/new?plantId=${plantId}` : '/entry/new' as any)}
-        style={({ pressed }) => [
-          s.fab,
-          { ...shadows.lg, backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
-        ]}
-      >
-        <Ionicons name="add" size={28} color="#fff" />
-      </Pressable>
-      <CoachMark visible={coach.show} text={t('coach.diary')} pose="idle" onDismiss={coach.dismiss} />
+      <CopilotStep text={t('coach.diary')} order={1} name="add">
+        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary }]}>
+          <Pressable
+            onPress={() => router.push(plantId ? `/entry/new?plantId=${plantId}` : '/entry/new' as any)}
+            style={({ pressed }) => [
+              { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28, opacity: pressed ? 0.85 : 1 },
+            ]}
+          >
+            <Ionicons name="add" size={28} color="#fff" />
+          </Pressable>
+        </WalkView>
+      </CopilotStep>
     </SafeAreaView>
+  );
+}
+
+export default function DiaryScreen() {
+  return (
+    <SemillitaTourProvider>
+      <DiaryInner />
+    </SemillitaTourProvider>
   );
 }
 

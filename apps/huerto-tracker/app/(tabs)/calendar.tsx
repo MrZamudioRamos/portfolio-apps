@@ -19,15 +19,16 @@ import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import type { Plant } from '../../src/models/plant';
-import { useCoachMark } from '../../src/hooks/useCoachMark';
-import { CoachMark } from '../../src/components/CoachMark';
+import { CopilotStep } from 'react-native-copilot';
+import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
+import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 
-export default function CalendarScreen() {
+function CalendarInner() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { t, i18n } = useTranslation();
-  const coach = useCoachMark('calendar');
+  useTourAutoStart('calendar', { firstStep: 'month' });
 
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1); // 1-12
@@ -251,7 +252,8 @@ export default function CalendarScreen() {
       </View>
 
       {/* Month navigation */}
-      <View style={[s.monthNav, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <CopilotStep text={t('coach.calendar')} order={1} name="month">
+      <WalkView style={[s.monthNav, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <Pressable onPress={prevMonth} hitSlop={16} style={s.navArrow}>
           <Ionicons name="chevron-back" size={22} color={colors.primary} />
         </Pressable>
@@ -268,7 +270,8 @@ export default function CalendarScreen() {
         <Pressable onPress={nextMonth} hitSlop={16} style={s.navArrow}>
           <Ionicons name="chevron-forward" size={22} color={colors.primary} />
         </Pressable>
-      </View>
+      </WalkView>
+      </CopilotStep>
 
       {/* Banners + chips scroll with the list so the crop list gets the screen */}
       <FlatList
@@ -429,8 +432,15 @@ export default function CalendarScreen() {
           />
         }
       />
-      <CoachMark visible={coach.show} text={t('coach.calendar')} pose="point" onDismiss={coach.dismiss} />
     </SafeAreaView>
+  );
+}
+
+export default function CalendarScreen() {
+  return (
+    <SemillitaTourProvider>
+      <CalendarInner />
+    </SemillitaTourProvider>
   );
 }
 

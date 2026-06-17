@@ -1236,7 +1236,8 @@
     "tourAdd": "Prem el botó + per afegir una planta al teu hort.",
     "calendar": "Aquí veus què sembrar i collir cada mes segons la teva zona. Toca un cultiu per veure'n les dates.",
     "diary": "El teu diari: cada reg, collita i nota queda registrada. Prem + per afegir-ne.",
-    "tools": "Aquí tens tot l'extra: catàleg, identificar plantes i eines avançades quan les necessitis."
+    "tools": "Aquí tens tot l'extra: catàleg, identificar plantes i eines avançades quan les necessitis.",
+    "toolsAdvanced": "I aquí, eines avançades per quan tinguis més experiència."
   },
   "plantCoach": {
     "germWindow": "Tot just sembrada. Sol germinar en {{min}}–{{max}} dies: mantén el substrat humit i càlid.",

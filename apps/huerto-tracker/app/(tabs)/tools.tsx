@@ -8,8 +8,9 @@ import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScalePress } from '../../src/components/ScalePress';
 import { usePro } from '../../src/hooks/usePro';
-import { useCoachMark } from '../../src/hooks/useCoachMark';
-import { CoachMark } from '../../src/components/CoachMark';
+import { CopilotStep } from 'react-native-copilot';
+import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
+import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -23,13 +24,13 @@ interface ToolItem {
   badge?: string;
 }
 
-export default function ToolsScreen() {
+function ToolsInner() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
   const { isPro } = usePro();
-  const coach = useCoachMark('tools');
+  useTourAutoStart('tools', { firstStep: 'essentials' });
 
   // Essentials a beginner needs daily — kept front and uncluttered.
   const essentialTools: ToolItem[] = [
@@ -80,13 +81,24 @@ export default function ToolsScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
-        <View style={s.grid}>{essentialTools.map(renderTile)}</View>
+        <CopilotStep text={t('coach.tools')} order={1} name="essentials">
+          <WalkView style={s.grid}>{essentialTools.map(renderTile)}</WalkView>
+        </CopilotStep>
 
         <Text style={[s.sectionTitle, { color: colors.textSecondary }]}>{t('tools.advanced')}</Text>
-        <View style={s.grid}>{advancedTools.map(renderTile)}</View>
+        <CopilotStep text={t('coach.toolsAdvanced')} order={2} name="advanced">
+          <WalkView style={s.grid}>{advancedTools.map(renderTile)}</WalkView>
+        </CopilotStep>
       </ScrollView>
-      <CoachMark visible={coach.show} text={t('coach.tools')} pose="wave" onDismiss={coach.dismiss} />
     </SafeAreaView>
+  );
+}
+
+export default function ToolsScreen() {
+  return (
+    <SemillitaTourProvider>
+      <ToolsInner />
+    </SemillitaTourProvider>
   );
 }
 
