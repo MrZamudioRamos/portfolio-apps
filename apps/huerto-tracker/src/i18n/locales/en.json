@@ -1394,6 +1394,7 @@
   "coach": {
     "gotIt": "Got it!",
     "home": "This is your Today screen: each day you'll see what to do. Below, what to sow this month.",
+    "tourAdd": "Tap the + button to add a plant to your garden.",
     "calendar": "Here you see what to sow and harvest each month for your zone. Tap a crop for its dates.",
     "diary": "Your diary: every watering, harvest and note is logged. Tap + to add one.",
     "tools": "Everything extra lives here: catalog, plant ID and advanced tools when you need them."

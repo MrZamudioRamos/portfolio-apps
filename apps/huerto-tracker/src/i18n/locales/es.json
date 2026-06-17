@@ -1051,6 +1051,7 @@
   "coach": {
     "gotIt": "¡Entendido!",
     "home": "Esta es tu pantalla Hoy: cada día verás aquí qué hacer. Abajo, qué sembrar este mes.",
+    "tourAdd": "Pulsa el botón + para añadir una planta a tu huerto.",
     "calendar": "Aquí ves qué sembrar y cosechar cada mes según tu zona. Toca un cultivo para ver sus fechas.",
     "diary": "Tu diario: cada riego, cosecha y nota queda registrada. Pulsa + para añadir.",
     "tools": "Aquí tienes todo lo extra: catálogo, identificar plantas y herramientas avanzadas cuando las necesites."

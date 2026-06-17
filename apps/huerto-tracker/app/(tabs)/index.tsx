@@ -46,11 +46,14 @@ import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Mascot } from '../../src/components/Mascot';
 import { useCoachMark } from '../../src/hooks/useCoachMark';
-import { CoachMark } from '../../src/components/CoachMark';
+import { CopilotProvider, CopilotStep, walkthroughable, useCopilot } from 'react-native-copilot';
+import { SemillitaTooltip } from '../../src/components/SemillitaTooltip';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
-export default function DashboardScreen() {
+const WalkView = walkthroughable(View);
+
+function DashboardInner() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
@@ -58,7 +61,8 @@ export default function DashboardScreen() {
 
   const { activeGarden: garden, gardens: allGardens, gardensLoading, refreshActiveId } = useActiveGarden();
   const { isGuest } = useSession();
-  const coach = useCoachMark('home');
+  const tour = useCoachMark('home');
+  const { start: startTour } = useCopilot();
   const allPlants = useCollection<Plant>('plants');
 
   useEffect(() => {
@@ -88,6 +92,16 @@ export default function DashboardScreen() {
       if (garden?.province) checkFrost(garden.province);
     }, [garden?.id, garden?.province])
   );
+
+  // First visit: auto-start the spotlight tour once plants have loaded.
+  useEffect(() => {
+    if (!tour.show || plants.loading) return;
+    const id = setTimeout(() => {
+      startTour();
+      tour.dismiss();
+    }, 700);
+    return () => clearTimeout(id);
+  }, [tour.show, plants.loading]);
 
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
   const [cardImgErr, setCardImgErr] = useState<Record<string, boolean>>({});
@@ -464,7 +478,8 @@ export default function DashboardScreen() {
 
             {/* Empty state */}
             {plants.count === 0 && !plants.loading && (
-              <View style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
+              <CopilotStep text={t('coach.home')} order={1} name="start">
+              <WalkView style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
                 <Mascot pose="wave" size={128} />
                 <Text style={[s.firstUseTitle, { color: colors.text }]}>{t('home.firstUseTitle', { name: garden?.name ?? t('home.defaultGardenName') })}</Text>
                 <Text style={[s.firstUseDesc, { color: colors.textSecondary }]}>{t('home.firstUseDesc')}</Text>
@@ -475,7 +490,8 @@ export default function DashboardScreen() {
                   <Ionicons name="add-circle-outline" size={20} color="#fff" />
                   <Text style={s.firstUseCtaText}>{t('home.firstUseCta')}</Text>
                 </Pressable>
-              </View>
+              </WalkView>
+              </CopilotStep>
             )}
 
             {/* Beginner's first question answered: what should I plant? */}
@@ -485,7 +501,8 @@ export default function DashboardScreen() {
 
             {/* TODAY card — first thing visible when there are plants */}
             {plants.count > 0 && (
-              <View style={[s.todayCard, { backgroundColor: colors.surface, borderColor: colors.border, borderLeftColor: todayAccent }]}>
+              <CopilotStep text={t('coach.home')} order={1} name="today">
+              <WalkView style={[s.todayCard, { backgroundColor: colors.surface, borderColor: colors.border, borderLeftColor: todayAccent }]}>
                 <Text style={[s.todayTitle, { color: colors.text }]}>
                   {t('home.weeklyTasks')}
                   {weeklyTasks.length > 0 && (
@@ -513,7 +530,8 @@ export default function DashboardScreen() {
                 {weeklyTasks.length > 5 && (
                   <Text style={[s.todayMore, { color: colors.textSecondary }]}>+{weeklyTasks.length - 5} {t('common.more')}</Text>
                 )}
-              </View>
+              </WalkView>
+              </CopilotStep>
             )}
 
             {/* Sow now — coach surface, what to plant this month in your zone */}
@@ -755,14 +773,18 @@ export default function DashboardScreen() {
       />
 
       {/* FAB */}
-      <ScalePress
-        onPress={() => router.push('/plant/new')}
-        pressedScale={0.9}
-        accessibilityLabel={t('home.addPlant')}
-        style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary }]}
-      >
-        <Ionicons name="add" size={28} color="#fff" />
-      </ScalePress>
+      <CopilotStep text={t('coach.tourAdd')} order={2} name="add">
+        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary }]}>
+          <ScalePress
+            onPress={() => router.push('/plant/new')}
+            pressedScale={0.9}
+            accessibilityLabel={t('home.addPlant')}
+            style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28 }}
+          >
+            <Ionicons name="add" size={28} color="#fff" />
+          </ScalePress>
+        </WalkView>
+      </CopilotStep>
 
       <QuickLogModal
         plant={quickLogPlant}
@@ -821,8 +843,24 @@ export default function DashboardScreen() {
           </Pressable>
         </KeyboardAvoidingView>
       </Modal>
-      <CoachMark visible={coach.show} text={t('coach.home')} pose="wave" onDismiss={coach.dismiss} />
     </SafeAreaView>
+  );
+}
+
+export default function DashboardScreen() {
+  const colors = useColors();
+  return (
+    <CopilotProvider
+      overlay="svg"
+      animated
+      backdropColor="rgba(0,0,0,0.75)"
+      arrowColor={colors.surface}
+      tooltipComponent={SemillitaTooltip}
+      tooltipStyle={{ backgroundColor: colors.surface, borderRadius: 20, padding: 16, width: 300 }}
+      stepNumberComponent={() => null}
+    >
+      <DashboardInner />
+    </CopilotProvider>
   );
 }
 

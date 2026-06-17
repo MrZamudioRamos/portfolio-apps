@@ -33,8 +33,6 @@ export default function ToolsScreen() {
 
   // Essentials a beginner needs daily — kept front and uncluttered.
   const essentialTools: ToolItem[] = [
-    { icon: 'happy-outline',               labelKey: 'Coach (demo)',                route: '/coach-demo',    tint: 'secondary' },
-    { icon: 'flask-outline',               labelKey: 'Copilot smoke',               route: '/copilot-smoke', tint: 'warning' },
     { icon: 'library-outline',             labelKey: 'settings.tools.catalog',      route: '/catalog',       tint: 'primary' },
     { icon: 'chatbubble-ellipses-outline', labelKey: 'chat.title',                  route: '/chat',          tint: 'info',    badge: isPro ? undefined : 'Pro' },
     { icon: 'bug-outline',                 labelKey: 'settings.tools.diseaseGuide', route: '/disease-guide', tint: 'error' },
