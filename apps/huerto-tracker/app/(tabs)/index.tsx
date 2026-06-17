@@ -44,7 +44,7 @@ import { PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringStatus';
 import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
-import { Illustration } from '../../src/components/Illustration';
+import { Mascot } from '../../src/components/Mascot';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -462,7 +462,7 @@ export default function DashboardScreen() {
             {/* Empty state */}
             {plants.count === 0 && !plants.loading && (
               <View style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
-                <Illustration name="seedling" size={132} />
+                <Mascot pose="wave" size={128} />
                 <Text style={[s.firstUseTitle, { color: colors.text }]}>{t('home.firstUseTitle', { name: garden?.name ?? t('home.defaultGardenName') })}</Text>
                 <Text style={[s.firstUseDesc, { color: colors.textSecondary }]}>{t('home.firstUseDesc')}</Text>
                 <Pressable
@@ -491,7 +491,7 @@ export default function DashboardScreen() {
                 </Text>
                 {weeklyTasks.length === 0 ? (
                   <View style={s.todayEmpty}>
-                    <Ionicons name="checkmark-circle" size={20} color={colors.success} />
+                    <Mascot pose="celebrate" size={40} />
                     <Text style={[s.todayEmptyText, { color: colors.textSecondary }]}>{t('home.weeklyTasksEmpty')}</Text>
                   </View>
                 ) : (

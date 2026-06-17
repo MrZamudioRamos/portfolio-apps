@@ -43,6 +43,7 @@ import { useUserProfile } from '../src/hooks/useUserProfile';
 import { track, EVENTS } from '../src/analytics';
 import { persistPickedImage } from '../src/utils/persistImage';
 import { CoachBubble } from '../src/components/CoachBubble';
+import { CoachHeader } from '../src/components/CoachHeader';
 
 const NORTE_COUNTRIES: { country: string; emoji: string; regions: string[] }[] = [
   {
@@ -313,8 +314,7 @@ export default function OnboardingScreen() {
       {step === 1 && (
         <View style={s.stepContainer}>
           <ScrollView contentContainerStyle={s.stepContent} keyboardShouldPersistTaps="handled">
-            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.spaceTitle')}</Text>
-            <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>{t('onboarding.spaceDesc')}</Text>
+            <CoachHeader title={t('onboarding.spaceTitle')} subtitle={t('onboarding.spaceDesc')} pose="point" />
             <Text style={[s.multiHint, { color: colors.textDisabled }]}>{t('onboarding.spaceMultiHint')}</Text>
 
             <View style={s.optionGrid}>
@@ -364,8 +364,7 @@ export default function OnboardingScreen() {
       {step === 2 && (
         <View style={s.stepContainer}>
           <ScrollView contentContainerStyle={s.stepContent} keyboardShouldPersistTaps="handled">
-            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.methodTitle')}</Text>
-            <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>{t('onboarding.methodDesc')}</Text>
+            <CoachHeader title={t('onboarding.methodTitle')} subtitle={t('onboarding.methodDesc')} pose="point" />
             <Text style={[s.multiHint, { color: colors.textDisabled }]}>{t('onboarding.spaceMultiHint')}</Text>
 
             <View style={s.optionGrid}>
@@ -415,8 +414,7 @@ export default function OnboardingScreen() {
       {step === 3 && (
         <View style={s.stepContainer}>
           <View style={s.stepContent}>
-            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.sunTitle')}</Text>
-            <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>{t('onboarding.sunDesc')}</Text>
+            <CoachHeader title={t('onboarding.sunTitle')} subtitle={t('onboarding.sunDesc')} pose="idle" />
 
             <View style={{ gap: spacing.md }}>
               {SUN_KEYS.map((k) => {
@@ -466,8 +464,7 @@ export default function OnboardingScreen() {
       {step === 4 && (
         <View style={s.stepContainer}>
           <View style={s.stepContent}>
-            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.expTitle')}</Text>
-            <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>{t('onboarding.expDesc')}</Text>
+            <CoachHeader title={t('onboarding.expTitle')} subtitle={t('onboarding.expDesc')} pose="idle" />
 
             <View style={{ gap: spacing.md }}>
               {EXP_KEYS.map((k) => {
@@ -527,10 +524,7 @@ export default function OnboardingScreen() {
           style={s.stepContainer}
         >
           <View style={s.stepContent}>
-            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.step2Title')}</Text>
-            <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>
-              {t('onboarding.step2Desc')}
-            </Text>
+            <CoachHeader title={t('onboarding.step2Title')} subtitle={t('onboarding.step2Desc')} pose="point" />
 
             <Pressable
               onPress={locating ? undefined : detectLocation}
@@ -602,10 +596,7 @@ export default function OnboardingScreen() {
           style={s.stepContainer}
         >
           <View style={s.stepContent}>
-            <Text style={[s.stepTitle, { color: colors.text }]}>{t('onboarding.step3Title')}</Text>
-            <Text style={[s.stepSubtitle, { color: colors.textSecondary }]}>
-              {t('onboarding.step3Desc')}
-            </Text>
+            <CoachHeader title={t('onboarding.step3Title')} subtitle={t('onboarding.step3Desc')} pose="idle" />
 
             <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('onboarding.gardenTypeLabel')}</Text>
             <View style={s.gardenTypeRow}>
