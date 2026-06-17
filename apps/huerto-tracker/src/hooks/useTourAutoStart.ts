@@ -1,6 +1,6 @@
-import { useEffect, type RefObject } from 'react';
+import { useCallback, type RefObject } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useIsFocused } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 import { useCopilot } from 'react-native-copilot';
 import { COACH_PREFIX } from './useCoachMark';
 
@@ -18,37 +18,38 @@ interface Options {
 
 /**
  * Auto-starts the spotlight tour once per screen, gated by a coach-mark flag.
- * Re-checks the flag on every focus (not just mount) so "Replay tutorial"
- * re-runs the tour even on tab screens that stay mounted across navigation.
- * Must be called inside a SemillitaTourProvider.
+ * Uses expo-router's useFocusEffect so it re-checks the flag every time the
+ * screen gains focus (tab screens stay mounted), making "Replay tutorial"
+ * re-run the tour. Must be called inside a SemillitaTourProvider.
  */
 export function useTourAutoStart(gateKey: string, opts: Options = {}) {
   const { ready = true, firstStep, delay = 800, scrollRef } = opts;
-  const isFocused = useIsFocused();
   const { start } = useCopilot();
 
-  useEffect(() => {
-    if (!isFocused || !ready) return;
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
+  useFocusEffect(
+    useCallback(() => {
+      if (!ready) return;
+      let cancelled = false;
+      let timer: ReturnType<typeof setTimeout> | undefined;
 
-    AsyncStorage.getItem(COACH_PREFIX + gateKey).then((v) => {
-      if (cancelled || v === 'true') return;
-      timer = setTimeout(() => {
-        // copilot calls scrollView.scrollTo() — FlatList lacks it, so hand it
-        // the inner ScrollView via getScrollResponder() when present.
-        const node = scrollRef?.current as any;
-        const scrollable =
-          node && typeof node.getScrollResponder === 'function' ? node.getScrollResponder() : node;
-        start(firstStep, scrollable ?? undefined);
-        void AsyncStorage.setItem(COACH_PREFIX + gateKey, 'true');
-      }, delay);
-    });
+      AsyncStorage.getItem(COACH_PREFIX + gateKey).then((v) => {
+        if (cancelled || v === 'true') return;
+        timer = setTimeout(() => {
+          // copilot calls scrollView.scrollTo() — FlatList lacks it, so hand it
+          // the inner ScrollView via getScrollResponder() when present.
+          const node = scrollRef?.current as any;
+          const scrollable =
+            node && typeof node.getScrollResponder === 'function' ? node.getScrollResponder() : node;
+          start(firstStep, scrollable ?? undefined);
+          void AsyncStorage.setItem(COACH_PREFIX + gateKey, 'true');
+        }, delay);
+      });
 
-    return () => {
-      cancelled = true;
-      if (timer) clearTimeout(timer);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFocused, ready, gateKey]);
+      return () => {
+        cancelled = true;
+        if (timer) clearTimeout(timer);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ready, gateKey, firstStep, delay])
+  );
 }
