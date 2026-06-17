@@ -24,6 +24,7 @@ import { saveLanguage, SUPPORTED_LANGS, LANG_LABELS, type SupportedLang } from '
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { syncToCloud } from '../../src/sync/syncAll';
 import { resetAnalyticsUser } from '../../src/analytics';
+import { resetCoachMarks } from '../../src/hooks/useCoachMark';
 
 // TODO: replace with real App Store URL once published
 const APP_STORE_URL = 'https://apps.apple.com/app/id<APP_STORE_ID>';
@@ -415,6 +416,17 @@ export default function SettingsScreen() {
             </Text>
             <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />
           </Pressable>
+          <Separator colors={colors} />
+          <RowAction
+            icon="sparkles-outline"
+            label={t('settings.app.tutorial')}
+            colors={colors}
+            s={s}
+            onPress={async () => {
+              await resetCoachMarks();
+              Alert.alert(t('settings.app.tutorial'), t('settings.app.tutorialDone'));
+            }}
+          />
           <Separator colors={colors} />
           <Row icon="information-circle-outline" label={t('settings.app.version')} value={APP_VERSION} colors={colors} s={s} />
           <Separator colors={colors} />

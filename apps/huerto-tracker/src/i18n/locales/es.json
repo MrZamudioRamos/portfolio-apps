@@ -207,6 +207,8 @@
     },
     "app": {
       "version": "Versión",
+      "tutorial": "Ver tutorial otra vez",
+      "tutorialDone": "Verás de nuevo los consejos de Semillita 🌱",
       "rate": "Valorar en App Store",
       "privacy": "Política de privacidad",
       "contact": "Contacto"

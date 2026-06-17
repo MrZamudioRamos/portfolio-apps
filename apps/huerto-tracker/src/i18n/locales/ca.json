@@ -206,6 +206,8 @@
     },
     "app": {
       "version": "Versió",
+      "tutorial": "Veure el tutorial de nou",
+      "tutorialDone": "Tornaràs a veure els consells de la Semillita 🌱",
       "rate": "Valorar a l'App Store",
       "privacy": "Política de privacitat",
       "contact": "Contacte"

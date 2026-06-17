@@ -207,6 +207,8 @@
     },
     "app": {
       "version": "Version",
+      "tutorial": "Replay tutorial",
+      "tutorialDone": "You'll see Semillita's tips again 🌱",
       "rate": "Rate on App Store",
       "privacy": "Privacy policy",
       "contact": "Contact"

@@ -206,6 +206,8 @@
     },
     "app": {
       "version": "Bertsioa",
+      "tutorial": "Ikusi tutoriala berriro",
+      "tutorialDone": "Semillitaren aholkuak berriro ikusiko dituzu 🌱",
       "rate": "App Store-n baloratu",
       "privacy": "Pribatutasun politika",
       "contact": "Kontaktua"
