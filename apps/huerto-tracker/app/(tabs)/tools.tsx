@@ -11,10 +11,13 @@ import { usePro } from '../../src/hooks/usePro';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
+type Tint = 'primary' | 'info' | 'water' | 'warning' | 'success' | 'secondary' | 'error';
+
 interface ToolItem {
   icon: React.ComponentProps<typeof Ionicons>['name'];
   labelKey: string;
   route: string;
+  tint: Tint;
   badge?: string;
 }
 
@@ -27,20 +30,20 @@ export default function ToolsScreen() {
 
   // Essentials a beginner needs daily — kept front and uncluttered.
   const essentialTools: ToolItem[] = [
-    { icon: 'library-outline',             labelKey: 'settings.tools.catalog',      route: '/catalog' },
-    { icon: 'chatbubble-ellipses-outline', labelKey: 'chat.title',                  route: '/chat',          badge: isPro ? undefined : 'Pro' },
-    { icon: 'bug-outline',                 labelKey: 'settings.tools.diseaseGuide', route: '/disease-guide' },
+    { icon: 'library-outline',             labelKey: 'settings.tools.catalog',      route: '/catalog',       tint: 'primary' },
+    { icon: 'chatbubble-ellipses-outline', labelKey: 'chat.title',                  route: '/chat',          tint: 'info',    badge: isPro ? undefined : 'Pro' },
+    { icon: 'bug-outline',                 labelKey: 'settings.tools.diseaseGuide', route: '/disease-guide', tint: 'error' },
   ];
 
   // Power tools — tucked under "Avanzado" so the screen doesn't overwhelm.
   const advancedTools: ToolItem[] = [
-    { icon: 'bar-chart-outline',       labelKey: 'settings.tools.stats',      route: '/stats',          badge: isPro ? undefined : 'Pro' },
-    { icon: 'cash-outline',            labelKey: 'costs.title',               route: '/costs',          badge: isPro ? undefined : 'Pro' },
-    { icon: 'git-network-outline',     labelKey: 'settings.tools.companions', route: '/companions',     badge: isPro ? undefined : 'Pro parcial' },
-    { icon: 'refresh-circle-outline',  labelKey: 'settings.rotation',         route: '/rotation' },
-    { icon: 'sunny-outline',           labelKey: 'lightMeter.title',          route: '/light-meter' },
-    { icon: 'leaf-outline',            labelKey: 'customCrop.manage',         route: '/crop' },
-    { icon: 'cloud-upload-outline',    labelKey: 'settings.data.backup',      route: '/settings/backup' },
+    { icon: 'bar-chart-outline',       labelKey: 'settings.tools.stats',      route: '/stats',          tint: 'info',      badge: isPro ? undefined : 'Pro' },
+    { icon: 'cash-outline',            labelKey: 'costs.title',               route: '/costs',          tint: 'warning',   badge: isPro ? undefined : 'Pro' },
+    { icon: 'git-network-outline',     labelKey: 'settings.tools.companions', route: '/companions',     tint: 'success',   badge: isPro ? undefined : 'Pro parcial' },
+    { icon: 'refresh-circle-outline',  labelKey: 'settings.rotation',         route: '/rotation',       tint: 'water' },
+    { icon: 'sunny-outline',           labelKey: 'lightMeter.title',          route: '/light-meter',    tint: 'secondary' },
+    { icon: 'leaf-outline',            labelKey: 'customCrop.manage',         route: '/crop',           tint: 'primary' },
+    { icon: 'cloud-upload-outline',    labelKey: 'settings.data.backup',      route: '/settings/backup', tint: 'info' },
   ];
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
@@ -52,8 +55,8 @@ export default function ToolsScreen() {
       style={[s.tile, { backgroundColor: colors.surface }]}
     >
       {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-      <View style={[s.iconCircle, { backgroundColor: colors.primary + '20' }]}>
-        <Ionicons name={tool.icon} size={26} color={colors.primary} />
+      <View style={[s.iconCircle, { backgroundColor: colors[tool.tint] + '20' }]}>
+        <Ionicons name={tool.icon} size={26} color={colors[tool.tint]} />
       </View>
       <Text style={[s.tileLabel, { color: colors.text }]} numberOfLines={2}>
         {t(tool.labelKey)}
