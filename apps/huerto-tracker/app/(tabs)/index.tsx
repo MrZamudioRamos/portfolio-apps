@@ -45,7 +45,7 @@ import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringSt
 import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Mascot } from '../../src/components/Mascot';
-import { CopilotStep } from 'react-native-copilot';
+import { CopilotStep, useCopilot } from 'react-native-copilot';
 import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
 import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 
@@ -90,6 +90,7 @@ function DashboardInner() {
   );
 
   const listRef = useRef<FlatList<Plant>>(null);
+  const { start: startManual } = useCopilot(); // TEMP debug
   // First visit: spotlight tour. Start at the named first step — the today/
   // first-use card lives in the FlatList header, so copilot needs the list
   // ref to measure and scroll to it.
@@ -445,6 +446,16 @@ function DashboardInner() {
             <Ionicons name="swap-horizontal-outline" size={18} color={colors.primary} />
           </Pressable>
         )}
+        <Pressable
+          onPress={() => {
+            console.log('[tour] manual start', plants.count, listRef.current ? 'list' : 'nolist');
+            startManual(plants.count > 0 ? 'today' : 'start', (listRef.current as any)?.getScrollResponder?.());
+          }}
+          style={({ pressed }) => [s.headerBtn, { backgroundColor: colors.primary + '22', borderColor: colors.primary, opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
+          hitSlop={8}
+        >
+          <Ionicons name="navigate-outline" size={18} color={colors.primary} />
+        </Pressable>
         <Pressable
           onPress={() => router.push('/(tabs)/settings' as any)}
           accessibilityRole="button"

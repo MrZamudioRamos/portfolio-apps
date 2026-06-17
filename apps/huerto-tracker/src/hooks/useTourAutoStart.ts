@@ -28,13 +28,16 @@ export function useTourAutoStart(gateKey: string, opts: Options = {}) {
 
   useFocusEffect(
     useCallback(() => {
+      console.log('[tour] focus', gateKey, 'ready=', ready);
       if (!ready) return;
       let cancelled = false;
       let timer: ReturnType<typeof setTimeout> | undefined;
 
       AsyncStorage.getItem(COACH_PREFIX + gateKey).then((v) => {
+        console.log('[tour] flag', gateKey, '=', v);
         if (cancelled || v === 'true') return;
         timer = setTimeout(() => {
+          console.log('[tour] firing start', gateKey, firstStep);
           // copilot calls scrollView.scrollTo() — FlatList lacks it, so hand it
           // the inner ScrollView via getScrollResponder() when present.
           const node = scrollRef?.current as any;
