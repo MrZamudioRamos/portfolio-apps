@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CopilotProvider, CopilotStep, walkthroughable, useCopilot } from 'react-native-copilot';
 import { useColors } from '@portfolio/ui';
 import { ScalePress } from '../src/components/ScalePress';
+import { SemillitaTooltip } from '../src/components/SemillitaTooltip';
 
 // SMOKE TEST — verify react-native-copilot installs, builds and runs the
 // spotlight in Expo Go on our stack (RN 0.83 / React 19 / svg 15). Throwaway.
@@ -44,7 +45,15 @@ export default function CopilotSmokeScreen() {
   const colors = useColors();
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-      <CopilotProvider overlay="svg" animated stepNumberComponent={() => null}>
+      <CopilotProvider
+        overlay="svg"
+        animated
+        backdropColor="rgba(0,0,0,0.75)"
+        arrowColor={colors.surface}
+        tooltipComponent={SemillitaTooltip}
+        tooltipStyle={{ backgroundColor: colors.surface, borderRadius: 20, padding: 16, width: 300 }}
+        stepNumberComponent={() => null}
+      >
         <SmokeInner />
       </CopilotProvider>
     </SafeAreaView>
