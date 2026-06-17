@@ -19,12 +19,15 @@ import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import type { Plant } from '../../src/models/plant';
+import { useCoachMark } from '../../src/hooks/useCoachMark';
+import { CoachMark } from '../../src/components/CoachMark';
 
 export default function CalendarScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { t, i18n } = useTranslation();
+  const coach = useCoachMark('calendar');
 
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1); // 1-12
@@ -426,6 +429,7 @@ export default function CalendarScreen() {
           />
         }
       />
+      <CoachMark visible={coach.show} text={t('coach.calendar')} pose="point" onDismiss={coach.dismiss} />
     </SafeAreaView>
   );
 }

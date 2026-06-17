@@ -1228,6 +1228,12 @@
     "retry": "Tornar a intentar",
     "aiNote": "Respostes generades per IA · verifica amb un expert agronòmic"
   },
+  "coach": {
+    "gotIt": "Entés!",
+    "calendar": "Ací veus què sembrar i collir cada mes segons la teua zona. Toca un cultiu per a veure les dates.",
+    "diary": "El teu diari: cada reg, collita i nota queda registrada. Prem + per a afegir-ne.",
+    "tools": "Ací tens tot l'extra: catàleg, identificar plantes i eines avançades quan les necessites."
+  },
   "plantCoach": {
     "germWindow": "Tot just sembrada. Sol germinar en {{min}}–{{max}} dies: mantín el substrat humit i càlid.",
     "germNow": "Hauria de germinar estos dies. Quan trauga, canvia-la a «Creixent».",

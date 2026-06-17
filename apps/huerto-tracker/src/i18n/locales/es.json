@@ -1046,6 +1046,12 @@
     "retry": "Reintentar",
     "aiNote": "Respuestas generadas por IA · verifica con un experto agronómico"
   },
+  "coach": {
+    "gotIt": "¡Entendido!",
+    "calendar": "Aquí ves qué sembrar y cosechar cada mes según tu zona. Toca un cultivo para ver sus fechas.",
+    "diary": "Tu diario: cada riego, cosecha y nota queda registrada. Pulsa + para añadir.",
+    "tools": "Aquí tienes todo lo extra: catálogo, identificar plantas y herramientas avanzadas cuando las necesites."
+  },
   "plantCoach": {
     "germWindow": "Recién sembrada. Suele brotar en {{min}}–{{max}} días: mantén el sustrato húmedo y cálido.",
     "germNow": "Debería brotar estos días. Cuando asome, cámbiala a «Creciendo».",

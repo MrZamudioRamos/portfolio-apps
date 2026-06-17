@@ -8,6 +8,8 @@ import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScalePress } from '../../src/components/ScalePress';
 import { usePro } from '../../src/hooks/usePro';
+import { useCoachMark } from '../../src/hooks/useCoachMark';
+import { CoachMark } from '../../src/components/CoachMark';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -27,6 +29,7 @@ export default function ToolsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { isPro } = usePro();
+  const coach = useCoachMark('tools');
 
   // Essentials a beginner needs daily — kept front and uncluttered.
   const essentialTools: ToolItem[] = [
@@ -83,6 +86,7 @@ export default function ToolsScreen() {
         <Text style={[s.sectionTitle, { color: colors.textSecondary }]}>{t('tools.advanced')}</Text>
         <View style={s.grid}>{advancedTools.map(renderTile)}</View>
       </ScrollView>
+      <CoachMark visible={coach.show} text={t('coach.tools')} pose="wave" onDismiss={coach.dismiss} />
     </SafeAreaView>
   );
 }

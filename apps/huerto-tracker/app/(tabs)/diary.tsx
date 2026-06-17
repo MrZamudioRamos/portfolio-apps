@@ -25,6 +25,8 @@ import { useCsvExport } from '../../src/hooks/useCsvExport';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { usePro } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { useCoachMark } from '../../src/hooks/useCoachMark';
+import { CoachMark } from '../../src/components/CoachMark';
 
 const ALL_TYPES: Array<EntryType | 'all'> = [
   'all', 'watering', 'sowing', 'harvest', 'fertilizing', 'transplant',
@@ -36,6 +38,7 @@ export default function DiaryScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
+  const coach = useCoachMark('diary');
 
   const [activeFilter, setActiveFilter] = useState<EntryType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -365,6 +368,7 @@ export default function DiaryScreen() {
       >
         <Ionicons name="add" size={28} color="#fff" />
       </Pressable>
+      <CoachMark visible={coach.show} text={t('coach.diary')} pose="idle" onDismiss={coach.dismiss} />
     </SafeAreaView>
   );
 }

@@ -1228,6 +1228,12 @@
     "retry": "Reintentar",
     "aiNote": "Respostas xeradas por IA · verifica cun experto agronómico"
   },
+  "coach": {
+    "gotIt": "Entendido!",
+    "calendar": "Aquí ves que sementar e colleitar cada mes segundo a túa zona. Toca un cultivo para ver as súas datas.",
+    "diary": "O teu diario: cada rega, colleita e nota queda rexistrada. Preme + para engadir.",
+    "tools": "Aquí tes todo o extra: catálogo, identificar plantas e ferramentas avanzadas cando as precises."
+  },
   "plantCoach": {
     "germWindow": "Recén sementada. Adoita agromar en {{min}}–{{max}} días: mantén o substrato húmido e cálido.",
     "germNow": "Debería agromar estes días. Cando saia, cámbiaa a «Crecendo».",
