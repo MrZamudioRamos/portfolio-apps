@@ -1230,6 +1230,7 @@
   },
   "coach": {
     "gotIt": "Entés!",
+    "home": "Esta és la teua pantalla Hui: cada dia hi veuràs què fer. A baix, què sembrar este mes.",
     "calendar": "Ací veus què sembrar i collir cada mes segons la teua zona. Toca un cultiu per a veure les dates.",
     "diary": "El teu diari: cada reg, collita i nota queda registrada. Prem + per a afegir-ne.",
     "tools": "Ací tens tot l'extra: catàleg, identificar plantes i eines avançades quan les necessites."

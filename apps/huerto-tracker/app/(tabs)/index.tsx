@@ -45,6 +45,8 @@ import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringSt
 import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Mascot } from '../../src/components/Mascot';
+import { useCoachMark } from '../../src/hooks/useCoachMark';
+import { CoachMark } from '../../src/components/CoachMark';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -56,6 +58,7 @@ export default function DashboardScreen() {
 
   const { activeGarden: garden, gardens: allGardens, gardensLoading, refreshActiveId } = useActiveGarden();
   const { isGuest } = useSession();
+  const coach = useCoachMark('home');
   const allPlants = useCollection<Plant>('plants');
 
   useEffect(() => {
@@ -818,6 +821,7 @@ export default function DashboardScreen() {
           </Pressable>
         </KeyboardAvoidingView>
       </Modal>
+      <CoachMark visible={coach.show} text={t('coach.home')} pose="wave" onDismiss={coach.dismiss} />
     </SafeAreaView>
   );
 }

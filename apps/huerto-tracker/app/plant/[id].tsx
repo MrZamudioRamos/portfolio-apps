@@ -27,6 +27,7 @@ import { CROPS_BY_ID } from '../../src/data/crops';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { INDOOR_START, getSeedlingSchedule } from '../../src/data/indoorStart';
 import { getPlantCoach } from '../../src/utils/plantCoach';
+import { Mascot } from '../../src/components/Mascot';
 import type { PropagationMethod } from '../../src/models/plant';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
@@ -343,9 +344,11 @@ export default function PlantDetailScreen() {
             if (!coach) return null;
             const tone =
               coach.tone === 'success' ? colors.success : coach.tone === 'warn' ? colors.warning : colors.info;
+            const coachPose =
+              coach.tone === 'success' ? 'celebrate' : coach.tone === 'warn' ? 'idle' : 'point';
             return (
               <View style={[s.coachCard, { backgroundColor: tone + '14', borderColor: tone + '44' }]}>
-                <Text style={s.coachEmoji}>{coach.emoji}</Text>
+                <Mascot pose={coachPose} size={48} />
                 <Text style={[s.coachText, { color: colors.text }]}>{t(coach.key, coach.params)}</Text>
               </View>
             );

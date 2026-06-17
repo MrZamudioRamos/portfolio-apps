@@ -10,9 +10,11 @@ interface Props {
 }
 
 /**
- * "Semillita" — the app mascot. Pure SVG, theme-recolored (same technique as
- * Illustration.tsx, zero external art). A sprout with a face and two leaf-arms
- * that rotate around shoulder pivots. Angles below are clockwise, 0° = up.
+ * "Semillita" — the app mascot. Pure SVG, theme-recolored. A sprout with a
+ * face and two leaf-arms that rotate around shoulder pivots. Arms are drawn
+ * IN FRONT of the body (so they're visible) and rotated via rotation/originX
+ * /originY (reliable across react-native-svg versions). Angles are degrees,
+ * clockwise, 0° = pointing up.
  */
 export function Mascot({ pose = 'idle', size = 120 }: Props) {
   const colors = useColors();
@@ -22,27 +24,30 @@ export function Mascot({ pose = 'idle', size = 120 }: Props) {
   const eye = '#2E3D2B';
   const cheek = colors.error;
 
-  // Leaf-arm angles per pose (deg, clockwise, 0 = pointing up).
+  // Right arm is the expressive one; left mostly rests.
   const arms: Record<MascotPose, { l: number; r: number }> = {
-    idle: { l: 210, r: 150 }, // both hang down-and-out
-    wave: { l: 210, r: 18 }, // right arm raised high (waving)
-    point: { l: 210, r: 90 }, // right arm straight out to the side
-    celebrate: { l: 325, r: 35 }, // both up in a V
+    idle: { l: 215, r: 145 }, // both rest down-and-out
+    wave: { l: 215, r: 8 }, // right arm up, waving
+    point: { l: 215, r: 92 }, // right arm straight out to the side
+    celebrate: { l: 312, r: 48 }, // both up in a V
   };
   const { l, r } = arms[pose];
 
   const calm = pose === 'idle' || pose === 'point';
   const mouth = calm
-    ? 'M52 70 Q60 78 68 70' // gentle smile
+    ? 'M52 71 Q60 79 68 71'
     : pose === 'celebrate'
-      ? 'M50 68 Q60 86 70 68 Q60 75 50 68 Z' // big open grin
-      : 'M53 69 Q60 81 67 69 Q60 75 53 69 Z'; // happy open (wave)
+      ? 'M50 69 Q60 87 70 69 Q60 76 50 69 Z'
+      : 'M53 70 Q60 82 67 70 Q60 76 53 70 Z';
 
-  // Leaf drawn with its base at local origin, tip pointing up (−y).
+  // Leaf with base at (px,py), tip up at (px, py-32); rotated around its base.
   const Arm = ({ px, py, rot }: { px: number; py: number; rot: number }) => (
-    <G transform={`translate(${px}, ${py}) rotate(${rot})`}>
-      <Path d="M0 0 C -9 -9 -9 -26 0 -34 C 9 -26 9 -9 0 0 Z" fill={leaf} />
-      <Path d="M0 -3 L0 -29" stroke={dark} strokeWidth={1.5} strokeLinecap="round" opacity={0.4} fill="none" />
+    <G rotation={rot} originX={px} originY={py}>
+      <Path
+        d={`M${px} ${py} C ${px - 9} ${py - 9} ${px - 9} ${py - 26} ${px} ${py - 33} C ${px + 9} ${py - 26} ${px + 9} ${py - 9} ${px} ${py} Z`}
+        fill={leaf}
+      />
+      <Path d={`M${px} ${py - 4} L${px} ${py - 28}`} stroke={dark} strokeWidth={1.5} strokeLinecap="round" opacity={0.4} />
     </G>
   );
 
@@ -50,10 +55,6 @@ export function Mascot({ pose = 'idle', size = 120 }: Props) {
     <Svg width={size} height={size} viewBox="0 0 120 120">
       {/* ground shadow */}
       <Ellipse cx={60} cy={114} rx={24} ry={4} fill={colors.surfaceAlt} />
-
-      {/* arms (behind body so shoulders tuck in) */}
-      <Arm px={38} py={74} rot={l} />
-      <Arm px={82} py={74} rot={r} />
 
       {/* sprout tip on top of the head */}
       <Path d="M60 33 C60 27 60 23 60 19" stroke={dark} strokeWidth={3} strokeLinecap="round" fill="none" />
@@ -64,15 +65,19 @@ export function Mascot({ pose = 'idle', size = 120 }: Props) {
       <Circle cx={60} cy={64} r={30} fill={body} />
       <Circle cx={60} cy={64} r={30} fill="none" stroke={leaf} strokeWidth={2} opacity={0.5} />
 
+      {/* arms — in front of the body so the pose is visible */}
+      <Arm px={34} py={70} rot={l} />
+      <Arm px={86} py={70} rot={r} />
+
       {/* cheeks */}
-      <Circle cx={45} cy={69} r={4.5} fill={cheek} opacity={0.32} />
-      <Circle cx={75} cy={69} r={4.5} fill={cheek} opacity={0.32} />
+      <Circle cx={45} cy={70} r={4.5} fill={cheek} opacity={0.32} />
+      <Circle cx={75} cy={70} r={4.5} fill={cheek} opacity={0.32} />
 
       {/* eyes */}
-      <Circle cx={51} cy={59} r={5} fill={eye} />
-      <Circle cx={69} cy={59} r={5} fill={eye} />
-      <Circle cx={52.8} cy={57.2} r={1.7} fill="#fff" />
-      <Circle cx={70.8} cy={57.2} r={1.7} fill="#fff" />
+      <Circle cx={51} cy={60} r={5} fill={eye} />
+      <Circle cx={69} cy={60} r={5} fill={eye} />
+      <Circle cx={52.8} cy={58.2} r={1.7} fill="#fff" />
+      <Circle cx={70.8} cy={58.2} r={1.7} fill="#fff" />
 
       {/* mouth */}
       <Path
