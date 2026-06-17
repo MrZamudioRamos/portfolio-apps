@@ -1226,6 +1226,13 @@
     "retry": "Berriro saiatu",
     "aiNote": "AAk sortutako erantzunak · egiaztatu agronomia-aditu batekin"
   },
+  "sowNow": {
+    "title": "Erein orain",
+    "subtitle": "Garai ona {{month}}(e)an zure eremurako",
+    "seeAll": "Ikusi dena",
+    "easy": "Erraza",
+    "plant": "Landatu"
+  },
   "plantScan": {
     "title": "Landarea identifikatu",
     "subtitle": "Landarea argazkiatu ezagutzeko",
@@ -1450,6 +1457,7 @@
     ]
   },
   "tools": {
-    "title": "Tresnak"
+    "title": "Tresnak",
+    "advanced": "Aurreratua"
   }
 }

@@ -25,22 +25,47 @@ export default function ToolsScreen() {
   const { t } = useTranslation();
   const { isPro } = usePro();
 
-  // Ordered by everyday value: consult-first (catalog, chat), then insight
-  // (stats, costs), then guides, then occasional utilities, admin last.
-  const tools: ToolItem[] = [
-    { icon: 'library-outline',         labelKey: 'settings.tools.catalog',      route: '/catalog' },
-    { icon: 'chatbubble-ellipses-outline', labelKey: 'chat.title',              route: '/chat',            badge: isPro ? undefined : 'Pro' },
-    { icon: 'bar-chart-outline',       labelKey: 'settings.tools.stats',       route: '/stats',          badge: isPro ? undefined : 'Pro' },
-    { icon: 'cash-outline',            labelKey: 'costs.title',                route: '/costs',          badge: isPro ? undefined : 'Pro' },
-    { icon: 'bug-outline',             labelKey: 'settings.tools.diseaseGuide', route: '/disease-guide' },
-    { icon: 'git-network-outline',     labelKey: 'settings.tools.companions',   route: '/companions',     badge: isPro ? undefined : 'Pro parcial' },
-    { icon: 'refresh-circle-outline',  labelKey: 'settings.rotation',          route: '/rotation' },
-    { icon: 'sunny-outline',           labelKey: 'lightMeter.title',            route: '/light-meter' },
-    { icon: 'leaf-outline',            labelKey: 'customCrop.manage',           route: '/crop' },
-    { icon: 'cloud-upload-outline',    labelKey: 'settings.data.backup',        route: '/settings/backup' },
+  // Essentials a beginner needs daily — kept front and uncluttered.
+  const essentialTools: ToolItem[] = [
+    { icon: 'library-outline',             labelKey: 'settings.tools.catalog',      route: '/catalog' },
+    { icon: 'chatbubble-ellipses-outline', labelKey: 'chat.title',                  route: '/chat',          badge: isPro ? undefined : 'Pro' },
+    { icon: 'bug-outline',                 labelKey: 'settings.tools.diseaseGuide', route: '/disease-guide' },
+  ];
+
+  // Power tools — tucked under "Avanzado" so the screen doesn't overwhelm.
+  const advancedTools: ToolItem[] = [
+    { icon: 'bar-chart-outline',       labelKey: 'settings.tools.stats',      route: '/stats',          badge: isPro ? undefined : 'Pro' },
+    { icon: 'cash-outline',            labelKey: 'costs.title',               route: '/costs',          badge: isPro ? undefined : 'Pro' },
+    { icon: 'git-network-outline',     labelKey: 'settings.tools.companions', route: '/companions',     badge: isPro ? undefined : 'Pro parcial' },
+    { icon: 'refresh-circle-outline',  labelKey: 'settings.rotation',         route: '/rotation' },
+    { icon: 'sunny-outline',           labelKey: 'lightMeter.title',          route: '/light-meter' },
+    { icon: 'leaf-outline',            labelKey: 'customCrop.manage',         route: '/crop' },
+    { icon: 'cloud-upload-outline',    labelKey: 'settings.data.backup',      route: '/settings/backup' },
   ];
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
+
+  const renderTile = (tool: ToolItem) => (
+    <ScalePress
+      key={tool.route}
+      onPress={() => router.push(tool.route as any)}
+      style={[s.tile, { backgroundColor: colors.surface }]}
+    >
+      {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+      <View style={[s.iconCircle, { backgroundColor: colors.primary + '20' }]}>
+        <Ionicons name={tool.icon} size={26} color={colors.primary} />
+      </View>
+      <Text style={[s.tileLabel, { color: colors.text }]} numberOfLines={2}>
+        {t(tool.labelKey)}
+      </Text>
+      {tool.badge && (
+        <View style={[s.badge, { backgroundColor: colors.secondary + '25' }]}>
+          <Text style={[s.badgeText, { color: colors.warning }]}>{tool.badge}</Text>
+        </View>
+      )}
+      <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} style={s.chevron} />
+    </ScalePress>
+  );
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -49,30 +74,10 @@ export default function ToolsScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
-        {/* 2-column grid for visual richness */}
-        <View style={s.grid}>
-          {tools.map((tool) => (
-            <ScalePress
-              key={tool.route}
-              onPress={() => router.push(tool.route as any)}
-              style={[s.tile, { backgroundColor: colors.surface }]}
-            >
-              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-              <View style={[s.iconCircle, { backgroundColor: colors.primary + '20' }]}>
-                <Ionicons name={tool.icon} size={26} color={colors.primary} />
-              </View>
-              <Text style={[s.tileLabel, { color: colors.text }]} numberOfLines={2}>
-                {t(tool.labelKey)}
-              </Text>
-              {tool.badge && (
-                <View style={[s.badge, { backgroundColor: colors.secondary + '25' }]}>
-                  <Text style={[s.badgeText, { color: colors.warning }]}>{tool.badge}</Text>
-                </View>
-              )}
-              <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} style={s.chevron} />
-            </ScalePress>
-          ))}
-        </View>
+        <View style={s.grid}>{essentialTools.map(renderTile)}</View>
+
+        <Text style={[s.sectionTitle, { color: colors.textSecondary }]}>{t('tools.advanced')}</Text>
+        <View style={s.grid}>{advancedTools.map(renderTile)}</View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -94,6 +99,14 @@ const makeStyles = (
     },
     pageTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
     scroll: { padding: spacing.xl, paddingTop: spacing.md, paddingBottom: 40 },
+    sectionTitle: {
+      fontSize: fontSize.sm,
+      fontWeight: fontWeight.semibold,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginTop: spacing.xl,
+      marginBottom: spacing.md,
+    },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
     tile: {
       width: '47.5%',

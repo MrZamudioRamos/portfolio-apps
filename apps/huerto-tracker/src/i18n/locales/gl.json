@@ -1226,6 +1226,13 @@
     "retry": "Reintentar",
     "aiNote": "Respostas xeradas por IA · verifica cun experto agronómico"
   },
+  "sowNow": {
+    "title": "Sementa agora",
+    "subtitle": "Boa época en {{month}} para a túa zona",
+    "seeAll": "Ver todo",
+    "easy": "Doado",
+    "plant": "Plantar"
+  },
   "plantScan": {
     "title": "Identificar planta",
     "subtitle": "Fotografía a planta para identificala",
@@ -1450,6 +1457,7 @@
     ]
   },
   "tools": {
-    "title": "Ferramentas"
+    "title": "Ferramentas",
+    "advanced": "Avanzado"
   }
 }

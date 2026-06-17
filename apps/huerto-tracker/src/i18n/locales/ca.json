@@ -1226,6 +1226,13 @@
     "retry": "Tornar a intentar",
     "aiNote": "Respostes generades per IA · verifica amb un expert agronòmic"
   },
+  "sowNow": {
+    "title": "Sembra ara",
+    "subtitle": "Bona època al {{month}} per a la teva zona",
+    "seeAll": "Veure-ho tot",
+    "easy": "Fàcil",
+    "plant": "Plantar"
+  },
   "plantScan": {
     "title": "Identificar planta",
     "subtitle": "Fotografies la planta per identificar-la",
@@ -1450,6 +1457,7 @@
     ]
   },
   "tools": {
-    "title": "Eines"
+    "title": "Eines",
+    "advanced": "Avançat"
   }
 }

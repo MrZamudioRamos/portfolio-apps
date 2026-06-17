@@ -1044,6 +1044,13 @@
     "retry": "Reintentar",
     "aiNote": "Respuestas generadas por IA · verifica con un experto agronómico"
   },
+  "sowNow": {
+    "title": "Siembra ahora",
+    "subtitle": "Buena época en {{month}} para tu zona",
+    "seeAll": "Ver todo",
+    "easy": "Fácil",
+    "plant": "Plantar"
+  },
   "plantScan": {
     "title": "Identificar planta",
     "subtitle": "Fotografía tu planta para identificarla",
@@ -1796,6 +1803,7 @@
     ]
   },
   "tools": {
-    "title": "Herramientas"
+    "title": "Herramientas",
+    "advanced": "Avanzado"
   }
 }

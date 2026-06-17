@@ -35,6 +35,7 @@ import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import { getLunarDay } from '../../src/utils/lunar';
 import { QuickLogModal } from '../../src/components/QuickLogModal';
 import { ScalePress } from '../../src/components/ScalePress';
+import { SowNowCard } from '../../src/components/SowNowCard';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import { useWeather } from '../../src/hooks/useWeather';
 import { getWeatherLabel } from '../../src/utils/weather';
@@ -474,6 +475,11 @@ export default function DashboardScreen() {
               </View>
             )}
 
+            {/* Beginner's first question answered: what should I plant? */}
+            {plants.count === 0 && !plants.loading && garden && (
+              <SowNowCard climateZone={garden.climateZone} />
+            )}
+
             {/* TODAY card — first thing visible when there are plants */}
             {plants.count > 0 && (
               <View style={[s.todayCard, { backgroundColor: colors.surface, borderColor: colors.border, borderLeftColor: todayAccent }]}>
@@ -505,6 +511,11 @@ export default function DashboardScreen() {
                   <Text style={[s.todayMore, { color: colors.textSecondary }]}>+{weeklyTasks.length - 5} {t('common.more')}</Text>
                 )}
               </View>
+            )}
+
+            {/* Sow now — coach surface, what to plant this month in your zone */}
+            {plants.count > 0 && garden && (
+              <SowNowCard climateZone={garden.climateZone} />
             )}
 
             {/* AI quick actions — chat + plant scan, always one tap away */}
