@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useState } from 'react';
 
-const PREFIX = '@portfolio/coach/';
+export const COACH_PREFIX = '@portfolio/coach/';
 
 /**
  * One-time coach mark per screen. `show` is true only once the flag has
@@ -13,7 +13,7 @@ export function useCoachMark(key: string) {
 
   useEffect(() => {
     let active = true;
-    AsyncStorage.getItem(PREFIX + key).then((v) => {
+    AsyncStorage.getItem(COACH_PREFIX + key).then((v) => {
       if (active) setSeen(v === 'true');
     });
     return () => {
@@ -23,7 +23,7 @@ export function useCoachMark(key: string) {
 
   const dismiss = useCallback(() => {
     setSeen(true);
-    AsyncStorage.setItem(PREFIX + key, 'true');
+    AsyncStorage.setItem(COACH_PREFIX + key, 'true');
   }, [key]);
 
   return { show: seen === false, dismiss };
@@ -32,6 +32,6 @@ export function useCoachMark(key: string) {
 /** Clear all coach marks so the guided tour runs again (e.g. from settings). */
 export async function resetCoachMarks(): Promise<void> {
   const keys = await AsyncStorage.getAllKeys();
-  const ours = keys.filter((k) => k.startsWith(PREFIX));
+  const ours = keys.filter((k) => k.startsWith(COACH_PREFIX));
   if (ours.length) await AsyncStorage.multiRemove(ours);
 }
