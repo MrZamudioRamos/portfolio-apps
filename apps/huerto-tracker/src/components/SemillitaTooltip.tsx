@@ -12,6 +12,7 @@ import { Mascot } from './Mascot';
  */
 export function SemillitaTooltip() {
   const { currentStep, isFirstStep, isLastStep, goToNext, goToPrev, stop } = useCopilot();
+  console.log('[tour] tooltip render, step=', currentStep?.name);
   const colors = useColors();
   const { fontSize, fontWeight, spacing } = useTheme();
   const { t } = useTranslation();
