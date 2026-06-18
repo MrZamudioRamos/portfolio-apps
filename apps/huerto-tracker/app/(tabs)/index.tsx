@@ -322,7 +322,6 @@ function DashboardInner() {
       >
         <Card padded={false} style={s.plantCardInner}>
           <View style={[s.plantImageBox, { backgroundColor: colors.surfaceAlt }]}>
-            <View style={[s.healthRibbon, { backgroundColor: healthColor }]} />
             {item.photoUri ? (
               <Image source={{ uri: item.photoUri }} style={s.plantPhoto} />
             ) : CROP_IMAGES[item.cropId] && !cardImgErr[item.id] ? (
@@ -352,6 +351,8 @@ function DashboardInner() {
             >
               <Ionicons name="add" size={14} color="#fff" />
             </Pressable>
+            {/* Rendered last so they appear above the image */}
+            <View style={[s.healthRibbon, { backgroundColor: healthColor }]} />
             {item.sowingDate && item.status !== 'finished' && (() => {
               const dth = crop?.daysToHarvest;
               if (!dth) return null;
