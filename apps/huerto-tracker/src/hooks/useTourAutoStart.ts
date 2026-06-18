@@ -1,4 +1,4 @@
-import { useCallback, type RefObject } from 'react';
+import { useCallback, useRef, type RefObject } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { useCopilot } from 'react-native-copilot';
@@ -21,29 +21,36 @@ interface Options {
  * Uses expo-router's useFocusEffect so it re-checks the flag every time the
  * screen gains focus (tab screens stay mounted), making "Replay tutorial"
  * re-run the tour. Must be called inside a SemillitaTourProvider.
+ *
+ * NOTE: `start` from useCopilot() is a useCallback that re-creates every time
+ * copilot's `steps` map changes (step registration). We store it in a ref so
+ * the useFocusEffect timer always calls the LATEST version (not the stale one
+ * captured when the effect was created, which had an empty `steps` map).
  */
 export function useTourAutoStart(gateKey: string, opts: Options = {}) {
   const { ready = true, firstStep, delay = 800, scrollRef } = opts;
-  const { start } = useCopilot();
+  const { start, stop } = useCopilot();
+
+  // Always point to latest functions — useFocusEffect deps don't include them
+  // to avoid re-subscribing, but stale closures would miss step registrations.
+  const startRef = useRef(start);
+  startRef.current = start;
+  const stopRef = useRef(stop);
+  stopRef.current = stop;
 
   useFocusEffect(
     useCallback(() => {
-      console.log('[tour] focus', gateKey, 'ready=', ready);
       if (!ready) return;
       let cancelled = false;
       let timer: ReturnType<typeof setTimeout> | undefined;
 
       AsyncStorage.getItem(COACH_PREFIX + gateKey).then((v) => {
-        console.log('[tour] flag', gateKey, '=', v);
         if (cancelled || v === 'true') return;
         timer = setTimeout(() => {
-          console.log('[tour] firing start', gateKey, firstStep);
-          // copilot calls scrollView.scrollTo() — FlatList lacks it, so hand it
-          // the inner ScrollView via getScrollResponder() when present.
           const node = scrollRef?.current as any;
           const scrollable =
             node && typeof node.getScrollResponder === 'function' ? node.getScrollResponder() : node;
-          start(firstStep, scrollable ?? undefined);
+          startRef.current(firstStep, scrollable ?? undefined);
           void AsyncStorage.setItem(COACH_PREFIX + gateKey, 'true');
         }, delay);
       });
@@ -51,6 +58,9 @@ export function useTourAutoStart(gateKey: string, opts: Options = {}) {
       return () => {
         cancelled = true;
         if (timer) clearTimeout(timer);
+        // Stop any running tour — RN Modal stays on top even when this tab
+        // loses focus, so dismiss it when the user navigates away.
+        stopRef.current();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ready, gateKey, firstStep, delay])

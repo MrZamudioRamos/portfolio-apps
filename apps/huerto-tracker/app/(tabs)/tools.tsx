@@ -2,7 +2,7 @@ import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useRouter } from 'expo-router';
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,8 +30,7 @@ function ToolsInner() {
   const router = useRouter();
   const { t } = useTranslation();
   const { isPro } = usePro();
-  const scrollRef = useRef<ScrollView>(null);
-  useTourAutoStart('tools', { firstStep: 'essentials', scrollRef });
+  useTourAutoStart('tools', { firstStep: 'essentials' });
 
   // Essentials a beginner needs daily — kept front and uncluttered.
   const essentialTools: ToolItem[] = [
@@ -81,7 +80,7 @@ function ToolsInner() {
         <Text style={[s.pageTitle, { color: colors.text }]}>{t('tools.title')}</Text>
       </View>
 
-      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
         <CopilotStep text={t('coach.tools')} order={1} name="essentials">
           <WalkView style={s.grid}>{essentialTools.map(renderTile)}</WalkView>
         </CopilotStep>
