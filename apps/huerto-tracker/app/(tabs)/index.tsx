@@ -553,17 +553,33 @@ function DashboardInner() {
 
             {/* Próximas cosechas — hero card when harvest is near */}
             {plants.count > 0 && (() => {
-              const hp = plants.items.find(p =>
-                p.status === 'harvesting' ||
-                (p.firstHarvestDate && p.firstHarvestDate >= todayStr() &&
-                  p.firstHarvestDate <= dateToStr(new Date(Date.now() + 21 * 86_400_000)))
-              );
+              const in21 = dateToStr(new Date(Date.now() + 21 * 86_400_000));
+              const todayS = todayStr();
+              const hp = plants.items.find(p => {
+                if (p.status === 'harvesting') return true;
+                if (p.firstHarvestDate && p.firstHarvestDate >= todayS && p.firstHarvestDate <= in21) return true;
+                if (p.sowingDate && !['harvesting','finished'].includes(p.status)) {
+                  const crop2 = CROPS_BY_ID[p.cropId] ?? customCropsById[p.cropId];
+                  const dth = crop2?.daysToHarvest;
+                  if (!dth) return false;
+                  const estDate = new Date(new Date(p.sowingDate + 'T12:00:00').getTime() + Math.round((dth[0]+dth[1])/2) * 86_400_000);
+                  const estStr = dateToStr(estDate);
+                  return estStr >= todayS && estStr <= in21;
+                }
+                return false;
+              });
               if (!hp) return null;
               const hCrop = CROPS_BY_ID[hp.cropId] ?? customCropsById[hp.cropId];
               const hImg = hp.photoUri ?? CROP_IMAGES[hp.cropId];
-              const daysUntil = hp.firstHarvestDate
-                ? Math.ceil((new Date(hp.firstHarvestDate + 'T12:00:00').getTime() - Date.now()) / 86_400_000)
-                : null;
+              const daysUntil = (() => {
+                if (hp.firstHarvestDate) return Math.ceil((new Date(hp.firstHarvestDate + 'T12:00:00').getTime() - Date.now()) / 86_400_000);
+                if (hp.sowingDate && hCrop?.daysToHarvest) {
+                  const dth = hCrop.daysToHarvest;
+                  const est = new Date(new Date(hp.sowingDate + 'T12:00:00').getTime() + Math.round((dth[0]+dth[1])/2) * 86_400_000);
+                  return Math.ceil((est.getTime() - Date.now()) / 86_400_000);
+                }
+                return null;
+              })();
               return (
                 <ScalePress
                   onPress={() => router.push(`/plant/${hp.id}`)}
