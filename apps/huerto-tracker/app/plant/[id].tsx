@@ -749,10 +749,20 @@ export default function PlantDetailScreen() {
                   </View>
                   <View style={s.companionsGrid}>
                     {companions.map((c) => (
-                      <View key={c.id} style={[s.companionCard, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
-                        <Text style={{ fontSize: 28 }}>{c.emoji}</Text>
-                        <Text style={[s.companionCardName, { color: colors.text }]}>{t('crops.' + c.id + '.name', { defaultValue: c.name })}</Text>
-                      </View>
+                      <Pressable
+                        key={c.id}
+                        onPress={() => router.push(`/catalog?focus=${c.id}` as any)}
+                        style={({ pressed }) => [s.companionCard, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50', opacity: pressed ? 0.7 : 1 }]}
+                      >
+                        <View style={[s.companionPhoto, { backgroundColor: '#4CAF5018' }]}>
+                          {CROP_IMAGES[c.id] ? (
+                            <Image source={{ uri: CROP_IMAGES[c.id] }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                          ) : (
+                            <Text style={{ fontSize: 26 }}>{c.emoji}</Text>
+                          )}
+                        </View>
+                        <Text style={[s.companionCardName, { color: colors.text }]} numberOfLines={1}>{t('crops.' + c.id + '.name', { defaultValue: c.name })}</Text>
+                      </Pressable>
                     ))}
                   </View>
                 </>
@@ -767,10 +777,20 @@ export default function PlantDetailScreen() {
                   </View>
                   <View style={s.companionsGrid}>
                     {incompatibles.map((c) => (
-                      <View key={c.id} style={[s.companionCard, { backgroundColor: '#EF535018', borderColor: '#EF5350' }]}>
-                        <Text style={{ fontSize: 28 }}>{c.emoji}</Text>
-                        <Text style={[s.companionCardName, { color: colors.text }]}>{t('crops.' + c.id + '.name', { defaultValue: c.name })}</Text>
-                      </View>
+                      <Pressable
+                        key={c.id}
+                        onPress={() => router.push(`/catalog?focus=${c.id}` as any)}
+                        style={({ pressed }) => [s.companionCard, { backgroundColor: '#EF535018', borderColor: '#EF5350', opacity: pressed ? 0.7 : 1 }]}
+                      >
+                        <View style={[s.companionPhoto, { backgroundColor: '#EF535018' }]}>
+                          {CROP_IMAGES[c.id] ? (
+                            <Image source={{ uri: CROP_IMAGES[c.id] }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                          ) : (
+                            <Text style={{ fontSize: 26 }}>{c.emoji}</Text>
+                          )}
+                        </View>
+                        <Text style={[s.companionCardName, { color: colors.text }]} numberOfLines={1}>{t('crops.' + c.id + '.name', { defaultValue: c.name })}</Text>
+                      </Pressable>
                     ))}
                   </View>
                 </>
@@ -1613,6 +1633,15 @@ const makeStyles = (
     companionsHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: spacing.sm },
     companionsTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     companionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    companionPhoto: {
+      width: 54,
+      height: 54,
+      borderRadius: 27,
+      overflow: 'hidden',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.xs,
+    },
     companionCard: {
       width: '30%',
       alignItems: 'center',
