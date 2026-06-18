@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FlatList,
@@ -22,7 +22,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CLIMATE_ZONE_CONFIG, PROVINCE_ZONES } from '../src/data';
+import { CROP_DIFFICULTY } from '../src/data/crops';
+import { CROP_IMAGES } from '../src/data/cropImages';
 import { getNearestProvince } from '../src/utils/weather';
+import { getSowingNow } from '../src/utils/sowingNow';
 import type { Garden } from '../src/models';
 import {
   GARDEN_TYPE_CONFIG,
@@ -44,6 +47,7 @@ import { track, EVENTS } from '../src/analytics';
 import { persistPickedImage } from '../src/utils/persistImage';
 import { CoachBubble } from '../src/components/CoachBubble';
 import { CoachHeader } from '../src/components/CoachHeader';
+import { ScalePress } from '../src/components/ScalePress';
 
 const NORTE_COUNTRIES: { country: string; emoji: string; regions: string[] }[] = [
   {
@@ -176,6 +180,26 @@ export default function OnboardingScreen() {
     p.toLowerCase().includes(provinceSearch.toLowerCase())
   );
 
+  const firstCropPicks = useMemo(() => {
+    if (!climateZone) return [];
+    const month = new Date().getMonth() + 1;
+    const { now } = getSowingNow(climateZone, month, sunlight ?? undefined);
+    const DIFF: Record<string, number> = { easy: 0, medium: 1, hard: 2 };
+    if (experience === 'beginner') {
+      const easy = now.filter((c) => CROP_DIFFICULTY[c.id] === 'easy');
+      const medium = now.filter((c) => CROP_DIFFICULTY[c.id] === 'medium');
+      const pool = easy.length >= 3 ? easy : [...easy, ...medium];
+      return pool.sort((a, b) => a.daysToHarvest[0] - b.daysToHarvest[0]).slice(0, 3);
+    }
+    return [...now]
+      .sort((a, b) => {
+        const da = DIFF[CROP_DIFFICULTY[a.id] ?? 'medium'];
+        const db = DIFF[CROP_DIFFICULTY[b.id] ?? 'medium'];
+        return da !== db ? da - db : a.daysToHarvest[0] - b.daysToHarvest[0];
+      })
+      .slice(0, 3);
+  }, [climateZone, sunlight, experience]);
+
   function toggleSpace(s: SpaceType) {
     setSpaceTypes((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
   }
@@ -244,6 +268,7 @@ export default function OnboardingScreen() {
       }
       await complete();
       track(EVENTS.onboardingCompleted, { experience, gardenType });
+      track(EVENTS.firstCropSuggested, { count: firstCropPicks.length, cropIds: firstCropPicks.map((c) => c.id).join(',') });
       setStep(7);
     } catch (e) {
       console.error('[onboarding] handleCreate failed:', e);
@@ -679,13 +704,62 @@ export default function OnboardingScreen() {
               text={t('onboarding.coachCelebrate', { name: gardenName.trim() || t('home.defaultGardenName') })}
               pose="celebrate"
             />
+            {firstCropPicks.length > 0 && (
+              <View style={{ marginTop: spacing.xl }}>
+                <Text style={{ color: colors.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginBottom: spacing.md, textAlign: 'center' }}>
+                  {t('onboarding.firstCropTitle')}
+                </Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ gap: spacing.md, paddingHorizontal: spacing.xl }}
+                >
+                  {firstCropPicks.map((crop) => {
+                    const name = t(`crops.${crop.id}.name`, { defaultValue: crop.name });
+                    const img = CROP_IMAGES[crop.id];
+                    const diff = CROP_DIFFICULTY[crop.id] ?? 'medium';
+                    return (
+                      <ScalePress
+                        key={crop.id}
+                        onPress={() => {
+                          track(EVENTS.firstCropPicked, { cropId: crop.id });
+                          router.replace({ pathname: '/plant/new', params: { cropId: crop.id, fromOnboarding: '1' } } as any);
+                        }}
+                        style={{ width: 100, backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.sm, gap: 4, alignItems: 'center' }}
+                      >
+                        <View style={{ width: 72, height: 72, borderRadius: radii.md, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                          {img ? (
+                            <Image source={{ uri: img }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                          ) : (
+                            <Text style={{ fontSize: 36 }}>{crop.emoji}</Text>
+                          )}
+                          {diff === 'easy' && (
+                            <View style={{ position: 'absolute', top: 4, left: 4, backgroundColor: colors.success, paddingHorizontal: 6, paddingVertical: 1, borderRadius: radii.full }}>
+                              <Text style={{ color: '#fff', fontSize: 9, fontWeight: '700' }}>{t('sowNow.easy')}</Text>
+                            </View>
+                          )}
+                        </View>
+                        <Text style={{ color: colors.text, fontSize: fontSize.sm, fontWeight: fontWeight.semibold, textAlign: 'center' }} numberOfLines={1}>
+                          {name}
+                        </Text>
+                        <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>
+                          {t('onboarding.readyIn', { days: crop.daysToHarvest[0] })}
+                        </Text>
+                      </ScalePress>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            )}
           </View>
           <View style={{ gap: spacing.md }}>
-            <Button
-              title={t('onboarding.addFirstPlant')}
-              onPress={() => router.replace({ pathname: '/plant/new', params: { fromOnboarding: '1' } } as any)}
-              size="lg"
-            />
+            {firstCropPicks.length === 0 && (
+              <Button
+                title={t('onboarding.addFirstPlant')}
+                onPress={() => router.replace({ pathname: '/plant/new', params: { fromOnboarding: '1' } } as any)}
+                size="lg"
+              />
+            )}
             <Button
               title={t('onboarding.skipToGarden')}
               variant="secondary"

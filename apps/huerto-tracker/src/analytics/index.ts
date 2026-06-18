@@ -16,6 +16,8 @@ export const EVENTS = {
   entryAdded: 'entry_added',
   paywallViewed: 'paywall_viewed',
   purchaseCompleted: 'purchase_completed',
+  firstCropSuggested: 'first_crop_suggested',
+  firstCropPicked: 'first_crop_picked',
 } as const;
 
 /**

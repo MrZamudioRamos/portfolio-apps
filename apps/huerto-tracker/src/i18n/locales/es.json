@@ -476,7 +476,9 @@
     "skipProfile": "Saltar perfil",
     "coachWelcome": "¡Hola! Soy Semillita 🌱 Te acompañaré para que tu huerto salga adelante.",
     "coachCelebrate": "¡Tu huerto «{{name}}» ya está listo! 🎉 ¿Plantamos la primera?",
-    "selectCountry": "Selecciona tu país"
+    "selectCountry": "Selecciona tu país",
+    "firstCropTitle": "Empieza con esto",
+    "readyIn": "~{{days}} días"
   },
   "paywall": {
     "titlePro": "¡Ya eres Pro!",

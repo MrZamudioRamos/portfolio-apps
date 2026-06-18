@@ -7,6 +7,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { CROP_DIFFICULTY } from '../data/crops';
 import { CROP_IMAGES } from '../data/cropImages';
 import type { ClimateZone } from '../models/garden';
+import { useUserProfile } from '../hooks/useUserProfile';
 import { getSowingNow } from '../utils/sowingNow';
 import { ScalePress } from './ScalePress';
 
@@ -31,11 +32,12 @@ export function SowNowCard({ climateZone, beginnerFirst = true, max = 8 }: Props
   const router = useRouter();
   const { t } = useTranslation();
   const [imgErr, setImgErr] = useState<Record<string, boolean>>({});
+  const { profile } = useUserProfile();
 
   const month = new Date().getMonth() + 1;
 
   const crops = useMemo(() => {
-    const { now } = getSowingNow(climateZone, month);
+    const { now } = getSowingNow(climateZone, month, profile?.sunlight);
     const sorted = beginnerFirst
       ? [...now].sort(
           (a, b) =>
@@ -44,7 +46,7 @@ export function SowNowCard({ climateZone, beginnerFirst = true, max = 8 }: Props
         )
       : now;
     return sorted.slice(0, max);
-  }, [climateZone, month, beginnerFirst, max]);
+  }, [climateZone, month, beginnerFirst, max, profile?.sunlight]);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
