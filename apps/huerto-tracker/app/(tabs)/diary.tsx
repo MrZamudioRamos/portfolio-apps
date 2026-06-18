@@ -1,11 +1,12 @@
-import { useColors, useTheme, Card, EmptyState, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, EmptyState, type Theme } from '@portfolio/ui';
 import { Illustration } from '../../src/components/Illustration';
 import { useCollection } from '@portfolio/storage';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   Image,
   Pressable,
   ScrollView,
@@ -40,6 +41,11 @@ function DiaryInner() {
   const router = useRouter();
   const { t } = useTranslation();
   useTourAutoStart('diary', { firstStep: 'add' });
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(fadeAnim, { toValue: 1, duration: 280, useNativeDriver: true }).start();
+  }, []);
 
   const [activeFilter, setActiveFilter] = useState<EntryType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -115,113 +121,100 @@ function DiaryInner() {
   );
 
   function renderEntry({ item }: { item: DiaryEntry }) {
-  const config = ENTRY_TYPE_CONFIG[item.type];
-  const plant = item.plantId ? plantsById[item.plantId] : null;
+    const config = ENTRY_TYPE_CONFIG[item.type];
+    const plant = item.plantId ? plantsById[item.plantId] : null;
 
-  return (
-    <Pressable
-      onPress={() => router.push(`/entry/edit?id=${item.id}` as any)}
-      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
-    >
-      <Card padded style={s.entryCard}>
-        <View style={s.entryRow}>
-          <View
-            style={[
-              s.entryIconBadge,
-              { backgroundColor: config.color + '22' },
-            ]}
-          >
-            <Text style={{ fontSize: 22 }}>{config.emoji}</Text>
+    return (
+      <Pressable
+        onPress={() => router.push(`/entry/edit?id=${item.id}` as any)}
+        style={({ pressed }) => [
+          s.entryCard,
+          {
+            backgroundColor: colors.surface,
+            borderLeftColor: config.color,
+            opacity: pressed ? 0.92 : 1,
+            transform: [{ scale: pressed ? 0.99 : 1 }],
+          },
+        ]}
+      >
+        <View style={[s.entryIconBadge, { backgroundColor: config.color + '20' }]}>
+          <Text style={{ fontSize: 22 }}>{config.emoji}</Text>
+        </View>
+
+        <View style={{ flex: 1, marginLeft: spacing.md }}>
+          <View style={s.entryTitleRow}>
+            <Text style={[s.entryType, { color: colors.text }]}>
+              {t(`diary.filters.${item.type}`)}
+            </Text>
+            <Text style={[s.entryDate, { color: colors.textSecondary }]}>
+              {formatRelative(item.date)}
+            </Text>
           </View>
 
-          <View style={{ flex: 1, marginLeft: spacing.md }}>
-            <View style={s.entryTitleRow}>
-              <Text style={[s.entryType, { color: colors.text }]}>
-                {t(`diary.filters.${item.type}`)}
+          {plant && !plantId && (
+            <Pressable
+              onPress={(e) => { e.stopPropagation(); router.push(`/plant/${plant.id}` as any); }}
+              hitSlop={4}
+            >
+              <Text style={[s.entryPlant, { color: colors.primary }]}>
+                {CROPS_BY_ID[plant.cropId]?.emoji ?? '🌱'} {plant.name}
               </Text>
+            </Pressable>
+          )}
 
-              <Text
-                style={[s.entryDate, { color: colors.textSecondary }]}
-              >
-                {formatRelative(item.date)}
-              </Text>
-            </View>
+          {item.notes ? (
+            <Text style={[s.entryNotes, { color: colors.textSecondary }]} numberOfLines={2}>
+              {item.notes}
+            </Text>
+          ) : null}
 
-            {plant && !plantId && (
-              <Pressable
-                onPress={(e) => {
-                  e.stopPropagation();
-                  router.push(`/plant/${plant.id}` as any);
-                }}
-                hitSlop={4}
-              >
-                <Text style={[s.entryPlant, { color: colors.primary }]}>
-                  {CROPS_BY_ID[plant.cropId]?.emoji ?? '🌱'} {plant.name}
+          {item.data && Object.keys(item.data).length > 0 ? (
+            <View style={s.harvestData}>
+              {((item.data as any).weightGrams ?? (item.data as any).weight) ? (
+                <Text style={[s.harvestChip, { color: colors.warning, backgroundColor: colors.warning + '18' }]}>
+                  ⚖️ {(item.data as any).weightGrams ?? (item.data as any).weight} kg
                 </Text>
-              </Pressable>
-            )}
-
-            {item.notes ? (
-              <Text
-                style={[s.entryNotes, { color: colors.textSecondary }]}
-                numberOfLines={2}
-              >
-                {item.notes}
-              </Text>
-            ) : null}
-
-            {item.data && Object.keys(item.data).length > 0 ? (
-              <View style={s.harvestData}>
-                {((item.data as any).weightGrams ?? (item.data as any).weight) ? (
-                  <Text style={[s.harvestChip, { color: colors.warning, backgroundColor: colors.warning + '18' }]}>
-                    ⚖️ {(item.data as any).weightGrams ?? (item.data as any).weight} kg
-                  </Text>
-                ) : null}
-                {(item.data as any).units ? (
-                  <Text style={[s.harvestChip, { color: colors.primary, backgroundColor: colors.surfaceAlt }]}>
-                    🔢 {(item.data as any).units} uds
-                  </Text>
-                ) : null}
-                {(item.data as any).quality ? (
-                  <Text style={[s.harvestChip, { color: colors.secondary, backgroundColor: colors.secondary + '18' }]}>
-                    {'⭐'.repeat(Number((item.data as any).quality))}
-                  </Text>
-                ) : null}
-                {(item.data as any).liters ? (
-                  <Text style={[s.harvestChip, { color: colors.water, backgroundColor: colors.water + '18' }]}>
-                    💧 {(item.data as any).liters} L
-                  </Text>
-                ) : null}
-                {(item.data as any).product ? (
-                  <Text style={[s.harvestChip, { color: colors.textSecondary, backgroundColor: colors.surfaceAlt }]} numberOfLines={1}>
-                    {(item.data as any).product}
-                  </Text>
-                ) : null}
-                {(item.data as any).waitDays ? (
-                  <Text style={[s.harvestChip, { color: colors.error, backgroundColor: colors.error + '18' }]}>
-                    {t('diary.waitDaysChip', { days: (item.data as any).waitDays })}
-                  </Text>
-                ) : null}
-                {(item.data as any).amount ? (
-                  <Text style={[s.harvestChip, { color: colors.warning, backgroundColor: colors.warning + '18' }]}>
-                    {(item.data as any).amount} {(item.data as any).unit ?? ''}
-                  </Text>
-                ) : null}
-              </View>
-            ) : null}
-          </View>
-
-          {item.photoUri ? (
-            <Image
-              source={{ uri: item.photoUri }}
-              style={s.entryThumb}
-            />
+              ) : null}
+              {(item.data as any).units ? (
+                <Text style={[s.harvestChip, { color: colors.primary, backgroundColor: colors.surfaceAlt }]}>
+                  🔢 {(item.data as any).units} uds
+                </Text>
+              ) : null}
+              {(item.data as any).quality ? (
+                <Text style={[s.harvestChip, { color: colors.secondary, backgroundColor: colors.secondary + '18' }]}>
+                  {'⭐'.repeat(Number((item.data as any).quality))}
+                </Text>
+              ) : null}
+              {(item.data as any).liters ? (
+                <Text style={[s.harvestChip, { color: colors.water, backgroundColor: colors.water + '18' }]}>
+                  💧 {(item.data as any).liters} L
+                </Text>
+              ) : null}
+              {(item.data as any).product ? (
+                <Text style={[s.harvestChip, { color: colors.textSecondary, backgroundColor: colors.surfaceAlt }]} numberOfLines={1}>
+                  {(item.data as any).product}
+                </Text>
+              ) : null}
+              {(item.data as any).waitDays ? (
+                <Text style={[s.harvestChip, { color: colors.error, backgroundColor: colors.error + '18' }]}>
+                  {t('diary.waitDaysChip', { days: (item.data as any).waitDays })}
+                </Text>
+              ) : null}
+              {(item.data as any).amount ? (
+                <Text style={[s.harvestChip, { color: colors.warning, backgroundColor: colors.warning + '18' }]}>
+                  {(item.data as any).amount} {(item.data as any).unit ?? ''}
+                </Text>
+              ) : null}
+            </View>
           ) : null}
         </View>
-      </Card>
-    </Pressable>
-  );
-}
+
+        {item.photoUri ? (
+          <Image source={{ uri: item.photoUri }} style={s.entryThumb} />
+        ) : null}
+      </Pressable>
+    );
+  }
 
   const filteredPlant = plantId ? plantsById[plantId] : null;
 
@@ -329,6 +322,7 @@ function DiaryInner() {
       )}
 
       {/* List grouped by date */}
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
@@ -337,9 +331,11 @@ function DiaryInner() {
         showsVerticalScrollIndicator={false}
         renderSectionHeader={({ section: { date } }) => (
           <View style={[s.sectionHeader, { backgroundColor: colors.background }]}>
+            <View style={[s.sectionDot, { backgroundColor: colors.primary }]} />
             <Text style={[s.sectionHeaderText, { color: colors.textSecondary }]}>
               {formatRelative(date)}
             </Text>
+            <View style={[s.sectionLine, { backgroundColor: colors.border }]} />
           </View>
         )}
         ListEmptyComponent={
@@ -358,6 +354,8 @@ function DiaryInner() {
           )
         }
       />
+
+      </Animated.View>
 
       {/* FAB */}
       <CopilotStep text={t('coach.diary')} order={1} name="add">
@@ -436,12 +434,28 @@ const makeStyles = (
     plantFilterText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     listContent: { paddingHorizontal: spacing.xl, paddingBottom: 100 },
     sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
       paddingVertical: spacing.sm,
-      paddingTop: spacing.md,
+      paddingTop: spacing.lg,
     },
-    sectionHeaderText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.5, textTransform: 'uppercase' },
-    entryCard: {},
-    entryRow: { flexDirection: 'row', alignItems: 'flex-start' },
+    sectionDot: { width: 6, height: 6, borderRadius: 3 },
+    sectionLine: { flex: 1, height: StyleSheet.hairlineWidth },
+    sectionHeaderText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.6, textTransform: 'uppercase' },
+    entryCard: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      borderRadius: radii.lg,
+      borderLeftWidth: 3,
+      marginBottom: spacing.sm,
+      padding: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.06,
+      shadowRadius: 4,
+      elevation: 2,
+    },
     entryIconBadge: {
       width: 44,
       height: 44,
@@ -454,7 +468,7 @@ const makeStyles = (
     entryDate: { fontSize: fontSize.xs },
     entryPlant: { fontSize: fontSize.sm, marginTop: 2, fontWeight: fontWeight.medium },
     entryNotes: { fontSize: fontSize.sm, marginTop: 4, lineHeight: 18 },
-    harvestData: { flexDirection: 'row', gap: 6, marginTop: spacing.sm },
+    harvestData: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: spacing.sm },
     harvestChip: { fontSize: fontSize.xs, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radii.full },
     entryThumb: { width: 52, height: 52, borderRadius: radii.sm, marginLeft: spacing.sm },
     fab: {

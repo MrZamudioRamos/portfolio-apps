@@ -11,7 +11,9 @@ import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   Alert,
+  Animated,
   Image,
+  LayoutAnimation,
   Modal,
   Platform,
   Pressable,
@@ -184,6 +186,7 @@ export default function PlantDetailScreen() {
   }
 
   async function handleStatusChange(status: PlantStatus) {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     await plants.update(id, { status });
 
     // Trigger C: season summary when last active plant is marked finished
@@ -953,29 +956,41 @@ export default function PlantDetailScreen() {
             plantEntries.map((entry) => {
               const cfg = ENTRY_TYPE_CONFIG[entry.type];
               return (
-                <Card key={entry.id} padded style={{ marginBottom: spacing.sm }}>
-                  <View style={s.entryRow}>
-                    <View style={[s.entryIcon, { backgroundColor: cfg.color + '22' }]}>
-                      <Text style={{ fontSize: 16 }}>{cfg.emoji}</Text>
-                    </View>
-                    <View style={{ flex: 1, marginLeft: spacing.md }}>
+                <Pressable
+                  key={entry.id}
+                  onPress={() => router.push(`/entry/edit?id=${entry.id}` as any)}
+                  style={({ pressed }) => [
+                    s.diaryEntryCard,
+                    {
+                      backgroundColor: colors.surface,
+                      borderLeftColor: cfg.color,
+                      opacity: pressed ? 0.92 : 1,
+                      transform: [{ scale: pressed ? 0.99 : 1 }],
+                    },
+                  ]}
+                >
+                  <View style={[s.entryIcon, { backgroundColor: cfg.color + '20' }]}>
+                    <Text style={{ fontSize: 18 }}>{cfg.emoji}</Text>
+                  </View>
+                  <View style={{ flex: 1, marginLeft: spacing.md }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Text style={{ color: colors.text, fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>
                         {t('diary.filters.' + entry.type)}
                       </Text>
                       <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>
                         {formatRelative(entry.date)}
                       </Text>
-                      {entry.notes ? (
-                        <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: 2 }} numberOfLines={2}>
-                          {entry.notes}
-                        </Text>
-                      ) : null}
                     </View>
-                    {entry.photoUri ? (
-                      <Image source={{ uri: entry.photoUri }} style={s.entryThumb} />
+                    {entry.notes ? (
+                      <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: 2, lineHeight: 18 }} numberOfLines={2}>
+                        {entry.notes}
+                      </Text>
                     ) : null}
                   </View>
-                </Card>
+                  {entry.photoUri ? (
+                    <Image source={{ uri: entry.photoUri }} style={s.entryThumb} />
+                  ) : null}
+                </Pressable>
               );
             })
           ) : (
@@ -1395,8 +1410,21 @@ const makeStyles = (
     reminderRow: { flexDirection: 'row', alignItems: 'center' },
     enabledBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: radii.full },
     entryRow: { flexDirection: 'row', alignItems: 'flex-start' },
-    entryIcon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-    entryThumb: { width: 44, height: 44, borderRadius: radii.sm },
+    diaryEntryCard: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      borderRadius: radii.lg,
+      borderLeftWidth: 3,
+      marginBottom: spacing.sm,
+      padding: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.06,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    entryIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+    entryThumb: { width: 44, height: 44, borderRadius: radii.sm, marginLeft: spacing.sm },
     emptyText: { fontSize: fontSize.sm, textAlign: 'center', marginVertical: spacing.md },
     actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xl },
     deleteBtn: {
