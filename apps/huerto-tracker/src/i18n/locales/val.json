@@ -526,6 +526,7 @@
     "goodWith": "Bones companyes: ",
     "scanTitle": "Identificar planta amb IA",
     "scanDesc": "Fotografia la planta i la detectem automàticament",
+    "stageLabel": "ETAPA ACTUAL",
     "propagationLabel": "MÈTODE D'INICI",
     "propSeed": "Llavor",
     "propCutting": "Esqueix",

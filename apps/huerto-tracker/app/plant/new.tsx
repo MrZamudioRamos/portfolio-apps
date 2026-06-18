@@ -1,4 +1,4 @@
-import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { createStore, useCollection } from '@portfolio/storage';
 import { useSession } from '@portfolio/supabase';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
@@ -30,11 +30,12 @@ import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import { getCompanions } from '../../src/data/companions';
-import type { Plant, PropagationMethod } from '../../src/models/plant';
+import { PLANT_STATUS_CONFIG, type Plant, type PropagationMethod } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import { track, EVENTS } from '../../src/analytics';
 import { persistPickedImage } from '../../src/utils/persistImage';
 import { successHaptic, tapHaptic } from '../../src/utils/haptics';
+import { ScalePress } from '../../src/components/ScalePress';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -43,11 +44,13 @@ const STATIC_SECTIONS = (Object.keys(CATEGORY_CONFIG) as Array<keyof typeof CATE
   data: CROPS_BY_CATEGORY[cat],
 }));
 
+// 4 key milestones for the visual stage picker (matching GrowIt's Inicio/Plántula/Floración/Cosecha)
+const QUICK_STAGES: Plant['status'][] = ['seedling', 'growing', 'flowering', 'harvesting'];
+
 export default function NewPlantScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
-
   const { t } = useTranslation();
   const { cropId: paramCropId, scan: scanParam, status: statusParam, fromOnboarding } = useLocalSearchParams<{ cropId?: string; scan?: string; status?: string; fromOnboarding?: string }>();
 
@@ -57,8 +60,6 @@ export default function NewPlantScreen() {
   const { isGuest } = useSession();
   const { isPro, loading: proLoading } = usePurchases();
 
-  // Tier limits: guest = 3, free registered = 20, pro = unlimited
-  // Guard with proLoading: isPro starts false while AsyncStorage loads — don't gate on stale value
   const plantLimit = isGuest ? 3 : isPro ? Infinity : 20;
   const gardenPlantCount = activeGarden?.id
     ? plants.items.filter((p) => p.gardenId === activeGarden.id).length
@@ -67,8 +68,11 @@ export default function NewPlantScreen() {
 
   const { collection: customCropsCollection, customCropsById } = useCustomCrops();
 
+  // 2-step flow: 'select' → 'details'. Skip step 1 if crop pre-selected (scan / SowNow)
+  const [step, setStep] = useState<'select' | 'details'>(paramCropId ? 'details' : 'select');
+
   const [selectedCropId, setSelectedCropId] = useState<string | null>(paramCropId ?? null);
-  const [showCropPicker, setShowCropPicker] = useState(!paramCropId);
+  const [showCropPicker, setShowCropPicker] = useState(false);
   const [cropSearch, setCropSearch] = useState('');
   const [pickerImgErr, setPickerImgErr] = useState<Record<string, boolean>>({});
   const [plantName, setPlantName] = useState(() => {
@@ -82,10 +86,13 @@ export default function NewPlantScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [propagationMethod, setPropagationMethod] = useState<PropagationMethod>('seed');
+  // Stage selector — replaces the hidden initialStatus param
+  const [selectedStatus, setSelectedStatus] = useState<Plant['status']>(() => {
+    const VALID: Plant['status'][] = ['seedling','transplanted','growing','flowering','fruiting','harvesting','finished'];
+    return (VALID.includes(statusParam as Plant['status']) ? statusParam : 'seedling') as Plant['status'];
+  });
   const [saving, setSaving] = useState(false);
   const isAiFilled = scanParam === '1';
-  const VALID_STATUSES: Plant['status'][] = ['seedling','transplanted','growing','flowering','fruiting','harvesting','finished'];
-  const initialStatus: Plant['status'] = VALID_STATUSES.includes(statusParam as Plant['status']) ? (statusParam as Plant['status']) : 'seedling';
 
   const selectedCrop = selectedCropId
     ? (CROPS_BY_ID[selectedCropId] ?? customCropsById[selectedCropId] ?? null)
@@ -127,6 +134,7 @@ export default function NewPlantScreen() {
     setCropSearch('');
     setVarietyId(null);
     setVariety('');
+    setStep('details'); // advance to form step
   }
 
   function handleSelectVariety(v: VarietyInfo | null) {
@@ -168,7 +176,7 @@ export default function NewPlantScreen() {
         ...(variety.trim() ? { variety: variety.trim() } : {}),
         ...(varietyId ? { varietyId } : {}),
         sowingDate,
-        status: initialStatus,
+        status: selectedStatus,
         propagationMethod,
         ...(photoUri ? { photoUri } : {}),
       });
@@ -181,9 +189,6 @@ export default function NewPlantScreen() {
       track(EVENTS.plantAdded, { cropId: selectedCropId, fromScan: isAiFilled });
       successHaptic();
       if (fromOnboarding === '1') router.replace('/(tabs)');
-      // Scan flow: /plant/scan did router.replace into THIS screen, leaving the
-      // original /plant/new underneath. A plain back() would land on that stale
-      // form, so dismiss the whole add stack instead.
       else if (isAiFilled && router.canGoBack()) router.dismissAll();
       else if (router.canGoBack()) router.back();
       else router.replace('/(tabs)');
@@ -197,302 +202,330 @@ export default function NewPlantScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
+  function goBack() {
+    if (step === 'details' && !paramCropId) {
+      setStep('select');
+    } else if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)');
+    }
+  }
+
+  const cropName = selectedCrop
+    ? (selectedCrop.isCustom ? selectedCrop.name : t('crops.' + selectedCrop.id + '.name'))
+    : '';
+
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')} hitSlop={12}>
-          <Ionicons name="close" size={24} color={colors.textSecondary} />
+        <Pressable onPress={goBack} hitSlop={12}>
+          <Ionicons
+            name={step === 'details' && !paramCropId ? 'arrow-back' : 'close'}
+            size={24}
+            color={colors.textSecondary}
+          />
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('plantNew.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
-      {/* AI-filled banner */}
-      {isAiFilled && (
-        <View style={[s.aiBanner, { backgroundColor: colors.primary + '18', borderBottomColor: colors.primary + '33' }]}>
-          <Text style={[s.aiBannerText, { color: colors.primary }]}>{t('plantScan.aiFilled')}</Text>
+      {/* ── STEP 1: Choose how to add ── */}
+      {step === 'select' && (
+        <View style={s.entryContainer}>
+          <Text style={[s.entrySubtitle, { color: colors.textSecondary }]}>
+            {t('plantNew.selectCrop')}
+          </Text>
+
+          {isPro && (
+            <ScalePress
+              onPress={() => router.push('/plant/scan' as any)}
+              style={[s.entryBtn, { backgroundColor: colors.primary, ...shadows.md }]}
+            >
+              <View style={[s.entryBtnIcon, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                <Ionicons name="scan-outline" size={26} color="#fff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.entryBtnTitle, { color: '#fff' }]}>{t('plantNew.scanTitle')}</Text>
+                <Text style={[s.entryBtnDesc, { color: 'rgba(255,255,255,0.75)' }]}>{t('plantNew.scanDesc')}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.6)" />
+            </ScalePress>
+          )}
+
+          <ScalePress
+            onPress={() => setShowCropPicker(true)}
+            style={[s.entryBtn, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1.5, ...shadows.sm }]}
+          >
+            <View style={[s.entryBtnIcon, { backgroundColor: colors.primary + '18' }]}>
+              <Ionicons name="search-outline" size={26} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.entryBtnTitle, { color: colors.text }]}>{t('plantNew.cropPickerTitle')}</Text>
+              <Text style={[s.entryBtnDesc, { color: colors.textSecondary }]}>{t('catalog.title')}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
+          </ScalePress>
         </View>
       )}
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ paddingBottom: 40 }}
-        >
-            <View style={s.formContainer}>
-              {/* Crop selector */}
-              <Text style={[s.label, { color: colors.textSecondary }]}>{t('plantNew.cropLabel')}</Text>
-              {selectedCrop ? (
-                <Pressable
-                  onPress={() => setShowCropPicker(true)}
-                  style={[s.selectedCrop, { backgroundColor: colors.surfaceAlt, borderColor: colors.primary }]}
-                >
-                  <Text style={{ fontSize: 32 }}>{selectedCrop.emoji}</Text>
-                  <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={[s.cropName, { color: colors.text }]}>{selectedCrop.isCustom ? selectedCrop.name : t('crops.' + selectedCrop.id + '.name')}</Text>
-                    <Text style={[s.cropCategory, { color: colors.textSecondary }]}>
+      {/* ── STEP 2: Plant details ── */}
+      {step === 'details' && (
+        <>
+          {isAiFilled && (
+            <View style={[s.aiBanner, { backgroundColor: colors.primary + '18', borderBottomColor: colors.primary + '33' }]}>
+              <Text style={[s.aiBannerText, { color: colors.primary }]}>{t('plantScan.aiFilled')}</Text>
+            </View>
+          )}
+
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 40 }}
+            >
+              {/* Crop hero — prominent image + name + change link */}
+              {selectedCrop && (
+                <View style={[s.cropHero, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+                  <View style={[s.cropHeroImg, { backgroundColor: colors.surfaceAlt }]}>
+                    {CROP_IMAGES[selectedCrop.id] && !pickerImgErr[selectedCrop.id] ? (
+                      <Image
+                        source={{ uri: CROP_IMAGES[selectedCrop.id] }}
+                        style={StyleSheet.absoluteFill}
+                        resizeMode="cover"
+                        onError={() => setPickerImgErr(p => ({ ...p, [selectedCrop.id]: true }))}
+                      />
+                    ) : (
+                      <Text style={{ fontSize: 38 }}>{selectedCrop.emoji}</Text>
+                    )}
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.cropHeroName, { color: colors.text }]}>{cropName}</Text>
+                    <Text style={[s.cropHeroCategory, { color: colors.textSecondary }]}>
                       {t('cropCategory.' + selectedCrop.category)}
                     </Text>
                   </View>
-                  <Text style={[s.changeText, { color: colors.primary }]}>{t('plantNew.changeCrop')}</Text>
-                </Pressable>
-              ) : (
-                <>
-                  {/* Scan CTA — prominent */}
-                  {isPro && (
-                    <Pressable
-                      onPress={() => router.push('/plant/scan' as any)}
-                      style={[s.scanCta, { backgroundColor: colors.primary + '14', borderColor: colors.primary }]}
-                    >
-                      <Ionicons name="scan-outline" size={22} color={colors.primary} />
-                      <View style={{ flex: 1, marginLeft: spacing.md }}>
-                        <Text style={[s.scanCtaTitle, { color: colors.primary }]}>{t('plantNew.scanTitle')}</Text>
-                        <Text style={[s.scanCtaDesc, { color: colors.primary + 'AA' }]}>{t('plantNew.scanDesc')}</Text>
-                      </View>
-                      <Ionicons name="chevron-forward" size={18} color={colors.primary} />
-                    </Pressable>
-                  )}
-
-                  <Pressable
-                    onPress={() => setShowCropPicker(true)}
-                    style={[s.cropPickerBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, marginTop: isPro ? spacing.sm : 0 }]}
-                  >
-                    <Text style={{ fontSize: 28 }}>🌱</Text>
-                    <Text style={[{ color: colors.textSecondary, fontSize: fontSize.md, marginLeft: spacing.md }]}>
-                      {t('plantNew.selectCrop')}
-                    </Text>
-                    <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
+                  <Pressable onPress={() => setShowCropPicker(true)} hitSlop={8}>
+                    <Text style={[s.changeText, { color: colors.primary }]}>{t('plantNew.changeCrop')}</Text>
                   </Pressable>
-                </>
+                </View>
               )}
 
-              {/* Companion hint */}
-              {selectedCrop && (() => {
-                const companions = getCompanions(selectedCrop.id).slice(0, 4);
-                if (!companions.length) return null;
-                return (
-                  <View style={[s.companionHint, { backgroundColor: '#4CAF5012', borderColor: '#4CAF5055' }]}>
-                    <Text style={[s.companionHintText, { color: '#2E7D32' }]}>
-                      🤝 {t('plantNew.goodWith')}{' '}
-                      {companions.map((c) => `${c.emoji} ${t('crops.' + c.id + '.name', { defaultValue: c.name })}`).join('  ')}
-                    </Text>
-                  </View>
-                );
-              })()}
+              <View style={s.formContainer}>
+                {/* Companion hint */}
+                {selectedCrop && (() => {
+                  const companions = getCompanions(selectedCrop.id).slice(0, 4);
+                  if (!companions.length) return null;
+                  return (
+                    <View style={[s.companionHint, { backgroundColor: '#4CAF5012', borderColor: '#4CAF5055' }]}>
+                      <Text style={[s.companionHintText, { color: '#2E7D32' }]}>
+                        🤝 {t('plantNew.goodWith')}{' '}
+                        {companions.map((c) => `${c.emoji} ${t('crops.' + c.id + '.name', { defaultValue: c.name })}`).join('  ')}
+                      </Text>
+                    </View>
+                  );
+                })()}
 
-              {/* Plant name */}
-              <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('plantNew.nameLabel')}</Text>
-              <TextInput
-                value={plantName}
-                onChangeText={setPlantName}
-                placeholder={t('plantNew.namePlaceholder')}
-                placeholderTextColor={colors.textDisabled}
-                style={[s.input, { backgroundColor: colors.surface, borderColor: plantName ? colors.primary : colors.border, color: colors.text }]}
-              />
+                {/* Plant name */}
+                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('plantNew.nameLabel')}</Text>
+                <TextInput
+                  value={plantName}
+                  onChangeText={setPlantName}
+                  placeholder={t('plantNew.namePlaceholder')}
+                  placeholderTextColor={colors.textDisabled}
+                  style={[s.input, { backgroundColor: colors.surface, borderColor: plantName ? colors.primary : colors.border, color: colors.text }]}
+                />
 
-              {/* Variety */}
-              <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
-                {t('plantNew.varietyLabel')}
-              </Text>
-              {cropVarieties.length > 0 && (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  style={{ marginBottom: spacing.sm }}
-                  contentContainerStyle={{ gap: spacing.sm, paddingBottom: 2 }}
-                >
-                  <Pressable
-                    onPress={() => handleSelectVariety(null)}
-                    style={[
-                      s.varietyChip,
-                      {
-                        backgroundColor: !varietyId ? colors.primary + '22' : colors.surface,
-                        borderColor: !varietyId ? colors.primary : colors.border,
-                      },
-                    ]}
+                {/* Variety */}
+                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
+                  {t('plantNew.varietyLabel')}
+                </Text>
+                {cropVarieties.length > 0 && (
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={{ marginBottom: spacing.sm }}
+                    contentContainerStyle={{ gap: spacing.sm, paddingBottom: 2 }}
                   >
-                    <Text style={[s.varietyChipText, { color: !varietyId ? colors.primary : colors.textSecondary }]}>
-                      🌱 {t('plantNew.varietyGeneric')}
-                    </Text>
-                  </Pressable>
-                  {cropVarieties.map((v) => {
-                    const active = varietyId === v.id;
+                    <Pressable
+                      onPress={() => handleSelectVariety(null)}
+                      style={[s.varietyChip, { backgroundColor: !varietyId ? colors.primary + '22' : colors.surface, borderColor: !varietyId ? colors.primary : colors.border }]}
+                    >
+                      <Text style={[s.varietyChipText, { color: !varietyId ? colors.primary : colors.textSecondary }]}>
+                        🌱 {t('plantNew.varietyGeneric')}
+                      </Text>
+                    </Pressable>
+                    {cropVarieties.map((v) => {
+                      const active = varietyId === v.id;
+                      return (
+                        <Pressable
+                          key={v.id}
+                          onPress={() => handleSelectVariety(v)}
+                          style={[s.varietyChip, { backgroundColor: active ? colors.primary + '22' : colors.surface, borderColor: active ? colors.primary : colors.border }]}
+                        >
+                          <Text style={[s.varietyChipText, { color: active ? colors.primary : colors.text }]}>
+                            {t('varieties.' + v.id, { defaultValue: v.name })}
+                          </Text>
+                          <Text style={[s.varietyChipDays, { color: colors.textSecondary }]}>
+                            {v.daysToHarvest[0]}–{v.daysToHarvest[1]}d
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </ScrollView>
+                )}
+                <TextInput
+                  value={variety}
+                  onChangeText={(text) => { setVariety(text); setVarietyId(null); }}
+                  placeholder={t('plantNew.varietyPlaceholder')}
+                  placeholderTextColor={colors.textDisabled}
+                  style={[s.input, { backgroundColor: colors.surface, borderColor: variety ? colors.primary : colors.border, color: colors.text }]}
+                />
+
+                {/* Growth stage — visual 4-chip picker */}
+                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('plantNew.stageLabel')}</Text>
+                <View style={s.stageRow}>
+                  {QUICK_STAGES.map((stage) => {
+                    const cfg = PLANT_STATUS_CONFIG[stage];
+                    const active = selectedStatus === stage;
                     return (
                       <Pressable
-                        key={v.id}
-                        onPress={() => handleSelectVariety(v)}
-                        style={[
-                          s.varietyChip,
-                          {
-                            backgroundColor: active ? colors.primary + '22' : colors.surface,
-                            borderColor: active ? colors.primary : colors.border,
-                          },
-                        ]}
+                        key={stage}
+                        onPress={() => { setSelectedStatus(stage); tapHaptic(); }}
+                        style={[s.stageChip, { backgroundColor: active ? cfg.color + '20' : colors.surface, borderColor: active ? cfg.color : colors.border }]}
                       >
-                        <Text style={[s.varietyChipText, { color: active ? colors.primary : colors.text }]}>
-                          {t('varieties.' + v.id, { defaultValue: v.name })}
-                        </Text>
-                        <Text style={[s.varietyChipDays, { color: colors.textSecondary }]}>
-                          {v.daysToHarvest[0]}–{v.daysToHarvest[1]}d
+                        <Text style={{ fontSize: 26 }}>{cfg.emoji}</Text>
+                        <Text style={[s.stageLabel, { color: active ? cfg.color : colors.textSecondary }]} numberOfLines={1}>
+                          {t('plantStatus.' + stage)}
                         </Text>
                       </Pressable>
                     );
                   })}
-                </ScrollView>
-              )}
-              <TextInput
-                value={variety}
-                onChangeText={(text) => { setVariety(text); setVarietyId(null); }}
-                placeholder={t('plantNew.varietyPlaceholder')}
-                placeholderTextColor={colors.textDisabled}
-                style={[s.input, { backgroundColor: colors.surface, borderColor: variety ? colors.primary : colors.border, color: colors.text }]}
-              />
+                </View>
 
-              {/* Propagation method */}
-              <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('plantNew.propagationLabel')}</Text>
-              <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md, flexWrap: 'wrap' }}>
-                {([
-                  { value: 'seed',     emoji: '🌱', key: 'plantNew.propSeed' },
-                  { value: 'cutting',  emoji: '✂️', key: 'plantNew.propCutting' },
-                  { value: 'division', emoji: '🌿', key: 'plantNew.propDivision' },
-                  { value: 'bought',   emoji: '🛒', key: 'plantNew.propBought' },
-                ] as const).map((opt) => {
-                  const active = propagationMethod === opt.value;
-                  return (
-                    <Pressable
-                      key={opt.value}
-                      onPress={() => setPropagationMethod(opt.value)}
-                      style={[s.dateBtn, {
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 4,
-                        backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
-                        borderColor: active ? colors.primary : colors.border,
-                      }]}
-                    >
-                      <Text style={{ fontSize: 14 }}>{opt.emoji}</Text>
-                      <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>
-                        {t(opt.key)}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
+                {/* Propagation method — 4 chips in one row */}
+                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('plantNew.propagationLabel')}</Text>
+                <View style={s.methodRow}>
+                  {([
+                    { value: 'seed',     emoji: '🌱', key: 'plantNew.propSeed' },
+                    { value: 'cutting',  emoji: '✂️', key: 'plantNew.propCutting' },
+                    { value: 'division', emoji: '🌿', key: 'plantNew.propDivision' },
+                    { value: 'bought',   emoji: '🛒', key: 'plantNew.propBought' },
+                  ] as const).map((opt) => {
+                    const active = propagationMethod === opt.value;
+                    return (
+                      <Pressable
+                        key={opt.value}
+                        onPress={() => { setPropagationMethod(opt.value); tapHaptic(); }}
+                        style={[s.methodChip, { backgroundColor: active ? colors.primary + '22' : colors.surface, borderColor: active ? colors.primary : colors.border }]}
+                      >
+                        <Text style={{ fontSize: 16 }}>{opt.emoji}</Text>
+                        <Text style={[s.methodLabel, { color: active ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
+                          {t(opt.key)}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
 
-              {/* Sowing date */}
-              <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('plantNew.sowingDate')}</Text>
-              <View style={[s.dateBtnsRow, { marginBottom: spacing.sm }]}>
-                {([0, 1] as const).map((days) => {
-                  const d = new Date();
-                  d.setDate(d.getDate() - days);
-                  const dateStr = dateToStr(d);
-                  const active = sowingDate === dateStr;
-                  const label = days === 0 ? t('entryNew.today') : t('entryNew.yesterday');
-                  return (
-                    <Pressable
-                      key={days}
-                      onPress={() => setSowingDate(dateStr)}
-                      style={[
-                        s.dateBtn,
-                        {
-                          backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
-                          borderColor: active ? colors.primary : colors.border,
-                        },
-                      ]}
-                    >
-                      <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>
-                        {label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-              <Pressable
-                onPress={() => setShowDatePicker(true)}
-                style={[s.input, s.datePickerBtn, { backgroundColor: colors.surface, borderColor: sowingDate ? colors.primary : colors.border }]}
-              >
-                <Ionicons name="calendar-outline" size={18} color={sowingDate ? colors.primary : colors.textSecondary} />
-                <Text style={{ color: sowingDate ? colors.text : colors.textDisabled, fontSize: fontSize.md, flex: 1 }}>
-                  {sowingDate || t('entryNew.datePlaceholder')}
-                </Text>
-              </Pressable>
+                {/* Sowing date */}
+                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('plantNew.sowingDate')}</Text>
+                <View style={[s.dateBtnsRow, { marginBottom: spacing.sm }]}>
+                  {([0, 1] as const).map((days) => {
+                    const d = new Date();
+                    d.setDate(d.getDate() - days);
+                    const dateStr = dateToStr(d);
+                    const active = sowingDate === dateStr;
+                    return (
+                      <Pressable
+                        key={days}
+                        onPress={() => setSowingDate(dateStr)}
+                        style={[s.dateBtn, { backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt, borderColor: active ? colors.primary : colors.border }]}
+                      >
+                        <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>
+                          {days === 0 ? t('entryNew.today') : t('entryNew.yesterday')}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+                <Pressable
+                  onPress={() => setShowDatePicker(true)}
+                  style={[s.input, { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderColor: colors.border }]}
+                >
+                  <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
+                  <Text style={{ color: colors.text, fontSize: fontSize.md, flex: 1 }}>{sowingDate}</Text>
+                </Pressable>
 
-              {showDatePicker && Platform.OS === 'android' && (
-                <DateTimePicker
-                  value={new Date(sowingDate)}
-                  mode="date"
-                  display="default"
-                  onChange={(_, date) => {
-                    setShowDatePicker(false);
-                    if (date) setSowingDate(dateToStr(date));
-                  }}
-                />
-              )}
-              {showDatePicker && Platform.OS === 'ios' && (
-                <Modal transparent animationType="slide" visible>
-                  <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
-                    <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
-                        {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-                      <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
-                      <DateTimePicker
-                        value={new Date(sowingDate)}
-                        mode="date"
-                        display="spinner"
-                        onChange={(_, date) => {
-                          if (date) setSowingDate(dateToStr(date));
-                        }}
-                        style={{ width: '100%' }}
-                      />
-                      <Button
-                        title={t('common.save')}
-                        onPress={() => setShowDatePicker(false)}
-                        size="lg"
-                        style={{ margin: spacing.xl, marginTop: 0 }}
-                      />
-                    </Pressable>
-                  </Pressable>
-                </Modal>
-              )}
-
-              {/* Photo */}
-              <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
-                {t('plantNew.photo')}
-              </Text>
-              <Pressable
-                onPress={pickPhoto}
-                style={[s.photoArea, { backgroundColor: colors.surfaceAlt, borderColor: photoUri ? 'transparent' : colors.border }]}
-              >
-                {photoUri ? (
-                  <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
-                ) : (
-                  <>
-                    <Ionicons name="camera-outline" size={32} color={colors.textSecondary} />
-                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: spacing.xs }}>
-                      {t('plantNew.addPhoto')}
-                    </Text>
-                  </>
+                {showDatePicker && Platform.OS === 'android' && (
+                  <DateTimePicker
+                    value={new Date(sowingDate)}
+                    mode="date"
+                    display="default"
+                    onChange={(_, date) => { setShowDatePicker(false); if (date) setSowingDate(dateToStr(date)); }}
+                  />
                 )}
-              </Pressable>
+                {showDatePicker && Platform.OS === 'ios' && (
+                  <Modal transparent animationType="slide" visible>
+                    <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
+                      <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
+                        {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+                        <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
+                        <DateTimePicker
+                          value={new Date(sowingDate)}
+                          mode="date"
+                          display="spinner"
+                          onChange={(_, date) => { if (date) setSowingDate(dateToStr(date)); }}
+                          style={{ width: '100%' }}
+                        />
+                        <Button
+                          title={t('common.save')}
+                          onPress={() => setShowDatePicker(false)}
+                          size="lg"
+                          style={{ margin: spacing.xl, marginTop: 0 }}
+                        />
+                      </Pressable>
+                    </Pressable>
+                  </Modal>
+                )}
 
-              {/* Save button */}
-              <Button
-                title={t('plantNew.addPlant')}
-                onPress={handleSave}
-                disabled={!selectedCropId || !plantName.trim()}
-                loading={saving}
-                size="lg"
-                style={{ marginTop: spacing.xl }}
-              />
-            </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+                {/* Photo */}
+                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
+                  {t('plantNew.photo')}
+                </Text>
+                <Pressable
+                  onPress={pickPhoto}
+                  style={[s.photoArea, { backgroundColor: colors.surfaceAlt, borderColor: photoUri ? 'transparent' : colors.border }]}
+                >
+                  {photoUri ? (
+                    <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                  ) : (
+                    <>
+                      <Ionicons name="camera-outline" size={32} color={colors.textSecondary} />
+                      <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: spacing.xs }}>
+                        {t('plantNew.addPhoto')}
+                      </Text>
+                    </>
+                  )}
+                </Pressable>
 
-      {/* Crop picker modal */}
+                {/* Save */}
+                <Button
+                  title={t('plantNew.addPlant')}
+                  onPress={handleSave}
+                  disabled={!selectedCropId || !plantName.trim()}
+                  loading={saving}
+                  size="lg"
+                  style={{ marginTop: spacing.xl }}
+                />
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </>
+      )}
+
+      {/* Crop picker modal — available from both steps */}
       <Modal visible={showCropPicker} animationType="slide" presentationStyle="pageSheet">
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
           <View style={[s.modalHeader, { borderBottomColor: colors.border }]}>
@@ -538,12 +571,7 @@ export default function NewPlantScreen() {
                 style={({ pressed }) => [
                   s.cropRow,
                   {
-                    backgroundColor:
-                      item.id === selectedCropId
-                        ? colors.surfaceAlt
-                        : pressed
-                        ? colors.surfaceAlt
-                        : colors.surface,
+                    backgroundColor: item.id === selectedCropId ? colors.surfaceAlt : pressed ? colors.surfaceAlt : colors.surface,
                     borderBottomColor: colors.border,
                   },
                 ]}
@@ -612,32 +640,107 @@ const makeStyles = (
       borderBottomWidth: StyleSheet.hairlineWidth,
     },
     aiBannerText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
+
+    // Step 1 — entry
+    entryContainer: {
+      flex: 1,
+      padding: spacing.xl,
+      gap: spacing.lg,
+      justifyContent: 'center',
+    },
+    entrySubtitle: {
+      fontSize: fontSize.md,
+      textAlign: 'center',
+      marginBottom: spacing.sm,
+    },
+    entryBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.lg,
+      borderRadius: radii.xl,
+      gap: spacing.md,
+    },
+    entryBtnIcon: {
+      width: 52,
+      height: 52,
+      borderRadius: radii.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    entryBtnTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    entryBtnDesc: { fontSize: fontSize.xs, marginTop: 2 },
+
+    // Step 2 — crop hero
+    cropHero: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.lg,
+      gap: spacing.md,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    cropHeroImg: {
+      width: 72,
+      height: 72,
+      borderRadius: radii.lg,
+      overflow: 'hidden',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    cropHeroName: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+    cropHeroCategory: { fontSize: fontSize.xs, marginTop: 2 },
+    changeText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+
+    // Form
     formContainer: { padding: spacing.xl, gap: 0 },
     label: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, marginBottom: spacing.sm },
-    selectedCrop: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: spacing.lg,
-      borderRadius: radii.md,
-      borderWidth: 2,
-    },
-    cropPickerBtn: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: spacing.lg,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
-      borderStyle: 'dashed',
-    },
-    cropName: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
-    cropCategory: { fontSize: fontSize.xs, marginTop: 2 },
-    changeText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     input: {
       borderWidth: 1.5,
       borderRadius: radii.md,
       padding: spacing.lg,
       fontSize: fontSize.md,
     },
+
+    // Stage selector — 4 chips equal width
+    stageRow: { flexDirection: 'row', gap: spacing.sm },
+    stageChip: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      paddingHorizontal: 4,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      gap: 4,
+    },
+    stageLabel: { fontSize: 9, fontWeight: fontWeight.semibold, textAlign: 'center' },
+
+    // Propagation — 4 equal chips in one row
+    methodRow: { flexDirection: 'row', gap: spacing.sm },
+    methodChip: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      paddingHorizontal: 4,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      gap: 3,
+    },
+    methodLabel: { fontSize: 9, fontWeight: fontWeight.medium, textAlign: 'center' },
+
+    // Date
+    dateBtnsRow: { flexDirection: 'row', gap: spacing.sm },
+    dateBtn: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+    },
+    dateBtnText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    dateModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+    dateModalSheet: { borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, paddingTop: spacing.sm, alignItems: 'center' },
+    dateModalHandle: { width: 40, height: 4, borderRadius: 2, marginBottom: spacing.md },
+
+    // Photo
     photoArea: {
       height: 140,
       borderRadius: radii.xl,
@@ -647,6 +750,25 @@ const makeStyles = (
       justifyContent: 'center',
       overflow: 'hidden',
     },
+
+    // Variety
+    varietyChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+      gap: 4,
+    },
+    varietyChipText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    varietyChipDays: { fontSize: 10 },
+
+    // Companion hint
+    companionHint: { padding: spacing.md, borderRadius: radii.md, borderWidth: 1, marginBottom: spacing.md },
+    companionHintText: { fontSize: fontSize.xs, lineHeight: 18 },
+
+    // Crop picker modal
     modalHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -663,11 +785,7 @@ const makeStyles = (
       borderRadius: radii.md,
       borderWidth: 1,
     },
-    categoryHeader: {
-      paddingHorizontal: spacing.xl,
-      paddingTop: spacing.md,
-      paddingBottom: spacing.xs,
-    },
+    categoryHeader: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.xs },
     categoryTitle: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8 },
     cropRow: {
       flexDirection: 'row',
@@ -676,72 +794,5 @@ const makeStyles = (
       paddingVertical: spacing.sm,
       borderBottomWidth: StyleSheet.hairlineWidth,
     },
-    pickerThumb: {
-      width: 52,
-      height: 52,
-      borderRadius: radii.md,
-      overflow: 'hidden',
-    },
-    dateBtnsRow: { flexDirection: 'row', gap: spacing.sm },
-    datePickerBtn: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-    },
-    dateModalOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.4)',
-      justifyContent: 'flex-end',
-    },
-    dateModalSheet: {
-      borderTopLeftRadius: radii.xl,
-      borderTopRightRadius: radii.xl,
-      paddingTop: spacing.sm,
-      alignItems: 'center',
-    },
-    dateModalHandle: {
-      width: 40,
-      height: 4,
-      borderRadius: 2,
-      marginBottom: spacing.md,
-    },
-    dateBtn: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: radii.full,
-      borderWidth: 1.5,
-    },
-    dateBtnText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    varietyChip: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: radii.full,
-      borderWidth: 1.5,
-      gap: 4,
-    },
-    varietyChipText: {
-      fontSize: fontSize.sm,
-      fontWeight: fontWeight.medium,
-    },
-    varietyChipDays: {
-      fontSize: 10,
-    },
-    scanCta: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: spacing.lg,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
-    },
-    scanCtaTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
-    scanCtaDesc: { fontSize: fontSize.xs, marginTop: 2 },
-    companionHint: {
-      marginTop: spacing.md,
-      padding: spacing.md,
-      borderRadius: radii.md,
-      borderWidth: 1,
-    },
-    companionHintText: { fontSize: fontSize.xs, lineHeight: 18 },
+    pickerThumb: { width: 52, height: 52, borderRadius: radii.md, overflow: 'hidden' },
   });

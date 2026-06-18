@@ -531,6 +531,7 @@
     "goodWith": "Good companions: ",
     "scanTitle": "Identify plant with AI",
     "scanDesc": "Photograph your plant and we detect it automatically",
+    "stageLabel": "CURRENT STAGE",
     "propagationLabel": "STARTING METHOD",
     "propSeed": "Seed",
     "propCutting": "Cutting",

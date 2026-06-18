@@ -526,6 +526,7 @@
     "goodWith": "Lagun onak: ",
     "scanTitle": "Landarea identifikatu AArekin",
     "scanDesc": "Argazkia atera eta automatikoki detektatzen dugu",
+    "stageLabel": "UNEKO ETAPA",
     "propagationLabel": "HASIERA METODOA",
     "propSeed": "Hazia",
     "propCutting": "Ebakia",

@@ -554,6 +554,7 @@
     "goodWith": "Buenas compañeras: ",
     "scanTitle": "Identificar planta con IA",
     "scanDesc": "Fotografía tu planta y la detectamos automáticamente",
+    "stageLabel": "ETAPA ACTUAL",
     "propagationLabel": "MÉTODO DE INICIO",
     "propSeed": "Semilla",
     "propCutting": "Esqueje",
