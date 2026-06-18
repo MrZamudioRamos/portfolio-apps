@@ -6,12 +6,7 @@ import { BlurView } from 'expo-blur';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { Redirect, Tabs } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
@@ -33,7 +28,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const [pillWidth, setPillWidth] = useState(0);
-  const bubbleX = useSharedValue(0);
+  const bubbleX = useRef(new Animated.Value(0)).current;
   const isFirstLayout = useRef(true);
 
   const visibleRoutes = state.routes.filter(
@@ -49,16 +44,17 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
     if (tabW <= 0 || activeVisibleIdx < 0) return;
     const target = tabW * activeVisibleIdx + (tabW - BUBBLE_SIZE) / 2;
     if (isFirstLayout.current) {
-      bubbleX.value = target;
+      bubbleX.setValue(target);
       isFirstLayout.current = false;
     } else {
-      bubbleX.value = withSpring(target, { damping: 18, stiffness: 220, mass: 0.7 });
+      Animated.spring(bubbleX, {
+        toValue: target,
+        useNativeDriver: true,
+        tension: 60,
+        friction: 9,
+      }).start();
     }
   }, [activeVisibleIdx, tabW]);
-
-  const bubbleStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: bubbleX.value }],
-  }));
 
   return (
     <View
@@ -140,18 +136,16 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
         {/* Animated glass bubble */}
         {pillWidth > 0 && (
           <Animated.View
-            style={[
-              {
-                position: 'absolute',
-                top: (PILL_H - BUBBLE_SIZE) / 2,
-                left: 0,
-                width: BUBBLE_SIZE,
-                height: BUBBLE_SIZE,
-                borderRadius: BUBBLE_SIZE / 2,
-                overflow: 'hidden',
-              },
-              bubbleStyle,
-            ]}
+            style={{
+              position: 'absolute',
+              top: (PILL_H - BUBBLE_SIZE) / 2,
+              left: 0,
+              width: BUBBLE_SIZE,
+              height: BUBBLE_SIZE,
+              borderRadius: BUBBLE_SIZE / 2,
+              overflow: 'hidden',
+              transform: [{ translateX: bubbleX }],
+            }}
             pointerEvents="none"
           >
             {glassAvailable ? (
