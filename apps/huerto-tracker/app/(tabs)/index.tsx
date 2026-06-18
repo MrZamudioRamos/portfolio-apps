@@ -120,6 +120,12 @@ function DashboardInner() {
     return idx;
   }, [entries.items]);
 
+  const plantsById = useMemo(() => {
+    const map = new Map<string, Plant>();
+    for (const p of plants.items) map.set(p.id, p);
+    return map;
+  }, [plants.items]);
+
   const weeklyTasks = useMemo(() => {
     const tasks: Array<{ emoji: string; label: string; plantId: string }> = [];
     const today = new Date();
@@ -512,17 +518,31 @@ function DashboardInner() {
                     <Text style={[s.todayEmptyText, { color: colors.textSecondary }]}>{t('home.weeklyTasksEmpty')}</Text>
                   </View>
                 ) : (
-                  weeklyTasks.slice(0, 5).map((task, i) => (
-                    <Pressable
-                      key={i}
-                      onPress={() => router.push(`/plant/${task.plantId}`)}
-                      style={({ pressed }) => [s.todayRow, { borderTopColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
-                    >
-                      <Text style={s.todayEmoji}>{task.emoji}</Text>
-                      <Text style={[s.todayLabel, { color: colors.text }]} numberOfLines={1}>{task.label}</Text>
-                      <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} />
-                    </Pressable>
-                  ))
+                  weeklyTasks.slice(0, 5).map((task, i) => {
+                    const taskPlant = plantsById.get(task.plantId);
+                    const taskCrop = taskPlant ? (CROPS_BY_ID[taskPlant.cropId] ?? customCropsById[taskPlant.cropId]) : null;
+                    const taskImg = taskPlant?.photoUri ?? (taskCrop ? CROP_IMAGES[taskCrop.id] : null);
+                    return (
+                      <Pressable
+                        key={i}
+                        onPress={() => router.push(`/plant/${task.plantId}`)}
+                        style={({ pressed }) => [s.todayRow, { borderTopColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
+                      >
+                        <View style={[s.taskThumb, { backgroundColor: colors.surfaceAlt }]}>
+                          {taskImg ? (
+                            <Image source={{ uri: taskImg }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                          ) : (
+                            <Text style={{ fontSize: 16 }}>{taskCrop?.emoji ?? '🌱'}</Text>
+                          )}
+                          <View style={[s.taskEmojiDot, { backgroundColor: colors.surface, borderColor: colors.surface }]}>
+                            <Text style={{ fontSize: 10 }}>{task.emoji}</Text>
+                          </View>
+                        </View>
+                        <Text style={[s.todayLabel, { color: colors.text }]} numberOfLines={1}>{task.label}</Text>
+                        <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} />
+                      </Pressable>
+                    );
+                  })
                 )}
                 {weeklyTasks.length > 5 && (
                   <Text style={[s.todayMore, { color: colors.textSecondary }]}>+{weeklyTasks.length - 5} {t('common.more')}</Text>
@@ -530,6 +550,36 @@ function DashboardInner() {
               </WalkView>
               </CopilotStep>
             )}
+
+            {/* Próximas cosechas — hero card when harvest is near */}
+            {plants.count > 0 && (() => {
+              const hp = plants.items.find(p =>
+                p.status === 'harvesting' ||
+                (p.firstHarvestDate && p.firstHarvestDate >= todayStr() &&
+                  p.firstHarvestDate <= dateToStr(new Date(Date.now() + 21 * 86_400_000)))
+              );
+              if (!hp) return null;
+              const hCrop = CROPS_BY_ID[hp.cropId] ?? customCropsById[hp.cropId];
+              const hImg = hp.photoUri ?? CROP_IMAGES[hp.cropId];
+              const daysUntil = hp.firstHarvestDate
+                ? Math.ceil((new Date(hp.firstHarvestDate + 'T12:00:00').getTime() - Date.now()) / 86_400_000)
+                : null;
+              return (
+                <ScalePress
+                  onPress={() => router.push(`/plant/${hp.id}`)}
+                  style={[s.harvestHero, { borderColor: '#FF7043' }]}
+                >
+                  {hImg && <Image source={{ uri: hImg }} style={StyleSheet.absoluteFill} resizeMode="cover" />}
+                  <View style={s.harvestHeroOverlay}>
+                    <Text style={s.harvestHeroLabel}>🧺 {t('home.stats.harvesting').toUpperCase()}</Text>
+                    <Text style={s.harvestHeroName}>{hp.name}</Text>
+                    {daysUntil !== null && daysUntil > 0 && (
+                      <Text style={s.harvestHeroSub}>en {daysUntil}d · {hCrop?.emoji ?? ''}</Text>
+                    )}
+                  </View>
+                </ScalePress>
+              );
+            })()}
 
             {/* Sow now — coach surface, what to plant this month in your zone */}
             {plants.count > 0 && garden && (
@@ -964,6 +1014,49 @@ const makeStyles = (
     todayMore: { fontSize: fontSize.xs, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
     // AI quick actions
     aiQuickRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.xl, marginHorizontal: spacing.xl },
+    taskThumb: {
+      width: 44,
+      height: 44,
+      borderRadius: 10,
+      overflow: 'hidden',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    taskEmojiDot: {
+      position: 'absolute',
+      bottom: -3,
+      right: -3,
+      width: 18,
+      height: 18,
+      borderRadius: 9,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1.5,
+    },
+    harvestHero: {
+      marginHorizontal: spacing.xl,
+      marginBottom: spacing.md,
+      height: 110,
+      borderRadius: radii.xl,
+      borderWidth: 2,
+      overflow: 'hidden',
+      backgroundColor: '#FF704322',
+      justifyContent: 'flex-end',
+    },
+    harvestHeroOverlay: {
+      backgroundColor: 'rgba(0,0,0,0.48)',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+    },
+    harvestHeroLabel: {
+      fontSize: 9,
+      color: 'rgba(255,255,255,0.8)',
+      fontWeight: '700' as any,
+      letterSpacing: 0.8,
+      marginBottom: 2,
+    },
+    harvestHeroName: { fontSize: 18, color: '#fff', fontWeight: '700' as any },
+    harvestHeroSub: { fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 1 },
     statPill: {
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
