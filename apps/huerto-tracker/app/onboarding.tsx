@@ -5,9 +5,10 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  Animated,
   FlatList,
   Image,
   KeyboardAvoidingView,
@@ -199,6 +200,30 @@ export default function OnboardingScreen() {
       })
       .slice(0, 3);
   }, [climateZone, sunlight, experience]);
+
+  const cardAnims = useRef(
+    [0, 1, 2].map(() => ({
+      opacity: new Animated.Value(0),
+      translateY: new Animated.Value(20),
+    }))
+  ).current;
+
+  useEffect(() => {
+    if (step !== 7) return;
+    cardAnims.forEach((anim) => {
+      anim.opacity.setValue(0);
+      anim.translateY.setValue(20);
+    });
+    Animated.stagger(
+      90,
+      cardAnims.map((anim) =>
+        Animated.parallel([
+          Animated.timing(anim.opacity, { toValue: 1, duration: 260, useNativeDriver: true }),
+          Animated.spring(anim.translateY, { toValue: 0, useNativeDriver: true, tension: 80, friction: 10 }),
+        ])
+      )
+    ).start();
+  }, [step]);
 
   function toggleSpace(s: SpaceType) {
     setSpaceTypes((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
@@ -714,38 +739,43 @@ export default function OnboardingScreen() {
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={{ gap: spacing.md, paddingHorizontal: spacing.xl }}
                 >
-                  {firstCropPicks.map((crop) => {
+                  {firstCropPicks.map((crop, index) => {
                     const name = t(`crops.${crop.id}.name`, { defaultValue: crop.name });
                     const img = CROP_IMAGES[crop.id];
                     const diff = CROP_DIFFICULTY[crop.id] ?? 'medium';
+                    const anim = cardAnims[index];
                     return (
-                      <ScalePress
+                      <Animated.View
                         key={crop.id}
-                        onPress={() => {
-                          track(EVENTS.firstCropPicked, { cropId: crop.id });
-                          router.replace({ pathname: '/plant/new', params: { cropId: crop.id, fromOnboarding: '1' } } as any);
-                        }}
-                        style={{ width: 100, backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.sm, gap: 4, alignItems: 'center' }}
+                        style={{ opacity: anim.opacity, transform: [{ translateY: anim.translateY }] }}
                       >
-                        <View style={{ width: 72, height: 72, borderRadius: radii.md, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                          {img ? (
-                            <Image source={{ uri: img }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
-                          ) : (
-                            <Text style={{ fontSize: 36 }}>{crop.emoji}</Text>
-                          )}
-                          {diff === 'easy' && (
-                            <View style={{ position: 'absolute', top: 4, left: 4, backgroundColor: colors.success, paddingHorizontal: 6, paddingVertical: 1, borderRadius: radii.full }}>
-                              <Text style={{ color: '#fff', fontSize: 9, fontWeight: '700' }}>{t('sowNow.easy')}</Text>
-                            </View>
-                          )}
-                        </View>
-                        <Text style={{ color: colors.text, fontSize: fontSize.sm, fontWeight: fontWeight.semibold, textAlign: 'center' }} numberOfLines={1}>
-                          {name}
-                        </Text>
-                        <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>
-                          {t('onboarding.readyIn', { days: crop.daysToHarvest[0] })}
-                        </Text>
-                      </ScalePress>
+                        <ScalePress
+                          onPress={() => {
+                            track(EVENTS.firstCropPicked, { cropId: crop.id });
+                            router.replace({ pathname: '/plant/new', params: { cropId: crop.id, fromOnboarding: '1' } } as any);
+                          }}
+                          style={{ width: 100, backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.sm, gap: 4, alignItems: 'center' }}
+                        >
+                          <View style={{ width: 72, height: 72, borderRadius: radii.md, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                            {img ? (
+                              <Image source={{ uri: img }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                            ) : (
+                              <Text style={{ fontSize: 36 }}>{crop.emoji}</Text>
+                            )}
+                            {diff === 'easy' && (
+                              <View style={{ position: 'absolute', top: 4, left: 4, backgroundColor: colors.success, paddingHorizontal: 6, paddingVertical: 1, borderRadius: radii.full }}>
+                                <Text style={{ color: '#fff', fontSize: 9, fontWeight: '700' }}>{t('sowNow.easy')}</Text>
+                              </View>
+                            )}
+                          </View>
+                          <Text style={{ color: colors.text, fontSize: fontSize.sm, fontWeight: fontWeight.semibold, textAlign: 'center' }} numberOfLines={1}>
+                            {name}
+                          </Text>
+                          <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>
+                            {t('onboarding.readyIn', { days: crop.daysToHarvest[0] })}
+                          </Text>
+                        </ScalePress>
+                      </Animated.View>
                     );
                   })}
                 </ScrollView>
