@@ -316,6 +316,7 @@ function DashboardInner() {
       >
         <Card padded={false} style={s.plantCardInner}>
           <View style={[s.plantImageBox, { backgroundColor: colors.surfaceAlt }]}>
+            <View style={[s.healthRibbon, { backgroundColor: healthColor }]} />
             {item.photoUri ? (
               <Image source={{ uri: item.photoUri }} style={s.plantPhoto} />
             ) : CROP_IMAGES[item.cropId] && !cardImgErr[item.id] ? (
@@ -533,6 +534,45 @@ function DashboardInner() {
             {/* Sow now — coach surface, what to plant this month in your zone */}
             {plants.count > 0 && garden && (
               <SowNowCard climateZone={garden.climateZone} />
+            )}
+
+            {/* Quick stats strip */}
+            {plants.count > 0 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{ marginBottom: spacing.md }}
+                contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm }}
+              >
+                <View style={[s.statPill, { backgroundColor: colors.success + '18', borderColor: colors.success + '44' }]}>
+                  <Text style={[s.statPillNum, { color: colors.success }]}>{plants.items.filter(p => p.status !== 'finished').length}</Text>
+                  <Text style={[s.statPillLabel, { color: colors.success }]}>{t('home.stats.plants')}</Text>
+                </View>
+                {needsWaterCount > 0 && (
+                  <View style={[s.statPill, { backgroundColor: colors.water + '18', borderColor: colors.water + '44' }]}>
+                    <Text style={[s.statPillNum, { color: colors.water }]}>{needsWaterCount}</Text>
+                    <Text style={[s.statPillLabel, { color: colors.water }]}>{t('home.stats.needsWater')}</Text>
+                  </View>
+                )}
+                {harvestingCount > 0 && (
+                  <View style={[s.statPill, { backgroundColor: '#FF704318', borderColor: '#FF704344' }]}>
+                    <Text style={[s.statPillNum, { color: '#FF7043' }]}>{harvestingCount}</Text>
+                    <Text style={[s.statPillLabel, { color: '#FF7043' }]}>{t('home.stats.harvesting')}</Text>
+                  </View>
+                )}
+                {activePests > 0 && (
+                  <View style={[s.statPill, { backgroundColor: colors.error + '18', borderColor: colors.error + '44' }]}>
+                    <Text style={[s.statPillNum, { color: colors.error }]}>{activePests}</Text>
+                    <Text style={[s.statPillLabel, { color: colors.error }]}>{t('home.stats.pests')}</Text>
+                  </View>
+                )}
+                {yearHarvestKg > 0 && (
+                  <View style={[s.statPill, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '44' }]}>
+                    <Text style={[s.statPillNum, { color: colors.primary }]}>{(yearHarvestKg / 1000).toFixed(1)} kg</Text>
+                    <Text style={[s.statPillLabel, { color: colors.primary }]}>{t('home.stats.yearKg')}</Text>
+                  </View>
+                )}
+              </ScrollView>
             )}
 
             {/* AI quick actions — chat + plant scan, always one tap away */}
@@ -923,7 +963,18 @@ const makeStyles = (
     todayEmptyText: { fontSize: fontSize.sm },
     todayMore: { fontSize: fontSize.xs, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
     // AI quick actions
-    aiQuickRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.xl },
+    aiQuickRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.xl, marginHorizontal: spacing.xl },
+    statPill: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+      alignItems: 'center',
+      minWidth: 68,
+    },
+    statPillNum: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    statPillLabel: { fontSize: 9, fontWeight: fontWeight.semibold, marginTop: 1 },
+    healthRibbon: { position: 'absolute', top: 0, left: 0, right: 0, height: 3, zIndex: 1 },
     aiQuickBtn: {
       flex: 1,
       flexDirection: 'row',

@@ -20,6 +20,17 @@ import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import type { ClimateZone } from '../src/models/garden';
 
 const MONTHS = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+const CATEGORY_COLORS: Record<string, string> = {
+  frutas: '#E53935',
+  hojas: '#43A047',
+  raices: '#FF7043',
+  legumbres: '#8D6E63',
+  cruciferas: '#66BB6A',
+  cucurbitaceas: '#26A69A',
+  aromaticas: '#7CB342',
+  bulbos: '#AB47BC',
+  medicinales: '#FFA726',
+};
 const SUN_EMOJI: Record<string, string> = { full: '☀️', partial: '⛅', shade: '🌑' };
 const WATER_EMOJI: Record<string, string> = { high: '💧💧💧', medium: '💧💧', low: '💧' };
 
@@ -239,6 +250,7 @@ export default function CatalogScreen() {
           const name = t(`crops.${crop.id}.name`, { defaultValue: crop.name });
           const tips = t(`crops.${crop.id}.tips`, { defaultValue: crop.tips });
           const catCfg = CATEGORY_CONFIG[crop.category];
+          const catColor = CATEGORY_COLORS[crop.category] ?? colors.primary;
           const imgUrl = CROP_IMAGES[crop.id];
           const showImg = !!imgUrl && !imgErr[crop.id];
           const sowMs = crop.sowingMonths[zone] ?? [];
@@ -258,15 +270,16 @@ export default function CatalogScreen() {
                 padded
                 style={StyleSheet.flatten([
                   s.card,
-                  { borderColor: isOpen ? colors.primary : colors.border, borderWidth: isOpen ? 1.5 : 1 },
+                  { borderColor: isOpen ? catColor : colors.border, borderWidth: isOpen ? 1.5 : 1 },
                 ]) as ViewStyle}
               >
                 {/* Compact row */}
                 <View style={s.cropRow}>
+                  <View style={[s.catAccent, { backgroundColor: catColor }]} />
                   {showImg ? (
                     <Image
                       source={{ uri: imgUrl }}
-                      style={[s.thumb, { borderRadius: radii.md, borderColor: colors.border }]}
+                      style={[s.thumb, { borderRadius: radii.md }]}
                       resizeMode="cover"
                       onError={() => setImgErr((p) => ({ ...p, [crop.id]: true }))}
                     />
@@ -277,13 +290,13 @@ export default function CatalogScreen() {
                       alignItems: 'center',
                       justifyContent: 'center',
                     }]}>
-                      <Text style={{ fontSize: 26 }}>{crop.emoji}</Text>
+                      <Text style={{ fontSize: 28 }}>{crop.emoji}</Text>
                     </View>
                   )}
                   <View style={{ flex: 1, marginLeft: spacing.md }}>
                     <Text style={[s.cropName, { color: colors.text }]}>{name}</Text>
-                    <View style={[s.catBadge, { backgroundColor: colors.primary + '18' }]}>
-                      <Text style={[s.catBadgeText, { color: colors.primary }]}>
+                    <View style={[s.catBadge, { backgroundColor: catColor + '20' }]}>
+                      <Text style={[s.catBadgeText, { color: catColor }]}>
                         {catCfg.emoji} {t(`cropCategory.${crop.category}`, { defaultValue: catCfg.label })}
                       </Text>
                     </View>
@@ -455,8 +468,9 @@ const makeStyles = (
     emptyText: { textAlign: 'center', marginTop: spacing['2xl'], fontSize: fontSize.md },
     card: { gap: spacing.sm },
     cropRow: { flexDirection: 'row', alignItems: 'center' },
-    thumb: { width: 58, height: 58, borderWidth: 1 },
-    heroImg: { width: '100%', height: 180, marginBottom: 4 },
+    thumb: { width: 68, height: 68, overflow: 'hidden' },
+    heroImg: { width: '100%', height: 220, marginBottom: 4 },
+    catAccent: { width: 4, alignSelf: 'stretch', borderRadius: 2, marginRight: spacing.md },
     cropName: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
     catBadge: {
       alignSelf: 'flex-start',
@@ -478,7 +492,7 @@ const makeStyles = (
     monthRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
     monthCell: { alignItems: 'center', flex: 1 },
     monthLbl: { fontSize: 8 },
-    dot: { width: 10, height: 10, borderRadius: 5, marginTop: 2 },
+    dot: { width: '85%', height: 14, borderRadius: 3, marginTop: 2 },
     detailRow: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
     detailChip: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radii.md },
     detailTxt: { fontSize: fontSize.xs },
