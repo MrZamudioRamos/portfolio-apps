@@ -21,7 +21,8 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FLOATING_TAB_BOTTOM_CLEARANCE } from './_layout';
 import { CROPS_BY_ID } from '../../src/data';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
@@ -54,6 +55,7 @@ const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 function DashboardInner() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { t, i18n } = useTranslation();
 
@@ -884,7 +886,7 @@ function DashboardInner() {
               </Pressable>
             )}
 
-            <View style={{ height: 100 }} />
+            <View style={{ height: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 80 }} />
           </>
         }
         renderItem={renderPlantCard}
@@ -892,7 +894,7 @@ function DashboardInner() {
 
       {/* FAB */}
       <CopilotStep text={t('coach.tourAdd')} order={2} name="add">
-        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary }]}>
+        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary, bottom: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 10 }]}>
           <ScalePress
             onPress={() => router.push('/plant/new')}
             pressedScale={0.9}

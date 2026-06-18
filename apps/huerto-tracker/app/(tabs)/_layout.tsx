@@ -16,6 +16,9 @@ const PILL_MARGIN_TOP = 8;
 const PILL_GAP_BOTTOM = 10;
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
+// Exported so screens can reserve bottom clearance for the floating pill
+export const FLOATING_TAB_BOTTOM_CLEARANCE = PILL_H + PILL_GAP_BOTTOM + PILL_MARGIN_TOP;
+
 type TabBarProps = {
   state: { routes: Array<{ key: string; name: string }>; index: number };
   descriptors: Record<string, { options: any }>;
@@ -238,9 +241,6 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
 export default function TabsLayout() {
   const { completed, isLoading: onboardingLoading } = useOnboarding('huerto');
   const { loading: sessionLoading, isAuthenticated } = useSession();
-  const colors = useColors();
-  const { isDark } = useTheme();
-  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
   if (onboardingLoading || sessionLoading) return null;
@@ -250,23 +250,10 @@ export default function TabsLayout() {
     return <Redirect href="/welcome" />;
   }
 
-  const tabBarHeight = PILL_MARGIN_TOP + PILL_H + PILL_GAP_BOTTOM + insets.bottom;
-
   return (
     <Tabs
       tabBar={(props) => <FloatingTabBar {...(props as any)} />}
-      screenOptions={{
-        headerShown: false,
-        // Tells expo-router how much bottom space to reserve for content insets
-        tabBarStyle: {
-          position: 'absolute',
-          height: tabBarHeight,
-          backgroundColor: 'transparent',
-          borderTopWidth: 0,
-          elevation: 0,
-          shadowOpacity: 0,
-        },
-      }}
+      screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen
         name="index"
