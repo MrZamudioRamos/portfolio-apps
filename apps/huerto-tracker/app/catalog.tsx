@@ -177,11 +177,11 @@ export default function CatalogScreen() {
                     key={f.key ?? 'all'}
                     onPress={() => setCatFilter(f.key)}
                     style={[s.chip, {
-                      backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
-                      borderColor: active ? colors.primary : colors.border,
+                      backgroundColor: active ? colors.text : colors.surfaceAlt,
+                      borderColor: active ? colors.text : colors.border,
                     }]}
                   >
-                    <Text style={[s.chipText, { color: active ? colors.primary : colors.textSecondary }]}>
+                    <Text style={[s.chipText, { color: active ? colors.background : colors.textSecondary }]}>
                       {f.label}
                     </Text>
                   </Pressable>
@@ -210,15 +210,15 @@ export default function CatalogScreen() {
                     key={d ?? 'all-diff'}
                     onPress={() => setDiffFilter(d)}
                     style={[s.chip, {
-                      backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
-                      borderColor: active ? colors.primary : colors.border,
+                      backgroundColor: active ? colors.text : colors.surfaceAlt,
+                      borderColor: active ? colors.text : colors.border,
                       flexDirection: 'row',
                       alignItems: 'center',
                       gap: 5,
                     }]}
                   >
-                    {dotColor && <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: dotColor }} />}
-                    <Text style={[s.chipText, { color: active ? colors.primary : colors.textSecondary }]}>
+                    {dotColor && <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: active ? colors.background : dotColor }} />}
+                    <Text style={[s.chipText, { color: active ? colors.background : colors.textSecondary }]}>
                       {label}
                     </Text>
                   </Pressable>
@@ -227,13 +227,13 @@ export default function CatalogScreen() {
               <Pressable
                 onPress={() => setContainerOnly(v => !v)}
                 style={[s.chip, {
-                  backgroundColor: containerOnly ? '#795548' + '22' : colors.surfaceAlt,
-                  borderColor: containerOnly ? '#795548' : colors.border,
+                  backgroundColor: containerOnly ? colors.text : colors.surfaceAlt,
+                  borderColor: containerOnly ? colors.text : colors.border,
                   flexDirection: 'row', alignItems: 'center', gap: 5,
                 }]}
               >
                 <Text style={{ fontSize: 12 }}>🪴</Text>
-                <Text style={[s.chipText, { color: containerOnly ? '#795548' : colors.textSecondary }]}>
+                <Text style={[s.chipText, { color: containerOnly ? colors.background : colors.textSecondary }]}>
                   {t('catalog.containerFilter')}
                 </Text>
               </Pressable>
@@ -264,7 +264,7 @@ export default function CatalogScreen() {
             <Pressable
               key={crop.id}
               onPress={() => setExpanded(isOpen ? null : crop.id)}
-              style={{ marginBottom: spacing.sm }}
+              style={{ marginBottom: spacing.md }}
             >
               <Card
                 padded
@@ -446,7 +446,7 @@ const makeStyles = (
       paddingVertical: spacing.lg,
       borderBottomWidth: 1,
     },
-    headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    headerTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
     headerSub: { fontSize: fontSize.xs, marginTop: 1 },
     searchBox: {
       flexDirection: 'row',

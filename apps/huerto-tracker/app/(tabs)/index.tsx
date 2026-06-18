@@ -397,10 +397,9 @@ function DashboardInner() {
               );
             })()}
             <View style={s.plantFooter}>
-              <View style={[s.statusBadge, { backgroundColor: statusConfig.color + '22' }]}>
-                <Text style={[s.statusText, { color: statusConfig.color }]}>
-                  {statusConfig.emoji} {statusConfig.label}
-                </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: statusConfig.color }} />
+                <Text style={[s.statusText, { color: colors.textSecondary }]}>{statusConfig.label}</Text>
               </View>
               {item.sowingDate && item.status !== 'finished' && (() => {
                 const days = Math.floor(
@@ -743,9 +742,9 @@ function DashboardInner() {
                     >
                       <Pressable
                         onPress={() => setStatusFilter(null)}
-                        style={[s.filterChip, { backgroundColor: !statusFilter ? colors.primary + '22' : colors.surfaceAlt, borderColor: !statusFilter ? colors.primary : colors.border }]}
+                        style={[s.filterChip, { backgroundColor: !statusFilter ? colors.text : colors.surfaceAlt, borderColor: !statusFilter ? colors.text : colors.border }]}
                       >
-                        <Text style={[s.filterChipText, { color: !statusFilter ? colors.primary : colors.textSecondary }]}>
+                        <Text style={[s.filterChipText, { color: !statusFilter ? colors.background : colors.textSecondary }]}>
                           {t('home.filterAll')} ({plants.items.length})
                         </Text>
                       </Pressable>
@@ -757,9 +756,9 @@ function DashboardInner() {
                           <Pressable
                             key={st}
                             onPress={() => setStatusFilter(active ? null : st)}
-                            style={[s.filterChip, { backgroundColor: active ? cfg.color + '22' : colors.surfaceAlt, borderColor: active ? cfg.color : colors.border }]}
+                            style={[s.filterChip, { backgroundColor: active ? colors.text : colors.surfaceAlt, borderColor: active ? colors.text : colors.border }]}
                           >
-                            <Text style={[s.filterChipText, { color: active ? cfg.color : colors.textSecondary }]}>
+                            <Text style={[s.filterChipText, { color: active ? colors.background : colors.textSecondary }]}>
                               {cfg.emoji} {t('plantStatus.' + st)} ({count})
                             </Text>
                           </Pressable>
@@ -1010,11 +1009,6 @@ const makeStyles = (
       borderWidth: 1,
       borderLeftWidth: 5,
       overflow: 'hidden',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.08,
-      shadowRadius: 10,
-      elevation: 4,
     },
     todayTitle: {
       fontSize: fontSize.lg,
@@ -1129,7 +1123,7 @@ const makeStyles = (
     },
     sectionTitle: {
       flex: 1,
-      fontSize: fontSize.lg,
+      fontSize: fontSize.xl,
       fontWeight: fontWeight.bold,
     },
     waterAllBtn: {
@@ -1146,7 +1140,7 @@ const makeStyles = (
     columnWrapper: {
       paddingHorizontal: spacing.xl,
       gap: spacing.sm,
-      marginBottom: spacing.sm,
+      marginBottom: spacing.md,
     },
     plantCard: { flex: 1 },
     plantCardInner: { flex: 1, overflow: 'hidden' },
