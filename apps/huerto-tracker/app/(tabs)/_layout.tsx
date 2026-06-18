@@ -35,7 +35,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
   const isFirstLayout = useRef(true);
 
   const visibleRoutes = state.routes.filter(
-    (r) => (descriptors[r.key].options as any).href !== null
+    (r) => typeof descriptors[r.key].options.tabBarIcon === 'function'
   );
   const numTabs = visibleRoutes.length;
   const activeVisibleIdx = visibleRoutes.findIndex(
@@ -221,8 +221,9 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
               >
                 {options.tabBarIcon?.({ color, size: 22, focused })}
                 <Text
+                  numberOfLines={1}
                   style={{
-                    fontSize: 10,
+                    fontSize: 9,
                     fontWeight: focused ? '700' : '400',
                     color,
                   }}
