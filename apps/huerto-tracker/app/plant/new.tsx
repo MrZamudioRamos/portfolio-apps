@@ -219,11 +219,11 @@ export default function NewPlantScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-        <SectionList
-          sections={[{ title: '', data: ['form' as const] }]}
-          keyExtractor={() => 'form'}
-          renderSectionHeader={() => null}
-          renderItem={() => (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 40 }}
+        >
             <View style={s.formContainer}>
               {/* Crop selector */}
               <Text style={[s.label, { color: colors.textSecondary }]}>{t('plantNew.cropLabel')}</Text>
@@ -463,16 +463,19 @@ export default function NewPlantScreen() {
               <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
                 {t('plantNew.photo')}
               </Text>
-              <Pressable onPress={pickPhoto} style={s.photoRow}>
+              <Pressable
+                onPress={pickPhoto}
+                style={[s.photoArea, { backgroundColor: colors.surfaceAlt, borderColor: photoUri ? 'transparent' : colors.border }]}
+              >
                 {photoUri ? (
-                  <Image source={{ uri: photoUri }} style={s.photoPreview} />
+                  <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
                 ) : (
-                  <View style={[s.photoPlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-                    <Text style={{ fontSize: 28 }}>📷</Text>
-                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: 4 }}>
+                  <>
+                    <Ionicons name="camera-outline" size={32} color={colors.textSecondary} />
+                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: spacing.xs }}>
                       {t('plantNew.addPhoto')}
                     </Text>
-                  </View>
+                  </>
                 )}
               </Pressable>
 
@@ -486,9 +489,7 @@ export default function NewPlantScreen() {
                 style={{ marginTop: spacing.xl }}
               />
             </View>
-          )}
-          contentContainerStyle={{ paddingBottom: 40 }}
-        />
+        </ScrollView>
       </KeyboardAvoidingView>
 
       {/* Crop picker modal */}
@@ -637,17 +638,15 @@ const makeStyles = (
       padding: spacing.lg,
       fontSize: fontSize.md,
     },
-    photoRow: { alignItems: 'flex-start' },
-    photoPlaceholder: {
-      width: 90,
-      height: 90,
-      borderRadius: radii.lg,
-      borderWidth: 2,
+    photoArea: {
+      height: 140,
+      borderRadius: radii.xl,
+      borderWidth: 1.5,
       borderStyle: 'dashed',
       alignItems: 'center',
       justifyContent: 'center',
+      overflow: 'hidden',
     },
-    photoPreview: { width: 90, height: 90, borderRadius: radii.lg },
     modalHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',

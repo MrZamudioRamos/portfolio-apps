@@ -1,4 +1,4 @@
-import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useStreak } from '@portfolio/share';
 import * as ImagePicker from 'expo-image-picker';
@@ -9,10 +9,13 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShareModal, type ShareModalProps } from '../../src/components/ShareModal';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import {
   Alert,
   Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -28,6 +31,8 @@ import { CROPS_BY_ID } from '../../src/data/crops';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
+
 const ALL_TYPES: EntryType[] = [
   'watering', 'sowing', 'transplant', 'fertilizing',
   'harvest', 'pruning', 'pest', 'treatment', 'photo', 'note',
@@ -35,22 +40,21 @@ const ALL_TYPES: EntryType[] = [
 
 export default function NewEntryScreen() {
   const colors = useColors();
-  const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
+  const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
-
   const { t } = useTranslation();
   const { plantId: paramPlantId } = useLocalSearchParams<{ plantId?: string }>();
 
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
-
   const gardenId = activeGarden?.id ?? '';
 
   const [selectedType, setSelectedType] = useState<EntryType>('watering');
   const [selectedPlantId, setSelectedPlantId] = useState<string | undefined>(paramPlantId);
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(todayStr());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   // watering
   const [waterLiters, setWaterLiters] = useState('');
@@ -114,7 +118,6 @@ export default function NewEntryScreen() {
         ...(treatWaitDays ? { waitDays: Number(treatWaitDays) } : {}),
       };
     }
-    // Only include plantId if the plant belongs to this garden (guards deep-link injection)
     const validPlantId = selectedPlantId && plants.items.some(
       (p) => p.id === selectedPlantId && p.gardenId === gardenId
     ) ? selectedPlantId : undefined;
@@ -129,12 +132,8 @@ export default function NewEntryScreen() {
         ...(entryData ? { data: entryData } : {}),
       });
       successHaptic();
-
-      // Streak + share triggers (non-blocking)
       const { current, isNew } = await registerActivity();
       let triggered = false;
-
-      // Trigger A: primera cosecha de esta planta
       if (!triggered && selectedType === 'harvest' && validPlantId) {
         const prevHarvests = entries.items.filter(
           (e) => e.plantId === validPlantId && e.type === 'harvest'
@@ -155,8 +154,6 @@ export default function NewEntryScreen() {
           triggered = true;
         }
       }
-
-      // Trigger B: milestone de racha (solo si no se mostró cosecha)
       if (!triggered && isNew && isMilestone(current)) {
         setShareModal({
           eventType: 'streak_milestone',
@@ -167,7 +164,6 @@ export default function NewEntryScreen() {
         });
         triggered = true;
       }
-
       if (!triggered) router.back();
     } finally {
       setSaving(false);
@@ -187,43 +183,37 @@ export default function NewEntryScreen() {
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('entryNew.title')}</Text>
-        <Pressable onPress={handleSave} disabled={saving} hitSlop={12}>
-          <Text style={[{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }, saving && { opacity: 0.5 }]}>
-            {saving ? t('entryNew.saving') : t('entryNew.save')}
-          </Text>
-        </Pressable>
+        <View style={{ width: 40 }} />
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={s.body}>
 
-            {/* Entry type grid */}
+            {/* Entry type — 2 rows of 5 with semantic color per type */}
             <Text style={[s.label, { color: colors.textSecondary }]}>{t('entryNew.activityType')}</Text>
-            <View style={s.typeGrid}>
-              {ALL_TYPES.map((type) => {
-                const cfg = ENTRY_TYPE_CONFIG[type];
-                const active = selectedType === type;
-                return (
-                  <Pressable
-                    key={type}
-                    onPress={() => setSelectedType(type)}
-                    style={[
-                      s.typeChip,
-                      {
-                        backgroundColor: active ? colors.primary + '22' : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
-                      },
-                    ]}
-                  >
-                    <Text style={{ fontSize: 22 }}>{cfg.emoji}</Text>
-                    <Text style={[s.typeLabel, { color: active ? colors.primary : colors.textSecondary }]}>
-                      {t('diary.filters.' + type)}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            {([ALL_TYPES.slice(0, 5), ALL_TYPES.slice(5)] as EntryType[][]).map((row, ri) => (
+              <View key={ri} style={[s.typeRow, ri === 0 && { marginBottom: spacing.sm }]}>
+                {row.map((type) => {
+                  const cfg = ENTRY_TYPE_CONFIG[type];
+                  const active = selectedType === type;
+                  return (
+                    <Pressable
+                      key={type}
+                      onPress={() => { setSelectedType(type); tapHaptic(); }}
+                      style={[s.typeChip, { backgroundColor: active ? cfg.color + '18' : colors.surface, borderColor: active ? cfg.color : colors.border }]}
+                    >
+                      <View style={[s.typeChipIcon, { backgroundColor: active ? cfg.color + '30' : colors.surfaceAlt }]}>
+                        <Text style={{ fontSize: 20 }}>{cfg.emoji}</Text>
+                      </View>
+                      <Text style={[s.typeLabel, { color: active ? cfg.color : colors.textSecondary }]}>
+                        {t('diary.filters.' + type)}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ))}
 
             {/* Plant selector */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>
@@ -233,13 +223,7 @@ export default function NewEntryScreen() {
               <View style={{ flexDirection: 'row', gap: spacing.sm }}>
                 <Pressable
                   onPress={() => setSelectedPlantId(undefined)}
-                  style={[
-                    s.plantChip,
-                    {
-                      backgroundColor: !selectedPlantId ? colors.primary + '22' : colors.surface,
-                      borderColor: !selectedPlantId ? colors.primary : colors.border,
-                    },
-                  ]}
+                  style={[s.plantChip, { backgroundColor: !selectedPlantId ? colors.primary + '22' : colors.surface, borderColor: !selectedPlantId ? colors.primary : colors.border }]}
                 >
                   <Text style={{ fontSize: 16 }}>🏡</Text>
                   <Text style={[s.plantChipLabel, { color: !selectedPlantId ? colors.primary : colors.textSecondary }]}>
@@ -250,13 +234,7 @@ export default function NewEntryScreen() {
                   <Pressable
                     key={p.id}
                     onPress={() => setSelectedPlantId(p.id)}
-                    style={[
-                      s.plantChip,
-                      {
-                        backgroundColor: selectedPlantId === p.id ? colors.primary + '22' : colors.surface,
-                        borderColor: selectedPlantId === p.id ? colors.primary : colors.border,
-                      },
-                    ]}
+                    style={[s.plantChip, { backgroundColor: selectedPlantId === p.id ? colors.primary + '22' : colors.surface, borderColor: selectedPlantId === p.id ? colors.primary : colors.border }]}
                   >
                     <Text style={{ fontSize: 16 }}>{CROPS_BY_ID[p.cropId]?.emoji ?? '🌱'}</Text>
                     <Text style={[s.plantChipLabel, { color: selectedPlantId === p.id ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
@@ -267,7 +245,7 @@ export default function NewEntryScreen() {
               </View>
             </ScrollView>
 
-            {/* Date */}
+            {/* Date — quick buttons + calendar picker */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.md }]}>{t('entryNew.date')}</Text>
             <View style={[s.dateBtnsRow, { marginBottom: spacing.sm }]}>
               {([0, 1, 2] as const).map((days) => {
@@ -280,13 +258,7 @@ export default function NewEntryScreen() {
                   <Pressable
                     key={days}
                     onPress={() => setDate(dateStr)}
-                    style={[
-                      s.dateBtn,
-                      {
-                        backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
-                        borderColor: active ? colors.primary : colors.border,
-                      },
-                    ]}
+                    style={[s.dateBtn, { backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt, borderColor: active ? colors.primary : colors.border }]}
                   >
                     <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>
                       {label}
@@ -295,14 +267,44 @@ export default function NewEntryScreen() {
                 );
               })}
             </View>
-            <TextInput
-              value={date}
-              onChangeText={setDate}
-              placeholder={t('entryNew.datePlaceholder')}
-              placeholderTextColor={colors.textDisabled}
-              style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
-              keyboardType="numeric"
-            />
+            <Pressable
+              onPress={() => setShowDatePicker(true)}
+              style={[s.input, { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderColor: colors.border }]}
+            >
+              <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
+              <Text style={{ color: colors.text, fontSize: fontSize.md, flex: 1 }}>{date}</Text>
+            </Pressable>
+            {showDatePicker && Platform.OS === 'android' && (
+              <DateTimePicker
+                value={new Date(date + 'T12:00:00')}
+                mode="date"
+                display="default"
+                onChange={(_, d) => { setShowDatePicker(false); if (d) setDate(dateToStr(d)); }}
+              />
+            )}
+            {showDatePicker && Platform.OS === 'ios' && (
+              <Modal transparent animationType="slide" visible>
+                <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
+                  <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
+                    {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+                    <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
+                    <DateTimePicker
+                      value={new Date(date + 'T12:00:00')}
+                      mode="date"
+                      display="spinner"
+                      onChange={(_, d) => { if (d) setDate(dateToStr(d)); }}
+                      style={{ width: '100%' }}
+                    />
+                    <Button
+                      title={t('common.save')}
+                      onPress={() => setShowDatePicker(false)}
+                      size="lg"
+                      style={{ margin: spacing.xl, marginTop: 0 }}
+                    />
+                  </Pressable>
+                </Pressable>
+              </Modal>
+            )}
 
             {/* Notes */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
@@ -316,33 +318,23 @@ export default function NewEntryScreen() {
               multiline
               numberOfLines={4}
               textAlignVertical="top"
-              style={[
-                s.input,
-                s.textarea,
-                {
-                  backgroundColor: colors.surface,
-                  borderColor: notes ? colors.primary : colors.border,
-                  color: colors.text,
-                },
-              ]}
+              style={[s.input, s.textarea, { backgroundColor: colors.surface, borderColor: notes ? colors.primary : colors.border, color: colors.text }]}
             />
 
             {/* Watering extras */}
             {selectedType === 'watering' && (
               <>
                 <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.watering')}</Text>
-                <View style={{ flexDirection: 'row', gap: spacing.md, marginBottom: spacing.sm }}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.liters')}</Text>
-                    <TextInput
-                      value={waterLiters}
-                      onChangeText={setWaterLiters}
-                      placeholder={t('entryNew.litersPlaceholder')}
-                      placeholderTextColor={colors.textDisabled}
-                      keyboardType="decimal-pad"
-                      style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
-                    />
-                  </View>
+                <View style={{ marginBottom: spacing.sm }}>
+                  <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.liters')}</Text>
+                  <TextInput
+                    value={waterLiters}
+                    onChangeText={setWaterLiters}
+                    placeholder={t('entryNew.litersPlaceholder')}
+                    placeholderTextColor={colors.textDisabled}
+                    keyboardType="decimal-pad"
+                    style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+                  />
                 </View>
                 <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.waterMethod')}</Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
@@ -477,16 +469,19 @@ export default function NewEntryScreen() {
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
               {t('entryNew.photo')}
             </Text>
-            <Pressable onPress={pickPhoto}>
+            <Pressable
+              onPress={pickPhoto}
+              style={[s.photoArea, { backgroundColor: colors.surfaceAlt, borderColor: photoUri ? 'transparent' : colors.border }]}
+            >
               {photoUri ? (
-                <Image source={{ uri: photoUri }} style={s.photoPreview} />
+                <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
               ) : (
-                <View style={[s.photoPlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-                  <Text style={{ fontSize: 28 }}>📷</Text>
-                  <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: 4 }}>
+                <>
+                  <Ionicons name="camera-outline" size={32} color={colors.textSecondary} />
+                  <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: spacing.xs }}>
                     {t('entryNew.addPhoto')}
                   </Text>
-                </View>
+                </>
               )}
             </Pressable>
 
@@ -532,20 +527,27 @@ const makeStyles = (
     body: { padding: spacing.xl },
     label: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, marginBottom: spacing.sm },
     inputLabel: { fontSize: fontSize.xs, marginBottom: spacing.xs },
-    typeGrid: {
+    typeRow: {
       flexDirection: 'row',
-      flexWrap: 'wrap',
       gap: spacing.sm,
     },
     typeChip: {
-      width: '22%',
+      flex: 1,
       alignItems: 'center',
       paddingVertical: spacing.md,
+      paddingHorizontal: 2,
       borderRadius: radii.md,
       borderWidth: 1.5,
       gap: 4,
     },
-    typeLabel: { fontSize: 10, fontWeight: fontWeight.medium, textAlign: 'center' },
+    typeChipIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    typeLabel: { fontSize: 9, fontWeight: fontWeight.medium, textAlign: 'center' },
     plantChip: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -563,16 +565,15 @@ const makeStyles = (
       fontSize: fontSize.md,
     },
     textarea: { minHeight: 100 },
-    photoPlaceholder: {
-      width: 100,
-      height: 100,
-      borderRadius: radii.lg,
-      borderWidth: 2,
+    photoArea: {
+      height: 140,
+      borderRadius: radii.xl,
+      borderWidth: 1.5,
       borderStyle: 'dashed',
       alignItems: 'center',
       justifyContent: 'center',
+      overflow: 'hidden',
     },
-    photoPreview: { width: 120, height: 100, borderRadius: radii.lg },
     dateBtnsRow: { flexDirection: 'row', gap: spacing.sm },
     dateBtn: {
       flex: 1,
@@ -598,5 +599,22 @@ const makeStyles = (
       borderRadius: radii.sm,
       borderWidth: 1.5,
       alignItems: 'center',
+    },
+    dateModalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.4)',
+      justifyContent: 'flex-end',
+    },
+    dateModalSheet: {
+      borderTopLeftRadius: radii.xl,
+      borderTopRightRadius: radii.xl,
+      paddingTop: spacing.sm,
+      alignItems: 'center',
+    },
+    dateModalHandle: {
+      width: 40,
+      height: 4,
+      borderRadius: 2,
+      marginBottom: spacing.md,
     },
   });
