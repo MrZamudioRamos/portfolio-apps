@@ -352,6 +352,22 @@ function DashboardInner() {
             >
               <Ionicons name="add" size={14} color="#fff" />
             </Pressable>
+            {item.sowingDate && item.status !== 'finished' && (() => {
+              const dth = crop?.daysToHarvest;
+              if (!dth) return null;
+              const elapsed = (Date.now() - new Date(item.sowingDate + 'T12:00:00').getTime()) / 86_400_000;
+              const total = Math.round((dth[0] + dth[1]) / 2);
+              const pct = Math.min(elapsed / total, 1);
+              if (pct <= 0) return null;
+              return (
+                <View style={s.growthBarTrack}>
+                  <View style={[s.growthBarFill, {
+                    width: `${Math.round(pct * 100)}%` as any,
+                    backgroundColor: pct >= 1 ? '#FF7043' : colors.primary,
+                  }]} />
+                </View>
+              );
+            })()}
           </View>
           <View style={s.plantInfo}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
@@ -1084,6 +1100,8 @@ const makeStyles = (
     statPillNum: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
     statPillLabel: { fontSize: 9, fontWeight: fontWeight.semibold, marginTop: 1 },
     healthRibbon: { position: 'absolute', top: 0, left: 0, right: 0, height: 3, zIndex: 1 },
+    growthBarTrack: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, backgroundColor: 'rgba(0,0,0,0.12)' },
+    growthBarFill: { height: 3 },
     aiQuickBtn: {
       flex: 1,
       flexDirection: 'row',
