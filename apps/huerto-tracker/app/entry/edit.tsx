@@ -2,15 +2,18 @@ import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import * as ImagePicker from 'expo-image-picker';
 import { persistPickedImage } from '../../src/utils/persistImage';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   Alert,
   Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -22,11 +25,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
+import { tapHaptic } from '../../src/utils/haptics';
+
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const ALL_TYPES: EntryType[] = [
-  'watering', 'sowing', 'transplant', 'fertilizing',
-  'harvest', 'pruning', 'pest', 'treatment', 'photo', 'note',
+  'watering', 'sowing', 'transplant', 'fertilizing', 'harvest',
+  'pruning', 'pest', 'treatment', 'photo', 'note',
 ];
+const ROW1 = ALL_TYPES.slice(0, 5);
+const ROW2 = ALL_TYPES.slice(5);
 
 export default function EditEntryScreen() {
   const colors = useColors();
@@ -42,6 +50,7 @@ export default function EditEntryScreen() {
   const [selectedType, setSelectedType] = useState<EntryType>(entry?.type ?? 'watering');
   const [notes, setNotes] = useState(entry?.notes ?? '');
   const [date, setDate] = useState(entry?.date ?? todayStr());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(entry?.photoUri ?? null);
   // watering
   const [waterLiters, setWaterLiters] = useState(String((entry?.data as any)?.liters ?? ''));
@@ -76,6 +85,8 @@ export default function EditEntryScreen() {
     );
   }
 
+  const selectedCfg = ENTRY_TYPE_CONFIG[selectedType];
+
   async function pickPhoto() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') return;
@@ -89,10 +100,6 @@ export default function EditEntryScreen() {
   }
 
   async function handleSave() {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(new Date(date + 'T12:00:00').getTime())) {
-      Alert.alert(t('entryNew.invalidDateTitle'), t('entryNew.invalidDateMsg'));
-      return;
-    }
     setSaving(true);
     let entryData: Record<string, unknown> | undefined;
     if (selectedType === 'harvest' && (harvestWeight || harvestUnits || harvestQuality)) {
@@ -139,8 +146,6 @@ export default function EditEntryScreen() {
         text: t('common.delete'),
         style: 'destructive',
         onPress: async () => {
-          // Soft-delete: marks deletedAt locally and syncs the tombstone on
-          // next push, so the deletion reaches other devices too.
           await entries.softRemove(id);
           router.back();
         },
@@ -148,13 +153,36 @@ export default function EditEntryScreen() {
     ]);
   }
 
+  function renderTypeChip(type: EntryType) {
+    const cfg = ENTRY_TYPE_CONFIG[type];
+    const active = selectedType === type;
+    return (
+      <Pressable
+        key={type}
+        onPress={() => { setSelectedType(type); tapHaptic(); }}
+        style={[s.typeChip, { backgroundColor: active ? cfg.color + '22' : colors.surface, borderColor: active ? cfg.color : colors.border }]}
+      >
+        <View style={[s.typeChipIcon, { backgroundColor: active ? cfg.color + '30' : colors.surfaceAlt }]}>
+          <Text style={{ fontSize: 18 }}>{cfg.emoji}</Text>
+        </View>
+        <Text style={[s.typeLabel, { color: active ? cfg.color : colors.textSecondary }]} numberOfLines={1}>
+          {t('diary.filters.' + type)}
+        </Text>
+      </Pressable>
+    );
+  }
+
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
+      {/* Header — tinted with selected type color */}
+      <View style={[s.header, { borderBottomColor: colors.border, backgroundColor: selectedCfg.color + '10' }]}>
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>{t('entryEdit.title')}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
+          <Text style={{ fontSize: 20 }}>{selectedCfg.emoji}</Text>
+          <Text style={[s.headerTitle, { color: colors.text }]}>{t('entryEdit.title')}</Text>
+        </View>
         <Pressable onPress={handleSave} disabled={saving} hitSlop={12}>
           <Text style={[{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }, saving && { opacity: 0.5 }]}>
             {t('entryEdit.save')}
@@ -165,31 +193,11 @@ export default function EditEntryScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
           <View style={s.body}>
-            {/* Entry type grid */}
+            {/* Entry type — 2 rows of 5 */}
             <Text style={[s.label, { color: colors.textSecondary }]}>{t('entryNew.activityType')}</Text>
-            <View style={s.typeGrid}>
-              {ALL_TYPES.map((type) => {
-                const cfg = ENTRY_TYPE_CONFIG[type];
-                const active = selectedType === type;
-                return (
-                  <Pressable
-                    key={type}
-                    onPress={() => setSelectedType(type)}
-                    style={[
-                      s.typeChip,
-                      {
-                        backgroundColor: active ? cfg.color + '22' : colors.surface,
-                        borderColor: active ? cfg.color : colors.border,
-                      },
-                    ]}
-                  >
-                    <Text style={{ fontSize: 22 }}>{cfg.emoji}</Text>
-                    <Text style={[s.typeLabel, { color: active ? cfg.color : colors.textSecondary }]}>
-                      {t('diary.filters.' + type)}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+            <View style={{ gap: spacing.sm }}>
+              <View style={s.typeRow}>{ROW1.map(renderTypeChip)}</View>
+              <View style={s.typeRow}>{ROW2.map(renderTypeChip)}</View>
             </View>
 
             {/* Date */}
@@ -205,29 +213,47 @@ export default function EditEntryScreen() {
                   <Pressable
                     key={days}
                     onPress={() => setDate(dateStr)}
-                    style={[
-                      s.dateBtn,
-                      {
-                        backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
-                        borderColor: active ? colors.primary : colors.border,
-                      },
-                    ]}
+                    style={[s.dateBtn, { backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt, borderColor: active ? colors.primary : colors.border }]}
                   >
-                    <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>
-                      {label}
-                    </Text>
+                    <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>{label}</Text>
                   </Pressable>
                 );
               })}
             </View>
-            <TextInput
-              value={date}
-              onChangeText={setDate}
-              placeholder={t('entryNew.datePlaceholder')}
-              placeholderTextColor={colors.textDisabled}
-              style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
-              keyboardType="numeric"
-            />
+            <Pressable
+              onPress={() => setShowDatePicker(true)}
+              style={[s.input, s.dateButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            >
+              <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
+              <Text style={{ color: colors.text, fontSize: fontSize.md, flex: 1 }}>{date}</Text>
+            </Pressable>
+
+            {showDatePicker && Platform.OS === 'android' && (
+              <DateTimePicker
+                value={new Date(date + 'T12:00:00')}
+                mode="date"
+                display="default"
+                onChange={(_, d) => { setShowDatePicker(false); if (d) setDate(dateToStr(d)); }}
+              />
+            )}
+            {showDatePicker && Platform.OS === 'ios' && (
+              <Modal transparent animationType="slide" visible>
+                <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
+                  <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
+                    {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+                    <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
+                    <DateTimePicker
+                      value={new Date(date + 'T12:00:00')}
+                      mode="date"
+                      display="spinner"
+                      onChange={(_, d) => { if (d) setDate(dateToStr(d)); }}
+                      style={{ width: '100%' }}
+                    />
+                    <Button title={t('common.save')} onPress={() => setShowDatePicker(false)} size="lg" style={{ margin: spacing.xl, marginTop: 0 }} />
+                  </Pressable>
+                </Pressable>
+              </Modal>
+            )}
 
             {/* Notes */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.notes')}</Text>
@@ -244,38 +270,34 @@ export default function EditEntryScreen() {
 
             {/* Watering extras */}
             {selectedType === 'watering' && (
-              <>
-                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.watering')}</Text>
-                <View style={{ flexDirection: 'row', gap: spacing.md, marginBottom: spacing.sm }}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.liters')}</Text>
-                    <TextInput
-                      value={waterLiters}
-                      onChangeText={setWaterLiters}
-                      placeholder={t('entryNew.litersPlaceholder')}
-                      placeholderTextColor={colors.textDisabled}
-                      keyboardType="decimal-pad"
-                      style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
-                    />
-                  </View>
-                </View>
-                <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.waterMethod')}</Text>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
+              <View style={[s.extraCard, { backgroundColor: colors.water + '10', borderColor: colors.water + '44' }]}>
+                <Text style={[s.extraCardTitle, { color: colors.water }]}>💧 {t('entryNew.watering')}</Text>
+                <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.liters')}</Text>
+                <TextInput
+                  value={waterLiters}
+                  onChangeText={setWaterLiters}
+                  placeholder={t('entryNew.litersPlaceholder')}
+                  placeholderTextColor={colors.textDisabled}
+                  keyboardType="decimal-pad"
+                  style={[s.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+                />
+                <Text style={[s.inputLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>{t('entryNew.waterMethod')}</Text>
+                <View style={s.methodRow}>
                   {(['hand','drip','sprinkler','flood'] as const).map((m) => (
                     <Pressable key={m} onPress={() => setWaterMethod(m)}
-                      style={[s.methodChip, { backgroundColor: waterMethod === m ? colors.primary + '22' : colors.surface, borderColor: waterMethod === m ? colors.primary : colors.border }]}>
-                      <Text style={{ fontSize: 18 }}>{m === 'hand' ? '🪣' : m === 'drip' ? '💧' : m === 'sprinkler' ? '🌦️' : '🌊'}</Text>
-                      <Text style={[s.methodLabel, { color: waterMethod === m ? colors.primary : colors.textSecondary }]}>{t('waterMethod.' + m)}</Text>
+                      style={[s.methodChip, { flex: 1, backgroundColor: waterMethod === m ? colors.water + '22' : colors.surface, borderColor: waterMethod === m ? colors.water : colors.border }]}>
+                      <Text style={{ fontSize: 16 }}>{m === 'hand' ? '🪣' : m === 'drip' ? '💧' : m === 'sprinkler' ? '🌦️' : '🌊'}</Text>
+                      <Text style={[s.methodLabel, { color: waterMethod === m ? colors.water : colors.textSecondary }]} numberOfLines={1}>{t('waterMethod.' + m)}</Text>
                     </Pressable>
                   ))}
                 </View>
-              </>
+              </View>
             )}
 
             {/* Harvest extras */}
             {selectedType === 'harvest' && (
-              <>
-                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.harvest')}</Text>
+              <View style={[s.extraCard, { backgroundColor: '#FF704310', borderColor: '#FF704344' }]}>
+                <Text style={[s.extraCardTitle, { color: '#E65100' }]}>🧺 {t('entryNew.harvest')}</Text>
                 <View style={{ flexDirection: 'row', gap: spacing.md }}>
                   <View style={{ flex: 1 }}>
                     <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.weightKg')}</Text>
@@ -308,13 +330,13 @@ export default function EditEntryScreen() {
                     </Pressable>
                   ))}
                 </View>
-              </>
+              </View>
             )}
 
             {/* Fertilizing extras */}
             {selectedType === 'fertilizing' && (
-              <>
-                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.fertilizing')}</Text>
+              <View style={[s.extraCard, { backgroundColor: '#4CAF5010', borderColor: '#4CAF5044' }]}>
+                <Text style={[s.extraCardTitle, { color: '#2E7D32' }]}>🌿 {t('entryNew.fertilizing')}</Text>
                 <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.fertProduct')}</Text>
                 <TextInput
                   value={fertProduct}
@@ -347,13 +369,13 @@ export default function EditEntryScreen() {
                     </View>
                   </View>
                 </View>
-              </>
+              </View>
             )}
 
             {/* Treatment extras */}
             {selectedType === 'treatment' && (
-              <>
-                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.treatment')}</Text>
+              <View style={[s.extraCard, { backgroundColor: '#EF535010', borderColor: '#EF535044' }]}>
+                <Text style={[s.extraCardTitle, { color: '#C62828' }]}>🧴 {t('entryNew.treatment')}</Text>
                 <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.treatProduct')}</Text>
                 <TextInput
                   value={treatProduct}
@@ -385,24 +407,31 @@ export default function EditEntryScreen() {
                     />
                   </View>
                 </View>
-              </>
+              </View>
             )}
 
-            {/* Photo */}
+            {/* Photo — full-width area */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.photo')}</Text>
-            <Pressable onPress={pickPhoto} style={s.photoRow}>
+            <Pressable
+              onPress={pickPhoto}
+              style={[s.photoArea, { backgroundColor: colors.surfaceAlt, borderColor: photoUri ? 'transparent' : colors.border }]}
+            >
               {photoUri ? (
-                <View>
-                  <Image source={{ uri: photoUri }} style={s.photoPreview} />
-                  <Text style={[s.changePhotoText, { color: colors.primary }]}>{t('entryEdit.changePhoto')}</Text>
-                </View>
+                <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
               ) : (
-                <View style={[s.photoPlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-                  <Text style={{ fontSize: 28 }}>📷</Text>
-                  <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: 4 }}>{t('entryNew.addPhoto')}</Text>
-                </View>
+                <>
+                  <Ionicons name="camera-outline" size={32} color={colors.textSecondary} />
+                  <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: spacing.xs }}>
+                    {t('entryNew.addPhoto')}
+                  </Text>
+                </>
               )}
             </Pressable>
+            {photoUri && (
+              <Pressable onPress={() => setPhotoUri(null)} style={{ alignSelf: 'center', marginTop: spacing.xs }}>
+                <Text style={{ color: colors.error, fontSize: fontSize.xs }}>{t('entryEdit.removePhoto')}</Text>
+              </Pressable>
+            )}
 
             {/* Delete */}
             <Pressable onPress={handleDelete} style={s.deleteBtn}>
@@ -436,19 +465,30 @@ const makeStyles = (
     body: { padding: spacing.xl },
     label: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, marginBottom: spacing.sm },
     inputLabel: { fontSize: fontSize.xs, marginBottom: spacing.xs },
-    typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    // Type grid — 2 rows of 5
+    typeRow: { flexDirection: 'row', gap: spacing.sm },
     typeChip: {
-      width: '22%',
+      flex: 1,
       alignItems: 'center',
-      paddingVertical: spacing.md,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: 2,
       borderRadius: radii.md,
       borderWidth: 1.5,
       gap: 4,
     },
-    typeLabel: { fontSize: 10, fontWeight: fontWeight.medium, textAlign: 'center' },
+    typeChipIcon: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    typeLabel: { fontSize: 9, fontWeight: fontWeight.medium, textAlign: 'center' },
+    // Date
     dateBtnsRow: { flexDirection: 'row', gap: spacing.sm },
     dateBtn: {
-      paddingHorizontal: spacing.md,
+      flex: 1,
+      alignItems: 'center',
       paddingVertical: spacing.sm,
       borderRadius: radii.full,
       borderWidth: 1.5,
@@ -456,18 +496,46 @@ const makeStyles = (
     dateBtnText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     input: { borderWidth: 1.5, borderRadius: radii.md, padding: spacing.lg, fontSize: fontSize.md },
     textarea: { minHeight: 100 },
-    photoRow: { alignItems: 'flex-start' },
-    photoPlaceholder: {
-      width: 100,
-      height: 100,
-      borderRadius: radii.lg,
-      borderWidth: 2,
+    dateButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    dateModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+    dateModalSheet: { borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, paddingTop: spacing.sm, alignItems: 'center' },
+    dateModalHandle: { width: 40, height: 4, borderRadius: 2, marginBottom: spacing.md },
+    // Extra data cards
+    extraCard: {
+      marginTop: spacing.lg,
+      padding: spacing.lg,
+      borderRadius: radii.xl,
+      borderWidth: 1.5,
+      gap: spacing.sm,
+    },
+    extraCardTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, marginBottom: spacing.xs },
+    methodRow: { flexDirection: 'row', gap: spacing.sm },
+    methodChip: {
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: 4,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      gap: 3,
+    },
+    methodLabel: { fontSize: 9, fontWeight: fontWeight.medium, textAlign: 'center' },
+    unitChip: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: radii.sm,
+      borderWidth: 1.5,
+      alignItems: 'center',
+    },
+    // Photo
+    photoArea: {
+      height: 140,
+      borderRadius: radii.xl,
+      borderWidth: 1.5,
       borderStyle: 'dashed',
       alignItems: 'center',
       justifyContent: 'center',
+      overflow: 'hidden',
     },
-    photoPreview: { width: 120, height: 100, borderRadius: radii.lg },
-    changePhotoText: { fontSize: fontSize.xs, fontWeight: fontWeight.medium, marginTop: spacing.xs },
     deleteBtn: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -478,21 +546,4 @@ const makeStyles = (
     },
     deleteText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     notFound: { textAlign: 'center', marginTop: 80, fontSize: fontSize.lg },
-    methodChip: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
-      gap: 6,
-    },
-    methodLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
-    unitChip: {
-      paddingHorizontal: spacing.sm,
-      paddingVertical: spacing.xs,
-      borderRadius: radii.sm,
-      borderWidth: 1.5,
-      alignItems: 'center',
-    },
   });

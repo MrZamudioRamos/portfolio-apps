@@ -947,7 +947,8 @@
     "deleteTitle": "Eliminar entrada?",
     "deleteDesc": "Aquesta entrada s'eliminarà permanentment.",
     "notFound": "Entrada no trobada",
-    "changePhoto": "Canviar foto"
+    "changePhoto": "Canviar foto",
+    "removePhoto": "Eliminar foto"
   },
   "cropCategory": {
     "frutas": "Fruites",

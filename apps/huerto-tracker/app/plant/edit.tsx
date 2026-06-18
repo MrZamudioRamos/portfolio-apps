@@ -23,6 +23,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
+import { CROP_IMAGES } from '../../src/data/cropImages';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import type { Plant } from '../../src/models/plant';
 import type { CustomCrop } from '../../src/models/custom-crop';
@@ -68,6 +69,7 @@ export default function EditPlantScreen() {
   const [soilTexture, setSoilTexture] = useState<Plant['soilTexture']>(plant?.soilTexture);
   const [soilNotes, setSoilNotes] = useState(plant?.soilNotes ?? '');
   const [bedName, setBedName] = useState(plant?.bedName ?? '');
+  const [cropImgErr, setCropImgErr] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Sync form fields when plant loads from AsyncStorage (useState initializer only runs once)
@@ -176,10 +178,21 @@ export default function EditPlantScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={s.formContainer} showsVerticalScrollIndicator={false}>
-          {/* Crop info (read-only) */}
-          <View style={[s.cropRow, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={{ fontSize: 32 }}>{crop.emoji}</Text>
-            <View style={{ flex: 1, marginLeft: spacing.md }}>
+          {/* Crop hero — read-only */}
+          <View style={[s.cropHero, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={[s.cropHeroImg, { backgroundColor: colors.surfaceAlt }]}>
+              {CROP_IMAGES[crop.id] && !cropImgErr ? (
+                <Image
+                  source={{ uri: CROP_IMAGES[crop.id] }}
+                  style={StyleSheet.absoluteFill}
+                  resizeMode="cover"
+                  onError={() => setCropImgErr(true)}
+                />
+              ) : (
+                <Text style={{ fontSize: 36 }}>{crop.emoji}</Text>
+              )}
+            </View>
+            <View style={{ flex: 1 }}>
               <Text style={[s.cropName, { color: colors.text }]}>{t('crops.' + crop.id + '.name', { defaultValue: crop.name })}</Text>
               <Text style={[s.cropCategory, { color: colors.textSecondary }]}>
                 {t('cropCategory.' + crop.category)}
@@ -420,32 +433,30 @@ export default function EditPlantScreen() {
             style={[s.input, s.notesInput, { backgroundColor: colors.surface, borderColor: soilNotes ? colors.primary : colors.border, color: colors.text }]}
           />
 
-          {/* Photo */}
+          {/* Photo — full-width area */}
           <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
             {t('plantNew.photo')}
           </Text>
-          <Pressable onPress={pickPhoto} style={s.photoRow}>
+          <Pressable
+            onPress={pickPhoto}
+            style={[s.photoArea, { backgroundColor: colors.surfaceAlt, borderColor: photoUri ? 'transparent' : colors.border }]}
+          >
             {photoUri ? (
-              <View>
-                <Image source={{ uri: photoUri }} style={s.photoPreview} />
-                <Text style={[s.changePhotoText, { color: colors.primary }]}>
-                  {t('plantEdit.changePhoto')}
-                </Text>
-              </View>
+              <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
             ) : (
-              <View
-                style={[
-                  s.photoPlaceholder,
-                  { backgroundColor: colors.surfaceAlt, borderColor: colors.border },
-                ]}
-              >
-                <Text style={{ fontSize: 28 }}>📷</Text>
-                <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: 4 }}>
+              <>
+                <Ionicons name="camera-outline" size={32} color={colors.textSecondary} />
+                <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: spacing.xs }}>
                   {t('plantNew.addPhoto')}
                 </Text>
-              </View>
+              </>
             )}
           </Pressable>
+          {photoUri && (
+            <Pressable onPress={() => setPhotoUri(null)} style={{ alignSelf: 'center', marginTop: spacing.xs }}>
+              <Text style={{ color: colors.error, fontSize: fontSize.xs }}>{t('entryEdit.removePhoto')}</Text>
+            </Pressable>
+          )}
 
           <Button
             title={t('plantEdit.save')}
@@ -480,12 +491,21 @@ const makeStyles = (
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     formContainer: { padding: spacing.xl, paddingBottom: 60 },
     label: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, marginBottom: spacing.sm },
-    cropRow: {
+    cropHero: {
       flexDirection: 'row',
       alignItems: 'center',
       padding: spacing.lg,
-      borderRadius: radii.md,
+      borderRadius: radii.xl,
       borderWidth: 1,
+      gap: spacing.md,
+    },
+    cropHeroImg: {
+      width: 64,
+      height: 64,
+      borderRadius: radii.lg,
+      overflow: 'hidden',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     cropName: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     cropCategory: { fontSize: fontSize.xs, marginTop: 2 },
@@ -524,18 +544,15 @@ const makeStyles = (
       marginBottom: spacing.md,
     },
     notesInput: { minHeight: 80 },
-    photoRow: { alignItems: 'flex-start' },
-    photoPlaceholder: {
-      width: 90,
-      height: 90,
-      borderRadius: radii.lg,
-      borderWidth: 2,
+    photoArea: {
+      height: 140,
+      borderRadius: radii.xl,
+      borderWidth: 1.5,
       borderStyle: 'dashed',
       alignItems: 'center',
       justifyContent: 'center',
+      overflow: 'hidden',
     },
-    photoPreview: { width: 90, height: 90, borderRadius: radii.lg },
-    changePhotoText: { fontSize: fontSize.xs, fontWeight: fontWeight.medium, marginTop: spacing.xs, textAlign: 'center' },
     notFound: { textAlign: 'center', marginTop: 80, fontSize: fontSize.lg },
     backBtn: { padding: spacing.lg },
     varietyChip: {

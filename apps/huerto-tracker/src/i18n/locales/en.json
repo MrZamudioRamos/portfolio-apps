@@ -955,7 +955,8 @@
     "deleteTitle": "Delete entry?",
     "deleteDesc": "This entry will be permanently deleted.",
     "notFound": "Entry not found",
-    "changePhoto": "Change photo"
+    "changePhoto": "Change photo",
+    "removePhoto": "Remove photo"
   },
   "cropCategory": {
     "frutas": "Fruits",

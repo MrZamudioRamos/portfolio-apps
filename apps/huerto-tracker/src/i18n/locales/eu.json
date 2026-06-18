@@ -947,7 +947,8 @@
     "deleteTitle": "Sarrera ezabatu?",
     "deleteDesc": "Sarrera hau behin betiko ezabatuko da.",
     "notFound": "Sarrera ez da aurkitu",
-    "changePhoto": "Argazkia aldatu"
+    "changePhoto": "Argazkia aldatu",
+    "removePhoto": "Argazkia ezabatu"
   },
   "cropCategory": {
     "frutas": "Fruituak",
