@@ -459,7 +459,9 @@
     "skipProfile": "Skip profile",
     "coachWelcome": "Hi! I'm Semillita 🌱 I'll guide you so your garden thrives.",
     "coachCelebrate": "Your garden “{{name}}” is ready! 🎉 Shall we plant the first one?",
-    "selectCountry": "Select your country"
+    "selectCountry": "Select your country",
+    "firstCropTitle": "Start with these",
+    "readyIn": "~{{days}} days"
   },
   "paywall": {
     "titlePro": "You're Pro!",

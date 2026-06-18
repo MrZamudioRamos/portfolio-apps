@@ -201,6 +201,27 @@ export default function OnboardingScreen() {
       .slice(0, 3);
   }, [climateZone, sunlight, experience]);
 
+  const stepAnim = useRef({
+    opacity: new Animated.Value(1),
+    translateX: new Animated.Value(0),
+  }).current;
+
+  function goTo(nextStep: Step) {
+    const outX = nextStep > step ? -28 : 28;
+    const inX = nextStep > step ? 28 : -28;
+    Animated.parallel([
+      Animated.timing(stepAnim.opacity, { toValue: 0, duration: 120, useNativeDriver: true }),
+      Animated.timing(stepAnim.translateX, { toValue: outX, duration: 120, useNativeDriver: true }),
+    ]).start(() => {
+      setStep(nextStep);
+      stepAnim.translateX.setValue(inX);
+      Animated.parallel([
+        Animated.timing(stepAnim.opacity, { toValue: 1, duration: 180, useNativeDriver: true }),
+        Animated.spring(stepAnim.translateX, { toValue: 0, useNativeDriver: true, tension: 70, friction: 10 }),
+      ]).start();
+    });
+  }
+
   const cardAnims = useRef(
     [0, 1, 2].map(() => ({
       opacity: new Animated.Value(0),
@@ -294,7 +315,7 @@ export default function OnboardingScreen() {
       await complete();
       track(EVENTS.onboardingCompleted, { experience, gardenType });
       track(EVENTS.firstCropSuggested, { count: firstCropPicks.length, cropIds: firstCropPicks.map((c) => c.id).join(',') });
-      setStep(7);
+      goTo(7);
     } catch (e) {
       console.error('[onboarding] handleCreate failed:', e);
     } finally {
@@ -329,6 +350,8 @@ export default function OnboardingScreen() {
         </View>
       )}
 
+      <Animated.View style={{ flex: 1, opacity: stepAnim.opacity, transform: [{ translateX: stepAnim.translateX }] }}>
+
       {/* ── STEP 0: Bienvenida ── */}
       {step === 0 && (
         <View style={[s.stepContainer, { justifyContent: 'space-between' }]}>
@@ -352,8 +375,8 @@ export default function OnboardingScreen() {
             </View>
           </View>
           <View style={{ gap: spacing.sm }}>
-            <Button title={t('onboarding.start')} onPress={() => setStep(1)} size="lg" />
-            <Pressable onPress={() => { setSkippedProfile(true); setStep(5); }} style={{ alignItems: 'center', paddingVertical: spacing.sm }}>
+            <Button title={t('onboarding.start')} onPress={() => goTo(1)} size="lg" />
+            <Pressable onPress={() => { setSkippedProfile(true); goTo(5); }} style={{ alignItems: 'center', paddingVertical: spacing.sm }}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('onboarding.skipProfile')}</Text>
             </Pressable>
           </View>
@@ -393,15 +416,15 @@ export default function OnboardingScreen() {
           </ScrollView>
 
           <View style={s.stepActions}>
-            <Pressable onPress={() => setStep(0)} style={s.backButton}>
+            <Pressable onPress={() => goTo(0)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
-            <Pressable onPress={() => setStep(2)} style={s.skipButton}>
+            <Pressable onPress={() => goTo(2)} style={s.skipButton}>
               <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
             </Pressable>
             <Button
               title={t('onboarding.continue')}
-              onPress={() => setStep(2)}
+              onPress={() => goTo(2)}
               disabled={spaceTypes.length === 0}
               size="lg"
               style={{ flex: 1, marginLeft: spacing.md }}
@@ -443,15 +466,15 @@ export default function OnboardingScreen() {
           </ScrollView>
 
           <View style={s.stepActions}>
-            <Pressable onPress={() => setStep(1)} style={s.backButton}>
+            <Pressable onPress={() => goTo(1)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
-            <Pressable onPress={() => setStep(3)} style={s.skipButton}>
+            <Pressable onPress={() => goTo(3)} style={s.skipButton}>
               <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
             </Pressable>
             <Button
               title={t('onboarding.continue')}
-              onPress={() => setStep(3)}
+              onPress={() => goTo(3)}
               disabled={growingMethods.length === 0}
               size="lg"
               style={{ flex: 1, marginLeft: spacing.md }}
@@ -493,15 +516,15 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={s.stepActions}>
-            <Pressable onPress={() => setStep(2)} style={s.backButton}>
+            <Pressable onPress={() => goTo(2)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
-            <Pressable onPress={() => setStep(4)} style={s.skipButton}>
+            <Pressable onPress={() => goTo(4)} style={s.skipButton}>
               <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
             </Pressable>
             <Button
               title={t('onboarding.continue')}
-              onPress={() => setStep(4)}
+              onPress={() => goTo(4)}
               disabled={!sunlight}
               size="lg"
               style={{ flex: 1, marginLeft: spacing.md }}
@@ -550,15 +573,15 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={s.stepActions}>
-            <Pressable onPress={() => setStep(3)} style={s.backButton}>
+            <Pressable onPress={() => goTo(3)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
-            <Pressable onPress={() => setStep(5)} style={s.skipButton}>
+            <Pressable onPress={() => goTo(5)} style={s.skipButton}>
               <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
             </Pressable>
             <Button
               title={t('onboarding.continue')}
-              onPress={() => setStep(5)}
+              onPress={() => goTo(5)}
               disabled={!experience}
               size="lg"
               style={{ flex: 1, marginLeft: spacing.md }}
@@ -625,12 +648,12 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={s.stepActions}>
-            <Pressable onPress={() => setStep(skippedProfile ? 0 : 4)} style={s.backButton}>
+            <Pressable onPress={() => goTo(skippedProfile ? 0 : 4)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
             <Button
               title={t('onboarding.continue')}
-              onPress={() => setStep(6)}
+              onPress={() => goTo(6)}
               disabled={!province}
               size="lg"
               style={{ flex: 1, marginLeft: spacing.md }}
@@ -706,7 +729,7 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={s.stepActions}>
-            <Pressable onPress={() => setStep(5)} style={s.backButton}>
+            <Pressable onPress={() => goTo(5)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
             <Button
@@ -799,6 +822,8 @@ export default function OnboardingScreen() {
           </View>
         </View>
       )}
+
+      </Animated.View>
 
       {/* ── Province picker modal ── */}
       <Modal visible={showProvincePicker} animationType="slide" presentationStyle="pageSheet">

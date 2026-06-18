@@ -454,7 +454,9 @@
     "skipProfile": "Omitir perfil",
     "coachWelcome": "Ola! Son Semillita 🌱 Acompañareite para que a túa horta saia adiante.",
     "coachCelebrate": "A túa horta «{{name}}» xa está lista! 🎉 Plantamos a primeira?",
-    "selectCountry": "Selecciona o teu país"
+    "selectCountry": "Selecciona o teu país",
+    "firstCropTitle": "Comeza con isto",
+    "readyIn": "~{{days}} días"
   },
   "paywall": {
     "titlePro": "Xa es Pro!",

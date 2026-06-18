@@ -454,7 +454,9 @@
     "skipProfile": "Profila saltatu",
     "coachWelcome": "Kaixo! Semillita naiz 🌱 Lagunduko dizut zure baratzea aurrera atera dadin.",
     "coachCelebrate": "Zure «{{name}}» baratzea prest dago! 🎉 Lehenengoa landatuko dugu?",
-    "selectCountry": "Aukeratu zure herrialdea"
+    "selectCountry": "Aukeratu zure herrialdea",
+    "firstCropTitle": "Hasi honekin",
+    "readyIn": "~{{days}} egun"
   },
   "paywall": {
     "titlePro": "Pro zara dagoeneko!",
