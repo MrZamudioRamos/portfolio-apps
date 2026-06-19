@@ -6,7 +6,7 @@ import { BlurView } from 'expo-blur';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { Redirect, Tabs } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
@@ -18,9 +18,8 @@ const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 export const FLOATING_TAB_BOTTOM_CLEARANCE = PILL_H + PILL_GAP_BOTTOM + PILL_MARGIN_TOP;
 
-// Module-level slide anim — 0 = shown, 1 = hidden
+// Module-level slide anim — 0 = shown, 1 = hidden (slides to right)
 export const tabBarSlide = new Animated.Value(0);
-const HIDE_AMOUNT = PILL_H + PILL_GAP_BOTTOM + 16;
 
 export function showTabBar() {
   Animated.spring(tabBarSlide, {
@@ -51,6 +50,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
   const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const { width: screenWidth } = useWindowDimensions();
   const [pillWidth, setPillWidth] = useState(0);
   const bubbleX = useRef(new Animated.Value(0)).current;
   const isFirstLayout = useRef(true);
@@ -80,9 +80,9 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
     }
   }, [activeVisibleIdx, tabW]);
 
-  const pillTranslateY = tabBarSlide.interpolate({
+  const pillTranslateX = tabBarSlide.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, HIDE_AMOUNT],
+    outputRange: [0, screenWidth],
   });
 
   const restoreOpacity = tabBarSlide.interpolate({
@@ -101,7 +101,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
           left: 12,
           right: 12,
           height: PILL_H,
-          transform: [{ translateY: pillTranslateY }],
+          transform: [{ translateX: pillTranslateX }],
         }}
       >
         {/* Shadow wrapper */}
@@ -272,32 +272,37 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
         </View>
       </Animated.View>
 
-      {/* Restore handle — appears when pill is hidden */}
+      {/* Restore FAB — appears bottom-right when pill is hidden */}
       <Animated.View
         style={{
           position: 'absolute',
-          bottom: insets.bottom + 2,
-          left: 0,
-          right: 0,
-          alignItems: 'center',
+          bottom: insets.bottom + PILL_GAP_BOTTOM,
+          right: 12,
           opacity: restoreOpacity,
         }}
         pointerEvents="box-none"
       >
         <Pressable
           onPress={showTabBar}
-          style={{ paddingHorizontal: 28, paddingVertical: 10 }}
           accessibilityRole="button"
           accessibilityLabel="Mostrar menú"
+          style={{
+            width: PILL_H,
+            height: PILL_H,
+            borderRadius: PILL_H / 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: isDark ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.95)',
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: isDark ? 0.4 : 0.12,
+            shadowRadius: 12,
+            elevation: 8,
+          }}
         >
-          <View
-            style={{
-              width: 36,
-              height: 4,
-              borderRadius: 2,
-              backgroundColor: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)',
-            }}
-          />
+          <Text style={{ fontSize: 20, color: isDark ? '#EEE' : '#111' }}>⊹</Text>
         </Pressable>
       </Animated.View>
     </View>

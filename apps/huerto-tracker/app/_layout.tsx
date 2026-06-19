@@ -3,7 +3,7 @@ import { loadSavedLanguage } from '../src/i18n';
 import { initSupabase, handleDeepLink, useSession } from '@portfolio/supabase';
 import { useOnboarding } from '@portfolio/shared';
 import { initAnalytics, track, identifyUser, EVENTS, Sentry } from '../src/analytics';
-import { ThemeProvider, huertoPalette } from '@portfolio/ui';
+import { ThemeProvider, bwPalette } from '@portfolio/ui';
 import { Stack, useRouter, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as Linking from 'expo-linking';
@@ -107,7 +107,7 @@ function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
-      <ThemeProvider palette={huertoPalette}>
+      <ThemeProvider palette={bwPalette}>
         <StatusBar style="auto" />
         <AppServices />
         <Stack screenOptions={{ headerShown: false }}>

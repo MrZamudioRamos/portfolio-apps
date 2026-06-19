@@ -187,3 +187,44 @@ export const stitchDarkColors: AppColors = {
 };
 
 export const stitchPalette: ColorPalette = { light: stitchColors, dark: stitchDarkColors };
+
+// ── Mono B&W — minimalista sin color ────────────────────────────────────────
+export const bwColors: AppColors = {
+  primary: '#111111',
+  primaryLight: '#444444',
+  primaryDark: '#000000',
+  secondary: '#666666',
+  background: '#FFFFFF',
+  surface: '#F6F6F6',
+  surfaceAlt: '#EDEDED',
+  border: '#E0E0E0',
+  text: '#111111',
+  textSecondary: '#666666',
+  textDisabled: '#BBBBBB',
+  success: '#333333',
+  warning: '#888888',
+  error: '#CC3333',
+  water: '#444444',
+  info: '#444444',
+};
+
+export const bwDarkColors: AppColors = {
+  primary: '#EEEEEE',
+  primaryLight: '#CCCCCC',
+  primaryDark: '#FFFFFF',
+  secondary: '#999999',
+  background: '#0A0A0A',
+  surface: '#1A1A1A',
+  surfaceAlt: '#242424',
+  border: '#333333',
+  text: '#EEEEEE',
+  textSecondary: '#999999',
+  textDisabled: '#444444',
+  success: '#CCCCCC',
+  warning: '#888888',
+  error: '#EE5555',
+  water: '#AAAAAA',
+  info: '#AAAAAA',
+};
+
+export const bwPalette: ColorPalette = { light: bwColors, dark: bwDarkColors };

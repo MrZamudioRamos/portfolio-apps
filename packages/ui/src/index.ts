@@ -6,6 +6,7 @@ export {
   mascotaColors, mascotaDarkColors, mascotaPalette,
   cocheColors, cocheDarkColors, cochePalette,
   stitchColors, stitchDarkColors, stitchPalette,
+  bwColors, bwDarkColors, bwPalette,
 } from './theme/colors';
 export { spacing, fontSize, fontWeight, radii, shadows } from './theme/tokens';
 export { Button } from './components/Button';
