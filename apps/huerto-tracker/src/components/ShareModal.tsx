@@ -75,7 +75,7 @@ export function ShareModal({
               onPress={async () => { await share(); onClose(); }}
               style={[s.shareBtn, { backgroundColor: colors.primary, borderRadius: radii.full }]}
             >
-              <Text style={[s.shareBtnText, { fontSize: fontSize.md, fontWeight: fontWeight.bold }]}>
+              <Text style={[s.shareBtnText, { fontSize: fontSize.md, fontWeight: fontWeight.bold, color: colors.background }]}>
                 {t('share.cta')}
               </Text>
             </Pressable>

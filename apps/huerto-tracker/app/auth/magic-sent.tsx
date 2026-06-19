@@ -98,7 +98,7 @@ export default function MagicSentScreen() {
               { backgroundColor: colors.primary, opacity: pressed || verifying || code.length !== 6 ? 0.5 : 1 },
             ]}
           >
-            <Text style={s.verifyBtnText}>
+            <Text style={[s.verifyBtnText, { color: colors.background }]}>
               {verifying ? t('magicSent.verifying') : t('magicSent.verify')}
             </Text>
           </Pressable>

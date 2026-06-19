@@ -499,7 +499,7 @@ function RowAction({
       </Text>
       {badge && (
         <View style={{ backgroundColor: colors.primary, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: radii.full, marginRight: spacing.xs }}>
-          <Text style={{ color: '#fff', fontSize: 10, fontWeight: fontWeight.bold }}>⭐ {badge}</Text>
+          <Text style={{ color: colors.background, fontSize: 10, fontWeight: fontWeight.bold }}>⭐ {badge}</Text>
         </View>
       )}
       <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />

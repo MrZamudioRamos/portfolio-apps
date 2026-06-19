@@ -115,8 +115,8 @@ export default function CompanionsScreen() {
             style={[s.lockOverlay, { backgroundColor: colors.background + 'E8' }]}
           >
             <View style={[s.lockBadge, { backgroundColor: colors.primary, ...shadows.md }]}>
-              <Ionicons name="lock-closed" size={14} color="#fff" />
-              <Text style={s.lockText}>{t('companions.proUnlock')}</Text>
+              <Ionicons name="lock-closed" size={14} color={colors.background} />
+              <Text style={[s.lockText, { color: colors.background }]}>{t('companions.proUnlock')}</Text>
             </View>
           </Pressable>
         )}
@@ -192,7 +192,7 @@ export default function CompanionsScreen() {
             onPress={() => router.push('/paywall')}
             style={[s.proBadge, { backgroundColor: colors.primary }]}
           >
-            <Text style={s.proBadgeText}>⭐ Pro</Text>
+            <Text style={[s.proBadgeText, { color: colors.background }]}>⭐ Pro</Text>
           </Pressable>
         )}
       </View>

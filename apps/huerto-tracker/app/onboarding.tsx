@@ -355,27 +355,41 @@ export default function OnboardingScreen() {
       {/* ── STEP 0: Bienvenida ── */}
       {step === 0 && (
         <View style={[s.stepContainer, { justifyContent: 'space-between' }]}>
-          <View style={{ flex: 1, justifyContent: 'center', gap: spacing.xl }}>
-            <CoachBubble text={t('onboarding.coachWelcome')} pose="wave" />
+          <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: spacing.xl, gap: spacing['2xl'] ?? spacing.xl * 1.5 }}>
+            {/* Big B&W headline */}
+            <View style={{ gap: spacing.sm }}>
+              <Text style={{ fontSize: 52, fontWeight: '800', color: colors.text, letterSpacing: -2, lineHeight: 56 }}>
+                {'Tu huerto\ndigital.'}
+              </Text>
+              <Text style={{ fontSize: fontSize.lg, color: colors.textSecondary, lineHeight: 26 }}>
+                {t('onboarding.step1Desc')}
+              </Text>
+            </View>
 
-            <View style={s.featureList}>
+            {/* Minimal feature list */}
+            <View style={{ gap: spacing.lg }}>
               {[
-                { emoji: '🌙', titleKey: 'onboarding.feature1Title', descKey: 'onboarding.feature1Desc' },
-                { emoji: '🌤️', titleKey: 'onboarding.feature2Title', descKey: 'onboarding.feature2Desc' },
-                { emoji: '🤝', titleKey: 'onboarding.feature3Title', descKey: 'onboarding.feature3Desc' },
+                { emoji: '🌙', key: 'onboarding.feature1Title' },
+                { emoji: '🌤️', key: 'onboarding.feature2Title' },
+                { emoji: '🤝', key: 'onboarding.feature3Title' },
               ].map((f) => (
-                <View key={f.emoji} style={[s.featureRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <Text style={s.featureEmoji}>{f.emoji}</Text>
-                  <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={[s.featureTitle, { color: colors.text }]}>{t(f.titleKey)}</Text>
-                    <Text style={[s.featureDesc, { color: colors.textSecondary }]}>{t(f.descKey)}</Text>
-                  </View>
+                <View key={f.emoji} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+                  <Text style={{ fontSize: 22, width: 32, textAlign: 'center' }}>{f.emoji}</Text>
+                  <Text style={{ fontSize: fontSize.md, color: colors.text, fontWeight: '500', flex: 1 }}>{t(f.key)}</Text>
                 </View>
               ))}
             </View>
           </View>
-          <View style={{ gap: spacing.sm }}>
-            <Button title={t('onboarding.start')} onPress={() => goTo(1)} size="lg" />
+
+          <View style={{ gap: spacing.sm, paddingHorizontal: spacing.xl }}>
+            <Pressable
+              onPress={() => goTo(1)}
+              style={{ backgroundColor: colors.text, borderRadius: radii.full, paddingVertical: 18, alignItems: 'center' }}
+            >
+              <Text style={{ color: colors.background, fontSize: fontSize.lg, fontWeight: '700' }}>
+                {t('onboarding.start')}
+              </Text>
+            </Pressable>
             <Pressable onPress={() => { setSkippedProfile(true); goTo(5); }} style={{ alignItems: 'center', paddingVertical: spacing.sm }}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('onboarding.skipProfile')}</Text>
             </Pressable>
@@ -387,7 +401,10 @@ export default function OnboardingScreen() {
       {step === 1 && (
         <View style={s.stepContainer}>
           <ScrollView contentContainerStyle={s.stepContent} keyboardShouldPersistTaps="handled">
-            <CoachHeader title={t('onboarding.spaceTitle')} subtitle={t('onboarding.spaceDesc')} pose="point" />
+            <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
+              <Text style={{ fontSize: fontSize['2xl'], fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>{t('onboarding.spaceTitle')}</Text>
+              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs }}>{t('onboarding.spaceDesc')}</Text>
+            </View>
             <Text style={[s.multiHint, { color: colors.textDisabled }]}>{t('onboarding.spaceMultiHint')}</Text>
 
             <View style={s.optionGrid}>
@@ -400,13 +417,13 @@ export default function OnboardingScreen() {
                     style={[
                       s.optionCard,
                       {
-                        backgroundColor: active ? colors.primary + '22' : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
+                        backgroundColor: active ? colors.text : colors.surface,
+                        borderColor: active ? colors.text : colors.border,
                       },
                     ]}
                   >
                     <Text style={s.optionEmoji}>{SPACE_TYPE_CONFIG[k].emoji}</Text>
-                    <Text style={[s.optionLabel, { color: active ? colors.primary : colors.text }]}>
+                    <Text style={[s.optionLabel, { color: active ? colors.background : colors.text }]}>
                       {t('onboarding.space' + k.charAt(0).toUpperCase() + k.slice(1))}
                     </Text>
                   </Pressable>
@@ -437,7 +454,10 @@ export default function OnboardingScreen() {
       {step === 2 && (
         <View style={s.stepContainer}>
           <ScrollView contentContainerStyle={s.stepContent} keyboardShouldPersistTaps="handled">
-            <CoachHeader title={t('onboarding.methodTitle')} subtitle={t('onboarding.methodDesc')} pose="point" />
+            <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
+              <Text style={{ fontSize: fontSize['2xl'], fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>{t('onboarding.methodTitle')}</Text>
+              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs }}>{t('onboarding.methodDesc')}</Text>
+            </View>
             <Text style={[s.multiHint, { color: colors.textDisabled }]}>{t('onboarding.spaceMultiHint')}</Text>
 
             <View style={s.optionGrid}>
@@ -450,13 +470,13 @@ export default function OnboardingScreen() {
                     style={[
                       s.optionCard,
                       {
-                        backgroundColor: active ? colors.primary + '22' : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
+                        backgroundColor: active ? colors.text : colors.surface,
+                        borderColor: active ? colors.text : colors.border,
                       },
                     ]}
                   >
                     <Text style={s.optionEmoji}>{GROWING_METHOD_CONFIG[k].emoji}</Text>
-                    <Text style={[s.optionLabel, { color: active ? colors.primary : colors.text }]}>
+                    <Text style={[s.optionLabel, { color: active ? colors.background : colors.text }]}>
                       {t('onboarding.method' + k.charAt(0).toUpperCase() + k.slice(1))}
                     </Text>
                   </Pressable>
@@ -487,7 +507,10 @@ export default function OnboardingScreen() {
       {step === 3 && (
         <View style={s.stepContainer}>
           <View style={s.stepContent}>
-            <CoachHeader title={t('onboarding.sunTitle')} subtitle={t('onboarding.sunDesc')} pose="idle" />
+            <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
+              <Text style={{ fontSize: fontSize['2xl'], fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>{t('onboarding.sunTitle')}</Text>
+              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs }}>{t('onboarding.sunDesc')}</Text>
+            </View>
 
             <View style={{ gap: spacing.md }}>
               {SUN_KEYS.map((k) => {
@@ -499,16 +522,16 @@ export default function OnboardingScreen() {
                     style={[
                       s.rowOption,
                       {
-                        backgroundColor: active ? colors.primary + '22' : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
+                        backgroundColor: active ? colors.text : colors.surface,
+                        borderColor: active ? colors.text : colors.border,
                       },
                     ]}
                   >
                     <Text style={s.optionEmoji}>{SUNLIGHT_CONFIG[k].emoji}</Text>
-                    <Text style={[s.rowOptionLabel, { color: active ? colors.primary : colors.text }]}>
+                    <Text style={[s.rowOptionLabel, { color: active ? colors.background : colors.text }]}>
                       {t('onboarding.sun' + k.charAt(0).toUpperCase() + k.slice(1))}
                     </Text>
-                    {active && <Text style={{ color: colors.primary, fontSize: 20 }}>✓</Text>}
+                    {active && <Text style={{ color: colors.background, fontSize: 20 }}>✓</Text>}
                   </Pressable>
                 );
               })}
@@ -537,7 +560,10 @@ export default function OnboardingScreen() {
       {step === 4 && (
         <View style={s.stepContainer}>
           <View style={s.stepContent}>
-            <CoachHeader title={t('onboarding.expTitle')} subtitle={t('onboarding.expDesc')} pose="idle" />
+            <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
+              <Text style={{ fontSize: fontSize['2xl'], fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>{t('onboarding.expTitle')}</Text>
+              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs }}>{t('onboarding.expDesc')}</Text>
+            </View>
 
             <View style={{ gap: spacing.md }}>
               {EXP_KEYS.map((k) => {
@@ -549,23 +575,23 @@ export default function OnboardingScreen() {
                     style={[
                       s.rowOption,
                       {
-                        backgroundColor: active ? colors.primary + '22' : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
+                        backgroundColor: active ? colors.text : colors.surface,
+                        borderColor: active ? colors.text : colors.border,
                       },
                     ]}
                   >
                     <Text style={s.optionEmoji}>{EXPERIENCE_CONFIG[k].emoji}</Text>
                     <View style={{ flex: 1 }}>
-                      <Text style={[s.rowOptionLabel, { color: active ? colors.primary : colors.text }]}>
+                      <Text style={[s.rowOptionLabel, { color: active ? colors.background : colors.text }]}>
                         {t('onboarding.exp' + k.charAt(0).toUpperCase() + k.slice(1))}
                       </Text>
                       {k === 'beginner' && active && (
-                        <Text style={[s.expNote, { color: colors.textSecondary }]}>
+                        <Text style={[s.expNote, { color: active ? colors.background + 'cc' : colors.textSecondary }]}>
                           {t('onboarding.expBeginnerNote')}
                         </Text>
                       )}
                     </View>
-                    {active && <Text style={{ color: colors.primary, fontSize: 20 }}>✓</Text>}
+                    {active && <Text style={{ color: colors.background, fontSize: 20 }}>✓</Text>}
                   </Pressable>
                 );
               })}
@@ -597,7 +623,10 @@ export default function OnboardingScreen() {
           style={s.stepContainer}
         >
           <View style={s.stepContent}>
-            <CoachHeader title={t('onboarding.step2Title')} subtitle={t('onboarding.step2Desc')} pose="point" />
+            <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
+              <Text style={{ fontSize: fontSize['2xl'], fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>{t('onboarding.step2Title')}</Text>
+              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs }}>{t('onboarding.step2Desc')}</Text>
+            </View>
 
             <Pressable
               onPress={locating ? undefined : detectLocation}
@@ -606,8 +635,8 @@ export default function OnboardingScreen() {
                 { backgroundColor: colors.surface, borderColor: colors.border, opacity: locating ? 0.6 : 1 },
               ]}
             >
-              <Ionicons name="locate-outline" size={18} color={colors.primary} />
-              <Text style={{ color: colors.primary, fontSize: fontSize.sm, marginLeft: 6, fontWeight: fontWeight.medium }}>
+              <Ionicons name="locate-outline" size={18} color={colors.text} />
+              <Text style={{ color: colors.text, fontSize: fontSize.sm, marginLeft: 6, fontWeight: fontWeight.medium }}>
                 {locating ? t('onboarding.detecting') : t('onboarding.detectLocation')}
               </Text>
             </Pressable>
@@ -618,7 +647,7 @@ export default function OnboardingScreen() {
                 s.provinceButton,
                 {
                   backgroundColor: colors.surface,
-                  borderColor: province ? colors.primary : colors.border,
+                  borderColor: province ? colors.text : colors.border,
                 },
               ]}
             >
@@ -636,7 +665,7 @@ export default function OnboardingScreen() {
               <Card style={s.zoneCard} padded>
                 <Text style={{ fontSize: 28 }}>{zoneConfig.emoji}</Text>
                 <View style={{ marginLeft: spacing.md, flex: 1 }}>
-                  <Text style={[s.zoneTitle, { color: colors.primary }]}>
+                  <Text style={[s.zoneTitle, { color: colors.text }]}>
                     {t('onboarding.zone', { label: zoneConfig.label })}
                   </Text>
                   <Text style={[s.zoneDesc, { color: colors.textSecondary }]}>

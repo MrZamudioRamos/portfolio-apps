@@ -1050,7 +1050,7 @@ export default function PlantDetailScreen() {
             </View>
             {!isPro && (
               <View style={[s.proBadge, { backgroundColor: colors.primary }]}>
-                <Text style={s.proBadgeText}>PRO</Text>
+                <Text style={[s.proBadgeText, { color: colors.background }]}>PRO</Text>
               </View>
             )}
             <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />

@@ -464,9 +464,9 @@ export default function GardenMapScreen() {
             onPress={() => setMoveSourceCell(null)}
             style={[s.moveBanner, { backgroundColor: colors.primary }]}
           >
-            <Ionicons name="move-outline" size={16} color="#fff" />
-            <Text style={s.moveBannerText}>{t('gardenMap.moveModeHint')}</Text>
-            <Ionicons name="close" size={18} color="#fff" />
+            <Ionicons name="move-outline" size={16} color={colors.background} />
+            <Text style={[s.moveBannerText, { color: colors.background }]}>{t('gardenMap.moveModeHint')}</Text>
+            <Ionicons name="close" size={18} color={colors.background} />
           </Pressable>
         )}
 
@@ -904,7 +904,7 @@ export default function GardenMapScreen() {
                 disabled={savingNotes}
                 style={[s.notesSaveBtn, { backgroundColor: colors.primary, opacity: savingNotes ? 0.6 : 1 }]}
               >
-                <Text style={s.notesSaveBtnText}>{t('gardenMap.notesSave')}</Text>
+                <Text style={[s.notesSaveBtnText, { color: colors.background }]}>{t('gardenMap.notesSave')}</Text>
               </Pressable>
             </Pressable>
           </Pressable>

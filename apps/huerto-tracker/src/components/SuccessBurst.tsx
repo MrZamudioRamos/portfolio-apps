@@ -55,7 +55,7 @@ export function SuccessBurst({ visible, size = 90 }: Props) {
             },
           ]}
         >
-          <Animated.Text style={[s.check, { fontSize: size * 0.5 }]}>✓</Animated.Text>
+          <Animated.Text style={[s.check, { fontSize: size * 0.5, color: colors.background }]}>✓</Animated.Text>
         </Animated.View>
       </View>
     </View>

@@ -193,7 +193,7 @@ export default function AuthScreen() {
                   { backgroundColor: colors.primary, opacity: pressed || loadingEmail ? 0.7 : 1 },
                 ]}
               >
-                <Text style={s.magicBtnText}>
+                <Text style={[s.magicBtnText, { color: colors.background }]}>
                   {loadingEmail
                     ? t('auth.sending')
                     : emailMode === 'password'

@@ -1,6 +1,5 @@
 import React from 'react';
 import Svg, { Circle, Ellipse, G, Path } from 'react-native-svg';
-import { useColors } from '@portfolio/ui';
 
 export type MascotPose = 'idle' | 'wave' | 'point' | 'celebrate';
 
@@ -17,12 +16,12 @@ interface Props {
  * clockwise, 0° = pointing up.
  */
 export function Mascot({ pose = 'idle', size = 120 }: Props) {
-  const colors = useColors();
-  const body = colors.primaryLight;
-  const leaf = colors.primary;
-  const dark = colors.primaryDark;
+  // Always use huerto greens so Semillita keeps her identity regardless of app theme
+  const body = '#76C77A';
+  const leaf = '#43A047';
+  const dark = '#2E7D32';
   const eye = '#2E3D2B';
-  const cheek = colors.error;
+  const cheek = '#E5533D';
 
   // Right arm is the expressive one; left mostly rests.
   const arms: Record<MascotPose, { l: number; r: number }> = {
@@ -54,7 +53,7 @@ export function Mascot({ pose = 'idle', size = 120 }: Props) {
   return (
     <Svg width={size} height={size} viewBox="0 0 120 120">
       {/* ground shadow */}
-      <Ellipse cx={60} cy={114} rx={24} ry={4} fill={colors.surfaceAlt} />
+      <Ellipse cx={60} cy={114} rx={24} ry={4} fill="rgba(0,0,0,0.07)" />
 
       {/* sprout tip on top of the head */}
       <Path d="M60 33 C60 27 60 23 60 19" stroke={dark} strokeWidth={3} strokeLinecap="round" fill="none" />

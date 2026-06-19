@@ -157,7 +157,7 @@ export default function ChatScreen() {
             onPress={() => router.push('/paywall')}
             style={[s.gateBtn, { backgroundColor: colors.primary }]}
           >
-            <Text style={[s.gateBtnText]}>{t('chat.proBtn')}</Text>
+            <Text style={[s.gateBtnText, { color: colors.background }]}>{t('chat.proBtn')}</Text>
           </Pressable>
         </View>
       ) : !user ? (
@@ -170,7 +170,7 @@ export default function ChatScreen() {
             onPress={() => router.push('/auth' as any)}
             style={[s.gateBtn, { backgroundColor: colors.primary }]}
           >
-            <Text style={[s.gateBtnText]}>{t('chat.authBtn')}</Text>
+            <Text style={[s.gateBtnText, { color: colors.background }]}>{t('chat.authBtn')}</Text>
           </Pressable>
         </View>
       ) : (
@@ -224,7 +224,7 @@ export default function ChatScreen() {
                     <Text
                       style={[
                         s.bubbleText,
-                        { color: isUser ? '#fff' : item.error ? colors.error : colors.text },
+                        { color: isUser ? colors.background : item.error ? colors.error : colors.text },
                       ]}
                     >
                       {item.content}
@@ -264,7 +264,7 @@ export default function ChatScreen() {
                 { backgroundColor: input.trim() && !loading ? colors.primary : colors.border },
               ]}
             >
-              <Ionicons name="send" size={18} color="#fff" />
+              <Ionicons name="send" size={18} color={colors.background} />
             </Pressable>
           </View>
         </KeyboardAvoidingView>

@@ -22,7 +22,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FLOATING_TAB_BOTTOM_CLEARANCE } from './_layout';
+import { FLOATING_TAB_BOTTOM_CLEARANCE, showTabBar, hideTabBar } from './_layout';
 import { CROPS_BY_ID } from '../../src/data';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
@@ -92,6 +92,7 @@ function DashboardInner() {
   );
 
   const listRef = useRef<FlatList<Plant>>(null);
+  const lastScrollY = useRef(0);
   // First visit: spotlight tour. Start at the named first step — the today/
   // first-use card lives in the FlatList header, so copilot needs the list
   // ref to measure and scroll to it.
@@ -351,7 +352,7 @@ function DashboardInner() {
               style={[s.quickLogBtn, { backgroundColor: colors.primary }]}
               hitSlop={4}
             >
-              <Ionicons name="add" size={14} color="#fff" />
+              <Ionicons name="add" size={14} color={colors.background} />
             </Pressable>
             {/* Rendered last so they appear above the image */}
             <View style={[s.healthRibbon, { backgroundColor: healthColor }]} />
@@ -488,6 +489,18 @@ function DashboardInner() {
         columnWrapperStyle={s.columnWrapper}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={({ nativeEvent }) => {
+          const y = nativeEvent.contentOffset.y;
+          if (y <= 0) {
+            showTabBar();
+          } else if (y > lastScrollY.current + 12) {
+            hideTabBar();
+          } else if (y < lastScrollY.current - 12) {
+            showTabBar();
+          }
+          lastScrollY.current = y;
+        }}
         ListHeaderComponent={
           <>
             {/* Initial load spinner — avoids empty-state flash */}
@@ -508,8 +521,8 @@ function DashboardInner() {
                   onPress={() => router.push('/plant/new')}
                   style={({ pressed }) => [s.firstUseCta, { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 }]}
                 >
-                  <Ionicons name="add-circle-outline" size={20} color="#fff" />
-                  <Text style={s.firstUseCtaText}>{t('home.firstUseCta')}</Text>
+                  <Ionicons name="add-circle-outline" size={20} color={colors.background} />
+                  <Text style={[s.firstUseCtaText, { color: colors.background }]}>{t('home.firstUseCta')}</Text>
                 </Pressable>
               </WalkView>
               </CopilotStep>
@@ -901,7 +914,7 @@ function DashboardInner() {
             accessibilityLabel={t('home.addPlant')}
             style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28 }}
           >
-            <Ionicons name="add" size={28} color="#fff" />
+            <Ionicons name="add" size={28} color={colors.background} />
           </ScalePress>
         </WalkView>
       </CopilotStep>
