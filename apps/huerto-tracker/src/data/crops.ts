@@ -1388,7 +1388,7 @@ export const CROPS: CropInfo[] = [
   },
   {
     id: 'edamame',
-    name: 'Edamame / Soja',
+    name: 'Edamame',
     emoji: '🫘',
     category: 'legumbres',
     sowingMonths: {

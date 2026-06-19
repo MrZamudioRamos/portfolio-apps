@@ -827,17 +827,17 @@
     "avgDaysToHarvest": "Avg. days to harvest"
   },
   "welcome": {
-    "title": "Huerto Tracker",
-    "subtitle": "Track your garden, plan your sowing, and harvest more and better.",
+    "title": "semilla",
+    "subtitle": "El huerto que siempre quisiste tener.",
     "features": {
-      "calendar": "Sowing calendar",
-      "calendarDesc": "Sow at the optimal time for your climate zone.",
-      "diary": "Garden journal",
-      "diaryDesc": "Log waterings, prunings, and harvests with photos.",
-      "reminders": "Reminders",
-      "remindersDesc": "Never forget to water or fertilise your plants.",
-      "sync": "Sync",
-      "syncDesc": "Your data safe in the cloud, across all your devices."
+      "calendar": "Siembra en el momento exacto",
+      "calendarDesc": "Te decimos qué plantar este mes en tu zona, sin adivinar.",
+      "diary": "Recuerda todo lo que haces",
+      "diaryDesc": "Fotos, riegos y cosechas en un solo lugar.",
+      "reminders": "Nunca más una planta seca",
+      "remindersDesc": "Avisos inteligentes adaptados al tiempo de tu zona.",
+      "sync": "Tu huerto siempre contigo",
+      "syncDesc": "En todos tus dispositivos, aunque cambies de móvil."
     },
     "createAccount": "Create free account",
     "explore": "Explore without account",

@@ -819,17 +819,17 @@
     "avgDaysToHarvest": "Bataz beste egunak"
   },
   "welcome": {
-    "title": "Huerto Tracker",
-    "subtitle": "Erregistratu zure baratzea, planifikatu ereintzak eta uzta gehiago eta hobeto.",
+    "title": "semilla",
+    "subtitle": "El huerto que siempre quisiste tener.",
     "features": {
-      "calendar": "Erein egutegia",
-      "calendarDesc": "Erein momentu egokienean zure klima zonarentzat.",
-      "diary": "Baratze egunkaria",
-      "diaryDesc": "Erregistratu ureztatze, inausketa eta uztak argazkiekin.",
-      "reminders": "Oroigarriak",
-      "remindersDesc": "Inoiz ez ahaztu landareak ureztatu edo ongarriztatu.",
-      "sync": "Sinkronizazioa",
-      "syncDesc": "Zure datuak seguru hodeian, gailu guztietan."
+      "calendar": "Siembra en el momento exacto",
+      "calendarDesc": "Te decimos qué plantar este mes en tu zona, sin adivinar.",
+      "diary": "Recuerda todo lo que haces",
+      "diaryDesc": "Fotos, riegos y cosechas en un solo lugar.",
+      "reminders": "Nunca más una planta seca",
+      "remindersDesc": "Avisos inteligentes adaptados al tiempo de tu zona.",
+      "sync": "Tu huerto siempre contigo",
+      "syncDesc": "En todos tus dispositivos, aunque cambies de móvil."
     },
     "createAccount": "Doako kontua sortu",
     "explore": "Konturik gabe arakatu",

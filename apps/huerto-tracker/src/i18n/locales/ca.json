@@ -819,17 +819,17 @@
     "avgDaysToHarvest": "Mitjana dies a collita"
   },
   "welcome": {
-    "title": "Huerto Tracker",
-    "subtitle": "Porta el registre del teu hort, planifica sembres i collita més i millor.",
+    "title": "semilla",
+    "subtitle": "El huerto que siempre quisiste tener.",
     "features": {
-      "calendar": "Calendari de sembra",
-      "calendarDesc": "Sembra en el moment òptim per a la teva zona climàtica.",
-      "diary": "Diari de l'hort",
-      "diaryDesc": "Registra regs, podes i collites amb fotos.",
-      "reminders": "Recordatoris",
-      "remindersDesc": "No oblidis regar o abonar les teves plantes.",
-      "sync": "Sincronització",
-      "syncDesc": "Les teves dades segures al núvol, a tots els teus dispositius."
+      "calendar": "Siembra en el momento exacto",
+      "calendarDesc": "Te decimos qué plantar este mes en tu zona, sin adivinar.",
+      "diary": "Recuerda todo lo que haces",
+      "diaryDesc": "Fotos, riegos y cosechas en un solo lugar.",
+      "reminders": "Nunca más una planta seca",
+      "remindersDesc": "Avisos inteligentes adaptados al tiempo de tu zona.",
+      "sync": "Tu huerto siempre contigo",
+      "syncDesc": "En todos tus dispositivos, aunque cambies de móvil."
     },
     "createAccount": "Crear compte gratuït",
     "explore": "Explorar sense compte",

@@ -819,17 +819,17 @@
     "avgDaysToHarvest": "Media dias a colleita"
   },
   "welcome": {
-    "title": "Huerto Tracker",
-    "subtitle": "Leva o rexistro da túa horta, planifica sementeiras e colleita máis e mellor.",
+    "title": "semilla",
+    "subtitle": "El huerto que siempre quisiste tener.",
     "features": {
-      "calendar": "Calendario de sementeira",
-      "calendarDesc": "Sementa no momento óptimo para a túa zona climática.",
-      "diary": "Diario da horta",
-      "diaryDesc": "Rexistra regos, podas e colleitas con fotos.",
-      "reminders": "Recordatorios",
-      "remindersDesc": "Nunca esquezas regar ou abonar as túas plantas.",
-      "sync": "Sincronización",
-      "syncDesc": "Os teus datos seguros na nube, en todos os teus dispositivos."
+      "calendar": "Siembra en el momento exacto",
+      "calendarDesc": "Te decimos qué plantar este mes en tu zona, sin adivinar.",
+      "diary": "Recuerda todo lo que haces",
+      "diaryDesc": "Fotos, riegos y cosechas en un solo lugar.",
+      "reminders": "Nunca más una planta seca",
+      "remindersDesc": "Avisos inteligentes adaptados al tiempo de tu zona.",
+      "sync": "Tu huerto siempre contigo",
+      "syncDesc": "En todos tus dispositivos, aunque cambies de móvil."
     },
     "createAccount": "Crear conta gratuíta",
     "explore": "Explorar sen conta",

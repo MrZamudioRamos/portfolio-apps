@@ -46,6 +46,7 @@ import {
 import { useUserProfile } from '../src/hooks/useUserProfile';
 import { track, EVENTS } from '../src/analytics';
 import { persistPickedImage } from '../src/utils/persistImage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CoachBubble } from '../src/components/CoachBubble';
 import { CoachHeader } from '../src/components/CoachHeader';
 import { ScalePress } from '../src/components/ScalePress';
@@ -191,7 +192,11 @@ export default function OnboardingScreen() {
       const easy = now.filter((c) => CROP_DIFFICULTY[c.id] === 'easy');
       const medium = now.filter((c) => CROP_DIFFICULTY[c.id] === 'medium');
       const pool = easy.length >= 3 ? easy : [...easy, ...medium];
-      return pool.sort((a, b) => a.daysToHarvest[0] - b.daysToHarvest[0]).slice(0, 3);
+      return pool.sort((a, b) => {
+        const da = CROP_DIFFICULTY[a.id] === 'easy' ? 0 : 1;
+        const db = CROP_DIFFICULTY[b.id] === 'easy' ? 0 : 1;
+        return da !== db ? da - db : a.daysToHarvest[0] - b.daysToHarvest[0];
+      }).slice(0, 3);
     }
     return [...now]
       .sort((a, b) => {
@@ -400,120 +405,11 @@ export default function OnboardingScreen() {
         </View>
       )}
 
-      {/* ── STEP 1: Space type (multi) ── */}
+      {/* ── STEP 1: Sunlight (single) ── */}
       {step === 1 && (
         <View style={s.stepContainer}>
-          <ScrollView contentContainerStyle={s.stepContent} keyboardShouldPersistTaps="handled">
-            <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
-              <Text style={{ fontSize: fontSize['2xl'], fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>{t('onboarding.spaceTitle')}</Text>
-              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs }}>{t('onboarding.spaceDesc')}</Text>
-            </View>
-            <Text style={[s.multiHint, { color: colors.textDisabled }]}>{t('onboarding.spaceMultiHint')}</Text>
-
-            <View style={s.optionGrid}>
-              {SPACE_KEYS.map((k) => {
-                const active = spaceTypes.includes(k);
-                return (
-                  <Pressable
-                    key={k}
-                    onPress={() => toggleSpace(k)}
-                    style={[
-                      s.optionCard,
-                      {
-                        backgroundColor: active ? colors.text : colors.surface,
-                        borderColor: active ? colors.text : colors.border,
-                      },
-                    ]}
-                  >
-                    <Text style={s.optionEmoji}>{SPACE_TYPE_CONFIG[k].emoji}</Text>
-                    <Text style={[s.optionLabel, { color: active ? colors.background : colors.text }]}>
-                      {t('onboarding.space' + k.charAt(0).toUpperCase() + k.slice(1))}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </ScrollView>
-
-          <View style={s.stepActions}>
-            <Pressable onPress={() => goTo(0)} style={s.backButton}>
-              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
-            </Pressable>
-            <Pressable onPress={() => goTo(2)} style={s.skipButton}>
-              <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
-            </Pressable>
-            <Button
-              title={t('onboarding.continue')}
-              onPress={() => goTo(2)}
-              disabled={spaceTypes.length === 0}
-              size="lg"
-              style={{ flex: 1, marginLeft: spacing.md }}
-            />
-          </View>
-        </View>
-      )}
-
-      {/* ── STEP 2: Growing method (multi) ── */}
-      {step === 2 && (
-        <View style={s.stepContainer}>
-          <ScrollView contentContainerStyle={s.stepContent} keyboardShouldPersistTaps="handled">
-            <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
-              <Text style={{ fontSize: fontSize['2xl'], fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>{t('onboarding.methodTitle')}</Text>
-              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs }}>{t('onboarding.methodDesc')}</Text>
-            </View>
-            <Text style={[s.multiHint, { color: colors.textDisabled }]}>{t('onboarding.spaceMultiHint')}</Text>
-
-            <View style={s.optionGrid}>
-              {METHOD_KEYS.map((k) => {
-                const active = growingMethods.includes(k);
-                return (
-                  <Pressable
-                    key={k}
-                    onPress={() => toggleMethod(k)}
-                    style={[
-                      s.optionCard,
-                      {
-                        backgroundColor: active ? colors.text : colors.surface,
-                        borderColor: active ? colors.text : colors.border,
-                      },
-                    ]}
-                  >
-                    <Text style={s.optionEmoji}>{GROWING_METHOD_CONFIG[k].emoji}</Text>
-                    <Text style={[s.optionLabel, { color: active ? colors.background : colors.text }]}>
-                      {t('onboarding.method' + k.charAt(0).toUpperCase() + k.slice(1))}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </ScrollView>
-
-          <View style={s.stepActions}>
-            <Pressable onPress={() => goTo(1)} style={s.backButton}>
-              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
-            </Pressable>
-            <Pressable onPress={() => goTo(3)} style={s.skipButton}>
-              <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
-            </Pressable>
-            <Button
-              title={t('onboarding.continue')}
-              onPress={() => goTo(3)}
-              disabled={growingMethods.length === 0}
-              size="lg"
-              style={{ flex: 1, marginLeft: spacing.md }}
-            />
-          </View>
-        </View>
-      )}
-
-      {/* ── STEP 3: Sunlight (single) ── */}
-      {step === 3 && (
-        <View style={s.stepContainer}>
           <View style={s.stepContent}>
-            <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
-              <Text style={{ fontSize: fontSize['2xl'], fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>{t('onboarding.sunTitle')}</Text>
-              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs }}>{t('onboarding.sunDesc')}</Text>
-            </View>
+            <CoachHeader title={t('onboarding.sunTitle')} subtitle={t('onboarding.sunDesc')} pose="idle" />
 
             <View style={{ gap: spacing.md }}>
               {SUN_KEYS.map((k) => {
@@ -542,15 +438,15 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={s.stepActions}>
-            <Pressable onPress={() => goTo(2)} style={s.backButton}>
+            <Pressable onPress={() => goTo(0)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
-            <Pressable onPress={() => goTo(4)} style={s.skipButton}>
+            <Pressable onPress={() => goTo(2)} style={s.skipButton}>
               <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
             </Pressable>
             <Button
               title={t('onboarding.continue')}
-              onPress={() => goTo(4)}
+              onPress={() => goTo(2)}
               disabled={!sunlight}
               size="lg"
               style={{ flex: 1, marginLeft: spacing.md }}
@@ -559,14 +455,11 @@ export default function OnboardingScreen() {
         </View>
       )}
 
-      {/* ── STEP 4: Experience (single) ── */}
-      {step === 4 && (
+      {/* ── STEP 2: Experience (single) ── */}
+      {step === 2 && (
         <View style={s.stepContainer}>
           <View style={s.stepContent}>
-            <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
-              <Text style={{ fontSize: fontSize['2xl'], fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>{t('onboarding.expTitle')}</Text>
-              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs }}>{t('onboarding.expDesc')}</Text>
-            </View>
+            <CoachHeader title={t('onboarding.expTitle')} subtitle={t('onboarding.expDesc')} pose="idle" />
 
             <View style={{ gap: spacing.md }}>
               {EXP_KEYS.map((k) => {
@@ -602,6 +495,106 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={s.stepActions}>
+            <Pressable onPress={() => goTo(1)} style={s.backButton}>
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
+            </Pressable>
+            <Pressable onPress={() => goTo(3)} style={s.skipButton}>
+              <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
+            </Pressable>
+            <Button
+              title={t('onboarding.continue')}
+              onPress={() => goTo(3)}
+              disabled={!experience}
+              size="lg"
+              style={{ flex: 1, marginLeft: spacing.md }}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* ── STEP 3: Space type (multi) ── */}
+      {step === 3 && (
+        <View style={s.stepContainer}>
+          <ScrollView contentContainerStyle={s.stepContent} keyboardShouldPersistTaps="handled">
+            <CoachHeader title={t('onboarding.spaceTitle')} subtitle={t('onboarding.spaceDesc')} pose="idle" />
+            <Text style={[s.multiHint, { color: colors.textDisabled }]}>{t('onboarding.spaceMultiHint')}</Text>
+
+            <View style={s.optionGrid}>
+              {SPACE_KEYS.map((k) => {
+                const active = spaceTypes.includes(k);
+                return (
+                  <Pressable
+                    key={k}
+                    onPress={() => toggleSpace(k)}
+                    style={[
+                      s.optionCard,
+                      {
+                        backgroundColor: active ? colors.text : colors.surface,
+                        borderColor: active ? colors.text : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={s.optionEmoji}>{SPACE_TYPE_CONFIG[k].emoji}</Text>
+                    <Text style={[s.optionLabel, { color: active ? colors.background : colors.text }]}>
+                      {t('onboarding.space' + k.charAt(0).toUpperCase() + k.slice(1))}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </ScrollView>
+
+          <View style={s.stepActions}>
+            <Pressable onPress={() => goTo(2)} style={s.backButton}>
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
+            </Pressable>
+            <Pressable onPress={() => goTo(4)} style={s.skipButton}>
+              <Text style={{ color: colors.textDisabled, fontSize: fontSize.md }}>{t('onboarding.skip')}</Text>
+            </Pressable>
+            <Button
+              title={t('onboarding.continue')}
+              onPress={() => goTo(4)}
+              disabled={spaceTypes.length === 0}
+              size="lg"
+              style={{ flex: 1, marginLeft: spacing.md }}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* ── STEP 4: Growing method (multi) ── */}
+      {step === 4 && (
+        <View style={s.stepContainer}>
+          <ScrollView contentContainerStyle={s.stepContent} keyboardShouldPersistTaps="handled">
+            <CoachHeader title={t('onboarding.methodTitle')} subtitle={t('onboarding.methodDesc')} pose="idle" />
+            <Text style={[s.multiHint, { color: colors.textDisabled }]}>{t('onboarding.spaceMultiHint')}</Text>
+
+            <View style={s.optionGrid}>
+              {METHOD_KEYS.map((k) => {
+                const active = growingMethods.includes(k);
+                return (
+                  <Pressable
+                    key={k}
+                    onPress={() => toggleMethod(k)}
+                    style={[
+                      s.optionCard,
+                      {
+                        backgroundColor: active ? colors.text : colors.surface,
+                        borderColor: active ? colors.text : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={s.optionEmoji}>{GROWING_METHOD_CONFIG[k].emoji}</Text>
+                    <Text style={[s.optionLabel, { color: active ? colors.background : colors.text }]}>
+                      {t('onboarding.method' + k.charAt(0).toUpperCase() + k.slice(1))}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </ScrollView>
+
+          <View style={s.stepActions}>
             <Pressable onPress={() => goTo(3)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
@@ -611,7 +604,7 @@ export default function OnboardingScreen() {
             <Button
               title={t('onboarding.continue')}
               onPress={() => goTo(5)}
-              disabled={!experience}
+              disabled={growingMethods.length === 0}
               size="lg"
               style={{ flex: 1, marginLeft: spacing.md }}
             />
@@ -626,10 +619,7 @@ export default function OnboardingScreen() {
           style={s.stepContainer}
         >
           <View style={s.stepContent}>
-            <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
-              <Text style={{ fontSize: fontSize['2xl'], fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>{t('onboarding.step2Title')}</Text>
-              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs }}>{t('onboarding.step2Desc')}</Text>
-            </View>
+            <CoachHeader title={t('onboarding.step2Title')} subtitle={t('onboarding.step2Desc')} pose="idle" />
 
             <Pressable
               onPress={locating ? undefined : detectLocation}
@@ -680,7 +670,7 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={s.stepActions}>
-            <Pressable onPress={() => goTo(skippedProfile ? 0 : 4)} style={s.backButton}>
+            <Pressable onPress={() => goTo(skippedProfile ? 0 : 4)} style={s.backButton}>{/* step 4 = method in new order */}
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
             <Button
@@ -823,7 +813,7 @@ export default function OnboardingScreen() {
                               </View>
                             )}
                           </View>
-                          <Text style={{ color: colors.text, fontSize: fontSize.sm, fontWeight: fontWeight.semibold, textAlign: 'center' }} numberOfLines={1}>
+                          <Text style={{ color: colors.text, fontSize: fontSize.sm, fontWeight: fontWeight.semibold, textAlign: 'center' }} numberOfLines={1} ellipsizeMode="tail">
                             {name}
                           </Text>
                           <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>
@@ -848,7 +838,10 @@ export default function OnboardingScreen() {
             <Button
               title={t('onboarding.skipToGarden')}
               variant="secondary"
-              onPress={() => router.replace('/(tabs)')}
+              onPress={async () => {
+                await AsyncStorage.setItem('@huerto/just_from_onboarding', '1');
+                router.replace('/(tabs)');
+              }}
               size="lg"
             />
           </View>

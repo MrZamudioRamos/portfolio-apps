@@ -50,6 +50,9 @@ import { CopilotStep } from 'react-native-copilot';
 import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
 import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const FROM_ONBOARDING_KEY = '@huerto/just_from_onboarding';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -89,6 +92,14 @@ function DashboardInner() {
       reminders.refresh();
       entries.refresh();
       if (garden?.province) checkFrost(garden.province);
+      AsyncStorage.getItem(FROM_ONBOARDING_KEY).then((v) => {
+        if (v === '1') {
+          setJustFromOnboarding(true);
+          AsyncStorage.removeItem(FROM_ONBOARDING_KEY);
+        } else {
+          setJustFromOnboarding(false);
+        }
+      });
     }, [garden?.id, garden?.province])
   );
 
@@ -98,9 +109,10 @@ function DashboardInner() {
   // first-use card lives in the FlatList header, so copilot needs the list
   // ref to measure and scroll to it.
   const coachLevel = useCoachingLevel();
+  const [justFromOnboarding, setJustFromOnboarding] = useState(false);
   useTourAutoStart('home', {
     ready: !plants.loading,
-    firstStep: plants.count > 0 ? 'today' : 'start',
+    firstStep: plants.count > 0 ? 'today' : justFromOnboarding ? 'add' : 'start',
     disabled: coachLevel !== 'full',
   });
 
@@ -513,8 +525,8 @@ function DashboardInner() {
               </View>
             )}
 
-            {/* Empty state */}
-            {plants.count === 0 && !plants.loading && (
+            {/* Empty state — hidden when user just finished onboarding (tour covers it) */}
+            {plants.count === 0 && !plants.loading && !justFromOnboarding && (
               <CopilotStep text={t('coach.home')} order={1} name="start">
               <WalkView style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
                 <Mascot pose="wave" size={128} />
