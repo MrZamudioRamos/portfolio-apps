@@ -21,6 +21,7 @@ export const EVENTS = {
   coachingLevelChanged: 'coaching_level_changed',
   coachingOverrideSet: 'coaching_override_set',
   accountDeleted: 'account_deleted',
+  notificationsEnabled: 'notifications_enabled',
 } as const;
 
 /**

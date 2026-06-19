@@ -421,6 +421,8 @@
     "step4Desc": "Todo listo. Queres engadir a túa primeira planta agora?",
     "addFirstPlant": "Engadir primeira planta",
     "skipToGarden": "Ver o meu horto",
+    "enableReminders": "Activar recordatorios 🔔",
+    "remindersActivated": "✓ Recordatorios activados",
     "feature1Title": "Lúa e sementeira",
     "feature1Desc": "Sementa no momento óptimo segundo o ciclo lunar",
     "feature2Title": "Tempo real",
@@ -793,7 +795,9 @@
     "harvestPushTitle": "🧺 {{label}} case lista",
     "harvestPushBody": "Colleita prevista en 3 días. Revisa o punto de madurez.",
     "treatmentPushTitle": "🧴 Carencia vencida: {{label}}",
-    "treatmentPushBody": "Pasaron {{days}} días desde o último tratamento. Xa podes colleitar."
+    "treatmentPushBody": "Pasaron {{days}} días desde o último tratamento. Xa podes colleitar.",
+    "wateringReminderTitle": "Toca regar 💧",
+    "wateringReminderBody": "{{plants}} levan máis de 2 días sen rega",
   },
   "stats": {
     "title": "Estatísticas",

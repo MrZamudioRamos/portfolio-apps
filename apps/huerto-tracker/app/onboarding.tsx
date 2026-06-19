@@ -44,6 +44,7 @@ import {
   type ExperienceLevel,
 } from '../src/models/user-profile';
 import { useUserProfile } from '../src/hooks/useUserProfile';
+import { requestPermissions } from '@portfolio/notifications';
 import { track, EVENTS } from '../src/analytics';
 import { persistPickedImage } from '../src/utils/persistImage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -169,6 +170,7 @@ export default function OnboardingScreen() {
   const [hemisphere, setHemisphere] = useState<Hemisphere>('norte');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [remindersState, setRemindersState] = useState<'idle' | 'granted'>('idle');
 
   const climateZone = province ? PROVINCE_ZONES[province] : null;
   const zoneConfig = climateZone ? CLIMATE_ZONE_CONFIG[climateZone] : null;
@@ -841,6 +843,28 @@ export default function OnboardingScreen() {
               onPress={async () => {
                 await AsyncStorage.setItem('@huerto/just_from_onboarding', '1');
                 router.replace('/(tabs)');
+              }}
+              size="lg"
+            />
+            <Button
+              title={remindersState === 'granted'
+                ? t('onboarding.remindersActivated')
+                : t('onboarding.enableReminders')}
+              variant="ghost"
+              disabled={remindersState === 'granted'}
+              onPress={async () => {
+                const granted = await requestPermissions();
+                if (granted) {
+                  track(EVENTS.notificationsEnabled, { screen: 'onboarding' });
+                  setRemindersState('granted');
+                  setTimeout(async () => {
+                    await AsyncStorage.setItem('@huerto/just_from_onboarding', '1');
+                    router.replace('/(tabs)');
+                  }, 1500);
+                } else {
+                  await AsyncStorage.setItem('@huerto/just_from_onboarding', '1');
+                  router.replace('/(tabs)');
+                }
               }}
               size="lg"
             />

@@ -421,6 +421,8 @@
     "step4Desc": "Dena prest. Zure lehen landarea gehitu nahi duzu orain?",
     "addFirstPlant": "Lehen landarea gehitu",
     "skipToGarden": "Nire lorategia ikusi",
+    "enableReminders": "Oroigarriak aktibatu 🔔",
+    "remindersActivated": "✓ Oroigarriak aktibatuta",
     "feature1Title": "Ilargia eta ereintza",
     "feature1Desc": "Erein momentu onean ilargi-zikloaren arabera",
     "feature2Title": "Eguraldi erreala",
@@ -793,7 +795,9 @@
     "harvestPushTitle": "🧺 {{label}} ia prest",
     "harvestPushBody": "Uzta 3 egun barru aurreikusten da. Egiaztatu heldutasuna.",
     "treatmentPushTitle": "🧴 Karentzia amaitua: {{label}}",
-    "treatmentPushBody": "{{days}} egun igaro dira azken tratamendutik. Orain bil dezakezu."
+    "treatmentPushBody": "{{days}} egun igaro dira azken tratamendutik. Orain bil dezakezu.",
+    "wateringReminderTitle": "Ureztatzeko garaia 💧",
+    "wateringReminderBody": "{{plants}} 2 egunez baino gehiago ur gabe egon dira",
   },
   "stats": {
     "title": "Estatistikak",

@@ -443,6 +443,8 @@
     "step4Desc": "Todo listo. ¿Quieres añadir tu primera planta ahora?",
     "addFirstPlant": "Añadir primera planta",
     "skipToGarden": "Ver mi huerto",
+    "enableReminders": "Activar recordatorios 🔔",
+    "remindersActivated": "✓ Recordatorios activados",
     "feature1Title": "Luna y siembra",
     "feature1Desc": "Siembra en el momento óptimo según el ciclo lunar",
     "feature2Title": "Tiempo real",
@@ -814,6 +816,8 @@
     "harvestPushBody": "Cosecha prevista en 3 días. Revisa el punto de madurez.",
     "treatmentPushTitle": "🧴 Carencia vencida: {{label}}",
     "treatmentPushBody": "Han pasado {{days}} días desde el último tratamiento. Ya puedes cosechar.",
+    "wateringReminderTitle": "Toca regar 💧",
+    "wateringReminderBody": "{{plants}} llevan más de 2 días sin riego",
     "monthsFull": [
       "Enero",
       "Febrero",

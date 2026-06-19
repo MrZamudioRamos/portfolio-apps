@@ -426,6 +426,8 @@
     "step4Desc": "All set. Would you like to add your first plant now?",
     "addFirstPlant": "Add first plant",
     "skipToGarden": "See my garden",
+    "enableReminders": "Enable reminders 🔔",
+    "remindersActivated": "✓ Reminders enabled",
     "feature1Title": "Moon & sowing",
     "feature1Desc": "Sow at the optimal time based on the lunar cycle",
     "feature2Title": "Live weather",
@@ -783,6 +785,8 @@
     "harvestPushBody": "Harvest expected in 3 days. Check ripeness.",
     "treatmentPushTitle": "🧴 Clearance expired: {{label}}",
     "treatmentPushBody": "{{days}} days since the last treatment. You can harvest now.",
+    "wateringReminderTitle": "Time to water 💧",
+    "wateringReminderBody": "{{plants}} haven't been watered in over 2 days",
     "monthsFull": [
       "January",
       "February",

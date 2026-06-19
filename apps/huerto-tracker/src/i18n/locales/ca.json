@@ -421,6 +421,8 @@
     "step4Desc": "Tot llest. Vols afegir la teva primera planta ara?",
     "addFirstPlant": "Afegir primera planta",
     "skipToGarden": "Veure el meu hort",
+    "enableReminders": "Activar recordatoris 🔔",
+    "remindersActivated": "✓ Recordatoris activats",
     "feature1Title": "Lluna i sembra",
     "feature1Desc": "Sembra al moment òptim segons el cicle lunar",
     "feature2Title": "Temps real",
@@ -793,7 +795,9 @@
     "harvestPushTitle": "🧺 {{label}} gairebé a punt",
     "harvestPushBody": "Collita prevista d'aquí a 3 dies. Revisa el punt de maduresa.",
     "treatmentPushTitle": "🧴 Carència vençuda: {{label}}",
-    "treatmentPushBody": "Han passat {{days}} dies des de l'últim tractament. Ja pots collir."
+    "treatmentPushBody": "Han passat {{days}} dies des de l'últim tractament. Ja pots collir.",
+    "wateringReminderTitle": "Toca regar 💧",
+    "wateringReminderBody": "{{plants}} porten més de 2 dies sense reg",
   },
   "stats": {
     "title": "Estadístiques",

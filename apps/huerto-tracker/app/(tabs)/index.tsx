@@ -50,6 +50,7 @@ import { CopilotStep } from 'react-native-copilot';
 import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
 import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
+import { useWateringReminder } from '../../src/hooks/useWateringReminder';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FROM_ONBOARDING_KEY = '@huerto/just_from_onboarding';
@@ -109,6 +110,7 @@ function DashboardInner() {
   // first-use card lives in the FlatList header, so copilot needs the list
   // ref to measure and scroll to it.
   const coachLevel = useCoachingLevel();
+  useWateringReminder();
   const [justFromOnboarding, setJustFromOnboarding] = useState(false);
   useTourAutoStart('home', {
     ready: !plants.loading,

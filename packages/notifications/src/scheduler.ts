@@ -26,6 +26,7 @@ export async function cancelAllReminders(): Promise<void> {
 
 interface ScheduleInput {
   title: string;
+  body?: string;
   frequency: ReminderFrequency;
   time: { hour: number; minute: number };
 }
@@ -57,7 +58,7 @@ export async function scheduleReminder(input: ScheduleInput): Promise<string> {
   return Notifications.scheduleNotificationAsync({
     content: {
       title: input.title,
-      body: '🌱 HuertoTracker',
+      body: input.body ?? '🌱 semilla',
       sound: true,
     },
     trigger: trigger as any,
