@@ -352,7 +352,7 @@ function DashboardInner() {
               style={[s.quickLogBtn, { backgroundColor: colors.primary }]}
               hitSlop={4}
             >
-              <Ionicons name="add" size={14} color="#fff" />
+              <Ionicons name="add" size={14} color={colors.background} />
             </Pressable>
             {/* Rendered last so they appear above the image */}
             <View style={[s.healthRibbon, { backgroundColor: healthColor }]} />
@@ -521,8 +521,8 @@ function DashboardInner() {
                   onPress={() => router.push('/plant/new')}
                   style={({ pressed }) => [s.firstUseCta, { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 }]}
                 >
-                  <Ionicons name="add-circle-outline" size={20} color="#fff" />
-                  <Text style={s.firstUseCtaText}>{t('home.firstUseCta')}</Text>
+                  <Ionicons name="add-circle-outline" size={20} color={colors.background} />
+                  <Text style={[s.firstUseCtaText, { color: colors.background }]}>{t('home.firstUseCta')}</Text>
                 </Pressable>
               </WalkView>
               </CopilotStep>

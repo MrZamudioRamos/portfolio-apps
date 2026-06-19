@@ -2,10 +2,13 @@ import { useOnboarding } from '@portfolio/shared';
 import { useSession } from '@portfolio/supabase';
 import { useTheme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { Redirect, Tabs } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Animated,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -14,6 +17,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const PILL_H = 64;
 const PILL_GAP_BOTTOM = 12;
@@ -50,8 +55,6 @@ type TabBarProps = {
   navigation: { navigate: (name: string) => void; emit: (event: any) => any };
 };
 
-const PILL_BG = 'rgba(18, 18, 18, 0.97)';
-const PILL_BORDER = 'rgba(255, 255, 255, 0.08)';
 const ACTIVE_BG = 'rgba(255, 255, 255, 0.13)';
 
 function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
@@ -125,12 +128,55 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
           width: pillWidth,
           height: PILL_H,
           borderRadius: PILL_H / 2,
-          backgroundColor: PILL_BG,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: PILL_BORDER,
           overflow: 'hidden',
         }}
       >
+        {/* Glass / blur background */}
+        {glassAvailable ? (
+          <GlassView
+            style={StyleSheet.absoluteFill}
+            glassEffectStyle="regular"
+            colorScheme={isDark ? 'dark' : 'light'}
+          />
+        ) : Platform.OS === 'ios' ? (
+          <BlurView
+            intensity={isDark ? 65 : 80}
+            tint={isDark ? 'dark' : 'light'}
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                backgroundColor: isDark
+                  ? 'rgba(18,18,18,0.75)'
+                  : 'rgba(255,255,255,0.75)',
+              },
+            ]}
+          />
+        ) : (
+          <View
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                backgroundColor: isDark
+                  ? 'rgba(18,18,18,0.96)'
+                  : 'rgba(255,255,255,0.96)',
+              },
+            ]}
+          />
+        )}
+        {/* Border */}
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              borderRadius: PILL_H / 2,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderColor: isDark
+                ? 'rgba(255,255,255,0.1)'
+                : 'rgba(0,0,0,0.08)',
+            },
+          ]}
+          pointerEvents="none"
+        />
         {/* Full tab row */}
         <Animated.View
           pointerEvents={isCollapsed ? 'none' : 'box-none'}
@@ -188,7 +234,9 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                   />
                 )}
                 {options.tabBarIcon?.({
-                  color: focused ? '#fff' : 'rgba(255,255,255,0.45)',
+                  color: focused
+                    ? (isDark ? '#fff' : '#111')
+                    : (isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.35)'),
                   size: focused ? 26 : 22,
                   focused,
                 })}
@@ -197,7 +245,9 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                   style={{
                     fontSize: 9,
                     fontWeight: focused ? '700' : '400',
-                    color: focused ? '#fff' : 'rgba(255,255,255,0.45)',
+                    color: focused
+                      ? (isDark ? '#fff' : '#111')
+                      : (isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.35)'),
                     marginTop: 2,
                   }}
                 >
@@ -233,7 +283,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
               justifyContent: 'center',
             }}
           >
-            {activeOptions?.tabBarIcon?.({ color: '#fff', size: 28, focused: true })}
+            {activeOptions?.tabBarIcon?.({ color: isDark ? '#fff' : '#111', size: 28, focused: true })}
           </Pressable>
         </Animated.View>
       </Animated.View>
