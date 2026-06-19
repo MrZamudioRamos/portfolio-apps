@@ -1,43 +1,45 @@
 import { useOnboarding } from '@portfolio/shared';
 import { useSession } from '@portfolio/supabase';
-import { useColors, useTheme } from '@portfolio/ui';
+import { useTheme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
-import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { Redirect, Tabs } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { Animated, Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  Animated,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
-const PILL_H = 62;
-const BUBBLE_SIZE = PILL_H - 10;
-const PILL_MARGIN_TOP = 8;
-const PILL_GAP_BOTTOM = 10;
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
+const PILL_H = 64;
+const PILL_GAP_BOTTOM = 12;
 
-export const FLOATING_TAB_BOTTOM_CLEARANCE = PILL_H + PILL_GAP_BOTTOM + PILL_MARGIN_TOP;
+export const FLOATING_TAB_BOTTOM_CLEARANCE = PILL_H + PILL_GAP_BOTTOM + 8;
 
-// Module-level slide anim — 0 = shown, 1 = hidden (slides to left)
-export const tabBarSlide = new Animated.Value(0);
+// 0 = expanded, 1 = collapsed to circle
+export const collapseAnim = new Animated.Value(0);
 let _isHidden = false;
 
 export function showTabBar() {
   _isHidden = false;
-  Animated.spring(tabBarSlide, {
+  Animated.spring(collapseAnim, {
     toValue: 0,
-    useNativeDriver: true,
-    tension: 80,
+    useNativeDriver: false,
+    tension: 70,
     friction: 11,
   }).start();
 }
 
 export function hideTabBar() {
   _isHidden = true;
-  Animated.spring(tabBarSlide, {
+  Animated.spring(collapseAnim, {
     toValue: 1,
-    useNativeDriver: true,
-    tension: 80,
+    useNativeDriver: false,
+    tension: 70,
     friction: 11,
   }).start();
 }
@@ -48,293 +50,192 @@ type TabBarProps = {
   navigation: { navigate: (name: string) => void; emit: (event: any) => any };
 };
 
+const PILL_BG = 'rgba(18, 18, 18, 0.97)';
+const PILL_BORDER = 'rgba(255, 255, 255, 0.08)';
+const ACTIVE_BG = 'rgba(255, 255, 255, 0.13)';
+
 function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
-  const colors = useColors();
   const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
-  const { t } = useTranslation();
   const { width: screenWidth } = useWindowDimensions();
-  const [pillWidth, setPillWidth] = useState(0);
-  const bubbleX = useRef(new Animated.Value(0)).current;
-  const isFirstLayout = useRef(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Track collapse state reactively for pointerEvents
+  useEffect(() => {
+    const id = collapseAnim.addListener(({ value }) => setIsCollapsed(value > 0.5));
+    return () => collapseAnim.removeListener(id);
+  }, []);
+
+  const fullWidth = screenWidth - 24;
 
   const visibleRoutes = state.routes.filter(
     (r) => typeof descriptors[r.key].options.tabBarIcon === 'function'
   );
-  const numTabs = visibleRoutes.length;
   const activeVisibleIdx = visibleRoutes.findIndex(
     (r) => r.key === state.routes[state.index]?.key
   );
-  const tabW = pillWidth > 0 ? pillWidth / numTabs : 0;
+  const activeRoute = visibleRoutes[activeVisibleIdx];
+  const activeOptions = activeRoute ? descriptors[activeRoute.key]?.options : null;
 
-  useEffect(() => {
-    if (tabW <= 0 || activeVisibleIdx < 0) return;
-    const target = tabW * activeVisibleIdx + (tabW - BUBBLE_SIZE) / 2;
-    if (isFirstLayout.current) {
-      bubbleX.setValue(target);
-      isFirstLayout.current = false;
-    } else {
-      Animated.spring(bubbleX, {
-        toValue: target,
-        useNativeDriver: true,
-        tension: 60,
-        friction: 9,
-      }).start();
-    }
-  }, [activeVisibleIdx, tabW]);
-
-  // Pill slides to the LEFT (negative X = off screen left)
-  const pillTranslateX = tabBarSlide.interpolate({
+  // Width shrinks from full → PILL_H (circle) when hidden
+  const pillWidth = collapseAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -screenWidth],
+    outputRange: [fullWidth, PILL_H],
   });
 
-  // Leaf restore button fades + scales in when pill is hidden
-  const restoreOpacity = tabBarSlide.interpolate({
-    inputRange: [0, 0.5, 1],
+  // Tab row fades out early in the collapse
+  const tabRowOpacity = collapseAnim.interpolate({
+    inputRange: [0, 0.35, 1],
+    outputRange: [1, 0, 0],
+  });
+
+  // Collapsed icon fades in at the end
+  const restoreOpacity = collapseAnim.interpolate({
+    inputRange: [0, 0.55, 1],
     outputRange: [0, 0, 1],
-  });
-
-  const restoreScale = tabBarSlide.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.5, 1],
   });
 
   return (
     <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
-      {/* Animated pill */}
+      {/* Shadow layer — same animated width, no overflow clipping */}
       <Animated.View
-        pointerEvents="box-none"
+        pointerEvents="none"
         style={{
           position: 'absolute',
           bottom: insets.bottom + PILL_GAP_BOTTOM,
           left: 12,
-          right: 12,
+          width: pillWidth,
           height: PILL_H,
-          transform: [{ translateX: pillTranslateX }],
+          borderRadius: PILL_H / 2,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.45,
+          shadowRadius: 20,
+          elevation: 14,
         }}
-      >
-        {/* Shadow wrapper */}
-        <View
-          style={{
-            ...StyleSheet.absoluteFillObject,
-            borderRadius: PILL_H / 2,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: isDark ? 0.45 : 0.15,
-            shadowRadius: 18,
-            elevation: 12,
-          }}
-        />
+      />
 
-        {/* Clipped pill content */}
-        <View
-          style={{ flex: 1, borderRadius: PILL_H / 2, overflow: 'hidden' }}
-          onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}
-        >
-          {/* Glass background */}
-          {glassAvailable ? (
-            <GlassView
-              style={StyleSheet.absoluteFill}
-              glassEffectStyle="regular"
-              colorScheme={isDark ? 'dark' : 'light'}
-            />
-          ) : Platform.OS === 'ios' ? (
-            <BlurView
-              intensity={isDark ? 60 : 80}
-              tint={isDark ? 'dark' : 'light'}
-              style={[
-                StyleSheet.absoluteFill,
-                {
-                  backgroundColor: isDark
-                    ? 'rgba(22,37,22,0.7)'
-                    : 'rgba(255,255,255,0.75)',
-                },
-              ]}
-            />
-          ) : (
-            <View
-              style={[
-                StyleSheet.absoluteFill,
-                {
-                  backgroundColor: isDark
-                    ? 'rgba(22,37,22,0.96)'
-                    : 'rgba(255,255,255,0.96)',
-                },
-              ]}
-            />
-          )}
-
-          {/* Border overlay */}
-          <View
-            style={[
-              StyleSheet.absoluteFill,
-              {
-                borderRadius: PILL_H / 2,
-                borderWidth: StyleSheet.hairlineWidth,
-                borderColor: isDark
-                  ? 'rgba(255,255,255,0.12)'
-                  : 'rgba(0,0,0,0.08)',
-              },
-            ]}
-            pointerEvents="none"
-          />
-
-          {/* Animated glass bubble */}
-          {pillWidth > 0 && (
-            <Animated.View
-              style={{
-                position: 'absolute',
-                top: (PILL_H - BUBBLE_SIZE) / 2,
-                left: 0,
-                width: BUBBLE_SIZE,
-                height: BUBBLE_SIZE,
-                borderRadius: BUBBLE_SIZE / 2,
-                overflow: 'hidden',
-                transform: [{ translateX: bubbleX }],
-              }}
-              pointerEvents="none"
-            >
-              {glassAvailable ? (
-                <GlassView
-                  style={StyleSheet.absoluteFill}
-                  glassEffectStyle="regular"
-                  colorScheme={isDark ? 'dark' : 'light'}
-                />
-              ) : Platform.OS === 'ios' ? (
-                <BlurView
-                  intensity={isDark ? 90 : 50}
-                  tint={isDark ? 'light' : 'dark'}
-                  style={[
-                    StyleSheet.absoluteFill,
-                    {
-                      backgroundColor: isDark
-                        ? 'rgba(255,255,255,0.1)'
-                        : 'rgba(0,0,0,0.05)',
-                    },
-                  ]}
-                />
-              ) : (
-                <View
-                  style={[
-                    StyleSheet.absoluteFill,
-                    {
-                      backgroundColor: colors.primary + '28',
-                      borderWidth: 1.5,
-                      borderColor: colors.primary + '55',
-                      borderRadius: BUBBLE_SIZE / 2,
-                    },
-                  ]}
-                />
-              )}
-            </Animated.View>
-          )}
-
-          {/* Tab buttons */}
-          <View style={{ flexDirection: 'row', flex: 1 }}>
-            {visibleRoutes.map((route, index) => {
-              const { options } = descriptors[route.key];
-              const focused = route.key === state.routes[state.index]?.key;
-              const color = focused ? colors.text : colors.textSecondary;
-
-              return (
-                <Pressable
-                  key={route.key}
-                  onPress={() => {
-                    if (_isHidden) {
-                      showTabBar();
-                      return;
-                    }
-                    const event = navigation.emit({
-                      type: 'tabPress',
-                      target: route.key,
-                      canPreventDefault: true,
-                    });
-                    if (!focused && !event.defaultPrevented) {
-                      navigation.navigate(route.name);
-                    }
-                  }}
-                  onLongPress={() =>
-                    navigation.emit({ type: 'tabLongPress', target: route.key })
-                  }
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 2,
-                  }}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: focused }}
-                  accessibilityLabel={options.title}
-                >
-                  {options.tabBarIcon?.({ color, size: 22, focused })}
-                  <Text
-                    numberOfLines={1}
-                    style={{
-                      fontSize: 9,
-                      fontWeight: focused ? '700' : '400',
-                      color,
-                    }}
-                  >
-                    {options.title}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-      </Animated.View>
-
-      {/* Leaf restore pill — fades in at bottom-left when pill is hidden */}
+      {/* Pill content */}
       <Animated.View
+        pointerEvents="box-none"
         style={{
           position: 'absolute',
           bottom: insets.bottom + PILL_GAP_BOTTOM,
           left: 12,
-          opacity: restoreOpacity,
-          transform: [{ scale: restoreScale }],
+          width: pillWidth,
+          height: PILL_H,
+          borderRadius: PILL_H / 2,
+          backgroundColor: PILL_BG,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: PILL_BORDER,
+          overflow: 'hidden',
         }}
-        pointerEvents="box-none"
       >
-        <Pressable
-          onPress={showTabBar}
-          accessibilityRole="button"
-          accessibilityLabel="Mostrar menú"
+        {/* Full tab row */}
+        <Animated.View
+          pointerEvents={isCollapsed ? 'none' : 'box-none'}
           style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            flexDirection: 'row',
+            opacity: tabRowOpacity,
+          }}
+        >
+          {visibleRoutes.map((route) => {
+            const { options } = descriptors[route.key];
+            const focused = route.key === state.routes[state.index]?.key;
+
+            return (
+              <Pressable
+                key={route.key}
+                onPress={() => {
+                  if (_isHidden) {
+                    showTabBar();
+                    return;
+                  }
+                  const event = navigation.emit({
+                    type: 'tabPress',
+                    target: route.key,
+                    canPreventDefault: true,
+                  });
+                  if (!focused && !event.defaultPrevented) {
+                    navigation.navigate(route.name);
+                  }
+                }}
+                onLongPress={() =>
+                  navigation.emit({ type: 'tabLongPress', target: route.key })
+                }
+                style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+                accessibilityRole="button"
+                accessibilityState={{ selected: focused }}
+                accessibilityLabel={options.title}
+              >
+                {/* Squircle active background */}
+                {focused && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: 4,
+                      left: 6,
+                      right: 6,
+                      bottom: 4,
+                      borderRadius: 14,
+                      backgroundColor: ACTIVE_BG,
+                    }}
+                  />
+                )}
+                {options.tabBarIcon?.({
+                  color: focused ? '#fff' : 'rgba(255,255,255,0.45)',
+                  size: focused ? 26 : 22,
+                  focused,
+                })}
+                <Text
+                  numberOfLines={1}
+                  style={{
+                    fontSize: 9,
+                    fontWeight: focused ? '700' : '400',
+                    color: focused ? '#fff' : 'rgba(255,255,255,0.45)',
+                    marginTop: 2,
+                  }}
+                >
+                  {options.title}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </Animated.View>
+
+        {/* Collapsed: active icon centered in the circle */}
+        <Animated.View
+          pointerEvents={isCollapsed ? 'box-none' : 'none'}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
             width: PILL_H,
             height: PILL_H,
-            borderRadius: PILL_H / 2,
             alignItems: 'center',
             justifyContent: 'center',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: isDark ? 0.45 : 0.15,
-            shadowRadius: 18,
-            elevation: 12,
+            opacity: restoreOpacity,
           }}
         >
-          {/* Same glass background as the pill */}
-          {glassAvailable ? (
-            <GlassView
-              style={[StyleSheet.absoluteFill, { borderRadius: PILL_H / 2 }]}
-              glassEffectStyle="regular"
-              colorScheme={isDark ? 'dark' : 'light'}
-            />
-          ) : (
-            <View
-              style={[
-                StyleSheet.absoluteFill,
-                {
-                  borderRadius: PILL_H / 2,
-                  backgroundColor: isDark ? 'rgba(22,22,22,0.96)' : 'rgba(255,255,255,0.96)',
-                  borderWidth: StyleSheet.hairlineWidth,
-                  borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
-                },
-              ]}
-            />
-          )}
-          <Ionicons name="leaf-outline" size={24} color={isDark ? '#EEE' : '#111'} />
-        </Pressable>
+          <Pressable
+            onPress={showTabBar}
+            accessibilityRole="button"
+            accessibilityLabel="Mostrar menú"
+            style={{
+              width: PILL_H,
+              height: PILL_H,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {activeOptions?.tabBarIcon?.({ color: '#fff', size: 28, focused: true })}
+          </Pressable>
+        </Animated.View>
       </Animated.View>
     </View>
   );
