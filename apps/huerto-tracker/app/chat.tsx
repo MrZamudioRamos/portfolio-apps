@@ -114,7 +114,7 @@ export default function ChatScreen() {
       const code = e instanceof Error ? e.message : '';
       setMessages((prev) => [
         ...prev,
-        { id: uid(), role: 'assistant', content: code === 'AUTH' ? t('chat.errorAuth') : t('chat.error'), error: true },
+        { id: uid(), role: 'assistant', content: code === 'AUTH' ? t('chat.errorAuth') : code === 'RATE_LIMIT' ? t('chat.rateLimitError') : t('chat.error'), error: true },
       ]);
     } finally {
       setLoading(false);

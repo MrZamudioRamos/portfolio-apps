@@ -668,6 +668,7 @@
     "send": "Enviar",
     "thinking": "Pensant…",
     "error": "Error de connexió. Comprova la connexió i torna-ho a intentar.",
+    "rateLimitError": "Has assolit el límit de consultes per hora. Torna-ho a intentar més tard.",
     "proTitle": "Assistent IA — Semilla Pro",
     "proDesc": "Pregunta sobre plagues, sembra, cures i més. L'assistent coneix el teu hort.",
     "proBtn": "Activar Semilla Pro",
@@ -1209,7 +1210,7 @@
     "proTitle": "Diagnòstic IA — només Pro",
     "proDesc": "Fotografía la zona afectada i la IA identifica plagues, malalties i mancances nutricionals a l'instant.",
     "upgradePro": "Veure plans Pro",
-    "noKeyDesc": "Afig EXPO_PUBLIC_ANTHROPIC_KEY al fitxer .env",
+    "noKeyDesc": "El servei d'IA no està disponible ara mateix. Torna-ho a intentar més tard.",
     "error": "Error en analitzar",
     "errorDesc": "No s'ha pogut analitzar la imatge. Torna-ho a intentar.",
     "confidence": {
@@ -1235,7 +1236,7 @@
     "loading": "Generant preguntes freqüents…",
     "error": "Error en carregar FAQ",
     "errorDesc": "No s'han pogut generar les preguntes. Torna-ho a intentar.",
-    "noKeyDesc": "Afig EXPO_PUBLIC_ANTHROPIC_KEY al fitxer .env",
+    "noKeyDesc": "El servei d'IA no està disponible ara mateix. Torna-ho a intentar més tard.",
     "retry": "Tornar a intentar",
     "aiNote": "Respostes generades per IA · verifica amb un expert agronòmic"
   },
@@ -1306,7 +1307,7 @@
     "aiFilled": "🤖 Omplert per IA · pots ajustar",
     "error": "Error en identificar",
     "errorDesc": "No s'ha pogut analitzar la imatge. Torna-ho a intentar.",
-    "noKeyDesc": "Afig EXPO_PUBLIC_ANTHROPIC_KEY al fitxer .env",
+    "noKeyDesc": "El servei d'IA no està disponible ara mateix. Torna-ho a intentar més tard.",
     "proTitle": "Identificació IA — sols Pro",
     "proDesc": "Fotografia la teua planta i la IA la identifica automàticament.",
     "upgradePro": "Veure plans Pro"

@@ -668,6 +668,7 @@
     "send": "Bidali",
     "thinking": "Pentsatzen…",
     "error": "Konexio errorea. Egiaztatu konexioa eta saiatu berriro.",
+    "rateLimitError": "Orduko kontsulta-muga gainditu duzu. Saiatu geroago.",
     "proTitle": "AI Laguntzailea — Semilla Pro",
     "proDesc": "Galdetu izurriei, ereintzari, zaintzei eta gehiagori buruz.",
     "proBtn": "Semilla Pro aktibatu",
@@ -1209,7 +1210,7 @@
     "proTitle": "IA diagnostikoa — Pro bakarrik",
     "proDesc": "Argazki egin kaltetutako eremuari eta IАk izurriak, gaixotasunak eta gabeziak berehalakoan identifikatzen ditu.",
     "upgradePro": "Pro planak ikusi",
-    "noKeyDesc": "Gehitu EXPO_PUBLIC_ANTHROPIC_KEY .env fitxategian",
+    "noKeyDesc": "IA zerbitzua ez dago orain eskuragarri. Saiatu geroago.",
     "error": "Analisatzeko errorea",
     "errorDesc": "Ezin izan da irudia analisatu. Saiatu berriro.",
     "confidence": {
@@ -1235,7 +1236,7 @@
     "loading": "Galdera ohikoak sortzen…",
     "error": "Errorea FAQ kargatzean",
     "errorDesc": "Ezin izan dira galderak sortu. Saiatu berriro.",
-    "noKeyDesc": "Gehitu EXPO_PUBLIC_ANTHROPIC_KEY .env fitxategian",
+    "noKeyDesc": "IA zerbitzua ez dago orain eskuragarri. Saiatu geroago.",
     "retry": "Berriro saiatu",
     "aiNote": "AAk sortutako erantzunak · egiaztatu agronomia-aditu batekin"
   },
@@ -1306,7 +1307,7 @@
     "aiFilled": "🤖 AAk bete du · alda dezakezu",
     "error": "Identifikazio errorea",
     "errorDesc": "Ezin izan da irudia aztertu. Saiatu berriro.",
-    "noKeyDesc": "Gehitu EXPO_PUBLIC_ANTHROPIC_KEY .env fitxategian",
+    "noKeyDesc": "IA zerbitzua ez dago orain eskuragarri. Saiatu geroago.",
     "proTitle": "AA identifikazioa — Pro soilik",
     "proDesc": "Argazkia atera eta AAk automatikoki identifikatzen du.",
     "upgradePro": "Pro planak ikusi"

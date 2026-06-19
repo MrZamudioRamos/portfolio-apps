@@ -668,6 +668,7 @@
     "send": "Enviar",
     "thinking": "Pensando…",
     "error": "Erro de conexión. Comproba a conexión e téntao de novo.",
+    "rateLimitError": "Alcanzaches o límite de consultas por hora. Téntao máis tarde.",
     "proTitle": "Asistente IA — Semilla Pro",
     "proDesc": "Pregunta sobre pragas, sementeira, coidados e máis.",
     "proBtn": "Activar Semilla Pro",
@@ -1209,7 +1210,7 @@
     "proTitle": "Diagnóstico IA — só Pro",
     "proDesc": "Fotografía a zona afectada e a IA identifica pragas, enfermidades e carencias nutricionais ao instante.",
     "upgradePro": "Ver plans Pro",
-    "noKeyDesc": "Engade EXPO_PUBLIC_ANTHROPIC_KEY no ficheiro .env",
+    "noKeyDesc": "O servizo de IA non está dispoñible agora mesmo. Téntao máis tarde.",
     "error": "Erro ao analizar",
     "errorDesc": "Non se puido analizar a imaxe. Téntao de novo.",
     "confidence": {
@@ -1235,7 +1236,7 @@
     "loading": "Xerando preguntas frecuentes…",
     "error": "Erro ao cargar FAQ",
     "errorDesc": "Non se puideron xerar as preguntas. Téntao de novo.",
-    "noKeyDesc": "Engade EXPO_PUBLIC_ANTHROPIC_KEY no ficheiro .env",
+    "noKeyDesc": "O servizo de IA non está dispoñible agora mesmo. Téntao máis tarde.",
     "retry": "Reintentar",
     "aiNote": "Respostas xeradas por IA · verifica cun experto agronómico"
   },
@@ -1306,7 +1307,7 @@
     "aiFilled": "🤖 Enchido pola IA · podes axustar",
     "error": "Erro ao identificar",
     "errorDesc": "Non se puido analizar a imaxe. Téntao de novo.",
-    "noKeyDesc": "Engade EXPO_PUBLIC_ANTHROPIC_KEY no ficheiro .env",
+    "noKeyDesc": "O servizo de IA non está dispoñible agora mesmo. Téntao máis tarde.",
     "proTitle": "Identificación IA — só Pro",
     "proDesc": "Fotografía a túa planta e a IA identifícaa automaticamente.",
     "upgradePro": "Ver plans Pro"
