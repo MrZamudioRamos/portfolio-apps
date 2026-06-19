@@ -41,7 +41,7 @@ export function SemillitaTourProvider({ children }: { children: React.ReactNode 
       overlay="svg"
       animated
       backdropColor="rgba(0,0,0,0.75)"
-      arrowColor={colors.surface}
+      arrowSize={0}
       tooltipComponent={SemillitaTooltip}
       tooltipStyle={{ backgroundColor: colors.surface, borderRadius: 20, padding: 16, width: 300 }}
       stepNumberComponent={() => null}
