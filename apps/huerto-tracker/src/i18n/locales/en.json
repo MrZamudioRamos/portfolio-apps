@@ -545,7 +545,9 @@
     "propSeed": "Seed",
     "propCutting": "Cutting",
     "propDivision": "Division",
-    "propBought": "Bought"
+    "propBought": "Bought",
+    "otherDate": "Otra fecha",
+    "changePhoto": "Cambiar foto"
   },
   "plantDetail": {
     "notFound": "Plant not found",
@@ -637,7 +639,12 @@
     },
     "companions": {
       "empty": "No companion data registered"
-    }
+    },
+    "currentBadge": "Actual",
+    "harvestInDays_one": "Cosecha en ~{{count}} día",
+    "harvestInDays_other": "Cosecha en ~{{count}} días",
+    "harvestReadyNow": "Lista para cosechar",
+    "wateringLogged": "💧 Riego registrado"
   },
   "lightMeter": {
     "title": "Light Meter",

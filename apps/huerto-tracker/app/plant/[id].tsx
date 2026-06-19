@@ -25,7 +25,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS_BY_ID } from '../../src/data/crops';
+import { CROPS_BY_ID, CATEGORY_CONFIG } from '../../src/data/crops';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { INDOOR_START, getSeedlingSchedule } from '../../src/data/indoorStart';
 import { getPlantCoach } from '../../src/utils/plantCoach';
@@ -69,6 +69,7 @@ export default function PlantDetailScreen() {
   const [cropTab, setCropTab] = useState<CropTab>('overview');
   const [cropImgErr, setCropImgErr] = useState(false);
   const [shareModal, setShareModal] = useState<Omit<ShareModalProps, 'visible' | 'onClose'> | null>(null);
+  const [wateringFeedback, setWateringFeedback] = useState(false);
 
   const plant = plants.getById(id);
   const crop = plant
@@ -152,7 +153,7 @@ export default function PlantDetailScreen() {
     return { product: (last.data as any)?.product as string | undefined, daysLeft };
   }, [entries.items, id]);
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const SUN_LABEL: Record<string, string> = {
     full: `☀️ ${t('plantDetail.sunFull')}`,
@@ -309,7 +310,17 @@ export default function PlantDetailScreen() {
               onError={() => setCropImgErr(true)}
             />
           ) : (
-            <Text style={s.heroEmoji}>{crop.emoji}</Text>
+            <View style={[s.heroNoPhoto, { backgroundColor: statusConfig ? statusConfig.color + '15' : colors.surfaceAlt }]}>
+              <Text style={{ fontSize: 72 }}>{crop.emoji}</Text>
+              <Text style={[s.heroNoPhotoName, { color: colors.text }]} numberOfLines={1}>
+                {crop.isCustom ? crop.name : t('crops.' + crop.id + '.name')}
+              </Text>
+              <View style={[s.heroCategoryChip, { backgroundColor: 'rgba(0,0,0,0.07)' }]}>
+                <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary }}>
+                  {CATEGORY_CONFIG[crop.category]?.emoji} {t('cropCategory.' + crop.category)}
+                </Text>
+              </View>
+            </View>
           )}
           <Pressable
             onPress={() => router.push(`/plant/edit?id=${id}`)}
@@ -390,15 +401,21 @@ export default function PlantDetailScreen() {
                   : crop.daysToHarvest;
                 if (!dth) return null;
                 const sow = new Date(plant.sowingDate + 'T12:00:00');
-                const midDays = Math.round((dth[0] + dth[1]) / 2);
-                const harvestDate = new Date(sow.getTime() + midDays * 86_400_000);
-                const today = new Date();
-                if (harvestDate < today) return null;
-                const dateStr = harvestDate.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+                const daysRemaining = Math.ceil(
+                  (new Date(sow.getTime() + dth[0] * 86_400_000).getTime() - Date.now()) / 86_400_000
+                );
+                const isReady = daysRemaining <= 0;
                 return (
-                  <View style={[s.harvestChip, { backgroundColor: '#FF7043' + '18' }]}>
-                    <Text style={[s.daysChipText, { color: '#FF7043' }]}>
-                      {t('plantDetail.estimatedHarvest', { date: dateStr })}
+                  <View style={[s.harvestEstBlock, {
+                    backgroundColor: isReady ? '#4CAF5015' : colors.primary + '12',
+                    borderColor: isReady ? '#4CAF50' : colors.primary,
+                  }]}>
+                    <Text style={{ fontSize: 16 }}>🧺</Text>
+                    <Text style={[s.harvestEstText, { color: isReady ? '#4CAF50' : colors.primary }]}>
+                      {isReady
+                        ? t('plantDetail.harvestReadyNow')
+                        : t('plantDetail.harvestInDays', { count: daysRemaining })
+                      }
                     </Text>
                   </View>
                 );
@@ -406,101 +423,58 @@ export default function PlantDetailScreen() {
             </View>
           )}
 
-          {/* Stage journey timeline */}
+          {/* Stage journey — vertical stepper */}
           <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.statusSection')}</Text>
           {(() => {
             const currentIdx = ALL_STATUSES.indexOf(plant.status);
-            function fmtMilestone(dateStr: string): string {
-              const d = new Date(dateStr + 'T12:00:00');
-              const locale = i18n.language === 'val' ? 'ca-ES' : i18n.language;
-              return d.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
-            }
-            const MILESTONE_DATE: Partial<Record<PlantStatus, string | undefined>> = {
-              seedling: plant.sowingDate,
-              transplanted: plant.transplantDate,
-              harvesting: plant.firstHarvestDate,
-            };
             return (
-              <View style={{ marginBottom: spacing.xl }}>
-                <View style={s.journeyDotsRow}>
+              <View style={{ maxHeight: 320, marginBottom: spacing.xl }}>
+                <ScrollView showsVerticalScrollIndicator={false} scrollEnabled>
                   {ALL_STATUSES.map((status, idx) => {
                     const cfg = PLANT_STATUS_CONFIG[status];
                     const isActive = idx === currentIdx;
                     const isPast = idx < currentIdx;
+                    const isLast = idx === ALL_STATUSES.length - 1;
                     return (
-                      <React.Fragment key={status}>
-                        <Pressable
-                          onPress={() => handleStatusChange(status)}
-                          style={s.journeyDotWrap}
-                          hitSlop={8}
-                        >
-                          <View
-                            style={[
-                              s.journeyDot,
-                              {
-                                backgroundColor: isActive
-                                  ? cfg.color
-                                  : isPast
-                                  ? cfg.color + '66'
-                                  : colors.surfaceAlt,
-                                borderColor: isActive
-                                  ? cfg.color
-                                  : isPast
-                                  ? cfg.color
-                                  : colors.border,
-                                transform: [{ scale: isActive ? 1.25 : 1 }],
-                              },
-                            ]}
-                          >
-                            <Text style={{ fontSize: 11 }}>{cfg.emoji}</Text>
+                      <Pressable
+                        key={status}
+                        onPress={() => handleStatusChange(status)}
+                        hitSlop={6}
+                        style={{ flexDirection: 'row', gap: spacing.md }}
+                      >
+                        <View style={{ alignItems: 'center', width: 30 }}>
+                          <View style={{
+                            width: 28, height: 28, borderRadius: 14,
+                            backgroundColor: (isActive || isPast) ? cfg.color : 'transparent',
+                            borderWidth: 2,
+                            borderColor: (isActive || isPast) ? cfg.color : colors.border,
+                            alignItems: 'center', justifyContent: 'center',
+                          }}>
+                            <Text style={{ fontSize: 12 }}>{cfg.emoji}</Text>
                           </View>
-                        </Pressable>
-                        {idx < ALL_STATUSES.length - 1 && (
-                          <View
-                            style={[
-                              s.journeyLine,
-                              {
-                                backgroundColor: isPast
-                                  ? colors.primary + '55'
-                                  : colors.border,
-                              },
-                            ]}
-                          />
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </View>
-                <View style={s.journeyLabelsRow}>
-                  {ALL_STATUSES.map((status, idx) => {
-                    const cfg = PLANT_STATUS_CONFIG[status];
-                    const isActive = idx === currentIdx;
-                    const raw = MILESTONE_DATE[status as keyof typeof MILESTONE_DATE];
-                    const label = raw
-                      ? fmtMilestone(raw)
-                      : isActive
-                      ? t('plantStatus.' + status)
-                      : null;
-                    return (
-                      <React.Fragment key={status}>
-                        <View style={s.journeyLabelCell}>
-                          {label ? (
-                            <Text
-                              style={[
-                                s.journeyLabelText,
-                                { color: raw ? colors.textSecondary : cfg.color },
-                              ]}
-                              numberOfLines={1}
-                            >
-                              {label}
-                            </Text>
-                          ) : null}
+                          {!isLast && (
+                            <View style={{ width: 2, flex: 1, minHeight: 12, backgroundColor: isPast ? colors.primary + '44' : colors.border }} />
+                          )}
                         </View>
-                        {idx < ALL_STATUSES.length - 1 && <View style={{ flex: 1 }} />}
-                      </React.Fragment>
+                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', paddingBottom: isLast ? 0 : spacing.md }}>
+                          <Text style={[
+                            { flex: 1, fontSize: fontSize.sm, fontWeight: isActive ? fontWeight.bold : fontWeight.regular },
+                            { color: isActive ? cfg.color : isPast ? colors.text : colors.textSecondary },
+                          ]}>
+                            {t('plantStatus.' + status)}
+                          </Text>
+                          {isActive && (
+                            <View style={{ backgroundColor: cfg.color + '22', paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: radii.full }}>
+                              <Text style={{ fontSize: fontSize.xs, color: cfg.color, fontWeight: fontWeight.bold }}>
+                                {t('plantDetail.currentBadge')}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      </Pressable>
                     );
                   })}
-                </View>
+                </ScrollView>
               </View>
             );
           })()}
@@ -1173,6 +1147,30 @@ export default function PlantDetailScreen() {
         </View>
       </ScrollView>
 
+      {/* Watering FAB */}
+      <Pressable
+        onPress={async () => {
+          await entries.create({
+            gardenId: plant.gardenId,
+            plantId: id,
+            type: 'watering',
+            date: todayStr(),
+          });
+          setWateringFeedback(true);
+          setTimeout(() => setWateringFeedback(false), 2000);
+        }}
+        style={[s.fab, { backgroundColor: '#29B6F6' }]}
+      >
+        <Ionicons name="water-outline" size={24} color="#fff" />
+      </Pressable>
+      {wateringFeedback && (
+        <View style={[s.fabFeedback, { backgroundColor: '#29B6F6' }]}>
+          <Text style={{ color: '#fff', fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>
+            {t('plantDetail.wateringLogged')}
+          </Text>
+        </View>
+      )}
+
       {/* Transplant modal */}
       <Modal visible={showTransplantModal} transparent animationType="slide">
         <Pressable style={s.modalOverlay} onPress={() => setShowTransplantModal(false)}>
@@ -1651,4 +1649,58 @@ const makeStyles = (
       gap: 4,
     },
     companionCardName: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
+    heroNoPhoto: {
+      width: '100%',
+      height: 220,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+    },
+    heroNoPhotoName: {
+      fontSize: fontSize.md,
+      fontWeight: fontWeight.semibold,
+      marginTop: spacing.xs,
+    },
+    heroCategoryChip: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: 3,
+      borderRadius: radii.full,
+      marginTop: 2,
+    },
+    harvestEstBlock: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.full,
+      borderWidth: 1.5,
+      alignSelf: 'flex-start',
+      marginTop: spacing.xs,
+    },
+    harvestEstText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    fab: {
+      position: 'absolute',
+      bottom: 24,
+      right: 24,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      alignItems: 'center',
+      justifyContent: 'center',
+      elevation: 6,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.3,
+      shadowRadius: 6,
+    },
+    fabFeedback: {
+      position: 'absolute',
+      bottom: 90,
+      right: 16,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.full,
+      elevation: 4,
+    },
   });

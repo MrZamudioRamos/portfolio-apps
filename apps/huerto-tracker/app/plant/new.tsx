@@ -24,7 +24,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, type CropInfo } from '../../src/data/crops';
+import { CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, CROP_DIFFICULTY, type CropInfo } from '../../src/data/crops';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
@@ -285,6 +285,38 @@ export default function NewPlantScreen() {
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{ paddingBottom: 40 }}
             >
+              {/* Photo hero — 180px at top (FIX 2) */}
+              <Pressable
+                onPress={pickPhoto}
+                style={[s.photoHero, { backgroundColor: colors.surfaceAlt }]}
+              >
+                {photoUri ? (
+                  <>
+                    <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                    <View style={s.photoHeroChangeBadge}>
+                      <Ionicons name="camera" size={14} color="#fff" />
+                      <Text style={{ color: '#fff', fontSize: fontSize.xs, fontWeight: fontWeight.semibold }}>
+                        {t('plantNew.changePhoto')}
+                      </Text>
+                    </View>
+                  </>
+                ) : selectedCrop ? (
+                  <>
+                    <Text style={{ fontSize: 64 }}>{selectedCrop.emoji}</Text>
+                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: spacing.xs }}>
+                      {t('plantNew.addPhoto')}
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={{ fontSize: 40 }}>📷</Text>
+                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: spacing.xs }}>
+                      {t('plantNew.addPhoto')}
+                    </Text>
+                  </>
+                )}
+              </Pressable>
+
               {/* Crop hero — prominent image + name + change link */}
               {selectedCrop && (
                 <View style={[s.cropHero, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
@@ -449,14 +481,23 @@ export default function NewPlantScreen() {
                       </Pressable>
                     );
                   })}
+                  {(() => {
+                    const today = dateToStr(new Date());
+                    const d1 = new Date(); d1.setDate(d1.getDate() - 1);
+                    const yesterday = dateToStr(d1);
+                    const isOther = sowingDate !== today && sowingDate !== yesterday;
+                    return (
+                      <Pressable
+                        onPress={() => setShowDatePicker(true)}
+                        style={[s.dateBtn, { backgroundColor: isOther ? colors.primary + '22' : colors.surfaceAlt, borderColor: isOther ? colors.primary : colors.border }]}
+                      >
+                        <Text style={[s.dateBtnText, { color: isOther ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
+                          {isOther ? sowingDate : t('plantNew.otherDate')}
+                        </Text>
+                      </Pressable>
+                    );
+                  })()}
                 </View>
-                <Pressable
-                  onPress={() => setShowDatePicker(true)}
-                  style={[s.input, { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderColor: colors.border }]}
-                >
-                  <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
-                  <Text style={{ color: colors.text, fontSize: fontSize.md, flex: 1 }}>{sowingDate}</Text>
-                </Pressable>
 
                 {showDatePicker && Platform.OS === 'android' && (
                   <DateTimePicker
@@ -489,26 +530,6 @@ export default function NewPlantScreen() {
                     </Pressable>
                   </Modal>
                 )}
-
-                {/* Photo */}
-                <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
-                  {t('plantNew.photo')}
-                </Text>
-                <Pressable
-                  onPress={pickPhoto}
-                  style={[s.photoArea, { backgroundColor: colors.surfaceAlt, borderColor: photoUri ? 'transparent' : colors.border }]}
-                >
-                  {photoUri ? (
-                    <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
-                  ) : (
-                    <>
-                      <Ionicons name="camera-outline" size={32} color={colors.textSecondary} />
-                      <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: spacing.xs }}>
-                        {t('plantNew.addPhoto')}
-                      </Text>
-                    </>
-                  )}
-                </Pressable>
 
                 {/* Save */}
                 <Button
@@ -592,6 +613,14 @@ export default function NewPlantScreen() {
                   <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.medium }}>
                     {item.isCustom ? item.name : t('crops.' + item.id + '.name')}
                   </Text>
+                  {!item.isCustom && (CROP_DIFFICULTY[item.id] || item.daysToHarvest) && (
+                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, marginTop: 2 }}>
+                      {[
+                        CROP_DIFFICULTY[item.id] ? t('plantDetail.difficulty.' + CROP_DIFFICULTY[item.id]) : null,
+                        item.daysToHarvest ? `${item.daysToHarvest[0]}–${item.daysToHarvest[1]}d` : null,
+                      ].filter(Boolean).join(' · ')}
+                    </Text>
+                  )}
                 </View>
                 {item.id === selectedCropId && (
                   <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
@@ -740,7 +769,26 @@ const makeStyles = (
     dateModalSheet: { borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, paddingTop: spacing.sm, alignItems: 'center' },
     dateModalHandle: { width: 40, height: 4, borderRadius: 2, marginBottom: spacing.md },
 
-    // Photo
+    // Photo hero
+    photoHero: {
+      height: 180,
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+    },
+    photoHeroChangeBadge: {
+      position: 'absolute',
+      bottom: 12,
+      right: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: 'rgba(0,0,0,0.55)',
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 99,
+    },
+    // Photo (legacy — kept for safety but unused)
     photoArea: {
       height: 140,
       borderRadius: radii.xl,

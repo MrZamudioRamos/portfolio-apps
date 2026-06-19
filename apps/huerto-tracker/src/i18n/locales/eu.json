@@ -540,7 +540,9 @@
     "propSeed": "Hazia",
     "propCutting": "Ebakia",
     "propDivision": "Zatiketa",
-    "propBought": "Erositako"
+    "propBought": "Erositako",
+    "otherDate": "Otra fecha",
+    "changePhoto": "Cambiar foto"
   },
   "plantDetail": {
     "notFound": "Landarea ez da aurkitu",
@@ -639,7 +641,12 @@
     },
     "companions": {
       "empty": "Asoziaziorik ez erregistratuta"
-    }
+    },
+    "currentBadge": "Actual",
+    "harvestInDays_one": "Cosecha en ~{{count}} día",
+    "harvestInDays_other": "Cosecha en ~{{count}} días",
+    "harvestReadyNow": "Lista para cosechar",
+    "wateringLogged": "💧 Riego registrado"
   },
   "lightMeter": {
     "title": "Argi-neurria",

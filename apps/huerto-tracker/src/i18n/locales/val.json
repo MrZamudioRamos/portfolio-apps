@@ -540,7 +540,9 @@
     "propSeed": "Llavor",
     "propCutting": "Esqueix",
     "propDivision": "Divisió",
-    "propBought": "Compra"
+    "propBought": "Compra",
+    "otherDate": "Otra fecha",
+    "changePhoto": "Cambiar foto"
   },
   "plantDetail": {
     "notFound": "Planta no trobada",
@@ -639,7 +641,12 @@
     },
     "companions": {
       "empty": "Sense associacions registrades"
-    }
+    },
+    "currentBadge": "Actual",
+    "harvestInDays_one": "Cosecha en ~{{count}} día",
+    "harvestInDays_other": "Cosecha en ~{{count}} días",
+    "harvestReadyNow": "Lista para cosechar",
+    "wateringLogged": "💧 Riego registrado"
   },
   "lightMeter": {
     "title": "Mesurador de llum",
