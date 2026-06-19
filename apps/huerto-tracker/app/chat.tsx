@@ -21,6 +21,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { usePro } from '../src/hooks/usePro';
+import { track, EVENTS } from '../src/analytics';
 import type { Plant } from '../src/models/plant';
 import { type ChatMessage, sendChatMessage } from '../src/utils/aiChat';
 import { useMemo } from 'react';
@@ -154,7 +155,10 @@ export default function ChatScreen() {
           <Text style={[s.gateTitle, { color: colors.text }]}>{t('chat.proTitle')}</Text>
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.proDesc')}</Text>
           <Pressable
-            onPress={() => router.push('/paywall')}
+            onPress={() => {
+              track(EVENTS.paywallViewed, { source: 'ai_chat' });
+              router.push('/paywall');
+            }}
             style={[s.gateBtn, { backgroundColor: colors.primary }]}
           >
             <Text style={[s.gateBtnText, { color: colors.background }]}>{t('chat.proBtn')}</Text>

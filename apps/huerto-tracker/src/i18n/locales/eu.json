@@ -396,7 +396,10 @@
     "notesPlaceholder": "Idatzi zure behaketak…",
     "notesSave": "Gorde",
     "unplaced": "Kokatu gabe",
-    "dragHint": "Eutsi sakatuta eta arrastatu"
+    "dragHint": "Eutsi sakatuta eta arrastatu",
+    "proTitle": "Visualiza tu huerto",
+    "proDesc": "Planifica la distribución de tus cultivos con el mapa interactivo. Disponible en Pro.",
+    "proBtn": "Ver planes Pro"
   },
   "onboarding": {
     "step1Title": "Zure baratze digitala",
@@ -471,14 +474,14 @@
     "subtitlePro": "Harpidetza aktiboa · {{plan}} Plana",
     "subtitle": "Desblokeatu benetako baratzezain bat izateko behar duzun guztia.",
     "features": {
-      "gardens": "Baratze mugagabeak (doan: 2ra arte)",
-      "plants": "Landare mugagabeak (doan: 20ra arte)",
-      "aiDiagnosis": "IA diagnostikoa izurriak eta gaixotasunak",
-      "costsRoi": "Kostuak eta ROI kontrola denboraldika",
+      "gardens": "Huertos ilimitados (gratis: 1 huerto)",
+      "plants": "Plantas sin límite (gratis: hasta 5)",
+      "gardenMap": "Mapa visual del huerto con arrastrar y soltar",
+      "aiDiagnosis": "Asistente IA: chat + diagnóstico de plagas",
+      "reminders": "Recordatorios ilimitados (gratis: hasta 3)",
       "csvExport": "Egunkari osoa CSV-n esportatu",
       "gamification": "Lorpenak eta estatistika aurreratuak",
       "companions": "Labore elkartze gida osoa",
-      "pdf": "Denboraldiko PDF txostena",
       "backup": "Hodeiko sinkronizazio automatikoa"
     },
     "choosePlan": "AUKERATU PLANA",

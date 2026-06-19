@@ -396,7 +396,10 @@
     "notesPlaceholder": "Escriu les teues observacions…",
     "notesSave": "Guardar",
     "unplaced": "Sense col·locar",
-    "dragHint": "Mantín polsat i arrossega"
+    "dragHint": "Mantín polsat i arrossega",
+    "proTitle": "Visualiza tu huerto",
+    "proDesc": "Planifica la distribución de tus cultivos con el mapa interactivo. Disponible en Pro.",
+    "proBtn": "Ver planes Pro"
   },
   "onboarding": {
     "step1Title": "El teu hort digital",
@@ -471,14 +474,14 @@
     "subtitlePro": "Subscripció activa · Pla {{plan}}",
     "subtitle": "Desbloqueja tot el que necessites per a convertir-te en un autèntic hortolà.",
     "features": {
-      "gardens": "Horts il·limitats (gratis: fins a 2)",
-      "plants": "Plantes sense límit (gratis: fins a 20)",
-      "aiDiagnosis": "Diagnòstic IA de plagues i malalties",
-      "costsRoi": "Control de costos i ROI per temporada",
+      "gardens": "Huertos ilimitados (gratis: 1 huerto)",
+      "plants": "Plantas sin límite (gratis: hasta 5)",
+      "gardenMap": "Mapa visual del huerto con arrastrar y soltar",
+      "aiDiagnosis": "Asistente IA: chat + diagnóstico de plagas",
+      "reminders": "Recordatorios ilimitados (gratis: hasta 3)",
       "csvExport": "Exportació CSV del diari complet",
       "gamification": "Assoliments i estadístiques avançades",
       "companions": "Guia completa d'associacions de cultius",
-      "pdf": "Informe PDF de temporada",
       "backup": "Sincronització automàtica al núvol"
     },
     "choosePlan": "TRIA EL TEU PLA",

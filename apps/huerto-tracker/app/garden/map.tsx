@@ -2,6 +2,8 @@ import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { usePro } from '../../src/hooks/usePro';
+import { track, EVENTS } from '../../src/analytics';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -61,6 +63,7 @@ export default function GardenMapScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
 
+  const { isPro } = usePro();
   const { activeGarden: garden, gardens: allGardens, refreshActiveId } = useActiveGarden();
   const gardens = useCollection<Garden>('gardens');
   const { customCropsById } = useCustomCrops();
@@ -393,6 +396,41 @@ export default function GardenMapScreen() {
   );
 
   const panelH = panelCollapsed ? PANEL_COLLAPSED_H : PANEL_EXPANDED_H;
+
+  if (!isPro) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <View style={[s.header, { borderBottomColor: colors.border }]}>
+          <Pressable onPress={() => router.back()} hitSlop={12}>
+            <Ionicons name="arrow-back" size={24} color={colors.primary} />
+          </Pressable>
+          <Text style={[s.headerTitle, { flex: 1, marginLeft: spacing.md, color: colors.text }]}>
+            {t('gardenMap.title')}
+          </Text>
+        </View>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xl }}>
+          <Text style={{ fontSize: 64, marginBottom: spacing.lg }}>🗺️</Text>
+          <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text, textAlign: 'center', marginBottom: spacing.md }}>
+            {t('gardenMap.proTitle')}
+          </Text>
+          <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: spacing.xl }}>
+            {t('gardenMap.proDesc')}
+          </Text>
+          <Pressable
+            onPress={() => {
+              track(EVENTS.paywallViewed, { source: 'map' });
+              router.push('/paywall');
+            }}
+            style={{ backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, borderRadius: radii.full }}
+          >
+            <Text style={{ color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold }}>
+              {t('gardenMap.proBtn')}
+            </Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (loading) return null;
 

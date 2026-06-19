@@ -396,7 +396,10 @@
     "notesPlaceholder": "Escribe as túas observacións…",
     "notesSave": "Gardar",
     "unplaced": "Sen colocar",
-    "dragHint": "Mantén premido e arrastra"
+    "dragHint": "Mantén premido e arrastra",
+    "proTitle": "Visualiza tu huerto",
+    "proDesc": "Planifica la distribución de tus cultivos con el mapa interactivo. Disponible en Pro.",
+    "proBtn": "Ver planes Pro"
   },
   "onboarding": {
     "step1Title": "A túa horta dixital",
@@ -471,14 +474,14 @@
     "subtitlePro": "Subscrición activa · Plan {{plan}}",
     "subtitle": "Desbloquea todo o que necesitas para converterte nun verdadeiro horticultor.",
     "features": {
-      "gardens": "Hortas ilimitadas (gratis: ata 2)",
-      "plants": "Plantas sen límite (gratis: ata 20)",
-      "aiDiagnosis": "Diagnóstico IA de pragas e enfermidades",
-      "costsRoi": "Control de custos e ROI por tempada",
+      "gardens": "Huertos ilimitados (gratis: 1 huerto)",
+      "plants": "Plantas sin límite (gratis: hasta 5)",
+      "gardenMap": "Mapa visual del huerto con arrastrar y soltar",
+      "aiDiagnosis": "Asistente IA: chat + diagnóstico de plagas",
+      "reminders": "Recordatorios ilimitados (gratis: hasta 3)",
       "csvExport": "Exportación CSV do diario completo",
       "gamification": "Logros e estatísticas avanzadas",
       "companions": "Guía completa de asociacións de cultivos",
-      "pdf": "Informe PDF de tempada",
       "backup": "Sincronización automática na nube"
     },
     "choosePlan": "ESCOLLE O TEU PLAN",

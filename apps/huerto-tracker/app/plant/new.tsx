@@ -60,7 +60,7 @@ export default function NewPlantScreen() {
   const { isGuest } = useSession();
   const { isPro, loading: proLoading } = usePurchases();
 
-  const plantLimit = isGuest ? 3 : isPro ? Infinity : 20;
+  const plantLimit = isGuest ? 3 : isPro ? Infinity : 5;
   const gardenPlantCount = activeGarden?.id
     ? plants.items.filter((p) => p.gardenId === activeGarden.id).length
     : plants.count;
@@ -162,6 +162,7 @@ export default function NewPlantScreen() {
   async function handleSave() {
     if (!selectedCropId || !plantName.trim()) return;
     if (atLimit) {
+      track(EVENTS.paywallViewed, { source: 'plant_limit' });
       router.push('/paywall');
       return;
     }

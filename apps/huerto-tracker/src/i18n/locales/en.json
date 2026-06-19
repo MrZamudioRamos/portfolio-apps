@@ -400,7 +400,10 @@
     "notesPlaceholder": "Write your observations…",
     "notesSave": "Save",
     "unplaced": "Unplaced",
-    "dragHint": "Hold and drag"
+    "dragHint": "Hold and drag",
+    "proTitle": "Visualiza tu huerto",
+    "proDesc": "Planifica la distribución de tus cultivos con el mapa interactivo. Disponible en Pro.",
+    "proBtn": "Ver planes Pro"
   },
   "onboarding": {
     "step1Title": "Your digital garden",
@@ -476,14 +479,14 @@
     "subtitlePro": "Active subscription · {{plan}} plan",
     "subtitle": "Unlock everything you need to become a true gardener.",
     "features": {
-      "gardens": "Unlimited gardens (free: up to 2)",
-      "plants": "Unlimited plants (free: up to 20)",
-      "aiDiagnosis": "AI diagnosis of pests and diseases",
-      "costsRoi": "Costs & ROI tracking per season",
+      "gardens": "Huertos ilimitados (gratis: 1 huerto)",
+      "plants": "Plantas sin límite (gratis: hasta 5)",
+      "gardenMap": "Mapa visual del huerto con arrastrar y soltar",
+      "aiDiagnosis": "Asistente IA: chat + diagnóstico de plagas",
+      "reminders": "Recordatorios ilimitados (gratis: hasta 3)",
       "csvExport": "Full journal CSV export",
       "gamification": "Achievements and advanced stats",
       "companions": "Full companion planting guide",
-      "pdf": "Season PDF report",
       "backup": "Automatic cloud sync"
     },
     "choosePlan": "CHOOSE YOUR PLAN",

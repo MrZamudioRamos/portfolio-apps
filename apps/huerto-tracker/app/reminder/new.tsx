@@ -17,6 +17,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { REMINDER_TYPE_CONFIG, type GardenReminder, type ReminderType } from '../../src/models/reminder';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { usePro } from '../../src/hooks/usePro';
+import { track, EVENTS } from '../../src/analytics';
 
 const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'custom'];
 // every_2_days/every_3_days removed: expo can't fire them at a fixed time, so
@@ -33,6 +35,7 @@ export default function ReminderNewScreen() {
 
   const { activeGarden } = useActiveGarden();
   const reminders = useReminders<GardenReminder>('reminders');
+  const { isPro } = usePro();
 
   const { t } = useTranslation();
   const [type, setType] = useState<ReminderType>('watering');
@@ -56,6 +59,12 @@ export default function ReminderNewScreen() {
     const gardenId = activeGarden?.id;
     if (!gardenId) {
       Alert.alert(t('reminderNew.noGardenTitle'), t('reminderNew.noGardenDesc'));
+      return;
+    }
+    const gardenReminderCount = reminders.items.filter((r) => r.gardenId === gardenId).length;
+    if (!isPro && gardenReminderCount >= 3) {
+      track(EVENTS.paywallViewed, { source: 'reminders' });
+      router.push('/paywall');
       return;
     }
     setSaving(true);

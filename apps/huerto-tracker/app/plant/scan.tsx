@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { track, EVENTS } from '../../src/analytics';
 import {
   ActivityIndicator,
   Image,
@@ -126,7 +127,10 @@ export default function PlantScanScreen() {
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('plantScan.proDesc')}</Text>
           <Button
             title={t('plantScan.upgradePro')}
-            onPress={() => router.push('/paywall')}
+            onPress={() => {
+              track(EVENTS.paywallViewed, { source: 'ai_scan' });
+              router.push('/paywall');
+            }}
             size="lg"
             style={{ marginTop: spacing.xl, alignSelf: 'stretch' }}
           />

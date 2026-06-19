@@ -3,7 +3,7 @@ import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { scheduleDateAlert, requestPermissions } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
@@ -17,12 +17,12 @@ const TRIAL_DAYS = 7;
 const PRO_FEATURE_KEYS = [
   { emoji: '🏡', key: 'paywall.features.gardens' },
   { emoji: '🌱', key: 'paywall.features.plants' },
+  { emoji: '🗺️', key: 'paywall.features.gardenMap' },
   { emoji: '🤖', key: 'paywall.features.aiDiagnosis' },
-  { emoji: '💶', key: 'paywall.features.costsRoi' },
+  { emoji: '⏰', key: 'paywall.features.reminders' },
   { emoji: '📤', key: 'paywall.features.csvExport' },
   { emoji: '🏆', key: 'paywall.features.gamification' },
   { emoji: '🤝', key: 'paywall.features.companions' },
-  { emoji: '📄', key: 'paywall.features.pdf' },
   { emoji: '☁️', key: 'paywall.features.backup' },
 ];
 
@@ -31,12 +31,13 @@ export default function PaywallScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
+  const { source } = useLocalSearchParams<{ source?: string }>();
   const { isPro, activePlan, purchasing, offerings, purchase, restore } = usePurchases();
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('annual');
   const [trialReminderOn, setTrialReminderOn] = useState(true);
 
   useEffect(() => {
-    track(EVENTS.paywallViewed);
+    track(EVENTS.paywallViewed, { source: source ?? 'direct' });
     AsyncStorage.getItem(TRIAL_REMINDER_KEY).then((raw) => {
       if (raw !== null) setTrialReminderOn(raw === '1');
     });
