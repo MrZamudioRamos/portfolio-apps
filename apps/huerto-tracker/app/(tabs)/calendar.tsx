@@ -22,13 +22,15 @@ import type { Plant } from '../../src/models/plant';
 import { CopilotStep } from 'react-native-copilot';
 import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
 import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
+import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
 
 function CalendarInner() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { t, i18n } = useTranslation();
-  useTourAutoStart('calendar', { firstStep: 'month' });
+  const coachLevel = useCoachingLevel();
+  useTourAutoStart('calendar', { firstStep: 'month', disabled: coachLevel !== 'full' });
 
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1); // 1-12

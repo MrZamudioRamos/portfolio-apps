@@ -18,6 +18,8 @@ export const EVENTS = {
   purchaseCompleted: 'purchase_completed',
   firstCropSuggested: 'first_crop_suggested',
   firstCropPicked: 'first_crop_picked',
+  coachingLevelChanged: 'coaching_level_changed',
+  coachingOverrideSet: 'coaching_override_set',
 } as const;
 
 /**

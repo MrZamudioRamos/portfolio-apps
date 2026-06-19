@@ -210,7 +210,12 @@
       "tutorialDone": "Verás de novo os consellos de Semillita 🌱",
       "rate": "Valorar na App Store",
       "privacy": "Política de privacidade",
-      "contact": "Contacto"
+      "contact": "Contacto",
+      "coachingLevel": "Nivel de guía",
+      "coachingAuto": "Automático",
+      "coachingFull": "Completa",
+      "coachingLight": "Lixeira",
+      "coachingOff": "Ningún"
     },
     "rotation": "Rotación de cultivos",
     "rotationDesc": "Historial por parcela e recomendacións"

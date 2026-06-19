@@ -210,7 +210,12 @@
       "tutorialDone": "Semillitaren aholkuak berriro ikusiko dituzu 🌱",
       "rate": "App Store-n baloratu",
       "privacy": "Pribatutasun politika",
-      "contact": "Kontaktua"
+      "contact": "Kontaktua",
+      "coachingLevel": "Gida maila",
+      "coachingAuto": "Automatikoa",
+      "coachingFull": "Osoa",
+      "coachingLight": "Arina",
+      "coachingOff": "Bat ere ez"
     },
     "rotation": "Labore txandakatzea",
     "rotationDesc": "Lursaileko historia eta gomendioak"

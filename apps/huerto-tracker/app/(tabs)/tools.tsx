@@ -12,6 +12,7 @@ import { usePro } from '../../src/hooks/usePro';
 import { CopilotStep } from 'react-native-copilot';
 import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
 import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
+import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -31,7 +32,8 @@ function ToolsInner() {
   const router = useRouter();
   const { t } = useTranslation();
   const { isPro } = usePro();
-  useTourAutoStart('tools', { firstStep: 'essentials' });
+  const coachLevel = useCoachingLevel();
+  useTourAutoStart('tools', { firstStep: 'essentials', disabled: coachLevel !== 'full' });
 
   // Essentials a beginner needs daily — kept front and uncluttered.
   const essentialTools: ToolItem[] = [

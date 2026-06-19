@@ -14,6 +14,8 @@ interface Options {
   /** Scroll container ref — required for targets inside a FlatList/ScrollView
    *  so copilot can measure and scroll to them. */
   scrollRef?: RefObject<any>;
+  /** When true the auto-start is suppressed entirely (coaching level light/off). */
+  disabled?: boolean;
 }
 
 /**
@@ -28,7 +30,7 @@ interface Options {
  * captured when the effect was created, which had an empty `steps` map).
  */
 export function useTourAutoStart(gateKey: string, opts: Options = {}) {
-  const { ready = true, firstStep, delay = 800, scrollRef } = opts;
+  const { ready = true, firstStep, delay = 800, scrollRef, disabled = false } = opts;
   const { start, stop } = useCopilot();
 
   // Always point to latest functions — useFocusEffect deps don't include them
@@ -40,7 +42,7 @@ export function useTourAutoStart(gateKey: string, opts: Options = {}) {
 
   useFocusEffect(
     useCallback(() => {
-      if (!ready) return;
+      if (!ready || disabled) return;
       let cancelled = false;
       let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -63,6 +65,6 @@ export function useTourAutoStart(gateKey: string, opts: Options = {}) {
         stopRef.current();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ready, gateKey, firstStep, delay])
+    }, [ready, disabled, gateKey, firstStep, delay])
   );
 }

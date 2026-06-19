@@ -210,7 +210,12 @@
       "tutorialDone": "Tornaràs a veure els consells de la Semillita 🌱",
       "rate": "Valorar a l'App Store",
       "privacy": "Política de privacitat",
-      "contact": "Contacte"
+      "contact": "Contacte",
+      "coachingLevel": "Nivell de guia",
+      "coachingAuto": "Automàtic",
+      "coachingFull": "Completa",
+      "coachingLight": "Lleugera",
+      "coachingOff": "Cap"
     },
     "rotation": "Rotació de cultius",
     "rotationDesc": "Historial per parcel·la i recomanacions"

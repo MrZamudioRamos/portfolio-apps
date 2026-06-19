@@ -49,6 +49,7 @@ import { Mascot } from '../../src/components/Mascot';
 import { CopilotStep } from 'react-native-copilot';
 import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
 import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
+import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -96,9 +97,11 @@ function DashboardInner() {
   // First visit: spotlight tour. Start at the named first step — the today/
   // first-use card lives in the FlatList header, so copilot needs the list
   // ref to measure and scroll to it.
+  const coachLevel = useCoachingLevel();
   useTourAutoStart('home', {
     ready: !plants.loading,
     firstStep: plants.count > 0 ? 'today' : 'start',
+    disabled: coachLevel !== 'full',
   });
 
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);

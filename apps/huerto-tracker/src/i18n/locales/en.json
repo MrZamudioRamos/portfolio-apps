@@ -211,7 +211,12 @@
       "tutorialDone": "You'll see Semillita's tips again 🌱",
       "rate": "Rate on App Store",
       "privacy": "Privacy policy",
-      "contact": "Contact"
+      "contact": "Contact",
+      "coachingLevel": "Guide level",
+      "coachingAuto": "Automatic",
+      "coachingFull": "Full",
+      "coachingLight": "Light",
+      "coachingOff": "None"
     },
     "rotation": "Crop rotation",
     "rotationDesc": "Bed history and recommendations"

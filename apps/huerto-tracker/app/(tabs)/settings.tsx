@@ -7,6 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { useUserProfile } from '../../src/hooks/useUserProfile';
+import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
+import type { CoachingLevel } from '../../src/models/user-profile';
 import type { CostEntry } from '../../src/models/cost-entry';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
@@ -23,7 +25,7 @@ import type { GardenReminder } from '../../src/models/reminder';
 import { saveLanguage, SUPPORTED_LANGS, LANG_LABELS, type SupportedLang } from '../../src/i18n';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { syncToCloud } from '../../src/sync/syncAll';
-import { resetAnalyticsUser } from '../../src/analytics';
+import { resetAnalyticsUser, track, EVENTS } from '../../src/analytics';
 import { resetCoachMarks } from '../../src/hooks/useCoachMark';
 
 // TODO: replace with real App Store URL once published
@@ -47,8 +49,16 @@ export default function SettingsScreen() {
   const { isPro, activePlan } = usePurchases();
   const { isGuest, user } = useSession();
   const { collection: customCropsCollection } = useCustomCrops();
-  const { profile: userProfile } = useUserProfile();
+  const { profile: userProfile, save: saveProfile } = useUserProfile();
+  const effectiveCoachLevel = useCoachingLevel();
   const costEntriesCollection = useCollection<CostEntry>('cost_entries');
+
+  async function setCoachingOverride(value: CoachingLevel | null) {
+    if (!userProfile) return;
+    const { id: _id, createdAt: _c, updatedAt: _u, ...rest } = userProfile as any;
+    await saveProfile({ ...rest, coachingOverride: value });
+    track(EVENTS.coachingOverrideSet, { value: value ?? 'auto' });
+  }
 
   const { activeGarden: garden } = useActiveGarden();
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
@@ -427,6 +437,46 @@ export default function SettingsScreen() {
               Alert.alert(t('settings.app.tutorial'), t('settings.app.tutorialDone'));
             }}
           />
+          <Separator colors={colors} />
+          {/* Coaching level override */}
+          <View style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.md, gap: spacing.sm }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+              <Ionicons name="school-outline" size={18} color={colors.textSecondary} />
+              <Text style={[s.rowLabel, { color: colors.text }]}>{t('settings.app.coachingLevel')}</Text>
+              <Text style={[s.rowValue, { color: colors.textSecondary }]}>
+                {effectiveCoachLevel === 'full' ? t('settings.app.coachingFull')
+                  : effectiveCoachLevel === 'light' ? t('settings.app.coachingLight')
+                  : t('settings.app.coachingOff')}
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' }}>
+              {([null, 'full', 'light', 'off'] as const).map((val) => {
+                const label = val === null ? t('settings.app.coachingAuto')
+                  : val === 'full' ? t('settings.app.coachingFull')
+                  : val === 'light' ? t('settings.app.coachingLight')
+                  : t('settings.app.coachingOff');
+                const active = (userProfile?.coachingOverride ?? null) === val;
+                return (
+                  <Pressable
+                    key={String(val)}
+                    onPress={() => setCoachingOverride(val)}
+                    style={{
+                      paddingHorizontal: spacing.md,
+                      paddingVertical: spacing.xs,
+                      borderRadius: radii.full,
+                      borderWidth: 1,
+                      borderColor: active ? colors.text : colors.border,
+                      backgroundColor: active ? colors.text : 'transparent',
+                    }}
+                  >
+                    <Text style={{ fontSize: fontSize.sm, color: active ? colors.background : colors.textSecondary, fontWeight: active ? '700' : '400' }}>
+                      {label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
           <Separator colors={colors} />
           <Row icon="information-circle-outline" label={t('settings.app.version')} value={APP_VERSION} colors={colors} s={s} />
           <Separator colors={colors} />

@@ -30,6 +30,7 @@ import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { CopilotStep } from 'react-native-copilot';
 import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
 import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
+import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
 
 const ALL_TYPES: Array<EntryType | 'all'> = [
   'all', 'watering', 'sowing', 'harvest', 'fertilizing', 'transplant',
@@ -42,7 +43,8 @@ function DiaryInner() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { t } = useTranslation();
-  useTourAutoStart('diary', { firstStep: 'add' });
+  const coachLevel = useCoachingLevel();
+  useTourAutoStart('diary', { firstStep: 'add', disabled: coachLevel !== 'full' });
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
