@@ -49,7 +49,7 @@ export function SemillitaTooltip() {
           onPress={() => (isLastStep ? stop() : goToNext())}
           style={{ backgroundColor: colors.primary, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: 999 }}
         >
-          <Text style={{ color: '#fff', fontWeight: fontWeight.bold, fontSize: fontSize.sm }}>
+          <Text style={{ color: colors.background, fontWeight: fontWeight.bold, fontSize: fontSize.sm }}>
             {isLastStep ? t('coach.gotIt') : t('onboarding.continue')}
           </Text>
         </Pressable>

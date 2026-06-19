@@ -58,7 +58,7 @@ export default function WelcomeScreen() {
             { backgroundColor: colors.primary, ...shadows.md, opacity: pressed ? 0.85 : 1 },
           ]}
         >
-          <Text style={s.btnPrimaryText}>{t('welcome.createAccount')}</Text>
+          <Text style={[s.btnPrimaryText, { color: colors.background }]}>{t('welcome.createAccount')}</Text>
         </Pressable>
 
         <Pressable

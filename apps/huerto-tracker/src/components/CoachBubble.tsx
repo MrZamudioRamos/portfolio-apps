@@ -59,7 +59,7 @@ export function CoachBubble({
             onPress={onNext}
             style={[s.next, { backgroundColor: colors.primary, ...shadows.sm }]}
           >
-            <Text style={s.nextText}>{nextLabel ?? 'Siguiente'}</Text>
+            <Text style={[s.nextText, { color: colors.background }]}>{nextLabel ?? 'Siguiente'}</Text>
           </ScalePress>
         )}
       </View>

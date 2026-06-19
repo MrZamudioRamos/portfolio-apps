@@ -244,13 +244,13 @@ export default function NewPlantScreen() {
               style={[s.entryBtn, { backgroundColor: colors.primary, ...shadows.md }]}
             >
               <View style={[s.entryBtnIcon, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                <Ionicons name="scan-outline" size={26} color="#fff" />
+                <Ionicons name="scan-outline" size={26} color={colors.background} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[s.entryBtnTitle, { color: '#fff' }]}>{t('plantNew.scanTitle')}</Text>
-                <Text style={[s.entryBtnDesc, { color: 'rgba(255,255,255,0.75)' }]}>{t('plantNew.scanDesc')}</Text>
+                <Text style={[s.entryBtnTitle, { color: colors.background }]}>{t('plantNew.scanTitle')}</Text>
+                <Text style={[s.entryBtnDesc, { color: colors.background + 'BF' }]}>{t('plantNew.scanDesc')}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.6)" />
+              <Ionicons name="chevron-forward" size={18} color={colors.background + '99'} />
             </ScalePress>
           )}
 

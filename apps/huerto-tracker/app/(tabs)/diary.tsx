@@ -366,7 +366,7 @@ function DiaryInner() {
               { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28, opacity: pressed ? 0.85 : 1 },
             ]}
           >
-            <Ionicons name="add" size={28} color="#fff" />
+            <Ionicons name="add" size={28} color={colors.background} />
           </Pressable>
         </WalkView>
       </CopilotStep>

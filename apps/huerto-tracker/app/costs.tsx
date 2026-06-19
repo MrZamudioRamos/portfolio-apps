@@ -255,7 +255,7 @@ export default function CostsScreen() {
             onPress={() => router.push('/paywall')}
             style={{ backgroundColor: colors.primary, paddingVertical: spacing.lg, paddingHorizontal: spacing['2xl'], borderRadius: radii.lg }}
           >
-            <Text style={{ color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('costs.proBtn')}</Text>
+            <Text style={{ color: colors.background, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('costs.proBtn')}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -658,8 +658,8 @@ export default function CostsScreen() {
               style={[s.saveBtn, { backgroundColor: colors.primary, opacity: saving || !newAmount ? 0.5 : 1 }]}
             >
               {saving
-                ? <ActivityIndicator color="#fff" />
-                : <Text style={[s.saveBtnText, { color: '#fff' }]}>{t('costs.save')}</Text>
+                ? <ActivityIndicator color={colors.background} />
+                : <Text style={[s.saveBtnText, { color: colors.background }]}>{t('costs.save')}</Text>
               }
             </Pressable>
           </Pressable>
