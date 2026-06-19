@@ -7,6 +7,28 @@ import { SemillitaTooltip } from './SemillitaTooltip';
 /** Shared walkthroughable wrapper — wrap tour targets in <WalkView>. */
 export const WalkView = walkthroughable(View);
 
+const SPOTLIGHT_RADIUS = 16;
+
+// Rounded-rect cutout using SVG arc commands (evenodd fill punches the hole)
+const roundedSpotlightPath: Parameters<typeof CopilotProvider>[0]['svgMaskPath'] = ({
+  size,
+  position,
+  canvasSize,
+}) => {
+  const x = (position.x as any)._value as number;
+  const y = (position.y as any)._value as number;
+  const w = (size.x as any)._value as number;
+  const h = (size.y as any)._value as number;
+  const r = Math.min(SPOTLIGHT_RADIUS, w / 2, h / 2);
+  return (
+    `M0,0H${canvasSize.x}V${canvasSize.y}H0V0Z` +
+    `M${x + r},${y}H${x + w - r}a${r},${r} 0 0 1 ${r},${r}` +
+    `V${y + h - r}a${r},${r} 0 0 1 ${-r},${r}` +
+    `H${x + r}a${r},${r} 0 0 1 ${-r},${-r}` +
+    `V${y + r}a${r},${r} 0 0 1 ${r},${-r}Z`
+  );
+};
+
 /**
  * Standard Semillita spotlight-tour provider: svg overlay, dark backdrop,
  * on-brand tooltip + card. Wrap a screen's tree with this, mark targets with
@@ -23,6 +45,7 @@ export function SemillitaTourProvider({ children }: { children: React.ReactNode 
       tooltipComponent={SemillitaTooltip}
       tooltipStyle={{ backgroundColor: colors.surface, borderRadius: 20, padding: 16, width: 300 }}
       stepNumberComponent={() => null}
+      svgMaskPath={roundedSpotlightPath}
     >
       {children}
     </CopilotProvider>
