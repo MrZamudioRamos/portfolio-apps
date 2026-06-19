@@ -13,7 +13,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "cover",
-      "backgroundColor": "#43A047"
+      "backgroundColor": "#1B5E20"
     },
     "newArchEnabled": true,
     "ios": {

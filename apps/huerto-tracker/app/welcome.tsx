@@ -5,6 +5,7 @@ import React, { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { Mascot } from '../src/components/Mascot';
 
 export default function WelcomeScreen() {
   const colors = useColors();
@@ -29,8 +30,8 @@ export default function WelcomeScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
       {/* Hero */}
       <View style={s.hero}>
-        <Text style={s.heroEmoji}>🌱</Text>
-        <Text style={[s.title, { color: colors.text }]}>{t('welcome.title')}</Text>
+        <Mascot pose="wave" size={110} />
+        <Text style={[s.title, { color: colors.text }]}>semilla</Text>
         <Text style={[s.subtitle, { color: colors.textSecondary }]}>
           {t('welcome.subtitle')}
         </Text>
@@ -91,7 +92,7 @@ const makeStyles = (
   StyleSheet.create({
     container: { flex: 1 },
     hero: { alignItems: 'center', paddingTop: spacing['3xl'], paddingHorizontal: spacing.xl, paddingBottom: spacing['2xl'] },
-    heroEmoji: { fontSize: 72, marginBottom: spacing.lg },
+    heroEmoji: { fontSize: 72, marginBottom: spacing.md },
     title: { fontSize: fontSize['3xl'], fontWeight: fontWeight.bold, textAlign: 'center', marginBottom: spacing.md },
     subtitle: { fontSize: fontSize.md, textAlign: 'center', lineHeight: 22 },
     features: { flex: 1, paddingHorizontal: spacing.xl, gap: spacing.lg },

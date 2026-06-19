@@ -1,0 +1,43 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1284" height="2778" fill="#1B5E20"/>
+
+  <!-- Sprout stem -->
+  <line x1="642" y1="1090" x2="642" y2="950" stroke="#2E7D32" stroke-width="34" stroke-linecap="round"/>
+  <!-- Left leaf -->
+  <path d="M642 1030 C582 1000 548 938 558 895 C602 902 640 958 642 1030 Z" fill="#43A047"/>
+  <!-- Right leaf -->
+  <path d="M642 1050 C702 1020 736 958 726 915 C682 922 644 978 642 1050 Z" fill="#43A047"/>
+
+  <!-- Head circle -->
+  <circle cx="642" cy="1430" r="340" fill="#76C77A"/>
+  <!-- Subtle ring -->
+  <circle cx="642" cy="1430" r="340" fill="none" stroke="#43A047" stroke-width="20" opacity="0.45"/>
+
+  <!-- Cheeks -->
+  <circle cx="494" cy="1498" r="52" fill="#E53935" opacity="0.48"/>
+  <circle cx="790" cy="1498" r="52" fill="#E53935" opacity="0.48"/>
+
+  <!-- Eyes -->
+  <circle cx="558" cy="1378" r="58" fill="#2E3D2B"/>
+  <circle cx="726" cy="1378" r="58" fill="#2E3D2B"/>
+  <!-- Glints -->
+  <circle cx="580" cy="1352" r="20" fill="#ffffff"/>
+  <circle cx="748" cy="1352" r="20" fill="#ffffff"/>
+
+  <!-- Smile -->
+  <path d="M550 1510 Q642 1590 734 1510" fill="none" stroke="#5A3326" stroke-width="28" stroke-linecap="round"/>
+
+  <!-- App name -->
+  <text
+    x="642"
+    y="1920"
+    text-anchor="middle"
+    font-family="system-ui, -apple-system, sans-serif"
+    font-size="96"
+    font-weight="700"
+    letter-spacing="8"
+    fill="#FFFFFF"
+    opacity="0.92"
+  >semilla</text>
+</svg>
