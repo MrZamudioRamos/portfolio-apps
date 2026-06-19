@@ -16,7 +16,8 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FLOATING_TAB_BOTTOM_CLEARANCE } from './_layout';
 import { formatRelative } from '@portfolio/shared';
 import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
 import { type Plant } from '../../src/models/plant';
@@ -38,6 +39,7 @@ const ALL_TYPES: Array<EntryType | 'all'> = [
 function DiaryInner() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { t } = useTranslation();
   useTourAutoStart('diary', { firstStep: 'add' });
@@ -359,7 +361,7 @@ function DiaryInner() {
 
       {/* FAB */}
       <CopilotStep text={t('coach.diary')} order={1} name="add">
-        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary }]}>
+        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary, bottom: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 12 }]}>
           <Pressable
             onPress={() => router.push(plantId ? `/entry/new?plantId=${plantId}` : '/entry/new' as any)}
             style={({ pressed }) => [

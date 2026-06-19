@@ -49,6 +49,7 @@ import { persistPickedImage } from '../src/utils/persistImage';
 import { CoachBubble } from '../src/components/CoachBubble';
 import { CoachHeader } from '../src/components/CoachHeader';
 import { ScalePress } from '../src/components/ScalePress';
+import { Mascot } from '../src/components/Mascot';
 
 const NORTE_COUNTRIES: { country: string; emoji: string; regions: string[] }[] = [
   {
@@ -356,6 +357,8 @@ export default function OnboardingScreen() {
       {step === 0 && (
         <View style={[s.stepContainer, { justifyContent: 'space-between' }]}>
           <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: spacing.xl, gap: spacing['2xl'] ?? spacing.xl * 1.5 }}>
+            {/* Semillita */}
+            <Mascot pose="wave" size={96} />
             {/* Big B&W headline */}
             <View style={{ gap: spacing.sm }}>
               <Text style={{ fontSize: 52, fontWeight: '800', color: colors.text, letterSpacing: -2, lineHeight: 56 }}>

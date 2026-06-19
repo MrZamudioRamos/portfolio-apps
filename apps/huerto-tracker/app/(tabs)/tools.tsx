@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FLOATING_TAB_BOTTOM_CLEARANCE } from './_layout';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScalePress } from '../../src/components/ScalePress';
 import { usePro } from '../../src/hooks/usePro';
@@ -117,7 +118,7 @@ const makeStyles = (
       paddingBottom: spacing.sm,
     },
     pageTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
-    scroll: { padding: spacing.xl, paddingTop: spacing.md, paddingBottom: 40 },
+    scroll: { padding: spacing.xl, paddingTop: spacing.md, paddingBottom: FLOATING_TAB_BOTTOM_CLEARANCE + 20 },
     sectionTitle: {
       fontSize: fontSize.sm,
       fontWeight: fontWeight.semibold,
