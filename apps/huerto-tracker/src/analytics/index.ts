@@ -20,6 +20,7 @@ export const EVENTS = {
   firstCropPicked: 'first_crop_picked',
   coachingLevelChanged: 'coaching_level_changed',
   coachingOverrideSet: 'coaching_override_set',
+  accountDeleted: 'account_deleted',
 } as const;
 
 /**

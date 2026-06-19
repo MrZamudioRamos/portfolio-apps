@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
-import { Alert, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
@@ -63,6 +63,7 @@ export default function SettingsScreen() {
   const { activeGarden: garden } = useActiveGarden();
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
   const [showLangModal, setShowLangModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useFocusEffect(useCallback(() => { gardens.refresh(); }, []));
 
@@ -83,23 +84,11 @@ export default function SettingsScreen() {
       gardens.removeMany(gardens.items.map((g) => g.id)),
     ]);
 
-    // Hard-clear every collection key (also drops soft-delete tombstones that
-    // the filtered .items above don't include) + layouts.
+    // Hard-clear every @portfolio/ key (covers soft-delete tombstones,
+    // layouts and any future keys without needing to update this list).
     const allKeys = await AsyncStorage.getAllKeys();
-    const extraKeys = allKeys.filter(
-      (k) =>
-        k === '@portfolio/gardens' ||
-        k === '@portfolio/plants' ||
-        k === '@portfolio/diary_entries' ||
-        k === '@portfolio/reminders' ||
-        k === '@portfolio/user-profile' ||
-        k === '@portfolio/custom_crops' ||
-        k === '@portfolio/cost_entries' ||
-        k === '@portfolio/pending_deletes' ||
-        k === '@portfolio/active_garden_id' ||
-        k.startsWith('@portfolio/huerto/garden_layout/')
-    );
-    if (extraKeys.length > 0) await AsyncStorage.multiRemove(extraKeys);
+    const portfolioKeys = allKeys.filter((k) => k.startsWith('@portfolio/'));
+    if (portfolioKeys.length > 0) await AsyncStorage.multiRemove(portfolioKeys);
 
     await cancelAllReminders();
     if (!opts?.keepOnboarding) await resetOnboarding();
@@ -162,16 +151,19 @@ export default function SettingsScreen() {
                   text: t('settings.account.deleteAccountConfirm'),
                   style: 'destructive',
                   onPress: async () => {
+                    setIsDeleting(true);
                     try {
                       // Server deletes the auth user; DB cascade wipes all cloud data.
                       await deleteAccount();
                     } catch {
+                      setIsDeleting(false);
                       Alert.alert(t('settings.account.deleteAccountError'));
                       return;
                     }
                     await clearLocalData();
-                    await signOut().catch(() => {});
+                    track(EVENTS.accountDeleted);
                     resetAnalyticsUser();
+                    await signOut().catch(() => {});
                     router.replace('/welcome');
                   },
                 },
@@ -250,6 +242,7 @@ export default function SettingsScreen() {
                 s={s}
                 onPress={handleDeleteAccount}
                 destructive
+                loading={isDeleting}
               />
             </>
           )}
@@ -530,7 +523,7 @@ function Row({
 }
 
 function RowAction({
-  icon, label, colors, s, onPress, destructive, badge,
+  icon, label, colors, s, onPress, destructive, badge, loading,
 }: {
   icon: string;
   label: string;
@@ -539,10 +532,15 @@ function RowAction({
   onPress: () => void;
   destructive?: boolean;
   badge?: string;
+  loading?: boolean;
 }) {
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   return (
-    <Pressable style={({ pressed }) => [s.rowContainer, { opacity: pressed ? 0.6 : 1 }]} onPress={onPress}>
+    <Pressable
+      style={({ pressed }) => [s.rowContainer, { opacity: pressed || loading ? 0.6 : 1 }]}
+      onPress={loading ? undefined : onPress}
+      disabled={loading}
+    >
       <Ionicons name={icon as never} size={18} color={destructive ? colors.error : colors.textSecondary} />
       <Text style={[s.rowLabel, { color: destructive ? colors.error : colors.text, flex: 1 }]}>
         {label}
@@ -552,7 +550,9 @@ function RowAction({
           <Text style={{ color: colors.background, fontSize: 10, fontWeight: fontWeight.bold }}>⭐ {badge}</Text>
         </View>
       )}
-      <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />
+      {loading
+        ? <ActivityIndicator size="small" color={colors.error} />
+        : <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />}
     </Pressable>
   );
 }
