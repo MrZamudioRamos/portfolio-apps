@@ -22,7 +22,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FLOATING_TAB_BOTTOM_CLEARANCE } from './_layout';
+import { FLOATING_TAB_BOTTOM_CLEARANCE, showTabBar, hideTabBar } from './_layout';
 import { CROPS_BY_ID } from '../../src/data';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
@@ -92,6 +92,7 @@ function DashboardInner() {
   );
 
   const listRef = useRef<FlatList<Plant>>(null);
+  const lastScrollY = useRef(0);
   // First visit: spotlight tour. Start at the named first step — the today/
   // first-use card lives in the FlatList header, so copilot needs the list
   // ref to measure and scroll to it.
@@ -488,6 +489,18 @@ function DashboardInner() {
         columnWrapperStyle={s.columnWrapper}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={({ nativeEvent }) => {
+          const y = nativeEvent.contentOffset.y;
+          if (y <= 0) {
+            showTabBar();
+          } else if (y > lastScrollY.current + 12) {
+            hideTabBar();
+          } else if (y < lastScrollY.current - 12) {
+            showTabBar();
+          }
+          lastScrollY.current = y;
+        }}
         ListHeaderComponent={
           <>
             {/* Initial load spinner — avoids empty-state flash */}
