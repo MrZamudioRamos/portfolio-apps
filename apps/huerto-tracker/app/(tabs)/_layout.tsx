@@ -18,10 +18,12 @@ const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 export const FLOATING_TAB_BOTTOM_CLEARANCE = PILL_H + PILL_GAP_BOTTOM + PILL_MARGIN_TOP;
 
-// Module-level slide anim — 0 = shown, 1 = hidden (slides to right)
+// Module-level slide anim — 0 = shown, 1 = hidden (slides to left)
 export const tabBarSlide = new Animated.Value(0);
+let _isHidden = false;
 
 export function showTabBar() {
+  _isHidden = false;
   Animated.spring(tabBarSlide, {
     toValue: 0,
     useNativeDriver: true,
@@ -31,6 +33,7 @@ export function showTabBar() {
 }
 
 export function hideTabBar() {
+  _isHidden = true;
   Animated.spring(tabBarSlide, {
     toValue: 1,
     useNativeDriver: true,
@@ -80,14 +83,21 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
     }
   }, [activeVisibleIdx, tabW]);
 
+  // Pill slides to the LEFT (negative X = off screen left)
   const pillTranslateX = tabBarSlide.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, screenWidth],
+    outputRange: [0, -screenWidth],
   });
 
+  // Leaf restore button fades + scales in when pill is hidden
   const restoreOpacity = tabBarSlide.interpolate({
-    inputRange: [0, 0.4, 1],
+    inputRange: [0, 0.5, 1],
     outputRange: [0, 0, 1],
+  });
+
+  const restoreScale = tabBarSlide.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.5, 1],
   });
 
   return (
@@ -231,7 +241,10 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                 <Pressable
                   key={route.key}
                   onPress={() => {
-                    showTabBar();
+                    if (_isHidden) {
+                      showTabBar();
+                      return;
+                    }
                     const event = navigation.emit({
                       type: 'tabPress',
                       target: route.key,
@@ -272,13 +285,14 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
         </View>
       </Animated.View>
 
-      {/* Restore FAB — appears bottom-right when pill is hidden */}
+      {/* Leaf restore pill — fades in at bottom-left when pill is hidden */}
       <Animated.View
         style={{
           position: 'absolute',
           bottom: insets.bottom + PILL_GAP_BOTTOM,
-          right: 12,
+          left: 12,
           opacity: restoreOpacity,
+          transform: [{ scale: restoreScale }],
         }}
         pointerEvents="box-none"
       >
@@ -292,17 +306,34 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
             borderRadius: PILL_H / 2,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: isDark ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.95)',
-            borderWidth: StyleSheet.hairlineWidth,
-            borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)',
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: isDark ? 0.4 : 0.12,
-            shadowRadius: 12,
-            elevation: 8,
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: isDark ? 0.45 : 0.15,
+            shadowRadius: 18,
+            elevation: 12,
           }}
         >
-          <Text style={{ fontSize: 20, color: isDark ? '#EEE' : '#111' }}>⊹</Text>
+          {/* Same glass background as the pill */}
+          {glassAvailable ? (
+            <GlassView
+              style={[StyleSheet.absoluteFill, { borderRadius: PILL_H / 2 }]}
+              glassEffectStyle="regular"
+              colorScheme={isDark ? 'dark' : 'light'}
+            />
+          ) : (
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                {
+                  borderRadius: PILL_H / 2,
+                  backgroundColor: isDark ? 'rgba(22,22,22,0.96)' : 'rgba(255,255,255,0.96)',
+                  borderWidth: StyleSheet.hairlineWidth,
+                  borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+                },
+              ]}
+            />
+          )}
+          <Ionicons name="leaf-outline" size={24} color={isDark ? '#EEE' : '#111'} />
         </Pressable>
       </Animated.View>
     </View>

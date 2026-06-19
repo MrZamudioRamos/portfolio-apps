@@ -914,7 +914,7 @@ function DashboardInner() {
             accessibilityLabel={t('home.addPlant')}
             style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28 }}
           >
-            <Ionicons name="add" size={28} color="#fff" />
+            <Ionicons name="add" size={28} color={colors.background} />
           </ScalePress>
         </WalkView>
       </CopilotStep>
