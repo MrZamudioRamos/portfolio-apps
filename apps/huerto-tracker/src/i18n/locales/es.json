@@ -529,7 +529,9 @@
     "restoreSuccessDesc": "Tu suscripción Pro está activa.",
     "restoreNoneTitle": "Sin compras anteriores",
     "restoreNoneDesc": "No encontramos ninguna suscripción activa asociada a tu cuenta.",
-    "restoreError": "No se pudo conectar. Inténtalo de nuevo."
+    "restoreError": "No se pudo conectar. Inténtalo de nuevo.",
+    "showAll": "Ver todo lo incluido",
+    "showLess": "Ocultar extras"
   },
   "plantEdit": {
     "title": "Editar planta",

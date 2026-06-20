@@ -14,16 +14,18 @@ const TRIAL_REMINDER_KEY = '@portfolio/huerto/trial_reminder_enabled';
 const TRIAL_REMINDER_NOTIF_ID = '@portfolio/huerto/trial_reminder_notif_id';
 const TRIAL_DAYS = 7;
 
-const PRO_FEATURE_KEYS = [
+const MAIN_FEATURE_KEYS = [
   { emoji: '🏡', key: 'paywall.features.gardens' },
   { emoji: '🌱', key: 'paywall.features.plants' },
   { emoji: '🗺️', key: 'paywall.features.gardenMap' },
   { emoji: '🤖', key: 'paywall.features.aiDiagnosis' },
   { emoji: '⏰', key: 'paywall.features.reminders' },
+];
+
+const EXTRA_FEATURE_KEYS = [
   { emoji: '📤', key: 'paywall.features.csvExport' },
   { emoji: '🏆', key: 'paywall.features.gamification' },
   { emoji: '🤝', key: 'paywall.features.companions' },
-  { emoji: '☁️', key: 'paywall.features.backup' },
 ];
 
 export default function PaywallScreen() {
@@ -35,6 +37,7 @@ export default function PaywallScreen() {
   const { isPro, activePlan, purchasing, offerings, purchase, restore } = usePurchases();
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('annual');
   const [trialReminderOn, setTrialReminderOn] = useState(true);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     track(EVENTS.paywallViewed, { source: source ?? 'direct' });
@@ -125,12 +128,42 @@ export default function PaywallScreen() {
 
         {/* Features */}
         <View style={[s.featuresCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          {PRO_FEATURE_KEYS.map((feat, i) => (
+          {MAIN_FEATURE_KEYS.map((feat, i) => (
             <View
-              key={i}
+              key={feat.key}
               style={[
                 s.featureRow,
-                i < PRO_FEATURE_KEYS.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+                { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+              ]}
+            >
+              <View style={[s.featureIconBox, { backgroundColor: colors.surfaceAlt }]}>
+                <Text style={{ fontSize: 18 }}>{feat.emoji}</Text>
+              </View>
+              <Text style={[s.featureText, { color: colors.text }]}>{t(feat.key)}</Text>
+              <Ionicons
+                name={isPro ? 'checkmark-circle' : 'checkmark-circle-outline'}
+                size={20}
+                color={isPro ? colors.primary : colors.textDisabled}
+              />
+            </View>
+          ))}
+
+          <Pressable
+            onPress={() => setShowAll((v) => !v)}
+            style={[s.featureRow, { borderBottomWidth: showAll ? StyleSheet.hairlineWidth : 0, borderBottomColor: colors.border }]}
+          >
+            <Text style={[s.featureText, { color: colors.primary, fontSize: fontSize.sm }]}>
+              {showAll ? t('paywall.showLess') : t('paywall.showAll')}
+            </Text>
+            <Ionicons name={showAll ? 'chevron-up' : 'chevron-down'} size={16} color={colors.primary} />
+          </Pressable>
+
+          {showAll && EXTRA_FEATURE_KEYS.map((feat, i) => (
+            <View
+              key={feat.key}
+              style={[
+                s.featureRow,
+                i < EXTRA_FEATURE_KEYS.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
               ]}
             >
               <View style={[s.featureIconBox, { backgroundColor: colors.surfaceAlt }]}>
