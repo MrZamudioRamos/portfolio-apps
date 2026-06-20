@@ -32,7 +32,7 @@ import type { GardenReminder } from '../src/models/reminder';
 const ACTIVE_KEY = '@portfolio/active_garden_id';
 const LAYOUT_KEY = (id: string) => `@portfolio/huerto/garden_layout/${id}`;
 const ALL_PROVINCES = Object.keys(PROVINCE_ZONES).sort();
-const FREE_GARDEN_LIMIT = 2;
+const FREE_GARDEN_LIMIT = 1;
 
 export default function GardensScreen() {
   const colors = useColors();

@@ -1,4 +1,5 @@
-import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useCollection } from '@portfolio/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -73,6 +74,7 @@ export default function CostsScreen() {
   const [newPlantId, setNewPlantId] = useState<string | undefined>(undefined);
   const [saving, setSaving] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -586,14 +588,44 @@ export default function CostsScreen() {
                 );
               })}
             </View>
-            <TextInput
-              value={newDate}
-              onChangeText={setNewDate}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor={colors.textDisabled}
-              style={[s.descInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surfaceAlt }]}
-              keyboardType="numeric"
-            />
+            <Pressable
+              onPress={() => setShowDatePicker(true)}
+              style={[s.descInput, { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}
+            >
+              <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
+              <Text style={{ color: colors.text, fontSize: fontSize.md, flex: 1 }}>{newDate}</Text>
+            </Pressable>
+            {showDatePicker && Platform.OS === 'android' && (
+              <DateTimePicker
+                value={new Date(newDate + 'T12:00:00')}
+                mode="date"
+                display="default"
+                onChange={(_, d) => { setShowDatePicker(false); if (d) setNewDate(dateToStr(d)); }}
+              />
+            )}
+            {showDatePicker && Platform.OS === 'ios' && (
+              <Modal transparent animationType="slide" visible>
+                <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
+                  <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
+                    {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+                    <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
+                    <DateTimePicker
+                      value={new Date(newDate + 'T12:00:00')}
+                      mode="date"
+                      display="spinner"
+                      onChange={(_, d) => { if (d) setNewDate(dateToStr(d)); }}
+                      style={{ width: '100%' }}
+                    />
+                    <Button
+                      title={t('common.save')}
+                      onPress={() => setShowDatePicker(false)}
+                      size="lg"
+                      style={{ margin: spacing.xl, marginTop: 0 }}
+                    />
+                  </Pressable>
+                </Pressable>
+              </Modal>
+            )}
 
             {/* Plant (optional) */}
             {gardenPlants.length > 0 && (
@@ -809,4 +841,21 @@ const makeStyles = (
       borderRadius: radii.full,
     },
     roiBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+    dateModalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.4)',
+      justifyContent: 'flex-end',
+    },
+    dateModalSheet: {
+      borderTopLeftRadius: radii.xl,
+      borderTopRightRadius: radii.xl,
+      paddingTop: spacing.sm,
+      alignItems: 'center',
+    },
+    dateModalHandle: {
+      width: 40,
+      height: 4,
+      borderRadius: 2,
+      marginBottom: spacing.md,
+    },
   });
