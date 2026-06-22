@@ -70,11 +70,16 @@ function DiaryInner() {
   const { isPro } = usePro();
   const { activeGarden, refreshActiveId } = useActiveGarden();
 
+  const lastDataRefresh = useRef(0);
   useFocusEffect(
     useCallback(() => {
       refreshActiveId();
-      entries.refresh();
-      plants.refresh();
+      const now = Date.now();
+      if (now - lastDataRefresh.current > 5_000) {
+        lastDataRefresh.current = now;
+        entries.refresh();
+        plants.refresh();
+      }
     }, [])
   );
 

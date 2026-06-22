@@ -90,9 +90,16 @@ function DashboardInner() {
   useFocusEffect(
     useCallback(() => {
       refreshActiveId();
-      allPlants.refresh();
-      reminders.refresh();
-      entries.refresh();
+      // Throttle collection refreshes: skip if we focused again within 5 s
+      // (quick tab switch). Returning from a stack screen (adding a plant, etc.)
+      // takes longer, so the threshold reliably triggers a data refresh then.
+      const now = Date.now();
+      if (now - lastDataRefresh.current > 5_000) {
+        lastDataRefresh.current = now;
+        allPlants.refresh();
+        reminders.refresh();
+        entries.refresh();
+      }
       if (garden?.province) checkFrost(garden.province);
       AsyncStorage.getItem(FROM_ONBOARDING_KEY).then((v) => {
         if (v === '1') {
@@ -107,6 +114,7 @@ function DashboardInner() {
 
   const listRef = useRef<FlatList<Plant>>(null);
   const lastScrollY = useRef(0);
+  const lastDataRefresh = useRef(0);
   // First visit: spotlight tour. Start at the named first step — the today/
   // first-use card lives in the FlatList header, so copilot needs the list
   // ref to measure and scroll to it.
