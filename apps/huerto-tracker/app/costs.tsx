@@ -166,6 +166,19 @@ export default function CostsScreen() {
   const totalManualCost = CATEGORIES.reduce((s, c) => s + costByCategory[c], 0);
   const totalCost = totalManualCost + waterCost;
   const harvestValue = harvestData.totalKg * harvestPrice;
+
+  const monthlyCostChart = useMemo(() => {
+    const intlLocale = i18n.language === 'val' ? 'ca-ES' : i18n.language;
+    return Array.from({ length: 12 }, (_, idx) => {
+      const d = new Date(year, idx, 1);
+      const key = `${year}-${String(idx + 1).padStart(2, '0')}`;
+      const label = new Intl.DateTimeFormat(intlLocale, { month: 'short' }).format(d);
+      const total = costEntries.items
+        .filter((e) => e.gardenId === gardenId && e.date.startsWith(key))
+        .reduce((s, e) => s + e.amount, 0);
+      return { key, label: label.charAt(0).toUpperCase() + label.slice(1, 3), total };
+    });
+  }, [costEntries.items, gardenId, year, i18n.language]);
   const netProfit = harvestValue - totalCost;
   const roi = totalCost > 0 ? (netProfit / totalCost) * 100 : null;
 
@@ -337,6 +350,42 @@ export default function CostsScreen() {
             </Text>
           </View>
         )}
+
+        {/* ── Monthly spend chart ── */}
+        {totalCost > 0 && (() => {
+          const maxMonthly = Math.max(...monthlyCostChart.map((m) => m.total), 0.01);
+          const BAR_H = 56;
+          const currentMonthKey = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+          return (
+            <>
+              <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('costs.monthlyChartLabel')}</Text>
+              <Card padded style={s.card}>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4 }}>
+                  {monthlyCostChart.map((m) => {
+                    const h = m.total > 0 ? Math.max((m.total / maxMonthly) * BAR_H, 6) : 2;
+                    const isCurrent = m.key === currentMonthKey;
+                    return (
+                      <View key={m.key} style={{ flex: 1, alignItems: 'center', gap: 4 }}>
+                        <View
+                          style={{
+                            width: '100%',
+                            height: h,
+                            borderRadius: 3,
+                            backgroundColor: isCurrent ? '#EF5350' : '#EF535055',
+                            opacity: m.total === 0 ? 0.15 : 1,
+                          }}
+                        />
+                        <Text style={{ fontSize: 9, color: isCurrent ? '#EF5350' : colors.textDisabled, fontWeight: isCurrent ? '700' : '400' }}>
+                          {m.label}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </Card>
+            </>
+          );
+        })()}
 
         {/* ── Manual costs ── */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('costs.expensesLabel')}</Text>

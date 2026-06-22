@@ -3,9 +3,9 @@ import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { usePro } from '../src/hooks/usePro';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../src/data/crops';
 import type { DiaryEntry, EntryType } from '../src/models/diary-entry';
@@ -225,6 +225,26 @@ export default function StatsScreen() {
 
   const { t } = useTranslation();
 
+  const barAnims = useRef(
+    Array.from({ length: 6 }, () => new Animated.Value(0))
+  ).current;
+
+  useEffect(() => {
+    const anims = stats.monthCounts.map((m, i) => {
+      const h = stats.maxMonthCount > 0
+        ? Math.max((m.count / stats.maxMonthCount) * BAR_MAX_H, m.count > 0 ? 6 : 2)
+        : 2;
+      barAnims[i].setValue(0);
+      return Animated.timing(barAnims[i], {
+        toValue: h,
+        duration: 450,
+        delay: i * 55,
+        useNativeDriver: false,
+      });
+    });
+    Animated.parallel(anims).start();
+  }, [stats.monthCounts]);
+
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
@@ -315,21 +335,18 @@ export default function StatsScreen() {
         <Text style={[s.sectionTitle, { color: colors.text }]}>{t('stats.monthlyActivity')}</Text>
         <Card padded style={s.card}>
           <View style={s.barChart}>
-            {stats.monthCounts.map((m) => {
-              const h = stats.maxMonthCount > 0
-                ? Math.max((m.count / stats.maxMonthCount) * BAR_MAX_H, m.count > 0 ? 6 : 2)
-                : 2;
+            {stats.monthCounts.map((m, i) => {
               const isCurrentMonth = m.key === new Date().toISOString().slice(0, 7);
               return (
                 <View key={m.key} style={s.barCol}>
                   {m.count > 0 && (
                     <Text style={[s.barValue, { color: colors.textSecondary }]}>{m.count}</Text>
                   )}
-                  <View
+                  <Animated.View
                     style={[
                       s.bar,
                       {
-                        height: h,
+                        height: barAnims[i],
                         backgroundColor: isCurrentMonth ? colors.primary : colors.primaryLight,
                         opacity: m.count === 0 ? 0.2 : 1,
                       },

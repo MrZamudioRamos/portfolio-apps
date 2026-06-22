@@ -364,6 +364,54 @@ export default function PlantDetailScreen() {
             )}
           </View>
 
+          {/* Lifecycle progress bar */}
+          {(() => {
+            const currentIdx = ALL_STATUSES.indexOf(plant.status);
+            return (
+              <View style={{ marginBottom: spacing.xl }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  {ALL_STATUSES.map((st, i) => {
+                    const cfg = PLANT_STATUS_CONFIG[st];
+                    const isCurrent = i === currentIdx;
+                    const isDone = i < currentIdx;
+                    return (
+                      <React.Fragment key={st}>
+                        {i > 0 && (
+                          <View style={{
+                            flex: 1, height: 2,
+                            backgroundColor: isDone ? colors.primary + '66' : colors.border,
+                          }} />
+                        )}
+                        <View style={{
+                          width: 30, height: 30, borderRadius: 15,
+                          alignItems: 'center', justifyContent: 'center',
+                          backgroundColor: isCurrent ? cfg.color + '20' : 'transparent',
+                          borderWidth: 1.5,
+                          borderColor: isCurrent ? cfg.color : isDone ? colors.primary + '55' : colors.border,
+                        }}>
+                          <Text style={{ fontSize: isCurrent ? 15 : 12, opacity: isDone ? 0.5 : 1 }}>
+                            {cfg.emoji}
+                          </Text>
+                        </View>
+                      </React.Fragment>
+                    );
+                  })}
+                </View>
+                {statusConfig && (
+                  <Text style={{
+                    fontSize: fontSize.xs,
+                    color: statusConfig.color,
+                    fontWeight: fontWeight.semibold,
+                    textAlign: 'center',
+                    marginTop: spacing.xs,
+                  }}>
+                    {t('plantStatus.' + plant.status)}
+                  </Text>
+                )}
+              </View>
+            );
+          })()}
+
           {/* Coach line — what's happening now + the next step, in plain words */}
           {(() => {
             const coach = getPlantCoach(plant, crop);
