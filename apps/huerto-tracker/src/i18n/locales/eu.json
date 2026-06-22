@@ -418,6 +418,12 @@
     "gardenTypeLabel": "Zer espazio mota daukazu?",
     "gardenNamePlaceholder": "Adib: Nire terraza, Balkoi iparraldea...",
     "create": "Sortu baratzea 🌱",
+    "creating": {
+      "preparing": "Preparando tu huerto...",
+      "climate": "Calculando el clima perfecto...",
+      "calendar": "Creando tu calendario de siembra...",
+      "ready": "¡Tu huerto está listo!"
+    },
     "provinceSearch": "Probintzia edo eskualdea bilatu...",
     "closeSearch": "Itxi",
     "step4Title": "Lorategia sortua! 🌱",

@@ -418,6 +418,12 @@
     "gardenTypeLabel": "Que tipo de espazo tes?",
     "gardenNamePlaceholder": "Ex: A miña terraza, Balcón norte...",
     "create": "Crear horta 🌱",
+    "creating": {
+      "preparing": "Preparando a túa horta...",
+      "climate": "Calculando o clima perfecto...",
+      "calendar": "Creando o teu calendario de sementeira...",
+      "ready": "A túa horta está lista!"
+    },
     "provinceSearch": "Buscar provincia ou rexión...",
     "closeSearch": "Pechar",
     "step4Title": "Horto creado! 🌱",

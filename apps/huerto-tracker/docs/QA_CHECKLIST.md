@@ -11,11 +11,11 @@ o no tener sentido.
 
 ## 1. Cuenta y sesión
 - [ ] Registro con email + contraseña.
-- [ ] Login con contraseña.
+- [X] Login con contraseña.
 - [ ] Login con OTP (código email).
 - [ ] Login Google (⚠️ solo build nativo, no Expo Go).
 - [ ] Login Apple (⚠️ solo build nativo).
-- [ ] Cerrar sesión → datos locales se borran, vuelve a /welcome.
+- [X] Cerrar sesión → datos locales se borran, vuelve a /welcome.
 - [ ] Re-login → vuelven SOLO los datos de esa cuenta (no de la anterior).
 - [ ] Borrar cuenta → doble confirmación → cuenta y datos fuera de Supabase, va a welcome.
 - [ ] ⚠️ Borrar cuenta / scan IA **primera llamada** puede tardar (cold start de Edge Function). ¿Acepta o da error la 1ª vez?

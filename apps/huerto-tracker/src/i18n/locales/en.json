@@ -422,6 +422,12 @@
     "gardenTypeLabel": "What kind of space do you have?",
     "gardenNamePlaceholder": "E.g. My terrace, North balcony...",
     "create": "Create garden 🌱",
+    "creating": {
+      "preparing": "Getting your garden ready...",
+      "climate": "Calculating the perfect climate...",
+      "calendar": "Building your sowing calendar...",
+      "ready": "Your garden is ready!"
+    },
     "provinceSearch": "Search province or region...",
     "closeSearch": "Close",
     "regions": "regions",

@@ -439,6 +439,12 @@
     "gardenTypeLabel": "¿Qué tipo de espacio tienes?",
     "gardenNamePlaceholder": "Ej: Mi terraza, Balcón norte...",
     "create": "Crear huerto 🌱",
+    "creating": {
+      "preparing": "Preparando tu huerto...",
+      "climate": "Calculando el clima perfecto...",
+      "calendar": "Creando tu calendario de siembra...",
+      "ready": "¡Tu huerto está listo!"
+    },
     "provinceSearch": "Buscar provincia o región...",
     "closeSearch": "Cerrar",
     "regions": "regiones",

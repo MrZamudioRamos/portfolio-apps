@@ -170,7 +170,32 @@ export default function OnboardingScreen() {
   const [hemisphere, setHemisphere] = useState<Hemisphere>('norte');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showCreating, setShowCreating] = useState(false);
+  const [creatingMsgIdx, setCreatingMsgIdx] = useState(0);
+  const creatingOpacity = useRef(new Animated.Value(1)).current;
   const [remindersState, setRemindersState] = useState<'idle' | 'granted'>('idle');
+
+  const CREATING_MESSAGES = [
+    { emoji: '🌱', key: 'onboarding.creating.preparing' },
+    { emoji: '☀️', key: 'onboarding.creating.climate' },
+    { emoji: '🗓️', key: 'onboarding.creating.calendar' },
+    { emoji: '🎉', key: 'onboarding.creating.ready' },
+  ];
+
+  useEffect(() => {
+    if (!showCreating) return;
+    setCreatingMsgIdx(0);
+    creatingOpacity.setValue(1);
+    let idx = 0;
+    const timer = setInterval(() => {
+      Animated.timing(creatingOpacity, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
+        idx = (idx + 1) % CREATING_MESSAGES.length;
+        setCreatingMsgIdx(idx);
+        Animated.timing(creatingOpacity, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+      });
+    }, 700);
+    return () => clearInterval(timer);
+  }, [showCreating]);
 
   const climateZone = province ? PROVINCE_ZONES[province] : null;
   const zoneConfig = climateZone ? CLIMATE_ZONE_CONFIG[climateZone] : null;
@@ -302,30 +327,34 @@ export default function OnboardingScreen() {
       router.replace('/(tabs)');
       return;
     }
+    setShowCreating(true);
     setSaving(true);
+    const minDelay = new Promise<void>((resolve) => setTimeout(resolve, 2800));
     try {
-      await gardens.create({
-        name: gardenName.trim(),
-        climateZone,
-        province,
-        gardenType,
-        hemisphere,
-        ...(photoUri ? { photoUri } : {}),
-      });
-      if (sunlight && experience) {
-        await saveProfile({
-          spaceTypes,
-          growingMethods,
-          sunlight,
-          experience,
-        });
-      }
-      await complete();
-      track(EVENTS.onboardingCompleted, { experience, gardenType });
-      track(EVENTS.firstCropSuggested, { count: firstCropPicks.length, cropIds: firstCropPicks.map((c) => c.id).join(',') });
+      await Promise.all([
+        (async () => {
+          await gardens.create({
+            name: gardenName.trim(),
+            climateZone,
+            province,
+            gardenType,
+            hemisphere,
+            ...(photoUri ? { photoUri } : {}),
+          });
+          if (sunlight && experience) {
+            await saveProfile({ spaceTypes, growingMethods, sunlight, experience });
+          }
+          await complete();
+          track(EVENTS.onboardingCompleted, { experience, gardenType });
+          track(EVENTS.firstCropSuggested, { count: firstCropPicks.length, cropIds: firstCropPicks.map((c) => c.id).join(',') });
+        })(),
+        minDelay,
+      ]);
+      setShowCreating(false);
       goTo(7);
     } catch (e) {
       console.error('[onboarding] handleCreate failed:', e);
+      setShowCreating(false);
     } finally {
       setSaving(false);
     }
@@ -873,6 +902,40 @@ export default function OnboardingScreen() {
       )}
 
       </Animated.View>
+
+      {/* ── Creating overlay ── */}
+      {showCreating && (
+        <View
+          style={[
+            StyleSheet.absoluteFillObject,
+            {
+              backgroundColor: colors.background,
+              zIndex: 99,
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: spacing.xl,
+            },
+          ]}
+        >
+          <Mascot pose="celebrate" size={110} />
+          <Animated.View style={{ opacity: creatingOpacity, alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.xl }}>
+            <Text style={{ fontSize: 52 }}>{CREATING_MESSAGES[creatingMsgIdx].emoji}</Text>
+            <Text
+              style={{
+                fontSize: fontSize.xl,
+                fontWeight: fontWeight.bold,
+                color: colors.text,
+                textAlign: 'center',
+              }}
+            >
+              {t(CREATING_MESSAGES[creatingMsgIdx].key)}
+            </Text>
+          </Animated.View>
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.md, fontWeight: fontWeight.medium }}>
+            {gardenName.trim()}
+          </Text>
+        </View>
+      )}
 
       {/* ── Province picker modal ── */}
       <Modal visible={showProvincePicker} animationType="slide" presentationStyle="pageSheet">

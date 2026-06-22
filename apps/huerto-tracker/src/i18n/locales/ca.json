@@ -418,6 +418,12 @@
     "gardenTypeLabel": "Quin tipus d'espai tens?",
     "gardenNamePlaceholder": "Ex: La meva terrassa, Balcó nord...",
     "create": "Crear hort 🌱",
+    "creating": {
+      "preparing": "Preparant el teu hort...",
+      "climate": "Calculant el clima perfecte...",
+      "calendar": "Creant el teu calendari de sembra...",
+      "ready": "El teu hort està llest!"
+    },
     "provinceSearch": "Cercar província o regió...",
     "closeSearch": "Tancar",
     "step4Title": "Hort creat! 🌱",
