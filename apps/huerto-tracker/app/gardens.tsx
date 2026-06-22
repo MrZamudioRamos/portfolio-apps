@@ -170,7 +170,7 @@ export default function GardensScreen() {
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardens.title')}</Text>
         <Pressable
-          onPress={() => canCreateMore ? setShowCreate(true) : router.push('/paywall')}
+          onPress={() => canCreateMore ? setShowCreate(true) : router.push('/paywall?source=garden_limit' as any)}
           hitSlop={12}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
         >

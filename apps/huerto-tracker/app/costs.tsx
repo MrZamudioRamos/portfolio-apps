@@ -210,6 +210,7 @@ export default function CostsScreen() {
     setNewCategory('seeds');
     setNewPlantId(undefined);
     setSaving(false);
+    setShowDatePicker(false);
     setShowAddModal(false);
   }
 
@@ -254,7 +255,7 @@ export default function CostsScreen() {
             {t('costs.proDesc')}
           </Text>
           <Pressable
-            onPress={() => router.push('/paywall')}
+            onPress={() => router.push('/paywall?source=costs' as any)}
             style={{ backgroundColor: colors.primary, paddingVertical: spacing.lg, paddingHorizontal: spacing['2xl'], borderRadius: radii.lg }}
           >
             <Text style={{ color: colors.background, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('costs.proBtn')}</Text>
@@ -530,8 +531,8 @@ export default function CostsScreen() {
       </ScrollView>
 
       {/* ── Add cost modal ── */}
-      <Modal visible={showAddModal} transparent animationType="slide" onRequestClose={() => setShowAddModal(false)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => setShowAddModal(false)} />
+      <Modal visible={showAddModal} transparent animationType="slide" onRequestClose={() => { setShowAddModal(false); setShowDatePicker(false); }}>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => { setShowAddModal(false); setShowDatePicker(false); }} />
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <Pressable
             onPress={() => {}}

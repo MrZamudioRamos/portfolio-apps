@@ -828,6 +828,7 @@
     "achievements": "Assoliments",
     "achievementsPro": "Assoliments — funció Pro",
     "achievementsProBtn": "Desbloquejar amb Pro →",
+    "achievementsProHint": "{{count}} ja desbloquejats",
     "entryCount_one": "{{count}} entrada",
     "entryCount_other": "{{count}} entrades",
     "harvestCount_one": "{{count}} collita",

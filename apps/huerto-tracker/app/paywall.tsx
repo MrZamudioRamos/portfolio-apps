@@ -37,7 +37,7 @@ export default function PaywallScreen() {
   const { isPro, activePlan, purchasing, offerings, purchase, restore } = usePurchases();
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('annual');
   const [trialReminderOn, setTrialReminderOn] = useState(true);
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(true);
 
   useEffect(() => {
     track(EVENTS.paywallViewed, { source: source ?? 'direct' });

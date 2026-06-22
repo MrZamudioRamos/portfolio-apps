@@ -127,10 +127,7 @@ export default function PlantScanScreen() {
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('plantScan.proDesc')}</Text>
           <Button
             title={t('plantScan.upgradePro')}
-            onPress={() => {
-              track(EVENTS.paywallViewed, { source: 'ai_scan' });
-              router.push('/paywall');
-            }}
+            onPress={() => router.push('/paywall?source=ai_scan' as any)}
             size="lg"
             style={{ marginTop: spacing.xl, alignSelf: 'stretch' }}
           />

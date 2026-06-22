@@ -836,6 +836,7 @@
     "achievements": "Achievements",
     "achievementsPro": "Achievements — Pro feature",
     "achievementsProBtn": "Unlock with Pro →",
+    "achievementsProHint": "{{count}} already unlocked",
     "entryCount_one": "{{count}} entry",
     "entryCount_other": "{{count}} entries",
     "harvestCount_one": "{{count}} harvest",

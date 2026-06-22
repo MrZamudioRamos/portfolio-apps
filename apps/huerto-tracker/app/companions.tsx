@@ -111,7 +111,7 @@ export default function CompanionsScreen() {
 
         {locked && (
           <Pressable
-            onPress={() => router.push('/paywall')}
+            onPress={() => router.push('/paywall?source=companions' as any)}
             style={[s.lockOverlay, { backgroundColor: colors.background + 'E8' }]}
           >
             <View style={[s.lockBadge, { backgroundColor: colors.primary, ...shadows.md }]}>
@@ -189,7 +189,7 @@ export default function CompanionsScreen() {
         </View>
         {!isPro && (
           <Pressable
-            onPress={() => router.push('/paywall')}
+            onPress={() => router.push('/paywall?source=companions' as any)}
             style={[s.proBadge, { backgroundColor: colors.primary }]}
           >
             <Text style={[s.proBadgeText, { color: colors.background }]}>⭐ Pro</Text>
@@ -239,7 +239,7 @@ export default function CompanionsScreen() {
             {filtered.map((crop, i) => renderBrowseItem(crop, i))}
             {!isPro && filtered.length > FREE_PREVIEW_COUNT && (
               <Pressable
-                onPress={() => router.push('/paywall')}
+                onPress={() => router.push('/paywall?source=companions' as any)}
                 style={[s.unlockBanner, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}
               >
                 <Text style={[s.unlockBannerText, { color: colors.primary }]}>

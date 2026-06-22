@@ -519,10 +519,17 @@ export default function StatsScreen() {
           </View>
         ) : (
           <Pressable
-            onPress={() => router.push('/paywall')}
+            onPress={() => router.push('/paywall?source=achievements' as any)}
             style={[s.badgesGrid, { backgroundColor: colors.surfaceAlt, borderRadius: radii.lg, padding: spacing.xl, alignItems: 'center', justifyContent: 'center', minHeight: 120 }]}
           >
             <Text style={{ fontSize: 32, marginBottom: spacing.sm }}>🏆</Text>
+            {unlockedCount > 0 && (
+              <View style={[s.badgesCountBadge, { backgroundColor: colors.primary + '22', marginBottom: spacing.sm }]}>
+                <Text style={[s.badgesCountText, { color: colors.primary }]}>
+                  {t('stats.achievementsProHint', { count: unlockedCount })}
+                </Text>
+              </View>
+            )}
             <Text style={{ fontSize: fontSize.md, fontWeight: fontWeight.bold, color: colors.text, textAlign: 'center' }}>
               {t('stats.achievementsPro')}
             </Text>

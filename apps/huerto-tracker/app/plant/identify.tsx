@@ -152,10 +152,7 @@ export default function IdentifyPlantScreen() {
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('identify.proDesc')}</Text>
           <Button
             title={t('identify.upgradePro')}
-            onPress={() => {
-              track(EVENTS.paywallViewed, { source: 'ai_identify' });
-              router.push('/paywall');
-            }}
+            onPress={() => router.push('/paywall?source=ai_identify' as any)}
             size="lg"
             style={{ marginTop: spacing.xl, alignSelf: 'stretch' }}
           />

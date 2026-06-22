@@ -63,8 +63,7 @@ export default function ReminderNewScreen() {
     }
     const gardenReminderCount = reminders.items.filter((r) => r.gardenId === gardenId).length;
     if (!isPro && gardenReminderCount >= 3) {
-      track(EVENTS.paywallViewed, { source: 'reminders' });
-      router.push('/paywall');
+      router.push('/paywall?source=reminders' as any);
       return;
     }
     setSaving(true);

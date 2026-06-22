@@ -828,6 +828,7 @@
     "achievements": "Lorpenak",
     "achievementsPro": "Lorpenak — Pro funtzioa",
     "achievementsProBtn": "Pro-rekin desblokeatu →",
+    "achievementsProHint": "{{count}} ya desbloqueados",
     "entryCount_one": "{{count}} sarrera",
     "entryCount_other": "{{count}} sarrera",
     "harvestCount_one": "{{count}} uzta",

@@ -328,7 +328,7 @@ export default function SettingsScreen() {
                 title={t('settings.subscription.viewPlans')}
                 variant="primary"
                 size="sm"
-                onPress={() => router.push('/paywall')}
+                onPress={() => router.push('/paywall?source=settings' as any)}
               />
             )}
           </View>

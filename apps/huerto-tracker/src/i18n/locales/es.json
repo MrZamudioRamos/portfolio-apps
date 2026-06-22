@@ -867,6 +867,7 @@
     "achievements": "Logros",
     "achievementsPro": "Logros — función Pro",
     "achievementsProBtn": "Desbloquear con Pro →",
+    "achievementsProHint": "{{count}} ya desbloqueados",
     "entryCount_one": "{{count}} entrada",
     "entryCount_other": "{{count}} entradas",
     "harvestCount_one": "{{count}} cosecha",

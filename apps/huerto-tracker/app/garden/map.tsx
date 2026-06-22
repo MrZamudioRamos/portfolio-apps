@@ -417,10 +417,7 @@ export default function GardenMapScreen() {
             {t('gardenMap.proDesc')}
           </Text>
           <Pressable
-            onPress={() => {
-              track(EVENTS.paywallViewed, { source: 'map' });
-              router.push('/paywall');
-            }}
+            onPress={() => router.push('/paywall?source=map' as any)}
             style={{ backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, borderRadius: radii.full }}
           >
             <Text style={{ color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold }}>

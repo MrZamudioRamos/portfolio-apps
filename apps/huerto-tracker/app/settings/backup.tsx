@@ -50,7 +50,7 @@ export default function BackupScreen() {
         t('backup.proTitle'),
         t('backup.proDesc'),
         [
-          { text: t('backup.viewPlans'), onPress: () => router.push('/paywall') },
+          { text: t('backup.viewPlans'), onPress: () => router.push('/paywall?source=backup_export' as any) },
           { text: t('common.cancel'), style: 'cancel' },
         ]
       );
@@ -230,7 +230,7 @@ export default function BackupScreen() {
               variant={isPro ? 'primary' : 'secondary'}
               size="sm"
               onPress={() => {
-                if (!isPro) { router.push('/paywall'); return; }
+                if (!isPro) { router.push('/paywall?source=backup_export' as any); return; }
                 if (!activeGarden) return;
                 generateAndShare(
                   activeGarden,

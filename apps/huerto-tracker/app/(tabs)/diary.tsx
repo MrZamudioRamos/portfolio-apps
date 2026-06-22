@@ -239,7 +239,7 @@ function DiaryInner() {
             <Pressable
               onPress={() => {
                 if (!isPro) {
-                  router.push('/paywall');
+                  router.push('/paywall?source=csv_export' as any);
                   return;
                 }
                 exportEntries(gardenEntries, Object.values(plantsById), customCropsById);

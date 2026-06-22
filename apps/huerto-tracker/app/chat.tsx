@@ -155,10 +155,7 @@ export default function ChatScreen() {
           <Text style={[s.gateTitle, { color: colors.text }]}>{t('chat.proTitle')}</Text>
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.proDesc')}</Text>
           <Pressable
-            onPress={() => {
-              track(EVENTS.paywallViewed, { source: 'ai_chat' });
-              router.push('/paywall');
-            }}
+            onPress={() => router.push('/paywall?source=ai_chat' as any)}
             style={[s.gateBtn, { backgroundColor: colors.primary }]}
           >
             <Text style={[s.gateBtnText, { color: colors.background }]}>{t('chat.proBtn')}</Text>

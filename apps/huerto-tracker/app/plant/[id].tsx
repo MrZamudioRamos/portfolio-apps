@@ -1011,7 +1011,7 @@ export default function PlantDetailScreen() {
             onPress={() =>
               isPro
                 ? router.push(`/plant/identify?plantId=${id}&cropId=${crop.id}` as any)
-                : router.push('/paywall')
+                : router.push('/paywall?source=ai_identify_detail' as any)
             }
             style={[s.identifyBtn, { backgroundColor: '#FF703415', borderColor: '#FF7034' }]}
           >
