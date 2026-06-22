@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS, CROPS_BY_ID, CATEGORY_CONFIG, type CropCategory } from '../../src/data/crops';
 import { CROP_IMAGES } from '../../src/data/cropImages';
@@ -42,6 +42,13 @@ function CalendarInner() {
 
   useFocusEffect(useCallback(() => { refreshActiveId(); }, []));
   const allPlants = useCollection<Plant>('plants');
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function onRefresh() {
+    setRefreshing(true);
+    await allPlants.refresh();
+    setRefreshing(false);
+  }
   const { customCropsById } = useCustomCrops();
   const gardenPlants = useMemo(
     () => allPlants.items.filter((p) => p.gardenId === garden?.id && p.status !== 'finished'),
@@ -283,6 +290,7 @@ function CalendarInner() {
         style={{ flex: 1 }}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         ListHeaderComponent={
           <View style={{ marginHorizontal: -spacing.xl }}>
             {/* Container mode banner */}

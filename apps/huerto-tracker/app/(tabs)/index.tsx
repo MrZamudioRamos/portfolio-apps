@@ -15,6 +15,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -112,6 +113,13 @@ function DashboardInner() {
   const coachLevel = useCoachingLevel();
   useWateringReminder();
   const [justFromOnboarding, setJustFromOnboarding] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function onRefresh() {
+    setRefreshing(true);
+    await Promise.all([allPlants.refresh(), reminders.refresh(), entries.refresh()]);
+    setRefreshing(false);
+  }
   useTourAutoStart('home', {
     ready: !plants.loading,
     firstStep: plants.count > 0 ? 'today' : justFromOnboarding ? 'add' : 'start',
@@ -504,6 +512,7 @@ function DashboardInner() {
         keyExtractor={(item) => item.id}
         numColumns={2}
         columnWrapperStyle={s.columnWrapper}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}

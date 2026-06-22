@@ -17,6 +17,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Switch,
@@ -70,6 +71,13 @@ export default function PlantDetailScreen() {
   const [cropImgErr, setCropImgErr] = useState(false);
   const [shareModal, setShareModal] = useState<Omit<ShareModalProps, 'visible' | 'onClose'> | null>(null);
   const [wateringFeedback, setWateringFeedback] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function onRefresh() {
+    setRefreshing(true);
+    await Promise.all([plants.refresh(), entries.refresh()]);
+    setRefreshing(false);
+  }
 
   const plant = plants.getById(id);
   const crop = plant
@@ -294,7 +302,11 @@ export default function PlantDetailScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 60 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+      >
         {/* Hero */}
         <View style={[s.hero, { backgroundColor: colors.surfaceAlt }]}>
           <Pressable onPress={() => router.back()} style={s.backBtn}>

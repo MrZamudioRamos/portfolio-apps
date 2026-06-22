@@ -14,6 +14,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -58,6 +59,14 @@ export default function CostsScreen() {
   const plants = useCollection<Plant>('plants');
   const diaryEntries = useCollection<DiaryEntry>('diary_entries');
   const costEntries = useCollection<CostEntry>('cost_entries');
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function onRefresh() {
+    setRefreshing(true);
+    await Promise.all([plants.refresh(), diaryEntries.refresh(), costEntries.refresh()]);
+    setRefreshing(false);
+  }
 
   const [year, setYear] = useState(new Date().getFullYear());
   const [waterPrice, setWaterPrice] = useState(DEFAULT_WATER_PRICE);
@@ -285,7 +294,11 @@ export default function CostsScreen() {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={s.scroll}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+      >
 
         {/* ── Empty state ── */}
         {yearCosts.length === 0 && harvestData.totalKg === 0 && (

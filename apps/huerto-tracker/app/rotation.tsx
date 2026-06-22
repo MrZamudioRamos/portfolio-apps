@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { CROPS_BY_ID } from '../src/data/crops';
@@ -91,9 +91,18 @@ export default function RotationScreen() {
 
   const plantStore = useMemo(() => createStore<Plant>('plants'), []);
   const [allPlants, setAllPlants] = useState<Plant[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   useFocusEffect(useCallback(() => {
     plantStore.getAll().then((items) => setAllPlants(items));
   }, [plantStore]));
+
+  async function onRefresh() {
+    setRefreshing(true);
+    const items = await plantStore.getAll();
+    setAllPlants(items);
+    setRefreshing(false);
+  }
 
   const gardenPlants = useMemo(
     () => allPlants.filter((p) => p.gardenId === activeGarden?.id),
@@ -155,7 +164,11 @@ export default function RotationScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={s.scroll}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+      >
         {(activeGarden?.gardenType === 'balcon' || activeGarden?.gardenType === 'maceta') ? (
           <View style={s.emptyState}>
             <Text style={{ fontSize: 48 }}>🪴</Text>

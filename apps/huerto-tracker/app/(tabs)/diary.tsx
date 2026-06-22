@@ -9,6 +9,7 @@ import {
   Animated,
   Image,
   Pressable,
+  RefreshControl,
   ScrollView,
   SectionList,
   StyleSheet,
@@ -53,6 +54,13 @@ function DiaryInner() {
 
   const [activeFilter, setActiveFilter] = useState<EntryType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function onRefresh() {
+    setRefreshing(true);
+    await Promise.all([entries.refresh(), plants.refresh()]);
+    setRefreshing(false);
+  }
   const { plantId } = useLocalSearchParams<{ plantId?: string }>();
 
   const entries = useCollection<DiaryEntry>('diary_entries');
@@ -333,6 +341,7 @@ function DiaryInner() {
         renderItem={renderEntry}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         renderSectionHeader={({ section: { date } }) => (
           <View style={[s.sectionHeader, { backgroundColor: colors.background }]}>
             <View style={[s.sectionDot, { backgroundColor: colors.primary }]} />

@@ -12,6 +12,7 @@ import {
   Alert,
   Modal,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -52,6 +53,14 @@ export default function GardensScreen() {
   }, []);
 
   const effectiveActiveId = activeId ?? gardens.items[0]?.id ?? null;
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function onRefresh() {
+    setRefreshing(true);
+    await Promise.all([gardens.refresh(), plants.refresh(), entries.refresh()]);
+    setRefreshing(false);
+  }
 
   const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState('');
@@ -183,7 +192,11 @@ export default function GardensScreen() {
         </Pressable>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: spacing.xl, paddingBottom: 60 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ padding: spacing.xl, paddingBottom: 60 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+      >
         <Text style={[s.hint, { color: colors.textSecondary }]}>{t('gardens.hint')}</Text>
 
         {gardens.items.map((garden) => {

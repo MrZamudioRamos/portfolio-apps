@@ -3,9 +3,9 @@ import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { usePro } from '../src/hooks/usePro';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../src/data/crops';
 import type { DiaryEntry, EntryType } from '../src/models/diary-entry';
@@ -54,7 +54,15 @@ export default function StatsScreen() {
   const { isPro } = usePro();
   const { activeGarden, refreshActiveId } = useActiveGarden();
 
-  useFocusEffect(useCallback(() => { refreshActiveId(); }, []));
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function onRefresh() {
+    setRefreshing(true);
+    await Promise.all([plants.refresh(), entries.refresh()]);
+    setRefreshing(false);
+  }
+
+  useFocusEffect(useCallback(() => { refreshActiveId(); plants.refresh(); entries.refresh(); }, []));
   const { customCropsById } = useCustomCrops();
 
   const gardenId = activeGarden?.id;
@@ -233,7 +241,11 @@ export default function StatsScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={s.scroll}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+      >
         {/* Key stats */}
         <View style={s.keyStatsGrid}>
           <KeyStat emoji="📓" value={stats.totalEntries} label={t('stats.entries')} colors={colors} s={s} />
