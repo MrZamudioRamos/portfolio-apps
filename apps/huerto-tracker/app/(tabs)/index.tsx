@@ -128,6 +128,8 @@ function DashboardInner() {
 
   const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
   const [cardImgErr, setCardImgErr] = useState<Record<string, boolean>>({});
+  const [showHarvestCelebration, setShowHarvestCelebration] = useState(false);
+  const [harvestCelebKg, setHarvestCelebKg] = useState<number | null>(null);
   const [showWaterAllModal, setShowWaterAllModal] = useState(false);
   const [waterAllLiters, setWaterAllLiters] = useState('');
   const [waterAllMethod, setWaterAllMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>('hand');
@@ -266,6 +268,25 @@ function DashboardInner() {
     () => buildGamificationData(plants.items, entries.items).streak,
     [plants.items, entries.items]
   );
+
+  const gardenHarvestCount = useMemo(
+    () => entries.items.filter((e) => e.gardenId === garden?.id && e.type === 'harvest').length,
+    [entries.items, garden?.id]
+  );
+
+  useEffect(() => {
+    if (entries.loading || !garden?.id || gardenHarvestCount !== 1) return;
+    const key = `@huerto/harvest_celebrated_${garden.id}`;
+    AsyncStorage.getItem(key).then((v) => {
+      if (v) return;
+      const harvestEntry = entries.items.find((e) => e.gardenId === garden.id && e.type === 'harvest');
+      const d = harvestEntry?.data as any;
+      const kg = d?.weightGrams ? d.weightGrams / 1000 : null;
+      setHarvestCelebKg(kg);
+      setShowHarvestCelebration(true);
+      AsyncStorage.setItem(key, '1');
+    });
+  }, [gardenHarvestCount, entries.loading, garden?.id]);
 
   useEffect(() => {
     if (!garden) return;
@@ -436,7 +457,7 @@ function DashboardInner() {
                 if (days < 1) return null;
                 return (
                   <View style={[s.daysChip, { backgroundColor: colors.primary + '12' }]}>
-                    <Text style={[s.daysChipText, { color: colors.primary }]}>{days}d</Text>
+                    <Text style={[s.daysChipText, { color: colors.primary }]}>{t('home.dayN', { n: days })}</Text>
                   </View>
                 );
               })()}
@@ -479,7 +500,6 @@ function DashboardInner() {
                 ? `${getWeatherLabel(weather.today.weatherCode).emoji} ${weather.today.tempMax}°`
                 : null,
               zoneConfig ? `${zoneConfig.emoji} ${t(`zone.${garden.climateZone}`)}` : null,
-              streak >= 2 ? `🔥 ${streak}d` : null,
             ].filter(Boolean).join(' · ')}
           </Text>
         </View>
@@ -550,6 +570,20 @@ function DashboardInner() {
                   <Ionicons name="add-circle-outline" size={20} color={colors.background} />
                   <Text style={[s.firstUseCtaText, { color: colors.background }]}>{t('home.firstUseCta')}</Text>
                 </Pressable>
+                <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs }}>
+                  <Pressable
+                    onPress={() => router.push('/(tabs)/calendar' as any)}
+                    style={({ pressed }) => ({ flex: 1, alignItems: 'center', paddingVertical: spacing.sm, borderRadius: radii.md, borderWidth: 1, borderColor: colors.primary + '44', backgroundColor: colors.primary + '08', opacity: pressed ? 0.7 : 1 })}
+                  >
+                    <Text style={{ fontSize: fontSize.xs, color: colors.primary, fontWeight: fontWeight.medium }}>{t('home.firstUseCalendarCta')}</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => router.push('/(tabs)/settings' as any)}
+                    style={({ pressed }) => ({ flex: 1, alignItems: 'center', paddingVertical: spacing.sm, borderRadius: radii.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceAlt, opacity: pressed ? 0.7 : 1 })}
+                  >
+                    <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary, fontWeight: fontWeight.medium }}>{t('home.firstUseReminderCta')}</Text>
+                  </Pressable>
+                </View>
               </WalkView>
               </CopilotStep>
             )}
@@ -693,6 +727,12 @@ function DashboardInner() {
                   <View style={[s.statPill, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '44' }]}>
                     <Text style={[s.statPillNum, { color: colors.primary }]}>{(yearHarvestKg / 1000).toFixed(1)} kg</Text>
                     <Text style={[s.statPillLabel, { color: colors.primary }]}>{t('home.stats.yearKg')}</Text>
+                  </View>
+                )}
+                {streak >= 2 && (
+                  <View style={[s.statPill, { backgroundColor: '#FF980018', borderColor: '#FF980044' }]}>
+                    <Text style={[s.statPillNum, { color: '#FF9800' }]}>🔥 {streak}</Text>
+                    <Text style={[s.statPillLabel, { color: '#FF9800' }]}>{t('home.streakLabel')}</Text>
                   </View>
                 )}
               </ScrollView>
@@ -950,6 +990,30 @@ function DashboardInner() {
         visible={quickLogPlant !== null}
         onClose={() => setQuickLogPlant(null)}
       />
+
+      {/* First harvest celebration modal */}
+      <Modal visible={showHarvestCelebration} transparent animationType="fade" onRequestClose={() => setShowHarvestCelebration(false)}>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center', padding: spacing.xl }} onPress={() => setShowHarvestCelebration(false)}>
+          <Pressable onPress={() => {}} style={{ backgroundColor: colors.surface, borderRadius: radii.xl, padding: spacing.xl, alignItems: 'center', gap: spacing.lg, width: '100%' }}>
+            <Mascot pose="celebrate" size={120} />
+            <Text style={{ fontSize: 36, textAlign: 'center' }}>🎉</Text>
+            <Text style={{ fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text, textAlign: 'center' }}>
+              {t('home.firstHarvestCelebTitle')}
+            </Text>
+            {harvestCelebKg !== null && (
+              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, textAlign: 'center' }}>
+                {t('home.firstHarvestCelebDesc', { kg: harvestCelebKg.toFixed(2) })}
+              </Text>
+            )}
+            <Pressable
+              onPress={() => setShowHarvestCelebration(false)}
+              style={({ pressed }) => ({ backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: radii.lg, opacity: pressed ? 0.8 : 1 })}
+            >
+              <Text style={{ color: colors.background, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('home.firstHarvestCelebClose')}</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {/* Bulk water modal */}
       <Modal visible={showWaterAllModal} transparent animationType="slide" onRequestClose={() => setShowWaterAllModal(false)}>

@@ -90,7 +90,14 @@
     "taskCarencia": "{{name}}: do not harvest for {{days}} more day(s) (clearance period)",
     "waterAllLitersHint": "will be split among active plants",
     "defaultGardenName": "My Garden",
-    "mapCardSub": "{{count}} plants · View map"
+    "mapCardSub": "{{count}} plants · View map",
+    "dayN": "Day {{n}}",
+    "streakLabel": "streak",
+    "firstHarvestCelebTitle": "First harvest!",
+    "firstHarvestCelebDesc": "You harvested {{kg}} kg ✨",
+    "firstHarvestCelebClose": "Awesome!",
+    "firstUseCalendarCta": "📅 What to sow now",
+    "firstUseReminderCta": "💧 Set a reminder"
   },
   "calendar": {
     "title": "Sowing calendar",
@@ -621,6 +628,7 @@
     "successionSowDesc": "Creates a new plant of the same crop sown today",
     "successionNote": "Succession sowing from {{original}}",
     "successionName": "{{name}} (batch {{batch}})",
+    "seedlingTip": "No sprouts yet — that's normal. Seeds can take 7–21 days to germinate. Keep the soil moist. 🌱",
     "tab": {
       "overview": "Info",
       "calendar": "Calendar",

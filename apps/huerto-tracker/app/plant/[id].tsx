@@ -428,6 +428,19 @@ export default function PlantDetailScreen() {
             );
           })()}
 
+          {/* "Es normal" coaching tip for seedlings past 7 days without germination */}
+          {plant.status === 'seedling' && !plant.germinationDate && (() => {
+            const refDate = plant.sowingDate ?? plant.createdAt;
+            const days = Math.floor((Date.now() - new Date(refDate + 'T12:00:00').getTime()) / 86_400_000);
+            if (days < 7) return null;
+            return (
+              <View style={[s.coachCard, { backgroundColor: colors.success + '10', borderColor: colors.success + '30' }]}>
+                <Mascot pose="point" size={48} />
+                <Text style={[s.coachText, { color: colors.text }]}>{t('plantDetail.seedlingTip')}</Text>
+              </View>
+            );
+          })()}
+
           {/* Notes */}
           {plant.notes && (
             <View style={[s.notesCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>

@@ -90,7 +90,14 @@
     "taskCarencia": "{{name}}: no cosechar {{days}} día(s) más (carencia)",
     "waterAllLitersHint": "se repartirán entre plantas activas",
     "defaultGardenName": "Mi Huerto",
-    "mapCardSub": "{{count}} plantas · Ver mapa"
+    "mapCardSub": "{{count}} plantas · Ver mapa",
+    "dayN": "Día {{n}}",
+    "streakLabel": "racha",
+    "firstHarvestCelebTitle": "¡Primera cosecha!",
+    "firstHarvestCelebDesc": "Has cosechado {{kg}} kg ✨",
+    "firstHarvestCelebClose": "¡Genial!",
+    "firstUseCalendarCta": "📅 Qué sembrar ahora",
+    "firstUseReminderCta": "💧 Poner recordatorio"
   },
   "calendar": {
     "title": "Calendario de siembra",
@@ -652,6 +659,7 @@
     "successionSowDesc": "Crea nueva planta del mismo cultivo sembrada hoy",
     "successionNote": "Siembra escalonada de {{original}}",
     "successionName": "{{name}} (tanda {{batch}})",
+    "seedlingTip": "Sin brotes todavía — es normal. Las semillas tardan 7–21 días en germinar. Mantén el sustrato húmedo. 🌱",
     "tab": {
       "overview": "Datos",
       "calendar": "Calendario",
