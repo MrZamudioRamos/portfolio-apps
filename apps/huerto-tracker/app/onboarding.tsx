@@ -188,12 +188,12 @@ export default function OnboardingScreen() {
     creatingOpacity.setValue(1);
     let idx = 0;
     const timer = setInterval(() => {
-      Animated.timing(creatingOpacity, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
+      Animated.timing(creatingOpacity, { toValue: 0, duration: 300, useNativeDriver: true }).start(() => {
         idx = (idx + 1) % CREATING_MESSAGES.length;
         setCreatingMsgIdx(idx);
-        Animated.timing(creatingOpacity, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+        Animated.timing(creatingOpacity, { toValue: 1, duration: 300, useNativeDriver: true }).start();
       });
-    }, 700);
+    }, 1200);
     return () => clearInterval(timer);
   }, [showCreating]);
 
@@ -329,7 +329,7 @@ export default function OnboardingScreen() {
     }
     setShowCreating(true);
     setSaving(true);
-    const minDelay = new Promise<void>((resolve) => setTimeout(resolve, 2800));
+    const minDelay = new Promise<void>((resolve) => setTimeout(resolve, 5000));
     try {
       await Promise.all([
         (async () => {
