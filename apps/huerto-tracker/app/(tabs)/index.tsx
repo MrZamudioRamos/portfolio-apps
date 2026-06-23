@@ -566,13 +566,13 @@ function DashboardInner() {
 
             {/* Empty state — hidden when user just finished onboarding (tour covers it) */}
             {plants.count === 0 && !plants.loading && !justFromOnboarding && (
-              <CopilotStep text={t('coach.home')} order={1} name="start">
+              <CopilotStep text={t('coach.homeStart')} order={1} name="start">
               <WalkView style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
                 <Mascot pose="wave" size={128} />
                 <Text style={[s.firstUseTitle, { color: colors.text }]}>{t('home.firstUseTitle', { name: garden?.name ?? t('home.defaultGardenName') })}</Text>
                 <Text style={[s.firstUseDesc, { color: colors.textSecondary }]}>{t('home.firstUseDesc')}</Text>
                 <Pressable
-                  onPress={() => router.push('/plant/new')}
+                  onPress={() => router.push('/plant/new?fromOnboarding=1' as any)}
                   style={({ pressed }) => [s.firstUseCta, { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 }]}
                 >
                   <Ionicons name="add-circle-outline" size={20} color={colors.background} />
@@ -598,12 +598,16 @@ function DashboardInner() {
 
             {/* Beginner's first question answered: what should I plant? */}
             {plants.count === 0 && !plants.loading && garden && (
-              <SowNowCard climateZone={garden.climateZone} />
+              <CopilotStep text={t('coach.homeSow')} order={2} name="sow">
+                <WalkView>
+                  <SowNowCard climateZone={garden.climateZone} />
+                </WalkView>
+              </CopilotStep>
             )}
 
             {/* TODAY card — first thing visible when there are plants */}
             {plants.count > 0 && (
-              <CopilotStep text={t('coach.home')} order={1} name="today">
+              <CopilotStep text={t('coach.homeToday')} order={1} name="today">
               <WalkView style={[s.todayCard, { backgroundColor: colors.surface, borderColor: colors.border, borderLeftColor: todayAccent }]}>
                 <Text style={[s.todayTitle, { color: colors.text }]}>
                   {t('home.weeklyTasks')}
@@ -698,7 +702,11 @@ function DashboardInner() {
 
             {/* Sow now — coach surface, what to plant this month in your zone */}
             {plants.count > 0 && garden && (
-              <SowNowCard climateZone={garden.climateZone} />
+              <CopilotStep text={t('coach.homeSow')} order={2} name="sow">
+                <WalkView>
+                  <SowNowCard climateZone={garden.climateZone} />
+                </WalkView>
+              </CopilotStep>
             )}
 
             {/* Quick stats strip */}
@@ -748,22 +756,24 @@ function DashboardInner() {
 
             {/* AI quick actions — chat + plant scan, always one tap away */}
             {!plants.loading && (
-              <View style={s.aiQuickRow}>
-                <ScalePress
-                  onPress={() => router.push('/chat' as any)}
-                  style={[s.aiQuickBtn, { backgroundColor: colors.primary + '16', borderColor: colors.primary + '44' }]}
-                >
-                  <Ionicons name="chatbubble-ellipses-outline" size={20} color={colors.primary} />
-                  <Text style={[s.aiQuickText, { color: colors.primaryDark }]} numberOfLines={1}>{t('chat.title')}</Text>
-                </ScalePress>
-                <ScalePress
-                  onPress={() => router.push('/plant/scan' as any)}
-                  style={[s.aiQuickBtn, { backgroundColor: colors.info + '14', borderColor: colors.info + '44' }]}
-                >
-                  <Ionicons name="camera-outline" size={20} color={colors.info} />
-                  <Text style={[s.aiQuickText, { color: colors.info }]} numberOfLines={1}>{t('plantScan.title')}</Text>
-                </ScalePress>
-              </View>
+              <CopilotStep text={t('coach.homeAI')} order={3} name="ai">
+                <WalkView style={s.aiQuickRow}>
+                  <ScalePress
+                    onPress={() => router.push('/chat' as any)}
+                    style={[s.aiQuickBtn, { backgroundColor: colors.primary + '16', borderColor: colors.primary + '44' }]}
+                  >
+                    <Ionicons name="chatbubble-ellipses-outline" size={20} color={colors.primary} />
+                    <Text style={[s.aiQuickText, { color: colors.primaryDark }]} numberOfLines={1}>{t('chat.title')}</Text>
+                  </ScalePress>
+                  <ScalePress
+                    onPress={() => router.push('/plant/scan' as any)}
+                    style={[s.aiQuickBtn, { backgroundColor: colors.info + '14', borderColor: colors.info + '44' }]}
+                  >
+                    <Ionicons name="camera-outline" size={20} color={colors.info} />
+                    <Text style={[s.aiQuickText, { color: colors.info }]} numberOfLines={1}>{t('plantScan.title')}</Text>
+                  </ScalePress>
+                </WalkView>
+              </CopilotStep>
             )}
 
             {/* My Plants section header + controls */}
@@ -980,7 +990,7 @@ function DashboardInner() {
       />
 
       {/* FAB */}
-      <CopilotStep text={t('coach.tourAdd')} order={2} name="add">
+      <CopilotStep text={t('coach.homeAdd')} order={4} name="add">
         <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary, bottom: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 10 }]}>
           <ScalePress
             onPress={() => router.push('/plant/new')}

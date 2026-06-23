@@ -36,6 +36,14 @@ import { track, EVENTS } from '../../src/analytics';
 import { persistPickedImage } from '../../src/utils/persistImage';
 import { successHaptic, tapHaptic } from '../../src/utils/haptics';
 import { ScalePress } from '../../src/components/ScalePress';
+import { CopilotStep } from 'react-native-copilot';
+import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
+import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
+
+function TourStarter({ disabled }: { disabled: boolean }) {
+  useTourAutoStart('plant-new', { disabled, firstStep: 'plant-select', delay: 400 });
+  return null;
+}
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -217,6 +225,8 @@ export default function NewPlantScreen() {
     : '';
 
   return (
+    <SemillitaTourProvider>
+      <TourStarter disabled={fromOnboarding !== '1'} />
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={[s.header, { borderBottomColor: colors.border }]}>
@@ -233,7 +243,8 @@ export default function NewPlantScreen() {
 
       {/* ── STEP 1: Choose how to add ── */}
       {step === 'select' && (
-        <View style={s.entryContainer}>
+        <CopilotStep text={t('coach.plantNew')} order={1} name="plant-select">
+        <WalkView style={s.entryContainer}>
           <Text style={[s.entrySubtitle, { color: colors.textSecondary }]}>
             {t('plantNew.selectCrop')}
           </Text>
@@ -267,12 +278,18 @@ export default function NewPlantScreen() {
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
           </ScalePress>
-        </View>
+        </WalkView>
+        </CopilotStep>
       )}
 
       {/* ── STEP 2: Plant details ── */}
       {step === 'details' && (
         <>
+          {fromOnboarding === '1' && !isAiFilled && (
+            <View style={{ backgroundColor: colors.primary + '10', borderBottomWidth: 1, borderBottomColor: colors.primary + '30', paddingHorizontal: spacing.xl, paddingVertical: spacing.md }}>
+              <Text style={{ color: colors.primary, fontSize: fontSize.sm, lineHeight: 20 }}>{t('coach.plantDetails')}</Text>
+            </View>
+          )}
           {isAiFilled && (
             <View style={[s.aiBanner, { backgroundColor: colors.primary + '18', borderBottomColor: colors.primary + '33' }]}>
               <Text style={[s.aiBannerText, { color: colors.primary }]}>{t('plantScan.aiFilled')}</Text>
@@ -643,6 +660,7 @@ export default function NewPlantScreen() {
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
+    </SemillitaTourProvider>
   );
 }
 
