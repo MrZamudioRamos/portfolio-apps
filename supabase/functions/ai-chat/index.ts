@@ -25,6 +25,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-haiku-4-5-20251001';
+const HOURLY_LIMIT = 20;
 
 const LANG_NAMES: Record<string, string> = {
   es: 'Spanish', en: 'English', ca: 'Catalan', eu: 'Basque', gl: 'Galician', val: 'Valencian',
@@ -97,8 +98,29 @@ Deno.serve(async (req: Request) => {
   const { data: { user }, error: authErr } = await supabase.auth.getUser();
   if (authErr || !user) return json({ error: 'Unauthorized', code: 'AUTH' }, 401);
 
+  // ── 2. Rate limiting: max HOURLY_LIMIT calls per user per hour ────────────
   const apiKey = Deno.env.get('ANTHROPIC_KEY');
   if (!apiKey) return json({ error: 'Server not configured', code: 'NO_KEY' }, 500);
+
+  const serviceClient = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
+
+  const hourBucket = new Date();
+  hourBucket.setMinutes(0, 0, 0);
+
+  const { data: callCount, error: rateErr } = await serviceClient.rpc('increment_ai_usage', {
+    p_user_id: user.id,
+    p_hour_bucket: hourBucket.toISOString(),
+    p_limit: HOURLY_LIMIT,
+  });
+
+  if (rateErr) {
+    console.error('[ai-chat] rate limit check failed', rateErr.message);
+  } else if (callCount > HOURLY_LIMIT) {
+    return json({ error: 'Rate limit exceeded', code: 'RATE_LIMIT' }, 429);
+  }
 
   let body: {
     messages?: Array<{ role: string; content: string }>;

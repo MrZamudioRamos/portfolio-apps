@@ -246,7 +246,7 @@ export default function CostsScreen() {
           text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
-            await costEntries.remove(entry.id);
+            await costEntries.softRemove(entry.id);
           },
         },
       ]

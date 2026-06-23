@@ -527,7 +527,8 @@
     "restoreNoneDesc": "We couldn't find any active subscription linked to your account.",
     "restoreError": "Could not connect. Please try again.",
     "showAll": "See everything included",
-    "showLess": "Show less"
+    "showLess": "Show less",
+    "badgeProPartial": "Pro parcial"
   },
   "plantEdit": {
     "title": "Edit plant",

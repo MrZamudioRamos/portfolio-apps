@@ -515,7 +515,8 @@
     "restoreNoneDesc": "Ez dugu aurkitu zure kontuarekin lotutako harpidetza aktiborik.",
     "restoreError": "Ezin izan da konektatu. Saiatu berriro.",
     "showAll": "Ver todo lo incluido",
-    "showLess": "Ocultar extras"
+    "showLess": "Ocultar extras",
+    "badgeProPartial": "Pro parcial"
   },
   "plantEdit": {
     "title": "Landarea editatu",

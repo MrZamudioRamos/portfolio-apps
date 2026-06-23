@@ -46,7 +46,7 @@ function ToolsInner() {
   const advancedTools: ToolItem[] = [
     { icon: 'bar-chart-outline',       labelKey: 'settings.tools.stats',      route: '/stats',          tint: 'info',      badge: isPro ? undefined : 'Pro' },
     { icon: 'cash-outline',            labelKey: 'costs.title',               route: '/costs',          tint: 'warning',   badge: isPro ? undefined : 'Pro' },
-    { icon: 'git-network-outline',     labelKey: 'settings.tools.companions', route: '/companions',     tint: 'success',   badge: isPro ? undefined : 'Pro parcial' },
+    { icon: 'git-network-outline',     labelKey: 'settings.tools.companions', route: '/companions',     tint: 'success',   badge: isPro ? undefined : t('paywall.badgeProPartial') },
     { icon: 'refresh-circle-outline',  labelKey: 'settings.rotation',         route: '/rotation',       tint: 'water' },
     { icon: 'sunny-outline',           labelKey: 'lightMeter.title',          route: '/light-meter',    tint: 'secondary' },
     { icon: 'leaf-outline',            labelKey: 'customCrop.manage',         route: '/crop',           tint: 'primary' },

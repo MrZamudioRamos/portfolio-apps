@@ -544,7 +544,8 @@
     "restoreNoneDesc": "No encontramos ninguna suscripción activa asociada a tu cuenta.",
     "restoreError": "No se pudo conectar. Inténtalo de nuevo.",
     "showAll": "Ver todo lo incluido",
-    "showLess": "Ocultar extras"
+    "showLess": "Ocultar extras",
+    "badgeProPartial": "Pro parcial"
   },
   "plantEdit": {
     "title": "Editar planta",

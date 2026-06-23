@@ -515,7 +515,8 @@
     "restoreNoneDesc": "No hem trobat cap subscripció activa associada al teu compte.",
     "restoreError": "No s'ha pogut connectar. Torna-ho a intentar.",
     "showAll": "Ver todo lo incluido",
-    "showLess": "Ocultar extras"
+    "showLess": "Ocultar extras",
+    "badgeProPartial": "Pro parcial"
   },
   "plantEdit": {
     "title": "Editar planta",
