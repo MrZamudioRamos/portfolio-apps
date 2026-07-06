@@ -1,10 +1,17 @@
 import * as Sentry from '@sentry/react-native';
 import { PostHog } from 'posthog-react-native';
+import Constants from 'expo-constants';
 
 // Client-side keys (safe to bundle). Values come from .env (EXPO_PUBLIC_*).
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
 const POSTHOG_KEY = process.env.EXPO_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST = process.env.EXPO_PUBLIC_POSTHOG_HOST ?? 'https://eu.i.posthog.com';
+
+// Detect Expo Go: Sentry RN @7 needs the native Sentry module installed by
+// the `@sentry/react-native/expo` config plugin; Expo Go ships without it,
+// so calling Sentry.init() there trips a silent native crash on SDK 57+.
+// `appOwnership === 'expo'` is the legacy-but-unambiguous Expo Go signal.
+const isExpoGo = Constants.appOwnership === 'expo';
 
 let posthog: PostHog | null = null;
 
@@ -29,7 +36,7 @@ export const EVENTS = {
  * once at startup; missing keys or Expo Go (no native Sentry) degrade to no-op.
  */
 export function initAnalytics(): void {
-  if (SENTRY_DSN) {
+  if (SENTRY_DSN && !isExpoGo) {
     try {
       Sentry.init({
         dsn: SENTRY_DSN,

@@ -74,9 +74,12 @@ function AppServices() {
     track(EVENTS.appOpen);
     loadSavedLanguage();
     const sub = Linking.addEventListener('url', ({ url }) => {
-      handleDeepLink(url).then(() => {
-        router.replace(onboardingDone ? '/(tabs)' : '/onboarding');
-      });
+      // Only navigate on successful exchange — a rejected handleDeepLink
+      // means the user is NOT authenticated, so we stay put rather than
+      // landing on /(tabs) with an empty logged-in state.
+      handleDeepLink(url)
+        .then(() => router.replace(onboardingDone ? '/(tabs)' : '/onboarding'))
+        .catch(() => { /* auth exchange failed; stay on current route */ });
     });
     return () => sub.remove();
   }, [onboardingDone]);

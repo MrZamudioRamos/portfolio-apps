@@ -19,10 +19,10 @@ export function useSession(): SessionState {
   useEffect(() => {
     const supabase = getSupabase();
 
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data }) => setSession(data.session))
+      .catch((e) => console.warn('[session] getSession failed:', e))
+      .finally(() => setLoading(false));
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);

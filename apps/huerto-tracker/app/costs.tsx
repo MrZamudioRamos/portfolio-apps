@@ -218,22 +218,27 @@ export default function CostsScreen() {
     const amount = parseFloat(newAmount.replace(',', '.'));
     if (isNaN(amount) || amount <= 0 || !gardenId) return;
     setSaving(true);
-    await costEntries.create({
-      gardenId,
-      category: newCategory,
-      amount,
-      description: newDesc.trim() || undefined,
-      date: newDate || todayStr(),
-      ...(newPlantId ? { plantId: newPlantId } : {}),
-    });
-    setNewAmount('');
-    setNewDesc('');
-    setNewDate(todayStr());
-    setNewCategory('seeds');
-    setNewPlantId(undefined);
-    setSaving(false);
-    setShowDatePicker(false);
-    setShowAddModal(false);
+    try {
+      await costEntries.create({
+        gardenId,
+        category: newCategory,
+        amount,
+        description: newDesc.trim() || undefined,
+        date: newDate || todayStr(),
+        ...(newPlantId ? { plantId: newPlantId } : {}),
+      });
+      setNewAmount('');
+      setNewDesc('');
+      setNewDate(todayStr());
+      setNewCategory('seeds');
+      setNewPlantId(undefined);
+      setShowDatePicker(false);
+      setShowAddModal(false);
+    } catch (e) {
+      Alert.alert(t('common.error'), t('costs.saveError'));
+    } finally {
+      setSaving(false);
+    }
   }
 
   function deleteCost(entry: CostEntry) {

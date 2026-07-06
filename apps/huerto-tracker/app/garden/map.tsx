@@ -11,6 +11,7 @@ import * as Sharing from 'expo-sharing';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Modal,
@@ -429,7 +430,18 @@ export default function GardenMapScreen() {
     );
   }
 
-  if (loading) return null;
+  // Loading state: render a fallback rather than null so a slow/rejected
+  // AsyncStorage read in useGardenLayout doesn't blank the Pro user's screen
+  // indefinitely. (useGardenLayout also degrades to an empty layout on error.)
+  if (loading) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>

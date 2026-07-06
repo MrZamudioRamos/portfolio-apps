@@ -21,14 +21,15 @@ export async function signInWithGoogle(): Promise<void> {
   if (!data.url) throw new Error('No OAuth URL returned');
 
   const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
-  if (result.type === 'success' && result.url) {
-    const url = new URL(result.url);
-    const code = url.searchParams.get('code');
-    if (code) {
-      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(result.url);
-      if (exchangeError) throw exchangeError;
-    }
+  if (result.type !== 'success' || !result.url) {
+    // dismiss / cancel — must throw so the caller doesn't navigate as if logged in
+    throw new Error('User cancelled');
   }
+  const url = new URL(result.url);
+  const code = url.searchParams.get('code');
+  if (!code) throw new Error('No OAuth code in redirect');
+  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(result.url);
+  if (exchangeError) throw exchangeError;
 }
 
 export async function signInWithApple(): Promise<void> {
@@ -90,6 +91,11 @@ export async function handleDeepLink(url: string): Promise<void> {
   const supabase = getSupabase();
   if (url.includes('access_token') || url.includes('code=')) {
     const { error } = await supabase.auth.exchangeCodeForSession(url);
-    if (error) console.warn('Deep link auth error:', error.message);
+    // Re-throw so callers (e.g. _layout.tsx) don't navigate as if logged in
+    // when the exchange actually failed.
+    if (error) {
+      console.warn('Deep link auth error:', error.message);
+      throw error;
+    }
   }
 }

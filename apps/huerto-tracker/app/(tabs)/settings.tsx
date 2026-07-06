@@ -104,27 +104,37 @@ export default function SettingsScreen() {
           text: t('settings.data.deleteConfirm'),
           style: 'destructive',
           onPress: async () => {
-            // Delete all user data from Supabase by user_id (covers unsynced rows too)
-            if (!isGuest && user?.id) {
-              await Promise.allSettled([
-                deleteAllForUser('diary_entries', user.id),
-                deleteAllForUser('reminders', user.id),
-                deleteAllForUser('plants', user.id),
-                deleteAllForUser('cost_entries', user.id),
-                deleteAllForUser('custom_crops', user.id),
-                deleteAllForUser('garden_layouts', user.id),
-                deleteAllForUser('user_profiles', user.id),
-                // gardens last: cascade deletes garden_layouts
-                deleteAllForUser('gardens', user.id),
-              ]);
+            try {
+              // Delete all user data from Supabase by user_id (covers unsynced rows too)
+              if (!isGuest && user?.id) {
+                await Promise.allSettled([
+                  deleteAllForUser('diary_entries', user.id),
+                  deleteAllForUser('reminders', user.id),
+                  deleteAllForUser('plants', user.id),
+                  deleteAllForUser('cost_entries', user.id),
+                  deleteAllForUser('custom_crops', user.id),
+                  deleteAllForUser('garden_layouts', user.id),
+                  deleteAllForUser('user_profiles', user.id),
+                  // gardens last: cascade deletes garden_layouts
+                  deleteAllForUser('gardens', user.id),
+                ]);
+              }
+
+              await clearLocalData();
+
+              // Sign out to prevent syncFromCloud restoring Supabase data.
+              // Even if signOut rejects (network blip), local data is already wiped,
+              // so the next launch will surface the auth screen via useSession.
+              try {
+                if (!isGuest) await signOut();
+              } catch (signOutErr) {
+                console.warn('[settings] signOut after deleteAllData failed:', signOutErr);
+              }
+
+              router.replace('/onboarding');
+            } catch (e) {
+              Alert.alert(t('common.error'), t('settings.data.deleteError'));
             }
-
-            await clearLocalData();
-
-            // Sign out to prevent syncFromCloud restoring Supabase data
-            if (!isGuest) await signOut();
-
-            router.replace('/onboarding');
           },
         },
       ]
@@ -154,17 +164,20 @@ export default function SettingsScreen() {
                     setIsDeleting(true);
                     try {
                       // Server deletes the auth user; DB cascade wipes all cloud data.
-                      await deleteAccount();
-                    } catch {
+                      try {
+                        await deleteAccount();
+                      } catch {
+                        Alert.alert(t('settings.account.deleteAccountError'));
+                        return;
+                      }
+                      await clearLocalData();
+                      track(EVENTS.accountDeleted);
+                      resetAnalyticsUser();
+                      await signOut().catch(() => {});
+                      router.replace('/welcome');
+                    } finally {
                       setIsDeleting(false);
-                      Alert.alert(t('settings.account.deleteAccountError'));
-                      return;
                     }
-                    await clearLocalData();
-                    track(EVENTS.accountDeleted);
-                    resetAnalyticsUser();
-                    await signOut().catch(() => {});
-                    router.replace('/welcome');
                   },
                 },
               ]

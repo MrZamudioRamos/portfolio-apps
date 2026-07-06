@@ -11,7 +11,7 @@ freemium, sin adquisición pagada. Solo dev, ~10h/semana.
   No tocar salvo petición explícita.
 
 ## Stack (huerto-tracker)
-- Expo SDK 55, Expo Router, React 19, React Native 0.83, TypeScript strict
+- Expo SDK 55, Expo Router, React 19.2, React Native 0.83, TypeScript strict
 - Supabase (DB + Auth + Storage + Edge Functions) — capa de backend
 - RevenueCat (vía `@portfolio/billing`) — monetización
 - i18n: i18next, **6 locales obligatorios**: es (fallback), en, ca, eu, gl, val
@@ -142,9 +142,3 @@ borrado de cuenta, paywall) **ya están implementadas** — el trabajo
 habitual es extender o corregir, no construir desde cero. Si una tarea
 parece requerir reconstruir algo que "debería" existir, comprobar primero
 si ya existe.
-
-## Limpieza pendiente conocida
-Existe una carpeta residual `apps/huerto-tracker/apps/huerto-tracker/`
-con un `package.json` suelto (`{ "dependencies": { "expo-print": "..." } }`)
-— probablemente de un comando ejecutado desde el directorio equivocado.
-Es basura, no se usa. Eliminarla si se toca esa zona del repo.

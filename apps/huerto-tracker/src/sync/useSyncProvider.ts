@@ -27,10 +27,15 @@ export function useSyncProvider() {
     const wasGuest = prevAuthRef.current === false;
     prevAuthRef.current = true;
 
-    // First login: migrate local data up, then pull cloud
+    // First login: migrate local data up, then pull cloud — but only pull
+    // if the push succeeded. A failed push (RLS deny, network blip) leaves
+    // unsynced locals that a subsequent pull could clobber with stale cloud
+    // rows; safer to skip the pull and retry on next lifecycle.
     if (wasGuest && !syncedRef.current.has(userId)) {
       syncedRef.current.add(userId);
-      syncToCloud(userId).then(() => syncFromCloud(userId));
+      syncToCloud(userId).then((pushOk) => {
+        if (pushOk) syncFromCloud(userId);
+      });
       return;
     }
 

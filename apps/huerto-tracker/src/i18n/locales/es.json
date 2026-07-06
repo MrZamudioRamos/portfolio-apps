@@ -20,7 +20,9 @@
     "version": "Versión",
     "loading": "Cargando…",
     "viewAll": "Ver todo",
-    "more": "más"
+    "more": "más",
+    "retry": "Reintentar",
+    "openSettings": "Abrir ajustes"
   },
   "errorScreen": {
     "title": "Algo ha salido mal",
@@ -210,7 +212,8 @@
       "deleteAll": "Eliminar todos los datos",
       "deleteTitle": "¿Eliminar todos los datos?",
       "deleteDesc": "Se borrarán permanentemente todas las plantas, entradas de diario y recordatorios. Esta acción no se puede deshacer.",
-      "deleteConfirm": "Eliminar todo"
+      "deleteConfirm": "Eliminar todo",
+      "deleteError": "No se pudieron borrar todos los datos. Inténtalo de nuevo."
     },
     "app": {
       "version": "Versión",
@@ -1063,6 +1066,11 @@
     "noKeyDesc": "El servicio de IA no está disponible ahora mismo. Inténtalo más tarde.",
     "error": "Error al analizar",
     "errorDesc": "No se pudo analizar la imagen. Inténtalo de nuevo.",
+    "cameraDeniedTitle": "Sin acceso a la cámara",
+    "cameraDeniedDesc": "Activa la cámara en Ajustes para fotografiar la zona afectada.",
+    "galleryDeniedTitle": "Sin acceso a la galería",
+    "galleryDeniedDesc": "Activa el acceso a las fotos en Ajustes para elegir una imagen.",
+    "noCameraDesc": "Este dispositivo no tiene cámara disponible.",
     "confidence": {
       "alta": "Alta confianza",
       "media": "Confianza media",
@@ -1165,6 +1173,11 @@
     "error": "Error al identificar",
     "errorDesc": "No se pudo analizar la imagen. Inténtalo de nuevo.",
     "noKeyDesc": "El servicio de IA no está disponible ahora mismo. Inténtalo más tarde.",
+    "cameraDeniedTitle": "Sin acceso a la cámara",
+    "cameraDeniedDesc": "Activa la cámara en Ajustes para fotografiar tus plantas.",
+    "galleryDeniedTitle": "Sin acceso a la galería",
+    "galleryDeniedDesc": "Activa el acceso a las fotos en Ajustes para elegir una imagen.",
+    "noCameraDesc": "Este dispositivo no tiene cámara disponible.",
     "proTitle": "Identificación IA — solo Pro",
     "proDesc": "Fotografía tu planta y la IA la identifica automáticamente.",
     "upgradePro": "Ver planes Pro"
@@ -1591,7 +1604,8 @@
     "showLess": "Ver menos",
     "plantLabel": "PLANTA (opcional)",
     "noPlant": "General",
-    "perPlantLabel": "POR PLANTA"
+    "perPlantLabel": "POR PLANTA",
+    "saveError": "No se pudo guardar el gasto. Inténtalo de nuevo."
   },
   "diseases": {
     "mildiu": {

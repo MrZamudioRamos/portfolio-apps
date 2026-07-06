@@ -43,21 +43,26 @@ export function useGardenLayout(
       return;
     }
     setLoading(true);
-    AsyncStorage.getItem(layoutKey(gardenId)).then((raw) => {
-      if (raw) {
-        try {
-          const saved = JSON.parse(raw) as GridLayout;
-          // Pad / trim to current gridSize when size changes
-          const normalized = Array.from({ length: gridSize }, (_, i) => saved[i] ?? null);
-          setLayout(normalized);
-        } catch {
+    AsyncStorage.getItem(layoutKey(gardenId))
+      .then((raw) => {
+        if (raw) {
+          try {
+            const saved = JSON.parse(raw) as GridLayout;
+            // Pad / trim to current gridSize when size changes
+            const normalized = Array.from({ length: gridSize }, (_, i) => saved[i] ?? null);
+            setLayout(normalized);
+          } catch {
+            setLayout(Array(gridSize).fill(null));
+          }
+        } else {
           setLayout(Array(gridSize).fill(null));
         }
-      } else {
-        setLayout(Array(gridSize).fill(null));
-      }
-      setLoading(false);
-    });
+      })
+      // Defensive: a rejected AsyncStorage read used to leave `loading=true`
+      // forever, blanking the entire map screen (garden/map.tsx returns null
+      // while loading). Degrade to an empty layout instead.
+      .catch(() => setLayout(Array(gridSize).fill(null)))
+      .finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gardenId, gridRows, gridCols]);
 

@@ -9,7 +9,9 @@ import { useTranslation } from 'react-i18next';
 import { track, EVENTS } from '../../src/analytics';
 import {
   ActivityIndicator,
+  Alert,
   Image,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -63,38 +65,74 @@ export default function IdentifyPlantScreen() {
   const [diagnosis, setDiagnosis] = useState<PestDiagnosis | null>(null);
   const [errorKey, setErrorKey] = useState<'noKey' | 'generic' | null>(null);
   const [saved, setSaved] = useState(false);
+  const [picking, setPicking] = useState(false);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
+  // Recovery CTA for blocked permissions (no more OS prompts allowed):
+  // deep-link to system settings so the user can regrant camera/gallery.
+  function showPermissionAlert(kind: 'camera' | 'gallery', canAskAgain: boolean) {
+    const titleKey = kind === 'camera' ? 'identify.cameraDeniedTitle' : 'identify.galleryDeniedTitle';
+    const descKey = kind === 'camera' ? 'identify.cameraDeniedDesc' : 'identify.galleryDeniedDesc';
+    Alert.alert(t(titleKey), t(descKey), [
+      { text: t('common.cancel'), style: 'cancel' },
+      canAskAgain
+        ? { text: t('common.retry'), onPress: () => { void pickPhoto(kind === 'camera'); } }
+        : { text: t('common.openSettings'), onPress: () => { void Linking.openSettings(); } },
+    ]);
+  }
+
   async function pickPhoto(fromCamera: boolean) {
+    // Spinlock: prevent double-tap re-entering and stacking two OS pickers.
+    if (picking) return;
+    setPicking(true);
     setErrorKey(null);
     setDiagnosis(null);
     setSaved(false);
 
-    let result: ImagePicker.ImagePickerResult;
-    if (fromCamera) {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') return;
-      result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.6,
-      });
-    } else {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') return;
-      result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.6,
-      });
-    }
+    try {
+      let result: ImagePicker.ImagePickerResult;
+      if (fromCamera) {
+        // Destructure canAskAgain so 'blocked' (hard-deny) is recoverable via
+        // Settings instead of silently no-op'ing the button forever.
+        const { status, canAskAgain } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+          showPermissionAlert('camera', canAskAgain);
+          return;
+        }
+        // launchCameraAsync throws on Android devices without a camera app
+        // (ActivityNotFoundException). Catch → friendly message, no crash.
+        try {
+          result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.6,
+          });
+        } catch {
+          Alert.alert(t('common.error'), t('identify.noCameraDesc'));
+          return;
+        }
+      } else {
+        const { status, canAskAgain } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          showPermissionAlert('gallery', canAskAgain);
+          return;
+        }
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 0.6,
+        });
+      }
 
-    if (!result.canceled) setPhoto(result.assets[0]);
+      if (!result.canceled) setPhoto(result.assets[0]);
+    } finally {
+      setPicking(false);
+    }
   }
 
   async function analyze() {
@@ -185,14 +223,16 @@ export default function IdentifyPlantScreen() {
             <View style={s.pickRow}>
               <Pressable
                 onPress={() => pickPhoto(true)}
-                style={[s.pickBtn, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}
+                disabled={picking}
+                style={[s.pickBtn, { backgroundColor: colors.primary + '18', borderColor: colors.primary, opacity: picking ? 0.5 : 1 }]}
               >
                 <Ionicons name="camera-outline" size={20} color={colors.primary} />
                 <Text style={[s.pickBtnText, { color: colors.primary }]}>{t('identify.takePhoto')}</Text>
               </Pressable>
               <Pressable
                 onPress={() => pickPhoto(false)}
-                style={[s.pickBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}
+                disabled={picking}
+                style={[s.pickBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: picking ? 0.5 : 1 }]}
               >
                 <Ionicons name="images-outline" size={20} color={colors.textSecondary} />
                 <Text style={[s.pickBtnText, { color: colors.textSecondary }]}>{t('identify.fromGallery')}</Text>

@@ -68,8 +68,11 @@ async function writeLayouts(layouts: { gardenId: string; layout: GridLayout; upd
 /**
  * Push all local data to Supabase (migration + background push).
  * Skips items whose IDs are not valid UUIDs (pre-UUID-era data).
+ * Returns true if every table upsert succeeded, false on any failure so
+ * the caller can skip the subsequent pull (avoiding clobbering unsynced
+ * locals with stale cloud rows).
  */
-export async function syncToCloud(userId: string): Promise<void> {
+export async function syncToCloud(userId: string): Promise<boolean> {
   try {
     // Soft-deleted rows are kept locally with deleted_at set, so upsertAll
     // carries the tombstone to the cloud like any other field — no special
@@ -101,7 +104,10 @@ export async function syncToCloud(userId: string): Promise<void> {
     const validGardenIds = gardens.filter((g) => isUUID(g.id)).map((g) => g.id);
     const layouts = await readLayouts(validGardenIds);
 
-    await Promise.all([
+    // Use allSettled per table so a single RLS blip / network glitch on one
+    // table doesn't abort the whole push — pushed what can be pushed, and
+    // surface the partial failure to the caller via the boolean return.
+    const results = await Promise.allSettled([
       upsertAll('gardens',        gardens.filter(     (g) => isUUID(g.id)).map((g) => gardenToRow(g, userId))),
       upsertAll('plants',         plants.filter(      (p) => isUUID(p.id)).map((p) => plantToRow(p, userId))),
       upsertAll('diary_entries',  entries.filter(     (e) => isUUID(e.id)).map((e) => entryToRow(e, userId))),
@@ -111,18 +117,27 @@ export async function syncToCloud(userId: string): Promise<void> {
       upsertAll('cost_entries',   costEntries.filter( (c) => isUUID(c.id)).map((c) => costEntryToRow(c, userId))),
       upsertAll('garden_layouts', layouts.map((l) => gardenLayoutToRow(l.gardenId, l.layout, userId, l.updatedAt))),
     ]);
+    const failures = results.filter((r) => r.status === 'rejected');
+    if (failures.length > 0) {
+      console.warn(`[sync] syncToCloud: ${failures.length}/${results.length} tables failed`);
+    }
+    return failures.length === 0;
   } catch (e) {
     console.warn('[sync] syncToCloud failed:', e);
+    return false;
   }
 }
 
 /**
  * Pull all data from Supabase and merge into local storage.
  * Cloud wins when updatedAt is newer than local.
+ * Returns true on success, false on any failure (caller may retry).
  */
-export async function syncFromCloud(userId: string): Promise<void> {
+export async function syncFromCloud(userId: string): Promise<boolean> {
   try {
-    const [remoteGardens, remotePlants, remoteEntries, remoteReminders, remoteProfiles, remoteCrops, remoteCosts, remoteLayouts] = await Promise.all([
+    // allSettled per table: one table's network failure doesn't keep the
+    // others from refreshing local state.
+    const results = await Promise.allSettled([
       pullAll<ReturnType<typeof gardenToRow>>('gardens', userId),
       pullAll<ReturnType<typeof plantToRow>>('plants', userId),
       pullAll<ReturnType<typeof entryToRow>>('diary_entries', userId),
@@ -132,6 +147,21 @@ export async function syncFromCloud(userId: string): Promise<void> {
       pullAll<ReturnType<typeof costEntryToRow>>('cost_entries', userId),
       pullAll<ReturnType<typeof gardenLayoutToRow>>('garden_layouts', userId),
     ]);
+    const failures = results.filter((r) => r.status === 'rejected');
+    if (failures.length > 0) {
+      console.warn(`[sync] syncFromCloud: ${failures.length}/${results.length} tables failed`);
+    }
+    // Only the fulfilled tables are merged (rejected ones are skipped).
+    const ok = <T>(p: PromiseSettledResult<T>, fallback: T): T =>
+      p.status === 'fulfilled' ? p.value : fallback;
+    const remoteGardens = ok(results[0], []);
+    const remotePlants = ok(results[1], []);
+    const remoteEntries = ok(results[2], []);
+    const remoteReminders = ok(results[3], []);
+    const remoteProfiles = ok(results[4], []);
+    const remoteCrops = ok(results[5], []);
+    const remoteCosts = ok(results[6], []);
+    const remoteLayouts = ok(results[7], []);
 
     // For layouts: only overwrite local if remote is strictly newer (preserves offline edits)
     const remoteMapped = remoteLayouts.map(rowToGardenLayout);
@@ -155,8 +185,10 @@ export async function syncFromCloud(userId: string): Promise<void> {
       mergeLocal(KEYS.costEntries, remoteCosts.map(rowToCostEntry)       as any[]),
       writeLayouts(layoutsToWrite),
     ]);
+    return failures.length === 0;
   } catch (e) {
     console.warn('[sync] syncFromCloud failed:', e);
+    return false;
   }
 }
 
