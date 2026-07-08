@@ -29,6 +29,12 @@ export const EVENTS = {
   coachingOverrideSet: 'coaching_override_set',
   accountDeleted: 'account_deleted',
   notificationsEnabled: 'notifications_enabled',
+  sunlightSelected: 'sunlight_selected',
+  experienceSelected: 'experience_selected',
+  provinceDetected: 'province_detected',
+  provinceSelected: 'province_selected',
+  gardenCreated: 'garden_created',
+  onboardingStepViewed: 'onboarding_step_viewed',
 } as const;
 
 /**
