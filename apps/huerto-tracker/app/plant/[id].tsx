@@ -75,8 +75,11 @@ export default function PlantDetailScreen() {
 
   async function onRefresh() {
     setRefreshing(true);
-    await Promise.all([plants.refresh(), entries.refresh()]);
-    setRefreshing(false);
+    try {
+      await Promise.all([plants.refresh(), entries.refresh()]);
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   const plant = plants.getById(id);

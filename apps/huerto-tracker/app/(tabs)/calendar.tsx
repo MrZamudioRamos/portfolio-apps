@@ -46,8 +46,11 @@ function CalendarInner() {
 
   async function onRefresh() {
     setRefreshing(true);
-    await allPlants.refresh();
-    setRefreshing(false);
+    try {
+      await allPlants.refresh();
+    } finally {
+      setRefreshing(false);
+    }
   }
   const { customCropsById } = useCustomCrops();
   const gardenPlants = useMemo(

@@ -1,5 +1,4 @@
-import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
-import { Ionicons } from '@expo/vector-icons';
+import { useColors, useTheme, Card, Button, ScreenHeader, type Theme } from '@portfolio/ui';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -107,13 +106,7 @@ export default function LightMeterScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
-        </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>{t('lightMeter.title')}</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <ScreenHeader title={t('lightMeter.title')} onBack={() => router.back()} />
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
         {/* Description */}
@@ -210,15 +203,6 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.lg,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-    },
-    headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     scroll: { padding: spacing.xl, paddingBottom: 60 },
     descCard: {
       flexDirection: 'row',

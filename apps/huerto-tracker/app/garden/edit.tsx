@@ -1,4 +1,4 @@
-import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Button, ScreenHeader, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
@@ -155,13 +155,7 @@ export default function GardenEditScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Header */}
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
-        </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardenEdit.title')}</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
 
       {/* Garden selector — only show when multiple gardens exist */}
       {gardens.items.length > 1 && (
@@ -507,15 +501,6 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.lg,
-      borderBottomWidth: 1,
-    },
-    headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     gardenSelector: {
       flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
       marginHorizontal: spacing.xl, marginTop: spacing.md, marginBottom: 0,

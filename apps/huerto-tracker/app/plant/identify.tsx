@@ -1,7 +1,7 @@
 import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
-import * as ImagePicker from 'expo-image-picker';
+import { usePickPhoto } from '../../src/hooks/usePickPhoto';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -9,9 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { track, EVENTS } from '../../src/analytics';
 import {
   ActivityIndicator,
-  Alert,
   Image,
-  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -60,79 +58,28 @@ export default function IdentifyPlantScreen() {
   const plant = plantId ? plants.getById(plantId) : null;
   const resolvedCropId = cropId ?? plant?.cropId;
   const crop = resolvedCropId ? CROPS_BY_ID[resolvedCropId] : null;
-  const [photo, setPhoto] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [diagnosis, setDiagnosis] = useState<PestDiagnosis | null>(null);
   const [errorKey, setErrorKey] = useState<'noKey' | 'generic' | null>(null);
   const [saved, setSaved] = useState(false);
-  const [picking, setPicking] = useState(false);
+  const { pickFromGallery, pickFromCamera, picking } = usePickPhoto({
+    aspect: [4, 3],
+    quality: 0.6,
+    i18nNamespace: 'identify',
+  });
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  // Recovery CTA for blocked permissions (no more OS prompts allowed):
-  // deep-link to system settings so the user can regrant camera/gallery.
-  function showPermissionAlert(kind: 'camera' | 'gallery', canAskAgain: boolean) {
-    const titleKey = kind === 'camera' ? 'identify.cameraDeniedTitle' : 'identify.galleryDeniedTitle';
-    const descKey = kind === 'camera' ? 'identify.cameraDeniedDesc' : 'identify.galleryDeniedDesc';
-    Alert.alert(t(titleKey), t(descKey), [
-      { text: t('common.cancel'), style: 'cancel' },
-      canAskAgain
-        ? { text: t('common.retry'), onPress: () => { void pickPhoto(kind === 'camera'); } }
-        : { text: t('common.openSettings'), onPress: () => { void Linking.openSettings(); } },
-    ]);
-  }
-
   async function pickPhoto(fromCamera: boolean) {
-    // Spinlock: prevent double-tap re-entering and stacking two OS pickers.
-    if (picking) return;
-    setPicking(true);
     setErrorKey(null);
     setDiagnosis(null);
     setSaved(false);
-
-    try {
-      let result: ImagePicker.ImagePickerResult;
-      if (fromCamera) {
-        // Destructure canAskAgain so 'blocked' (hard-deny) is recoverable via
-        // Settings instead of silently no-op'ing the button forever.
-        const { status, canAskAgain } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status !== 'granted') {
-          showPermissionAlert('camera', canAskAgain);
-          return;
-        }
-        // launchCameraAsync throws on Android devices without a camera app
-        // (ActivityNotFoundException). Catch → friendly message, no crash.
-        try {
-          result = await ImagePicker.launchCameraAsync({
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 0.6,
-          });
-        } catch {
-          Alert.alert(t('common.error'), t('identify.noCameraDesc'));
-          return;
-        }
-      } else {
-        const { status, canAskAgain } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          showPermissionAlert('gallery', canAskAgain);
-          return;
-        }
-        result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 0.6,
-        });
-      }
-
-      if (!result.canceled) setPhoto(result.assets[0]);
-    } finally {
-      setPicking(false);
-    }
+    const result = fromCamera ? await pickFromCamera() : await pickFromGallery();
+    if (result.kind === 'success') setPhoto(result.uri);
   }
 
   async function analyze() {
@@ -144,7 +91,7 @@ export default function IdentifyPlantScreen() {
 
     try {
       const cropName = crop ? t('crops.' + crop.id + '.name') : 'plant';
-      const result = await identifyPest(photo.uri, cropName, i18n.language);
+      const result = await identifyPest(photo, cropName, i18n.language);
       setDiagnosis(result);
     } catch (err: unknown) {
       const e = err as { code?: string; message?: string };
@@ -168,7 +115,7 @@ export default function IdentifyPlantScreen() {
       type: diagnosis.detected ? 'pest' : 'note',
       date: todayStr(),
       notes,
-      ...(photo ? { photoUri: photo.uri } : {}),
+      ...(photo ? { photoUri: photo } : {}),
     });
     setSaved(true);
   }
@@ -242,7 +189,7 @@ export default function IdentifyPlantScreen() {
         ) : (
           /* Photo preview */
           <View>
-            <Image source={{ uri: photo.uri }} style={s.photoPreview} />
+            <Image source={{ uri: photo }} style={s.photoPreview} />
             <Pressable
               onPress={() => { setPhoto(null); setDiagnosis(null); setErrorKey(null); setSaved(false); }}
               style={s.retakeBtn}

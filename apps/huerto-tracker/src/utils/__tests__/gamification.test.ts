@@ -107,7 +107,7 @@ describe('buildGamificationData', () => {
 
   it('totalWeightG acepta peso numérico (no string)', () => {
     const entries = [
-      makeEntry('harvest', '2024-06-10', { data: { weight: 2 } }),
+      makeEntry('harvest', '2024-06-10', { data: { weight: '2' } }),
     ];
     expect(buildGamificationData([], entries).totalWeightG).toBe(2000);
   });

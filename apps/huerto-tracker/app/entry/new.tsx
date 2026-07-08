@@ -1,16 +1,14 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useStreak } from '@portfolio/share';
-import * as ImagePicker from 'expo-image-picker';
-import { persistPickedImage } from '../../src/utils/persistImage';
+import { usePickPhoto } from '../../src/hooks/usePickPhoto';
+import { DatePickerModal } from '../../src/components/DatePickerModal';
 import { successHaptic, tapHaptic } from '../../src/utils/haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShareModal, type ShareModalProps } from '../../src/components/ShareModal';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import {
   Alert,
   Image,
@@ -30,8 +28,6 @@ import type { Plant } from '../../src/models/plant';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
-
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const ALL_TYPES: EntryType[] = [
   'watering', 'sowing', 'transplant', 'fertilizing',
@@ -54,8 +50,8 @@ export default function NewEntryScreen() {
   const [selectedPlantId, setSelectedPlantId] = useState<string | undefined>(paramPlantId);
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(todayStr());
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const { pickFromGallery } = usePickPhoto({ aspect: [4, 3] });
   // watering
   const [waterLiters, setWaterLiters] = useState('');
   const [waterMethod, setWaterMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>('hand');
@@ -76,15 +72,8 @@ export default function NewEntryScreen() {
   const { registerActivity, isMilestone } = useStreak('huerto-tracker');
 
   async function pickPhoto() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.7,
-    });
-    if (!result.canceled) setPhotoUri(await persistPickedImage(result.assets[0].uri));
+    const result = await pickFromGallery();
+    if (result.kind === 'success') setPhotoUri(result.uri);
   }
 
   async function handleSave() {
@@ -247,64 +236,7 @@ export default function NewEntryScreen() {
 
             {/* Date — quick buttons + calendar picker */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.md }]}>{t('entryNew.date')}</Text>
-            <View style={[s.dateBtnsRow, { marginBottom: spacing.sm }]}>
-              {([0, 1, 2] as const).map((days) => {
-                const d = new Date();
-                d.setDate(d.getDate() - days);
-                const dateStr = dateToStr(d);
-                const active = date === dateStr;
-                const label = days === 0 ? t('entryNew.today') : days === 1 ? t('entryNew.yesterday') : t('entryNew.twoDaysAgo');
-                return (
-                  <Pressable
-                    key={days}
-                    onPress={() => setDate(dateStr)}
-                    style={[s.dateBtn, { backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt, borderColor: active ? colors.primary : colors.border }]}
-                  >
-                    <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-            <Pressable
-              onPress={() => setShowDatePicker(true)}
-              style={[s.input, { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderColor: colors.border }]}
-            >
-              <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
-              <Text style={{ color: colors.text, fontSize: fontSize.md, flex: 1 }}>{date}</Text>
-            </Pressable>
-            {showDatePicker && Platform.OS === 'android' && (
-              <DateTimePicker
-                value={new Date(date + 'T12:00:00')}
-                mode="date"
-                display="default"
-                onChange={(_, d) => { setShowDatePicker(false); if (d) setDate(dateToStr(d)); }}
-              />
-            )}
-            {showDatePicker && Platform.OS === 'ios' && (
-              <Modal transparent animationType="slide" visible>
-                <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
-                  <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
-                    {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-                    <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
-                    <DateTimePicker
-                      value={new Date(date + 'T12:00:00')}
-                      mode="date"
-                      display="spinner"
-                      onChange={(_, d) => { if (d) setDate(dateToStr(d)); }}
-                      style={{ width: '100%' }}
-                    />
-                    <Button
-                      title={t('common.save')}
-                      onPress={() => setShowDatePicker(false)}
-                      size="lg"
-                      style={{ margin: spacing.xl, marginTop: 0 }}
-                    />
-                  </Pressable>
-                </Pressable>
-              </Modal>
-            )}
+            <DatePickerModal value={date} onChange={setDate} quickChips={[0, 1, 2]} i18nPrefix="entryNew" inputStyle={s.input} />
 
             {/* Notes */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
@@ -574,15 +506,6 @@ const makeStyles = (
       justifyContent: 'center',
       overflow: 'hidden',
     },
-    dateBtnsRow: { flexDirection: 'row', gap: spacing.sm },
-    dateBtn: {
-      flex: 1,
-      alignItems: 'center',
-      paddingVertical: spacing.sm,
-      borderRadius: radii.full,
-      borderWidth: 1.5,
-    },
-    dateBtnText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     methodChip: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -599,22 +522,5 @@ const makeStyles = (
       borderRadius: radii.sm,
       borderWidth: 1.5,
       alignItems: 'center',
-    },
-    dateModalOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.4)',
-      justifyContent: 'flex-end',
-    },
-    dateModalSheet: {
-      borderTopLeftRadius: radii.xl,
-      borderTopRightRadius: radii.xl,
-      paddingTop: spacing.sm,
-      alignItems: 'center',
-    },
-    dateModalHandle: {
-      width: 40,
-      height: 4,
-      borderRadius: 2,
-      marginBottom: spacing.md,
     },
   });

@@ -125,8 +125,11 @@ function DashboardInner() {
 
   async function onRefresh() {
     setRefreshing(true);
-    await Promise.all([allPlants.refresh(), reminders.refresh(), entries.refresh()]);
-    setRefreshing(false);
+    try {
+      await Promise.all([allPlants.refresh(), reminders.refresh(), entries.refresh()]);
+    } finally {
+      setRefreshing(false);
+    }
   }
   useTourAutoStart('home', {
     ready: !plants.loading,

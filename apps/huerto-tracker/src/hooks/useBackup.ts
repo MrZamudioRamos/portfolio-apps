@@ -50,13 +50,13 @@ export function useBackup() {
   const [importing, setImporting] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.multiGet([AUTO_BACKUP_KEY, LAST_BACKUP_KEY]).then(
-      ([[, auto], [, last]]) => {
+    AsyncStorage.multiGet([AUTO_BACKUP_KEY, LAST_BACKUP_KEY])
+      .then(([[, auto], [, last]]) => {
         setAutoBackup(auto === 'true');
         setLastBackupAt(last);
-        setLoading(false);
-      }
-    );
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const writeBackupFile = useCallback(async (): Promise<string> => {

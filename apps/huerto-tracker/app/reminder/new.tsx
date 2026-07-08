@@ -86,7 +86,7 @@ export default function ReminderNewScreen() {
   }
 
   return (
-    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
         <View style={[s.header, { borderBottomColor: colors.border }]}>

@@ -1,9 +1,9 @@
 import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useCollection } from '@portfolio/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../src/utils/glassEffect';
+import { DatePickerModal } from '../src/components/DatePickerModal';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -64,8 +64,11 @@ export default function CostsScreen() {
 
   async function onRefresh() {
     setRefreshing(true);
-    await Promise.all([plants.refresh(), diaryEntries.refresh(), costEntries.refresh()]);
-    setRefreshing(false);
+    try {
+      await Promise.all([plants.refresh(), diaryEntries.refresh(), costEntries.refresh()]);
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   const [year, setYear] = useState(new Date().getFullYear());
@@ -83,7 +86,6 @@ export default function CostsScreen() {
   const [newPlantId, setNewPlantId] = useState<string | undefined>(undefined);
   const [saving, setSaving] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -232,7 +234,6 @@ export default function CostsScreen() {
       setNewDate(todayStr());
       setNewCategory('seeds');
       setNewPlantId(undefined);
-      setShowDatePicker(false);
       setShowAddModal(false);
     } catch (e) {
       Alert.alert(t('common.error'), t('costs.saveError'));
@@ -598,8 +599,8 @@ export default function CostsScreen() {
       </ScrollView>
 
       {/* ── Add cost modal ── */}
-      <Modal visible={showAddModal} transparent animationType="slide" onRequestClose={() => { setShowAddModal(false); setShowDatePicker(false); }}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => { setShowAddModal(false); setShowDatePicker(false); }} />
+      <Modal visible={showAddModal} transparent animationType="slide" onRequestClose={() => { setShowAddModal(false); }}>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => { setShowAddModal(false); }} />
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <Pressable
             onPress={() => {}}
@@ -638,62 +639,7 @@ export default function CostsScreen() {
 
             {/* Date */}
             <Text style={[s.modalLabel, { color: colors.textSecondary }]}>{t('entryNew.date')}</Text>
-            <View style={s.dateBtnsRow}>
-              {([0, 1, 2] as const).map((days) => {
-                const d = new Date();
-                d.setDate(d.getDate() - days);
-                const ds = dateToStr(d);
-                const active = newDate === ds;
-                const label = days === 0 ? t('entryNew.today') : days === 1 ? t('entryNew.yesterday') : t('entryNew.twoDaysAgo');
-                return (
-                  <Pressable
-                    key={days}
-                    onPress={() => setNewDate(ds)}
-                    style={[s.dateBtn, { backgroundColor: active ? colors.primary + '20' : colors.surfaceAlt, borderColor: active ? colors.primary : colors.border }]}
-                  >
-                    <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>{label}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-            <Pressable
-              onPress={() => setShowDatePicker(true)}
-              style={[s.descInput, { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}
-            >
-              <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
-              <Text style={{ color: colors.text, fontSize: fontSize.md, flex: 1 }}>{newDate}</Text>
-            </Pressable>
-            {showDatePicker && Platform.OS === 'android' && (
-              <DateTimePicker
-                value={new Date(newDate + 'T12:00:00')}
-                mode="date"
-                display="default"
-                onChange={(_, d) => { setShowDatePicker(false); if (d) setNewDate(dateToStr(d)); }}
-              />
-            )}
-            {showDatePicker && Platform.OS === 'ios' && (
-              <Modal transparent animationType="slide" visible>
-                <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
-                  <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
-                    {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-                    <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
-                    <DateTimePicker
-                      value={new Date(newDate + 'T12:00:00')}
-                      mode="date"
-                      display="spinner"
-                      onChange={(_, d) => { if (d) setNewDate(dateToStr(d)); }}
-                      style={{ width: '100%' }}
-                    />
-                    <Button
-                      title={t('common.save')}
-                      onPress={() => setShowDatePicker(false)}
-                      size="lg"
-                      style={{ margin: spacing.xl, marginTop: 0 }}
-                    />
-                  </Pressable>
-                </Pressable>
-              </Modal>
-            )}
+            <DatePickerModal value={newDate} onChange={setNewDate} quickChips={[0, 1, 2]} i18nPrefix="entryNew" inputStyle={[s.descInput, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]} />
 
             {/* Plant (optional) */}
             {gardenPlants.length > 0 && (
@@ -894,36 +840,10 @@ const makeStyles = (
     },
     emptyTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, textAlign: 'center' },
     emptyDesc: { fontSize: fontSize.sm, textAlign: 'center', lineHeight: 20 },
-    dateBtnsRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm },
-    dateBtn: {
-      flex: 1,
-      alignItems: 'center',
-      paddingVertical: spacing.sm,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
-    },
-    dateBtnText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     roiBadge: {
       paddingHorizontal: spacing.sm,
       paddingVertical: 2,
       borderRadius: radii.full,
     },
     roiBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
-    dateModalOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.4)',
-      justifyContent: 'flex-end',
-    },
-    dateModalSheet: {
-      borderTopLeftRadius: radii.xl,
-      borderTopRightRadius: radii.xl,
-      paddingTop: spacing.sm,
-      alignItems: 'center',
-    },
-    dateModalHandle: {
-      width: 40,
-      height: 4,
-      borderRadius: 2,
-      marginBottom: spacing.md,
-    },
   });

@@ -15,10 +15,10 @@ export function useFrostAlert(province: string | null | undefined) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(ENABLED_KEY).then((v) => {
-      setEnabled(v === 'true');
-      setLoading(false);
-    });
+    AsyncStorage.getItem(ENABLED_KEY)
+      .then((v) => setEnabled(v === 'true'))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   // Check for frost whenever province or enabled changes

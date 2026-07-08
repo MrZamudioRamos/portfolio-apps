@@ -1,4 +1,4 @@
-import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Card, ScreenHeader, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useReminders } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
@@ -58,8 +58,11 @@ export default function GardensScreen() {
 
   async function onRefresh() {
     setRefreshing(true);
-    await Promise.all([gardens.refresh(), plants.refresh(), entries.refresh()]);
-    setRefreshing(false);
+    try {
+      await Promise.all([gardens.refresh(), plants.refresh(), entries.refresh()]);
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   const [showCreate, setShowCreate] = useState(false);
@@ -173,24 +176,24 @@ export default function GardensScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
-        </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>{t('gardens.title')}</Text>
-        <Pressable
-          onPress={() => canCreateMore ? setShowCreate(true) : router.push('/paywall?source=garden_limit' as any)}
-          hitSlop={12}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
-        >
-          {!canCreateMore && (
-            <View style={[s.proBadge, { backgroundColor: colors.primary }]}>
-              <Text style={[s.proBadgeText, { color: colors.background }]}>PRO</Text>
-            </View>
-          )}
-          <Ionicons name="add" size={24} color={colors.primary} />
-        </Pressable>
-      </View>
+      <ScreenHeader
+        title={t('gardens.title')}
+        onBack={() => router.back()}
+        right={
+          <Pressable
+            onPress={() => canCreateMore ? setShowCreate(true) : router.push('/paywall?source=garden_limit' as any)}
+            hitSlop={12}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+          >
+            {!canCreateMore && (
+              <View style={[s.proBadge, { backgroundColor: colors.primary }]}>
+                <Text style={[s.proBadgeText, { color: colors.background }]}>PRO</Text>
+              </View>
+            )}
+            <Ionicons name="add" size={24} color={colors.primary} />
+          </Pressable>
+        }
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

@@ -1,4 +1,4 @@
-import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Card, Button, ScreenHeader, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -123,17 +123,12 @@ export default function CatalogScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
-        </Pressable>
-        <View style={{ flex: 1, marginLeft: spacing.md }}>
-          <Text style={[s.headerTitle, { color: colors.text }]}>{t('catalog.title')}</Text>
-          <Text style={[s.headerSub, { color: colors.textSecondary }]}>
-            {t('catalog.subtitle', { count: CROPS.length })}
-          </Text>
-        </View>
-      </View>
+      <ScreenHeader
+        title={t('catalog.title')}
+        subtitle={t('catalog.subtitle', { count: CROPS.length })}
+        onBack={() => router.back()}
+        variant="left"
+      />
 
       {/* Search */}
       <View style={[s.searchBox, {
@@ -439,15 +434,6 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.lg,
-      borderBottomWidth: 1,
-    },
-    headerTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
-    headerSub: { fontSize: fontSize.xs, marginTop: 1 },
     searchBox: {
       flexDirection: 'row',
       alignItems: 'center',

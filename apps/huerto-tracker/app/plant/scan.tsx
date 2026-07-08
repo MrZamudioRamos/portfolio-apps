@@ -1,6 +1,6 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
-import * as ImagePicker from 'expo-image-picker';
+import { usePickPhoto } from '../../src/hooks/usePickPhoto';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
@@ -8,9 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { track, EVENTS } from '../../src/analytics';
 import {
   ActivityIndicator,
-  Alert,
   Image,
-  Linking,
   Modal,
   Pressable,
   ScrollView,
@@ -47,11 +45,15 @@ export default function PlantScanScreen() {
   const { isPro } = usePurchases();
 
   const [showTips, setShowTips] = useState(true);
-  const [photo, setPhoto] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<PlantScanResult | null>(null);
   const [errorKey, setErrorKey] = useState<'noKey' | 'generic' | null>(null);
-  const [picking, setPicking] = useState(false);
+  const { pickFromGallery, pickFromCamera, picking } = usePickPhoto({
+    aspect: [4, 3],
+    quality: 0.6,
+    i18nNamespace: 'plantScan',
+  });
 
   const cropNames = useMemo(
     () => Object.fromEntries(Object.entries(CROPS_BY_ID).map(([id, c]) => [id, c.name])),
@@ -63,65 +65,11 @@ export default function PlantScanScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  // Recovery CTA for blocked permissions (no more OS prompts allowed):
-  // deep-link to system settings so the user can regrant camera/gallery.
-  function showPermissionAlert(kind: 'camera' | 'gallery', canAskAgain: boolean) {
-    const titleKey = kind === 'camera' ? 'plantScan.cameraDeniedTitle' : 'plantScan.galleryDeniedTitle';
-    const descKey = kind === 'camera' ? 'plantScan.cameraDeniedDesc' : 'plantScan.galleryDeniedDesc';
-    Alert.alert(t(titleKey), t(descKey), [
-      { text: t('common.cancel'), style: 'cancel' },
-      canAskAgain
-        ? { text: t('common.retry'), onPress: () => { void pickPhoto(kind === 'camera'); } }
-        : { text: t('common.openSettings'), onPress: () => { void Linking.openSettings(); } },
-    ]);
-  }
-
   async function pickPhoto(fromCamera: boolean) {
-    // Spinlock: prevent double-tap re-entering and stacking two OS pickers.
-    if (picking) return;
-    setPicking(true);
     setErrorKey(null);
     setResult(null);
-
-    try {
-      let res: ImagePicker.ImagePickerResult;
-      if (fromCamera) {
-        // Destructure canAskAgain so 'blocked' (hard-deny) is recoverable via
-        // Settings instead of silently no-op'ing the button forever.
-        const { status, canAskAgain } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status !== 'granted') {
-          showPermissionAlert('camera', canAskAgain);
-          return;
-        }
-        // launchCameraAsync throws on Android devices without a camera app
-        // (ActivityNotFoundException). Catch → friendly message, no crash.
-        try {
-          res = await ImagePicker.launchCameraAsync({
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 0.6,
-          });
-        } catch {
-          Alert.alert(t('common.error'), t('plantScan.noCameraDesc'));
-          return;
-        }
-      } else {
-        const { status, canAskAgain } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          showPermissionAlert('gallery', canAskAgain);
-          return;
-        }
-        res = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 0.6,
-        });
-      }
-      if (!res.canceled) setPhoto(res.assets[0]);
-    } finally {
-      setPicking(false);
-    }
+    const result = fromCamera ? await pickFromCamera() : await pickFromGallery();
+    if (result.kind === 'success') setPhoto(result.uri);
   }
 
   async function analyze() {
@@ -131,7 +79,7 @@ export default function PlantScanScreen() {
     setResult(null);
 
     try {
-      const scan = await scanPlant(photo.uri, i18n.language, cropNames);
+      const scan = await scanPlant(photo, i18n.language, cropNames);
       setResult(scan);
     } catch (err: unknown) {
       const e = err as { code?: string };
@@ -214,7 +162,7 @@ export default function PlantScanScreen() {
           </View>
         ) : (
           <View>
-            <Image source={{ uri: photo.uri }} style={s.photoPreview} />
+            <Image source={{ uri: photo }} style={s.photoPreview} />
             <Pressable
               onPress={() => { setPhoto(null); setResult(null); setErrorKey(null); }}
               style={s.retakeBtn}

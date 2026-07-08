@@ -1,4 +1,4 @@
-import { useColors, useTheme, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, ScreenHeader, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useSession } from '@portfolio/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -126,27 +126,17 @@ export default function ChatScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Header */}
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
-        </Pressable>
-        <View style={{ flex: 1, marginLeft: spacing.md }}>
-          <Text style={[s.headerTitle, { color: colors.text }]}>{t('chat.title')}</Text>
-          {activeGarden && (
-            <Text style={[s.headerSub, { color: colors.textSecondary }]}>
-              {t('chat.contextInfo', { province: activeGarden.province || t(`zone.${activeGarden.climateZone}`) })}
-            </Text>
-          )}
-        </View>
-        {messages.length > 0 && (
-          <Pressable onPress={clearChat} hitSlop={12} accessibilityRole="button" accessibilityLabel={t('chat.clearTitle')} style={{ marginRight: spacing.md }}>
+      <ScreenHeader
+        title={t('chat.title')}
+        subtitle={activeGarden ? t('chat.contextInfo', { province: activeGarden.province || t(`zone.${activeGarden.climateZone}`) }) : undefined}
+        onBack={() => router.back()}
+        right={messages.length > 0 ? (
+          <Pressable onPress={clearChat} hitSlop={12} accessibilityRole="button" accessibilityLabel={t('chat.clearTitle')}>
             <Ionicons name="trash-outline" size={20} color={colors.textSecondary} />
           </Pressable>
-        )}
-        <View style={[s.aiBadge, { backgroundColor: colors.primary + '22' }]}>
-          <Text style={[s.aiBadgeText, { color: colors.primary }]}>AI</Text>
-        </View>
-      </View>
+        ) : undefined}
+        variant="left"
+      />
 
       {/* PRO gate */}
       {!isPro ? (

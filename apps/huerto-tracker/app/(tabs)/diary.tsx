@@ -58,8 +58,11 @@ function DiaryInner() {
 
   async function onRefresh() {
     setRefreshing(true);
-    await Promise.all([entries.refresh(), plants.refresh()]);
-    setRefreshing(false);
+    try {
+      await Promise.all([entries.refresh(), plants.refresh()]);
+    } finally {
+      setRefreshing(false);
+    }
   }
   const { plantId } = useLocalSearchParams<{ plantId?: string }>();
 

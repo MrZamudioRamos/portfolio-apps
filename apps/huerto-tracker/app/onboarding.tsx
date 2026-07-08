@@ -2,8 +2,8 @@ import { useOnboarding } from '@portfolio/shared';
 import { Button, Card, useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import { usePickPhoto } from '../src/hooks/usePickPhoto';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -46,7 +46,6 @@ import {
 import { useUserProfile } from '../src/hooks/useUserProfile';
 import { requestPermissions } from '@portfolio/notifications';
 import { track, EVENTS } from '../src/analytics';
-import { persistPickedImage } from '../src/utils/persistImage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CoachBubble } from '../src/components/CoachBubble';
 import { CoachHeader } from '../src/components/CoachHeader';
@@ -169,6 +168,7 @@ export default function OnboardingScreen() {
   const [gardenType, setGardenType] = useState<GardenType>('huerto');
   const [hemisphere, setHemisphere] = useState<Hemisphere>('norte');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const { pickFromGallery } = usePickPhoto({ aspect: [1, 1] });
   const [saving, setSaving] = useState(false);
   const [showCreating, setShowCreating] = useState(false);
   const [creatingMsgIdx, setCreatingMsgIdx] = useState(0);
@@ -306,15 +306,8 @@ export default function OnboardingScreen() {
   }
 
   async function pickPhoto() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
-    });
-    if (!result.canceled) setPhotoUri(await persistPickedImage(result.assets[0].uri));
+    const result = await pickFromGallery();
+    if (result.kind === 'success') setPhotoUri(result.uri);
   }
 
   async function handleCreate() {

@@ -57,10 +57,10 @@ export function useSeasonalAlerts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(ENABLED_KEY).then((v) => {
-      setEnabled(v === 'true');
-      setLoading(false);
-    });
+    AsyncStorage.getItem(ENABLED_KEY)
+      .then((v) => setEnabled(v === 'true'))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   // Use the active garden's climate zone (multi-garden may span zones)

@@ -1,4 +1,4 @@
-import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Card, ScreenHeader, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -58,8 +58,11 @@ export default function StatsScreen() {
 
   async function onRefresh() {
     setRefreshing(true);
-    await Promise.all([plants.refresh(), entries.refresh()]);
-    setRefreshing(false);
+    try {
+      await Promise.all([plants.refresh(), entries.refresh()]);
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   useFocusEffect(useCallback(() => { refreshActiveId(); plants.refresh(); entries.refresh(); }, []));
@@ -253,13 +256,7 @@ export default function StatsScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
-        </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>{t('stats.title')}</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <ScreenHeader title={t('stats.title')} onBack={() => router.back()} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -601,15 +598,6 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.lg,
-      borderBottomWidth: 1,
-    },
-    headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     scroll: { padding: spacing.xl, paddingTop: spacing.lg },
     keyStatsGrid: {
       flexDirection: 'row',

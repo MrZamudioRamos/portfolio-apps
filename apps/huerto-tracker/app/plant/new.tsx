@@ -3,7 +3,7 @@ import { createStore, useCollection } from '@portfolio/storage';
 import { useSession } from '@portfolio/supabase';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
-import * as ImagePicker from 'expo-image-picker';
+import { usePickPhoto } from '../../src/hooks/usePickPhoto';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,7 +33,6 @@ import { getCompanions } from '../../src/data/companions';
 import { PLANT_STATUS_CONFIG, type Plant, type PropagationMethod } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
 import { track, EVENTS } from '../../src/analytics';
-import { persistPickedImage } from '../../src/utils/persistImage';
 import { successHaptic, tapHaptic } from '../../src/utils/haptics';
 import { ScalePress } from '../../src/components/ScalePress';
 import { CopilotStep } from 'react-native-copilot';
@@ -93,6 +92,7 @@ export default function NewPlantScreen() {
   const [sowingDate, setSowingDate] = useState(todayStr());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const { pickFromGallery } = usePickPhoto({ aspect: [1, 1] });
   const [propagationMethod, setPropagationMethod] = useState<PropagationMethod>('seed');
   // Stage selector — replaces the hidden initialStatus param
   const [selectedStatus, setSelectedStatus] = useState<Plant['status']>(() => {
@@ -156,15 +156,8 @@ export default function NewPlantScreen() {
   }
 
   async function pickPhoto() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
-    });
-    if (!result.canceled) setPhotoUri(await persistPickedImage(result.assets[0].uri));
+    const result = await pickFromGallery();
+    if (result.kind === 'success') setPhotoUri(result.uri);
   }
 
   async function handleSave() {

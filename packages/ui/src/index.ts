@@ -12,4 +12,5 @@ export { spacing, fontSize, fontWeight, radii, shadows } from './theme/tokens';
 export { Button } from './components/Button';
 export { Card } from './components/Card';
 export { EmptyState } from './components/EmptyState';
+export { ScreenHeader } from './components/ScreenHeader';
 export { StatCard } from './components/StatCard';

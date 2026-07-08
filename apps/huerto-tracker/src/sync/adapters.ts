@@ -1,6 +1,6 @@
 import type { Garden } from '../models/garden';
 import type { Plant } from '../models/plant';
-import type { DiaryEntry } from '../models/diary-entry';
+import type { DiaryEntry, HarvestData, EntryDataMap } from '../models/diary-entry';
 import type { GardenReminder } from '../models/reminder';
 import type { UserProfile } from '../models/user-profile';
 import type { CustomCrop } from '../models/custom-crop';
@@ -198,9 +198,9 @@ export function entryToRow(e: DiaryEntry, userId: string) {
     type: e.type,
     notes: e.notes ?? null,
     photo_uri: syncablePhotoUri(e.photoUri),
-    harvest_weight_g: (e.data?.weightGrams as number) ?? null,
-    harvest_unit: (e.data?.unit as string) ?? null,
-    entry_data: e.data ?? null,
+    harvest_weight_g: (e.type === 'harvest' ? (e.data as HarvestData | undefined)?.weightGrams : null) ?? null,
+    harvest_unit: (e.type === 'harvest' ? (e.data as HarvestData | undefined)?.unit : null) ?? null,
+    entry_data: (e.data as Record<string, unknown> | undefined) ?? null,
     recorded_at: e.date,
     created_at: e.createdAt,
     updated_at: e.updatedAt,
@@ -209,9 +209,9 @@ export function entryToRow(e: DiaryEntry, userId: string) {
 }
 
 export function rowToEntry(r: ReturnType<typeof entryToRow>): DiaryEntry {
-  const data: Record<string, unknown> | undefined =
+  const data: EntryDataMap['harvest'] | undefined =
     r.entry_data
-      ? r.entry_data
+      ? (r.entry_data as EntryDataMap['harvest'])
       : r.harvest_weight_g != null
         ? { weightGrams: r.harvest_weight_g, unit: r.harvest_unit ?? 'kg' }
         : undefined;

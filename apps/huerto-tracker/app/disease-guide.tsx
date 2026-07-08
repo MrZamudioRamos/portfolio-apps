@@ -1,4 +1,4 @@
-import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Card, ScreenHeader, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -84,15 +84,12 @@ export default function DiseaseGuideScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
-        </Pressable>
-        <View style={{ flex: 1, marginLeft: spacing.md }}>
-          <Text style={[s.headerTitle, { color: colors.text }]}>{t('diseaseGuide.title')}</Text>
-          <Text style={[s.headerSub, { color: colors.textSecondary }]}>{t('diseaseGuide.subtitle')}</Text>
-        </View>
-      </View>
+      <ScreenHeader
+        title={t('diseaseGuide.title')}
+        subtitle={t('diseaseGuide.subtitle')}
+        onBack={() => router.back()}
+        variant="left"
+      />
 
       {/* Search */}
       <View style={[s.searchBox, { backgroundColor: colors.surface, borderColor: colors.border, margin: spacing.lg, marginBottom: spacing.sm }]}>
@@ -251,15 +248,6 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.lg,
-      borderBottomWidth: 1,
-    },
-    headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
-    headerSub: { fontSize: fontSize.xs, marginTop: 1 },
     searchBox: {
       flexDirection: 'row',
       alignItems: 'center',

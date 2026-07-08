@@ -3,7 +3,7 @@ import { useCollection } from '@portfolio/storage';
 import { requestPermissions, scheduleDateAlert, cancelMonthlyAlerts } from '@portfolio/notifications';
 import { useEffect, useState } from 'react';
 import type { Plant } from '../models/plant';
-import type { DiaryEntry } from '../models/diary-entry';
+import type { DiaryEntry, TreatmentData } from '../models/diary-entry';
 import { CROPS } from '../data/crops';
 import { useActiveGarden } from './useActiveGarden';
 import i18n from '../i18n';
@@ -84,7 +84,7 @@ async function scheduleTreatment(plants: Plant[], entries: DiaryEntry[]): Promis
   const latest = new Map<string, DiaryEntry>();
   for (const e of entries) {
     if (e.type !== 'treatment' || !e.plantId) continue;
-    const waitDays = (e.data?.waitDays as number) ?? 0;
+    const waitDays = ((e.data as TreatmentData) ?? {}).waitDays ?? 0;
     if (!waitDays) continue;
     const prev = latest.get(e.plantId);
     if (!prev || e.date > prev.date) latest.set(e.plantId, e);
@@ -93,7 +93,7 @@ async function scheduleTreatment(plants: Plant[], entries: DiaryEntry[]): Promis
   for (const [plantId, entry] of latest) {
     const plant = plants.find((p) => p.id === plantId);
     if (!plant || plant.status === 'finished') continue;
-    const waitDays = (entry.data?.waitDays as number) ?? 0;
+    const waitDays = ((entry.data as TreatmentData) ?? {}).waitDays ?? 0;
     const target = new Date(new Date(entry.date + 'T12:00:00').getTime() + waitDays * 86400000);
     target.setHours(9, 0, 0, 0);
     if (target <= now) continue;
@@ -126,10 +126,12 @@ export function usePlantNotifications() {
       AsyncStorage.getItem(KEYS.transplant.enabled),
       AsyncStorage.getItem(KEYS.harvest.enabled),
       AsyncStorage.getItem(KEYS.treatment.enabled),
-    ]).then(([t, h, tr]) => {
-      setEnabled({ transplant: t === 'true', harvest: h === 'true', treatment: tr === 'true' });
-      setLoading(false);
-    });
+    ])
+      .then(([t, h, tr]) => {
+        setEnabled({ transplant: t === 'true', harvest: h === 'true', treatment: tr === 'true' });
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const gardenPlants = activeGarden
@@ -193,7 +195,7 @@ export function usePlantNotifications() {
     const seen = new Set<string>();
     for (const e of allEntries.items) {
       if (e.type !== 'treatment' || !e.plantId) continue;
-      const waitDays = (e.data?.waitDays as number) ?? 0;
+      const waitDays = ((e.data as TreatmentData) ?? {}).waitDays ?? 0;
       if (!waitDays) continue;
       const clearDate = new Date(e.date + 'T12:00:00').getTime() + waitDays * 86400000;
       if (clearDate > now.getTime()) seen.add(e.plantId);

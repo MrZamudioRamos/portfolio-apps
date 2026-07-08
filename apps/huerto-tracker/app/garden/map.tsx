@@ -23,7 +23,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ViewShot, isViewShotAvailable } from '../../src/utils/viewShot';
 // Gesture/Reanimated stubs — Expo Go can't run Reanimated 4 native module.
 // Real implementation works in dev builds / production.
@@ -63,6 +63,7 @@ export default function GardenMapScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const { isPro } = usePro();
   const { activeGarden: garden, gardens: allGardens, refreshActiveId } = useActiveGarden();
@@ -702,6 +703,7 @@ export default function GardenMapScreen() {
               height: panelH,
               backgroundColor: colors.surface,
               borderTopColor: colors.border,
+              paddingBottom: insets.bottom,
               ...shadows.md,
             },
           ]}

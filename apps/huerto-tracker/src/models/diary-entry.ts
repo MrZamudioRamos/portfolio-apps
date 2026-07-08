@@ -12,6 +12,44 @@ export type EntryType =
   | 'photo'
   | 'note';
 
+export interface WateringData {
+  liters?: string;
+  method?: 'hand' | 'drip' | 'sprinkler' | 'flood';
+}
+
+export interface HarvestData {
+  weightGrams?: number;
+  weight?: string;
+  units?: string;
+  quality?: number;
+  unit?: string;
+}
+
+export interface FertilizingData {
+  product?: string;
+  amount?: string;
+  unit?: 'g' | 'kg' | 'ml' | 'L';
+}
+
+export interface TreatmentData {
+  product?: string;
+  dose?: string;
+  waitDays?: number;
+}
+
+export type EntryDataMap = {
+  sowing: undefined;
+  transplant: undefined;
+  watering: WateringData;
+  fertilizing: FertilizingData;
+  pruning: undefined;
+  harvest: HarvestData;
+  pest: undefined;
+  treatment: TreatmentData;
+  photo: undefined;
+  note: undefined;
+};
+
 export interface DiaryEntry extends BaseItem {
   gardenId: string;
   plantId?: string;
@@ -19,7 +57,7 @@ export interface DiaryEntry extends BaseItem {
   date: string;
   notes?: string;
   photoUri?: string;
-  data?: Record<string, unknown>;
+  data?: EntryDataMap[EntryType];
 }
 
 export const ENTRY_TYPE_CONFIG: Record<

@@ -22,7 +22,12 @@
     "viewAll": "Ver todo",
     "more": "más",
     "retry": "Reintentar",
-    "openSettings": "Abrir ajustes"
+    "openSettings": "Abrir ajustes",
+    "cameraDeniedTitle": "Sin acceso a la cámara",
+    "cameraDeniedDesc": "Activa la cámara en Ajustes para tomar fotos.",
+    "galleryDeniedTitle": "Sin acceso a la galería",
+    "galleryDeniedDesc": "Activa el acceso a las fotos en Ajustes para elegir una imagen.",
+    "noCameraDesc": "Este dispositivo no tiene cámara disponible."
   },
   "errorScreen": {
     "title": "Algo ha salido mal",

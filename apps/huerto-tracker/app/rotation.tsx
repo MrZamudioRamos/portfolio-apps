@@ -1,4 +1,4 @@
-import { useColors, useTheme, Card } from '@portfolio/ui';
+import { useColors, useTheme, Card, ScreenHeader } from '@portfolio/ui';
 import { createStore } from '@portfolio/storage';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -99,9 +99,12 @@ export default function RotationScreen() {
 
   async function onRefresh() {
     setRefreshing(true);
-    const items = await plantStore.getAll();
-    setAllPlants(items);
-    setRefreshing(false);
+    try {
+      const items = await plantStore.getAll();
+      setAllPlants(items);
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   const gardenPlants = useMemo(
@@ -156,13 +159,7 @@ export default function RotationScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
-        </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>{t('rotation.title')}</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <ScreenHeader title={t('rotation.title')} onBack={() => router.back()} />
 
       <ScrollView
         contentContainerStyle={s.scroll}
@@ -290,14 +287,6 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: spacing.lg,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-    },
-    headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     scroll: { padding: spacing.xl, paddingBottom: 60 },
     bedHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
     bedName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, flex: 1 },

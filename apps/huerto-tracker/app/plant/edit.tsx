@@ -1,7 +1,6 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
-import * as ImagePicker from 'expo-image-picker';
-import { persistPickedImage } from '../../src/utils/persistImage';
+import { usePickPhoto } from '../../src/hooks/usePickPhoto';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
@@ -61,6 +60,7 @@ export default function EditPlantScreen() {
   const [sowingDate, setSowingDate] = useState(plant?.sowingDate ?? '');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(plant?.photoUri ?? null);
+  const { pickFromGallery } = usePickPhoto({ aspect: [1, 1] });
   const [harvestGoalKg, setHarvestGoalKg] = useState(
     plant?.harvestGoalKg ? String(plant.harvestGoalKg) : ''
   );
@@ -107,15 +107,8 @@ export default function EditPlantScreen() {
   }
 
   async function pickPhoto() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
-    });
-    if (!result.canceled) setPhotoUri(await persistPickedImage(result.assets[0].uri));
+    const result = await pickFromGallery();
+    if (result.kind === 'success') setPhotoUri(result.uri);
   }
 
   const cropVarieties = plant ? (VARIETIES_BY_CROP[plant.cropId] ?? []) : [];

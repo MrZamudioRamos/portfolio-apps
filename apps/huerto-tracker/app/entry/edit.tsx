@@ -1,19 +1,16 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
-import * as ImagePicker from 'expo-image-picker';
-import { persistPickedImage } from '../../src/utils/persistImage';
-import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
+import { usePickPhoto } from '../../src/hooks/usePickPhoto';
+import { DatePickerModal } from '../../src/components/DatePickerModal';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   Alert,
   Image,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -23,11 +20,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
+import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType, type WateringData, type HarvestData, type FertilizingData, type TreatmentData } from '../../src/models/diary-entry';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { tapHaptic } from '../../src/utils/haptics';
-
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const ALL_TYPES: EntryType[] = [
   'watering', 'sowing', 'transplant', 'fertilizing', 'harvest',
@@ -50,23 +45,23 @@ export default function EditEntryScreen() {
   const [selectedType, setSelectedType] = useState<EntryType>(entry?.type ?? 'watering');
   const [notes, setNotes] = useState(entry?.notes ?? '');
   const [date, setDate] = useState(entry?.date ?? todayStr());
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(entry?.photoUri ?? null);
+  const { pickFromGallery } = usePickPhoto({ aspect: [4, 3] });
   // watering
-  const [waterLiters, setWaterLiters] = useState(String((entry?.data as any)?.liters ?? ''));
-  const [waterMethod, setWaterMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>((entry?.data as any)?.method ?? 'hand');
+  const [waterLiters, setWaterLiters] = useState(String((entry?.data as WateringData)?.liters ?? ''));
+  const [waterMethod, setWaterMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>((entry?.data as WateringData)?.method ?? 'hand');
   // harvest
-  const [harvestWeight, setHarvestWeight] = useState(String((entry?.data as any)?.weightGrams ?? (entry?.data as any)?.weight ?? ''));
-  const [harvestUnits, setHarvestUnits] = useState(String(entry?.data?.units ?? ''));
-  const [harvestQuality, setHarvestQuality] = useState<number>(Number((entry?.data as any)?.quality ?? 0));
+  const [harvestWeight, setHarvestWeight] = useState(String((entry?.data as HarvestData)?.weightGrams ?? (entry?.data as HarvestData)?.weight ?? ''));
+  const [harvestUnits, setHarvestUnits] = useState(String((entry?.data as HarvestData)?.units ?? ''));
+  const [harvestQuality, setHarvestQuality] = useState<number>(Number((entry?.data as HarvestData)?.quality ?? 0));
   // fertilizing
-  const [fertProduct, setFertProduct] = useState(String((entry?.data as any)?.product ?? ''));
-  const [fertAmount, setFertAmount] = useState(String((entry?.data as any)?.amount ?? ''));
-  const [fertUnit, setFertUnit] = useState<'g'|'kg'|'ml'|'L'>((entry?.data as any)?.unit ?? 'g');
+  const [fertProduct, setFertProduct] = useState(String((entry?.data as FertilizingData)?.product ?? ''));
+  const [fertAmount, setFertAmount] = useState(String((entry?.data as FertilizingData)?.amount ?? ''));
+  const [fertUnit, setFertUnit] = useState<'g'|'kg'|'ml'|'L'>((entry?.data as FertilizingData)?.unit ?? 'g');
   // treatment
-  const [treatProduct, setTreatProduct] = useState(String((entry?.data as any)?.product ?? ''));
-  const [treatDose, setTreatDose] = useState(String((entry?.data as any)?.dose ?? ''));
-  const [treatWaitDays, setTreatWaitDays] = useState(String((entry?.data as any)?.waitDays ?? ''));
+  const [treatProduct, setTreatProduct] = useState(String((entry?.data as TreatmentData)?.product ?? ''));
+  const [treatDose, setTreatDose] = useState(String((entry?.data as TreatmentData)?.dose ?? ''));
+  const [treatWaitDays, setTreatWaitDays] = useState(String((entry?.data as TreatmentData)?.waitDays ?? ''));
   const [saving, setSaving] = useState(false);
 
   const s = useMemo(
@@ -88,15 +83,8 @@ export default function EditEntryScreen() {
   const selectedCfg = ENTRY_TYPE_CONFIG[selectedType];
 
   async function pickPhoto() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.7,
-    });
-    if (!result.canceled) setPhotoUri(await persistPickedImage(result.assets[0].uri));
+    const result = await pickFromGallery();
+    if (result.kind === 'success') setPhotoUri(result.uri);
   }
 
   async function handleSave() {
@@ -202,58 +190,7 @@ export default function EditEntryScreen() {
 
             {/* Date */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('entryNew.date')}</Text>
-            <View style={[s.dateBtnsRow, { marginBottom: spacing.sm }]}>
-              {([0, 1, 2] as const).map((days) => {
-                const d = new Date();
-                d.setDate(d.getDate() - days);
-                const dateStr = dateToStr(d);
-                const active = date === dateStr;
-                const label = days === 0 ? t('entryNew.today') : days === 1 ? t('entryNew.yesterday') : t('entryNew.twoDaysAgo');
-                return (
-                  <Pressable
-                    key={days}
-                    onPress={() => setDate(dateStr)}
-                    style={[s.dateBtn, { backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt, borderColor: active ? colors.primary : colors.border }]}
-                  >
-                    <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>{label}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-            <Pressable
-              onPress={() => setShowDatePicker(true)}
-              style={[s.input, s.dateButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
-            >
-              <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
-              <Text style={{ color: colors.text, fontSize: fontSize.md, flex: 1 }}>{date}</Text>
-            </Pressable>
-
-            {showDatePicker && Platform.OS === 'android' && (
-              <DateTimePicker
-                value={new Date(date + 'T12:00:00')}
-                mode="date"
-                display="default"
-                onChange={(_, d) => { setShowDatePicker(false); if (d) setDate(dateToStr(d)); }}
-              />
-            )}
-            {showDatePicker && Platform.OS === 'ios' && (
-              <Modal transparent animationType="slide" visible>
-                <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
-                  <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
-                    {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-                    <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
-                    <DateTimePicker
-                      value={new Date(date + 'T12:00:00')}
-                      mode="date"
-                      display="spinner"
-                      onChange={(_, d) => { if (d) setDate(dateToStr(d)); }}
-                      style={{ width: '100%' }}
-                    />
-                    <Button title={t('common.save')} onPress={() => setShowDatePicker(false)} size="lg" style={{ margin: spacing.xl, marginTop: 0 }} />
-                  </Pressable>
-                </Pressable>
-              </Modal>
-            )}
+            <DatePickerModal value={date} onChange={setDate} quickChips={[0, 1, 2]} i18nPrefix="entryNew" inputStyle={s.input} />
 
             {/* Notes */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.notes')}</Text>
@@ -485,21 +422,8 @@ const makeStyles = (
     },
     typeLabel: { fontSize: 9, fontWeight: fontWeight.medium, textAlign: 'center' },
     // Date
-    dateBtnsRow: { flexDirection: 'row', gap: spacing.sm },
-    dateBtn: {
-      flex: 1,
-      alignItems: 'center',
-      paddingVertical: spacing.sm,
-      borderRadius: radii.full,
-      borderWidth: 1.5,
-    },
-    dateBtnText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     input: { borderWidth: 1.5, borderRadius: radii.md, padding: spacing.lg, fontSize: fontSize.md },
     textarea: { minHeight: 100 },
-    dateButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    dateModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-    dateModalSheet: { borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, paddingTop: spacing.sm, alignItems: 'center' },
-    dateModalHandle: { width: 40, height: 4, borderRadius: 2, marginBottom: spacing.md },
     // Extra data cards
     extraCard: {
       marginTop: spacing.lg,
