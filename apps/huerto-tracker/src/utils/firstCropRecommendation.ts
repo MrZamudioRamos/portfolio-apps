@@ -1,64 +1,113 @@
-import type { CropInfo, CropDifficulty } from '../data/crops';
+import { CROPS, type CropInfo } from '../data/crops';
 import { CROP_DIFFICULTY } from '../data/crops';
+import type { CropDifficulty } from '../data/crops';
 import type { ClimateZone } from '../models/garden';
 import type { SunlightLevel, ExperienceLevel } from '../models/user-profile';
 import { getSowingNow } from './sowingNow';
+import { cropMatchesSun } from './cropMatchesSun';
 
-interface RecommendationInput {
+const DIFF_RANK: Record<CropDifficulty, number> = { easy: 0, medium: 1, hard: 2 };
+
+function byHarvestTime(a: CropInfo, b: CropInfo): number {
+  return a.daysToHarvest[0] - b.daysToHarvest[0];
+}
+
+function sowableInZone(crop: CropInfo, climateZone: ClimateZone, month: number): 'now' | 'soon' | null {
+  const months = crop.sowingMonths[climateZone] ?? [];
+  if (months.includes(month)) return 'now';
+  const nextMonth = month === 12 ? 1 : month + 1;
+  if (months.includes(nextMonth)) return 'soon';
+  return null;
+}
+
+export interface RecommendationInput {
   climateZone: ClimateZone;
   month: number;
   sunlight?: SunlightLevel;
   experience?: ExperienceLevel;
-}
-
-const DIFF_RANK: Record<CropDifficulty, number> = { easy: 0, medium: 1, hard: 2 };
-
-function byDifficultyThenHarvest(a: CropInfo, b: CropInfo): number {
-  const da = DIFF_RANK[CROP_DIFFICULTY[a.id] ?? 'medium'];
-  const db = DIFF_RANK[CROP_DIFFICULTY[b.id] ?? 'medium'];
-  if (da !== db) return da - db;
-  return a.daysToHarvest[0] - b.daysToHarvest[0];
+  crops?: CropInfo[];
+  customCropsById?: Record<string, CropInfo>;
 }
 
 /**
  * Return up to 2 crop recommendations for onboarding.
  *
- * Strategy:
- *  1. Get crops sowable this month (now) + next month (soon) for the zone/sun.
- *  2. If beginner: prefer easy crops, then medium.
- *  3. If fewer than 2 results: relax difficulty (include medium/hard).
- *  4. If still fewer than 2: relax sun filter entirely (include all crops sowable
- *     in zone regardless of sun).
- *  5. Sort by difficulty → harvest time and return top 2.
+ * Progressive relaxation:
+ *  a. Sowable crops this month + next month, sun-filtered.
+ *  b. Beginner: prefer easy, then medium.
+ *  c. If < 2: relax difficulty (include hard).
+ *  d. If still < 2: relax sunlight filter entirely.
+ *  e. Sort by shortest harvest time.
+ *  f. Return max 2.
  */
 export function getTop2Recommendations({
   climateZone,
   month,
   sunlight,
   experience,
+  crops = CROPS,
+  customCropsById,
 }: RecommendationInput): CropInfo[] {
   const isBeginner = experience === 'beginner';
-  const { now, soon } = getSowingNow(climateZone, month, sunlight);
-  const candidates = [...now, ...soon];
 
-  if (candidates.length === 0) return [];
-  if (candidates.length <= 2) return [...candidates].sort(byDifficultyThenHarvest);
+  // Combine base crops + custom crops, deduped by id
+  const allCrops = customCropsById
+    ? [...crops, ...Object.values(customCropsById)]
+    : crops;
 
-  // Filter: prefer easy for beginners
+  // Partition into now/soon with sun filter
+  const withSun = filterSowable(allCrops, climateZone, month, sunlight);
+  let pool = withSun;
+
+  const pickTop2 = (arr: CropInfo[]) => [...arr].sort(byHarvestTime).slice(0, 2);
+
+  if (pool.length === 0) return [];
+
+  // b) Beginner: prefer easy, then easy+medium
   if (isBeginner) {
-    const easy = candidates.filter((c) => CROP_DIFFICULTY[c.id] === 'easy');
-    if (easy.length >= 2) {
-      return [...easy].sort(byDifficultyThenHarvest).slice(0, 2);
-    }
-    // Relax: include medium too
-    const easyOrMedium = candidates.filter(
-      (c) => (CROP_DIFFICULTY[c.id] ?? 'medium') !== 'hard'
-    );
-    if (easyOrMedium.length >= 2) {
-      return [...easyOrMedium].sort(byDifficultyThenHarvest).slice(0, 2);
-    }
+    const easy = pool.filter((c) => DIFF_RANK[CROP_DIFFICULTY[c.id] ?? 'medium'] === 0);
+    if (easy.length >= 2) return pickTop2(easy);
+    const easyOrMed = pool.filter((c) => DIFF_RANK[CROP_DIFFICULTY[c.id] ?? 'medium'] <= 1);
+    if (easyOrMed.length >= 2) return pickTop2(easyOrMed);
   }
 
-  // Default: sort all candidates, top 2
-  return [...candidates].sort(byDifficultyThenHarvest).slice(0, 2);
+  // c) Enough candidates with sun filter
+  if (pool.length >= 2) return pickTop2(pool);
+
+  // d) Relax sunlight: get all sowable crops regardless of sun
+  const noSun = filterSowable(allCrops, climateZone, month, undefined);
+  const relaxedPool = dedup([...pool, ...noSun]);
+
+  if (relaxedPool.length === 0) return [];
+
+  // e) Beginner preference on relaxed pool
+  if (isBeginner) {
+    const easy = relaxedPool.filter((c) => DIFF_RANK[CROP_DIFFICULTY[c.id] ?? 'medium'] === 0);
+    if (easy.length >= 2) return pickTop2(easy);
+    const easyOrMed = relaxedPool.filter((c) => DIFF_RANK[CROP_DIFFICULTY[c.id] ?? 'medium'] <= 1);
+    if (easyOrMed.length >= 2) return pickTop2(easyOrMed);
+  }
+
+  // f) Sort by harvest time, return top 2
+  return pickTop2(relaxedPool);
+}
+
+function filterSowable(
+  crops: CropInfo[],
+  climateZone: ClimateZone,
+  month: number,
+  sunlight?: SunlightLevel,
+): CropInfo[] {
+  const result: CropInfo[] = [];
+  for (const crop of crops) {
+    const timing = sowableInZone(crop, climateZone, month);
+    if (!timing) continue;
+    if (sunlight && !cropMatchesSun(crop.sunNeeds, sunlight)) continue;
+    result.push(crop);
+  }
+  return result;
+}
+
+function dedup(crops: CropInfo[]): CropInfo[] {
+  return [...new Map(crops.map((c) => [c.id, c])).values()];
 }

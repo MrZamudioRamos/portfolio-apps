@@ -167,6 +167,9 @@ export default function OnboardingScreen() {
   const [creatingMsgIdx, setCreatingMsgIdx] = useState(0);
   const creatingOpacity = useRef(new Animated.Value(1)).current;
 
+  // Garden ID from creation (used reliably when adding first plant)
+  const [createdGardenId, setCreatedGardenId] = useState<string | null>(null);
+
   // Ready state
   const [remindersState, setRemindersState] = useState<'idle' | 'granted'>('idle');
 
@@ -203,7 +206,9 @@ export default function OnboardingScreen() {
   const zoneConfig = climateZone ? CLIMATE_ZONE_CONFIG[climateZone] : null;
 
   const provincePool = selectedCountry
-    ? (NORTE_COUNTRIES.find((c) => c.country === selectedCountry)?.regions ?? [])
+    ? (NORTE_COUNTRIES.find((c) => c.country === selectedCountry)?.regions
+      ?? LATAM_COUNTRIES.find((c) => c.country === selectedCountry)?.regions
+      ?? [])
     : [];
 
   const filteredProvinces = provincePool.filter((p) =>
@@ -220,6 +225,14 @@ export default function OnboardingScreen() {
       experience: experience ?? undefined,
     });
   }, [climateZone, sunlight, experience]);
+
+  // Analytics: track first crop suggestions shown (once)
+  useEffect(() => {
+    if (step === 5 && firstCropPicks.length > 0 && !firstCropSuggestedRef.current) {
+      firstCropSuggestedRef.current = true;
+      track(EVENTS.firstCropSuggested, { count: firstCropPicks.length, cropIds: firstCropPicks.map((c) => c.id).join(',') });
+    }
+  }, [step, firstCropPicks]);
 
   const stepAnim = useRef({
     opacity: new Animated.Value(1),
@@ -266,6 +279,8 @@ export default function OnboardingScreen() {
     if (result.kind === 'success') setPhotoUri(result.uri);
   }
 
+  const firstCropSuggestedRef = useRef(false);
+
   async function handleCreate() {
     if (!gardenName.trim() || !province || !climateZone) return;
     setShowCreating(true);
@@ -283,13 +298,9 @@ export default function OnboardingScreen() {
             ...(photoUri ? { photoUri } : {}),
           });
           await switchGarden(newGarden.id);
+          setCreatedGardenId(newGarden.id);
           if (sunlight && experience) {
-            await saveProfile({
-              spaceTypes: ['balcony'],
-              growingMethods: ['outdoorContainers'],
-              sunlight,
-              experience,
-            });
+            await saveProfile({ spaceTypes: [], growingMethods: [], sunlight, experience });
           }
           track(EVENTS.gardenCreated, { gardenType });
         })(),
@@ -306,12 +317,12 @@ export default function OnboardingScreen() {
   }
 
   async function handleAddPlant(cropId: string) {
-    if (!gardens.items[0]) return;
+    if (!createdGardenId) return;
     const cropName = t(`crops.${cropId}.name`, { defaultValue: cropId });
     track(EVENTS.firstCropPicked, { cropId });
     try {
       await plants.create({
-        gardenId: gardens.items[0].id,
+        gardenId: createdGardenId,
         cropId,
         name: cropName,
         status: 'seedling',
@@ -700,7 +711,6 @@ export default function OnboardingScreen() {
             {firstCropPicks.length > 0 && (
               <Pressable
                 onPress={() => {
-                  track(EVENTS.firstCropSuggested, { count: firstCropPicks.length, cropIds: firstCropPicks.map((c) => c.id).join(',') });
                   router.push('/catalog' as any);
                 }}
                 style={{ alignItems: 'center', paddingVertical: spacing.md }}
@@ -816,7 +826,7 @@ export default function OnboardingScreen() {
 
           {!selectedCountry ? (
             <FlatList
-              data={NORTE_COUNTRIES}
+              data={[...NORTE_COUNTRIES, ...LATAM_COUNTRIES]}
               keyExtractor={(item) => item.country}
               renderItem={({ item }) => (
                 <Pressable
