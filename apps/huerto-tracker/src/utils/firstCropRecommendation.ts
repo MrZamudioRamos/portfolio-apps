@@ -51,9 +51,11 @@ export function getTop2Recommendations({
   const isBeginner = experience === 'beginner';
 
   // Combine base crops + custom crops, deduped by id
-  const allCrops = customCropsById
-    ? [...crops, ...Object.values(customCropsById)]
-    : crops;
+  const allCrops = dedup(
+    customCropsById
+      ? [...crops, ...Object.values(customCropsById)]
+      : crops,
+  );
 
   // Partition into now/soon with sun filter
   const withSun = filterSowable(allCrops, climateZone, month, sunlight);

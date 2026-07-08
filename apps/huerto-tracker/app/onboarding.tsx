@@ -289,12 +289,13 @@ export default function OnboardingScreen() {
     try {
       await Promise.all([
         (async () => {
+          const isNorte = NORTE_COUNTRIES.some((c) => c.country === selectedCountry);
           const newGarden = await gardens.create({
             name: gardenName.trim(),
             climateZone,
             province,
             gardenType,
-            hemisphere: 'norte',
+            hemisphere: isNorte ? 'norte' : 'sur',
             ...(photoUri ? { photoUri } : {}),
           });
           await switchGarden(newGarden.id);
