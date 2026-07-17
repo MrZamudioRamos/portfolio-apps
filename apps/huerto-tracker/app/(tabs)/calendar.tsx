@@ -3,6 +3,7 @@ import { Illustration } from '../../src/components/Illustration';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -40,7 +41,10 @@ function CalendarInner() {
 
   const { activeGarden: garden, refreshActiveId } = useActiveGarden();
 
-  useFocusEffect(useCallback(() => { refreshActiveId(); }, []));
+  useFocusEffect(useCallback(() => {
+    refreshActiveId();
+    AsyncStorage.setItem('@huerto/activation_calendar_visited', '1');
+  }, []));
   const allPlants = useCollection<Plant>('plants');
   const [refreshing, setRefreshing] = useState(false);
 

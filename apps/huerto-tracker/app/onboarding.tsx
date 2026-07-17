@@ -169,6 +169,7 @@ export default function OnboardingScreen() {
 
   // Garden ID from creation (used reliably when adding first plant)
   const [createdGardenId, setCreatedGardenId] = useState<string | null>(null);
+  const [plantedFirstCrop, setPlantedFirstCrop] = useState(false);
 
   // Ready state
   const [remindersState, setRemindersState] = useState<'idle' | 'granted'>('idle');
@@ -194,6 +195,18 @@ export default function OnboardingScreen() {
     }, 1200);
     return () => clearInterval(timer);
   }, [showCreating]);
+
+  // Hold the "ready" message briefly before transitioning out
+  const readyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (showCreating && creatingMsgIdx === CREATING_MESSAGES.length - 1) {
+      readyTimeoutRef.current = setTimeout(() => {
+        setShowCreating(false);
+        goTo(5);
+      }, 1500);
+    }
+    return () => { if (readyTimeoutRef.current) clearTimeout(readyTimeoutRef.current); };
+  }, [showCreating, creatingMsgIdx]);
 
   // Analytics: track step views
   useEffect(() => {
@@ -307,8 +320,7 @@ export default function OnboardingScreen() {
         })(),
         minDelay,
       ]);
-      setShowCreating(false);
-      goTo(5);
+      // Transition handled by readyTimeoutRef when "ready" message appears
     } catch (e) {
       console.error('[onboarding] handleCreate failed:', e);
       setShowCreating(false);
@@ -329,6 +341,7 @@ export default function OnboardingScreen() {
         status: 'seedling',
         sowingDate: todayStr(),
       });
+      setPlantedFirstCrop(true);
       goTo(6);
     } catch (e) {
       console.error('[onboarding] handleAddPlant failed:', e);
@@ -342,21 +355,26 @@ export default function OnboardingScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      {/* Step dots */}
+      {/* Step dots + text */}
       {step > 0 && step < 6 && (
         <View style={s.dots}>
-          {TOTAL_STEPS.slice(1, 6).map((i) => (
-            <View
-              key={i}
-              style={[
-                s.dot,
-                {
-                  backgroundColor: i <= step ? colors.primary : colors.border,
-                  width: i === step ? 20 : 8,
-                },
-              ]}
-            />
-          ))}
+          <Text style={[s.stepLabel, { color: colors.textSecondary }]}>
+            {t('onboarding.stepOf', { current: step, total: 6 })}
+          </Text>
+          <View style={s.dotsRow}>
+            {TOTAL_STEPS.slice(1, 6).map((i) => (
+              <View
+                key={i}
+                style={[
+                  s.dot,
+                  {
+                    backgroundColor: i <= step ? colors.primary : colors.border,
+                    width: i === step ? 20 : 8,
+                  },
+                ]}
+              />
+            ))}
+          </View>
         </View>
       )}
 
@@ -365,31 +383,19 @@ export default function OnboardingScreen() {
       {/* ── STEP 0: Welcome ── */}
       {step === 0 && (
         <View style={[s.stepContainer, { justifyContent: 'space-between' }]}>
-          <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: spacing.xl, gap: spacing['2xl'] ?? spacing.xl * 1.5 }}>
-            <Mascot pose="wave" size={96} />
-            <View style={{ gap: spacing.sm }}>
-              <Text style={{ fontSize: 52, fontWeight: '800', color: colors.text, letterSpacing: -2, lineHeight: 56 }}>
-                {'Tu huerto\ndigital.'}
+          <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: spacing.xl, gap: spacing.xl }}>
+            <Mascot pose="wave" size={80} />
+            <View style={{ gap: spacing.md }}>
+              <Text style={{ fontSize: fontSize['3xl'] ?? 40, fontWeight: '800', color: colors.text, letterSpacing: -1, lineHeight: 44 }}>
+                {t('onboarding.welcomeTitle')}
               </Text>
-              <Text style={{ fontSize: fontSize.lg, color: colors.textSecondary, lineHeight: 26 }}>
-                {t('onboarding.step1Desc')}
+              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, lineHeight: 22 }}>
+                {t('onboarding.welcomeSubtitle')}
               </Text>
-            </View>
-            <View style={{ gap: spacing.lg }}>
-              {[
-                { emoji: '🌙', key: 'onboarding.feature1Title' },
-                { emoji: '🌤️', key: 'onboarding.feature2Title' },
-                { emoji: '🤝', key: 'onboarding.feature3Title' },
-              ].map((f) => (
-                <View key={f.emoji} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-                  <Text style={{ fontSize: 22, width: 32, textAlign: 'center' }}>{f.emoji}</Text>
-                  <Text style={{ fontSize: fontSize.md, color: colors.text, fontWeight: '500', flex: 1 }}>{t(f.key)}</Text>
-                </View>
-              ))}
             </View>
           </View>
 
-          <View style={{ gap: spacing.sm, paddingHorizontal: spacing.xl }}>
+          <View style={{ gap: spacing.sm, paddingHorizontal: spacing.xl, paddingBottom: spacing.md }}>
             <Pressable
               onPress={() => goTo(1)}
               style={{ backgroundColor: colors.text, borderRadius: radii.full, paddingVertical: 18, alignItems: 'center' }}
@@ -661,10 +667,14 @@ export default function OnboardingScreen() {
                   const name = t(`crops.${crop.id}.name`, { defaultValue: crop.name });
                   const img = CROP_IMAGES[crop.id];
                   const diff = CROP_DIFFICULTY[crop.id] ?? 'medium';
+                  const reasons: string[] = [];
+                  if (zoneConfig) reasons.push(t('onboarding.reasonClimate'));
+                  if (sunlight) reasons.push(t('onboarding.reasonSun'));
+                  if (diff === 'easy') reasons.push(t('onboarding.reasonEasy'));
                   return (
                     <View
                       key={crop.id}
-                      style={{ backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.lg }}
+                      style={{ backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1.5, borderColor: colors.primary + '33', padding: spacing.lg }}
                     >
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
                         <View style={{ width: 56, height: 56, borderRadius: radii.md, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -686,6 +696,15 @@ export default function OnboardingScreen() {
                           </Text>
                         </View>
                       </View>
+                      {reasons.length > 0 && (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, marginTop: spacing.sm }}>
+                          {reasons.map((r) => (
+                            <View key={r} style={{ backgroundColor: colors.primary + '15', borderRadius: radii.full, paddingHorizontal: spacing.sm, paddingVertical: 3 }}>
+                              <Text style={{ color: colors.primary, fontSize: fontSize.xs, fontWeight: fontWeight.medium }}>{r}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      )}
                       <ScalePress
                         onPress={() => handleAddPlant(crop.id)}
                         style={{ marginTop: spacing.md, backgroundColor: colors.primary, borderRadius: radii.full, paddingVertical: 14, alignItems: 'center' }}
@@ -739,8 +758,34 @@ export default function OnboardingScreen() {
                 {t('onboarding.readyDesc', { name: gardenName.trim() || t('home.defaultGardenName') })}
               </Text>
             </View>
+            <View style={{ gap: spacing.xs, alignItems: 'center' }}>
+              {province ? (
+                <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>
+                  {t('onboarding.readySummaryLocation', { province })}
+                </Text>
+              ) : null}
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>
+                {t('onboarding.readySummaryType', { emoji: GARDEN_TYPE_CONFIG[gardenType].emoji, type: t('gardenType.' + gardenType) })}
+              </Text>
+              {createdGardenId && (
+                <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>
+                  {t('onboarding.readySummaryPlant', { name: t(`crops.${plants.items[0]?.cropId ?? 'tomate'}.name`, { defaultValue: plants.items[0]?.name ?? '...' }) })}
+                </Text>
+              )}
+            </View>
           </View>
           <View style={{ gap: spacing.md }}>
+            <Button
+              title={t('onboarding.skipToGarden')}
+              onPress={async () => {
+                await complete();
+                track(EVENTS.onboardingCompleted, { experience, gardenType, plantedFirstCrop });
+                await AsyncStorage.setItem('@huerto/just_from_onboarding', '1');
+                await AsyncStorage.setItem('@huerto/onboarding_completed_at', String(Date.now()));
+                router.replace('/(tabs)');
+              }}
+              size="lg"
+            />
             <Button
               title={remindersState === 'granted'
                 ? t('onboarding.remindersActivated')
@@ -753,17 +798,6 @@ export default function OnboardingScreen() {
                   track(EVENTS.notificationsEnabled, { screen: 'onboarding' });
                   setRemindersState('granted');
                 }
-              }}
-              size="lg"
-            />
-            <Button
-              title={t('onboarding.skipToGarden')}
-              variant="ghost"
-              onPress={async () => {
-                await complete();
-                track(EVENTS.onboardingCompleted, { experience, gardenType, plantedFirstCrop: true });
-                await AsyncStorage.setItem('@huerto/just_from_onboarding', '1');
-                router.replace('/(tabs)');
               }}
               size="lg"
             />
@@ -920,11 +954,16 @@ const styles = (
   StyleSheet.create({
     container: { flex: 1 },
     dots: {
+      alignItems: 'center',
+      gap: 4,
+      paddingTop: spacing.lg,
+    },
+    stepLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
+    dotsRow: {
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
       gap: 6,
-      paddingTop: spacing.lg,
     },
     dot: { height: 8, borderRadius: 4 },
     stepContainer: { flex: 1, padding: spacing.xl, justifyContent: 'space-between' },

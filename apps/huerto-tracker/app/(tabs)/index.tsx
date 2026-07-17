@@ -51,6 +51,8 @@ import { CopilotStep } from 'react-native-copilot';
 import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
 import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
+import { useActivationChecklist } from '../../src/hooks/useActivationChecklist';
+import { ActivationChecklist } from '../../src/components/ActivationChecklist';
 import { useWateringReminder } from '../../src/hooks/useWateringReminder';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -119,6 +121,7 @@ function DashboardInner() {
   // first-use card lives in the FlatList header, so copilot needs the list
   // ref to measure and scroll to it.
   const coachLevel = useCoachingLevel();
+  const activation = useActivationChecklist();
   useWateringReminder();
   const [justFromOnboarding, setJustFromOnboarding] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -655,6 +658,15 @@ function DashboardInner() {
                 )}
               </WalkView>
               </CopilotStep>
+            )}
+
+            {/* Activation checklist — visible for 14 days after onboarding */}
+            {activation.visible && (
+              <ActivationChecklist
+                checklist={activation.checklist}
+                completedCount={activation.completedCount}
+                totalCount={activation.totalCount}
+              />
             )}
 
             {/* Próximas cosechas — hero card when harvest is near */}
