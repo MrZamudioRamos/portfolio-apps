@@ -198,12 +198,19 @@ export default function OnboardingScreen() {
 
   // Hold the "ready" message briefly before transitioning out
   const readyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const creatingTransitioned = useRef(false);
   useEffect(() => {
-    if (showCreating && creatingMsgIdx === CREATING_MESSAGES.length - 1) {
+    if (showCreating && creatingMsgIdx === CREATING_MESSAGES.length - 1 && !creatingTransitioned.current) {
+      creatingTransitioned.current = true;
       readyTimeoutRef.current = setTimeout(() => {
-        setShowCreating(false);
-        goTo(5);
+        if (showCreating) {
+          setShowCreating(false);
+          goTo(5);
+        }
       }, 1500);
+    }
+    if (!showCreating) {
+      creatingTransitioned.current = false;
     }
     return () => { if (readyTimeoutRef.current) clearTimeout(readyTimeoutRef.current); };
   }, [showCreating, creatingMsgIdx]);
@@ -253,6 +260,7 @@ export default function OnboardingScreen() {
   }).current;
 
   function goTo(nextStep: Step) {
+    if (nextStep === step) return;
     const outX = nextStep > step ? -28 : 28;
     const inX = nextStep > step ? 28 : -28;
     Animated.parallel([
@@ -422,7 +430,6 @@ export default function OnboardingScreen() {
                     onPress={() => {
                       setSunlight(k);
                       track(EVENTS.sunlightSelected, { level: k });
-                      goTo(2);
                     }}
                     style={[
                       s.rowOption,
@@ -445,6 +452,13 @@ export default function OnboardingScreen() {
             <Pressable onPress={() => goTo(0)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
+            <Button
+              title={t('onboarding.continue')}
+              onPress={() => goTo(2)}
+              disabled={!sunlight}
+              size="lg"
+              style={{ flex: 1, marginLeft: spacing.md }}
+            />
           </View>
         </View>
       )}
@@ -463,7 +477,6 @@ export default function OnboardingScreen() {
                     onPress={() => {
                       setExperience(k);
                       track(EVENTS.experienceSelected, { level: k });
-                      goTo(3);
                     }}
                     style={[
                       s.rowOption,
@@ -493,6 +506,13 @@ export default function OnboardingScreen() {
             <Pressable onPress={() => goTo(1)} style={s.backButton}>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.md }}>{t('onboarding.back')}</Text>
             </Pressable>
+            <Button
+              title={t('onboarding.continue')}
+              onPress={() => goTo(3)}
+              disabled={!experience}
+              size="lg"
+              style={{ flex: 1, marginLeft: spacing.md }}
+            />
           </View>
         </View>
       )}

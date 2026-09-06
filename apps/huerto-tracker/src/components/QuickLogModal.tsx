@@ -17,6 +17,7 @@ import {
   View,
 } from 'react-native';
 import type { DiaryEntry, EntryType } from '../models/diary-entry';
+import { Mascot } from './Mascot';
 import { CROPS_BY_ID } from '../data';
 import type { Plant } from '../models/plant';
 import { getPestsForCrop } from '../data/pests';
@@ -171,7 +172,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
 
           {done ? (
             <View style={s.doneBox}>
-              <Text style={s.doneEmoji}>✅</Text>
+              <Mascot pose="celebrate" size={64} />
               <Text style={[s.doneText, { color: colors.text }]}>{t('quickLog.done')}</Text>
             </View>
           ) : (

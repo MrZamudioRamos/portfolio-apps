@@ -47,6 +47,7 @@ import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringSt
 import { checkFrost } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Mascot } from '../../src/components/Mascot';
+import { SuccessBurst } from '../../src/components/SuccessBurst';
 import { CopilotStep } from 'react-native-copilot';
 import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
 import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
@@ -144,6 +145,7 @@ function DashboardInner() {
   const [cardImgErr, setCardImgErr] = useState<Record<string, boolean>>({});
   const [showHarvestCelebration, setShowHarvestCelebration] = useState(false);
   const [harvestCelebKg, setHarvestCelebKg] = useState<number | null>(null);
+  const [showHarvestBurst, setShowHarvestBurst] = useState(false);
   const [showWaterAllModal, setShowWaterAllModal] = useState(false);
   const [waterAllLiters, setWaterAllLiters] = useState('');
   const [waterAllMethod, setWaterAllMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>('hand');
@@ -298,6 +300,8 @@ function DashboardInner() {
       const kg = d?.weightGrams ? d.weightGrams / 1000 : null;
       setHarvestCelebKg(kg);
       setShowHarvestCelebration(true);
+      setShowHarvestBurst(true);
+      setTimeout(() => setShowHarvestBurst(false), 1200);
       AsyncStorage.setItem(key, '1');
     });
   }, [gardenHarvestCount, entries.loading, garden?.id]);
@@ -1026,6 +1030,7 @@ function DashboardInner() {
 
       {/* First harvest celebration modal */}
       <Modal visible={showHarvestCelebration} transparent animationType="fade" onRequestClose={() => setShowHarvestCelebration(false)}>
+        <SuccessBurst visible={showHarvestBurst} size={120} />
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center', padding: spacing.xl }} onPress={() => setShowHarvestCelebration(false)}>
           <Pressable onPress={() => {}} style={{ backgroundColor: colors.surface, borderRadius: radii.xl, padding: spacing.xl, alignItems: 'center', gap: spacing.lg, width: '100%' }}>
             <Mascot pose="celebrate" size={120} />
