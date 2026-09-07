@@ -3,6 +3,7 @@ import { useCollection } from '@portfolio/storage';
 import { scheduleDateAlert } from '@portfolio/notifications';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import type { Plant } from '../models/plant';
 import type { DiaryEntry } from '../models/diary-entry';
 import { CROPS_BY_ID } from '../data/crops';
@@ -25,6 +26,7 @@ export function useWateringReminder(): void {
   const allEntries = useCollection<DiaryEntry>('diary_entries');
 
   useEffect(() => {
+    if (Platform.OS === 'web') return;
     if (allPlants.loading || allEntries.loading) return;
 
     const gardenId = activeGarden?.id;

@@ -1,19 +1,21 @@
 import { useColors, useTheme } from '@portfolio/ui';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { ChecklistItem } from '../utils/activation';
 
 interface ActivationChecklistProps {
   checklist: ChecklistItem[];
   completedCount: number;
   totalCount: number;
+  onSelect?: (id: string) => void;
 }
 
 export function ActivationChecklist({
   checklist,
   completedCount,
   totalCount,
+  onSelect,
 }: ActivationChecklistProps) {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
@@ -41,7 +43,7 @@ export function ActivationChecklist({
       </View>
       <View style={s.items}>
         {checklist.map((item) => (
-          <View key={item.id} style={s.row}>
+          <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ disabled: item.completed || !onSelect }} disabled={item.completed || !onSelect} onPress={() => onSelect?.(item.id)} style={[s.row, { minHeight: 44 }]}>
             <View
               style={[
                 s.check,
@@ -51,7 +53,7 @@ export function ActivationChecklist({
                 },
               ]}
             >
-              {item.completed && <Text style={s.checkMark}>✓</Text>}
+              {item.completed && <Text style={[s.checkMark, { color: colors.background }]}>✓</Text>}
             </View>
             <Text
               style={[
@@ -65,7 +67,8 @@ export function ActivationChecklist({
             >
               {t(item.labelKey)}
             </Text>
-          </View>
+            {!item.completed && onSelect && <Text style={{ color: colors.textSecondary }} accessible={false}>›</Text>}
+          </Pressable>
         ))}
       </View>
     </View>

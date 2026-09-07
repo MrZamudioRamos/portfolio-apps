@@ -70,9 +70,9 @@
     "waterAllMessage_one": "Registrar reg per a {{count}} planta?",
     "waterAllMessage": "Registrar reg per a les {{count}} plantes?",
     "waterAllConfirm": "Regar totes",
-    "firstUseTitle": "{{name}} està llest 🌱",
-    "firstUseDesc": "Toca un cultiu de baix per afegir-lo, o usa el botó +.",
-    "firstUseCta": "Afegir la meva primera planta",
+    "firstUseTitle": "El teu hort comença amb una planta",
+    "firstUseDesc": "Tria una opció fàcil segons l’espai, la llum i la temporada. Pots començar amb un sol test.",
+    "firstUseCta": "Triar la meva primera planta",
     "emptyTitle": "Encara no hi ha plantes",
     "emptyDesc": "Afegeix la teva primera planta per començar a registrar el teu hort.",
     "addPlant": "Afegir planta",
@@ -403,11 +403,20 @@
   },
   "onboarding": {
     "locationPrivacy": "La província ens ajuda a saber què té sentit plantar ara. No necessitem guardar la teua ubicació exacta.",
-    "searchProvince": "Busca la teua província o ciutat", "selectedProvince": "Província seleccionada: {{province}}", "viewRecommendations": "Veure les meues recomanacions", "firstGardenName": "El meu primer hort",
-    "space": { "balcony": "Balcó", "terrace": "Terrassa", "patio": "Pati o jardí", "garden": "Hort o bancal", "indoor": "Interior al costat d'una finestra" },
+    "searchProvince": "Cerca província o regió",
+    "selectedProvince": "Província seleccionada: {{province}}",
+    "viewRecommendations": "Veure les meues recomanacions",
+    "firstGardenName": "El meu primer hort",
+    "space": {
+      "balcony": "Balcó",
+      "terrace": "Terrassa",
+      "patio": "Pati o jardí",
+      "garden": "Hort o bancal",
+      "indoor": "Interior al costat d'una finestra"
+    },
     "step1Title": "El teu hort digital",
     "step1Desc": "Planifica la teva sembra, registra la teva collita i no oblidis regar.",
-    "start": "Començar →",
+    "start": "Començar el meu hort",
     "step2Title": "On és el teu hort?",
     "step2Desc": "Selecciona la teva província o regió per personalitzar el calendari de sembra.",
     "selectProvince": "Selecciona la teva província o regió",
@@ -460,10 +469,10 @@
     "methodIndoorContainers": "Testos d'interior",
     "methodOutdoorContainers": "Testos d'exterior",
     "sunTitle": "Quantes hores de sol rep el teu espai?",
-    "sunDesc": "El sol defineix què anirà millor.",
-    "sunFull": "Sol ple (>6h)",
-    "sunPartial": "Sol parcial (3-6h)",
-    "sunShade": "Ombra (<3h)",
+    "sunDesc": "Compta les hores de sol directe, no només de claror.",
+    "sunFull": "Molta llum · 6 hores o més",
+    "sunPartial": "Llum mitjana · entre 3 i 6 hores",
+    "sunShade": "Poca llum · menys de 3 hores",
     "expTitle": "Tens experiència cultivant?",
     "expDesc": "Adaptarem les explicacions al teu nivell.",
     "expBeginner": "Mai he cultivat",
@@ -475,7 +484,15 @@
     "coachCelebrate": "El teu hort «{{name}}» ja està llest! 🎉 Plantem la primera?",
     "selectCountry": "Selecciona el teu país",
     "firstCropTitle": "Comença amb això",
-    "readyIn": "~{{days}} dies"
+    "readyIn": "~{{days}} dies",
+    "welcomeTitle": "El teu primer cultiu comença avui",
+    "welcomeSubtitle": "Digues on cultivaràs i t’ajudaré a triar una planta fàcil per començar.",
+    "sunUnknown": "No ho tinc clar",
+    "sunUnknownDesc": "Farem servir poca llum com a referència. Ho podràs canviar a Configuració.",
+    "manualLocation": "O tria la província sense donar permisos",
+    "noProvinces": "Sense resultats. Prova el nom de la teva província.",
+    "locationUnavailable": "No hem pogut detectar la zona. Pots triar la província manualment.",
+    "saveError": "No s’ha pogut desar. Les respostes continuen aquí; torna-ho a provar."
   },
   "paywall": {
     "titlePro": "Ja ets Pro!",
@@ -531,7 +548,33 @@
     "notesLabel": "NOTES (opcional)",
     "notesPlaceholder": "Observacions, apunts personals…"
   },
-  "firstCrop": { "title": "Les teues primeres opcions", "subtitle": "He triat cultius que encaixen amb el teu espai, llum i temporada.", "gardenReady": "He preparat el teu primer espai de cultiu. Podràs canviar-lo quan vulgues.", "topPick": "LA MEUA RECOMANACIÓ", "harvest": "Primer resultat en uns {{days}} dies", "choose": "Vull cultivar això", "prepare": "Preparar aquest cultiu", "later": "Ho decidiré més tard", "empty": "Ara no hi ha un cultiu adequat per sembrar amb aquestes condicions.", "difficulty": { "easy": "Fàcil per començar", "medium": "Dificultat mitjana", "hard": "Requereix més experiència" }, "reasons": { "sunlight": "Encaixa amb la llum del teu espai", "container": "Cap en una maceta de com a mínim {{liters}} L", "seasonNow": "Pots sembrar-lo ara", "seasonSoon": "Prepara'l per a la pròxima finestra", "easy": "És fàcil per a principiants", "quick": "Dona un resultat relativament ràpid" } },
+  "firstCrop": {
+    "title": "Les teues primeres opcions",
+    "subtitle": "He triat cultius que encaixen amb el teu espai, llum i temporada.",
+    "gardenReady": "He preparat el teu primer espai de cultiu. Podràs canviar-lo quan vulgues.",
+    "topPick": "LA MEUA RECOMANACIÓ",
+    "harvest": "Primer resultat en uns {{days}} dies",
+    "choose": "Vull cultivar això",
+    "prepare": "Preparar aquest cultiu",
+    "later": "Ho decidiré més tard",
+    "empty": "No hem trobat cap opció per a aquest mes o el vinent amb aquesta llum i espai. Revisa les respostes si les condicions són diferents.",
+    "difficulty": {
+      "easy": "Fàcil per començar",
+      "medium": "Dificultat mitjana",
+      "hard": "Requereix més experiència"
+    },
+    "reasons": {
+      "sunlight": "Encaixa amb la llum del teu espai",
+      "container": "Cap en una maceta de com a mínim {{liters}} L",
+      "seasonNow": "Pots sembrar-lo ara",
+      "seasonSoon": "La sembra comença el mes vinent; avui pots preparar el material",
+      "easy": "És fàcil per a principiants",
+      "quick": "Dona un resultat relativament ràpid"
+    },
+    "context": "{{province}} · {{sunlight}}",
+    "harvestRange": "Collita orientativa: {{min}}–{{max}} dies des de la sembra",
+    "adjust": "Revisar les meves respostes"
+  },
   "plantNew": {
     "title": "Nova planta",
     "cropLabel": "CULTIU",
@@ -668,14 +711,24 @@
     "title": "Mesurador de llum",
     "desc": "Avalua la llum disponible en un espai i descobreix quins cultius són ideals.",
     "q1": "Quantes hores de sol directe rep aquest espai?",
-    "q1a": "0-2h", "q1b": "2-4h", "q1c": "4-6h", "q1d": "+6h",
+    "q1a": "0-2h",
+    "q1b": "2-4h",
+    "q1c": "4-6h",
+    "q1d": "+6h",
     "q2": "Hi ha obstacles que bloquegen la llum?",
-    "q2a": "Edificis", "q2b": "Arbres", "q2c": "Sense obstacles",
+    "q2a": "Edificis",
+    "q2b": "Arbres",
+    "q2c": "Sense obstacles",
     "q3": "On és l'espai?",
-    "q3a": "Interior/Finestra", "q3b": "Exterior directe", "q3c": "Balcó cobert",
-    "full": "Ple sol", "fullDesc": "Moltes hores de sol directe. Ideal per a tomàquets, pebrots o cogombres.",
-    "partial": "Semisombra", "partialDesc": "Llum moderada. Encertada per a enciam, espinacs i herbes aromàtiques.",
-    "shade": "Ombra", "shadeDesc": "Poca llum directa. Prova amb herbes d'ombra o créixens.",
+    "q3a": "Interior/Finestra",
+    "q3b": "Exterior directe",
+    "q3c": "Balcó cobert",
+    "full": "Ple sol",
+    "fullDesc": "Moltes hores de sol directe. Ideal per a tomàquets, pebrots o cogombres.",
+    "partial": "Semisombra",
+    "partialDesc": "Llum moderada. Encertada per a enciam, espinacs i herbes aromàtiques.",
+    "shade": "Ombra",
+    "shadeDesc": "Poca llum directa. Prova amb herbes d'ombra o créixens.",
     "recommended": "CULTIUS RECOMANATS",
     "retake": "Avaluar una altra zona",
     "calculating": "Calculant…"
@@ -820,7 +873,7 @@
     "treatmentPushTitle": "🧴 Carència vençuda: {{label}}",
     "treatmentPushBody": "Han passat {{days}} dies des de l'últim tractament. Ja pots collir.",
     "wateringReminderTitle": "Toca regar 💧",
-    "wateringReminderBody": "{{plants}} porten més de 2 dies sense reg",
+    "wateringReminderBody": "{{plants}} porten més de 2 dies sense reg"
   },
   "stats": {
     "title": "Estadístiques",
@@ -862,7 +915,15 @@
     },
     "createAccount": "Crear compte gratuït",
     "explore": "Explorar sense compte",
-    "note": "El compte gratuït inclou fins a 10 plantes i sincronització al núvol."
+    "note": "El compte gratuït inclou fins a 10 plantes i sincronització al núvol.",
+    "path": {
+      "space": "Quatre preguntes sobre el teu espai",
+      "crop": "Una planta que encaixi amb tu",
+      "care": "Un pas següent clar cada dia"
+    },
+    "noAccount": "Comença gratis. Sense compte ni experiència prèvia.",
+    "signIn": "Ja tinc compte",
+    "returnGarden": "Tornar al meu hort"
   },
   "quickLog": {
     "water": "Regar",
@@ -1258,7 +1319,8 @@
       "organico": "Orgànic",
       "preventivo": "Preventiu",
       "quimico": "Químic"
-    }
+    },
+    "proOnly": "Disponible amb Pro"
   },
   "plantFaq": {
     "loading": "Generant preguntes freqüents…",
@@ -1273,7 +1335,7 @@
     "home": "Aquesta és la teva pantalla Avui: cada dia hi veuràs què fer. A sota, què sembrar aquest mes.",
     "tourAdd": "Prem el botó + per afegir una planta al teu hort.",
     "homeStart": "¡Bienvenido a tu huerto! Aquí verás el resumen diario: tareas pendientes, cosechas que se acercan y alertas de riego o plagas.",
-    "homeToday": "Tus tareas de esta semana: riegos urgentes, posibles plagas y cosechas próximas. Toca cualquier elemento para abrir la planta.",
+    "homeToday": "Aquí tens el pas següent d’avui. Toca el botó per veure com fer-lo i registrar la cura.",
     "homeSow": "Cada mes te recomendamos qué sembrar según tu zona climática. ¡No pierdas el mejor momento para plantar!",
     "homeAI": "El asistente IA responde cualquier duda sobre tu huerto. La cámara identifica plagas y enfermedades al instante.",
     "homeAdd": "Pulsa aquí para registrar una nueva planta en tu huerto y empezar a hacer seguimiento.",
@@ -1533,5 +1595,50 @@
   "tools": {
     "title": "Eines",
     "advanced": "Avançat"
+  },
+  "guidedPlant": {
+    "title": "Preparem la teva primera planta",
+    "body": "Comença amb una sola planta. Desa el pla i prepara llavors, terra i un test amb forats de drenatge.",
+    "prepareBody": "La temporada de sembra comença el mes vinent. Avui pots desar el pla i preparar el material.",
+    "alreadySown": "Ja he sembrat les llavors",
+    "dateToday": "Comprova la data de sembra que apareix a sota.",
+    "noDate": "Desarem un pla sense registrar cap sembra. Confirmaràs la data quan hagis sembrat.",
+    "more": "Opcions addicionals",
+    "less": "Amagar opcions",
+    "save": "Desar la meva primera planta",
+    "success": "{{name}} ja té un pla!",
+    "successBody": "El pas següent és a «Avui al teu hort». Anem a poc a poc.",
+    "today": "Veure el pla d’avui",
+    "saveError": "No s’ha completat el desament. Torna-ho a provar."
+  },
+  "dailyCare": {
+    "eyebrow": "Avui al teu hort",
+    "checkTitle": "Comprova la terra de {{name}}",
+    "checkBody": "Toca la superfície de la terra. Si és seca, rega suaument; si encara és humida, espera. Després registra què has observat.",
+    "prepareTitle": "Prepara l’espai de {{name}}",
+    "prepareBody": "Busca un lloc amb la llum que has triat i prepara llavors i terra. Si fas servir un test, comprova que l’aigua pugui sortir per sota.",
+    "doneTitle": "Revisió de {{name}} completada",
+    "doneBody": "La cura està desada. No cal repetir-la ara. Demà torna a observar la terra i com està la planta.",
+    "pestTitle": "Revisa les fulles de {{name}}",
+    "pestBody": "Hi ha una plaga marcada en aquesta planta. Mira també el revers de les fulles i confirma si encara hi és abans de tractar-la.",
+    "frostTitle": "Pot fer fred: protegeix les plantes",
+    "frostBody": "La previsió d’avui baixa a 2 °C o menys. Apropa els tests sensibles a un lloc arrecerat o protegeix-los amb una manta tèrmica de cultiu.",
+    "open": "Veure el pas següent",
+    "sowNow": "Segons el calendari de la zona, aquest mes pots sembrar. Segueix les indicacions del sobre de llavors.",
+    "waitSeason": "El calendari no indica sembra aquest mes. Prepara el material i consulta la propera finestra a la pestanya Calendari d’aquesta planta. Confirma només si ja has sembrat.",
+    "sown": "Confirmar: he sembrat avui",
+    "watered": "La terra era seca i he regat",
+    "moist": "Encara és humida, avui no rego",
+    "moistNote": "Terra revisada: encara és humida. Avui no cal regar.",
+    "saveError": "No s’ha desat la cura. Torna-ho a provar.",
+    "planStatus": "Pendent de sembrar",
+    "attention": "Necessita atenció",
+    "review": "Cal revisar la terra",
+    "recorded": "En seguiment",
+    "logFor": "Registrar una cura de {{name}}",
+    "weatherHint": "La previsió és orientativa: comprova la terra abans de regar."
+  },
+  "activation": {
+    "checkWatering": "Completar la primera cura"
   }
 }

@@ -1,4 +1,5 @@
-import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
+import { Button } from '../../src/components/ActionButton';
 import { useCollection } from '@portfolio/storage';
 import { useReminders } from '@portfolio/notifications';
 import { ShareModal, type ShareModalProps } from '../../src/components/ShareModal';
@@ -11,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   Alert,
+  ActivityIndicator,
   Animated,
   Image,
   LayoutAnimation,
@@ -45,6 +47,9 @@ import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { CalendarGantt } from '../../src/components/plant/CalendarGantt';
 import { DifficultyGauge } from '../../src/components/plant/DifficultyGauge';
 import { HowToStages } from '../../src/components/plant/HowToStages';
+import { PlantCareCard } from '../../src/components/PlantCareCard';
+import { isSeedPlan } from '../../src/utils/dailyCare';
+import { useWeather } from '../../src/hooks/useWeather';
 
 type CropTab = 'overview' | 'calendar' | 'companions' | 'howto';
 
@@ -67,6 +72,7 @@ export default function PlantDetailScreen() {
   const reminders = useReminders<GardenReminder>('reminders');
   const { customCropsById } = useCustomCrops();
   const { activeGarden } = useActiveGarden();
+  const { weather } = useWeather(activeGarden?.province);
   const [cropTab, setCropTab] = useState<CropTab>('overview');
   const [cropImgErr, setCropImgErr] = useState(false);
   const [shareModal, setShareModal] = useState<Omit<ShareModalProps, 'visible' | 'onClose'> | null>(null);
@@ -186,10 +192,11 @@ export default function PlantDetailScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
+  if (plants.loading && !plant) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></SafeAreaView>;
   if (!plant || !crop) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable onPress={() => router.back()} style={s.backBtn}>
+        <Pressable accessibilityRole="button" accessibilityLabel={t('onboarding.back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')} style={s.backBtn}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         <Text style={[s.notFound, { color: colors.textSecondary }]}>{t('plantDetail.notFound')}</Text>
@@ -312,7 +319,7 @@ export default function PlantDetailScreen() {
       >
         {/* Hero */}
         <View style={[s.hero, { backgroundColor: colors.surfaceAlt }]}>
-          <Pressable onPress={() => router.back()} style={s.backBtn}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('onboarding.back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')} style={s.backBtn}>
             <Ionicons name="arrow-back" size={22} color={colors.primary} />
           </Pressable>
           {plant.photoUri ? (
@@ -338,6 +345,8 @@ export default function PlantDetailScreen() {
             </View>
           )}
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('plantEdit.title')}
             onPress={() => router.push(`/plant/edit?id=${id}`)}
             style={s.editBtn}
           >
@@ -361,14 +370,16 @@ export default function PlantDetailScreen() {
             {statusConfig && (
               <View style={[s.statusBadge, { backgroundColor: statusConfig.color + '22' }]}>
                 <Text style={[s.statusText, { color: statusConfig.color }]}>
-                  {statusConfig.emoji} {t('plantStatus.' + plant.status)}
+                  {statusConfig.emoji} {t(isSeedPlan(plant) ? 'dailyCare.planStatus' : 'plantStatus.' + plant.status)}
                 </Text>
               </View>
             )}
           </View>
 
+          {plant.status !== 'finished' && <PlantCareCard plant={plant} crop={crop} climateZone={activeGarden?.climateZone} entries={entries.items} frost={Boolean(weather && weather.today.tempMin <= 2 && !isSeedPlan(plant))} onUpdated={async () => { await Promise.all([plants.refresh(), entries.refresh()]); }} />}
+
           {/* Lifecycle progress bar */}
-          {(() => {
+          {!isSeedPlan(plant) && (() => {
             const currentIdx = ALL_STATUSES.indexOf(plant.status);
             return (
               <View style={{ marginBottom: spacing.xl }}>
@@ -417,7 +428,7 @@ export default function PlantDetailScreen() {
 
           {/* Coach line — what's happening now + the next step, in plain words */}
           {(() => {
-            const coach = getPlantCoach(plant, crop);
+            const coach = isSeedPlan(plant) ? null : getPlantCoach(plant, crop);
             if (!coach) return null;
             const tone =
               coach.tone === 'success' ? colors.success : coach.tone === 'warn' ? colors.warning : colors.info;
@@ -432,7 +443,7 @@ export default function PlantDetailScreen() {
           })()}
 
           {/* "Es normal" coaching tip for seedlings past 7 days without germination */}
-          {plant.status === 'seedling' && !plant.germinationDate && (() => {
+          {plant.status === 'seedling' && plant.sowingDate && !plant.germinationDate && (() => {
             const refDate = plant.sowingDate ?? plant.createdAt;
             const days = Math.floor((Date.now() - new Date(refDate + 'T12:00:00').getTime()) / 86_400_000);
             if (days < 7) return null;
@@ -635,7 +646,7 @@ export default function PlantDetailScreen() {
           })()}
 
           {/* Germination tracker */}
-          {plant.propagationMethod === 'seed' && plant.status === 'seedling' && (() => {
+          {plant.propagationMethod === 'seed' && plant.status === 'seedling' && plant.sowingDate && (() => {
             if (plant.germinationDate) {
               const days = Math.floor((Date.now() - new Date(plant.germinationDate + 'T12:00:00').getTime()) / 86_400_000);
               return (
@@ -1223,30 +1234,6 @@ export default function PlantDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Watering FAB */}
-      <Pressable
-        onPress={async () => {
-          await entries.create({
-            gardenId: plant.gardenId,
-            plantId: id,
-            type: 'watering',
-            date: todayStr(),
-          });
-          setWateringFeedback(true);
-          setTimeout(() => setWateringFeedback(false), 2000);
-        }}
-        style={[s.fab, { backgroundColor: '#29B6F6' }]}
-      >
-        <Ionicons name="water-outline" size={24} color="#fff" />
-      </Pressable>
-      {wateringFeedback && (
-        <View style={[s.fabFeedback, { backgroundColor: '#29B6F6' }]}>
-          <Text style={{ color: '#fff', fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>
-            {t('plantDetail.wateringLogged')}
-          </Text>
-        </View>
-      )}
-
       {/* Transplant modal */}
       <Modal visible={showTransplantModal} transparent animationType="slide">
         <Pressable style={s.modalOverlay} onPress={() => setShowTransplantModal(false)}>
@@ -1375,24 +1362,26 @@ const makeStyles = (
     heroPhoto: { width: '100%', height: 220, resizeMode: 'cover' },
     heroEmoji: { fontSize: 80 },
     backBtn: {
+      zIndex: 1,
       position: 'absolute',
       top: spacing.lg,
       left: spacing.lg,
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: 'rgba(255,255,255,0.85)',
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.surface,
       alignItems: 'center',
       justifyContent: 'center',
     },
     editBtn: {
+      zIndex: 1,
       position: 'absolute',
       top: spacing.lg,
       right: spacing.lg,
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: 'rgba(255,255,255,0.85)',
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.surface,
       alignItems: 'center',
       justifyContent: 'center',
     },

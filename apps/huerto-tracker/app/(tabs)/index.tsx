@@ -56,6 +56,9 @@ import { useActivationChecklist } from '../../src/hooks/useActivationChecklist';
 import { ActivationChecklist } from '../../src/components/ActivationChecklist';
 import { useWateringReminder } from '../../src/hooks/useWateringReminder';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PlantCareCard } from '../../src/components/PlantCareCard';
+import { getTodayPlant, isSeedPlan } from '../../src/utils/dailyCare';
+import { useUserProfile } from '../../src/hooks/useUserProfile';
 
 const FROM_ONBOARDING_KEY = '@huerto/just_from_onboarding';
 
@@ -93,16 +96,9 @@ function DashboardInner() {
   useFocusEffect(
     useCallback(() => {
       refreshActiveId();
-      // Throttle collection refreshes: skip if we focused again within 5 s
-      // (quick tab switch). Returning from a stack screen (adding a plant, etc.)
-      // takes longer, so the threshold reliably triggers a data refresh then.
-      const now = Date.now();
-      if (now - lastDataRefresh.current > 5_000) {
-        lastDataRefresh.current = now;
-        allPlants.refresh();
-        reminders.refresh();
-        entries.refresh();
-      }
+      allPlants.refresh();
+      reminders.refresh();
+      entries.refresh();
       if (garden?.province) checkFrost(garden.province);
       AsyncStorage.getItem(FROM_ONBOARDING_KEY).then((v) => {
         if (v === '1') {
@@ -117,7 +113,7 @@ function DashboardInner() {
 
   const listRef = useRef<FlatList<Plant>>(null);
   const lastScrollY = useRef(0);
-  const lastDataRefresh = useRef(0);
+  const { profile } = useUserProfile();
   // First visit: spotlight tour. Start at the named first step — the today/
   // first-use card lives in the FlatList header, so copilot needs the list
   // ref to measure and scroll to it.
@@ -136,8 +132,9 @@ function DashboardInner() {
     }
   }
   useTourAutoStart('home', {
-    ready: !plants.loading,
-    firstStep: plants.count > 0 ? 'today' : justFromOnboarding ? 'add' : 'start',
+    ready: !plants.loading && plants.items.some((plant) => !isSeedPlan(plant) && plant.status !== 'finished'),
+    firstStep: 'today',
+    scrollRef: listRef,
     disabled: coachLevel !== 'full',
   });
 
@@ -179,6 +176,7 @@ function DashboardInner() {
     const in7DaysStr = dateToStr(new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000));
 
     plants.items.forEach((p) => {
+      if (p.status === 'finished' || isSeedPlan(p)) return;
       const crop = CROPS_BY_ID[p.cropId] ?? customCropsById[p.cropId];
       const plantEntries = entriesByPlant.get(p.id) ?? [];
 
@@ -333,7 +331,8 @@ function DashboardInner() {
     if (!gardenId) return;
     setWaterAllSaving(true);
     const today = todayStr();
-    const activePlants = plants.items.filter((p) => p.status !== 'finished');
+    const activePlants = plants.items.filter((p) => p.status !== 'finished' && !isSeedPlan(p));
+    if (activePlants.length === 0) { setWaterAllSaving(false); setShowWaterAllModal(false); return; }
     const litersNum = parseFloat(waterAllLiters);
     const perPlantLiters = !isNaN(litersNum) && litersNum > 0 && activePlants.length > 0
       ? (litersNum / activePlants.length).toFixed(1)
@@ -364,6 +363,7 @@ function DashboardInner() {
   );
 
   function getHealthColor(plant: Plant, needsWater: boolean): string {
+    if (isSeedPlan(plant)) return colors.textSecondary;
     if (plant.status === 'finished') return colors.textDisabled;
     if (plant.pestStatus === 'active') return colors.error;
     if (needsWater) return colors.warning;
@@ -383,9 +383,9 @@ function DashboardInner() {
     const needsWater = getNeedsWater(item, crop, plantEntries);
     const healthColor = getHealthColor(item, needsWater);
     return (
+      <View style={s.plantCard}>
       <ScalePress
         onPress={() => router.push(`/plant/${item.id}`)}
-        style={s.plantCard}
       >
         <Card padded={false} style={s.plantCardInner}>
           <View style={[s.plantImageBox, { backgroundColor: colors.surfaceAlt }]}>
@@ -411,13 +411,6 @@ function DashboardInner() {
                 <Text style={s.waterBadgeText}>💧</Text>
               </View>
             )}
-            <Pressable
-              onPress={(e) => { e.stopPropagation(); setQuickLogPlant(item); }}
-              style={[s.quickLogBtn, { backgroundColor: colors.primary }]}
-              hitSlop={4}
-            >
-              <Ionicons name="add" size={14} color={colors.background} />
-            </Pressable>
             {/* Rendered last so they appear above the image */}
             <View style={[s.healthRibbon, { backgroundColor: healthColor }]} />
             {item.sowingDate && item.status !== 'finished' && (() => {
@@ -444,6 +437,7 @@ function DashboardInner() {
                 {item.name}
               </Text>
             </View>
+            <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, marginTop: 3 }}>{t(isSeedPlan(item) ? 'dailyCare.planStatus' : item.pestStatus === 'active' ? 'dailyCare.attention' : needsWater ? 'dailyCare.review' : 'dailyCare.recorded')}</Text>
             {item.variety ? (
               <Text style={[s.plantVariety, { color: colors.textSecondary }]} numberOfLines={1}>
                 {item.variety}
@@ -466,7 +460,7 @@ function DashboardInner() {
             <View style={s.plantFooter}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: statusConfig.color }} />
-                <Text style={[s.statusText, { color: colors.textSecondary }]}>{statusConfig.label}</Text>
+                <Text style={[s.statusText, { color: colors.textSecondary }]}>{t(isSeedPlan(item) ? 'dailyCare.planStatus' : 'plantStatus.' + item.status)}</Text>
               </View>
               {item.sowingDate && item.status !== 'finished' && (() => {
                 const days = Math.floor(
@@ -494,15 +488,14 @@ function DashboardInner() {
           </View>
         </Card>
       </ScalePress>
+        <Pressable accessibilityRole="button" accessibilityLabel={t('dailyCare.logFor', { name: item.name })} onPress={() => isSeedPlan(item) ? router.push({ pathname: '/plant/[id]', params: { id: item.id } }) : setQuickLogPlant(item)} style={[s.quickLogBtn, { top: 8, bottom: undefined, width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primary }]}>
+          <Ionicons name="add" size={20} color={colors.background} />
+        </Pressable>
+      </View>
     );
   }
 
-  // Today card accent color based on task urgency
-  const todayAccent = weeklyTasks.some(t => t.emoji === '🐛' || t.emoji === '🧴')
-    ? colors.error
-    : weeklyTasks.length > 0
-    ? colors.warning
-    : colors.success;
+  const todayPlant = getTodayPlant(plants.items, { ...CROPS_BY_ID, ...customCropsById }, entries.items);
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -575,14 +568,15 @@ function DashboardInner() {
             )}
 
             {/* Empty state — hidden when user just finished onboarding (tour covers it) */}
-            {plants.count === 0 && !plants.loading && !justFromOnboarding && (
+            {plants.count === 0 && !plants.loading && (
               <CopilotStep text={t('coach.homeStart')} order={1} name="start">
               <WalkView style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
                 <Mascot pose="wave" size={128} />
                 <Text style={[s.firstUseTitle, { color: colors.text }]}>{t('home.firstUseTitle', { name: garden?.name ?? t('home.defaultGardenName') })}</Text>
                 <Text style={[s.firstUseDesc, { color: colors.textSecondary }]}>{t('home.firstUseDesc')}</Text>
                 <Pressable
-                  onPress={() => router.push('/plant/new?fromOnboarding=1' as any)}
+                  accessibilityRole="button"
+                  onPress={() => router.push(profile ? '/first-crop' : '/onboarding')}
                   style={({ pressed }) => [s.firstUseCta, { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 }]}
                 >
                   <Ionicons name="add-circle-outline" size={20} color={colors.background} />
@@ -595,19 +589,14 @@ function DashboardInner() {
                   >
                     <Text style={{ fontSize: fontSize.xs, color: colors.primary, fontWeight: fontWeight.medium }}>{t('home.firstUseCalendarCta')}</Text>
                   </Pressable>
-                  <Pressable
-                    onPress={() => router.push('/(tabs)/settings' as any)}
-                    style={({ pressed }) => ({ flex: 1, alignItems: 'center', paddingVertical: spacing.sm, borderRadius: radii.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceAlt, opacity: pressed ? 0.7 : 1 })}
-                  >
-                    <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary, fontWeight: fontWeight.medium }}>{t('home.firstUseReminderCta')}</Text>
-                  </Pressable>
+
                 </View>
               </WalkView>
               </CopilotStep>
             )}
 
             {/* Beginner's first question answered: what should I plant? */}
-            {plants.count === 0 && !plants.loading && garden && (
+            {plants.count === 0 && !plants.loading && garden && coachLevel !== 'full' && (
               <CopilotStep text={t('coach.homeSow')} order={2} name="sow">
                 <WalkView>
                   <SowNowCard climateZone={garden.climateZone} />
@@ -615,182 +604,10 @@ function DashboardInner() {
               </CopilotStep>
             )}
 
-            {/* TODAY card — first thing visible when there are plants */}
-            {plants.count > 0 && (
+            {todayPlant && !entries.loading && (
               <CopilotStep text={t('coach.homeToday')} order={1} name="today">
-              <WalkView style={[s.todayCard, { backgroundColor: colors.surface, borderColor: colors.border, borderLeftColor: todayAccent }]}>
-                <Text style={[s.todayTitle, { color: colors.text }]}>
-                  {t('home.weeklyTasks')}
-                  {weeklyTasks.length > 0 && (
-                    <Text style={[s.todayCount, { color: todayAccent }]}> · {weeklyTasks.length}</Text>
-                  )}
-                </Text>
-                {weeklyTasks.length === 0 ? (
-                  <View style={s.todayEmpty}>
-                    <Mascot pose="celebrate" size={40} />
-                    <Text style={[s.todayEmptyText, { color: colors.textSecondary }]}>{t('home.weeklyTasksEmpty')}</Text>
-                  </View>
-                ) : (
-                  weeklyTasks.slice(0, 5).map((task, i) => {
-                    const taskPlant = plantsById.get(task.plantId);
-                    const taskCrop = taskPlant ? (CROPS_BY_ID[taskPlant.cropId] ?? customCropsById[taskPlant.cropId]) : null;
-                    const taskImg = taskPlant?.photoUri ?? (taskCrop ? CROP_IMAGES[taskCrop.id] : null);
-                    return (
-                      <Pressable
-                        key={i}
-                        onPress={() => router.push(`/plant/${task.plantId}`)}
-                        style={({ pressed }) => [s.todayRow, { borderTopColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
-                      >
-                        <View style={[s.taskThumb, { backgroundColor: colors.surfaceAlt }]}>
-                          {taskImg ? (
-                            <Image source={{ uri: taskImg }} style={StyleSheet.absoluteFill} resizeMode="cover" />
-                          ) : (
-                            <Text style={{ fontSize: 16 }}>{taskCrop?.emoji ?? '🌱'}</Text>
-                          )}
-                          <View style={[s.taskEmojiDot, { backgroundColor: colors.surface, borderColor: colors.surface }]}>
-                            <Text style={{ fontSize: 10 }}>{task.emoji}</Text>
-                          </View>
-                        </View>
-                        <Text style={[s.todayLabel, { color: colors.text }]} numberOfLines={1}>{task.label}</Text>
-                        <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} />
-                      </Pressable>
-                    );
-                  })
-                )}
-                {weeklyTasks.length > 5 && (
-                  <Text style={[s.todayMore, { color: colors.textSecondary }]}>+{weeklyTasks.length - 5} {t('common.more')}</Text>
-                )}
-              </WalkView>
-              </CopilotStep>
-            )}
-
-            {/* Activation checklist — visible for 14 days after onboarding */}
-            {activation.visible && (
-              <ActivationChecklist
-                checklist={activation.checklist}
-                completedCount={activation.completedCount}
-                totalCount={activation.totalCount}
-              />
-            )}
-
-            {/* Próximas cosechas — hero card when harvest is near */}
-            {plants.count > 0 && (() => {
-              const in21 = dateToStr(new Date(Date.now() + 21 * 86_400_000));
-              const todayS = todayStr();
-              const hp = plants.items.find(p => {
-                if (p.status === 'harvesting') return true;
-                if (p.firstHarvestDate && p.firstHarvestDate >= todayS && p.firstHarvestDate <= in21) return true;
-                if (p.sowingDate && !['harvesting','finished'].includes(p.status)) {
-                  const crop2 = CROPS_BY_ID[p.cropId] ?? customCropsById[p.cropId];
-                  const dth = crop2?.daysToHarvest;
-                  if (!dth) return false;
-                  const estDate = new Date(new Date(p.sowingDate + 'T12:00:00').getTime() + Math.round((dth[0]+dth[1])/2) * 86_400_000);
-                  const estStr = dateToStr(estDate);
-                  return estStr >= todayS && estStr <= in21;
-                }
-                return false;
-              });
-              if (!hp) return null;
-              const hCrop = CROPS_BY_ID[hp.cropId] ?? customCropsById[hp.cropId];
-              const hImg = hp.photoUri ?? CROP_IMAGES[hp.cropId];
-              const daysUntil = (() => {
-                if (hp.firstHarvestDate) return Math.ceil((new Date(hp.firstHarvestDate + 'T12:00:00').getTime() - Date.now()) / 86_400_000);
-                if (hp.sowingDate && hCrop?.daysToHarvest) {
-                  const dth = hCrop.daysToHarvest;
-                  const est = new Date(new Date(hp.sowingDate + 'T12:00:00').getTime() + Math.round((dth[0]+dth[1])/2) * 86_400_000);
-                  return Math.ceil((est.getTime() - Date.now()) / 86_400_000);
-                }
-                return null;
-              })();
-              return (
-                <ScalePress
-                  onPress={() => router.push(`/plant/${hp.id}`)}
-                  style={[s.harvestHero, { borderColor: '#FF7043' }]}
-                >
-                  {hImg && <Image source={{ uri: hImg }} style={StyleSheet.absoluteFill} resizeMode="cover" />}
-                  <View style={s.harvestHeroOverlay}>
-                    <Text style={s.harvestHeroLabel}>🧺 {t('home.stats.harvesting').toUpperCase()}</Text>
-                    <Text style={s.harvestHeroName}>{hp.name}</Text>
-                    {daysUntil !== null && daysUntil > 0 && (
-                      <Text style={s.harvestHeroSub}>en {daysUntil}d · {hCrop?.emoji ?? ''}</Text>
-                    )}
-                  </View>
-                </ScalePress>
-              );
-            })()}
-
-            {/* Sow now — coach surface, what to plant this month in your zone */}
-            {plants.count > 0 && garden && (
-              <CopilotStep text={t('coach.homeSow')} order={2} name="sow">
-                <WalkView>
-                  <SowNowCard climateZone={garden.climateZone} />
-                </WalkView>
-              </CopilotStep>
-            )}
-
-            {/* Quick stats strip */}
-            {plants.count > 0 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={{ marginBottom: spacing.md }}
-                contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm }}
-              >
-                <View style={[s.statPill, { backgroundColor: colors.success + '18', borderColor: colors.success + '44' }]}>
-                  <Text style={[s.statPillNum, { color: colors.success }]}>{plants.items.filter(p => p.status !== 'finished').length}</Text>
-                  <Text style={[s.statPillLabel, { color: colors.success }]}>{t('home.stats.plants')}</Text>
-                </View>
-                {needsWaterCount > 0 && (
-                  <View style={[s.statPill, { backgroundColor: colors.water + '18', borderColor: colors.water + '44' }]}>
-                    <Text style={[s.statPillNum, { color: colors.water }]}>{needsWaterCount}</Text>
-                    <Text style={[s.statPillLabel, { color: colors.water }]}>{t('home.stats.needsWater')}</Text>
-                  </View>
-                )}
-                {harvestingCount > 0 && (
-                  <View style={[s.statPill, { backgroundColor: '#FF704318', borderColor: '#FF704344' }]}>
-                    <Text style={[s.statPillNum, { color: '#FF7043' }]}>{harvestingCount}</Text>
-                    <Text style={[s.statPillLabel, { color: '#FF7043' }]}>{t('home.stats.harvesting')}</Text>
-                  </View>
-                )}
-                {activePests > 0 && (
-                  <View style={[s.statPill, { backgroundColor: colors.error + '18', borderColor: colors.error + '44' }]}>
-                    <Text style={[s.statPillNum, { color: colors.error }]}>{activePests}</Text>
-                    <Text style={[s.statPillLabel, { color: colors.error }]}>{t('home.stats.pests')}</Text>
-                  </View>
-                )}
-                {yearHarvestKg > 0 && (
-                  <View style={[s.statPill, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '44' }]}>
-                    <Text style={[s.statPillNum, { color: colors.primary }]}>{(yearHarvestKg / 1000).toFixed(1)} kg</Text>
-                    <Text style={[s.statPillLabel, { color: colors.primary }]}>{t('home.stats.yearKg')}</Text>
-                  </View>
-                )}
-                {streak >= 2 && (
-                  <View style={[s.statPill, { backgroundColor: '#FF980018', borderColor: '#FF980044' }]}>
-                    <Text style={[s.statPillNum, { color: '#FF9800' }]}>🔥 {streak}</Text>
-                    <Text style={[s.statPillLabel, { color: '#FF9800' }]}>{t('home.streakLabel')}</Text>
-                  </View>
-                )}
-              </ScrollView>
-            )}
-
-            {/* AI quick actions — chat + plant scan, always one tap away */}
-            {!plants.loading && (
-              <CopilotStep text={t('coach.homeAI')} order={3} name="ai">
-                <WalkView style={s.aiQuickRow}>
-                  <ScalePress
-                    onPress={() => router.push('/chat' as any)}
-                    style={[s.aiQuickBtn, { backgroundColor: colors.primary + '16', borderColor: colors.primary + '44' }]}
-                  >
-                    <Ionicons name="chatbubble-ellipses-outline" size={20} color={colors.primary} />
-                    <Text style={[s.aiQuickText, { color: colors.primaryDark }]} numberOfLines={1}>{t('chat.title')}</Text>
-                  </ScalePress>
-                  <ScalePress
-                    onPress={() => router.push('/plant/scan' as any)}
-                    style={[s.aiQuickBtn, { backgroundColor: colors.info + '14', borderColor: colors.info + '44' }]}
-                  >
-                    <Ionicons name="camera-outline" size={20} color={colors.info} />
-                    <Text style={[s.aiQuickText, { color: colors.info }]} numberOfLines={1}>{t('plantScan.title')}</Text>
-                  </ScalePress>
+                <WalkView style={{ marginHorizontal: spacing.xl }}>
+                  <PlantCareCard plant={todayPlant} crop={CROPS_BY_ID[todayPlant.cropId] ?? customCropsById[todayPlant.cropId]} climateZone={garden?.climateZone} entries={entries.items} frost={Boolean(weather && weather.today.tempMin <= 2 && !isSeedPlan(todayPlant))} onOpen={() => router.push({ pathname: '/plant/[id]', params: { id: todayPlant.id } })} />
                 </WalkView>
               </CopilotStep>
             )}
@@ -810,12 +627,12 @@ function DashboardInner() {
                         {sortBy === 'name' ? t('home.sortName') : sortBy === 'newest' ? t('home.sortNewest') : t('home.sortDefault')}
                       </Text>
                     </Pressable>
-                    <Pressable
+                    {plants.items.some((plant) => plant.status !== 'finished' && !isSeedPlan(plant)) && <Pressable
                       onPress={handleWaterAll}
                       style={({ pressed }) => [s.waterAllBtn, { backgroundColor: colors.water + '22', borderColor: colors.water, opacity: pressed ? 0.7 : 1 }]}
                     >
                       <Text style={[s.waterAllText, { color: colors.water }]}>{t('home.waterAll')}</Text>
-                    </Pressable>
+                    </Pressable>}
                   </View>
                 </View>
                 {hideFinished && finishedCount > 0 && !statusFilter && (
@@ -897,8 +714,152 @@ function DashboardInner() {
             </View>
           ) : null
         }
-        ListFooterComponent={
+        ListFooterComponent={plants.count > 0 ?
           <>
+            {weeklyTasks.length > 0 && (
+              <View style={{ marginHorizontal: spacing.xl, marginVertical: spacing.md, gap: spacing.sm }}>
+                <Text style={[s.sectionTitle, { color: colors.text }]}>{t('home.weeklyTasks')}</Text>
+                {weeklyTasks.map((task, index) => (
+                  <Pressable key={`${task.plantId}-${index}`} accessibilityRole="button"
+                    onPress={() => router.push({ pathname: '/plant/[id]', params: { id: task.plantId } })}
+                    style={{ minHeight: 48, padding: spacing.md, borderRadius: 12, backgroundColor: colors.surface }}>
+                    <Text style={{ color: colors.text }}>{task.emoji} {task.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+            {/* Activation checklist — visible for 14 days after onboarding */}
+            {activation.visible && plants.count > 0 && (
+              <ActivationChecklist
+                checklist={activation.checklist}
+                completedCount={activation.completedCount}
+                totalCount={activation.totalCount}
+                onSelect={(id) => {
+                  if (id === 'calendar') router.push('/(tabs)/calendar');
+                  else if (id === 'watering' && todayPlant) router.push({ pathname: '/plant/[id]', params: { id: todayPlant.id } });
+                  else router.push(profile ? '/first-crop' : '/onboarding');
+                }}
+              />
+            )}
+
+            {/* Próximas cosechas — hero card when harvest is near */}
+            {plants.count > 0 && (() => {
+              const in21 = dateToStr(new Date(Date.now() + 21 * 86_400_000));
+              const todayS = todayStr();
+              const hp = plants.items.find(p => {
+                if (p.status === 'harvesting') return true;
+                if (p.firstHarvestDate && p.firstHarvestDate >= todayS && p.firstHarvestDate <= in21) return true;
+                if (p.sowingDate && !['harvesting','finished'].includes(p.status)) {
+                  const crop2 = CROPS_BY_ID[p.cropId] ?? customCropsById[p.cropId];
+                  const dth = crop2?.daysToHarvest;
+                  if (!dth) return false;
+                  const estDate = new Date(new Date(p.sowingDate + 'T12:00:00').getTime() + Math.round((dth[0]+dth[1])/2) * 86_400_000);
+                  const estStr = dateToStr(estDate);
+                  return estStr >= todayS && estStr <= in21;
+                }
+                return false;
+              });
+              if (!hp) return null;
+              const hCrop = CROPS_BY_ID[hp.cropId] ?? customCropsById[hp.cropId];
+              const hImg = hp.photoUri ?? CROP_IMAGES[hp.cropId];
+              const daysUntil = (() => {
+                if (hp.firstHarvestDate) return Math.ceil((new Date(hp.firstHarvestDate + 'T12:00:00').getTime() - Date.now()) / 86_400_000);
+                if (hp.sowingDate && hCrop?.daysToHarvest) {
+                  const dth = hCrop.daysToHarvest;
+                  const est = new Date(new Date(hp.sowingDate + 'T12:00:00').getTime() + Math.round((dth[0]+dth[1])/2) * 86_400_000);
+                  return Math.ceil((est.getTime() - Date.now()) / 86_400_000);
+                }
+                return null;
+              })();
+              return (
+                <ScalePress
+                  onPress={() => router.push(`/plant/${hp.id}`)}
+                  style={[s.harvestHero, { borderColor: '#FF7043' }]}
+                >
+                  {hImg && <Image source={{ uri: hImg }} style={StyleSheet.absoluteFill} resizeMode="cover" />}
+                  <View style={s.harvestHeroOverlay}>
+                    <Text style={s.harvestHeroLabel}>🧺 {t('home.stats.harvesting').toUpperCase()}</Text>
+                    <Text style={s.harvestHeroName}>{hp.name}</Text>
+                    {daysUntil !== null && daysUntil > 0 && (
+                      <Text style={s.harvestHeroSub}>en {daysUntil}d · {hCrop?.emoji ?? ''}</Text>
+                    )}
+                  </View>
+                </ScalePress>
+              );
+            })()}
+
+            {/* Sow now — coach surface, what to plant this month in your zone */}
+            {plants.count > 0 && garden && (
+              <SowNowCard climateZone={garden.climateZone} />
+            )}
+
+            {/* Quick stats strip */}
+            {plants.count > 0 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{ marginBottom: spacing.md }}
+                contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm }}
+              >
+                <View style={[s.statPill, { backgroundColor: colors.success + '18', borderColor: colors.success + '44' }]}>
+                  <Text style={[s.statPillNum, { color: colors.success }]}>{plants.items.filter(p => p.status !== 'finished').length}</Text>
+                  <Text style={[s.statPillLabel, { color: colors.success }]}>{t('home.stats.plants')}</Text>
+                </View>
+                {needsWaterCount > 0 && (
+                  <View style={[s.statPill, { backgroundColor: colors.water + '18', borderColor: colors.water + '44' }]}>
+                    <Text style={[s.statPillNum, { color: colors.water }]}>{needsWaterCount}</Text>
+                    <Text style={[s.statPillLabel, { color: colors.water }]}>{t('home.stats.needsWater')}</Text>
+                  </View>
+                )}
+                {harvestingCount > 0 && (
+                  <View style={[s.statPill, { backgroundColor: '#FF704318', borderColor: '#FF704344' }]}>
+                    <Text style={[s.statPillNum, { color: '#FF7043' }]}>{harvestingCount}</Text>
+                    <Text style={[s.statPillLabel, { color: '#FF7043' }]}>{t('home.stats.harvesting')}</Text>
+                  </View>
+                )}
+                {activePests > 0 && (
+                  <View style={[s.statPill, { backgroundColor: colors.error + '18', borderColor: colors.error + '44' }]}>
+                    <Text style={[s.statPillNum, { color: colors.error }]}>{activePests}</Text>
+                    <Text style={[s.statPillLabel, { color: colors.error }]}>{t('home.stats.pests')}</Text>
+                  </View>
+                )}
+                {yearHarvestKg > 0 && (
+                  <View style={[s.statPill, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '44' }]}>
+                    <Text style={[s.statPillNum, { color: colors.primary }]}>{(yearHarvestKg / 1000).toFixed(1)} kg</Text>
+                    <Text style={[s.statPillLabel, { color: colors.primary }]}>{t('home.stats.yearKg')}</Text>
+                  </View>
+                )}
+                {streak >= 2 && (
+                  <View style={[s.statPill, { backgroundColor: '#FF980018', borderColor: '#FF980044' }]}>
+                    <Text style={[s.statPillNum, { color: '#FF9800' }]}>🔥 {streak}</Text>
+                    <Text style={[s.statPillLabel, { color: '#FF9800' }]}>{t('home.streakLabel')}</Text>
+                  </View>
+                )}
+              </ScrollView>
+            )}
+
+            {/* AI quick actions — chat + plant scan, always one tap away */}
+            {!plants.loading && (
+              <View>
+                <WalkView style={s.aiQuickRow}>
+                  <ScalePress
+                    onPress={() => router.push('/chat' as any)}
+                    style={[s.aiQuickBtn, { backgroundColor: colors.primary + '16', borderColor: colors.primary + '44' }]}
+                  >
+                    <Ionicons name="chatbubble-ellipses-outline" size={20} color={colors.primary} />
+                    <Text style={[s.aiQuickText, { color: colors.primaryDark }]} numberOfLines={1}>{t('chat.title')}</Text>
+                  </ScalePress>
+                  <ScalePress
+                    onPress={() => router.push('/plant/scan' as any)}
+                    style={[s.aiQuickBtn, { backgroundColor: colors.info + '14', borderColor: colors.info + '44' }]}
+                  >
+                    <Ionicons name="camera-outline" size={20} color={colors.info} />
+                    <Text style={[s.aiQuickText, { color: colors.info }]} numberOfLines={1}>{t('plantScan.title')}</Text>
+                  </ScalePress>
+                </WalkView>
+              </View>
+            )}
+
             {/* Garden map — moved below the fold to keep "Hoy" dominant */}
             {garden && (
               <ScalePress
@@ -959,7 +920,7 @@ function DashboardInner() {
                       backgroundColor: weather.wateringAdvice === 'skip' ? colors.water + '18' : weather.wateringAdvice === 'reduce' ? colors.warning + '18' : colors.surfaceAlt,
                       borderColor: weather.wateringAdvice === 'skip' ? colors.water : weather.wateringAdvice === 'reduce' ? colors.warning : colors.border,
                     }]}>
-                      <Text style={[s.wateringAdviceText, { color: colors.text }]}>{t(weather.wateringKey, weather.wateringParams)}</Text>
+                      <Text style={[s.wateringAdviceText, { color: colors.text }]}>{t('dailyCare.weatherHint')}</Text>
                     </View>
                   </>
                 )}
@@ -1003,16 +964,16 @@ function DashboardInner() {
             )}
 
             <View style={{ height: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 80 }} />
-          </>
+          </> : null
         }
         renderItem={renderPlantCard}
       />
 
       {/* FAB */}
-      <CopilotStep text={t('coach.homeAdd')} order={4} name="add">
+      <CopilotStep text={t('coach.homeAdd')} order={2} name="add">
         <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary, bottom: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 10 }]}>
           <ScalePress
-            onPress={() => router.push('/plant/new')}
+            onPress={() => router.push(plants.count === 0 ? (profile ? '/first-crop' : '/onboarding') : '/plant/new')}
             pressedScale={0.9}
             accessibilityLabel={t('home.addPlant')}
             style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28 }}
@@ -1025,7 +986,7 @@ function DashboardInner() {
       <QuickLogModal
         plant={quickLogPlant}
         visible={quickLogPlant !== null}
-        onClose={() => setQuickLogPlant(null)}
+        onClose={() => { setQuickLogPlant(null); entries.refresh(); allPlants.refresh(); }}
       />
 
       {/* First harvest celebration modal */}

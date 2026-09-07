@@ -27,6 +27,8 @@ export const EVENTS = {
   firstCropRecommendationsShown: 'first_crop_recommendations_shown',
   firstCropPicked: 'first_crop_picked',
   firstPlantCreated: 'first_plant_created',
+  todayActionShown: 'today_action_shown',
+  todayActionCompleted: 'today_action_completed',
   onboardingStepCompleted: 'onboarding_step_completed',
   coachingLevelChanged: 'coaching_level_changed',
   coachingOverrideSet: 'coaching_override_set',

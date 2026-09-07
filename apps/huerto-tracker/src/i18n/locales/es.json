@@ -80,9 +80,9 @@
     "emptyTitle": "Aún no hay plantas",
     "emptyDesc": "Añade tu primera planta para empezar a registrar tu huerto.",
     "addPlant": "Añadir planta",
-    "firstUseTitle": "{{name}} está listo 🌱",
-    "firstUseDesc": "Toca uno de los cultivos de abajo para añadirlo, o usa el botón +.",
-    "firstUseCta": "Añadir mi primera planta",
+    "firstUseTitle": "Tu huerto empieza con una planta",
+    "firstUseDesc": "Elige una opción fácil según tu espacio, la luz y la temporada. Puedes empezar con una sola maceta.",
+    "firstUseCta": "Elegir mi primera planta",
     "searchPlants": "Buscar planta…",
     "noResults": "Sin resultados — prueba otro filtro o búsqueda",
     "taskEstHarvest": "🧺 {{name}} cerca de la cosecha",
@@ -440,16 +440,16 @@
   "onboarding": {
     "step1Title": "Tu huerto digital",
     "step1Desc": "Planifica tu siembra, registra tu cosecha y nunca olvides regar.",
-    "start": "Empezar →",
+    "start": "Empezar mi huerto",
     "back": "Atrás",
     "continue": "Continuar →",
     "skip": "Omitir",
     "stepOf": "Paso {{current}} de {{total}}",
     "sunTitle": "¿Cuántas horas de sol recibe tu espacio?",
-    "sunDesc": "Esto define qué cultivos te funcionarán mejor.",
-    "sunFull": "Sol pleno (>6h)",
-    "sunPartial": "Sol parcial (3-6h)",
-    "sunShade": "Sombra (<3h)",
+    "sunDesc": "Cuenta las horas de sol directo, no solo de claridad.",
+    "sunFull": "Mucha luz · 6 horas o más",
+    "sunPartial": "Luz media · entre 3 y 6 horas",
+    "sunShade": "Poca luz · menos de 3 horas",
     "expTitle": "¿Tienes experiencia cultivando?",
     "expDesc": "Adaptaremos las explicaciones a tu nivel.",
     "expBeginner": "Nunca he cultivado",
@@ -498,8 +498,8 @@
     "skipToGarden": "Ver mi huerto →",
     "coachWelcome": "¡Hola! Soy Semillita 🌱 Te acompañaré para que tu huerto salga adelante.",
     "coachCelebrate": "¡Tu huerto «{{name}}» ya está listo! 🎉 ¿Plantamos la primera?",
-    "welcomeTitle": "Tu huerto,\ntu ritmo.",
-    "welcomeSubtitle": "Semilla te ayuda a plantar, cuidar y cosechar sin complicaciones.",
+    "welcomeTitle": "Tu primer cultivo empieza hoy",
+    "welcomeSubtitle": "Dime dónde vas a cultivar y te ayudaré a elegir una planta fácil para empezar.",
     "feature1Title": "Luna y siembra",
     "feature1Desc": "Siembra en el momento óptimo según el ciclo lunar",
     "feature2Title": "Tiempo real",
@@ -508,12 +508,24 @@
     "feature3Desc": "Descubre qué cultivos se llevan bien juntos",
     "spaceTitle": "¿Dónde vas a cultivar?",
     "spaceDesc": "Así elegiremos plantas que encajen de verdad en tu espacio.",
-    "space": { "balcony": "Balcón", "terrace": "Terraza", "patio": "Patio o jardín", "garden": "Huerto o bancal", "indoor": "Interior junto a ventana" },
+    "space": {
+      "balcony": "Balcón",
+      "terrace": "Terraza",
+      "patio": "Patio o jardín",
+      "garden": "Huerto o bancal",
+      "indoor": "Interior junto a ventana"
+    },
     "locationPrivacy": "La provincia nos ayuda a saber qué tiene sentido plantar ahora. No necesitamos guardar tu ubicación exacta.",
-    "searchProvince": "Busca tu provincia o ciudad",
+    "searchProvince": "Buscar provincia o región",
     "selectedProvince": "Provincia seleccionada: {{province}}",
     "viewRecommendations": "Ver mis recomendaciones",
-    "firstGardenName": "Mi primer huerto"
+    "firstGardenName": "Mi primer huerto",
+    "sunUnknown": "No lo tengo claro",
+    "sunUnknownDesc": "Usaremos poca luz como referencia. Podrás cambiarla en Ajustes.",
+    "manualLocation": "O elige tu provincia sin dar permisos",
+    "noProvinces": "No hay resultados. Prueba con el nombre de tu provincia.",
+    "locationUnavailable": "No hemos podido detectar tu zona. Puedes elegir la provincia manualmente.",
+    "saveError": "No se ha podido guardar. Tus respuestas siguen aquí; vuelve a intentarlo."
   },
   "firstCrop": {
     "title": "Tus primeras opciones",
@@ -524,15 +536,29 @@
     "choose": "Quiero cultivar esto",
     "prepare": "Preparar este cultivo",
     "later": "Lo decidiré más tarde",
-    "empty": "Ahora no hay un cultivo adecuado para sembrar con estas condiciones. Revisa la próxima ventana de siembra.",
-    "difficulty": { "easy": "Fácil para empezar", "medium": "Dificultad media", "hard": "Requiere más experiencia" },
-    "reasons": { "sunlight": "Encaja con la luz de tu espacio", "container": "Cabe en una maceta de al menos {{liters}} L", "seasonNow": "Puedes empezar a sembrarlo ahora", "seasonSoon": "Prepáralo para la próxima ventana de siembra", "easy": "Es una opción fácil para principiantes", "quick": "Da un resultado relativamente rápido" }
+    "empty": "No hemos encontrado una opción para este mes o el próximo con esa luz y ese espacio. Revisa tus respuestas si las condiciones son distintas.",
+    "difficulty": {
+      "easy": "Fácil para empezar",
+      "medium": "Dificultad media",
+      "hard": "Requiere más experiencia"
+    },
+    "reasons": {
+      "sunlight": "Encaja con la luz de tu espacio",
+      "container": "Cabe en una maceta de al menos {{liters}} L",
+      "seasonNow": "Puedes empezar a sembrarlo ahora",
+      "seasonSoon": "La siembra empieza el próximo mes; hoy puedes preparar el material",
+      "easy": "Es una opción fácil para principiantes",
+      "quick": "Da un resultado relativamente rápido"
+    },
+    "context": "{{province}} · {{sunlight}}",
+    "harvestRange": "Cosecha orientativa: {{min}}–{{max}} días desde la siembra",
+    "adjust": "Revisar mis respuestas"
   },
   "activation": {
     "title": "Primeros pasos",
     "checkGarden": "Crear tu huerto",
     "checkPlant": "Añadir tu primera planta",
-    "checkWatering": "Registrar un riego",
+    "checkWatering": "Completar el primer cuidado",
     "checkCalendar": "Visitar el calendario de siembra",
     "checkSecondPlant": "Añadir una segunda planta"
   },
@@ -943,7 +969,15 @@
     },
     "createAccount": "Crear cuenta gratuita",
     "explore": "Explorar sin cuenta",
-    "note": "La cuenta gratuita incluye hasta 10 plantas y sincronización en la nube."
+    "note": "La cuenta gratuita incluye hasta 10 plantas y sincronización en la nube.",
+    "path": {
+      "space": "Cuatro preguntas sobre tu espacio",
+      "crop": "Una planta que encaje contigo",
+      "care": "Un siguiente paso claro cada día"
+    },
+    "noAccount": "Gratis para empezar. Sin cuenta ni experiencia previa.",
+    "signIn": "Ya tengo cuenta",
+    "returnGarden": "Volver a mi huerto"
   },
   "quickLog": {
     "water": "Regar",
@@ -1118,7 +1152,8 @@
       "organico": "Orgánico",
       "preventivo": "Preventivo",
       "quimico": "Químico"
-    }
+    },
+    "proOnly": "Disponible en Pro"
   },
   "plantFaq": {
     "loading": "Generando preguntas frecuentes…",
@@ -1133,7 +1168,7 @@
     "home": "Esta es tu pantalla Hoy: cada día verás aquí qué hacer. Abajo, qué sembrar este mes.",
     "tourAdd": "Pulsa el botón + para añadir una planta a tu huerto.",
     "homeStart": "¡Bienvenido a tu huerto! Aquí verás el resumen diario: tareas pendientes, cosechas que se acercan y alertas de riego o plagas.",
-    "homeToday": "Tus tareas de esta semana: riegos urgentes, posibles plagas y cosechas próximas. Toca cualquier elemento para abrir la planta.",
+    "homeToday": "Aquí tienes tu siguiente paso de hoy. Toca el botón para ver cómo hacerlo y registrar el cuidado.",
     "homeSow": "Cada mes te recomendamos qué sembrar según tu zona climática. ¡No pierdas el mejor momento para plantar!",
     "homeAI": "El asistente IA responde cualquier duda sobre tu huerto. La cámara identifica plagas y enfermedades al instante.",
     "homeAdd": "Pulsa aquí para registrar una nueva planta en tu huerto y empezar a hacer seguimiento.",
@@ -1932,5 +1967,47 @@
   "tools": {
     "title": "Herramientas",
     "advanced": "Avanzado"
+  },
+  "guidedPlant": {
+    "title": "Preparemos tu primera planta",
+    "body": "Empieza con una sola planta. Guarda el plan y prepara semillas, tierra y una maceta con agujeros de drenaje.",
+    "prepareBody": "Su temporada de siembra empieza el próximo mes. Hoy puedes guardar el plan y preparar el material.",
+    "alreadySown": "Ya he sembrado las semillas",
+    "dateToday": "Comprueba la fecha de siembra que aparece abajo.",
+    "noDate": "Guardaremos un plan sin registrar una siembra. Confirmarás la fecha cuando hayas sembrado.",
+    "more": "Opciones adicionales",
+    "less": "Ocultar opciones",
+    "save": "Guardar mi primera planta",
+    "success": "¡{{name}} ya tiene un plan!",
+    "successBody": "Tu siguiente paso está en «Hoy en tu huerto». Vamos poco a poco.",
+    "today": "Ver mi plan de hoy",
+    "saveError": "No se ha completado el guardado. Vuelve a intentarlo."
+  },
+  "dailyCare": {
+    "eyebrow": "Hoy en tu huerto",
+    "checkTitle": "Comprueba la tierra de {{name}}",
+    "checkBody": "Toca la superficie de la tierra. Si está seca, riega suavemente; si sigue húmeda, espera. Al terminar, registra lo que has observado.",
+    "prepareTitle": "Prepara el espacio de {{name}}",
+    "prepareBody": "Busca un lugar con la luz que elegiste y prepara las semillas y la tierra. Si usas maceta, comprueba que el agua pueda salir por debajo.",
+    "doneTitle": "Revisión de {{name}} completada",
+    "doneBody": "Tu cuidado está guardado. No hace falta repetirlo ahora. Mañana vuelve a observar la tierra y cómo está la planta.",
+    "pestTitle": "Revisa las hojas de {{name}}",
+    "pestBody": "Hay una plaga marcada en esta planta. Mira también el reverso de las hojas y confirma si sigue presente antes de aplicar un tratamiento.",
+    "frostTitle": "Puede hacer frío: protege tus plantas",
+    "frostBody": "La previsión de hoy baja a 2 °C o menos. Acerca las macetas sensibles a un lugar resguardado o protégelas con una manta térmica de cultivo.",
+    "open": "Ver el siguiente paso",
+    "sowNow": "Según el calendario de tu zona, este mes puedes sembrar. Sigue las indicaciones del sobre de semillas.",
+    "waitSeason": "El calendario no indica siembra este mes. Puedes preparar el material y consultar la próxima ventana en la pestaña Calendario de esta planta. Confirma solo si ya has sembrado.",
+    "sown": "Confirmar: he sembrado hoy",
+    "watered": "La tierra estaba seca y he regado",
+    "moist": "Sigue húmeda, hoy no riego",
+    "moistNote": "Tierra revisada: sigue húmeda. Hoy no hace falta regar.",
+    "saveError": "No se ha guardado el cuidado. Vuelve a intentarlo.",
+    "planStatus": "Por sembrar",
+    "attention": "Necesita atención",
+    "review": "Toca revisar la tierra",
+    "recorded": "En seguimiento",
+    "logFor": "Registrar cuidado de {{name}}",
+    "weatherHint": "La previsión es orientativa: comprueba la tierra antes de regar."
   }
 }

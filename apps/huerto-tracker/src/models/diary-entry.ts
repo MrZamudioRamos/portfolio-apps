@@ -47,7 +47,7 @@ export type EntryDataMap = {
   pest: undefined;
   treatment: TreatmentData;
   photo: undefined;
-  note: undefined;
+  note: { soilCheck: 'moist' } | undefined;
 };
 
 export interface DiaryEntry extends BaseItem {

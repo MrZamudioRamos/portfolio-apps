@@ -15,10 +15,13 @@ export function getNeedsWater(
 ): boolean {
   if (!crop) return false;
   if (plant.status === 'finished') return false;
+  // A seed plan without a sowing date has no living plant to water yet.
+  if (plant.status === 'seedling' && !plant.sowingDate && (plant.propagationMethod ?? 'seed') === 'seed') return false;
 
   const threshold = WATER_THRESHOLD_DAYS[crop.waterNeeds];
   const plantWaterings = entries
-    .filter((e) => e.plantId === plant.id && e.type === 'watering')
+    .filter((e) => e.plantId === plant.id && (e.type === 'watering' ||
+      (e.type === 'note' && e.data && 'soilCheck' in e.data && e.data.soilCheck === 'moist')))
     .map((e) => e.date)
     .sort()
     .reverse();
