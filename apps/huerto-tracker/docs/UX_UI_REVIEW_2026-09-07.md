@@ -32,7 +32,7 @@ Implementación centrada en el recorrido de una persona principiante: bienvenida
 - Expo Web propio en `http://localhost:8082`, como invitado. Recorrido completo: `/welcome`, `/onboarding`, `/first-crop`, portada vacía, `/plant/new`, confirmación, portada y `/plant/[id]`.
 - Perfil de prueba: balcón, luz parcial, principiante, Málaga; búsqueda «malaga» encuentra Málaga. Recomendaciones observadas: rábano, berros y cebollino.
 - Plan de rábano sin siembra ficticia → confirmación de siembra → comprobación de tierra húmeda → vuelta a portada. El cuidado y el checklist 3/5 persistieron tras recargar.
-- Segunda alta de berros con «Ya he sembrado», selector «Otra fecha», fecha 2026-09-05 y pantalla de éxito.
+- Segunda alta de berros con «Ya he sembrado» y pantalla de éxito. La revisión posterior detectó que la fecha introducida en web no actualizaba el estado del formulario. Corregido escuchando también `input`: nueva prueba independiente con «Cebollino QA fecha», fecha 2026-09-04, guardado y detalle mostrando «Sembrada 04/09/2026» con una única entrada de siembra.
 - Reproducción manual del tutorial desde Ajustes, avance, finalización y recarga sin repetición. Desaparecieron los dos fallos web observados durante ese recorrido.
 - Inspección visual a 390 px y 320 px. Portada oscura y detalle/formulario claro; la selección temporal de tema para QA se retiró al terminar.
 - `npm run typecheck`: correcto. `npm test`: 144 pruebas, 9 archivos, todas correctas. Incluye planes sin siembra, compatibilidad de plantas anteriores, nota húmeda, prioridad diaria, fechas, sincronización y recomendación estable al cambiar de año.
