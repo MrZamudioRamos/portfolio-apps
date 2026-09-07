@@ -402,6 +402,9 @@
     "proBtn": "Ver planes Pro"
   },
   "onboarding": {
+    "locationPrivacy": "La província ens ajuda a saber què té sentit plantar ara. No necessitem guardar la teua ubicació exacta.",
+    "searchProvince": "Busca la teua província o ciutat", "selectedProvince": "Província seleccionada: {{province}}", "viewRecommendations": "Veure les meues recomanacions", "firstGardenName": "El meu primer hort",
+    "space": { "balcony": "Balcó", "terrace": "Terrassa", "patio": "Pati o jardí", "garden": "Hort o bancal", "indoor": "Interior al costat d'una finestra" },
     "step1Title": "El teu hort digital",
     "step1Desc": "Planifica la teva sembra, registra la teva collita i no oblidis regar.",
     "start": "Començar →",
@@ -528,6 +531,7 @@
     "notesLabel": "NOTES (opcional)",
     "notesPlaceholder": "Observacions, apunts personals…"
   },
+  "firstCrop": { "title": "Les teues primeres opcions", "subtitle": "He triat cultius que encaixen amb el teu espai, llum i temporada.", "gardenReady": "He preparat el teu primer espai de cultiu. Podràs canviar-lo quan vulgues.", "topPick": "LA MEUA RECOMANACIÓ", "harvest": "Primer resultat en uns {{days}} dies", "choose": "Vull cultivar això", "prepare": "Preparar aquest cultiu", "later": "Ho decidiré més tard", "empty": "Ara no hi ha un cultiu adequat per sembrar amb aquestes condicions.", "difficulty": { "easy": "Fàcil per començar", "medium": "Dificultat mitjana", "hard": "Requereix més experiència" }, "reasons": { "sunlight": "Encaixa amb la llum del teu espai", "container": "Cap en una maceta de com a mínim {{liters}} L", "seasonNow": "Pots sembrar-lo ara", "seasonSoon": "Prepara'l per a la pròxima finestra", "easy": "És fàcil per a principiants", "quick": "Dona un resultat relativament ràpid" } },
   "plantNew": {
     "title": "Nova planta",
     "cropLabel": "CULTIU",

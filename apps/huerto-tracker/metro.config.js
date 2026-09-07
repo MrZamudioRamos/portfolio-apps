@@ -12,7 +12,7 @@ const config = getDefaultConfig(projectRoot);
 config.resolver.sourceExts = [...config.resolver.sourceExts, 'cjs', 'mjs'];
 
 // Watch all packages in the monorepo
-config.watchFolders = [workspaceRoot];
+config.watchFolders = [...config.watchFolders, workspaceRoot];
 
 // Resolve packages from both the app and workspace node_modules
 config.resolver.nodeModulesPaths = [
@@ -23,36 +23,27 @@ config.resolver.nodeModulesPaths = [
 // Fallback: any unresolved module goes to the workspace root.
 // Fixes cases where a locally-installed package (e.g. @expo/vector-icons)
 // can't find its peer deps that were hoisted to the workspace root.
-config.resolver.extraNodeModules = new Proxy(
-  {},
-  {
-    get: (_, name) =>
-      path.join(workspaceRoot, 'node_modules', String(name)),
-  }
-);
-
-// Block app-local copies of React Native packages that register native modules.
-// These must be loaded exactly once; duplicates cause "Tried to register two views" errors.
-// This list covers packages that npm may install locally due to version mismatches.
-const SINGLETON_PACKAGES = [
+const SINGLETON_PACKAGES = new Set([
   'react-native',
   'react-native-safe-area-context',
   'react-native-screens',
   'react-native-gesture-handler',
+  'react-native-reanimated',
+  'react-native-worklets',
   'react',
   '@react-native-async-storage/async-storage',
-];
+]);
 
-const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const sep = `[/\\\\]`;
-
-config.resolver.blockList = [
-  ...SINGLETON_PACKAGES.map(
-    (pkg) =>
-      new RegExp(
-        `^${escRe(localModules)}${sep}${escRe(pkg)}${sep}`
-      )
-  ),
-];
+config.resolver.extraNodeModules = new Proxy(
+  {},
+  {
+    get: (_, name) => {
+      const moduleName = String(name);
+      return SINGLETON_PACKAGES.has(moduleName)
+        ? path.join(localModules, moduleName)
+        : path.join(workspaceRoot, 'node_modules', moduleName);
+    },
+  }
+);
 
 module.exports = config;

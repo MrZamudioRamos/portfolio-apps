@@ -41,7 +41,7 @@ export function Mascot({ pose = 'idle', size = 120 }: Props) {
 
   // Leaf with base at (px,py), tip up at (px, py-32); rotated around its base.
   const Arm = ({ px, py, rot }: { px: number; py: number; rot: number }) => (
-    <G rotation={rot} originX={px} originY={py}>
+    <G transform={`rotate(${rot} ${px} ${py})`}>
       <Path
         d={`M${px} ${py} C ${px - 9} ${py - 9} ${px - 9} ${py - 26} ${px} ${py - 33} C ${px + 9} ${py - 26} ${px + 9} ${py - 9} ${px} ${py} Z`}
         fill={leaf}

@@ -402,6 +402,8 @@
     "proBtn": "Ver planes Pro"
   },
   "onboarding": {
+    "locationPrivacy": "A provincia axúdanos a saber que ten sentido plantar agora. Non necesitamos gardar a túa localización exacta.", "searchProvince": "Busca a túa provincia ou cidade", "selectedProvince": "Provincia seleccionada: {{province}}", "viewRecommendations": "Ver as miñas recomendacións", "firstGardenName": "A miña primeira horta",
+    "space": { "balcony": "Balcón", "terrace": "Terraza", "patio": "Patio ou xardín", "garden": "Horta ou bancal", "indoor": "Interior xunto a unha xanela" },
     "step1Title": "A túa horta dixital",
     "step1Desc": "Planifica a túa sementeira, rexistra a túa colleita e nunca esquezas regar.",
     "start": "Comezar →",
@@ -528,6 +530,7 @@
     "notesLabel": "NOTAS (opcional)",
     "notesPlaceholder": "Observacións, apuntamentos persoais…"
   },
+  "firstCrop": { "title": "As túas primeiras opcións", "subtitle": "Escollín cultivos que encaixan co teu espazo, luz e tempada.", "gardenReady": "Preparei o teu primeiro espazo de cultivo. Poderás cambialo cando queiras.", "topPick": "A MIÑA RECOMENDACIÓN", "harvest": "Primeiro resultado en aproximadamente {{days}} días", "choose": "Quero cultivar isto", "prepare": "Preparar este cultivo", "later": "Decidireino máis tarde", "empty": "Agora non hai un cultivo adecuado para sementar con estas condicións.", "difficulty": { "easy": "Fácil para comezar", "medium": "Dificultade media", "hard": "Require máis experiencia" }, "reasons": { "sunlight": "Encaixa coa luz do teu espazo", "container": "Cabe nunha maceta de polo menos {{liters}} L", "seasonNow": "Podes sementalo agora", "seasonSoon": "Prepárao para a próxima xanela", "easy": "É fácil para principiantes", "quick": "Dá un resultado relativamente rápido" } },
   "plantNew": {
     "title": "Nova planta",
     "cropLabel": "CULTIVO",

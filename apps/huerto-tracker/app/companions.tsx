@@ -433,7 +433,7 @@ const makeStyles = (
     chipText: { fontSize: fontSize.xs },
     neutralText: { fontSize: fontSize.xs, fontStyle: 'italic' },
     lockOverlay: {
-      ...StyleSheet.absoluteFillObject,
+      ...StyleSheet.absoluteFill,
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: radii.lg,

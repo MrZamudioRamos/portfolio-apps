@@ -27,6 +27,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, CROP_DIFFICULTY, type CropInfo } from '../../src/data/crops';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
+import { useUserProfile } from '../../src/hooks/useUserProfile';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import { getCompanions } from '../../src/data/companions';
@@ -62,6 +63,7 @@ export default function NewPlantScreen() {
   const { cropId: paramCropId, scan: scanParam, status: statusParam, fromOnboarding } = useLocalSearchParams<{ cropId?: string; scan?: string; status?: string; fromOnboarding?: string }>();
 
   const { activeGarden } = useActiveGarden();
+  const { profile } = useUserProfile();
   const plants = useCollection<Plant>('plants');
   const diaryStore = useMemo(() => createStore<DiaryEntry>('diary_entries'), []);
   const { isGuest } = useSession();
@@ -188,6 +190,14 @@ export default function NewPlantScreen() {
         date: sowingDate,
       });
       track(EVENTS.plantAdded, { cropId: selectedCropId, fromScan: isAiFilled });
+      if (fromOnboarding === '1') {
+        track(EVENTS.firstPlantCreated, {
+          crop_id: selectedCropId,
+          source: 'onboarding',
+          space: profile?.spaceTypes[0],
+          sunlight: profile?.sunlight,
+        });
+      }
       successHaptic();
       if (fromOnboarding === '1') router.replace('/(tabs)');
       else if (isAiFilled && router.canGoBack()) router.dismissAll();

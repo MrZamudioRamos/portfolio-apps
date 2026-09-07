@@ -402,6 +402,8 @@
     "proBtn": "Ver planes Pro"
   },
   "onboarding": {
+    "locationPrivacy": "Probintziak orain zer landatzea komeni den jakiten laguntzen du. Ez dugu zure kokapen zehatza gorde behar.", "searchProvince": "Bilatu zure probintzia edo hiria", "selectedProvince": "Hautatutako probintzia: {{province}}", "viewRecommendations": "Ikusi nire gomendioak", "firstGardenName": "Nire lehen baratzea",
+    "space": { "balcony": "Balkoia", "terrace": "Terraza", "patio": "Patioa edo lorategia", "garden": "Baratzea", "indoor": "Leiho ondoan barruan" },
     "step1Title": "Zure baratze digitala",
     "step1Desc": "Planifikatu ereintza, erregistratu uzta eta inoiz ez ahaztu ureztatzea.",
     "start": "Hasi →",
@@ -528,6 +530,7 @@
     "notesLabel": "OHARRAK (aukerakoa)",
     "notesPlaceholder": "Oharrak, ohar pertsonalak…"
   },
+  "firstCrop": { "title": "Zure lehen aukerak", "subtitle": "Zure espazio, argi eta sasoirako egokiak diren laboreak aukeratu ditut.", "gardenReady": "Zure lehen hazteko lekua prestatu dut. Nahi duzunean alda dezakezu.", "topPick": "NIRE GOMENDIOA", "harvest": "Lehen emaitza {{days}} egun barru", "choose": "Hau hazi nahi dut", "prepare": "Labore hau prestatu", "later": "Gero erabakiko dut", "empty": "Une honetan ez dago baldintza hauetarako ereiteko labore egokirik.", "difficulty": { "easy": "Hasteko erraza", "medium": "Zailtasun ertaina", "hard": "Esperientzia gehiago behar du" }, "reasons": { "sunlight": "Zure espazioko argira egokitzen da", "container": "Gutxienez {{liters}} L-ko eltzean sartzen da", "seasonNow": "Orain erein dezakezu", "seasonSoon": "Prestatu hurrengo ereite-leihorako", "easy": "Hasiberrientzat erraza da", "quick": "Emaitza nahiko azkarra ematen du" } },
   "plantNew": {
     "title": "Landare berria",
     "cropLabel": "LABOREA",

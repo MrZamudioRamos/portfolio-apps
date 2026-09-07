@@ -505,7 +505,28 @@
     "feature2Title": "Tiempo real",
     "feature2Desc": "Recomendaciones de riego según la previsión del tiempo",
     "feature3Title": "Plantas compañeras",
-    "feature3Desc": "Descubre qué cultivos se llevan bien juntos"
+    "feature3Desc": "Descubre qué cultivos se llevan bien juntos",
+    "spaceTitle": "¿Dónde vas a cultivar?",
+    "spaceDesc": "Así elegiremos plantas que encajen de verdad en tu espacio.",
+    "space": { "balcony": "Balcón", "terrace": "Terraza", "patio": "Patio o jardín", "garden": "Huerto o bancal", "indoor": "Interior junto a ventana" },
+    "locationPrivacy": "La provincia nos ayuda a saber qué tiene sentido plantar ahora. No necesitamos guardar tu ubicación exacta.",
+    "searchProvince": "Busca tu provincia o ciudad",
+    "selectedProvince": "Provincia seleccionada: {{province}}",
+    "viewRecommendations": "Ver mis recomendaciones",
+    "firstGardenName": "Mi primer huerto"
+  },
+  "firstCrop": {
+    "title": "Tus primeras opciones",
+    "subtitle": "He elegido cultivos que encajan con tu espacio, luz y temporada.",
+    "gardenReady": "He preparado tu primer espacio de cultivo. Podrás cambiarlo cuando quieras.",
+    "topPick": "MI RECOMENDACIÓN",
+    "harvest": "Primer resultado en unos {{days}} días",
+    "choose": "Quiero cultivar esto",
+    "prepare": "Preparar este cultivo",
+    "later": "Lo decidiré más tarde",
+    "empty": "Ahora no hay un cultivo adecuado para sembrar con estas condiciones. Revisa la próxima ventana de siembra.",
+    "difficulty": { "easy": "Fácil para empezar", "medium": "Dificultad media", "hard": "Requiere más experiencia" },
+    "reasons": { "sunlight": "Encaja con la luz de tu espacio", "container": "Cabe en una maceta de al menos {{liters}} L", "seasonNow": "Puedes empezar a sembrarlo ahora", "seasonSoon": "Prepáralo para la próxima ventana de siembra", "easy": "Es una opción fácil para principiantes", "quick": "Da un resultado relativamente rápido" }
   },
   "activation": {
     "title": "Primeros pasos",

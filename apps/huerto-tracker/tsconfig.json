@@ -10,7 +10,9 @@
       "@portfolio/notifications": ["../../packages/notifications/src/index.ts"],
       "@portfolio/billing": ["../../packages/billing/src/index.ts"],
       "@portfolio/share": ["../../packages/share/src/index.ts"],
-      "@portfolio/supabase": ["../../packages/supabase/src/index.ts"]
+      "@portfolio/supabase": ["../../packages/supabase/src/index.ts"],
+      "react-native": ["./node_modules/react-native"],
+      "react-native/*": ["./node_modules/react-native/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]

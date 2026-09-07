@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput } from 'react-native';
+import { Platform, StyleSheet, Text, TextInput } from 'react-native';
 
 // Map the fontWeight used across the app to the matching Nunito family
 // (@expo-google-fonts exposes one family per weight).
@@ -45,6 +45,11 @@ function patchRuntime(label: string, mod: any, fnNames: string[]): void {
  * before the first render, with the Nunito_* families loaded.
  */
 export function applyNunito(): void {
+  // React 19's web JSX runtime is not safe to monkey-patch. On native we
+  // retain the app-wide Nunito fallback; web uses the loaded font families
+  // specified by its own text styles.
+  if (Platform.OS === 'web') return;
+
   // Static require literals so Metro can resolve them.
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports

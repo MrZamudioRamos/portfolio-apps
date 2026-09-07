@@ -413,6 +413,12 @@
     "proBtn": "Ver planes Pro"
   },
   "onboarding": {
+    "locationPrivacy": "Your province helps us know what makes sense to grow now. We do not need to store your exact location.",
+    "searchProvince": "Search your province or city",
+    "selectedProvince": "Selected province: {{province}}",
+    "viewRecommendations": "See my recommendations",
+    "firstGardenName": "My first garden",
+    "space": { "balcony": "Balcony", "terrace": "Terrace", "patio": "Patio or garden", "garden": "Vegetable plot", "indoor": "Indoors by a window" },
     "step1Title": "Your digital garden",
     "step1Desc": "Plan your sowing, track your harvest, and never forget to water.",
     "start": "Get started →",
@@ -539,6 +545,11 @@
     "harvestGoalPlaceholder": "e.g. 5.0",
     "notesLabel": "NOTES (optional)",
     "notesPlaceholder": "Observations, personal notes…"
+  },
+  "firstCrop": {
+    "title": "Your first options", "subtitle": "I chose crops that suit your space, light and season.", "gardenReady": "I prepared your first growing space. You can change it whenever you want.", "topPick": "MY RECOMMENDATION", "harvest": "First result in about {{days}} days", "choose": "I want to grow this", "prepare": "Prepare this crop", "later": "I'll decide later", "empty": "There is no suitable crop to sow in these conditions right now. Check the next sowing window.",
+    "difficulty": { "easy": "Easy to start", "medium": "Medium difficulty", "hard": "Needs more experience" },
+    "reasons": { "sunlight": "Fits your space's light", "container": "Fits in a pot of at least {{liters}} L", "seasonNow": "You can sow it now", "seasonSoon": "Prepare it for the next sowing window", "easy": "It is easy for beginners", "quick": "It gives a relatively quick result" }
   },
   "plantNew": {
     "title": "New plant",

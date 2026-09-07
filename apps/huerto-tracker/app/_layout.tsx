@@ -119,6 +119,7 @@ function RootLayout() {
           <Stack.Screen name="auth/magic-sent" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="onboarding" />
+          <Stack.Screen name="first-crop" />
           <Stack.Screen
             name="plant/new"
             options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
