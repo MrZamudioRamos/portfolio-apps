@@ -46,6 +46,7 @@ import { buildGamificationData } from '../../src/utils/gamification';
 import { PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringStatus';
 import { checkFrost } from '../../src/hooks/useFrostAlert';
+import { recordCare } from '../../src/utils/careWrites';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Mascot } from '../../src/components/Mascot';
 import { SuccessBurst } from '../../src/components/SuccessBurst';
@@ -344,19 +345,14 @@ function DashboardInner() {
       ? (litersNum / activePlants.length).toFixed(1)
       : undefined;
     try {
-      await Promise.all(
-        activePlants.map((p) =>
-          entries.create({
-            gardenId,
-            plantId: p.id,
-            type: 'watering',
-            date: today,
-            ...(perPlantLiters || waterAllMethod !== 'hand'
-              ? { data: { ...(perPlantLiters ? { liters: perPlantLiters } : {}), method: waterAllMethod } }
-              : {}),
-          })
-        )
-      );
+      await Promise.all(activePlants.map((p) => recordCare(
+        p.id,
+        'watering',
+        '',
+        perPlantLiters || waterAllMethod !== 'hand'
+          ? { ...(perPlantLiters ? { liters: perPlantLiters } : {}), method: waterAllMethod }
+          : undefined,
+      )));
       setShowWaterAllModal(false);
     } finally {
       setWaterAllSaving(false);

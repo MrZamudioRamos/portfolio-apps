@@ -99,3 +99,9 @@ La auditoría siguió todos los lectores y escritores de recordatorios en la app
 Se eliminó la solicitud de montaje del hook compartido. Consultar, refrescar, cancelar o eliminar recordatorios no solicita permisos. Crear un recordatorio habilitado, activar uno existente o guardar cambios que lo dejan habilitado son las únicas rutas que llaman al permiso. Si la persona lo deniega, la operación no crea ni activa una notificación parcial y la pantalla conserva el formulario con un mensaje que indica activar notificaciones en Ajustes y reintentar. Los recordatorios y perfiles existentes mantienen sus datos y `notificationId`.
 
 Se añadieron regresiones significativas al hook: montaje sin solicitud, creación explícita con permiso y denegación sin persistencia ni programación. El flujo Web se validó en Home, detalle, Diario, Calendario y Ajustes; los bundles Web e iOS se exportaron correctamente. La prueba física de permisos nativos queda para Expo Go.
+
+## Auditoría posterior al merge — 9 de septiembre de 2026
+
+Tras integrar el PR en `huerto`, la revisión visual de Home a 390 px en tema oscuro mostró una jerarquía clara para «Hoy en tu huerto», plantas y acciones. También confirmó una oportunidad lógica concreta: «Regar todo» escribía entradas directamente y evitaba la protección de tierra húmeda, la serialización y el guardado seguro usado por el cuidado individual. Se corrigió para reutilizar `recordCare`, conservar litros/método y omitir de forma segura plantas que ya tienen una revisión del día. Se añadió una regresión para metadatos de riego masivo y doble registro.
+
+El resto de la auditoría estática no encontró otra regresión P0/P1 demostrable sin ampliar alcance. Los avisos restantes de Web corresponden a `expo-notifications` sin listener de push efectivo, estilos RN obsoletos y `useNativeDriver` no disponible en Web. Se mantienen como deuda técnica separada.
