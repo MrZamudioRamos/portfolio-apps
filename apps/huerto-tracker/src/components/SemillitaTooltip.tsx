@@ -34,20 +34,21 @@ export function SemillitaTooltip() {
       </View>
 
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Pressable onPress={() => stop()} hitSlop={8}>
+        <Pressable accessibilityRole="button" onPress={() => stop()} hitSlop={8} style={{ minHeight: 44, justifyContent: 'center' }}>
           <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('onboarding.skip')}</Text>
         </Pressable>
         <View style={{ flex: 1 }} />
         {!isFirstStep && (
-          <Pressable onPress={() => goToPrev()} hitSlop={8} style={{ marginRight: spacing.lg }}>
+          <Pressable accessibilityRole="button" onPress={() => goToPrev()} hitSlop={8} style={{ marginRight: spacing.lg, minHeight: 44, justifyContent: 'center' }}>
             <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>
               {t('onboarding.back')}
             </Text>
           </Pressable>
         )}
         <Pressable
+          accessibilityRole="button"
           onPress={() => (isLastStep ? stop() : goToNext())}
-          style={{ backgroundColor: colors.primary, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: 999 }}
+          style={{ backgroundColor: colors.primary, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: 999, minHeight: 44, justifyContent: 'center' }}
         >
           <Text style={{ color: colors.background, fontWeight: fontWeight.bold, fontSize: fontSize.sm }}>
             {isLastStep ? t('coach.gotIt') : t('onboarding.continue')}

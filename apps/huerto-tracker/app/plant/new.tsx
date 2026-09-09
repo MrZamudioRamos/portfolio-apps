@@ -1,4 +1,5 @@
-import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, type Theme } from '@portfolio/ui';
+import { Button } from '../../src/components/ActionButton';
 import { createStore, useCollection } from '@portfolio/storage';
 import { useSession } from '@portfolio/supabase';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
@@ -7,7 +8,7 @@ import { usePickPhoto } from '../../src/hooks/usePickPhoto';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
@@ -24,10 +25,11 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, CROP_DIFFICULTY, type CropInfo } from '../../src/data/crops';
+import { CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, CROP_DIFFICULTY, CROP_CONTAINER_MIN, type CropInfo } from '../../src/data/crops';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { useUserProfile } from '../../src/hooks/useUserProfile';
+import { createPlantWithSowing } from '../../src/utils/careWrites';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import { getCompanions } from '../../src/data/companions';
@@ -39,6 +41,9 @@ import { ScalePress } from '../../src/components/ScalePress';
 import { CopilotStep } from 'react-native-copilot';
 import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
 import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
+import { Mascot } from '../../src/components/Mascot';
+import { SuccessBurst } from '../../src/components/SuccessBurst';
+import { WebDatePicker } from '../../src/components/WebDatePicker';
 
 function TourStarter({ disabled }: { disabled: boolean }) {
   useTourAutoStart('plant-new', { disabled, firstStep: 'plant-select', delay: 400 });
@@ -60,7 +65,20 @@ export default function NewPlantScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
-  const { cropId: paramCropId, scan: scanParam, status: statusParam, fromOnboarding } = useLocalSearchParams<{ cropId?: string; scan?: string; status?: string; fromOnboarding?: string }>();
+  const { cropId: paramCropId, scan: scanParam, status: statusParam, fromOnboarding, recommendationAction } = useLocalSearchParams<{ cropId?: string; scan?: string; status?: string; fromOnboarding?: string; recommendationAction?: string }>();
+  const guided = fromOnboarding === '1' && Boolean(paramCropId);
+  const [showAllDetails, setShowAllDetails] = useState(false);
+  const [started, setStarted] = useState(false);
+  const [createdPlant, setCreatedPlant] = useState<Plant | null>(null);
+  const [showSuccessBurst, setShowSuccessBurst] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  const pendingPlant = useRef<Plant | null>(null);
+  const submitting = useRef(false);
+  useEffect(() => {
+    if (!showSuccessBurst) return;
+    const timer = setTimeout(() => setShowSuccessBurst(false), 1200);
+    return () => clearTimeout(timer);
+  }, [showSuccessBurst]);
 
   const { activeGarden } = useActiveGarden();
   const { profile } = useUserProfile();
@@ -163,34 +181,32 @@ export default function NewPlantScreen() {
   }
 
   async function handleSave() {
-    if (!selectedCropId || !plantName.trim()) return;
-    if (atLimit) {
+    if (submitting.current || !selectedCropId || !plantName.trim()) return;
+    if (atLimit && !pendingPlant.current) {
       router.push('/paywall?source=plant_limit' as any);
       return;
     }
     const gardenId = activeGarden?.id;
     if (!gardenId) return;
+    submitting.current = true;
     setSaving(true);
+    setSaveError(false);
     try {
-      const newPlant = await plants.create({
+      const wasFirstPlant = plants.items.length === 0;
+      const newPlant = pendingPlant.current ?? await createPlantWithSowing({
         gardenId,
         cropId: selectedCropId,
         name: plantName.trim(),
         ...(variety.trim() ? { variety: variety.trim() } : {}),
         ...(varietyId ? { varietyId } : {}),
-        sowingDate,
-        status: selectedStatus,
-        propagationMethod,
+        ...(guided && !started ? {} : { sowingDate }),
+        status: guided && !started ? 'seedling' : selectedStatus,
+        propagationMethod: guided && !started ? 'seed' : propagationMethod,
         ...(photoUri ? { photoUri } : {}),
       });
-      await diaryStore.create({
-        gardenId,
-        plantId: newPlant.id,
-        type: 'sowing',
-        date: sowingDate,
-      });
+      pendingPlant.current = newPlant;
       track(EVENTS.plantAdded, { cropId: selectedCropId, fromScan: isAiFilled });
-      if (fromOnboarding === '1') {
+      if (fromOnboarding === '1' && wasFirstPlant) {
         track(EVENTS.firstPlantCreated, {
           crop_id: selectedCropId,
           source: 'onboarding',
@@ -199,11 +215,15 @@ export default function NewPlantScreen() {
         });
       }
       successHaptic();
-      if (fromOnboarding === '1') router.replace('/(tabs)');
+      if (guided) { setCreatedPlant(newPlant); setShowSuccessBurst(true); }
+      else if (fromOnboarding === '1') router.replace('/(tabs)');
       else if (isAiFilled && router.canGoBack()) router.dismissAll();
       else if (router.canGoBack()) router.back();
       else router.replace('/(tabs)');
+    } catch {
+      setSaveError(true);
     } finally {
+      submitting.current = false;
       setSaving(false);
     }
   }
@@ -227,20 +247,34 @@ export default function NewPlantScreen() {
     ? (selectedCrop.isCustom ? selectedCrop.name : t('crops.' + selectedCrop.id + '.name'))
     : '';
 
+  if (createdPlant) return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: spacing.xl }}>
+        <View style={{ alignSelf: 'center', width: '100%', maxWidth: 520, alignItems: 'center', gap: spacing.lg }}>
+          <Mascot pose="celebrate" size={120} />
+          <Text accessibilityRole="header" style={{ color: colors.text, fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, textAlign: 'center' }}>{t('guidedPlant.success', { name: createdPlant.name })}</Text>
+          <Text style={{ color: colors.textSecondary, lineHeight: 24, textAlign: 'center' }}>{t('guidedPlant.successBody')}</Text>
+          <Button title={t('guidedPlant.today')} size="lg" onPress={() => router.replace('/(tabs)')} style={{ width: '100%' }} />
+        </View>
+      </ScrollView>
+      <SuccessBurst visible={showSuccessBurst} />
+    </SafeAreaView>
+  );
+
   return (
     <SemillitaTourProvider>
-      <TourStarter disabled={fromOnboarding !== '1'} />
+      <TourStarter disabled={guided || fromOnboarding !== '1'} />
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={goBack} hitSlop={12}>
+        <Pressable accessibilityRole="button" accessibilityLabel={t('onboarding.back')} onPress={goBack} hitSlop={12} style={{ minWidth: 44, minHeight: 44, justifyContent: 'center' }}>
           <Ionicons
             name={step === 'details' && !paramCropId ? 'arrow-back' : 'close'}
             size={24}
             color={colors.textSecondary}
           />
         </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>{t('plantNew.title')}</Text>
+        <Text style={[s.headerTitle, { color: colors.text }]}>{t(guided ? 'guidedPlant.title' : 'plantNew.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -288,7 +322,7 @@ export default function NewPlantScreen() {
       {/* ── STEP 2: Plant details ── */}
       {step === 'details' && (
         <>
-          {fromOnboarding === '1' && !isAiFilled && (
+          {fromOnboarding === '1' && !guided && !isAiFilled && (
             <View style={{ backgroundColor: colors.primary + '10', borderBottomWidth: 1, borderBottomColor: colors.primary + '30', paddingHorizontal: spacing.xl, paddingVertical: spacing.md }}>
               <Text style={{ color: colors.primary, fontSize: fontSize.sm, lineHeight: 20 }}>{t('coach.plantDetails')}</Text>
             </View>
@@ -306,7 +340,7 @@ export default function NewPlantScreen() {
               contentContainerStyle={{ paddingBottom: 40 }}
             >
               {/* Photo hero — 180px at top (FIX 2) */}
-              <Pressable
+              {(!guided || showAllDetails) && <Pressable
                 onPress={pickPhoto}
                 style={[s.photoHero, { backgroundColor: colors.surfaceAlt }]}
               >
@@ -335,7 +369,7 @@ export default function NewPlantScreen() {
                     </Text>
                   </>
                 )}
-              </Pressable>
+              </Pressable>}
 
               {/* Crop hero — prominent image + name + change link */}
               {selectedCrop && (
@@ -358,15 +392,25 @@ export default function NewPlantScreen() {
                       {t('cropCategory.' + selectedCrop.category)}
                     </Text>
                   </View>
-                  <Pressable onPress={() => setShowCropPicker(true)} hitSlop={8}>
+                  <Pressable accessibilityRole="button" onPress={() => guided ? goBack() : setShowCropPicker(true)} hitSlop={8}>
                     <Text style={[s.changeText, { color: colors.primary }]}>{t('plantNew.changeCrop')}</Text>
                   </Pressable>
                 </View>
               )}
 
               <View style={s.formContainer}>
+                {guided && <View style={{ gap: spacing.md }}>
+                  <Text style={{ color: colors.textSecondary, lineHeight: 23 }}>{t(recommendationAction === 'prepare' ? 'guidedPlant.prepareBody' : 'guidedPlant.body')}</Text>
+                  <Text style={{ color: colors.text, fontWeight: fontWeight.semibold }}>{activeGarden?.name} · {activeGarden?.province}</Text>
+                  {selectedCropId && typeof CROP_CONTAINER_MIN[selectedCropId] === 'number' && <Text style={{ color: colors.textSecondary }}>{t('firstCrop.reasons.container', { liters: CROP_CONTAINER_MIN[selectedCropId] })}</Text>}
+                  <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: started }} onPress={() => setStarted(!started)} style={{ minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: spacing.md, borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, padding: spacing.md }}>
+                    <Text style={{ color: colors.primary, fontSize: 24 }} accessible={false}>{started ? '☑' : '☐'}</Text>
+                    <Text style={{ color: colors.text, flex: 1 }}>{t('guidedPlant.alreadySown')}</Text>
+                  </Pressable>
+                  <Text style={{ color: colors.textSecondary, lineHeight: 20 }}>{t(started ? 'guidedPlant.dateToday' : 'guidedPlant.noDate')}</Text>
+                </View>}
                 {/* Companion hint */}
-                {selectedCrop && (() => {
+                {!guided && selectedCrop && (() => {
                   const companions = getCompanions(selectedCrop.id).slice(0, 4);
                   if (!companions.length) return null;
                   return (
@@ -382,6 +426,7 @@ export default function NewPlantScreen() {
                 {/* Plant name */}
                 <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('plantNew.nameLabel')}</Text>
                 <TextInput
+                  accessibilityLabel={t('plantNew.nameLabel')}
                   value={plantName}
                   onChangeText={setPlantName}
                   placeholder={t('plantNew.namePlaceholder')}
@@ -389,6 +434,8 @@ export default function NewPlantScreen() {
                   style={[s.input, { backgroundColor: colors.surface, borderColor: plantName ? colors.primary : colors.border, color: colors.text }]}
                 />
 
+                {guided && <Button title={t(showAllDetails ? 'guidedPlant.less' : 'guidedPlant.more')} variant="ghost" onPress={() => setShowAllDetails(!showAllDetails)} style={{ marginTop: spacing.md, minHeight: 48 }} />}
+                {(!guided || showAllDetails) && <>
                 {/* Variety */}
                 <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
                   {t('plantNew.varietyLabel')}
@@ -435,6 +482,7 @@ export default function NewPlantScreen() {
                   style={[s.input, { backgroundColor: colors.surface, borderColor: variety ? colors.primary : colors.border, color: colors.text }]}
                 />
 
+                {(!guided || started) && <>
                 {/* Growth stage — visual 4-chip picker */}
                 <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('plantNew.stageLabel')}</Text>
                 <View style={s.stageRow}>
@@ -480,7 +528,10 @@ export default function NewPlantScreen() {
                     );
                   })}
                 </View>
+                </>}
+                </>}
 
+                {(!guided || started) && <>
                 {/* Sowing date */}
                 <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('plantNew.sowingDate')}</Text>
                 <View style={[s.dateBtnsRow, { marginBottom: spacing.sm }]}>
@@ -519,6 +570,7 @@ export default function NewPlantScreen() {
                   })()}
                 </View>
 
+                {showDatePicker && Platform.OS === 'web' && <WebDatePicker label={t('plantNew.sowingDate')} value={sowingDate} onChange={setSowingDate} />}
                 {showDatePicker && Platform.OS === 'android' && (
                   <DateTimePicker
                     value={new Date(sowingDate)}
@@ -550,12 +602,14 @@ export default function NewPlantScreen() {
                     </Pressable>
                   </Modal>
                 )}
+                </>}
 
                 {/* Save */}
+                {saveError && <Text accessibilityRole="alert" style={{ color: colors.error, marginTop: spacing.md }}>{t('guidedPlant.saveError')}</Text>}
                 <Button
-                  title={t('plantNew.addPlant')}
+                  title={t(guided ? 'guidedPlant.save' : 'plantNew.addPlant')}
                   onPress={handleSave}
-                  disabled={!selectedCropId || !plantName.trim()}
+                  disabled={!selectedCropId || !plantName.trim() || !activeGarden || plants.loading}
                   loading={saving}
                   size="lg"
                   style={{ marginTop: spacing.xl }}

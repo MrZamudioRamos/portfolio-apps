@@ -31,7 +31,8 @@ export function useActiveGarden() {
     const id = await AsyncStorage.getItem(ACTIVE_KEY);
     setActiveId(id);
     if (!loaded) setLoaded(true);
+    await gardens.refresh();
   }
 
-  return { activeGarden, gardens: gardens.items, switchGarden, refreshActiveId, gardensLoading: gardens.loading };
+  return { activeGarden, gardens: gardens.items, switchGarden, refreshActiveId, gardensLoading: gardens.loading || !loaded };
 }

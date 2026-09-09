@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Platform, View, useWindowDimensions } from 'react-native';
 import { CopilotProvider, walkthroughable } from 'react-native-copilot';
 import { useColors } from '@portfolio/ui';
 import { SemillitaTooltip } from './SemillitaTooltip';
@@ -36,14 +36,17 @@ const roundedSpotlightPath: Parameters<typeof CopilotProvider>[0]['svgMaskPath']
  */
 export function SemillitaTourProvider({ children }: { children: React.ReactNode }) {
   const colors = useColors();
+  const { width } = useWindowDimensions();
   return (
     <CopilotProvider
-      overlay="svg"
-      animated
+      // Copilot's SVG setNativeProps path is incompatible with RN SVG on web.
+      // Keep the library's supported View mask there; native retains the rounded SVG.
+      overlay={Platform.OS === 'web' ? 'view' : 'svg'}
+      animated={Platform.OS !== 'web'}
       backdropColor="rgba(0,0,0,0.75)"
       arrowSize={0}
       tooltipComponent={SemillitaTooltip}
-      tooltipStyle={{ backgroundColor: colors.surface, borderRadius: 20, padding: 16, width: 300 }}
+      tooltipStyle={{ backgroundColor: colors.surface, borderRadius: 20, padding: 16, width: Math.min(300, width - 32) }}
       stepNumberComponent={() => null}
       svgMaskPath={roundedSpotlightPath}
     >

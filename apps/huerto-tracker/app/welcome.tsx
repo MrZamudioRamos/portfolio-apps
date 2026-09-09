@@ -1,121 +1,45 @@
 import { useOnboarding } from '@portfolio/shared';
-import { useColors, useTheme, type Theme } from '@portfolio/ui';
+import { useColors, useTheme } from '@portfolio/ui';
+import { Button } from '../src/components/ActionButton';
 import { useRouter } from 'expo-router';
-import React, { useMemo } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Mascot } from '../src/components/Mascot';
 
 export default function WelcomeScreen() {
   const colors = useColors();
-  const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
+  const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
-  const { completed: onboardingDone } = useOnboarding('huerto');
-
-  const s = useMemo(
-    () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
-    [colors, spacing, fontSize, fontWeight, radii]
-  );
-
-  const features = [
-    { emoji: '📅', title: t('welcome.features.calendar'), desc: t('welcome.features.calendarDesc') },
-    { emoji: '📓', title: t('welcome.features.diary'), desc: t('welcome.features.diaryDesc') },
-    { emoji: '🔔', title: t('welcome.features.reminders'), desc: t('welcome.features.remindersDesc') },
-    { emoji: '☁️', title: t('welcome.features.sync'), desc: t('welcome.features.syncDesc') },
-  ];
+  const { completed } = useOnboarding('huerto');
 
   return (
-    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-      {/* Hero */}
-      <View style={s.hero}>
-        <Mascot pose="wave" size={110} />
-        <Text style={[s.title, { color: colors.text }]}>semilla</Text>
-        <Text style={[s.subtitle, { color: colors.textSecondary }]}>
-          {t('welcome.subtitle')}
-        </Text>
-      </View>
-
-      {/* Features */}
-      <View style={s.features}>
-        {features.map((f) => (
-          <View key={f.emoji} style={s.featureRow}>
-            <Text style={s.featureEmoji}>{f.emoji}</Text>
-            <View style={s.featureText}>
-              <Text style={[s.featureTitle, { color: colors.text }]}>{f.title}</Text>
-              <Text style={[s.featureDesc, { color: colors.textSecondary }]}>{f.desc}</Text>
-            </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: spacing.xl }}>
+        <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: spacing.xl }}>
+          <View style={{ alignItems: 'center', gap: spacing.md }}>
+            <Text style={{ color: colors.textSecondary, fontWeight: fontWeight.bold }}>semilla</Text>
+            <Mascot pose="wave" size={120} />
+            <Text accessibilityRole="header" style={{ color: colors.text, fontSize: fontSize['3xl'], fontWeight: fontWeight.bold, textAlign: 'center' }}>{t('onboarding.welcomeTitle')}</Text>
+            <Text style={{ color: colors.textSecondary, fontSize: fontSize.md, lineHeight: 24, textAlign: 'center' }}>{t('onboarding.welcomeSubtitle')}</Text>
           </View>
-        ))}
-      </View>
-
-      {/* CTAs */}
-      <View style={s.ctas}>
-        <Pressable
-          onPress={() => router.push('/auth' as any)}
-          style={({ pressed }) => [
-            s.btnPrimary,
-            { backgroundColor: colors.primary, ...shadows.md, opacity: pressed ? 0.85 : 1 },
-          ]}
-        >
-          <Text style={[s.btnPrimaryText, { color: colors.background }]}>{t('welcome.createAccount')}</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => router.replace(onboardingDone ? '/(tabs)' : '/onboarding')}
-          style={({ pressed }) => [
-            s.btnSecondary,
-            { borderColor: colors.border, opacity: pressed ? 0.7 : 1 },
-          ]}
-        >
-          <Text style={[s.btnSecondaryText, { color: colors.textSecondary }]}>
-            {t('welcome.explore')}
-          </Text>
-        </Pressable>
-
-        <Text style={[s.disclaimer, { color: colors.textDisabled }]}>
-          {t('welcome.note')}
-        </Text>
-      </View>
+          <View style={{ padding: spacing.lg, borderRadius: radii.lg, backgroundColor: colors.surfaceAlt, gap: spacing.md }}>
+            {(['space', 'crop', 'care'] as const).map((key, index) => (
+              <View key={key} style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'center' }}>
+                <Text style={{ color: colors.primary, fontWeight: fontWeight.bold }}>{index + 1}</Text>
+                <Text style={{ color: colors.text, flex: 1, fontSize: fontSize.md }}>{t('welcome.path.' + key)}</Text>
+              </View>
+            ))}
+          </View>
+          <View style={{ gap: spacing.sm }}>
+            <Button title={t(completed ? 'welcome.returnGarden' : 'onboarding.start')} size="lg" onPress={() => router.replace(completed ? '/(tabs)' : '/onboarding')} />
+            <Text style={{ color: colors.textSecondary, textAlign: 'center', lineHeight: 20 }}>{t('welcome.noAccount')}</Text>
+            <Button title={t('welcome.signIn')} variant="ghost" size="lg" onPress={() => router.push('/auth')} />
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
-
-const makeStyles = (
-  colors: ReturnType<typeof useColors>,
-  spacing: Record<string, number>,
-  fontSize: Record<string, number>,
-  fontWeight: Theme['fontWeight'],
-  radii: Record<string, number>
-) =>
-  StyleSheet.create({
-    container: { flex: 1 },
-    hero: { alignItems: 'center', paddingTop: spacing['3xl'], paddingHorizontal: spacing.xl, paddingBottom: spacing['2xl'] },
-    heroEmoji: { fontSize: 72, marginBottom: spacing.md },
-    title: { fontSize: fontSize['3xl'], fontWeight: fontWeight.bold, textAlign: 'center', marginBottom: spacing.md },
-    subtitle: { fontSize: fontSize.md, textAlign: 'center', lineHeight: 22 },
-    features: { flex: 1, paddingHorizontal: spacing.xl, gap: spacing.lg },
-    featureRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
-    featureEmoji: { fontSize: 24, width: 32, textAlign: 'center' },
-    featureText: { flex: 1 },
-    featureTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
-    featureDesc: { fontSize: fontSize.sm, marginTop: 2, lineHeight: 18 },
-    ctas: { padding: spacing.xl, gap: spacing.md },
-    btnPrimary: {
-      height: 52,
-      borderRadius: radii.lg,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    btnPrimaryText: { color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.semibold },
-    btnSecondary: {
-      height: 48,
-      borderRadius: radii.lg,
-      borderWidth: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    btnSecondaryText: { fontSize: fontSize.md },
-    disclaimer: { fontSize: fontSize.xs, textAlign: 'center', lineHeight: 16 },
-  });

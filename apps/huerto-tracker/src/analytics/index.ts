@@ -14,6 +14,15 @@ const POSTHOG_HOST = process.env.EXPO_PUBLIC_POSTHOG_HOST ?? 'https://eu.i.posth
 const isExpoGo = Constants.appOwnership === 'expo';
 
 let posthog: PostHog | null = null;
+let initialized = false;
+const impressions = new Set<string>();
+
+/** Once per semantic impression in this app session, including screen remounts. */
+export function trackImpression(key: string, event: string, props?: Record<string, unknown>) {
+  if (impressions.has(key)) return;
+  impressions.add(key);
+  track(event, props);
+}
 
 /** Analytics event names — keep them few and meaningful. */
 export const EVENTS = {
@@ -27,6 +36,8 @@ export const EVENTS = {
   firstCropRecommendationsShown: 'first_crop_recommendations_shown',
   firstCropPicked: 'first_crop_picked',
   firstPlantCreated: 'first_plant_created',
+  todayActionShown: 'today_action_shown',
+  todayActionCompleted: 'today_action_completed',
   onboardingStepCompleted: 'onboarding_step_completed',
   coachingLevelChanged: 'coaching_level_changed',
   coachingOverrideSet: 'coaching_override_set',
@@ -45,6 +56,8 @@ export const EVENTS = {
  * once at startup; missing keys or Expo Go (no native Sentry) degrade to no-op.
  */
 export function initAnalytics(): void {
+  if (initialized) return;
+  initialized = true;
   if (SENTRY_DSN && !isExpoGo) {
     try {
       Sentry.init({
@@ -92,6 +105,7 @@ export function identifyUser(id: string, props?: Record<string, unknown>): void 
 
 /** Clear user association on sign-out / account deletion. */
 export function resetAnalyticsUser(): void {
+  impressions.clear();
   try {
     posthog?.reset();
   } catch {

@@ -1,8 +1,7 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { GlassView, isLiquidGlassAvailable } from '../utils/glassEffect';
-import { createStore, useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -17,11 +16,12 @@ import {
   View,
 } from 'react-native';
 import type { DiaryEntry, EntryType } from '../models/diary-entry';
+import { recordQuickEntry } from '../utils/careWrites';
+import { EVENTS, track } from '../analytics';
 import { Mascot } from './Mascot';
 import { CROPS_BY_ID } from '../data';
 import type { Plant } from '../models/plant';
 import { getPestsForCrop } from '../data/pests';
-import { useActiveGarden } from '../hooks/useActiveGarden';
 import { useCustomCrops } from '../hooks/useCustomCrops';
 import { todayStr } from '../utils/dateStr';
 import { successHaptic, tapHaptic } from '../utils/haptics';
@@ -59,10 +59,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
     { type: 'note',        emoji: '📝', label: t('quickLog.note'),      color: '#78909C', hasNote: true },
   ];
 
-  const { activeGarden } = useActiveGarden();
   const { customCropsById } = useCustomCrops();
-  const diaryStore = useMemo(() => createStore<DiaryEntry>('diary_entries'), []);
-  const plants = useCollection<Plant>('plants');
 
   const [selected, setSelected] = useState<QuickAction | null>(null);
   const [note, setNote] = useState('');
@@ -72,9 +69,10 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
   const [harvestQuality, setHarvestQuality] = useState(0);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  const busy = useRef(false);
 
   const crop = plant ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId]) : null;
-  const gardenId = activeGarden?.id ?? '';
   const suggestedPests = plant && crop ? getPestsForCrop(crop.id).slice(0, 3) : [];
 
   function reset() {
@@ -89,12 +87,16 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
   }
 
   function handleClose() {
+    if (busy.current) return;
     reset();
+    setSaveError(false);
     onClose();
   }
 
   async function handleSave() {
-    if (!selected || !gardenId || !plant) return;
+    if (busy.current || done || !selected || !plant) return;
+    busy.current = true;
+    setSaveError(false);
     setSaving(true);
     try {
       let entryData: Record<string, unknown> | undefined;
@@ -106,22 +108,22 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
       } else if (selected.hasLiters && liters.trim()) {
         entryData = { liters: liters.trim(), method: 'hand' };
       }
-      await diaryStore.create({
-        gardenId,
+      await recordQuickEntry({
+        gardenId: plant.gardenId,
         plantId: plant.id,
         type: selected.type,
         date: todayStr(),
         ...(note.trim() ? { notes: note.trim() } : {}),
         ...(entryData ? { data: entryData } : {}),
       });
-      // Auto-update pestStatus on plant
-      if (selected.type === 'pest') {
-        await plants.update(plant.id, { pestStatus: 'active' });
-      }
+      track(EVENTS.entryAdded, { type: selected.type, plant_id: plant.id, source: 'quick_log' });
       successHaptic();
       setDone(true);
       setTimeout(() => { handleClose(); }, 900);
+    } catch {
+      setSaveError(true);
     } finally {
+      busy.current = false;
       setSaving(false);
     }
   }
@@ -183,6 +185,8 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
                   const active = selected?.type === action.type;
                   return (
                     <Pressable
+                      accessibilityRole="button"
+                      disabled={saving}
                       key={action.type}
                       onPress={() => { tapHaptic(); setSelected(active ? null : action); }}
                       style={[
@@ -294,8 +298,10 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
                 </View>
               )}
 
+              {saveError && <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('dailyCare.saveError')}</Text>}
               {/* Save button */}
               <Pressable
+                accessibilityRole="button"
                 onPress={handleSave}
                 disabled={!selected || saving}
                 style={[

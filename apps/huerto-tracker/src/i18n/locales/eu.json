@@ -70,9 +70,9 @@
     "waterAllMessage_one": "{{count}} landarearen ureztatze bat erregistratu?",
     "waterAllMessage": "{{count}} landareen ureztatze bat erregistratu?",
     "waterAllConfirm": "Denak ureztatu",
-    "firstUseTitle": "{{name}} prest dago 🌱",
-    "firstUseDesc": "Ukitu beheko laboreetako bat gehitzeko, edo erabili + botoia.",
-    "firstUseCta": "Nire lehen landarea gehitu",
+    "firstUseTitle": "Zure baratzea landare batekin hasten da",
+    "firstUseDesc": "Aukeratu aukera erraz bat espazioaren, argiaren eta sasoiaren arabera. Loreontzi bakar batekin has zaitezke.",
+    "firstUseCta": "Aukeratu nire lehen landarea",
     "emptyTitle": "Oraindik ez dago landarerik",
     "emptyDesc": "Gehitu zure lehen landarea baratzea erregistratzen hasteko.",
     "addPlant": "Landarea gehitu",
@@ -402,11 +402,21 @@
     "proBtn": "Ver planes Pro"
   },
   "onboarding": {
-    "locationPrivacy": "Probintziak orain zer landatzea komeni den jakiten laguntzen du. Ez dugu zure kokapen zehatza gorde behar.", "searchProvince": "Bilatu zure probintzia edo hiria", "selectedProvince": "Hautatutako probintzia: {{province}}", "viewRecommendations": "Ikusi nire gomendioak", "firstGardenName": "Nire lehen baratzea",
-    "space": { "balcony": "Balkoia", "terrace": "Terraza", "patio": "Patioa edo lorategia", "garden": "Baratzea", "indoor": "Leiho ondoan barruan" },
+    "locationPrivacy": "Probintziak orain zer landatzea komeni den jakiten laguntzen du. Ez dugu zure kokapen zehatza gorde behar.",
+    "searchProvince": "Bilatu probintzia edo eskualdea",
+    "selectedProvince": "Hautatutako probintzia: {{province}}",
+    "viewRecommendations": "Ikusi nire gomendioak",
+    "firstGardenName": "Nire lehen baratzea",
+    "space": {
+      "balcony": "Balkoia",
+      "terrace": "Terraza",
+      "patio": "Patioa edo lorategia",
+      "garden": "Baratzea",
+      "indoor": "Leiho ondoan barruan"
+    },
     "step1Title": "Zure baratze digitala",
     "step1Desc": "Planifikatu ereintza, erregistratu uzta eta inoiz ez ahaztu ureztatzea.",
-    "start": "Hasi →",
+    "start": "Hasi nire baratzea",
     "step2Title": "Non dago zure baratzea?",
     "step2Desc": "Hautatu zure probintzia edo eskualdea erein egutegia pertsonalizatzeko.",
     "selectProvince": "Hautatu zure probintzia edo eskualdea",
@@ -459,10 +469,10 @@
     "methodIndoorContainers": "Barruko ontziak",
     "methodOutdoorContainers": "Kanpoko ontziak",
     "sunTitle": "Zenbat eguzki-ordu jasotzen ditu zure espazioak?",
-    "sunDesc": "Eguzkiak zer landatuko den definitzen du.",
-    "sunFull": "Eguzki betea (>6o)",
-    "sunPartial": "Eguzki partziala (3-6o)",
-    "sunShade": "Itzala (<3o)",
+    "sunDesc": "Zenbatu zuzeneko eguzki-orduak, ez argitasuna bakarrik.",
+    "sunFull": "Argi asko · 6 ordu edo gehiago",
+    "sunPartial": "Argi ertaina · 3 eta 6 ordu artean",
+    "sunShade": "Argi gutxi · 3 ordu baino gutxiago",
     "expTitle": "Esperientzia duzu lantzen?",
     "expDesc": "Azalpenak zure mailara egokituko ditugu.",
     "expBeginner": "Inoiz ez dut landatu",
@@ -474,7 +484,15 @@
     "coachCelebrate": "Zure «{{name}}» baratzea prest dago! 🎉 Lehenengoa landatuko dugu?",
     "selectCountry": "Aukeratu zure herrialdea",
     "firstCropTitle": "Hasi honekin",
-    "readyIn": "~{{days}} egun"
+    "readyIn": "~{{days}} egun",
+    "welcomeTitle": "Zure lehen laborea gaur hasiko da",
+    "welcomeSubtitle": "Esan non landatuko duzun, eta hasteko landare erraz bat aukeratzen lagunduko dizut.",
+    "sunUnknown": "Ez daukat argi",
+    "sunUnknownDesc": "Argi gutxi hartuko dugu erreferentziatzat. Ezarpenetan alda dezakezu.",
+    "manualLocation": "Edo aukeratu probintzia baimenik eman gabe",
+    "noProvinces": "Ez dago emaitzarik. Saiatu zure probintziaren izenarekin.",
+    "locationUnavailable": "Ezin izan dugu zure eremua hauteman. Aukeratu probintzia eskuz.",
+    "saveError": "Ezin izan da gorde. Erantzunak hemen daude; saiatu berriro."
   },
   "paywall": {
     "titlePro": "Pro zara dagoeneko!",
@@ -530,7 +548,33 @@
     "notesLabel": "OHARRAK (aukerakoa)",
     "notesPlaceholder": "Oharrak, ohar pertsonalak…"
   },
-  "firstCrop": { "title": "Zure lehen aukerak", "subtitle": "Zure espazio, argi eta sasoirako egokiak diren laboreak aukeratu ditut.", "gardenReady": "Zure lehen hazteko lekua prestatu dut. Nahi duzunean alda dezakezu.", "topPick": "NIRE GOMENDIOA", "harvest": "Lehen emaitza {{days}} egun barru", "choose": "Hau hazi nahi dut", "prepare": "Labore hau prestatu", "later": "Gero erabakiko dut", "empty": "Une honetan ez dago baldintza hauetarako ereiteko labore egokirik.", "difficulty": { "easy": "Hasteko erraza", "medium": "Zailtasun ertaina", "hard": "Esperientzia gehiago behar du" }, "reasons": { "sunlight": "Zure espazioko argira egokitzen da", "container": "Gutxienez {{liters}} L-ko eltzean sartzen da", "seasonNow": "Orain erein dezakezu", "seasonSoon": "Prestatu hurrengo ereite-leihorako", "easy": "Hasiberrientzat erraza da", "quick": "Emaitza nahiko azkarra ematen du" } },
+  "firstCrop": {
+    "title": "Zure lehen aukerak",
+    "subtitle": "Zure espazio, argi eta sasoirako egokiak diren laboreak aukeratu ditut.",
+    "gardenReady": "Zure lehen hazteko lekua prestatu dut. Nahi duzunean alda dezakezu.",
+    "topPick": "NIRE GOMENDIOA",
+    "harvest": "Lehen emaitza {{days}} egun barru",
+    "choose": "Hau hazi nahi dut",
+    "prepare": "Labore hau prestatu",
+    "later": "Gero erabakiko dut",
+    "empty": "Ez dugu aukerarik aurkitu hilabete honetarako edo hurrengorako, argi eta espazio horiekin. Berrikusi erantzunak baldintzak bestelakoak badira.",
+    "difficulty": {
+      "easy": "Hasteko erraza",
+      "medium": "Zailtasun ertaina",
+      "hard": "Esperientzia gehiago behar du"
+    },
+    "reasons": {
+      "sunlight": "Zure espazioko argira egokitzen da",
+      "container": "Gutxienez {{liters}} L-ko eltzean sartzen da",
+      "seasonNow": "Orain erein dezakezu",
+      "seasonSoon": "Hurrengo hilabetean erein daiteke; prestatu materiala gaur",
+      "easy": "Hasiberrientzat erraza da",
+      "quick": "Emaitza nahiko azkarra ematen du"
+    },
+    "context": "{{province}} · {{sunlight}}",
+    "harvestRange": "Gutxi gorabeherako uzta: erein eta {{min}}–{{max}} egunera",
+    "adjust": "Berrikusi nire erantzunak"
+  },
   "plantNew": {
     "title": "Landare berria",
     "cropLabel": "LABOREA",
@@ -667,14 +711,24 @@
     "title": "Argi-neurria",
     "desc": "Ebaluatu leku bateko argia eta aurkitu kultibo egokienak.",
     "q1": "Zenbat ordu argiztatzen du zuzenean?",
-    "q1a": "0-2h", "q1b": "2-4h", "q1c": "4-6h", "q1d": "+6h",
+    "q1a": "0-2h",
+    "q1b": "2-4h",
+    "q1c": "4-6h",
+    "q1d": "+6h",
     "q2": "Badago oztoporik argia blokeatzen duena?",
-    "q2a": "Eraikinak", "q2b": "Zuhaitzak", "q2c": "Oztopotik libre",
+    "q2a": "Eraikinak",
+    "q2b": "Zuhaitzak",
+    "q2c": "Oztopotik libre",
     "q3": "Non dago lekua?",
-    "q3a": "Barruan/Leihoa", "q3b": "Kanpoa zuzen", "q3c": "Estalitako balkoia",
-    "full": "Eguzkitsu", "fullDesc": "Argi zuzen askorekin. Tomate, piper edo pepinoak haztexa.",
-    "partial": "Itzal erdikoa", "partialDesc": "Argi moderatua. Letxuga, belarrak eta landare batzuetarako.",
-    "shade": "Itzala", "shadeDesc": "Argi gutxi. Itzal-belarrak edo bertsoak.",
+    "q3a": "Barruan/Leihoa",
+    "q3b": "Kanpoa zuzen",
+    "q3c": "Estalitako balkoia",
+    "full": "Eguzkitsu",
+    "fullDesc": "Argi zuzen askorekin. Tomate, piper edo pepinoak haztexa.",
+    "partial": "Itzal erdikoa",
+    "partialDesc": "Argi moderatua. Letxuga, belarrak eta landare batzuetarako.",
+    "shade": "Itzala",
+    "shadeDesc": "Argi gutxi. Itzal-belarrak edo bertsoak.",
     "recommended": "KULTIBAGARRIAK",
     "retake": "Beste eremu bat ebaluatu",
     "calculating": "Kalkulatzen…"
@@ -712,6 +766,7 @@
     "deleteTitle": "Gogorarazlea ezabatu?",
     "deleteDesc": "Jakinarazpena bertan behera utziko da eta gogorarazlea ezabatuko da.",
     "saveError": "Ezin izan da gogorarazlea gorde.",
+    "permissionError": "Jakinarazpenak ez daude baimenduta. Aktibatu Ezarpenetan eta saiatu berriro.",
     "notFound": "Gogorarazlea ez da aurkitu"
   },
   "reminderNew": {
@@ -724,7 +779,8 @@
     "create": "Oroigarria sortu",
     "noGardenTitle": "Ez dago baratzerik",
     "noGardenDesc": "Osatu onboarding-a lehenik.",
-    "saveError": "Ezin izan da oroigarria sortu."
+    "saveError": "Ezin izan da oroigarria sortu.",
+    "permissionError": "Jakinarazpenak ez daude baimenduta. Aktibatu Ezarpenetan eta saiatu berriro."
   },
   "backup": {
     "title": "Segurtasun kopia",
@@ -819,7 +875,7 @@
     "treatmentPushTitle": "🧴 Karentzia amaitua: {{label}}",
     "treatmentPushBody": "{{days}} egun igaro dira azken tratamendutik. Orain bil dezakezu.",
     "wateringReminderTitle": "Ureztatzeko garaia 💧",
-    "wateringReminderBody": "{{plants}} 2 egunez baino gehiago ur gabe egon dira",
+    "wateringReminderBody": "{{plants}} 2 egunez baino gehiago ur gabe egon dira"
   },
   "stats": {
     "title": "Estatistikak",
@@ -861,7 +917,15 @@
     },
     "createAccount": "Doako kontua sortu",
     "explore": "Konturik gabe arakatu",
-    "note": "Doako kontuak 10 landare eta hodeiaren sinkronizazioa barne hartzen ditu."
+    "note": "Doako kontuak 10 landare eta hodeiaren sinkronizazioa barne hartzen ditu.",
+    "path": {
+      "space": "Zure espazioari buruzko lau galdera",
+      "crop": "Zuretzat egokia den landare bat",
+      "care": "Hurrengo pauso argi bat egunero"
+    },
+    "noAccount": "Doan hasteko. Ez da konturik edo esperientziarik behar.",
+    "signIn": "Badut kontua",
+    "returnGarden": "Itzuli nire baratzera"
   },
   "quickLog": {
     "water": "Ureztatu",
@@ -1257,7 +1321,8 @@
       "organico": "Organikoa",
       "preventivo": "Prebentiboa",
       "quimico": "Kimikoa"
-    }
+    },
+    "proOnly": "Pro-rekin eskuragarri"
   },
   "plantFaq": {
     "loading": "Galdera ohikoak sortzen…",
@@ -1272,10 +1337,10 @@
     "home": "Hau zure Gaur pantaila da: egunero zer egin ikusiko duzu. Behean, hilabete honetan zer erein.",
     "tourAdd": "Sakatu + botoia zure baratzean landare bat gehitzeko.",
     "homeStart": "¡Bienvenido a tu huerto! Aquí verás el resumen diario: tareas pendientes, cosechas que se acercan y alertas de riego o plagas.",
-    "homeToday": "Tus tareas de esta semana: riegos urgentes, posibles plagas y cosechas próximas. Toca cualquier elemento para abrir la planta.",
+    "homeToday": "Hemen dago gaurko hurrengo pausoa. Sakatu botoia nola egin ikusteko eta zainketa erregistratzeko.",
     "homeSow": "Cada mes te recomendamos qué sembrar según tu zona climática. ¡No pierdas el mejor momento para plantar!",
     "homeAI": "El asistente IA responde cualquier duda sobre tu huerto. La cámara identifica plagas y enfermedades al instante.",
-    "homeAdd": "Pulsa aquí para registrar una nueva planta en tu huerto y empezar a hacer seguimiento.",
+    "homeAdd": "Sakatu + landare bat gehitzeko eta haren zainketak erregistratzen hasteko.",
     "plantNew": "Elige el cultivo que quieres añadir: busca por nombre o navega por las 150+ variedades del catálogo.",
     "plantDetails": "Ponle nombre, elige en qué fase está y cuándo la sembraste. Luego pulsa Guardar para empezar el seguimiento.",
     "calendar": "Hemen ikusten duzu hilabete bakoitzean zer erein eta bildu zure eremuaren arabera. Sakatu laborea datak ikusteko.",
@@ -1466,7 +1531,7 @@
     "subtropical": "Tenperatura epelak urte osoan, izotzetarik gabe"
   },
   "reminderDefaultTitle": {
-    "watering": "Ureztatzeko ordua",
+    "watering": "Egiaztatu lurra ureztatu aurretik",
     "fertilizing": "Ongarritzeko ordua",
     "harvest_check": "Uzta egiaztatu",
     "custom": "Lorategiko gogorarazlea"
@@ -1532,5 +1597,66 @@
   "tools": {
     "title": "Tresnak",
     "advanced": "Aurreratua"
+  },
+  "guidedPlant": {
+    "title": "Presta dezagun zure lehen landarea",
+    "body": "Hasi landare bakar batekin. Gorde plana eta prestatu haziak, lurra eta drainatze-zuloak dituen loreontzi bat.",
+    "prepareBody": "Ereiteko garaia hurrengo hilabetean hasiko da. Gorde plana eta prestatu materiala gaur.",
+    "alreadySown": "Haziak erein ditut dagoeneko",
+    "dateToday": "Egiaztatu behean agertzen den ereite-data.",
+    "noDate": "Plana gordeko dugu ereiterik erregistratu gabe. Berretsi data ereindakoan.",
+    "more": "Aukera gehiago",
+    "less": "Ezkutatu aukerak",
+    "save": "Gorde nire lehen landarea",
+    "success": "{{name}} landareak badu plana!",
+    "successBody": "Hurrengo pausoa «Gaur zure baratzean» atalean dago. Poliki-poliki.",
+    "today": "Ikusi gaurko plana",
+    "saveError": "Ez da gordetzea amaitu. Saiatu berriro."
+  },
+  "dailyCare": {
+    "eyebrow": "Gaur zure baratzean",
+    "checkTitle": "Begiratu {{name}} landarearen lurra",
+    "checkBody": "Ukitu lurraren gainazala. Lehor badago, ureztatu poliki; heze badago, itxaron. Ondoren, erregistratu ikusitakoa.",
+    "prepareTitle": "Prestatu {{name}} landarearen tokia",
+    "prepareBody": "Bilatu aukeratutako argia duen tokia eta prestatu haziak eta lurra. Loreontzia erabiliz gero, ziurtatu ura azpitik atera daitekeela.",
+    "doneTitle": "{{name}} gaur berrikusita dago",
+    "doneBody": "Zainketa gordeta dago. Ez dago orain errepikatu beharrik. Bihar begiratu berriro lurra eta landarea nola dagoen.",
+    "pestTitle": "Begiratu {{name}} landarearen hostoak",
+    "pestBody": "Izurrite bat markatuta dago landare honetan. Begiratu hostoen azpialdea eta egiaztatu oraindik badagoen tratatu aurretik.",
+    "frostTitle": "Hotza egin dezake: babestu landareak",
+    "frostBody": "Gaurko iragarpena 2 °C-ra edo beherago jaisten da. Eraman loreontzi sentikorrak babesera edo estali laborantzarako manta termiko batekin.",
+    "open": "Ikusi hurrengo pausoa",
+    "sowNow": "Zure eremuko egutegiaren arabera, hilabete honetan erein dezakezu. Jarraitu hazien paketeko argibideei.",
+    "waitSeason": "Egutegiak ez du hilabete honetan ereitea adierazten. Prestatu materiala eta kontsultatu hurrengo garaia landarearen Egutegia fitxan. Berretsi dagoeneko erein baduzu soilik.",
+    "sown": "Berretsi: gaur erein dut",
+    "watered": "Lurra lehor zegoen eta ureztatu dut",
+    "moist": "Heze dago, gaur ez dut ureztatuko",
+    "moistNote": "Lurra berrikusita: heze dago. Gaur ez da ureztatu behar.",
+    "saveError": "Zainketa ez da gorde. Saiatu berriro.",
+    "planStatus": "Erein gabe",
+    "attention": "Arreta behar du",
+    "review": "Lurra begiratzeko unea",
+    "recorded": "Jarraipenean",
+    "logFor": "Erregistratu {{name}} landarearen zainketa",
+    "weatherHint": "Iragarpena orientagarria da: egiaztatu lurra ureztatu aurretik."
+  },
+  "activation": {
+    "checkWatering": "Osatu lehen zainketa"
+  },
+  "cropNew": {
+    "months": [
+      "urt",
+      "ots",
+      "mar",
+      "api",
+      "mai",
+      "eka",
+      "uzt",
+      "abu",
+      "ira",
+      "urr",
+      "aza",
+      "abe"
+    ]
   }
 }

@@ -1,5 +1,6 @@
 import { useCollection } from '@portfolio/storage';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Garden } from '../models';
 import type { Plant } from '../models/plant';
@@ -31,18 +32,17 @@ export function useActivationChecklist(): UseActivationChecklistResult {
 
   const [calendarVisited, setCalendarVisited] = useState(false);
   const [onboardingDays, setOnboardingDays] = useState(0);
-  const loadedRef = useRef(false);
-
-  // Load persisted flags once
-  useEffect(() => {
-    if (loadedRef.current) return;
-    loadedRef.current = true;
+  // Tabs stay mounted: returning from a care or calendar must update the checklist.
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    void Promise.all([gardens.refresh(), plants.refresh(), entries.refresh()]);
     (async () => {
       const [calFlag, tsStr] = await Promise.all([
         AsyncStorage.getItem(ACTIVATION_CALENDAR_KEY),
         AsyncStorage.getItem(ONBOARDING_COMPLETED_KEY),
       ]);
-      if (calFlag === '1') setCalendarVisited(true);
+      if (!active) return;
+      setCalendarVisited(calFlag === '1');
       if (tsStr) {
         const ts = Number(tsStr);
         if (!Number.isNaN(ts)) {
@@ -50,8 +50,9 @@ export function useActivationChecklist(): UseActivationChecklistResult {
           setOnboardingDays(days);
         }
       }
-    })();
-  }, []);
+    })().catch(() => {});
+    return () => { active = false; };
+  }, [gardens.refresh, plants.refresh, entries.refresh]));
 
   const gamificationData = useMemo(
     () => buildGamificationData(plants.items, entries.items),
@@ -66,7 +67,7 @@ export function useActivationChecklist(): UseActivationChecklistResult {
   const gardenExists = gardens.items.length > 0;
   const plantExists = plants.items.length > 0;
   const secondPlantExists = plants.items.length >= 2;
-  const wateringExists = entries.items.some((e) => e.type === 'watering');
+  const wateringExists = entries.items.some((e) => e.type === 'watering' || (e.type === 'note' && e.data && 'soilCheck' in e.data && e.data.soilCheck === 'moist'));
 
   const checklist = useMemo(
     () =>

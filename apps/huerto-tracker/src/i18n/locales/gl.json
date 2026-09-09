@@ -70,9 +70,9 @@
     "waterAllMessage_one": "Rexistrar rego para {{count}} planta?",
     "waterAllMessage": "Rexistrar rego para as {{count}} plantas?",
     "waterAllConfirm": "Regar todas",
-    "firstUseTitle": "{{name}} está listo 🌱",
-    "firstUseDesc": "Toca un cultivo de abaixo para engadilo, ou usa o botón +.",
-    "firstUseCta": "Engadir a miña primeira planta",
+    "firstUseTitle": "A túa horta comeza cunha planta",
+    "firstUseDesc": "Escolle unha opción doada segundo o espazo, a luz e a temporada. Podes comezar cunha soa maceta.",
+    "firstUseCta": "Escoller a miña primeira planta",
     "emptyTitle": "Aínda non hai plantas",
     "emptyDesc": "Engade a túa primeira planta para comezar a rexistrar a túa horta.",
     "addPlant": "Engadir planta",
@@ -402,11 +402,21 @@
     "proBtn": "Ver planes Pro"
   },
   "onboarding": {
-    "locationPrivacy": "A provincia axúdanos a saber que ten sentido plantar agora. Non necesitamos gardar a túa localización exacta.", "searchProvince": "Busca a túa provincia ou cidade", "selectedProvince": "Provincia seleccionada: {{province}}", "viewRecommendations": "Ver as miñas recomendacións", "firstGardenName": "A miña primeira horta",
-    "space": { "balcony": "Balcón", "terrace": "Terraza", "patio": "Patio ou xardín", "garden": "Horta ou bancal", "indoor": "Interior xunto a unha xanela" },
+    "locationPrivacy": "A provincia axúdanos a saber que ten sentido plantar agora. Non necesitamos gardar a túa localización exacta.",
+    "searchProvince": "Buscar provincia ou rexión",
+    "selectedProvince": "Provincia seleccionada: {{province}}",
+    "viewRecommendations": "Ver as miñas recomendacións",
+    "firstGardenName": "A miña primeira horta",
+    "space": {
+      "balcony": "Balcón",
+      "terrace": "Terraza",
+      "patio": "Patio ou xardín",
+      "garden": "Horta ou bancal",
+      "indoor": "Interior xunto a unha xanela"
+    },
     "step1Title": "A túa horta dixital",
     "step1Desc": "Planifica a túa sementeira, rexistra a túa colleita e nunca esquezas regar.",
-    "start": "Comezar →",
+    "start": "Comezar a miña horta",
     "step2Title": "Onde está a túa horta?",
     "step2Desc": "Selecciona a túa provincia ou rexión para personalizar o calendario de sementeira.",
     "selectProvince": "Selecciona a túa provincia ou rexión",
@@ -459,10 +469,10 @@
     "methodIndoorContainers": "Macetas interior",
     "methodOutdoorContainers": "Macetas exterior",
     "sunTitle": "Cantas horas de sol recibe o teu espazo?",
-    "sunDesc": "Isto define que cultivos che irán mellor.",
-    "sunFull": "Sol pleno (>6h)",
-    "sunPartial": "Sol parcial (3-6h)",
-    "sunShade": "Sombra (<3h)",
+    "sunDesc": "Conta as horas de sol directo, non só de claridade.",
+    "sunFull": "Moita luz · 6 horas ou máis",
+    "sunPartial": "Luz media · entre 3 e 6 horas",
+    "sunShade": "Pouca luz · menos de 3 horas",
     "expTitle": "Tes experiencia cultivando?",
     "expDesc": "Adaptaremos as explicacións ao teu nivel.",
     "expBeginner": "Nunca cultivei",
@@ -474,7 +484,15 @@
     "coachCelebrate": "A túa horta «{{name}}» xa está lista! 🎉 Plantamos a primeira?",
     "selectCountry": "Selecciona o teu país",
     "firstCropTitle": "Comeza con isto",
-    "readyIn": "~{{days}} días"
+    "readyIn": "~{{days}} días",
+    "welcomeTitle": "O teu primeiro cultivo comeza hoxe",
+    "welcomeSubtitle": "Dime onde vas cultivar e axudareiche a escoller unha planta doada para comezar.",
+    "sunUnknown": "Non o teño claro",
+    "sunUnknownDesc": "Usaremos pouca luz como referencia. Poderás cambiala en Axustes.",
+    "manualLocation": "Ou escolle a provincia sen dar permisos",
+    "noProvinces": "Non hai resultados. Proba co nome da túa provincia.",
+    "locationUnavailable": "Non puidemos detectar a túa zona. Podes escoller a provincia manualmente.",
+    "saveError": "Non se puido gardar. As respostas seguen aquí; téntao de novo."
   },
   "paywall": {
     "titlePro": "Xa es Pro!",
@@ -530,7 +548,33 @@
     "notesLabel": "NOTAS (opcional)",
     "notesPlaceholder": "Observacións, apuntamentos persoais…"
   },
-  "firstCrop": { "title": "As túas primeiras opcións", "subtitle": "Escollín cultivos que encaixan co teu espazo, luz e tempada.", "gardenReady": "Preparei o teu primeiro espazo de cultivo. Poderás cambialo cando queiras.", "topPick": "A MIÑA RECOMENDACIÓN", "harvest": "Primeiro resultado en aproximadamente {{days}} días", "choose": "Quero cultivar isto", "prepare": "Preparar este cultivo", "later": "Decidireino máis tarde", "empty": "Agora non hai un cultivo adecuado para sementar con estas condicións.", "difficulty": { "easy": "Fácil para comezar", "medium": "Dificultade media", "hard": "Require máis experiencia" }, "reasons": { "sunlight": "Encaixa coa luz do teu espazo", "container": "Cabe nunha maceta de polo menos {{liters}} L", "seasonNow": "Podes sementalo agora", "seasonSoon": "Prepárao para a próxima xanela", "easy": "É fácil para principiantes", "quick": "Dá un resultado relativamente rápido" } },
+  "firstCrop": {
+    "title": "As túas primeiras opcións",
+    "subtitle": "Escollín cultivos que encaixan co teu espazo, luz e tempada.",
+    "gardenReady": "Preparei o teu primeiro espazo de cultivo. Poderás cambialo cando queiras.",
+    "topPick": "A MIÑA RECOMENDACIÓN",
+    "harvest": "Primeiro resultado en aproximadamente {{days}} días",
+    "choose": "Quero cultivar isto",
+    "prepare": "Preparar este cultivo",
+    "later": "Decidireino máis tarde",
+    "empty": "Non atopamos opcións para este mes ou o próximo con esa luz e espazo. Revisa as respostas se as condicións son distintas.",
+    "difficulty": {
+      "easy": "Fácil para comezar",
+      "medium": "Dificultade media",
+      "hard": "Require máis experiencia"
+    },
+    "reasons": {
+      "sunlight": "Encaixa coa luz do teu espazo",
+      "container": "Cabe nunha maceta de polo menos {{liters}} L",
+      "seasonNow": "Podes sementalo agora",
+      "seasonSoon": "A sementeira comeza o próximo mes; hoxe podes preparar o material",
+      "easy": "É fácil para principiantes",
+      "quick": "Dá un resultado relativamente rápido"
+    },
+    "context": "{{province}} · {{sunlight}}",
+    "harvestRange": "Colleita orientativa: {{min}}–{{max}} días desde a sementeira",
+    "adjust": "Revisar as miñas respostas"
+  },
   "plantNew": {
     "title": "Nova planta",
     "cropLabel": "CULTIVO",
@@ -667,14 +711,24 @@
     "title": "Medidor de luz",
     "desc": "Avalía a luz dispoñible nun espazo e descobre que cultivos son ideais.",
     "q1": "Cantas horas de sol directo recibe este espazo?",
-    "q1a": "0-2h", "q1b": "2-4h", "q1c": "4-6h", "q1d": "+6h",
+    "q1a": "0-2h",
+    "q1b": "2-4h",
+    "q1c": "4-6h",
+    "q1d": "+6h",
     "q2": "Hai obstáculos que bloqueen a luz?",
-    "q2a": "Edificios", "q2b": "Árbores", "q2c": "Sen obstáculos",
+    "q2a": "Edificios",
+    "q2b": "Árbores",
+    "q2c": "Sen obstáculos",
     "q3": "Onde está o espazo?",
-    "q3a": "Interior/Fiestra", "q3b": "Exterior directo", "q3c": "Balcón cuberto",
-    "full": "Pleno sol", "fullDesc": "Moito sol directo. Ideal para tomates, pementos ou pepinos.",
-    "partial": "Semisombra", "partialDesc": "Luz moderada. Leituga, espinacas e herbas aromáticas.",
-    "shade": "Sombra", "shadeDesc": "Pouca luz directa. Proba con herbas de sombra.",
+    "q3a": "Interior/Fiestra",
+    "q3b": "Exterior directo",
+    "q3c": "Balcón cuberto",
+    "full": "Pleno sol",
+    "fullDesc": "Moito sol directo. Ideal para tomates, pementos ou pepinos.",
+    "partial": "Semisombra",
+    "partialDesc": "Luz moderada. Leituga, espinacas e herbas aromáticas.",
+    "shade": "Sombra",
+    "shadeDesc": "Pouca luz directa. Proba con herbas de sombra.",
     "recommended": "CULTIVOS RECOMENDADOS",
     "retake": "Avaliar outra zona",
     "calculating": "Calculando…"
@@ -712,6 +766,7 @@
     "deleteTitle": "Eliminar recordatorio?",
     "deleteDesc": "Cancelarase a notificación e eliminarase o recordatorio.",
     "saveError": "Non se puido gardar o recordatorio.",
+    "permissionError": "As notificacións non están permitidas. Actívaas nos Axustes e téntao de novo.",
     "notFound": "Recordatorio non atopado"
   },
   "reminderNew": {
@@ -724,7 +779,8 @@
     "create": "Crear recordatorio",
     "noGardenTitle": "Sen horta",
     "noGardenDesc": "Completa o onboarding primeiro.",
-    "saveError": "Non se puido crear o recordatorio."
+    "saveError": "Non se puido crear o recordatorio.",
+    "permissionError": "As notificacións non están permitidas. Actívaas nos Axustes e téntao de novo."
   },
   "backup": {
     "title": "Copia de seguridade",
@@ -819,7 +875,7 @@
     "treatmentPushTitle": "🧴 Carencia vencida: {{label}}",
     "treatmentPushBody": "Pasaron {{days}} días desde o último tratamento. Xa podes colleitar.",
     "wateringReminderTitle": "Toca regar 💧",
-    "wateringReminderBody": "{{plants}} levan máis de 2 días sen rega",
+    "wateringReminderBody": "{{plants}} levan máis de 2 días sen rega"
   },
   "stats": {
     "title": "Estatísticas",
@@ -861,7 +917,15 @@
     },
     "createAccount": "Crear conta gratuíta",
     "explore": "Explorar sen conta",
-    "note": "A conta gratuíta inclúe ata 10 plantas e sincronización na nube."
+    "note": "A conta gratuíta inclúe ata 10 plantas e sincronización na nube.",
+    "path": {
+      "space": "Catro preguntas sobre o teu espazo",
+      "crop": "Unha planta que encaixe contigo",
+      "care": "Un seguinte paso claro cada día"
+    },
+    "noAccount": "Comeza de balde. Sen conta nin experiencia previa.",
+    "signIn": "Xa teño conta",
+    "returnGarden": "Volver á miña horta"
   },
   "quickLog": {
     "water": "Regar",
@@ -1257,7 +1321,8 @@
       "organico": "Orgánico",
       "preventivo": "Preventivo",
       "quimico": "Químico"
-    }
+    },
+    "proOnly": "Dispoñible en Pro"
   },
   "plantFaq": {
     "loading": "Xerando preguntas frecuentes…",
@@ -1272,10 +1337,10 @@
     "home": "Esta é a túa pantalla Hoxe: cada día verás aquí que facer. Abaixo, que sementar este mes.",
     "tourAdd": "Preme o botón + para engadir unha planta á túa horta.",
     "homeStart": "¡Bienvenido a tu huerto! Aquí verás el resumen diario: tareas pendientes, cosechas que se acercan y alertas de riego o plagas.",
-    "homeToday": "Tus tareas de esta semana: riegos urgentes, posibles plagas y cosechas próximas. Toca cualquier elemento para abrir la planta.",
+    "homeToday": "Aquí tes o seguinte paso de hoxe. Toca o botón para ver como facelo e rexistrar o coidado.",
     "homeSow": "Cada mes te recomendamos qué sembrar según tu zona climática. ¡No pierdas el mejor momento para plantar!",
     "homeAI": "El asistente IA responde cualquier duda sobre tu huerto. La cámara identifica plagas y enfermedades al instante.",
-    "homeAdd": "Pulsa aquí para registrar una nueva planta en tu huerto y empezar a hacer seguimiento.",
+    "homeAdd": "Toca + para engadir unha planta e comezar a rexistrar os seus coidados.",
     "plantNew": "Elige el cultivo que quieres añadir: busca por nombre o navega por las 150+ variedades del catálogo.",
     "plantDetails": "Ponle nombre, elige en qué fase está y cuándo la sembraste. Luego pulsa Guardar para empezar el seguimiento.",
     "calendar": "Aquí ves que sementar e colleitar cada mes segundo a túa zona. Toca un cultivo para ver as súas datas.",
@@ -1466,7 +1531,7 @@
     "subtropical": "Temperaturas cálidas todo o ano, sen xeadas"
   },
   "reminderDefaultTitle": {
-    "watering": "Hora de regar",
+    "watering": "Comprobar a terra antes de regar",
     "fertilizing": "Toca abonar",
     "harvest_check": "Comproba se hai colleita",
     "custom": "Recordatorio de horta"
@@ -1532,5 +1597,66 @@
   "tools": {
     "title": "Ferramentas",
     "advanced": "Avanzado"
+  },
+  "guidedPlant": {
+    "title": "Preparemos a túa primeira planta",
+    "body": "Comeza cunha soa planta. Garda o plan e prepara sementes, terra e unha maceta con buratos de drenaxe.",
+    "prepareBody": "A súa época de sementeira comeza o próximo mes. Hoxe podes gardar o plan e preparar o material.",
+    "alreadySown": "Xa sementei as sementes",
+    "dateToday": "Comproba a data de sementeira que aparece abaixo.",
+    "noDate": "Gardaremos un plan sen rexistrar unha sementeira. Confirmarás a data cando sementares.",
+    "more": "Opcións adicionais",
+    "less": "Agochar opcións",
+    "save": "Gardar a miña primeira planta",
+    "success": "{{name}} xa ten un plan!",
+    "successBody": "O seguinte paso está en «Hoxe na túa horta». Imos pouco a pouco.",
+    "today": "Ver o plan de hoxe",
+    "saveError": "Non se completou o gardado. Téntao de novo."
+  },
+  "dailyCare": {
+    "eyebrow": "Hoxe na túa horta",
+    "checkTitle": "Comproba a terra de {{name}}",
+    "checkBody": "Toca a superficie da terra. Se está seca, rega suavemente; se segue húmida, espera. Ao rematar, rexistra o que observaches.",
+    "prepareTitle": "Prepara o espazo de {{name}}",
+    "prepareBody": "Busca un lugar coa luz que escolliches e prepara as sementes e a terra. Se usas maceta, comproba que a auga poida saír por baixo.",
+    "doneTitle": "Revisión de {{name}} completada",
+    "doneBody": "O coidado está gardado. Non fai falta repetilo agora. Mañá volve observar a terra e como está a planta.",
+    "pestTitle": "Revisa as follas de {{name}}",
+    "pestBody": "Hai unha praga marcada nesta planta. Mira tamén o reverso das follas e confirma se segue presente antes de aplicar un tratamento.",
+    "frostTitle": "Pode facer frío: protexe as plantas",
+    "frostBody": "A previsión de hoxe baixa a 2 °C ou menos. Achega as macetas sensibles a un lugar abrigado ou protéxeas cunha manta térmica de cultivo.",
+    "open": "Ver o seguinte paso",
+    "sowNow": "Segundo o calendario da túa zona, este mes podes sementar. Sigue as indicacións do sobre de sementes.",
+    "waitSeason": "O calendario non indica sementeira este mes. Prepara o material e consulta a próxima xanela na lapela Calendario desta planta. Confirma só se xa sementaches.",
+    "sown": "Confirmar: sementei hoxe",
+    "watered": "A terra estaba seca e reguei",
+    "moist": "Segue húmida, hoxe non rego",
+    "moistNote": "Terra revisada: segue húmida. Hoxe non fai falta regar.",
+    "saveError": "Non se gardou o coidado. Téntao de novo.",
+    "planStatus": "Por sementar",
+    "attention": "Precisa atención",
+    "review": "Toca revisar a terra",
+    "recorded": "En seguimento",
+    "logFor": "Rexistrar un coidado de {{name}}",
+    "weatherHint": "A previsión é orientativa: comproba a terra antes de regar."
+  },
+  "activation": {
+    "checkWatering": "Completar o primeiro coidado"
+  },
+  "cropNew": {
+    "months": [
+      "xan",
+      "feb",
+      "mar",
+      "abr",
+      "mai",
+      "xuñ",
+      "xul",
+      "ago",
+      "set",
+      "out",
+      "nov",
+      "dec"
+    ]
   }
 }

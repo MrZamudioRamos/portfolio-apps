@@ -70,9 +70,9 @@
     "waterAllMessage_one": "Log watering for {{count}} plant?",
     "waterAllMessage": "Log watering for {{count}} plants?",
     "waterAllConfirm": "Water all",
-    "firstUseTitle": "{{name}} is ready 🌱",
-    "firstUseDesc": "Tap a crop below to add it, or use the + button.",
-    "firstUseCta": "Add my first plant",
+    "firstUseTitle": "Your garden starts with one plant",
+    "firstUseDesc": "Choose an easy option for your space, light and season. You can start with a single pot.",
+    "firstUseCta": "Choose my first plant",
     "emptyTitle": "No plants yet",
     "emptyDesc": "Add your first plant to start tracking your garden.",
     "addPlant": "Add plant",
@@ -414,14 +414,20 @@
   },
   "onboarding": {
     "locationPrivacy": "Your province helps us know what makes sense to grow now. We do not need to store your exact location.",
-    "searchProvince": "Search your province or city",
+    "searchProvince": "Search province or region",
     "selectedProvince": "Selected province: {{province}}",
     "viewRecommendations": "See my recommendations",
     "firstGardenName": "My first garden",
-    "space": { "balcony": "Balcony", "terrace": "Terrace", "patio": "Patio or garden", "garden": "Vegetable plot", "indoor": "Indoors by a window" },
+    "space": {
+      "balcony": "Balcony",
+      "terrace": "Terrace",
+      "patio": "Patio or garden",
+      "garden": "Vegetable plot",
+      "indoor": "Indoors by a window"
+    },
     "step1Title": "Your digital garden",
     "step1Desc": "Plan your sowing, track your harvest, and never forget to water.",
-    "start": "Get started →",
+    "start": "Start my garden",
     "step2Title": "Where is your garden?",
     "step2Desc": "Select your province or region to personalise the sowing calendar.",
     "selectProvince": "Select your province or region",
@@ -475,10 +481,10 @@
     "methodIndoorContainers": "Indoor containers",
     "methodOutdoorContainers": "Outdoor containers",
     "sunTitle": "How much sun does your space get?",
-    "sunDesc": "Sunlight defines what will grow best.",
-    "sunFull": "Full sun (>6h)",
-    "sunPartial": "Partial sun (3-6h)",
-    "sunShade": "Shade (<3h)",
+    "sunDesc": "Count hours of direct sun, not just daylight.",
+    "sunFull": "Lots of sun · 6 hours or more",
+    "sunPartial": "Some sun · 3 to 6 hours",
+    "sunShade": "Little sun · less than 3 hours",
     "expTitle": "Do you have gardening experience?",
     "expDesc": "We'll adapt explanations to your level.",
     "expBeginner": "I've never grown food",
@@ -490,7 +496,15 @@
     "coachCelebrate": "Your garden “{{name}}” is ready! 🎉 Shall we plant the first one?",
     "selectCountry": "Select your country",
     "firstCropTitle": "Start with these",
-    "readyIn": "~{{days}} days"
+    "readyIn": "~{{days}} days",
+    "welcomeTitle": "Your first crop starts here",
+    "welcomeSubtitle": "Tell me where you will grow and I will help you choose an easy first plant.",
+    "sunUnknown": "I am not sure",
+    "sunUnknownDesc": "We will use low light as a starting point. You can change it in Settings.",
+    "manualLocation": "Or choose your province without location access",
+    "noProvinces": "No results. Try your province name.",
+    "locationUnavailable": "We could not detect your area. Choose your province manually.",
+    "saveError": "Could not save. Your answers are still here; please try again."
   },
   "paywall": {
     "titlePro": "You're Pro!",
@@ -547,9 +561,31 @@
     "notesPlaceholder": "Observations, personal notes…"
   },
   "firstCrop": {
-    "title": "Your first options", "subtitle": "I chose crops that suit your space, light and season.", "gardenReady": "I prepared your first growing space. You can change it whenever you want.", "topPick": "MY RECOMMENDATION", "harvest": "First result in about {{days}} days", "choose": "I want to grow this", "prepare": "Prepare this crop", "later": "I'll decide later", "empty": "There is no suitable crop to sow in these conditions right now. Check the next sowing window.",
-    "difficulty": { "easy": "Easy to start", "medium": "Medium difficulty", "hard": "Needs more experience" },
-    "reasons": { "sunlight": "Fits your space's light", "container": "Fits in a pot of at least {{liters}} L", "seasonNow": "You can sow it now", "seasonSoon": "Prepare it for the next sowing window", "easy": "It is easy for beginners", "quick": "It gives a relatively quick result" }
+    "title": "Your first options",
+    "subtitle": "I chose crops that suit your space, light and season.",
+    "gardenReady": "I prepared your first growing space. You can change it whenever you want.",
+    "topPick": "MY RECOMMENDATION",
+    "harvest": "First result in about {{days}} days",
+    "choose": "I want to grow this",
+    "prepare": "Prepare this crop",
+    "later": "I'll decide later",
+    "empty": "We found no match for this month or next with that light and space. Review your answers if conditions differ.",
+    "difficulty": {
+      "easy": "Easy to start",
+      "medium": "Medium difficulty",
+      "hard": "Needs more experience"
+    },
+    "reasons": {
+      "sunlight": "Fits your space's light",
+      "container": "Fits in a pot of at least {{liters}} L",
+      "seasonNow": "You can sow it now",
+      "seasonSoon": "Sowing starts next month; prepare your supplies today",
+      "easy": "It is easy for beginners",
+      "quick": "It gives a relatively quick result"
+    },
+    "context": "{{province}} · {{sunlight}}",
+    "harvestRange": "Estimated harvest: {{min}}–{{max}} days after sowing",
+    "adjust": "Review my answers"
   },
   "plantNew": {
     "title": "New plant",
@@ -736,6 +772,7 @@
     "deleteTitle": "Delete reminder?",
     "deleteDesc": "The notification will be cancelled and the reminder will be deleted.",
     "saveError": "Could not save the reminder.",
+    "permissionError": "Notifications are not allowed. Enable them in Settings and try again.",
     "notFound": "Reminder not found"
   },
   "reminderNew": {
@@ -748,7 +785,8 @@
     "create": "Create reminder",
     "noGardenTitle": "No garden",
     "noGardenDesc": "Complete onboarding first.",
-    "saveError": "Could not create the reminder."
+    "saveError": "Could not create the reminder.",
+    "permissionError": "Notifications are not allowed. Enable them in Settings and try again."
   },
   "backup": {
     "title": "Backup",
@@ -885,7 +923,15 @@
     },
     "createAccount": "Create free account",
     "explore": "Explore without account",
-    "note": "Free account includes up to 10 plants and cloud sync."
+    "note": "Free account includes up to 10 plants and cloud sync.",
+    "path": {
+      "space": "Four questions about your space",
+      "crop": "A plant that suits you",
+      "care": "A clear next step each day"
+    },
+    "noAccount": "Free to start. No account or experience needed.",
+    "signIn": "I already have an account",
+    "returnGarden": "Return to my garden"
   },
   "quickLog": {
     "water": "Water",
@@ -1434,7 +1480,8 @@
       "organico": "Organic",
       "preventivo": "Preventive",
       "quimico": "Chemical"
-    }
+    },
+    "proOnly": "Available with Pro"
   },
   "plantFaq": {
     "loading": "Generating frequently asked questions…",
@@ -1449,10 +1496,10 @@
     "home": "This is your Today screen: each day you'll see what to do. Below, what to sow this month.",
     "tourAdd": "Tap the + button to add a plant to your garden.",
     "homeStart": "Welcome to your garden! Here you'll see your daily summary: pending tasks, upcoming harvests and watering or pest alerts.",
-    "homeToday": "Your tasks for the week: urgent waterings, possible pests and upcoming harvests. Tap any item to open the plant.",
+    "homeToday": "Here is today’s next step. Tap the button to see how and log your care.",
     "homeSow": "Each month we recommend what to sow for your climate zone. Never miss the best planting window!",
     "homeAI": "The AI assistant answers any question about your garden. The camera identifies pests and diseases instantly.",
-    "homeAdd": "Tap here to add a new plant to your garden and start tracking it.",
+    "homeAdd": "Use + to add a plant and start keeping track of its care.",
     "plantNew": "Choose the crop you want to add: search by name or browse 150+ varieties in the catalog.",
     "plantDetails": "Give it a name, choose what stage it's at and when you sowed it. Then tap Save to start tracking.",
     "calendar": "Here you see what to sow and harvest each month for your zone. Tap a crop for its dates.",
@@ -1862,7 +1909,7 @@
     "subtropical": "Warm temperatures year-round, no frost"
   },
   "reminderDefaultTitle": {
-    "watering": "Time to water",
+    "watering": "Check the soil before watering",
     "fertilizing": "Time to fertilize",
     "harvest_check": "Check for harvest",
     "custom": "Garden reminder"
@@ -1928,5 +1975,66 @@
   "tools": {
     "title": "Tools",
     "advanced": "Advanced"
+  },
+  "guidedPlant": {
+    "title": "Let’s prepare your first plant",
+    "body": "Start with one plant. Save your plan and prepare seeds, soil and a pot with drainage holes.",
+    "prepareBody": "Its sowing season starts next month. Save your plan and prepare your supplies today.",
+    "alreadySown": "I have already sown the seeds",
+    "dateToday": "Check the sowing date shown below.",
+    "noDate": "We will save a plan without logging a sowing. Confirm the date when you have sown.",
+    "more": "More options",
+    "less": "Hide options",
+    "save": "Save my first plant",
+    "success": "{{name}} now has a plan!",
+    "successBody": "Your next step is in “Today in your garden”. One step at a time.",
+    "today": "See today’s plan",
+    "saveError": "Saving did not finish. Please try again."
+  },
+  "dailyCare": {
+    "eyebrow": "Today in your garden",
+    "checkTitle": "Check the soil of {{name}}",
+    "checkBody": "Touch the soil surface. If dry, water gently; if still moist, wait. Then log what you observed.",
+    "prepareTitle": "Prepare a spot for {{name}}",
+    "prepareBody": "Find a spot with the light you selected and prepare seeds and soil. If using a pot, check that water can drain out below.",
+    "doneTitle": "{{name}} is checked for today",
+    "doneBody": "Your care is saved. No need to repeat it now. Tomorrow, check the soil and how the plant looks.",
+    "pestTitle": "Check the leaves of {{name}}",
+    "pestBody": "A pest is recorded for this plant. Look underneath the leaves and check it is still present before applying treatment.",
+    "frostTitle": "Cold weather: protect your plants",
+    "frostBody": "Today’s forecast drops to 2 °C or below. Move sensitive pots to shelter or protect them with horticultural fleece.",
+    "open": "See the next step",
+    "sowNow": "Your area’s calendar allows sowing this month. Follow the seed packet instructions.",
+    "waitSeason": "The calendar does not suggest sowing this month. Prepare supplies and check the next window in this plant’s Calendar tab. Confirm only if you have already sown.",
+    "sown": "Confirm: I sowed today",
+    "watered": "The soil was dry and I watered",
+    "moist": "Still moist, no water today",
+    "moistNote": "Soil checked: still moist. No watering needed today.",
+    "saveError": "Care was not saved. Please try again.",
+    "planStatus": "To be sown",
+    "attention": "Needs attention",
+    "review": "Time to check the soil",
+    "recorded": "Being tracked",
+    "logFor": "Log care for {{name}}",
+    "weatherHint": "The forecast is a guide: check the soil before watering."
+  },
+  "activation": {
+    "checkWatering": "Complete your first care"
+  },
+  "cropNew": {
+    "months": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ]
   }
 }

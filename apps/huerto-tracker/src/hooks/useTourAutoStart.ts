@@ -1,5 +1,6 @@
 import { useCallback, useRef, type RefObject } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useCopilot } from 'react-native-copilot';
 import { COACH_PREFIX } from './useCoachMark';
@@ -52,7 +53,8 @@ export function useTourAutoStart(gateKey: string, opts: Options = {}) {
           const node = scrollRef?.current as any;
           const scrollable =
             node && typeof node.getScrollResponder === 'function' ? node.getScrollResponder() : node;
-          startRef.current(firstStep, scrollable ?? undefined);
+          // Copilot's scroll integration calls findNodeHandle, unavailable on web.
+          startRef.current(firstStep, Platform.OS === 'web' ? undefined : scrollable ?? undefined);
           void AsyncStorage.setItem(COACH_PREFIX + gateKey, 'true');
         }, delay);
       });

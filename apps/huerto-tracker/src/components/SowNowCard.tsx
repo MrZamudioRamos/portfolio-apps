@@ -30,7 +30,7 @@ export function SowNowCard({ climateZone, beginnerFirst = true, max = 8 }: Props
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [imgErr, setImgErr] = useState<Record<string, boolean>>({});
   const { profile } = useUserProfile();
 
@@ -55,8 +55,7 @@ export function SowNowCard({ climateZone, beginnerFirst = true, max = 8 }: Props
 
   if (crops.length === 0) return null;
 
-  const monthLabels = (t('cropNew.months', { returnObjects: true }) as string[]) ?? [];
-  const monthName = monthLabels[month - 1] ?? '';
+  const monthName = new Intl.DateTimeFormat(i18n.language === 'val' ? 'ca-ES' : i18n.language, { month: 'long' }).format(new Date());
 
   return (
     <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>

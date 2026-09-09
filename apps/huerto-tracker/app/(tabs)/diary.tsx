@@ -55,11 +55,15 @@ function DiaryInner() {
   const [activeFilter, setActiveFilter] = useState<EntryType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState(false);
 
   async function onRefresh() {
     setRefreshing(true);
+    setRefreshError(false);
     try {
       await Promise.all([entries.refresh(), plants.refresh()]);
+    } catch {
+      setRefreshError(true);
     } finally {
       setRefreshing(false);
     }
@@ -343,6 +347,14 @@ function DiaryInner() {
 
       {/* List grouped by date */}
       <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+      {refreshError && (
+        <View accessibilityRole="alert" style={{ marginHorizontal: spacing.xl, marginBottom: spacing.sm, padding: spacing.md, borderRadius: 12, borderWidth: 1, borderColor: colors.error + '66', backgroundColor: colors.error + '12', gap: spacing.sm }}>
+          <Text style={{ color: colors.text }}>{t('errorScreen.desc')}</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('errorScreen.retry')} onPress={onRefresh} style={{ minHeight: 44, justifyContent: 'center' }}>
+            <Text style={{ color: colors.primary, fontWeight: fontWeight.semibold }}>{t('errorScreen.retry')}</Text>
+          </Pressable>
+        </View>
+      )}
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}

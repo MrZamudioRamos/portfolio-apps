@@ -1,8 +1,9 @@
-import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
-import { useReminders, type ReminderFrequency } from '@portfolio/notifications';
+import { useColors, useTheme, type Theme } from '@portfolio/ui';
+import { Button } from '../../src/components/ActionButton';
+import { useReminders, NotificationPermissionDeniedError, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -44,6 +45,9 @@ export default function ReminderNewScreen() {
   const [hour, setHour] = useState(8);
   const [minute, setMinute] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  const [permissionError, setPermissionError] = useState(false);
+  const busy = useRef(false);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -56,6 +60,7 @@ export default function ReminderNewScreen() {
   }
 
   async function handleSave() {
+    if (busy.current) return;
     const gardenId = activeGarden?.id;
     if (!gardenId) {
       Alert.alert(t('reminderNew.noGardenTitle'), t('reminderNew.noGardenDesc'));
@@ -66,7 +71,10 @@ export default function ReminderNewScreen() {
       router.push('/paywall?source=reminders' as any);
       return;
     }
+    busy.current = true;
     setSaving(true);
+    setSaveError(false);
+    setPermissionError(false);
     try {
       await reminders.create({
         gardenId,
@@ -77,10 +85,13 @@ export default function ReminderNewScreen() {
         time: { hour, minute },
         enabled: true,
       });
-      router.back();
-    } catch {
-      Alert.alert(t('common.error'), t('reminderNew.saveError'));
+      if (router.canGoBack()) router.back();
+      else router.replace('/(tabs)');
+    } catch (error) {
+      setPermissionError(error instanceof NotificationPermissionDeniedError);
+      setSaveError(!(error instanceof NotificationPermissionDeniedError));
     } finally {
+      busy.current = false;
       setSaving(false);
     }
   }
@@ -97,6 +108,8 @@ export default function ReminderNewScreen() {
         </View>
 
         <View style={s.body}>
+          {permissionError && <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderNew.permissionError')}</Text>}
+          {saveError && <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderNew.saveError')}</Text>}
           {/* Type selector */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.typeLabel')}</Text>
           <View style={s.typeGrid}>

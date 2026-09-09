@@ -10,6 +10,13 @@ const crop = (id: string, sunNeeds: CropInfo['sunNeeds'], months: number[], days
 });
 
 describe('getFirstCropRecommendations', () => {
+  it('keeps December preparation in January and remains deterministic', () => {
+    const input = { climateZone: 'continental' as const, month: 12, sunlight: 'partial' as const, crops: [crop('a', 'shade', [1], 30), crop('b', 'shade', [1], 30)] };
+    const result = getFirstCropRecommendations(input);
+    expect(result.map((item) => item.crop.id)).toEqual(['a', 'b']);
+    expect(result.every((item) => item.action === 'prepare')).toBe(true);
+    expect(getFirstCropRecommendations({ ...input, crops: [...input.crops].reverse() })).toEqual(result);
+  });
   it('never recommends a crop requiring more light than declared', () => {
     const result = getFirstCropRecommendations({ climateZone: 'mediterranea', month: 3, sunlight: 'shade', crops: [crop('shade', 'shade', [3], 30), crop('full', 'full', [3], 20)] });
     expect(result).toHaveLength(1);
