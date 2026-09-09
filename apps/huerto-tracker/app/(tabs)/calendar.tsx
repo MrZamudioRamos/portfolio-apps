@@ -47,11 +47,15 @@ function CalendarInner() {
   }, []));
   const allPlants = useCollection<Plant>('plants');
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState(false);
 
   async function onRefresh() {
     setRefreshing(true);
+    setRefreshError(false);
     try {
       await allPlants.refresh();
+    } catch {
+      setRefreshError(true);
     } finally {
       setRefreshing(false);
     }
@@ -300,6 +304,14 @@ function CalendarInner() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         ListHeaderComponent={
           <View style={{ marginHorizontal: -spacing.xl }}>
+            {refreshError && (
+              <View accessibilityRole="alert" style={{ marginHorizontal: spacing.xl, marginBottom: spacing.sm, padding: spacing.md, borderRadius: 12, borderWidth: 1, borderColor: colors.error + '66', backgroundColor: colors.error + '12', gap: spacing.sm }}>
+                <Text style={{ color: colors.text }}>{t('errorScreen.desc')}</Text>
+                <Pressable accessibilityRole="button" accessibilityLabel={t('errorScreen.retry')} onPress={onRefresh} style={{ minHeight: 44, justifyContent: 'center' }}>
+                  <Text style={{ color: colors.primary, fontWeight: fontWeight.semibold }}>{t('errorScreen.retry')}</Text>
+                </Pressable>
+              </View>
+            )}
             {/* Container mode banner */}
             {isContainer && (
               <View style={[s.containerBanner, { backgroundColor: colors.success + '18', borderColor: colors.success }]}>
