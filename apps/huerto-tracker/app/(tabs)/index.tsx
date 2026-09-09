@@ -124,11 +124,15 @@ function DashboardInner() {
   useWateringReminder();
   const [justFromOnboarding, setJustFromOnboarding] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState(false);
 
   async function onRefresh() {
     setRefreshing(true);
+    setRefreshError(false);
     try {
       await Promise.all([allPlants.refresh(), reminders.refresh(), entries.refresh()]);
+    } catch {
+      setRefreshError(true);
     } finally {
       setRefreshing(false);
     }
@@ -562,6 +566,14 @@ function DashboardInner() {
         }}
         ListHeaderComponent={
           <>
+            {refreshError && (
+              <View accessibilityRole="alert" style={{ marginHorizontal: spacing.xl, marginBottom: spacing.md, padding: spacing.md, borderRadius: 12, borderWidth: 1, borderColor: colors.error + '66', backgroundColor: colors.error + '12', gap: spacing.sm }}>
+                <Text style={{ color: colors.text }}>{t('errorScreen.desc')}</Text>
+                <Pressable accessibilityRole="button" accessibilityLabel={t('errorScreen.retry')} onPress={onRefresh} style={{ minHeight: 44, justifyContent: 'center' }}>
+                  <Text style={{ color: colors.primary, fontWeight: fontWeight.semibold }}>{t('errorScreen.retry')}</Text>
+                </Pressable>
+              </View>
+            )}
             {/* Initial load spinner — avoids empty-state flash */}
             {plants.loading && plants.count === 0 && (
               <View style={{ paddingVertical: 48, alignItems: 'center' }}>
