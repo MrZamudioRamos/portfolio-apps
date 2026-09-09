@@ -1,5 +1,5 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
-import { useReminders, type ReminderFrequency } from '@portfolio/notifications';
+import { useReminders, NotificationPermissionDeniedError, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -46,6 +46,7 @@ export default function ReminderEditScreen() {
   const [minute, setMinute] = useState(reminder?.time?.minute ?? 0);
   const [enabled, setEnabled] = useState(reminder?.enabled ?? true);
   const [saving, setSaving] = useState(false);
+  const [permissionError, setPermissionError] = useState(false);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -74,6 +75,7 @@ export default function ReminderEditScreen() {
 
   async function handleSave() {
     setSaving(true);
+    setPermissionError(false);
     try {
       await reminders.update(id, {
         type,
@@ -83,8 +85,9 @@ export default function ReminderEditScreen() {
         enabled,
       });
       router.back();
-    } catch {
-      Alert.alert(t('common.error'), t('reminderEdit.saveError'));
+    } catch (error) {
+      if (error instanceof NotificationPermissionDeniedError) setPermissionError(true);
+      else Alert.alert(t('common.error'), t('reminderEdit.saveError'));
     } finally {
       setSaving(false);
     }
@@ -121,6 +124,7 @@ export default function ReminderEditScreen() {
         </View>
 
         <View style={s.body}>
+          {permissionError && <Text accessibilityRole="alert" style={{ color: colors.error, marginBottom: spacing.sm }}>{t('reminderEdit.permissionError')}</Text>}
           {/* Enabled toggle */}
           <View style={[s.enabledRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={{ flex: 1 }}>

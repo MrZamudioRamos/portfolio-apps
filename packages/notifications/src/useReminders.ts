@@ -1,22 +1,29 @@
 import { useCollection } from '@portfolio/storage';
-import { useEffect } from 'react';
 import { requestPermissions, scheduleReminder, cancelReminder } from './scheduler';
 import type { SchedulableReminder } from './types';
 
 type CreateInput<T extends SchedulableReminder> = Omit<T, 'id' | 'createdAt' | 'updatedAt' | 'notificationId'>;
 
+export class NotificationPermissionDeniedError extends Error {
+  constructor() {
+    super('Notification permission was denied');
+    this.name = 'NotificationPermissionDeniedError';
+  }
+}
+
+async function scheduleIfEnabled(input: ScheduleInput): Promise<string | undefined> {
+  if (!input.enabled) return undefined;
+  if (!await requestPermissions()) throw new NotificationPermissionDeniedError();
+  return scheduleReminder(input);
+}
+
+type ScheduleInput = Parameters<typeof scheduleReminder>[0] & { enabled?: boolean };
+
 export function useReminders<T extends SchedulableReminder>(key: string) {
   const collection = useCollection<T>(key);
 
-  useEffect(() => {
-    requestPermissions();
-  }, []);
-
   async function create(data: CreateInput<T>): Promise<void> {
-    let notificationId: string | undefined;
-    if (data.enabled) {
-      notificationId = await scheduleReminder(data).catch(() => undefined);
-    }
+    const notificationId = await scheduleIfEnabled(data);
     await collection.create({ ...data, notificationId } as Omit<T, 'id' | 'createdAt' | 'updatedAt'>);
   }
 
@@ -25,7 +32,7 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
     if (!reminder) return;
     if (enabled) {
       if (reminder.notificationId) await cancelReminder(reminder.notificationId).catch(() => {});
-      const notificationId = await scheduleReminder(reminder).catch(() => undefined);
+      const notificationId = await scheduleIfEnabled(reminder);
       await collection.update(id, { enabled: true, notificationId } as any);
     } else {
       if (reminder.notificationId) await cancelReminder(reminder.notificationId).catch(() => {});
@@ -38,10 +45,7 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
     if (!reminder) return;
     if (reminder.notificationId) await cancelReminder(reminder.notificationId).catch(() => {});
     const merged = { ...reminder, ...data };
-    let notificationId: string | undefined;
-    if (merged.enabled) {
-      notificationId = await scheduleReminder(merged).catch(() => undefined);
-    }
+    const notificationId = await scheduleIfEnabled(merged);
     await collection.update(id, { ...data, notificationId } as any);
   }
 

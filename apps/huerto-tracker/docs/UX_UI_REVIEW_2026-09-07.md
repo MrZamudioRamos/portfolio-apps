@@ -91,3 +91,11 @@ La revisión se hizo sobre la implementación de los commits `ffe8ddd` y `4789cc
 - `npx expo export --platform web`: ejecutado en `.expo/qa-export-web`; Metro mostró solo avisos de configuración Sentry y `NO_COLOR`.
 - `npx expo export --platform ios`: ejecutado en `.expo/qa-export-ios`; mismos avisos no bloqueantes.
 - `git diff --check`: correcto; Git informó únicamente conversiones LF/CRLF de archivos modificados.
+
+## Intervención acotada de recordatorios — 9 de septiembre de 2026
+
+La auditoría siguió todos los lectores y escritores de recordatorios en la app y el paquete compartido `@portfolio/notifications`. `useReminders` se montaba en Home indirectamente a través de las pantallas de detalle, jardines y formularios, y su `useEffect` llamaba a `requestPermissions()` sin una acción de la persona. Además, Home, Diario y Calendario usan programación de alertas derivadas, pero no llaman directamente al permiso; los permisos explícitos de alertas estacionales, heladas, plantas y trial permanecen ligados a sus interruptores o acciones correspondientes.
+
+Se eliminó la solicitud de montaje del hook compartido. Consultar, refrescar, cancelar o eliminar recordatorios no solicita permisos. Crear un recordatorio habilitado, activar uno existente o guardar cambios que lo dejan habilitado son las únicas rutas que llaman al permiso. Si la persona lo deniega, la operación no crea ni activa una notificación parcial y la pantalla conserva el formulario con un mensaje que indica activar notificaciones en Ajustes y reintentar. Los recordatorios y perfiles existentes mantienen sus datos y `notificationId`.
+
+Se añadieron regresiones significativas al hook: montaje sin solicitud, creación explícita con permiso y denegación sin persistencia ni programación. El flujo Web se validó en Home, detalle, Diario, Calendario y Ajustes; los bundles Web e iOS se exportaron correctamente. La prueba física de permisos nativos queda para Expo Go.

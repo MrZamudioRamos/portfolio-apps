@@ -815,6 +815,7 @@
     "deleteTitle": "¿Eliminar recordatorio?",
     "deleteDesc": "Se cancelará la notificación y se eliminará el recordatorio.",
     "saveError": "No se pudo guardar el recordatorio.",
+    "permissionError": "No se han permitido las notificaciones. Puedes activarlas en Ajustes y volver a intentarlo.",
     "notFound": "Recordatorio no encontrado"
   },
   "reminderNew": {
@@ -827,7 +828,8 @@
     "create": "Crear recordatorio",
     "noGardenTitle": "Sin huerto",
     "noGardenDesc": "Completa el onboarding primero.",
-    "saveError": "No se pudo crear el recordatorio."
+    "saveError": "No se pudo crear el recordatorio.",
+    "permissionError": "No se han permitido las notificaciones. Puedes activarlas en Ajustes y volver a intentarlo."
   },
   "backup": {
     "title": "Copia de seguridad",

@@ -772,6 +772,7 @@
     "deleteTitle": "Delete reminder?",
     "deleteDesc": "The notification will be cancelled and the reminder will be deleted.",
     "saveError": "Could not save the reminder.",
+    "permissionError": "Notifications are not allowed. Enable them in Settings and try again.",
     "notFound": "Reminder not found"
   },
   "reminderNew": {
@@ -784,7 +785,8 @@
     "create": "Create reminder",
     "noGardenTitle": "No garden",
     "noGardenDesc": "Complete onboarding first.",
-    "saveError": "Could not create the reminder."
+    "saveError": "Could not create the reminder.",
+    "permissionError": "Notifications are not allowed. Enable them in Settings and try again."
   },
   "backup": {
     "title": "Backup",

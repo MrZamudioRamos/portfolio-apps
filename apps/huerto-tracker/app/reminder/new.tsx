@@ -1,6 +1,6 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { Button } from '../../src/components/ActionButton';
-import { useReminders, type ReminderFrequency } from '@portfolio/notifications';
+import { useReminders, NotificationPermissionDeniedError, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useRef, useState } from 'react';
@@ -46,6 +46,7 @@ export default function ReminderNewScreen() {
   const [minute, setMinute] = useState(0);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  const [permissionError, setPermissionError] = useState(false);
   const busy = useRef(false);
 
   const s = useMemo(
@@ -73,6 +74,7 @@ export default function ReminderNewScreen() {
     busy.current = true;
     setSaving(true);
     setSaveError(false);
+    setPermissionError(false);
     try {
       await reminders.create({
         gardenId,
@@ -85,8 +87,9 @@ export default function ReminderNewScreen() {
       });
       if (router.canGoBack()) router.back();
       else router.replace('/(tabs)');
-    } catch {
-      setSaveError(true);
+    } catch (error) {
+      setPermissionError(error instanceof NotificationPermissionDeniedError);
+      setSaveError(!(error instanceof NotificationPermissionDeniedError));
     } finally {
       busy.current = false;
       setSaving(false);
@@ -105,6 +108,7 @@ export default function ReminderNewScreen() {
         </View>
 
         <View style={s.body}>
+          {permissionError && <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderNew.permissionError')}</Text>}
           {saveError && <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderNew.saveError')}</Text>}
           {/* Type selector */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.typeLabel')}</Text>
