@@ -56,6 +56,14 @@ describe('care write recovery', () => {
     expect(live().filter(row => row.type === 'watering')).toHaveLength(0);
     expect(live().filter(row => row.type === 'note')).toHaveLength(1);
   });
+  it('keeps bulk-watering metadata while respecting the same daily guard', async () => {
+    const plant = await createPlantWithSowing({ ...data, sowingDate: '2026-09-04' });
+    expect(await recordCare(plant.id, 'watering', '', { liters: '1.5', method: 'drip' })).toBe(true);
+    expect(await recordCare(plant.id, 'watering', '', { liters: '1.5', method: 'drip' })).toBe(false);
+    expect(live().filter(row => row.type === 'watering')).toEqual([
+      expect.objectContaining({ data: { liters: '1.5', method: 'drip' } }),
+    ]);
+  });
   it('rejects watering a plan and a deleted plant', async () => {
     const plan = await createPlantWithSowing(data);
     await expect(recordCare(plan.id, 'watering')).rejects.toThrow();

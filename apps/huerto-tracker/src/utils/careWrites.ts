@@ -30,7 +30,7 @@ export function createPlantWithSowing(data: Omit<Plant, 'id' | 'createdAt' | 'up
   });
 }
 
-export function recordCare(plantId: string, kind: 'watering' | 'moist' | 'sowing', moistNote = '') {
+export function recordCare(plantId: string, kind: 'watering' | 'moist' | 'sowing', moistNote = '', extraData?: Record<string, unknown>) {
   return serial(async () => {
     const plant = await plants.getById(plantId);
     if (!plant || plant.deletedAt || plant.status === 'finished') throw new Error('Plant unavailable');
@@ -52,7 +52,7 @@ export function recordCare(plantId: string, kind: 'watering' | 'moist' | 'sowing
     if (hasSoilCheckToday(plant, latest, date)) return false;
     await diary.create({ gardenId: plant.gardenId, plantId, date,
       type: kind === 'moist' ? 'note' : 'watering',
-      ...(kind === 'moist' ? { notes: moistNote, data: { soilCheck: 'moist' as const } } : {}) });
+      ...(kind === 'moist' ? { notes: moistNote, data: { soilCheck: 'moist' as const } } : extraData ? { data: extraData } : {}) });
     return true;
   });
 }
