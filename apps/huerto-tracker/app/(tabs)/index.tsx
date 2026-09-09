@@ -1,3 +1,4 @@
+import { useToday } from '../../src/hooks/useToday';
 import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useSession } from '@portfolio/supabase';
@@ -65,6 +66,7 @@ const FROM_ONBOARDING_KEY = '@huerto/just_from_onboarding';
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 function DashboardInner() {
+  const currentDay = useToday();
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const insets = useSafeAreaInsets();
@@ -226,7 +228,7 @@ function DashboardInner() {
       }
     });
     return tasks;
-  }, [plants.items, entriesByPlant, t, customCropsById]);
+  }, [plants.items, entriesByPlant, t, customCropsById, currentDay]);
 
   const yearHarvestKg = useMemo(() => {
     const year = new Date().getFullYear().toString();
@@ -274,13 +276,13 @@ function DashboardInner() {
   const activePests = plants.items.filter((p) => p.pestStatus === 'active' || p.pestStatus === 'treated').length;
   const needsWaterCount = useMemo(
     () => getWateringNeedsCount(plants.items, CROPS_BY_ID, entries.items),
-    [plants.items, entries.items]
+    [plants.items, entries.items, currentDay]
   );
-  const lunar = useMemo(() => getLunarDay(), []);
+  const lunar = useMemo(() => getLunarDay(), [currentDay]);
   const { weather, loading: weatherLoading } = useWeather(garden?.province);
   const streak = useMemo(
     () => buildGamificationData(plants.items, entries.items).streak,
-    [plants.items, entries.items]
+    [plants.items, entries.items, currentDay]
   );
 
   const gardenHarvestCount = useMemo(

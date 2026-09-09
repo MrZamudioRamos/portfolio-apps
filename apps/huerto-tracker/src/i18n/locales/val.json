@@ -1338,7 +1338,7 @@
     "homeToday": "Aquí tens el pas següent d’avui. Toca el botó per veure com fer-lo i registrar la cura.",
     "homeSow": "Cada mes te recomendamos qué sembrar según tu zona climática. ¡No pierdas el mejor momento para plantar!",
     "homeAI": "El asistente IA responde cualquier duda sobre tu huerto. La cámara identifica plagas y enfermedades al instante.",
-    "homeAdd": "Pulsa aquí para registrar una nueva planta en tu huerto y empezar a hacer seguimiento.",
+    "homeAdd": "Toca + per a afegir una planta i començar a registrar-ne les cures.",
     "plantNew": "Elige el cultivo que quieres añadir: busca por nombre o navega por las 150+ variedades del catálogo.",
     "plantDetails": "Ponle nombre, elige en qué fase está y cuándo la sembraste. Luego pulsa Guardar para empezar el seguimiento.",
     "calendar": "Ací veus què sembrar i collir cada mes segons la teua zona. Toca un cultiu per a veure les dates.",
@@ -1529,7 +1529,7 @@
     "subtropical": "Temperatures càlides tot l'any, sense gelades"
   },
   "reminderDefaultTitle": {
-    "watering": "Hora de regar",
+    "watering": "Comprovar la terra abans de regar",
     "fertilizing": "Toca abonar",
     "harvest_check": "Comprova si hi ha collita",
     "custom": "Recordatori d'hort"
@@ -1640,5 +1640,21 @@
   },
   "activation": {
     "checkWatering": "Completar la primera cura"
+  },
+  "cropNew": {
+    "months": [
+      "gen",
+      "feb",
+      "març",
+      "abr",
+      "maig",
+      "juny",
+      "jul",
+      "ag",
+      "set",
+      "oct",
+      "nov",
+      "des"
+    ]
   }
 }

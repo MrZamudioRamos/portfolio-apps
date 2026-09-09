@@ -52,3 +52,42 @@ Implementación centrada en el recorrido de una persona principiante: bienvenida
 - Componentes: `PlantCareCard`, `ActionButton`, `WebDatePicker`, `ActivationChecklist`, `SemillitaTourProvider`, `SemillitaTooltip`, `SowNowCard`.
 - Lógica: `dailyCare`, `wateringStatus`, `wateringUtils`, hooks de checklist, tutorial y recordatorios, modelo de diario y eventos de analítica.
 - Idiomas: `src/i18n/locales/{es,en,ca,eu,gl,val}.json`; pruebas en `src/utils/__tests__`.
+
+## Segunda pasada crítica — 9 de septiembre de 2026
+
+La revisión se hizo sobre la implementación de los commits `ffe8ddd` y `4789cc7`, con el servidor Expo Web propio en el puerto 8082. Para no alterar el almacenamiento de la pestaña del usuario, las pruebas nuevas usaron también `127.0.0.1:8082`; la diferencia de origen se tuvo en cuenta al comprobar persistencia.
+
+### Problemas reproducidos y corregidos
+
+| Prioridad | Reproducción | Corrección |
+| --- | --- | --- |
+| P0 | Dos pulsaciones rápidas en sembrar, cuidado diario o quick log podían crear escrituras repetidas o dejar una planta y su diario en estados distintos cuando fallaba una segunda escritura. | `careWrites.ts` serializa las escrituras del recorrido, vuelve a leer la entidad actual y compensa altas, siembras y quick log cuando falla la operación dependiente. Los controles quedan bloqueados mientras guardan. |
+| P0 | Un plan sin `sowingDate` podía entrar en cálculos de riego o recibir una entrada de watering. | El plan exige confirmar siembra; `recordCare` y quick log rechazan watering en ese estado y no crean riego ficticio. Los ejemplares comprados no reciben una siembra implícita. |
+| P0 | Una nota de tierra húmeda podía ocultar la necesidad de riego después del mismo día o contaminar la portada con entradas eliminadas. | El estado diario filtra eliminados, jardín y fechas futuras, y solo consume la comprobación húmeda del día actual. |
+| P1 | El onboarding podía reutilizar un perfil o jardín capturado antes de una espera y repetir fechas de finalización al reintentar. | Los guardados leen el registro actual, actualizan el jardín existente y conservan la primera fecha persistida. |
+| P1 | Fast Refresh reejecutaba la inicialización de Supabase y producía avisos de varias instancias de GoTrueClient. | El layout reutiliza el cliente compartido antes de llamar al inicializador. No se añadió un cliente, provider o sistema de auth nuevo. |
+| P1 | Remontajes de portada/detalle duplicaban impresiones y el doble tap del recomendador podía navegar dos veces. | Impresiones semánticas deduplicadas por sesión, efectos ligados al foco y guardas de selección/escritura. |
+| P1 | El calendario mostraba el mes como caracteres separados en el plan de portada y faltaban claves nuevas en idiomas secundarios. | Meses como arrays localizados y claves equivalentes en es, en, ca, eu, gl y val. |
+| P1 | El fallo de guardar un recordatorio se mostraba como alerta nativa invisible en Web y podía perder el formulario. | Error inline, reintento seguro, botón local con contraste y título predeterminado que pide revisar la tierra. |
+
+### Rutas y estados probados
+
+- `/welcome`, onboarding completo como invitado, ubicación `malaga` y `Málaga`, resultados y estado sin resultados controlado, plan sin siembra y confirmación posterior.
+- Portada vacía, con una planta y con dos plantas; plantas nuevas y existentes con fecha de siembra anterior; detalle, acción diaria seca/húmeda y pulsación repetida; quick log y diario.
+- Calendario, recordatorio nuevo y recordatorio visible en detalle, ajustes, cambio de idioma, navegación atrás y recarga.
+- Viewports 320, 390 y escritorio; se revisaron estados claro y oscuro. El tema temporal de QA fue retirado del layout antes de la validación final.
+- La consola Web solo mostró avisos preexistentes de notificaciones Web, estilos RN obsoletos y `useNativeDriver`; no apareció un nuevo aviso de GoTrue en la sesión final.
+
+### Pendiente
+
+- No se pudo ejecutar una prueba física de iOS desde Windows. En Expo Go hay que comprobar: permisos de notificaciones y GPS, selector de fecha nativo, lector de pantalla, tutorial con gestos y programación/recuperación de recordatorios en segundo plano.
+- La cola y las compensaciones protegen fallos aislados dentro del proceso; no son una transacción distribuida frente a cierre del proceso o fallo simultáneo del rollback.
+- El hook de recordatorios compartido solicita permisos al montarse y puede ocultar fallos de programación nativa; requiere una revisión específica fuera de esta pasada.
+
+### Validación segunda pasada
+
+- `npm run typecheck`: correcto.
+- `npm test`: 155 pruebas en 11 archivos, todas correctas.
+- `npx expo export --platform web`: ejecutado en `.expo/qa-export-web`; Metro mostró solo avisos de configuración Sentry y `NO_COLOR`.
+- `npx expo export --platform ios`: ejecutado en `.expo/qa-export-ios`; mismos avisos no bloqueantes.
+- `git diff --check`: correcto; Git informó únicamente conversiones LF/CRLF de archivos modificados.

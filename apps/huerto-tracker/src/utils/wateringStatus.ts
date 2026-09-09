@@ -1,3 +1,4 @@
+import { todayStr } from './dateStr';
 import type { CropInfo } from '../data/crops';
 import type { DiaryEntry } from '../models/diary-entry';
 import type { Plant } from '../models/plant';
@@ -18,10 +19,12 @@ export function getNeedsWater(
   // A seed plan without a sowing date has no living plant to water yet.
   if (plant.status === 'seedling' && !plant.sowingDate && (plant.propagationMethod ?? 'seed') === 'seed') return false;
 
+  const today = todayStr();
+  const liveEntries = entries.filter(e => !e.deletedAt && e.gardenId === plant.gardenId && e.date <= today);
+  if (liveEntries.some(e => e.plantId === plant.id && e.date === today && e.type === 'note' && e.data && 'soilCheck' in e.data && e.data.soilCheck === 'moist')) return false;
   const threshold = WATER_THRESHOLD_DAYS[crop.waterNeeds];
-  const plantWaterings = entries
-    .filter((e) => e.plantId === plant.id && (e.type === 'watering' ||
-      (e.type === 'note' && e.data && 'soilCheck' in e.data && e.data.soilCheck === 'moist')))
+  const plantWaterings = liveEntries
+    .filter((e) => e.plantId === plant.id && e.type === 'watering')
     .map((e) => e.date)
     .sort()
     .reverse();

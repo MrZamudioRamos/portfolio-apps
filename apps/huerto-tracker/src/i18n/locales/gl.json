@@ -1338,7 +1338,7 @@
     "homeToday": "Aquí tes o seguinte paso de hoxe. Toca o botón para ver como facelo e rexistrar o coidado.",
     "homeSow": "Cada mes te recomendamos qué sembrar según tu zona climática. ¡No pierdas el mejor momento para plantar!",
     "homeAI": "El asistente IA responde cualquier duda sobre tu huerto. La cámara identifica plagas y enfermedades al instante.",
-    "homeAdd": "Pulsa aquí para registrar una nueva planta en tu huerto y empezar a hacer seguimiento.",
+    "homeAdd": "Toca + para engadir unha planta e comezar a rexistrar os seus coidados.",
     "plantNew": "Elige el cultivo que quieres añadir: busca por nombre o navega por las 150+ variedades del catálogo.",
     "plantDetails": "Ponle nombre, elige en qué fase está y cuándo la sembraste. Luego pulsa Guardar para empezar el seguimiento.",
     "calendar": "Aquí ves que sementar e colleitar cada mes segundo a túa zona. Toca un cultivo para ver as súas datas.",
@@ -1529,7 +1529,7 @@
     "subtropical": "Temperaturas cálidas todo o ano, sen xeadas"
   },
   "reminderDefaultTitle": {
-    "watering": "Hora de regar",
+    "watering": "Comprobar a terra antes de regar",
     "fertilizing": "Toca abonar",
     "harvest_check": "Comproba se hai colleita",
     "custom": "Recordatorio de horta"
@@ -1640,5 +1640,21 @@
   },
   "activation": {
     "checkWatering": "Completar o primeiro coidado"
+  },
+  "cropNew": {
+    "months": [
+      "xan",
+      "feb",
+      "mar",
+      "abr",
+      "mai",
+      "xuñ",
+      "xul",
+      "ago",
+      "set",
+      "out",
+      "nov",
+      "dec"
+    ]
   }
 }

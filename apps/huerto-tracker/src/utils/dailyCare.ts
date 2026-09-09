@@ -9,7 +9,7 @@ export function isSeedPlan(plant: Plant): boolean {
 }
 
 export function hasSoilCheckToday(plant: Plant, entries: DiaryEntry[], today = todayStr()): boolean {
-  return entries.some((entry) => entry.plantId === plant.id && entry.date === today &&
+  return entries.some((entry) => !entry.deletedAt && entry.gardenId === plant.gardenId && entry.plantId === plant.id && entry.date === today &&
     (entry.type === 'watering' || (entry.type === 'note' && entry.data && 'soilCheck' in entry.data && entry.data.soilCheck === 'moist')));
 }
 
@@ -22,6 +22,6 @@ export function getTodayPlant(plants: Plant[], crops: Record<string, CropInfo>, 
     if (!hasSoilCheckToday(plant, entries)) return 3;
     return 4;
   };
-  return plants.filter((plant) => plant.status !== 'finished')
+  return plants.filter((plant) => !plant.deletedAt && plant.status !== 'finished')
     .sort((a, b) => priority(a) - priority(b) || a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id))[0];
 }

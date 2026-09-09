@@ -1,6 +1,6 @@
 import '../src/i18n';
 import { loadSavedLanguage } from '../src/i18n';
-import { initSupabase, handleDeepLink, useSession } from '@portfolio/supabase';
+import { initSupabase, getSupabase, handleDeepLink, useSession } from '@portfolio/supabase';
 import { useOnboarding } from '@portfolio/shared';
 import { initAnalytics, track, identifyUser, EVENTS, Sentry } from '../src/analytics';
 import { ThemeProvider, bwPalette } from '@portfolio/ui';
@@ -24,10 +24,11 @@ import {
 } from '@expo-google-fonts/nunito';
 import { applyNunito } from '../src/theme/applyNunito';
 
-initSupabase(
-  process.env.EXPO_PUBLIC_SUPABASE_URL!,
-  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Fast Refresh re-evaluates this route while the shared client module survives.
+// Reuse that exact client so auth subscribers never point at different clients.
+try { getSupabase(); } catch {
+  initSupabase(process.env.EXPO_PUBLIC_SUPABASE_URL!, process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!);
+}
 
 initAnalytics();
 
@@ -73,6 +74,8 @@ function AppServices() {
   useEffect(() => {
     track(EVENTS.appOpen);
     loadSavedLanguage();
+  }, []);
+  useEffect(() => {
     const sub = Linking.addEventListener('url', ({ url }) => {
       // Only navigate on successful exchange — a rejected handleDeepLink
       // means the user is NOT authenticated, so we stay put rather than

@@ -1,17 +1,18 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Card, useTheme } from '@portfolio/ui';
 import { Button } from './ActionButton';
-import { createStore } from '@portfolio/storage';
+import { recordCare } from '../utils/careWrites';
 import { useTranslation } from 'react-i18next';
 import type { Plant } from '../models/plant';
 import type { DiaryEntry } from '../models/diary-entry';
 import type { CropInfo } from '../data/crops';
 import type { ClimateZone } from '../models/garden';
 import { hasSoilCheckToday, isSeedPlan } from '../utils/dailyCare';
-import { todayStr } from '../utils/dateStr';
-import { EVENTS, track } from '../analytics';
+import { EVENTS, track, trackImpression } from '../analytics';
 import { Mascot } from './Mascot';
+import { useToday } from '../hooks/useToday';
+import { useFocusEffect } from 'expo-router';
 
 interface Props {
   plant: Plant;
@@ -26,20 +27,20 @@ interface Props {
 export function PlantCareCard({ plant, crop, climateZone, entries, onOpen, frost = false, onUpdated }: Props) {
   const { colors, spacing, fontSize, fontWeight } = useTheme();
   const { t } = useTranslation();
-  const diary = useMemo(() => createStore<DiaryEntry>('diary_entries'), []);
-  const plants = useMemo(() => createStore<Plant>('plants'), []);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(false);
   const busy = useRef(false);
   const plan = isSeedPlan(plant);
-  const checked = hasSoilCheckToday(plant, entries);
+  const today = useToday();
+  const checked = hasSoilCheckToday(plant, entries, today);
   const pest = plant.pestStatus === 'active';
   const sowNow = Boolean(crop && climateZone && crop.sowingMonths[climateZone]?.includes(new Date().getMonth() + 1));
   const state = frost ? 'frost' : pest ? 'pest' : plan ? 'prepare' : checked ? 'done' : 'check';
   const source = onOpen ? 'home' : 'plant_detail';
-  useEffect(() => {
-    track(EVENTS.todayActionShown, { action_type: state, plant_id: plant.id, source });
-  }, [state, plant.id, source]);
+  useFocusEffect(React.useCallback(() => {
+    const key = `${today}:${plant.id}:${state}:${source}`;
+    trackImpression(key, EVENTS.todayActionShown, { action_type: state, plant_id: plant.id, source, date: today });
+  }, [state, plant.id, source, today]));
 
   async function record(kind: 'watering' | 'moist' | 'sowing') {
     if (busy.current) return;
@@ -47,21 +48,10 @@ export function PlantCareCard({ plant, crop, climateZone, entries, onOpen, frost
     setSaving(true);
     setError(false);
     try {
-      // Re-read under the UI guard so repeated taps/revisits do not duplicate a care.
-      const latest = (await diary.getAll()).filter((entry) => !entry.deletedAt);
-      if (kind !== 'sowing' && hasSoilCheckToday(plant, latest)) { await onUpdated?.(); return; }
-      if (kind === 'sowing') {
-        // Reuse an entry if a previous attempt saved the diary but failed the plant update.
-        const existing = latest.find((entry) => entry.plantId === plant.id && entry.type === 'sowing');
-        const date = existing?.date ?? todayStr();
-        if (!existing) await diary.create({ gardenId: plant.gardenId, plantId: plant.id, type: 'sowing', date });
-        const updated = await plants.update(plant.id, { sowingDate: date });
-        if (!updated) throw new Error('Plant no longer exists');
-      } else {
-        await diary.create({ gardenId: plant.gardenId, plantId: plant.id, type: kind === 'moist' ? 'note' : 'watering', date: todayStr(), ...(kind === 'moist' ? { notes: t('dailyCare.moistNote'), data: { soilCheck: 'moist' as const } } : {}) });
-      }
+      const written = await recordCare(plant.id, kind, t('dailyCare.moistNote'));
+      if (!written) { await onUpdated?.(); return; }
       track(EVENTS.entryAdded, { type: kind === 'moist' ? 'note' : kind, source: 'daily_care', plant_id: plant.id });
-      track(EVENTS.todayActionCompleted, { action_type: kind, plant_id: plant.id, source });
+      track(EVENTS.todayActionCompleted, { action_type: kind === 'sowing' ? 'prepare' : 'check', outcome: kind, plant_id: plant.id, source });
       await onUpdated?.();
     } catch { setError(true); }
     finally { busy.current = false; setSaving(false); }

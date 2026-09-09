@@ -13,8 +13,9 @@ interface Props {
 export function CalendarGantt({ sowingMonths, harvestMonths }: Props) {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
-  const { t } = useTranslation();
-  const monthLabels = (t('cropNew.months', { returnObjects: true }) as string[]) ?? [];
+  const { t, i18n } = useTranslation();
+  const monthLabels = Array.from({ length: 12 }, (_, month) =>
+    new Intl.DateTimeFormat(i18n.language === 'val' ? 'ca-ES' : i18n.language, { month: 'short' }).format(new Date(2026, month, 1)));
 
   const now = new Date().getMonth() + 1;
   const sowingSet = new Set(sowingMonths);

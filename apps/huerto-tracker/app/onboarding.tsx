@@ -1,7 +1,7 @@
 import { useOnboarding } from '@portfolio/shared';
 import { useColors, useTheme } from '@portfolio/ui';
 import { Button } from '../src/components/ActionButton';
-import { useCollection } from '@portfolio/storage';
+import { createStore, useCollection } from '@portfolio/storage';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useRef, useState } from 'react';
@@ -86,15 +86,20 @@ export default function OnboardingScreen() {
       const mapped = SPACE_MAP[space];
       // Preserve coaching preferences; use the existing conservative light value.
       await save({ spaceTypes: [mapped.space], growingMethods: [mapped.method], sunlight: sunlight === 'unknown' ? 'shade' : sunlight, experience, coachingFloor: profile?.coachingFloor, coachingOverride: profile?.coachingOverride });
-      let garden = activeGarden;
+      const store = createStore<Garden>('gardens');
+      const storedGardens = (await store.getAll()).filter(item => !item.deletedAt);
+      const activeId = await AsyncStorage.getItem('@portfolio/active_garden_id');
+      let garden = storedGardens.find(item => item.id === activeId) ?? storedGardens[0];
       if (garden) {
-        await gardens.update(garden.id, { province, climateZone });
+        await store.update(garden.id, { province, climateZone });
       } else {
-        garden = await gardens.create({ name: t('onboarding.firstGardenName'), climateZone, province, gardenType: mapped.gardenType, color: '#76C77A', notes: '', hemisphere: 'norte' });
+        garden = await store.create({ name: t('onboarding.firstGardenName'), climateZone, province, gardenType: mapped.gardenType, color: '#76C77A', notes: '', hemisphere: 'norte' });
         track(EVENTS.gardenCreated, { gardenType: mapped.gardenType, source: 'onboarding' });
       }
       await switchGarden(garden.id);
-      await AsyncStorage.setItem('@huerto/onboarding_completed_at', String(Date.now()));
+      if (!await AsyncStorage.getItem('@huerto/onboarding_completed_at')) {
+        await AsyncStorage.setItem('@huerto/onboarding_completed_at', String(Date.now()));
+      }
       await complete();
       track(EVENTS.onboardingStepCompleted, { step: 'location', answer: province });
       track(EVENTS.onboardingCompleted, { space, sunlight, experience, location_method: method, climate_zone_known: true });

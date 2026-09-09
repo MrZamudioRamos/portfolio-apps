@@ -29,6 +29,7 @@ import { CROPS_BY_ID, CROPS_BY_CATEGORY, CATEGORY_CONFIG, CROP_DIFFICULTY, CROP_
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { useUserProfile } from '../../src/hooks/useUserProfile';
+import { createPlantWithSowing } from '../../src/utils/careWrites';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import { getCompanions } from '../../src/data/companions';
@@ -191,7 +192,8 @@ export default function NewPlantScreen() {
     setSaving(true);
     setSaveError(false);
     try {
-      const newPlant = pendingPlant.current ?? await plants.create({
+      const wasFirstPlant = plants.items.length === 0;
+      const newPlant = pendingPlant.current ?? await createPlantWithSowing({
         gardenId,
         cropId: selectedCropId,
         name: plantName.trim(),
@@ -203,14 +205,8 @@ export default function NewPlantScreen() {
         ...(photoUri ? { photoUri } : {}),
       });
       pendingPlant.current = newPlant;
-      if (newPlant.sowingDate && !(await diaryStore.getAll()).some((entry) => entry.plantId === newPlant.id && entry.type === 'sowing' && !entry.deletedAt)) await diaryStore.create({
-        gardenId,
-        plantId: newPlant.id,
-        type: 'sowing',
-        date: newPlant.sowingDate,
-      });
       track(EVENTS.plantAdded, { cropId: selectedCropId, fromScan: isAiFilled });
-      if (fromOnboarding === '1' && plants.items.length === 0) {
+      if (fromOnboarding === '1' && wasFirstPlant) {
         track(EVENTS.firstPlantCreated, {
           crop_id: selectedCropId,
           source: 'onboarding',

@@ -1913,7 +1913,7 @@
     "subtropical": "Temperaturas cálidas todo el año, sin heladas"
   },
   "reminderDefaultTitle": {
-    "watering": "Hora de regar",
+    "watering": "Revisar la tierra antes de regar",
     "fertilizing": "Toca abonar",
     "harvest_check": "Revisa si hay cosecha",
     "custom": "Recordatorio de huerto"
@@ -2009,5 +2009,21 @@
     "recorded": "En seguimiento",
     "logFor": "Registrar cuidado de {{name}}",
     "weatherHint": "La previsión es orientativa: comprueba la tierra antes de regar."
+  },
+  "cropNew": {
+    "months": [
+      "ene",
+      "feb",
+      "mar",
+      "abr",
+      "may",
+      "jun",
+      "jul",
+      "ago",
+      "sep",
+      "oct",
+      "nov",
+      "dic"
+    ]
   }
 }

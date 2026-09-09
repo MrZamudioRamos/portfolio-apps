@@ -1,8 +1,9 @@
-import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, type Theme } from '@portfolio/ui';
+import { Button } from '../../src/components/ActionButton';
 import { useReminders, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -44,6 +45,8 @@ export default function ReminderNewScreen() {
   const [hour, setHour] = useState(8);
   const [minute, setMinute] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  const busy = useRef(false);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -56,6 +59,7 @@ export default function ReminderNewScreen() {
   }
 
   async function handleSave() {
+    if (busy.current) return;
     const gardenId = activeGarden?.id;
     if (!gardenId) {
       Alert.alert(t('reminderNew.noGardenTitle'), t('reminderNew.noGardenDesc'));
@@ -66,7 +70,9 @@ export default function ReminderNewScreen() {
       router.push('/paywall?source=reminders' as any);
       return;
     }
+    busy.current = true;
     setSaving(true);
+    setSaveError(false);
     try {
       await reminders.create({
         gardenId,
@@ -77,10 +83,12 @@ export default function ReminderNewScreen() {
         time: { hour, minute },
         enabled: true,
       });
-      router.back();
+      if (router.canGoBack()) router.back();
+      else router.replace('/(tabs)');
     } catch {
-      Alert.alert(t('common.error'), t('reminderNew.saveError'));
+      setSaveError(true);
     } finally {
+      busy.current = false;
       setSaving(false);
     }
   }
@@ -97,6 +105,7 @@ export default function ReminderNewScreen() {
         </View>
 
         <View style={s.body}>
+          {saveError && <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderNew.saveError')}</Text>}
           {/* Type selector */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.typeLabel')}</Text>
           <View style={s.typeGrid}>

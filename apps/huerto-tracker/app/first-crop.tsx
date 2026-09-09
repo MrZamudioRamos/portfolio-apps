@@ -1,7 +1,7 @@
 import { useColors, useTheme, Card } from '@portfolio/ui';
 import { Button } from '../src/components/ActionButton';
-import { useRouter } from 'expo-router';
-import React, { useMemo } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +9,7 @@ import { CROP_DIFFICULTY } from '../src/data/crops';
 import { Mascot } from '../src/components/Mascot';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { useUserProfile } from '../src/hooks/useUserProfile';
-import { EVENTS, track } from '../src/analytics';
+import { EVENTS, track, trackImpression } from '../src/analytics';
 import { getFirstCropRecommendations, type RecommendationReason } from '../src/utils/firstCropRecommendation';
 
 const reasonKey: Record<RecommendationReason, string> = {
@@ -40,19 +40,22 @@ export default function FirstCropScreen() {
     });
   }, [activeGarden, profile]);
 
-  React.useEffect(() => {
+  const choosing = useRef(false);
+  useFocusEffect(React.useCallback(() => { choosing.current = false; }, []));
+  useFocusEffect(React.useCallback(() => {
     if (recommendations.length) {
-      track(EVENTS.firstCropRecommendationsShown, {
+      trackImpression('recommendations:' + activeGarden?.id + ':' + JSON.stringify(profile) + ':' + recommendations.map(item => item.crop.id).join(','), EVENTS.firstCropRecommendationsShown, {
         count: recommendations.length,
         top_crop_id: recommendations[0].crop.id,
         context_complete: Boolean(activeGarden && profile),
       });
     }
-  }, [recommendations, activeGarden, profile]);
+  }, [recommendations, activeGarden, profile]));
 
   const choose = (index: number) => {
     const recommendation = recommendations[index];
-    if (!recommendation) return;
+    if (!recommendation || choosing.current) return;
+    choosing.current = true;
     track(EVENTS.firstCropPicked, {
       crop_id: recommendation.crop.id,
       rank: index + 1,

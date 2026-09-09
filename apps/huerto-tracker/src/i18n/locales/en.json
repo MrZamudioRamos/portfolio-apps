@@ -1497,7 +1497,7 @@
     "homeToday": "Here is today’s next step. Tap the button to see how and log your care.",
     "homeSow": "Each month we recommend what to sow for your climate zone. Never miss the best planting window!",
     "homeAI": "The AI assistant answers any question about your garden. The camera identifies pests and diseases instantly.",
-    "homeAdd": "Tap here to add a new plant to your garden and start tracking it.",
+    "homeAdd": "Use + to add a plant and start keeping track of its care.",
     "plantNew": "Choose the crop you want to add: search by name or browse 150+ varieties in the catalog.",
     "plantDetails": "Give it a name, choose what stage it's at and when you sowed it. Then tap Save to start tracking.",
     "calendar": "Here you see what to sow and harvest each month for your zone. Tap a crop for its dates.",
@@ -1907,7 +1907,7 @@
     "subtropical": "Warm temperatures year-round, no frost"
   },
   "reminderDefaultTitle": {
-    "watering": "Time to water",
+    "watering": "Check the soil before watering",
     "fertilizing": "Time to fertilize",
     "harvest_check": "Check for harvest",
     "custom": "Garden reminder"
@@ -2018,5 +2018,21 @@
   },
   "activation": {
     "checkWatering": "Complete your first care"
+  },
+  "cropNew": {
+    "months": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ]
   }
 }

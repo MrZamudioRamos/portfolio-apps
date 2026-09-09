@@ -15,6 +15,18 @@ beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(NOW); });
 afterEach(() => vi.useRealTimers());
 
 describe('first plant and daily care', () => {
+  it('does not treat yesterday’s moist soil as a new multi-day watering', () => {
+    const oldPlant = plant({ sowingDate: '2026-08-01' });
+    const yesterday = moist({ date: '2026-09-06' });
+    expect(getNeedsWater(oldPlant, CROPS_BY_ID.rabano, [yesterday])).toBe(true);
+    expect(computePlantsNeedingWater([oldPlant], [yesterday], NOW)).toHaveLength(1);
+  });
+  it('ignores deleted or foreign-garden care entries', () => {
+    const current = plant({ sowingDate: '2026-08-01' });
+    expect(hasSoilCheckToday(current, [moist({ deletedAt: NOW.toISOString() })])).toBe(false);
+    expect(hasSoilCheckToday(current, [moist({ gardenId: 'another' })])).toBe(false);
+    expect(getNeedsWater(current, CROPS_BY_ID.rabano, [moist({ deletedAt: NOW.toISOString() })])).toBe(true);
+  });
   it('does not ask to water a seed plan or schedule its watering', () => {
     const pending = plant();
     expect(isSeedPlan(pending)).toBe(true);
