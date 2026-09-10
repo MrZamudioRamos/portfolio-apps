@@ -31,6 +31,9 @@ const SINGLETON_PACKAGES = new Set([
   'react-native-reanimated',
   'react-native-worklets',
   'react',
+  // Expo Router must match the SDK version installed by this app. The
+  // workspace root may contain another app's router version.
+  'expo-router',
   '@react-native-async-storage/async-storage',
 ]);
 
