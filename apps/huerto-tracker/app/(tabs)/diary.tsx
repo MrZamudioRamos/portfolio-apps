@@ -139,6 +139,13 @@ function DiaryInner() {
     return [...groups.entries()].map(([date, data]) => ({ date, data }));
   }, [filtered]);
 
+  const hasFilters = activeFilter !== 'all' || Boolean(plantId) || Boolean(searchQuery.trim());
+  const clearFilters = () => {
+    setActiveFilter('all');
+    setSearchQuery('');
+    if (plantId) router.setParams({ plantId: undefined } as any);
+  };
+
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
@@ -375,10 +382,10 @@ function DiaryInner() {
           !entries.loading ? (
             <EmptyState
               illustration={<Illustration name="diary-empty" size={128} />}
-              title={t('diary.emptyTitle')}
-              description={t('diary.emptyDesc')}
-              ctaLabel={t('diary.newEntry')}
-              onCta={() => router.push('/entry/new')}
+              title={t(hasFilters ? 'diary.noResultsTitle' : 'diary.emptyTitle')}
+              description={t(hasFilters ? 'diary.noResultsDesc' : 'diary.emptyDesc')}
+              ctaLabel={t(hasFilters ? 'diary.clearFilters' : 'diary.newEntry')}
+              onCta={hasFilters ? clearFilters : () => router.push('/entry/new')}
             />
           ) : (
             <View style={{ paddingVertical: 48, alignItems: 'center' }}>

@@ -105,3 +105,15 @@ Se añadieron regresiones significativas al hook: montaje sin solicitud, creaci�
 Tras integrar el PR en `huerto`, la revisión visual de Home a 390 px en tema oscuro mostró una jerarquía clara para «Hoy en tu huerto», plantas y acciones. También confirmó una oportunidad lógica concreta: «Regar todo» escribía entradas directamente y evitaba la protección de tierra húmeda, la serialización y el guardado seguro usado por el cuidado individual. Se corrigió para reutilizar `recordCare`, conservar litros/método y omitir de forma segura plantas que ya tienen una revisión del día. Se añadió una regresión para metadatos de riego masivo y doble registro.
 
 El resto de la auditoría estática no encontró otra regresión P0/P1 demostrable sin ampliar alcance. Los avisos restantes de Web corresponden a `expo-notifications` sin listener de push efectivo, estilos RN obsoletos y `useNativeDriver` no disponible en Web. Se mantienen como deuda técnica separada.
+
+## Pulido UX posterior a la auditoría — 10 de septiembre de 2026
+
+Se aplicó una intervención acotada sobre problemas de jerarquía, accesibilidad y recuperación:
+
+- Home mantiene el checklist de activación visible durante los primeros días, y agrupa el resto de superficies secundarias bajo «Más de tu huerto». En 320 px las plantas pasan a una columna; a partir de 360 px mantienen dos.
+- El diario distingue «sin entradas» de «sin resultados con este filtro» y ofrece borrar filtros directamente.
+- Ajustes > Notificaciones lista los recordatorios existentes usando lectura pasiva de almacenamiento; consultar esa pantalla no solicita permisos. Las pantallas de alta y edición conservan el formulario ante una denegación y ofrecen abrir los ajustes del sistema en plataformas nativas.
+- La bienvenida usa «Explorar la app» para el recorrido sin cuenta. Se mejoraron roles y etiquetas accesibles del menú inferior y del cierre de quick log, y se localizaron textos que seguían fijos en español.
+- «Regar todo» pasó a expresar revisión/registro de varias plantas para no prometer una acción ficticia; el recomendador de «Sembra ahora» muestra como máximo tres opciones iniciales.
+
+Validación posterior: npm run typecheck, 156 pruebas de la app en 11 archivos, 3 pruebas del hook compartido de recordatorios, export Web, export iOS y git diff --check. No se inició un servidor Expo adicional. La prueba física pendiente sigue siendo permisos, notificaciones en segundo plano, lector de pantalla y selector nativo en Expo Go.

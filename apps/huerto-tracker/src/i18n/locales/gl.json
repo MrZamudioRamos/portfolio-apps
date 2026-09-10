@@ -13,6 +13,7 @@
     "saving": "Gardando…",
     "back": "← Volver",
     "close": "Pechar",
+    "showMenu": "Mostrar menú",
     "continue": "Continuar →",
     "error": "Erro",
     "ok": "Aceptar",
@@ -54,6 +55,8 @@
     "weatherLoading": "🌤️ Cargando o tempo…",
     "lunarDay": "Día",
     "viewStats": "Ver estatísticas",
+    "more": "M\u00E1is da t\u00FAa horta",
+    "hideMore": "Agochar detalles da horta",
     "sowNowTitle": "Sementar agora",
     "sowSoonTitle": "Proximamente",
     "sowNowEmpty": "Non hai cultivos para sementar este mes na túa zona.",
@@ -65,11 +68,11 @@
     "taskHarvest": "{{name}} lista para coseitar",
     "taskPest": "Tratar praga en {{name}}",
     "myPlants": "As miñas plantas",
-    "waterAll": "💧 Regar todo",
-    "waterAllTitle": "Regar todo",
+    "waterAll": "Revisar varias",
+    "waterAllTitle": "Rexistrar o rego de varias plantas",
     "waterAllMessage_one": "Rexistrar rego para {{count}} planta?",
     "waterAllMessage": "Rexistrar rego para as {{count}} plantas?",
-    "waterAllConfirm": "Regar todas",
+    "waterAllConfirm": "Rexistrar regos",
     "firstUseTitle": "A túa horta comeza cunha planta",
     "firstUseDesc": "Escolle unha opción doada segundo o espazo, a luz e a temporada. Podes comezar cunha soa maceta.",
     "firstUseCta": "Escoller a miña primeira planta",
@@ -89,7 +92,8 @@
     "hideFinished": "Ocultar rematadas",
     "taskCarencia": "{{name}}: non coseitar {{days}} día(s) máis (carencia)",
     "waterAllLitersHint": "repartiránse entre as plantas activas",
-    "mapCardSub": "{{count}} plantas · Ver mapa"
+    "mapCardSub": "{{count}} plantas · Ver mapa",
+    "harvestInDays": "en {{days}} d\u00EDas"
   },
   "calendar": {
     "title": "Calendario de sementeira",
@@ -110,6 +114,7 @@
     "containerInfo": "🪴 Recipiente mín. {{liters}} L · {{tip}}",
     "addToGarden": "Engadir á horta",
     "hemisphereSurBanner": "Hemisferio Sur activo · meses invertidos respecto ao norte",
+    "hemisphereSouth": "Sur",
     "catAll": "Todos",
     "today": "Hoxe",
     "upcomingHarvests": "Próximas colleitas",
@@ -133,6 +138,9 @@
     },
     "emptyTitle": "O teu diario está baleiro",
     "emptyDesc": "Rexistra a túa primeira actividade: un rego, unha sementeira ou unha colleita.",
+    "noResultsTitle": "Non hai resultados con este filtro",
+    "noResultsDesc": "Proba outro tipo de coidado ou borra o filtro.",
+    "clearFilters": "Borrar filtros",
     "newEntry": "Nova entrada",
     "search": "Buscar no diario…",
     "exportCsv": "Exportar CSV",
@@ -766,7 +774,7 @@
     "deleteTitle": "Eliminar recordatorio?",
     "deleteDesc": "Cancelarase a notificación e eliminarase o recordatorio.",
     "saveError": "Non se puido gardar o recordatorio.",
-    "permissionError": "As notificacións non están permitidas. Actívaas nos Axustes e téntao de novo.",
+    "permissionError": "As notificacións non están permitidas. Actívaas nos Axustes do sistema e téntao de novo.",
     "notFound": "Recordatorio non atopado"
   },
   "reminderNew": {
@@ -780,7 +788,7 @@
     "noGardenTitle": "Sen horta",
     "noGardenDesc": "Completa o onboarding primeiro.",
     "saveError": "Non se puido crear o recordatorio.",
-    "permissionError": "As notificacións non están permitidas. Actívaas nos Axustes e téntao de novo."
+    "permissionError": "As notificacións non están permitidas. Actívaas nos Axustes do sistema e téntao de novo."
   },
   "backup": {
     "title": "Copia de seguridade",
@@ -841,6 +849,9 @@
     "frostNoProvince": "Configura a túa provincia no horto para activar as alertas de xeada.",
     "more": "máis",
     "plantLabel": "PLANTAS",
+    "remindersLabel": "RECORDATORIOS DE PLANTAS",
+    "remindersEmpty": "A\u00EDnda non tes recordatorios para as t\u00FAas plantas.",
+    "remindersEmptyCta": "Crear un recordatorio",
     "transplantTitle": "Aviso de transplante",
     "transplantDesc": "Alerta ás 6 semanas da sementeira para mover o plantón ao bancal",
     "harvestTitle": "Colleita inminente",

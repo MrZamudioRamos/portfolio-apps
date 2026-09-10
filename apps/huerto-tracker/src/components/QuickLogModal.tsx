@@ -167,7 +167,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
                 </Text>
               ) : null}
             </View>
-            <Pressable onPress={handleClose} hitSlop={12}>
+            <Pressable accessibilityRole="button" accessibilityLabel={t('common.close')} onPress={handleClose} hitSlop={12}>
               <Ionicons name="close" size={22} color={colors.textSecondary} />
             </Pressable>
           </View>

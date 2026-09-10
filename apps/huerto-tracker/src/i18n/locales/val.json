@@ -13,6 +13,7 @@
     "saving": "Guardant…",
     "back": "← Tornar",
     "close": "Tancar",
+    "showMenu": "Mostrar menú",
     "continue": "Continuar →",
     "error": "Error",
     "ok": "D'acord",
@@ -54,6 +55,8 @@
     "weatherLoading": "🌤️ Carregant el temps…",
     "lunarDay": "Dia",
     "viewStats": "Vore estadístiques",
+    "more": "M\u00E9s del teu hort",
+    "hideMore": "Amagar els detalls de l\u0027hort",
     "sowNowTitle": "Sembra ara",
     "sowSoonTitle": "Pròximament",
     "sowNowEmpty": "No hi ha cultius per sembrar este mes a la teua zona.",
@@ -65,11 +68,11 @@
     "taskHarvest": "{{name}} llesta per collir",
     "taskPest": "Tractar plaga a {{name}}",
     "myPlants": "Les meues plantes",
-    "waterAll": "💧 Regar tot",
-    "waterAllTitle": "Regar tot",
+    "waterAll": "Revisar-ne diverses",
+    "waterAllTitle": "Registrar el reg de diverses plantes",
     "waterAllMessage_one": "Registrar reg per a {{count}} planta?",
     "waterAllMessage": "Registrar reg per a les {{count}} plantes?",
-    "waterAllConfirm": "Regar totes",
+    "waterAllConfirm": "Registrar regs",
     "firstUseTitle": "El teu hort comença amb una planta",
     "firstUseDesc": "Tria una opció fàcil segons l’espai, la llum i la temporada. Pots començar amb un sol test.",
     "firstUseCta": "Triar la meva primera planta",
@@ -89,7 +92,8 @@
     "hideFinished": "Amagar finalitzades",
     "taskCarencia": "{{name}}: no collir {{days}} dia(s) més (carència)",
     "waterAllLitersHint": "es repartiran entre les plantes actives",
-    "mapCardSub": "{{count}} plantes · Veure mapa"
+    "mapCardSub": "{{count}} plantes · Veure mapa",
+    "harvestInDays": "d\u0027ac\u00ED {{days}} dies"
   },
   "calendar": {
     "title": "Calendari de sembra",
@@ -110,6 +114,7 @@
     "containerInfo": "🪴 Test mín. {{liters}} L · {{tip}}",
     "addToGarden": "Afig a l'hort",
     "hemisphereSurBanner": "Hemisferi Sud actiu · mesos invertits respecte al nord",
+    "hemisphereSouth": "Sud",
     "catAll": "Tots",
     "today": "Avui",
     "upcomingHarvests": "Pròximes collites",
@@ -133,6 +138,9 @@
     },
     "emptyTitle": "El teu diari està buit",
     "emptyDesc": "Registra la teua primera activitat: un reg, una sembra o una collita.",
+    "noResultsTitle": "No hi ha resultats amb este filtre",
+    "noResultsDesc": "Prova un altre tipus de cura o esborra el filtre.",
+    "clearFilters": "Esborrar filtres",
     "newEntry": "Nova entrada",
     "search": "Cerca al diari…",
     "exportCsv": "Exportar CSV",
@@ -766,7 +774,7 @@
     "deleteTitle": "Eliminar recordatori?",
     "deleteDesc": "Es cancel·larà la notificació i s'eliminarà el recordatori.",
     "saveError": "No s'ha pogut guardar el recordatori.",
-    "permissionError": "Les notificacions no estan permeses. Activa-les en Ajustos i torna-ho a provar.",
+    "permissionError": "Les notificacions no estan permeses. Activa-les en Ajustos del sistema i torna-ho a provar.",
     "notFound": "Recordatori no trobat"
   },
   "reminderNew": {
@@ -780,7 +788,7 @@
     "noGardenTitle": "Sense hort",
     "noGardenDesc": "Completa l'onboarding primer.",
     "saveError": "No s'ha pogut crear el recordatori.",
-    "permissionError": "Les notificacions no estan permeses. Activa-les en Ajustos i torna-ho a provar."
+    "permissionError": "Les notificacions no estan permeses. Activa-les en Ajustos del sistema i torna-ho a provar."
   },
   "backup": {
     "title": "Còpia de seguretat",
@@ -841,6 +849,9 @@
     "frostNoProvince": "Configura la teua província a l'hort per a activar les alertes de gelada.",
     "more": "més",
     "plantLabel": "PLANTES",
+    "remindersLabel": "RECORDATORIS DE PLANTES",
+    "remindersEmpty": "Encara no tens recordatoris per a les teues plantes.",
+    "remindersEmptyCta": "Crear un recordatori",
     "transplantTitle": "Avís de trasplantament",
     "transplantDesc": "Alerta a les 6 setmanes de sembra per moure el plantet al bancal",
     "harvestTitle": "Collita imminent",

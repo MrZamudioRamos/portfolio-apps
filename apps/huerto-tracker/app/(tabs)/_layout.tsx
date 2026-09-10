@@ -61,6 +61,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
   const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
+  const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Track collapse state reactively for pointerEvents
@@ -215,7 +216,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                   navigation.emit({ type: 'tabLongPress', target: route.key })
                 }
                 style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-                accessibilityRole="button"
+                accessibilityRole="tab"
                 accessibilityState={{ selected: focused }}
                 accessibilityLabel={options.title}
               >
@@ -243,7 +244,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                 <Text
                   numberOfLines={1}
                   style={{
-                    fontSize: 9,
+                    fontSize: 11,
                     fontWeight: focused ? '700' : '400',
                     color: focused
                       ? (isDark ? '#fff' : '#111')
@@ -275,7 +276,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
           <Pressable
             onPress={showTabBar}
             accessibilityRole="button"
-            accessibilityLabel="Mostrar menú"
+            accessibilityLabel={t('common.showMenu')}
             style={{
               width: PILL_H,
               height: PILL_H,

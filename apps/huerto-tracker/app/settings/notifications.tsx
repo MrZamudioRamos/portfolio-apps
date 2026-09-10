@@ -5,11 +5,14 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCollection } from '@portfolio/storage';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import { useSeasonalAlerts } from '../../src/hooks/useSeasonalAlerts';
 import { useFrostAlert } from '../../src/hooks/useFrostAlert';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { usePlantNotifications } from '../../src/hooks/usePlantNotifications';
+import type { GardenReminder } from '../../src/models/reminder';
+import { REMINDER_TYPE_CONFIG } from '../../src/models/reminder';
 
 export default function NotificationsSettingsScreen() {
   const colors = useColors();
@@ -17,10 +20,15 @@ export default function NotificationsSettingsScreen() {
   const router = useRouter();
   const { enabled, loading, toggle, nextPreview, zone } = useSeasonalAlerts();
   const { activeGarden } = useActiveGarden();
+  const reminders = useCollection<GardenReminder>('reminders');
   const { enabled: frostEnabled, loading: frostLoading, toggle: toggleFrost } = useFrostAlert(activeGarden?.province);
   const plantNotifs = usePlantNotifications();
 
   const zoneConfig = zone ? CLIMATE_ZONE_CONFIG[zone] : null;
+  const gardenReminders = useMemo(
+    () => reminders.items.filter((reminder) => !activeGarden?.id || reminder.gardenId === activeGarden.id),
+    [reminders.items, activeGarden?.id]
+  );
 
   const { t } = useTranslation();
 
@@ -228,6 +236,61 @@ export default function NotificationsSettingsScreen() {
           </View>
         </Card>
 
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('notifications.remindersLabel')}</Text>
+        <Card padded style={s.card}>
+          {reminders.loading ? (
+            <Text style={[s.rowSub, { color: colors.textSecondary }]}>{t('common.loading')}</Text>
+          ) : gardenReminders.length === 0 ? (
+            <View style={{ gap: spacing.sm }}>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>{t('notifications.remindersEmpty')}</Text>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push('/reminder/new' as any)}
+                style={({ pressed }) => ({ minHeight: 44, justifyContent: 'center', opacity: pressed ? 0.7 : 1 })}
+              >
+                <Text style={{ color: colors.primary, fontWeight: fontWeight.semibold }}>{t('notifications.remindersEmptyCta')}</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <>
+              {gardenReminders.map((reminder, index) => {
+                const config = REMINDER_TYPE_CONFIG[reminder.type];
+                const time = `${String(reminder.time.hour).padStart(2, '0')}:${String(reminder.time.minute).padStart(2, '0')}`;
+                return (
+                  <React.Fragment key={reminder.id}>
+                    {index > 0 && <View style={[s.divider, { backgroundColor: colors.border }]} />}
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`${reminder.title}, ${time}`}
+                      onPress={() => router.push(`/reminder/edit?id=${reminder.id}` as any)}
+                      style={({ pressed }) => [s.reminderRow, { opacity: pressed ? 0.7 : 1 }]}
+                    >
+                      <Text style={{ fontSize: 22 }}>{config.emoji}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[s.rowTitle, { color: colors.text }]} numberOfLines={1}>{reminder.title}</Text>
+                        <Text style={[s.rowSub, { color: colors.textSecondary }]}>
+                          {t('reminderFrequency.' + reminder.frequency)} · {time}
+                        </Text>
+                      </View>
+                      <Text style={{ color: reminder.enabled ? colors.success : colors.textDisabled, fontSize: fontSize.xs, fontWeight: fontWeight.semibold }}>
+                        {reminder.enabled ? t('plantDetail.active') : t('plantDetail.paused')}
+                      </Text>
+                      <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
+                    </Pressable>
+                  </React.Fragment>
+                );
+              })}
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push('/reminder/new' as any)}
+                style={({ pressed }) => ({ minHeight: 44, justifyContent: 'center', marginTop: spacing.sm, opacity: pressed ? 0.7 : 1 })}
+              >
+                <Text style={{ color: colors.primary, fontWeight: fontWeight.semibold }}>{t('notifications.remindersEmptyCta')}</Text>
+              </Pressable>
+            </>
+          )}
+        </Card>
+
         {/* How it works */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('notifications.howLabel')}</Text>
         <Card padded style={s.card}>
@@ -311,6 +374,7 @@ const makeStyles = (
       justifyContent: 'center',
     },
     toggleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    reminderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 56 },
     zoneRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, paddingTop: spacing.sm },
     rowTitle: { fontSize: fontSize.md, fontWeight: fontWeight.medium, marginBottom: 2 },
     rowSub: { fontSize: fontSize.xs, lineHeight: 17 },

@@ -13,6 +13,7 @@
     "saving": "Gordetzen…",
     "back": "← Itzuli",
     "close": "Itxi",
+    "showMenu": "Menua erakutsi",
     "continue": "Jarraitu →",
     "error": "Errorea",
     "ok": "Ados",
@@ -54,6 +55,8 @@
     "weatherLoading": "🌤️ Eguraldia kargatzen…",
     "lunarDay": "Eguna",
     "viewStats": "Estatistikak ikusi",
+    "more": "Baratzetik gehiago",
+    "hideMore": "Baratzearen xehetasunak ezkutatu",
     "sowNowTitle": "Erein orain",
     "sowSoonTitle": "Laster",
     "sowNowEmpty": "Ez dago laborerik ereiteko hilabete honetan zure eremuan.",
@@ -65,11 +68,11 @@
     "taskHarvest": "{{name}} uzta-prest",
     "taskPest": "{{name}}-ko izurritea tratatu",
     "myPlants": "Nire landareak",
-    "waterAll": "💧 Denak ureztatu",
-    "waterAllTitle": "Denak ureztatu",
+    "waterAll": "Hainbat berrikusi",
+    "waterAllTitle": "Hainbat landareren ureztaketa erregistratu",
     "waterAllMessage_one": "{{count}} landarearen ureztatze bat erregistratu?",
     "waterAllMessage": "{{count}} landareen ureztatze bat erregistratu?",
-    "waterAllConfirm": "Denak ureztatu",
+    "waterAllConfirm": "Ureztaketak erregistratu",
     "firstUseTitle": "Zure baratzea landare batekin hasten da",
     "firstUseDesc": "Aukeratu aukera erraz bat espazioaren, argiaren eta sasoiaren arabera. Loreontzi bakar batekin has zaitezke.",
     "firstUseCta": "Aukeratu nire lehen landarea",
@@ -89,7 +92,8 @@
     "hideFinished": "Ezkutatu amaitutakoak",
     "taskCarencia": "{{name}}: ez bildu {{days}} egun gehiago (itxaronaldia)",
     "waterAllLitersHint": "landare aktiboen artean banatuko dira",
-    "mapCardSub": "{{count}} landare · Mapa ikusi"
+    "mapCardSub": "{{count}} landare · Mapa ikusi",
+    "harvestInDays": "{{days}} egun barru"
   },
   "calendar": {
     "title": "Erein egutegia",
@@ -110,6 +114,7 @@
     "containerInfo": "🪴 Gutxieneko ontzia {{liters}} L · {{tip}}",
     "addToGarden": "Baratzera gehitu",
     "hemisphereSurBanner": "Hego hemisferioa aktibo · hilabeteak alderantziz iparraldearekin alderatuta",
+    "hemisphereSouth": "Hegoa",
     "catAll": "Guztiak",
     "today": "Gaur",
     "upcomingHarvests": "Datozen uztak",
@@ -133,6 +138,9 @@
     },
     "emptyTitle": "Egunkaria hutsik dago",
     "emptyDesc": "Erregistratu zure lehen jarduera: ureztatze bat, ereintza bat edo uzta bat.",
+    "noResultsTitle": "Ez dago emaitzarik iragazki honekin",
+    "noResultsDesc": "Probatu beste zainketa mota bat edo garbitu iragazkia.",
+    "clearFilters": "Iragazkiak garbitu",
     "newEntry": "Sarrera berria",
     "search": "Bilatu egunkarian…",
     "exportCsv": "CSV esportatu",
@@ -766,7 +774,7 @@
     "deleteTitle": "Gogorarazlea ezabatu?",
     "deleteDesc": "Jakinarazpena bertan behera utziko da eta gogorarazlea ezabatuko da.",
     "saveError": "Ezin izan da gogorarazlea gorde.",
-    "permissionError": "Jakinarazpenak ez daude baimenduta. Aktibatu Ezarpenetan eta saiatu berriro.",
+    "permissionError": "Jakinarazpenak ez daude baimenduta. Aktibatu gailuaren Ezarpenetan eta saiatu berriro.",
     "notFound": "Gogorarazlea ez da aurkitu"
   },
   "reminderNew": {
@@ -780,7 +788,7 @@
     "noGardenTitle": "Ez dago baratzerik",
     "noGardenDesc": "Osatu onboarding-a lehenik.",
     "saveError": "Ezin izan da oroigarria sortu.",
-    "permissionError": "Jakinarazpenak ez daude baimenduta. Aktibatu Ezarpenetan eta saiatu berriro."
+    "permissionError": "Jakinarazpenak ez daude baimenduta. Aktibatu gailuaren Ezarpenetan eta saiatu berriro."
   },
   "backup": {
     "title": "Segurtasun kopia",
@@ -841,6 +849,9 @@
     "frostNoProvince": "Konfiguratu zure probintzia baratzearen ezarpenetan izotz-alertak aktibatzeko.",
     "more": "gehiago",
     "plantLabel": "LANDAREAK",
+    "remindersLabel": "LANDAREEN ABISUAK",
+    "remindersEmpty": "Oraindik ez duzu landareentzako abisurik.",
+    "remindersEmptyCta": "Abisu bat sortu",
     "transplantTitle": "Transplante-abisua",
     "transplantDesc": "Alerta 6 astetera ereitik landarea lursailera mugitzeko",
     "harvestTitle": "Uzta hurbil",

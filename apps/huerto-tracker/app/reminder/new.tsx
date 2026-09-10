@@ -8,7 +8,9 @@ import { useTranslation } from 'react-i18next';
 import {
   Alert,
   FlatList,
+  Linking,
   Pressable,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -57,6 +59,11 @@ export default function ReminderNewScreen() {
   function handleTypeChange(tp: ReminderType) {
     setType(tp);
     setTitle(t('reminderDefaultTitle.' + tp));
+  }
+
+  async function openSystemSettings() {
+    if (Platform.OS === 'web') return;
+    try { await Linking.openSettings(); } catch { /* The inline recovery copy remains visible. */ }
   }
 
   async function handleSave() {
@@ -108,7 +115,14 @@ export default function ReminderNewScreen() {
         </View>
 
         <View style={s.body}>
-          {permissionError && <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderNew.permissionError')}</Text>}
+          {permissionError && (
+            <View style={{ gap: spacing.xs, marginBottom: spacing.md }}>
+              <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderNew.permissionError')}</Text>
+              <Pressable accessibilityRole="button" onPress={openSystemSettings} style={{ minHeight: 44, justifyContent: 'center' }}>
+                <Text style={{ color: colors.primary, fontWeight: fontWeight.semibold }}>{t('common.openSettings')}</Text>
+              </Pressable>
+            </View>
+          )}
           {saveError && <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderNew.saveError')}</Text>}
           {/* Type selector */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.typeLabel')}</Text>

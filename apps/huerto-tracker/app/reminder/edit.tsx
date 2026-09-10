@@ -7,12 +7,14 @@ import { useTranslation } from 'react-i18next';
 import {
   Alert,
   FlatList,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
   TextInput,
+  Platform,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -73,6 +75,11 @@ export default function ReminderEditScreen() {
     }
   }
 
+  async function openSystemSettings() {
+    if (Platform.OS === 'web') return;
+    try { await Linking.openSettings(); } catch { /* The inline recovery copy remains visible. */ }
+  }
+
   async function handleSave() {
     setSaving(true);
     setPermissionError(false);
@@ -124,7 +131,14 @@ export default function ReminderEditScreen() {
         </View>
 
         <View style={s.body}>
-          {permissionError && <Text accessibilityRole="alert" style={{ color: colors.error, marginBottom: spacing.sm }}>{t('reminderEdit.permissionError')}</Text>}
+          {permissionError && (
+            <View style={{ gap: spacing.xs, marginBottom: spacing.md }}>
+              <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderEdit.permissionError')}</Text>
+              <Pressable accessibilityRole="button" onPress={openSystemSettings} style={{ minHeight: 44, justifyContent: 'center' }}>
+                <Text style={{ color: colors.primary, fontWeight: fontWeight.semibold }}>{t('common.openSettings')}</Text>
+              </Pressable>
+            </View>
+          )}
           {/* Enabled toggle */}
           <View style={[s.enabledRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={{ flex: 1 }}>

@@ -34,7 +34,7 @@ export default function WelcomeScreen() {
             ))}
           </View>
           <View style={{ gap: spacing.sm }}>
-            <Button title={t(completed ? 'welcome.returnGarden' : 'onboarding.start')} size="lg" onPress={() => router.replace(completed ? '/(tabs)' : '/onboarding')} />
+            <Button title={t(completed ? 'welcome.returnGarden' : 'welcome.explore')} size="lg" onPress={() => router.replace(completed ? '/(tabs)' : '/onboarding')} />
             <Text style={{ color: colors.textSecondary, textAlign: 'center', lineHeight: 20 }}>{t('welcome.noAccount')}</Text>
             <Button title={t('welcome.signIn')} variant="ghost" size="lg" onPress={() => router.push('/auth')} />
           </View>

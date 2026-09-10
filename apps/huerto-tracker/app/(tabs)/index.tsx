@@ -21,6 +21,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -71,6 +72,7 @@ function DashboardInner() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
   const router = useRouter();
   const { t, i18n } = useTranslation();
 
@@ -123,6 +125,7 @@ function DashboardInner() {
   const coachLevel = useCoachingLevel();
   const activation = useActivationChecklist();
   useWateringReminder();
+  const [showMoreHome, setShowMoreHome] = useState(false);
   const [justFromOnboarding, setJustFromOnboarding] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState(false);
@@ -158,6 +161,7 @@ function DashboardInner() {
   const [statusFilter, setStatusFilter] = useState<import('../../src/models/plant').PlantStatus | null>(null);
   const [hideFinished, setHideFinished] = useState(true);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'newest'>('default');
+  const plantColumns = screenWidth < 360 ? 1 : 2;
 
   const entriesByPlant = useMemo(() => {
     const idx = new Map<string, DiaryEntry[]>();
@@ -543,8 +547,9 @@ function DashboardInner() {
         ref={listRef}
         data={filteredPlants}
         keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={s.columnWrapper}
+        key={`plants-${plantColumns}`}
+        numColumns={plantColumns}
+        columnWrapperStyle={plantColumns === 2 ? s.columnWrapper : undefined}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
@@ -726,6 +731,30 @@ function DashboardInner() {
         }
         ListFooterComponent={plants.count > 0 ?
           <>
+            {activation.visible && (
+              <ActivationChecklist
+                checklist={activation.checklist}
+                completedCount={activation.completedCount}
+                totalCount={activation.totalCount}
+                onSelect={(id) => {
+                  if (id === 'calendar') router.push('/(tabs)/calendar');
+                  else if (id === 'watering' && todayPlant) router.push({ pathname: '/plant/[id]', params: { id: todayPlant.id } });
+                  else router.push(profile ? '/first-crop' : '/onboarding');
+                }}
+              />
+            )}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded: showMoreHome }}
+              onPress={() => setShowMoreHome((current) => !current)}
+              style={({ pressed }) => [s.moreHomeButton, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
+            >
+              <Text style={[s.moreHomeButtonText, { color: colors.text }]}>
+                {showMoreHome ? t('home.hideMore') : t('home.more')}
+              </Text>
+              <Ionicons name={showMoreHome ? 'chevron-up' : 'chevron-down'} size={18} color={colors.primary} />
+            </Pressable>
+            {showMoreHome && <View>
             {weeklyTasks.length > 0 && (
               <View style={{ marginHorizontal: spacing.xl, marginVertical: spacing.md, gap: spacing.sm }}>
                 <Text style={[s.sectionTitle, { color: colors.text }]}>{t('home.weeklyTasks')}</Text>
@@ -738,20 +767,6 @@ function DashboardInner() {
                 ))}
               </View>
             )}
-            {/* Activation checklist — visible for 14 days after onboarding */}
-            {activation.visible && plants.count > 0 && (
-              <ActivationChecklist
-                checklist={activation.checklist}
-                completedCount={activation.completedCount}
-                totalCount={activation.totalCount}
-                onSelect={(id) => {
-                  if (id === 'calendar') router.push('/(tabs)/calendar');
-                  else if (id === 'watering' && todayPlant) router.push({ pathname: '/plant/[id]', params: { id: todayPlant.id } });
-                  else router.push(profile ? '/first-crop' : '/onboarding');
-                }}
-              />
-            )}
-
             {/* Próximas cosechas — hero card when harvest is near */}
             {plants.count > 0 && (() => {
               const in21 = dateToStr(new Date(Date.now() + 21 * 86_400_000));
@@ -791,7 +806,7 @@ function DashboardInner() {
                     <Text style={s.harvestHeroLabel}>🧺 {t('home.stats.harvesting').toUpperCase()}</Text>
                     <Text style={s.harvestHeroName}>{hp.name}</Text>
                     {daysUntil !== null && daysUntil > 0 && (
-                      <Text style={s.harvestHeroSub}>en {daysUntil}d · {hCrop?.emoji ?? ''}</Text>
+                      <Text style={s.harvestHeroSub}>{t('home.harvestInDays', { days: daysUntil })} · {hCrop?.emoji ?? ''}</Text>
                     )}
                   </View>
                 </ScalePress>
@@ -974,6 +989,7 @@ function DashboardInner() {
             )}
 
             <View style={{ height: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 80 }} />
+            </View>}
           </> : null
         }
         renderItem={renderPlantCard}
@@ -1222,6 +1238,18 @@ const makeStyles = (
       borderWidth: 1,
     },
     aiQuickText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    moreHomeButton: {
+      marginHorizontal: spacing.xl,
+      marginVertical: spacing.md,
+      minHeight: 48,
+      paddingHorizontal: spacing.lg,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    moreHomeButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     // Stats
     statsRow: {
       flexDirection: 'row',

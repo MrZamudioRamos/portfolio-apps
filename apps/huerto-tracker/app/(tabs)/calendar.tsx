@@ -265,7 +265,7 @@ function CalendarInner() {
           </Text>
           {hemisphere === 'sur' && (
             <View style={[s.hemisphereTag, { backgroundColor: colors.info + '18', borderColor: colors.info + '66' }]}>
-              <Text style={{ fontSize: 11, color: colors.info }}>🌎 Sur</Text>
+              <Text style={{ fontSize: 11, color: colors.info }}>🌎 {t('calendar.hemisphereSouth')}</Text>
             </View>
           )}
         </View>
