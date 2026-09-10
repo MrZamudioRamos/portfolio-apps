@@ -89,4 +89,15 @@ describe('useReminders permission boundary', () => {
     expect(cancelReminder).toHaveBeenCalledWith('old-notification');
     expect((update.mock.invocationCallOrder[0] ?? 0)).toBeLessThan(cancelReminder.mock.invocationCallOrder[0] ?? Number.MAX_SAFE_INTEGER);
   });
+
+  it('cancels only the new notification when persistence fails', async () => {
+    collection.getById.mockReturnValue({ ...reminder, id: 'r1', notificationId: 'old-notification' });
+    scheduleReminder.mockResolvedValue('new-notification');
+    update.mockRejectedValue(new Error('storage unavailable'));
+
+    await expect(useReminders('reminders').update('r1', { title: 'Nueva revisión' })).rejects.toThrow('storage unavailable');
+
+    expect(cancelReminder).toHaveBeenCalledWith('new-notification');
+    expect(cancelReminder).not.toHaveBeenCalledWith('old-notification');
+  });
 });
