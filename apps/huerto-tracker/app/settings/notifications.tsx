@@ -68,6 +68,8 @@ export default function NotificationsSettingsScreen() {
               value={enabled}
               onValueChange={toggle}
               disabled={loading}
+              accessibilityLabel={t('notifications.sowingReminders')}
+              accessibilityHint={t('notifications.sowingRemindersDesc')}
               trackColor={{ true: colors.primary }}
               thumbColor="#fff"
             />
@@ -108,6 +110,8 @@ export default function NotificationsSettingsScreen() {
               value={frostEnabled}
               onValueChange={toggleFrost}
               disabled={frostLoading}
+              accessibilityLabel={t('notifications.frostAlerts')}
+              accessibilityHint={t('notifications.frostAlertsDesc')}
               trackColor={{ true: '#29B6F6' }}
               thumbColor="#fff"
             />
@@ -182,6 +186,8 @@ export default function NotificationsSettingsScreen() {
               value={plantNotifs.enabled.transplant}
               onValueChange={(v) => plantNotifs.toggle('transplant', v)}
               disabled={plantNotifs.loading}
+              accessibilityLabel={t('notifications.transplantTitle')}
+              accessibilityHint={t('notifications.transplantDesc')}
               trackColor={{ true: '#4CAF50' }}
               thumbColor="#fff"
             />
@@ -206,6 +212,8 @@ export default function NotificationsSettingsScreen() {
               value={plantNotifs.enabled.harvest}
               onValueChange={(v) => plantNotifs.toggle('harvest', v)}
               disabled={plantNotifs.loading}
+              accessibilityLabel={t('notifications.harvestTitle')}
+              accessibilityHint={t('notifications.harvestDesc')}
               trackColor={{ true: '#FF7043' }}
               thumbColor="#fff"
             />
@@ -230,6 +238,8 @@ export default function NotificationsSettingsScreen() {
               value={plantNotifs.enabled.treatment}
               onValueChange={(v) => plantNotifs.toggle('treatment', v)}
               disabled={plantNotifs.loading}
+              accessibilityLabel={t('notifications.treatmentTitle')}
+              accessibilityHint={t('notifications.treatmentDesc')}
               trackColor={{ true: '#26C6DA' }}
               thumbColor="#fff"
             />

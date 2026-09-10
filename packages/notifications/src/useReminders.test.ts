@@ -34,8 +34,10 @@ const reminder = {
 describe('useReminders permission boundary', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    collection.getById.mockReset();
     requestPermissions.mockResolvedValue(true);
     scheduleReminder.mockResolvedValue('notification-1');
+    cancelReminder.mockResolvedValue(undefined);
   });
 
   it('does not request permission when the hook is mounted for reading', () => {
@@ -55,5 +57,36 @@ describe('useReminders permission boundary', () => {
     await expect(useReminders('reminders').create(reminder)).rejects.toBeInstanceOf(NotificationPermissionDeniedError);
     expect(scheduleReminder).not.toHaveBeenCalled();
     expect(create).not.toHaveBeenCalled();
+  });
+
+  it('keeps the existing notification when enabling is denied', async () => {
+    collection.getById.mockReturnValue({ ...reminder, id: 'r1', notificationId: 'old-notification' });
+    requestPermissions.mockResolvedValue(false);
+
+    await expect(useReminders('reminders').toggle('r1', true)).rejects.toBeInstanceOf(NotificationPermissionDeniedError);
+
+    expect(cancelReminder).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('keeps the existing notification when an update cannot obtain permission', async () => {
+    collection.getById.mockReturnValue({ ...reminder, id: 'r1', notificationId: 'old-notification' });
+    requestPermissions.mockResolvedValue(false);
+
+    await expect(useReminders('reminders').update('r1', { title: 'Nueva revisión' })).rejects.toBeInstanceOf(NotificationPermissionDeniedError);
+
+    expect(cancelReminder).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('replaces the notification only after the reminder update succeeds', async () => {
+    collection.getById.mockReturnValue({ ...reminder, id: 'r1', notificationId: 'old-notification' });
+    scheduleReminder.mockResolvedValue('new-notification');
+
+    await useReminders('reminders').update('r1', { title: 'Nueva revisión' });
+
+    expect(update).toHaveBeenCalledWith('r1', expect.objectContaining({ notificationId: 'new-notification' }));
+    expect(cancelReminder).toHaveBeenCalledWith('old-notification');
+    expect((update.mock.invocationCallOrder[0] ?? 0)).toBeLessThan(cancelReminder.mock.invocationCallOrder[0] ?? Number.MAX_SAFE_INTEGER);
   });
 });

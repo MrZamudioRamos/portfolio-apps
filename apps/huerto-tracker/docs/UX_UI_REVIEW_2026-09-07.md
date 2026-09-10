@@ -117,3 +117,11 @@ Se aplicó una intervención acotada sobre problemas de jerarquía, accesibilida
 - «Regar todo» pasó a expresar revisión/registro de varias plantas para no prometer una acción ficticia; el recomendador de «Sembra ahora» muestra como máximo tres opciones iniciales.
 
 Validación posterior: npm run typecheck, 156 pruebas de la app en 11 archivos, 3 pruebas del hook compartido de recordatorios, export Web, export iOS y git diff --check. No se inició un servidor Expo adicional. La prueba física pendiente sigue siendo permisos, notificaciones en segundo plano, lector de pantalla y selector nativo en Expo Go.
+
+## Verificación de estabilidad de recordatorios — 10 de septiembre de 2026
+
+La prueba de regresión reprodujo un estado parcial en `useReminders.update` y `toggle(true)`: el código cancelaba la notificación anterior antes de pedir permiso o guardar el nuevo estado. Si la persona denegaba el permiso, el recordatorio seguía marcado como habilitado pero había perdido su notificación. La corrección programa primero, persiste después y cancela la notificación anterior solo cuando el guardado terminó; si el guardado falla, cancela únicamente la notificación nueva.
+
+También se verificó la pantalla de Notificaciones en la build Web de la rama: `/welcome` no autenticado carga, `/settings/notifications` se puede consultar sin prompt y los cinco interruptores anuncian su nombre mediante accesibilidad. La pantalla conserva los estados de carga y de provincia incompleta sin bloquear la navegación.
+
+Validación de esta intervención: `npx vitest run packages/notifications/src/useReminders.test.ts` (6 pruebas), `npm test --workspace apps/huerto-tracker` (156 pruebas en 11 archivos), `npm run typecheck --workspace apps/huerto-tracker`, `npx expo export --platform web`, `npx expo export --platform ios` y `git diff --check`, todos correctos. Persisten solo avisos conocidos de Sentry sin configuración de organización/proyecto, `NO_COLOR`, estilos RN obsoletos y listener de push no efectivo en Web.

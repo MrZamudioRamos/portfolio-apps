@@ -31,22 +31,42 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
     const reminder = collection.getById(id);
     if (!reminder) return;
     if (enabled) {
-      if (reminder.notificationId) await cancelReminder(reminder.notificationId).catch(() => {});
-      const notificationId = await scheduleIfEnabled(reminder);
-      await collection.update(id, { enabled: true, notificationId } as any);
+      const previousNotificationId = reminder.notificationId;
+      const notificationId = await scheduleIfEnabled({ ...reminder, enabled: true });
+      try {
+        await collection.update(id, { enabled: true, notificationId } as any);
+      } catch (error) {
+        if (notificationId && notificationId !== previousNotificationId) {
+          await cancelReminder(notificationId).catch(() => {});
+        }
+        throw error;
+      }
+      if (previousNotificationId && previousNotificationId !== notificationId) {
+        await cancelReminder(previousNotificationId).catch(() => {});
+      }
     } else {
-      if (reminder.notificationId) await cancelReminder(reminder.notificationId).catch(() => {});
       await collection.update(id, { enabled: false, notificationId: undefined } as any);
+      if (reminder.notificationId) await cancelReminder(reminder.notificationId).catch(() => {});
     }
   }
 
   async function update(id: string, data: Partial<CreateInput<T>>): Promise<void> {
     const reminder = collection.getById(id);
     if (!reminder) return;
-    if (reminder.notificationId) await cancelReminder(reminder.notificationId).catch(() => {});
+    const previousNotificationId = reminder.notificationId;
     const merged = { ...reminder, ...data };
     const notificationId = await scheduleIfEnabled(merged);
-    await collection.update(id, { ...data, notificationId } as any);
+    try {
+      await collection.update(id, { ...data, notificationId } as any);
+    } catch (error) {
+      if (notificationId && notificationId !== previousNotificationId) {
+        await cancelReminder(notificationId).catch(() => {});
+      }
+      throw error;
+    }
+    if (previousNotificationId && previousNotificationId !== notificationId) {
+      await cancelReminder(previousNotificationId).catch(() => {});
+    }
   }
 
   async function remove(id: string): Promise<void> {
