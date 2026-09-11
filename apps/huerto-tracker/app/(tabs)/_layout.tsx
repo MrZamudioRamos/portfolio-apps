@@ -2,13 +2,10 @@ import { useOnboarding } from '@portfolio/shared';
 import { useSession } from '@portfolio/supabase';
 import { useTheme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
-import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { Redirect, Tabs } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Animated,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -18,12 +15,10 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
+const TAB_BAR_H = 64;
+const TAB_BAR_GAP_BOTTOM = 0;
 
-const PILL_H = 64;
-const PILL_GAP_BOTTOM = 12;
-
-export const FLOATING_TAB_BOTTOM_CLEARANCE = PILL_H + PILL_GAP_BOTTOM + 8;
+export const FLOATING_TAB_BOTTOM_CLEARANCE = TAB_BAR_H + TAB_BAR_GAP_BOTTOM + 8;
 
 // 0 = expanded, 1 = collapsed to circle
 export const collapseAnim = new Animated.Value(0);
@@ -55,10 +50,8 @@ type TabBarProps = {
   navigation: { navigate: (name: string) => void; emit: (event: any) => any };
 };
 
-const ACTIVE_BG = 'rgba(255, 255, 255, 0.13)';
-
 function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
-  const { isDark } = useTheme();
+  const { colors, isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const { t } = useTranslation();
@@ -70,7 +63,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
     return () => collapseAnim.removeListener(id);
   }, []);
 
-  const fullWidth = screenWidth - 24;
+  const fullWidth = screenWidth;
 
   const visibleRoutes = state.routes.filter(
     (r) => typeof descriptors[r.key].options.tabBarIcon === 'function'
@@ -81,11 +74,12 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
   const activeRoute = visibleRoutes[activeVisibleIdx];
   const activeOptions = activeRoute ? descriptors[activeRoute.key]?.options : null;
 
-  // Width shrinks from full → PILL_H (circle) when hidden
-  const pillWidth = collapseAnim.interpolate({
+  // The bar collapses to a small restore control while scrolling.
+  const tabBarWidth = collapseAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [fullWidth, PILL_H],
+    outputRange: [fullWidth, TAB_BAR_H],
   });
+  const tabBarLeft = collapseAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 12] });
 
   // Tab row fades out early in the collapse
   const tabRowOpacity = collapseAnim.interpolate({
@@ -101,83 +95,40 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
 
   return (
     <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
-      {/* Shadow layer — same animated width, no overflow clipping */}
+      {/* A restrained shadow keeps the compact restore control discoverable. */}
       <Animated.View
         pointerEvents="none"
         style={{
           position: 'absolute',
-          bottom: insets.bottom + PILL_GAP_BOTTOM,
-          left: 12,
-          width: pillWidth,
-          height: PILL_H,
-          borderRadius: PILL_H / 2,
+          bottom: insets.bottom + TAB_BAR_GAP_BOTTOM,
+          left: tabBarLeft,
+          width: tabBarWidth,
+          height: TAB_BAR_H,
+          borderRadius: isCollapsed ? TAB_BAR_H / 2 : 0,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.45,
-          shadowRadius: 20,
-          elevation: 14,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.14,
+          shadowRadius: 6,
+          elevation: 4,
         }}
       />
 
-      {/* Pill content */}
+      {/* Solid navigation bar: predictable, readable, and consistent with the app palette. */}
       <Animated.View
         pointerEvents="box-none"
         style={{
           position: 'absolute',
-          bottom: insets.bottom + PILL_GAP_BOTTOM,
-          left: 12,
-          width: pillWidth,
-          height: PILL_H,
-          borderRadius: PILL_H / 2,
+          bottom: insets.bottom + TAB_BAR_GAP_BOTTOM,
+          left: tabBarLeft,
+          width: tabBarWidth,
+          height: TAB_BAR_H,
+          borderRadius: isCollapsed ? TAB_BAR_H / 2 : 0,
           overflow: 'hidden',
+          backgroundColor: colors.surface,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: colors.border,
         }}
       >
-        {/* Glass / blur background */}
-        {glassAvailable ? (
-          <GlassView
-            style={StyleSheet.absoluteFill}
-            glassEffectStyle="regular"
-            colorScheme={isDark ? 'dark' : 'light'}
-          />
-        ) : Platform.OS === 'ios' ? (
-          <BlurView
-            intensity={isDark ? 65 : 80}
-            tint={isDark ? 'dark' : 'light'}
-            style={[
-              StyleSheet.absoluteFill,
-              {
-                backgroundColor: isDark
-                  ? 'rgba(18,18,18,0.75)'
-                  : 'rgba(255,255,255,0.75)',
-              },
-            ]}
-          />
-        ) : (
-          <View
-            style={[
-              StyleSheet.absoluteFill,
-              {
-                backgroundColor: isDark
-                  ? 'rgba(18,18,18,0.96)'
-                  : 'rgba(255,255,255,0.96)',
-              },
-            ]}
-          />
-        )}
-        {/* Border */}
-        <View
-          style={[
-            StyleSheet.absoluteFill,
-            {
-              borderRadius: PILL_H / 2,
-              borderWidth: StyleSheet.hairlineWidth,
-              borderColor: isDark
-                ? 'rgba(255,255,255,0.1)'
-                : 'rgba(0,0,0,0.08)',
-            },
-          ]}
-          pointerEvents="none"
-        />
         {/* Full tab row */}
         <Animated.View
           pointerEvents={isCollapsed ? 'none' : 'box-none'}
@@ -229,8 +180,8 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                       left: 6,
                       right: 6,
                       bottom: 4,
-                      borderRadius: 14,
-                      backgroundColor: ACTIVE_BG,
+                      borderRadius: 8,
+                      backgroundColor: colors.primary + (isDark ? '26' : '16'),
                     }}
                   />
                 )}
@@ -266,8 +217,8 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
             position: 'absolute',
             top: 0,
             left: 0,
-            width: PILL_H,
-            height: PILL_H,
+            width: TAB_BAR_H,
+            height: TAB_BAR_H,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: restoreOpacity,
@@ -278,8 +229,8 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
             accessibilityRole="button"
             accessibilityLabel={t('common.showMenu')}
             style={{
-              width: PILL_H,
-              height: PILL_H,
+              width: TAB_BAR_H,
+              height: TAB_BAR_H,
               alignItems: 'center',
               justifyContent: 'center',
             }}

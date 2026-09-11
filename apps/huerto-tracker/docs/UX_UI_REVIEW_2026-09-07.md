@@ -195,3 +195,9 @@ Validación en Web: el Diario muestra «HACE 1 SEMANA» y «Siembra hace 1 seman
 ## Accesibilidad en Catálogo y Diario — 11 de septiembre de 2026
 
 Los filtros del Catálogo ahora anuncian que son botones y cuál está seleccionado; cada ficha anuncia si sus detalles están abiertos. La búsqueda tiene etiqueta accesible. En el Diario se etiquetaron las tarjetas editables, la búsqueda, la exportación CSV, el borrado de búsqueda y el botón flotante de nueva entrada. Esto deja las acciones principales disponibles también para navegación asistida, sin cambiar el recorrido visual.
+
+## Prueba de Uncodixfy en navegación — 11 de septiembre de 2026
+
+Se instaló la skill pública [Uncodixfy](https://github.com/cyxzdev/Uncodixfy) como criterio para detectar patrones genéricos de UI. La primera aplicación se hizo en la navegación inferior: se sustituyó la cápsula flotante con desenfoque y sombra amplia por una barra sólida de ancho completo, borde superior y sombra mínima. El estado activo usa el verde de Semilla con un fondo discreto, y el modo compacto durante el scroll conserva una acción clara para recuperar la barra.
+
+La skill se aplica como guía, no como una migración visual automática: se mantienen las formas redondeadas cuando comunican una acción táctil o un filtro, y se conserva la identidad vegetal de la app. La prueba visual en Calendario confirmó que el contenido sigue teniendo contraste y que las cuatro pestañas se pueden identificar y activar.
