@@ -90,7 +90,7 @@ export default function IdentifyPlantScreen() {
     setSaved(false);
 
     try {
-      const cropName = crop ? t('crops.' + crop.id + '.name') : 'plant';
+      const cropName = crop ? t('crops.' + crop.id + '.name', { defaultValue: crop.name }) : 'plant';
       const result = await identifyPest(photo, cropName, i18n.language);
       setDiagnosis(result);
     } catch (err: unknown) {

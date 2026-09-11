@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DISEASES, type DiseaseInfo, type DiseaseType } from '../src/data/diseases';
+import { CROPS_BY_ID } from '../src/data/crops';
 
 const TYPE_COLOR: Record<DiseaseType, string> = {
   plaga: '#EF5350',
@@ -189,7 +190,9 @@ export default function DiseaseGuideScreen() {
                     {/* Affected crops */}
                     <Text style={[s.label, { color: colors.textSecondary }]}>{t('diseaseGuide.affectedCrops')}</Text>
                     <Text style={[s.body, { color: colors.text }]}>
-                      {disease.affectedCrops.map((c) => t('crops.' + c + '.name')).join(', ')}
+                      {disease.affectedCrops
+                        .map((c) => t('crops.' + c + '.name', { defaultValue: CROPS_BY_ID[c]?.name ?? c }))
+                        .join(', ')}
                     </Text>
 
                     {/* Visual signs */}

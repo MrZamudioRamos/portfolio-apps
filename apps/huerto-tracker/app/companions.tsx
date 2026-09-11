@@ -36,11 +36,13 @@ export default function CompanionsScreen() {
 
   const { t } = useTranslation();
 
+  const cropLabel = (crop: CropInfo) => t(`crops.${crop.id}.name`, { defaultValue: crop.name });
+
   const filtered = useMemo(
     () =>
       CROPS.filter((c) =>
         c.name.toLowerCase().includes(search.toLowerCase()) ||
-        t('crops.' + c.id + '.name').toLowerCase().includes(search.toLowerCase())
+        cropLabel(c).toLowerCase().includes(search.toLowerCase())
       ),
     [search, t]
   );
@@ -64,7 +66,7 @@ export default function CompanionsScreen() {
             <Text style={s.browseEmoji}>{crop.emoji}</Text>
             <View style={{ flex: 1 }}>
               <Text style={[s.browseName, { color: locked ? colors.textDisabled : colors.text }]}>
-                {t('crops.' + crop.id + '.name')}
+                {cropLabel(crop)}
               </Text>
               <Text style={[s.browseCategory, { color: colors.primary }]}>
                 {t('cropCategory.' + crop.category)}
@@ -80,7 +82,7 @@ export default function CompanionsScreen() {
                   <View style={s.chipRow}>
                     {companions.map((c) => (
                       <View key={c.id} style={[s.chip, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
-                        <Text style={[s.chipText, { color: colors.text }]}>{c.emoji} {t('crops.' + c.id + '.name')}</Text>
+                        <Text style={[s.chipText, { color: colors.text }]}>{c.emoji} {cropLabel(c)}</Text>
                       </View>
                     ))}
                   </View>
@@ -93,7 +95,7 @@ export default function CompanionsScreen() {
                   <View style={s.chipRow}>
                     {incompatible.map((c) => (
                       <View key={c.id} style={[s.chip, { backgroundColor: '#EF535018', borderColor: '#EF5350' }]}>
-                        <Text style={[s.chipText, { color: colors.text }]}>{c.emoji} {t('crops.' + c.id + '.name')}</Text>
+                        <Text style={[s.chipText, { color: colors.text }]}>{c.emoji} {cropLabel(c)}</Text>
                       </View>
                     ))}
                   </View>
@@ -153,7 +155,7 @@ export default function CompanionsScreen() {
         {crop ? (
           <>
             <Text style={{ fontSize: 28 }}>{crop.emoji}</Text>
-            <Text style={[s.pickerName, { color: colors.text }]} numberOfLines={1}>{t('crops.' + crop.id + '.name')}</Text>
+            <Text style={[s.pickerName, { color: colors.text }]} numberOfLines={1}>{cropLabel(crop)}</Text>
             <Pressable onPress={() => slot === 'A' ? setSelectedA(null) : setSelectedB(null)} hitSlop={8}>
               <Ionicons name="close-circle" size={16} color={colors.textDisabled} />
             </Pressable>
@@ -282,7 +284,7 @@ export default function CompanionsScreen() {
                 {COMPAT_CONFIG[compatibility].label}
               </Text>
               <Text style={[s.resultDesc, { color: colors.text }]}>
-                {t('crops.' + selectedA.id + '.name')} + {t('crops.' + selectedB.id + '.name')}
+                {cropLabel(selectedA)} + {cropLabel(selectedB)}
               </Text>
               {compatibility === 'companion' && (
                 <Text style={[s.resultNote, { color: colors.textSecondary }]}>
@@ -334,7 +336,7 @@ export default function CompanionsScreen() {
                       ]}
                     >
                       <Text style={{ fontSize: 22, width: 32 }}>{crop.emoji}</Text>
-                      <Text style={[s.cropPickName, { color: colors.text, flex: 1 }]}>{t('crops.' + crop.id + '.name')}</Text>
+                      <Text style={[s.cropPickName, { color: colors.text, flex: 1 }]}>{cropLabel(crop)}</Text>
                       {statusColor && (
                         <Ionicons
                           name={status === 'companion' ? 'checkmark-circle' : 'close-circle'}

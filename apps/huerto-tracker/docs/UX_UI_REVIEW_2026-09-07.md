@@ -157,3 +157,9 @@ No se copiaron ilustraciones, textos, precios ni arquitectura de la app de refer
 ## Descubrimiento estacional en Home — 11 de septiembre de 2026
 
 La recomendación «Siembra ahora» deja de estar escondida dentro de «Más de tu huerto» cuando ya existen plantas. Se muestra después del cuidado de hoy, con el mes y la zona en el encabezado, tres cultivos priorizados para principiantes, fotografías existentes, etiqueta de dificultad y acción directa para iniciar la alta. Se reutiliza `SowNowCard`, `getSowingNow`, el catálogo y las rutas de alta actuales; no se añade una segunda fuente de recomendaciones.
+
+## Revisión del resto de pantallas — 11 de septiembre de 2026
+
+Se revisaron Diario, Herramientas, Ajustes, Catálogo, Calendario, alta de planta, alta de entrada, recordatorios, Asociaciones, Rotación, Medidor de luz, Estadísticas, Guía de enfermedades, diagnóstico, mapa y gestión de huertos. La jerarquía, los estados Pro y la navegación inferior mantienen un lenguaje coherente. Calendario y Catálogo son las superficies más densas; se mantienen como siguiente área de trabajo si las pruebas en móvil confirman que el contenido requiere más agrupación.
+
+La revisión encontró además una regresión de contenido: algunos cultivos añadidos recientemente no tienen todavía una clave de traducción y mostraban `crops.<id>.name` en Asociaciones, Estadísticas, alta de planta y diagnóstico. Las pantallas ahora usan el nombre del catálogo como fallback para etiquetas, búsquedas, consejos y cultivos afectados por una enfermedad, evitando exponer claves técnicas y manteniendo el contenido legible aunque falte una traducción.

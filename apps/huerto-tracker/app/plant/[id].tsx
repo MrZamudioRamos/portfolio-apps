@@ -351,7 +351,7 @@ export default function PlantDetailScreen() {
             <View style={[s.heroNoPhoto, { backgroundColor: statusConfig ? statusConfig.color + '15' : colors.surfaceAlt }]}>
               <Text style={{ fontSize: 72 }}>{crop.emoji}</Text>
               <Text style={[s.heroNoPhotoName, { color: colors.text }]} numberOfLines={1}>
-                {crop.isCustom ? crop.name : t('crops.' + crop.id + '.name')}
+                {crop.isCustom ? crop.name : t('crops.' + crop.id + '.name', { defaultValue: crop.name })}
               </Text>
               <View style={[s.heroCategoryChip, { backgroundColor: 'rgba(0,0,0,0.07)' }]}>
                 <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary }}>
@@ -773,7 +773,7 @@ export default function PlantDetailScreen() {
               </View>
               <View style={[s.tipBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
                 <Text style={[s.tipText, { color: colors.textSecondary }]}>
-                  💡 {crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips')}
+                  💡 {crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips', { defaultValue: crop.tips })}
                 </Text>
               </View>
             </Card>
@@ -865,7 +865,7 @@ export default function PlantDetailScreen() {
             <Card padded style={s.infoCard}>
               <HowToStages
                 cropId={crop.id}
-                fallbackTip={crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips')}
+                fallbackTip={crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips', { defaultValue: crop.tips })}
               />
             </Card>
           )}
@@ -1153,7 +1153,9 @@ export default function PlantDetailScreen() {
               <>
                 <View style={[{ height: StyleSheet.hairlineWidth, backgroundColor: colors.border }]} />
                 <Text style={[{ fontSize: fontSize.xs, color: colors.textSecondary, fontWeight: fontWeight.semibold }]}>
-                  {t('plantDetail.commonPests', { crop: (crop?.isCustom ? crop.name : t('crops.' + crop?.id + '.name')).toUpperCase() })}
+                  {t('plantDetail.commonPests', {
+                    crop: (crop?.isCustom ? crop.name : t('crops.' + crop?.id + '.name', { defaultValue: crop?.name })).toUpperCase(),
+                  })}
                 </Text>
                 {pestInfo.slice(0, 3).map((pest) => (
                   <View key={pest.id} style={[s.pestCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>

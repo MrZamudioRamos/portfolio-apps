@@ -105,7 +105,7 @@ export default function NewPlantScreen() {
   const [plantName, setPlantName] = useState(() => {
     if (!paramCropId) return '';
     const staticCrop = CROPS_BY_ID[paramCropId];
-    return staticCrop ? (t('crops.' + paramCropId + '.name') || staticCrop.name) : '';
+    return staticCrop ? t('crops.' + paramCropId + '.name', { defaultValue: staticCrop.name }) : '';
   });
   const [variety, setVariety] = useState('');
   const [varietyId, setVarietyId] = useState<string | null>(null);
@@ -134,7 +134,7 @@ export default function NewPlantScreen() {
         ? sec.data.filter(
             (c) =>
               c.name.toLowerCase().includes(q) ||
-              t('crops.' + c.id + '.name').toLowerCase().includes(q)
+              t('crops.' + c.id + '.name', { defaultValue: c.name }).toLowerCase().includes(q)
           )
         : sec.data,
     })).filter((sec) => sec.data.length > 0);
@@ -155,7 +155,7 @@ export default function NewPlantScreen() {
   function handleSelectCrop(crop: CropInfo) {
     setSelectedCropId(crop.id);
     if (!plantName) {
-      const label = crop.isCustom ? crop.name : (t('crops.' + crop.id + '.name') || crop.name);
+      const label = crop.isCustom ? crop.name : t('crops.' + crop.id + '.name', { defaultValue: crop.name });
       setPlantName(label);
     }
     setShowCropPicker(false);
@@ -244,7 +244,7 @@ export default function NewPlantScreen() {
   }
 
   const cropName = selectedCrop
-    ? (selectedCrop.isCustom ? selectedCrop.name : t('crops.' + selectedCrop.id + '.name'))
+    ? (selectedCrop.isCustom ? selectedCrop.name : t('crops.' + selectedCrop.id + '.name', { defaultValue: selectedCrop.name }))
     : '';
 
   if (createdPlant) return (
@@ -685,7 +685,7 @@ export default function NewPlantScreen() {
                 )}
                 <View style={{ flex: 1, marginLeft: spacing.md }}>
                   <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.medium }}>
-                    {item.isCustom ? item.name : t('crops.' + item.id + '.name')}
+                    {item.isCustom ? item.name : t('crops.' + item.id + '.name', { defaultValue: item.name })}
                   </Text>
                   {!item.isCustom && (CROP_DIFFICULTY[item.id] || item.daysToHarvest) && (
                     <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, marginTop: 2 }}>

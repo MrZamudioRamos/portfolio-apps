@@ -432,7 +432,9 @@ export default function StatsScreen() {
                   <View style={s.rankRow}>
                     <Text style={[s.rankNum, { color: colors.textDisabled }]}>#{i + 1}</Text>
                     <Text style={{ fontSize: 22 }}>{item.crop.emoji}</Text>
-                    <Text style={[s.rankName, { color: colors.text }]}>{t('crops.' + item.crop.id + '.name')}</Text>
+                    <Text style={[s.rankName, { color: colors.text }]}>
+                      {t('crops.' + item.crop.id + '.name', { defaultValue: item.crop.name })}
+                    </Text>
                     <View style={{ gap: 3, alignItems: 'flex-end' }}>
                       {item.kg > 0 && (
                         <View style={[s.rankBadge, { backgroundColor: '#FF704322' }]}>
