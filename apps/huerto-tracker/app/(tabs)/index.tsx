@@ -494,8 +494,8 @@ function DashboardInner() {
           </View>
         </Card>
       </ScalePress>
-        <Pressable accessibilityRole="button" accessibilityLabel={t('dailyCare.logFor', { name: item.name })} onPress={() => isSeedPlan(item) ? router.push({ pathname: '/plant/[id]', params: { id: item.id } }) : setQuickLogPlant(item)} style={[s.quickLogBtn, { top: 8, bottom: undefined, width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primary }]}>
-          <Ionicons name="add" size={20} color={colors.background} />
+        <Pressable accessibilityRole="button" accessibilityLabel={t(isSeedPlan(item) ? 'dailyCare.viewPlan' : 'dailyCare.logFor', { name: item.name })} onPress={() => isSeedPlan(item) ? router.push({ pathname: '/plant/[id]', params: { id: item.id } }) : setQuickLogPlant(item)} style={[s.quickLogBtn, { top: 8, bottom: undefined, width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primary }]}>
+          <Ionicons name={isSeedPlan(item) ? 'open-outline' : 'add'} size={20} color={colors.background} />
         </Pressable>
       </View>
     );

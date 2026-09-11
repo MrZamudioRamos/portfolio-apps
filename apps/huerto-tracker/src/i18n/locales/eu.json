@@ -1662,6 +1662,7 @@
     "review": "Lurra begiratzeko unea",
     "recorded": "Jarraipenean",
     "logFor": "Erregistratu {{name}} landarearen zainketa",
+    "viewPlan": "Ikusi {{name}}(r)en plana",
     "weatherHint": "Iragarpena orientagarria da: egiaztatu lurra ureztatu aurretik."
   },
   "activation": {

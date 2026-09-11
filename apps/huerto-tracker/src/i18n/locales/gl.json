@@ -1662,6 +1662,7 @@
     "review": "Toca revisar a terra",
     "recorded": "En seguimento",
     "logFor": "Rexistrar un coidado de {{name}}",
+    "viewPlan": "Ver o plan de {{name}}",
     "weatherHint": "A previsión é orientativa: comproba a terra antes de regar."
   },
   "activation": {

@@ -2043,6 +2043,7 @@
     "review": "Time to check the soil",
     "recorded": "Being tracked",
     "logFor": "Log care for {{name}}",
+    "viewPlan": "View plan for {{name}}",
     "weatherHint": "The forecast is a guide: check the soil before watering."
   },
   "activation": {

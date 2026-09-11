@@ -2037,6 +2037,7 @@
     "review": "Toca revisar la tierra",
     "recorded": "En seguimiento",
     "logFor": "Registrar cuidado de {{name}}",
+    "viewPlan": "Ver plan de {{name}}",
     "weatherHint": "La previsión es orientativa: comprueba la tierra antes de regar."
   },
   "cropNew": {
