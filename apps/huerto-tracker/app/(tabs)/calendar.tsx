@@ -172,7 +172,7 @@ function CalendarInner() {
     return t('calendar.shade');
   }
 
-  const WATER_LABEL: Record<string, string> = { high: '💧💧💧', medium: '💧💧', low: '💧' };
+  const WATER_FALLBACK: Record<string, string> = { high: '💧💧💧', medium: '💧💧', low: '💧' };
 
   function renderCropItem({ item }: { item: CropInfo }) {
     const [minDays, maxDays] = item.daysToHarvest;
@@ -217,7 +217,7 @@ function CalendarInner() {
           </View>
           <View style={[s.metaChip, { backgroundColor: colors.surfaceAlt }]}>
             <Text style={[s.metaText, { color: colors.textSecondary }]}>
-              {WATER_LABEL[item.waterNeeds]}
+              {t(`catalog.water.${item.waterNeeds}`, { defaultValue: WATER_FALLBACK[item.waterNeeds] ?? '💧' })}
             </Text>
           </View>
         </View>
