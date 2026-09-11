@@ -294,11 +294,11 @@ export default function EditPlantScreen() {
             <Text style={{ color: sowingDate ? colors.text : colors.textDisabled, fontSize: fontSize.md, flex: 1 }}>
               {sowingDate || t('entryNew.datePlaceholder')}
             </Text>
-            {sowingDate && (
+            {sowingDate ? (
               <Pressable onPress={() => setSowingDate('')} hitSlop={8}>
                 <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
               </Pressable>
-            )}
+            ) : null}
           </Pressable>
 
           {/* Date picker modal for iOS / inline for Android */}

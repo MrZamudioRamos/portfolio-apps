@@ -141,3 +141,5 @@ La pantalla `/plant/[id]` tenía dos problemas de jerarquía para una persona pr
 El selector de estado se abre bajo una acción explícita, marca la opción actual con radio accesible y se cierra al guardar o cancelar. Los estados de carga y planta no encontrada tienen Mascot, texto y recuperación visibles. El diario vacío incluye una explicación breve y «Nueva entrada». Se añadieron las claves equivalentes a es, en, ca, eu, gl y val.
 
 Validación: detalle de rábano en Expo Web oscuro, apertura/cierre del selector sin salto accidental, typecheck, 156 pruebas, export Web, export iOS y `git diff --check`. Queda pendiente revisar el detalle en Expo Go con tema claro, VoiceOver/TalkBack y datos reales sin foto.
+
+Durante la comprobación de edición se reprodujo y corrigió un aviso de Expo Web al dejar la fecha de siembra vacía: la condición de renderizado devolvía una cadena vacía como hijo de `Pressable`. Ahora devuelve `null`, por lo que `/plant/edit` carga sin el overlay de error y conserva el borrado de fecha.
