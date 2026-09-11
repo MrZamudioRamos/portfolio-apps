@@ -1637,6 +1637,19 @@
     "today": "Veure el pla d’avui",
     "saveError": "No s’ha completat el desament. Torna-ho a provar."
   },
+  "firstWeek": {
+    "title": "Els teus primers 7 dies",
+    "subtitle": "Un pla senzill perquè {{name}} comence amb bon peu.",
+    "spaceTitle": "Prepara el seu espai",
+    "spaceContainer": "Usa un test d’almenys {{liters}} L amb forats de drenatge.",
+    "spaceGround": "Tria un lloc lluminós amb un sòl que drene bé.",
+    "observeTitle": "Comprova abans de regar",
+    "observeBody": "Toca la terra abans de regar. Si està seca, rega a poc a poc; si encara està humida, espera.",
+    "materialTitle": "Tingues a mà el bàsic",
+    "materialBody": "Prepara llavors o planter, substrat i una eina menuda.",
+    "checkTitle": "Torna a mirar demà",
+    "checkBody": "Busca fulles noves i senyals de plagues. Si alguna cosa canvia, obri el diagnòstic."
+  },
   "dailyCare": {
     "eyebrow": "Avui al teu hort",
     "checkTitle": "Comprova la terra de {{name}}",

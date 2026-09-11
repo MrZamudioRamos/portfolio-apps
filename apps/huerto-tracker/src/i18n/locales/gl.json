@@ -1637,6 +1637,19 @@
     "today": "Ver o plan de hoxe",
     "saveError": "Non se completou o gardado. Téntao de novo."
   },
+  "firstWeek": {
+    "title": "Os teus primeiros 7 días",
+    "subtitle": "Un plan sinxelo para que {{name}} empece ben.",
+    "spaceTitle": "Prepara o seu lugar",
+    "spaceContainer": "Usa unha maceta de polo menos {{liters}} L con buratos de drenaxe.",
+    "spaceGround": "Escolle un lugar luminoso cun solo que drene ben.",
+    "observeTitle": "Comproba antes de regar",
+    "observeBody": "Toca a terra antes de regar. Se está seca, rega amodo; se segue húmida, agarda.",
+    "materialTitle": "Ten a man o básico",
+    "materialBody": "Prepara sementes ou unha planta, substrato e unha ferramenta pequena.",
+    "checkTitle": "Mira de novo mañá",
+    "checkBody": "Busca follas novas e sinais de pragas. Se algo cambia, abre o diagnóstico."
+  },
   "dailyCare": {
     "eyebrow": "Hoxe na túa horta",
     "checkTitle": "Comproba a terra de {{name}}",

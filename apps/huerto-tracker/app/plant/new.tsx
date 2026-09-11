@@ -249,11 +249,39 @@ export default function NewPlantScreen() {
 
   if (createdPlant) return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: spacing.xl }}>
-        <View style={{ alignSelf: 'center', width: '100%', maxWidth: 520, alignItems: 'center', gap: spacing.lg }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, padding: spacing.xl }}>
+        <View style={{ alignSelf: 'center', width: '100%', maxWidth: 560, alignItems: 'center', gap: spacing.lg }}>
           <Mascot pose="celebrate" size={120} />
           <Text accessibilityRole="header" style={{ color: colors.text, fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, textAlign: 'center' }}>{t('guidedPlant.success', { name: createdPlant.name })}</Text>
           <Text style={{ color: colors.textSecondary, lineHeight: 24, textAlign: 'center' }}>{t('guidedPlant.successBody')}</Text>
+          <View style={[s.firstWeekPanel, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={{ gap: spacing.xs }}>
+              <Text accessibilityRole="header" style={[s.firstWeekTitle, { color: colors.text }]}>{t('firstWeek.title')}</Text>
+              <Text style={[s.firstWeekSubtitle, { color: colors.textSecondary }]}>{t('firstWeek.subtitle', { name: cropName })}</Text>
+            </View>
+            {[
+              {
+                icon: '🪴',
+                title: t('firstWeek.spaceTitle'),
+                body: typeof (selectedCropId ? CROP_CONTAINER_MIN[selectedCropId] : null) === 'number'
+                  ? t('firstWeek.spaceContainer', { liters: CROP_CONTAINER_MIN[selectedCropId!] })
+                  : t('firstWeek.spaceGround'),
+              },
+              { icon: '💧', title: t('firstWeek.observeTitle'), body: t('firstWeek.observeBody') },
+              { icon: '🧰', title: t('firstWeek.materialTitle'), body: t('firstWeek.materialBody') },
+              { icon: '🔎', title: t('firstWeek.checkTitle'), body: t('firstWeek.checkBody') },
+            ].map((item) => (
+              <View key={item.title} style={s.firstWeekItem}>
+                <View style={[s.firstWeekIcon, { backgroundColor: colors.primary + '18' }]}>
+                  <Text style={{ fontSize: 20 }} accessible={false}>{item.icon}</Text>
+                </View>
+                <View style={{ flex: 1, gap: 3 }}>
+                  <Text style={[s.firstWeekItemTitle, { color: colors.text }]}>{item.title}</Text>
+                  <Text style={[s.firstWeekItemBody, { color: colors.textSecondary }]}>{item.body}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
           <Button title={t('guidedPlant.today')} size="lg" onPress={() => router.replace('/(tabs)')} style={{ width: '100%' }} />
         </View>
       </ScrollView>
@@ -795,6 +823,21 @@ const makeStyles = (
     },
     entryBtnTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
     entryBtnDesc: { fontSize: fontSize.xs, marginTop: 2 },
+
+    // First-week guide shown immediately after the first plant is saved.
+    firstWeekPanel: {
+      width: '100%',
+      borderRadius: radii.xl,
+      borderWidth: 1,
+      padding: spacing.lg,
+      gap: spacing.lg,
+    },
+    firstWeekTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    firstWeekSubtitle: { fontSize: fontSize.sm, lineHeight: 20 },
+    firstWeekItem: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
+    firstWeekIcon: { width: 40, height: 40, borderRadius: radii.md, alignItems: 'center', justifyContent: 'center' },
+    firstWeekItemTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    firstWeekItemBody: { fontSize: fontSize.sm, lineHeight: 20 },
 
     // Step 2 — crop hero
     cropHero: {

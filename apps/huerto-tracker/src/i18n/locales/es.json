@@ -2012,6 +2012,19 @@
     "today": "Ver mi plan de hoy",
     "saveError": "No se ha completado el guardado. Vuelve a intentarlo."
   },
+  "firstWeek": {
+    "title": "Tus primeros 7 días",
+    "subtitle": "Un plan sencillo para que {{name}} empiece con buen pie.",
+    "spaceTitle": "Prepara su sitio",
+    "spaceContainer": "Usa una maceta de al menos {{liters}} L con agujeros de drenaje.",
+    "spaceGround": "Elige un sitio con buena luz y suelo que drene bien.",
+    "observeTitle": "Comprueba antes de regar",
+    "observeBody": "Toca la tierra antes de regar. Si está seca, riega despacio; si sigue húmeda, espera.",
+    "materialTitle": "Ten a mano lo básico",
+    "materialBody": "Prepara semillas o plantón, sustrato y una herramienta pequeña.",
+    "checkTitle": "Vuelve a mirar mañana",
+    "checkBody": "Busca hojas nuevas y señales de plagas. Si algo cambia, abre el diagnóstico."
+  },
   "dailyCare": {
     "eyebrow": "Hoy en tu huerto",
     "checkTitle": "Comprueba la tierra de {{name}}",

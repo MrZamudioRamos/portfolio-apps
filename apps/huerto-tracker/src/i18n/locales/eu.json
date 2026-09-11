@@ -1637,6 +1637,19 @@
     "today": "Ikusi gaurko plana",
     "saveError": "Ez da gordetzea amaitu. Saiatu berriro."
   },
+  "firstWeek": {
+    "title": "Zure lehen 7 egunak",
+    "subtitle": "Plan erraz bat {{name}} ondo hasteko.",
+    "spaceTitle": "Prestatu haren lekua",
+    "spaceContainer": "Erabili gutxienez {{liters}} L-ko lorontzi bat, drainatze-zuloekin.",
+    "spaceGround": "Aukeratu leku argi bat, ura ondo drainatzen duen lurrarekin.",
+    "observeTitle": "Egiaztatu ureztatu aurretik",
+    "observeBody": "Ukitu lurra ureztatu aurretik. Lehor badago, ureztatu poliki; oraindik heze badago, itxaron.",
+    "materialTitle": "Prest izan oinarrizkoa",
+    "materialBody": "Prestatu haziak edo landarea, substratua eta tresna txiki bat.",
+    "checkTitle": "Begiratu berriro bihar",
+    "checkBody": "Bilatu hosto berriak eta izurrite-zantzuak. Zerbait aldatzen bada, ireki diagnostikoa."
+  },
   "dailyCare": {
     "eyebrow": "Gaur zure baratzean",
     "checkTitle": "Begiratu {{name}} landarearen lurra",

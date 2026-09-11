@@ -2018,6 +2018,19 @@
     "today": "See today’s plan",
     "saveError": "Saving did not finish. Please try again."
   },
+  "firstWeek": {
+    "title": "Your first 7 days",
+    "subtitle": "A simple plan to give {{name}} a good start.",
+    "spaceTitle": "Prepare its spot",
+    "spaceContainer": "Use a pot of at least {{liters}} L with drainage holes.",
+    "spaceGround": "Choose a bright spot with soil that drains well.",
+    "observeTitle": "Check before watering",
+    "observeBody": "Touch the soil before watering. If it is dry, water slowly; if it is still damp, wait.",
+    "materialTitle": "Keep the basics ready",
+    "materialBody": "Prepare seeds or a seedling, potting mix, and a small tool.",
+    "checkTitle": "Look again tomorrow",
+    "checkBody": "Look for new leaves and signs of pests. If something changes, open diagnosis."
+  },
   "dailyCare": {
     "eyebrow": "Today in your garden",
     "checkTitle": "Check the soil of {{name}}",

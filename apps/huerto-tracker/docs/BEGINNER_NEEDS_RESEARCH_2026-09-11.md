@@ -94,3 +94,7 @@ Después de la primera cosecha, pedir una valoración muy corta: qué salió bie
 ## Decisión
 
 Semilla ya cubre el calendario, la localización, el cuidado diario, el diagnóstico, el registro y la planificación. El mayor hueco para una persona nueva está antes de plantar: ayudarle a elegir una meta realista y comprobar que tiene el espacio, el material y el tiempo necesarios. La primera implementación recomendable es la guía contextual de los primeros 7 días; después se puede añadir la preferencia de cultivos sin hacer el onboarding obligatorio más largo.
+
+## Implementación inicial
+
+La guía de los primeros 7 días ya aparece en la pantalla de éxito de la primera planta guiada. Reutiliza el cultivo elegido y su tamaño mínimo de recipiente cuando existe, y mantiene la acción final hacia «Hoy en tu huerto». No guarda una segunda lista de tareas: es una explicación contextual para que la persona sepa qué preparar, cómo observar y cuándo volver.
