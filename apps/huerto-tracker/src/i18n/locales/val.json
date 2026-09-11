@@ -93,7 +93,14 @@
     "taskCarencia": "{{name}}: no collir {{days}} dia(s) més (carència)",
     "waterAllLitersHint": "es repartiran entre les plantes actives",
     "mapCardSub": "{{count}} plantes · Veure mapa",
-    "harvestInDays": "d\u0027ac\u00ED {{days}} dies"
+    "harvestInDays": "d\u0027ac\u00ED {{days}} dies",
+    "harvestReflectionTitle": "Com ha sigut cuidar-la?",
+    "harvestReflectionDesc": "Guarda una nota breu per recordar què repetir la propera vegada.",
+    "harvestReflection": {"easy": "Ha sigut fàcil", "steady": "Ha sigut suportable", "hard": "M’ha costat"},
+    "harvestReflectionSave": "Guardar aprenentatge",
+    "harvestReflectionLater": "Ara no",
+    "harvestReflectionError": "No s’ha pogut guardar la nota. Pots tornar-ho a provar.",
+    "harvestReflectionNote": "Primera collita: {{rating}}."
   },
   "calendar": {
     "title": "Calendari de sembra",
@@ -583,6 +590,8 @@
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Collita orientativa: {{min}}–{{max}} dies des de la sembra",
     "adjust": "Revisar les meves respostes",
+    "startSmall": "Comença amb una sola planta i afig-ne més quan agafes el ritme.",
+    "care": {"low": "Reg espaiat", "medium": "Reg regular", "high": "Reg freqüent"},
     "intentTitle": "Què et ve de gust cultivar?",
     "intentDesc": "Opcional: triar una categoria ajuda a ordenar primer les opcions que encaixen amb tu.",
     "intentAny": "M’és igual",

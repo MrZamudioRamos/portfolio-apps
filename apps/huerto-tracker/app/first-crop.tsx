@@ -87,6 +87,7 @@ export default function FirstCropScreen() {
         </View>
         <Card padded style={{ borderColor: colors.border }}>
           <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{activeGarden ? t('firstCrop.context', { province: activeGarden.province, sunlight: t('onboarding.sun' + (profile?.sunlight ?? 'shade')[0].toUpperCase() + (profile?.sunlight ?? 'shade').slice(1)) }) : t('firstCrop.gardenReady')}</Text>
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs }}>{t('firstCrop.startSmall')}</Text>
         </Card>
         <Card padded style={{ borderColor: colors.border }}>
           <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('firstCrop.intentTitle')}</Text>
@@ -132,6 +133,7 @@ export default function FirstCropScreen() {
               <View style={{ gap: spacing.xs, marginTop: spacing.md }}>
                 {recommendation.reasons.map((reason) => <Text key={reason} style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>• {t(reasonKey[reason], { liters: recommendation.containerLiters })}</Text>)}
                 <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t(`firstCrop.difficulty.${CROP_DIFFICULTY[crop.id] ?? 'medium'}`)}</Text>
+                <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t(`firstCrop.care.${crop.waterNeeds}`)}</Text>
               </View>
               <Button title={t(recommendation.action === 'sow' ? 'firstCrop.choose' : 'firstCrop.prepare')} onPress={() => choose(index)} variant={index === 0 ? 'primary' : 'outline'} size="lg" style={{ marginTop: spacing.md }} />
             </Card>

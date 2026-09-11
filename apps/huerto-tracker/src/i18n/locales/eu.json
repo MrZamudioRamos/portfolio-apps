@@ -93,7 +93,14 @@
     "taskCarencia": "{{name}}: ez bildu {{days}} egun gehiago (itxaronaldia)",
     "waterAllLitersHint": "landare aktiboen artean banatuko dira",
     "mapCardSub": "{{count}} landare · Mapa ikusi",
-    "harvestInDays": "{{days}} egun barru"
+    "harvestInDays": "{{days}} egun barru",
+    "harvestReflectionTitle": "Nolakoa izan da haztea?",
+    "harvestReflectionDesc": "Gorde ohar labur bat hurrengoan zer errepikatu gogoratzeko.",
+    "harvestReflection": {"easy": "Erraza izan da", "steady": "Egingarria izan da", "hard": "Kosta egin zait"},
+    "harvestReflectionSave": "Ikaskuntza gorde",
+    "harvestReflectionLater": "Orain ez",
+    "harvestReflectionError": "Ezin izan da oharra gorde. Saiatu berriro.",
+    "harvestReflectionNote": "Lehen uzta: {{rating}}."
   },
   "calendar": {
     "title": "Erein egutegia",
@@ -583,6 +590,8 @@
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Gutxi gorabeherako uzta: erein eta {{min}}–{{max}} egunera",
     "adjust": "Berrikusi nire erantzunak",
+    "startSmall": "Hasi landare bakarrarekin eta gehitu gehiago erritmoa aurkitzen duzunean.",
+    "care": {"low": "Noizbehinkako ureztaketa", "medium": "Ohiko ureztaketa", "high": "Maiz ureztatu"},
     "intentTitle": "Zer landatu nahi duzu?",
     "intentDesc": "Aukerakoa: kategoria bat aukeratuz gero, zurekin bat datozen aukerak lehenetsiko dira.",
     "intentAny": "Edozerk balio dit",

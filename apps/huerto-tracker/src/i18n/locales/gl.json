@@ -93,7 +93,14 @@
     "taskCarencia": "{{name}}: non coseitar {{days}} día(s) máis (carencia)",
     "waterAllLitersHint": "repartiránse entre as plantas activas",
     "mapCardSub": "{{count}} plantas · Ver mapa",
-    "harvestInDays": "en {{days}} d\u00EDas"
+    "harvestInDays": "en {{days}} d\u00EDas",
+    "harvestReflectionTitle": "Como foi coidala?",
+    "harvestReflectionDesc": "Garda unha nota breve para lembrar que repetir a próxima vez.",
+    "harvestReflection": {"easy": "Foi doado", "steady": "Foi levadío", "hard": "Custoume"},
+    "harvestReflectionSave": "Gardar aprendizaxe",
+    "harvestReflectionLater": "Agora non",
+    "harvestReflectionError": "Non se puido gardar a nota. Podes tentalo de novo.",
+    "harvestReflectionNote": "Primeira colleita: {{rating}}."
   },
   "calendar": {
     "title": "Calendario de sementeira",
@@ -583,6 +590,8 @@
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Colleita orientativa: {{min}}–{{max}} días desde a sementeira",
     "adjust": "Revisar as miñas respostas",
+    "startSmall": "Comeza cunha soa planta e engade máis cando collas o ritmo.",
+    "care": {"low": "Rego espazado", "medium": "Rego regular", "high": "Rego frecuente"},
     "intentTitle": "Que che apetece cultivar?",
     "intentDesc": "Opcional: escoller unha categoría axuda a ordenar primeiro as opcións que encaixan contigo.",
     "intentAny": "Dáme igual",

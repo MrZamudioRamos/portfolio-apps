@@ -38,6 +38,7 @@ import type { GardenReminder } from '../../src/models/reminder';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import { getLunarDay } from '../../src/utils/lunar';
 import { QuickLogModal } from '../../src/components/QuickLogModal';
+import { Button } from '../../src/components/ActionButton';
 import { ScalePress } from '../../src/components/ScalePress';
 import { SowNowCard } from '../../src/components/SowNowCard';
 import type { DiaryEntry } from '../../src/models/diary-entry';
@@ -47,7 +48,7 @@ import { buildGamificationData } from '../../src/utils/gamification';
 import { PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringStatus';
 import { checkFrost } from '../../src/hooks/useFrostAlert';
-import { recordCare } from '../../src/utils/careWrites';
+import { recordCare, recordQuickEntry } from '../../src/utils/careWrites';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Mascot } from '../../src/components/Mascot';
 import { SuccessBurst } from '../../src/components/SuccessBurst';
@@ -152,6 +153,10 @@ function DashboardInner() {
   const [cardImgErr, setCardImgErr] = useState<Record<string, boolean>>({});
   const [showHarvestCelebration, setShowHarvestCelebration] = useState(false);
   const [harvestCelebKg, setHarvestCelebKg] = useState<number | null>(null);
+  const [harvestCelebPlantId, setHarvestCelebPlantId] = useState<string | null>(null);
+  const [harvestReflection, setHarvestReflection] = useState<'easy' | 'steady' | 'hard' | null>(null);
+  const [harvestReflectionSaving, setHarvestReflectionSaving] = useState(false);
+  const [harvestReflectionError, setHarvestReflectionError] = useState(false);
   const [showHarvestBurst, setShowHarvestBurst] = useState(false);
   const [showWaterAllModal, setShowWaterAllModal] = useState(false);
   const [waterAllLiters, setWaterAllLiters] = useState('');
@@ -307,6 +312,9 @@ function DashboardInner() {
       const harvestEntry = entries.items.find((e) => e.gardenId === garden.id && e.type === 'harvest');
       const d = harvestEntry?.data as any;
       const kg = d?.weightGrams ? d.weightGrams / 1000 : null;
+      setHarvestCelebPlantId(harvestEntry?.plantId ?? null);
+      setHarvestReflection(null);
+      setHarvestReflectionError(false);
       setHarvestCelebKg(kg);
       setShowHarvestCelebration(true);
       setShowHarvestBurst(true);
@@ -314,6 +322,30 @@ function DashboardInner() {
       AsyncStorage.setItem(key, '1');
     });
   }, [gardenHarvestCount, entries.loading, garden?.id]);
+
+  async function saveHarvestReflection() {
+    if (!harvestReflection || !harvestCelebPlantId || harvestReflectionSaving) return;
+    setHarvestReflectionSaving(true);
+    setHarvestReflectionError(false);
+    try {
+      await recordQuickEntry({
+        gardenId: garden?.id ?? '',
+        plantId: harvestCelebPlantId,
+        type: 'note',
+        date: todayStr(),
+        notes: t('home.harvestReflectionNote', { rating: t('home.harvestReflection.' + harvestReflection) }),
+      });
+      track(EVENTS.entryAdded, { type: 'note', plant_id: harvestCelebPlantId, source: 'harvest_reflection' });
+      // The note is already persisted locally; a refresh failure should not
+      // make a successful save look like an error to the user.
+      try { await entries.refresh(); } catch { /* local write succeeded */ }
+      setShowHarvestCelebration(false);
+    } catch {
+      setHarvestReflectionError(true);
+    } finally {
+      setHarvestReflectionSaving(false);
+    }
+  }
 
   useEffect(() => {
     if (!garden) return;
@@ -1039,11 +1071,39 @@ function DashboardInner() {
                 {t('home.firstHarvestCelebDesc', { kg: harvestCelebKg.toFixed(2) })}
               </Text>
             )}
+            {harvestCelebPlantId && (
+              <View style={{ width: '100%', gap: spacing.sm }}>
+                <Text style={{ fontSize: fontSize.md, fontWeight: fontWeight.bold, color: colors.text, textAlign: 'center' }}>
+                  {t('home.harvestReflectionTitle')}
+                </Text>
+                <Text style={{ fontSize: fontSize.sm, lineHeight: 20, color: colors.textSecondary, textAlign: 'center' }}>
+                  {t('home.harvestReflectionDesc')}
+                </Text>
+                <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+                  {(['easy', 'steady', 'hard'] as const).map((rating) => {
+                    const selected = harvestReflection === rating;
+                    return (
+                      <Pressable
+                        key={rating}
+                        accessibilityRole="radio"
+                        accessibilityState={{ selected }}
+                        onPress={() => setHarvestReflection(rating)}
+                        style={{ flex: 1, minHeight: 52, borderWidth: 1, borderColor: selected ? colors.primary : colors.border, backgroundColor: selected ? colors.primary + '18' : colors.surfaceAlt, borderRadius: radii.md, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xs }}
+                      >
+                        <Text style={{ color: selected ? colors.primary : colors.text, fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' }}>{t('home.harvestReflection.' + rating)}</Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+                {harvestReflectionError && <Text accessibilityRole="alert" style={{ color: colors.error, textAlign: 'center', fontSize: fontSize.sm }}>{t('home.harvestReflectionError')}</Text>}
+                {harvestReflection && <Button title={t('home.harvestReflectionSave')} onPress={saveHarvestReflection} loading={harvestReflectionSaving} size="lg" />}
+              </View>
+            )}
             <Pressable
               onPress={() => setShowHarvestCelebration(false)}
               style={({ pressed }) => ({ backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: radii.lg, opacity: pressed ? 0.8 : 1 })}
             >
-              <Text style={{ color: colors.background, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('home.firstHarvestCelebClose')}</Text>
+              <Text style={{ color: colors.background, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t(harvestReflection ? 'home.harvestReflectionLater' : 'home.firstHarvestCelebClose')}</Text>
             </Pressable>
           </Pressable>
         </Pressable>

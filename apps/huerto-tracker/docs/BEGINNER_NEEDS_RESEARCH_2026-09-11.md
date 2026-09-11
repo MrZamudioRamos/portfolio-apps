@@ -100,3 +100,5 @@ Semilla ya cubre el calendario, la localización, el cuidado diario, el diagnós
 La guía de los primeros 7 días ya aparece en la pantalla de éxito de la primera planta guiada. Reutiliza el cultivo elegido y su tamaño mínimo de recipiente cuando existe, y mantiene la acción final hacia «Hoy en tu huerto». No guarda una segunda lista de tareas: es una explicación contextual para que la persona sepa qué preparar, cómo observar y cuándo volver.
 
 La pantalla de primeras opciones también permite indicar, de forma opcional, qué familia de cultivos apetece probar. Esa preferencia solo reordena cultivos que ya cumplen luz, espacio y temporada; no fuerza una opción incompatible y se puede limpiar con «Me da igual».
+
+Las recomendaciones muestran además el ritmo de riego y recuerdan empezar con una sola planta. Tras la primera cosecha, la celebración ofrece guardar una valoración breve en el diario para que el siguiente ciclo conserve ese aprendizaje.
