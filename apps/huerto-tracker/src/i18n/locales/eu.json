@@ -1696,6 +1696,7 @@
     "recorded": "Jarraipenean",
     "logFor": "Erregistratu {{name}} landarearen zainketa",
     "viewPlan": "Ikusi {{name}}(r)en plana",
+    "viewPlant": "Ikusi landarearen fitxa osoa",
     "weatherHint": "Iragarpena orientagarria da: egiaztatu lurra ureztatu aurretik."
   },
   "activation": {

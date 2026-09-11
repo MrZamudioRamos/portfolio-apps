@@ -2077,6 +2077,7 @@
     "recorded": "Being tracked",
     "logFor": "Log care for {{name}}",
     "viewPlan": "View plan for {{name}}",
+    "viewPlant": "View full plant details",
     "weatherHint": "The forecast is a guide: check the soil before watering."
   },
   "activation": {

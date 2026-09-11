@@ -179,3 +179,9 @@ Para comprobar que la app tiene sentido se revisan tareas completas, no pantalla
 El lavado de cara sigue cuatro reglas: una jerarquía clara, una sola acción primaria por paso, estados visibles y textos que describen el resultado. En `plant/new`, el primer paso ahora presenta a Semillita, la pregunta «¿Qué quieres cultivar?», una explicación breve y después la selección del catálogo; el comportamiento de guardado y los límites no cambian.
 
 La prueba Web cubre navegación, árbol accesible, estados vacíos, filtros, reintentos y recarga. Queda pendiente la comprobación física en Expo Go de tamaños pequeños, modo claro, permisos, lector de pantalla y gestos nativos.
+
+## Acción directa desde «Hoy» — 11 de septiembre de 2026
+
+La tarjeta de cuidado de la portada ya no obliga a abrir el detalle para completar la tarea principal. Cuando toca revisar la tierra, muestra las mismas dos decisiones explícitas que el detalle: regar si estaba seca o registrar que sigue húmeda. La tarjeta conserva un segundo botón para abrir la ficha completa y refresca la portada y la lista de plantas después de guardar, de modo que la siguiente planta pendiente aparece sin navegación adicional.
+
+Validación en Expo Web: se registró «Sigue húmeda, hoy no riego» desde la portada y la tarjeta pasó a la siguiente planta pendiente; el botón «Ver ficha completa» siguió disponible. `npm run typecheck`, `npm test`, JSON de traducciones y `git diff --check` pasan.

@@ -1696,6 +1696,7 @@
     "recorded": "En seguimento",
     "logFor": "Rexistrar un coidado de {{name}}",
     "viewPlan": "Ver o plan de {{name}}",
+    "viewPlant": "Ver a ficha completa",
     "weatherHint": "A previsión é orientativa: comproba a terra antes de regar."
   },
   "activation": {

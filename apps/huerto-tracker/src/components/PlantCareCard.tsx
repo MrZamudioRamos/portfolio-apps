@@ -68,16 +68,15 @@ export function PlantCareCard({ plant, crop, climateZone, entries, onOpen, frost
       </View>
       <Text accessibilityLiveRegion="polite" style={{ color: colors.textSecondary, fontSize: fontSize.md, lineHeight: 23, marginVertical: spacing.md }}>{t('dailyCare.' + state + 'Body')}</Text>
       {error && <Text accessibilityRole="alert" style={{ color: colors.error, marginBottom: spacing.sm }}>{t('dailyCare.saveError')}</Text>}
-      {onOpen ? <Button title={t('dailyCare.open')} size="lg" onPress={onOpen} /> : <>
-        {state === 'prepare' && <>
-          <Text style={{ color: colors.textSecondary, lineHeight: 22, marginBottom: spacing.md }}>{t(sowNow ? 'dailyCare.sowNow' : 'dailyCare.waitSeason')}</Text>
-          <Button title={t('dailyCare.sown')} onPress={() => record('sowing')} loading={saving} size="lg" />
-        </>}
-        {state === 'check' && <View style={{ gap: spacing.sm }}>
-          <Button title={t('dailyCare.watered')} onPress={() => record('watering')} loading={saving} size="lg" />
-          <Button title={t('dailyCare.moist')} onPress={() => record('moist')} disabled={saving} variant="outline" size="lg" />
-        </View>}
+      {state === 'prepare' && <>
+        <Text style={{ color: colors.textSecondary, lineHeight: 22, marginBottom: spacing.md }}>{t(sowNow ? 'dailyCare.sowNow' : 'dailyCare.waitSeason')}</Text>
+        <Button title={t('dailyCare.sown')} onPress={() => record('sowing')} loading={saving} size="lg" />
       </>}
+      {state === 'check' && <View style={{ gap: spacing.sm }}>
+        <Button title={t('dailyCare.watered')} onPress={() => record('watering')} loading={saving} size="lg" />
+        <Button title={t('dailyCare.moist')} onPress={() => record('moist')} disabled={saving} variant="outline" size="lg" />
+      </View>}
+      {onOpen && <Button title={t('dailyCare.viewPlant')} size="lg" variant="outline" onPress={onOpen} style={{ marginTop: spacing.sm }} />}
     </Card>
   );
 }

@@ -2071,6 +2071,7 @@
     "recorded": "En seguimiento",
     "logFor": "Registrar cuidado de {{name}}",
     "viewPlan": "Ver plan de {{name}}",
+    "viewPlant": "Ver ficha completa",
     "weatherHint": "La previsión es orientativa: comprueba la tierra antes de regar."
   },
   "cropNew": {

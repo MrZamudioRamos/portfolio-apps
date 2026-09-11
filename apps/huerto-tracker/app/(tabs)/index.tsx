@@ -663,7 +663,7 @@ function DashboardInner() {
             {todayPlant && !entries.loading && (
               <CopilotStep text={t('coach.homeToday')} order={1} name="today">
                 <WalkView style={{ marginHorizontal: spacing.xl }}>
-                  <PlantCareCard plant={todayPlant} crop={CROPS_BY_ID[todayPlant.cropId] ?? customCropsById[todayPlant.cropId]} climateZone={garden?.climateZone} entries={entries.items} frost={Boolean(weather && weather.today.tempMin <= 2 && !isSeedPlan(todayPlant))} onOpen={() => router.push({ pathname: '/plant/[id]', params: { id: todayPlant.id } })} />
+                  <PlantCareCard plant={todayPlant} crop={CROPS_BY_ID[todayPlant.cropId] ?? customCropsById[todayPlant.cropId]} climateZone={garden?.climateZone} entries={entries.items} frost={Boolean(weather && weather.today.tempMin <= 2 && !isSeedPlan(todayPlant))} onOpen={() => router.push({ pathname: '/plant/[id]', params: { id: todayPlant.id } })} onUpdated={async () => { await Promise.all([allPlants.refresh(), entries.refresh()]); }} />
                 </WalkView>
               </CopilotStep>
             )}
