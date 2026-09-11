@@ -78,6 +78,7 @@ export default function PlantDetailScreen() {
   const [shareModal, setShareModal] = useState<Omit<ShareModalProps, 'visible' | 'onClose'> | null>(null);
   const [wateringFeedback, setWateringFeedback] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
 
   async function onRefresh() {
     setRefreshing(true);
@@ -192,21 +193,36 @@ export default function PlantDetailScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  if (plants.loading && !plant) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></SafeAreaView>;
+  if (plants.loading && !plant) return (
+    <SafeAreaView style={[s.loadingState, { backgroundColor: colors.background }]}>
+      <Mascot pose="idle" size={72} />
+      <ActivityIndicator color={colors.primary} />
+      <Text style={[s.loadingText, { color: colors.textSecondary }]}>{t('plantDetail.loading')}</Text>
+    </SafeAreaView>
+  );
   if (!plant || !crop) {
     return (
-      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable accessibilityRole="button" accessibilityLabel={t('onboarding.back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')} style={s.backBtn}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
-        </Pressable>
-        <Text style={[s.notFound, { color: colors.textSecondary }]}>{t('plantDetail.notFound')}</Text>
+      <SafeAreaView style={[s.notFoundState, { backgroundColor: colors.background }]}>
+        <Mascot pose="idle" size={96} />
+        <Text style={[s.notFoundTitle, { color: colors.text }]}>{t('plantDetail.notFound')}</Text>
+        <Button
+          title={t('plantDetail.backToGarden')}
+          size="md"
+          onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')}
+        />
       </SafeAreaView>
     );
   }
+  const currentStatusConfig = statusConfig ?? PLANT_STATUS_CONFIG.seedling;
 
   async function handleStatusChange(status: PlantStatus) {
+    if (plant!.status === status) {
+      setShowStatusModal(false);
+      return;
+    }
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     await plants.update(id, { status });
+    setShowStatusModal(false);
 
     // Trigger C: season summary when last active plant is marked finished
     if (status === 'finished' && plant && activeGarden) {
@@ -494,11 +510,11 @@ export default function PlantDetailScreen() {
                 const isReady = daysRemaining <= 0;
                 return (
                   <View style={[s.harvestEstBlock, {
-                    backgroundColor: isReady ? '#4CAF5015' : colors.primary + '12',
-                    borderColor: isReady ? '#4CAF50' : colors.primary,
+                    backgroundColor: isReady ? colors.success + '15' : colors.primary + '12',
+                    borderColor: isReady ? colors.success : colors.primary,
                   }]}>
                     <Text style={{ fontSize: 16 }}>🧺</Text>
-                    <Text style={[s.harvestEstText, { color: isReady ? '#4CAF50' : colors.primary }]}>
+                    <Text style={[s.harvestEstText, { color: isReady ? colors.success : colors.primary }]}>
                       {isReady
                         ? t('plantDetail.harvestReadyNow')
                         : t('plantDetail.harvestInDays', { count: daysRemaining })
@@ -510,59 +526,40 @@ export default function PlantDetailScreen() {
             </View>
           )}
 
-          {/* Stage journey — vertical stepper */}
+          {/* Stage journey — compact summary with an explicit change action */}
           <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantDetail.statusSection')}</Text>
           {(() => {
             const currentIdx = ALL_STATUSES.indexOf(plant.status);
+            const nextStatus = currentIdx >= 0 ? ALL_STATUSES[currentIdx + 1] : undefined;
             return (
-              <View style={{ maxHeight: 320, marginBottom: spacing.xl }}>
-                <ScrollView showsVerticalScrollIndicator={false} scrollEnabled>
-                  {ALL_STATUSES.map((status, idx) => {
-                    const cfg = PLANT_STATUS_CONFIG[status];
-                    const isActive = idx === currentIdx;
-                    const isPast = idx < currentIdx;
-                    const isLast = idx === ALL_STATUSES.length - 1;
-                    return (
-                      <Pressable
-                        key={status}
-                        onPress={() => handleStatusChange(status)}
-                        hitSlop={6}
-                        style={{ flexDirection: 'row', gap: spacing.md }}
-                      >
-                        <View style={{ alignItems: 'center', width: 30 }}>
-                          <View style={{
-                            width: 28, height: 28, borderRadius: 14,
-                            backgroundColor: (isActive || isPast) ? cfg.color : 'transparent',
-                            borderWidth: 2,
-                            borderColor: (isActive || isPast) ? cfg.color : colors.border,
-                            alignItems: 'center', justifyContent: 'center',
-                          }}>
-                            <Text style={{ fontSize: 12 }}>{cfg.emoji}</Text>
-                          </View>
-                          {!isLast && (
-                            <View style={{ width: 2, flex: 1, minHeight: 12, backgroundColor: isPast ? colors.primary + '44' : colors.border }} />
-                          )}
-                        </View>
-                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', paddingBottom: isLast ? 0 : spacing.md }}>
-                          <Text style={[
-                            { flex: 1, fontSize: fontSize.sm, fontWeight: isActive ? fontWeight.bold : fontWeight.regular },
-                            { color: isActive ? cfg.color : isPast ? colors.text : colors.textSecondary },
-                          ]}>
-                            {t('plantStatus.' + status)}
-                          </Text>
-                          {isActive && (
-                            <View style={{ backgroundColor: cfg.color + '22', paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: radii.full }}>
-                              <Text style={{ fontSize: fontSize.xs, color: cfg.color, fontWeight: fontWeight.bold }}>
-                                {t('plantDetail.currentBadge')}
-                              </Text>
-                            </View>
-                          )}
-                        </View>
-                      </Pressable>
-                    );
-                  })}
-                </ScrollView>
-              </View>
+              <Card padded style={s.statusOverviewCard}>
+                <View style={s.statusOverviewHeader}>
+                  <View style={[s.statusOverviewIcon, { backgroundColor: currentStatusConfig.color + '20', borderColor: currentStatusConfig.color }]}>
+                    <Text style={{ fontSize: 20 }}>{currentStatusConfig.emoji}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.statusOverviewEyebrow, { color: colors.textSecondary }]}>{t('plantDetail.currentStage')}</Text>
+                    <Text style={[s.statusOverviewTitle, { color: currentStatusConfig.color }]}>{t('plantStatus.' + plant.status)}</Text>
+                  </View>
+                  <View style={[s.statusCurrentBadge, { backgroundColor: currentStatusConfig.color + '22' }]}>
+                    <Text style={[s.statusCurrentBadgeText, { color: currentStatusConfig.color }]}>{t('plantDetail.currentBadge')}</Text>
+                  </View>
+                </View>
+                <Text style={[s.statusOverviewHint, { color: colors.textSecondary }]}>
+                  {nextStatus
+                    ? t('plantDetail.nextStage', { status: t('plantStatus.' + nextStatus) })
+                    : t('plantDetail.lastStage')}
+                </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('plantDetail.changeStatus')}
+                  onPress={() => setShowStatusModal(true)}
+                  style={({ pressed }) => [s.statusChangeButton, { borderColor: colors.primary, backgroundColor: colors.primary + '12', opacity: pressed ? 0.75 : 1 }]}
+                >
+                  <Ionicons name="swap-horizontal-outline" size={18} color={colors.primary} />
+                  <Text style={[s.statusChangeText, { color: colors.primary }]}>{t('plantDetail.changeStatus')}</Text>
+                </Pressable>
+              </Card>
             );
           })()}
 
@@ -575,18 +572,18 @@ export default function PlantDetailScreen() {
             return (
               <Pressable
                 onPress={() => setShowTransplantModal(true)}
-                style={[s.transplantCta, { backgroundColor: '#4CAF5015', borderColor: '#4CAF50' }]}
+                style={[s.transplantCta, { backgroundColor: colors.success + '15', borderColor: colors.success }]}
               >
                 <Text style={{ fontSize: 24 }}>🪴</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={[s.transplantCtaTitle, { color: '#2E7D32' }]}>
+                  <Text style={[s.transplantCtaTitle, { color: colors.primaryDark }]}>
                     {t('plantDetail.transplantCta')}
                   </Text>
                   <Text style={[s.transplantCtaDesc, { color: colors.textSecondary }]}>
                     {t('plantDetail.transplantCtaDesc', { days: daysSinceSowing })}
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward" size={16} color="#4CAF50" />
+                <Ionicons name="chevron-forward" size={16} color={colors.success} />
               </Pressable>
             );
           })()}
@@ -650,10 +647,10 @@ export default function PlantDetailScreen() {
             if (plant.germinationDate) {
               const days = Math.floor((Date.now() - new Date(plant.germinationDate + 'T12:00:00').getTime()) / 86_400_000);
               return (
-                <View style={[s.transplantCta, { backgroundColor: '#4CAF5010', borderColor: '#4CAF5050', marginBottom: spacing.md }]}>
+                <View style={[s.transplantCta, { backgroundColor: colors.success + '10', borderColor: colors.success + '50', marginBottom: spacing.md }]}>
                   <Text style={{ fontSize: 20 }}>🌿</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={[s.transplantCtaTitle, { color: '#2E7D32' }]}>{t('plantDetail.germinatedTitle')}</Text>
+                    <Text style={[s.transplantCtaTitle, { color: colors.primaryDark }]}>{t('plantDetail.germinatedTitle')}</Text>
                     <Text style={[s.transplantCtaDesc, { color: colors.textSecondary }]}>
                       {t('plantDetail.germinatedDays', { count: days })}
                     </Text>
@@ -669,16 +666,16 @@ export default function PlantDetailScreen() {
                   await plants.update(id, { germinationDate: todayStr() });
                   await entries.create({ gardenId: plant.gardenId, plantId: id, type: 'note', date: todayStr(), notes: '🌿 ' + t('plantDetail.germinatedNote') });
                 }}
-                style={[s.transplantCta, { backgroundColor: '#FFA72610', borderColor: '#FFA72650', marginBottom: spacing.md }]}
+                style={[s.transplantCta, { backgroundColor: colors.warning + '10', borderColor: colors.warning + '50', marginBottom: spacing.md }]}
               >
                 <Text style={{ fontSize: 20 }}>🌰</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={[s.transplantCtaTitle, { color: '#E65100' }]}>{t('plantDetail.germinationQ')}</Text>
+                  <Text style={[s.transplantCtaTitle, { color: colors.warning }]}>{t('plantDetail.germinationQ')}</Text>
                   <Text style={[s.transplantCtaDesc, { color: colors.textSecondary }]}>
                     {t('plantDetail.germinationExpected', { days: expectedDays })}
                   </Text>
                 </View>
-                <Ionicons name="checkmark-circle-outline" size={20} color="#E65100" />
+                <Ionicons name="checkmark-circle-outline" size={20} color={colors.warning} />
               </Pressable>
             );
           })()}
@@ -804,7 +801,7 @@ export default function PlantDetailScreen() {
                 <>
                   <View style={s.companionsHeader}>
                     <Text style={{ fontSize: 18 }}>✅</Text>
-                    <Text style={[s.companionsTitle, { color: '#2E7D32' }]}>
+                    <Text style={[s.companionsTitle, { color: colors.primaryDark }]}>
                       {t('plantDetail.goodNeighbors')}
                     </Text>
                   </View>
@@ -813,9 +810,9 @@ export default function PlantDetailScreen() {
                       <Pressable
                         key={c.id}
                         onPress={() => router.push(`/catalog?focus=${c.id}` as any)}
-                        style={({ pressed }) => [s.companionCard, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50', opacity: pressed ? 0.7 : 1 }]}
+                        style={({ pressed }) => [s.companionCard, { backgroundColor: colors.success + '18', borderColor: colors.success, opacity: pressed ? 0.7 : 1 }]}
                       >
-                        <View style={[s.companionPhoto, { backgroundColor: '#4CAF5018' }]}>
+                        <View style={[s.companionPhoto, { backgroundColor: colors.success + '18' }]}>
                           {CROP_IMAGES[c.id] ? (
                             <Image source={{ uri: CROP_IMAGES[c.id] }} style={StyleSheet.absoluteFill} resizeMode="cover" />
                           ) : (
@@ -832,7 +829,7 @@ export default function PlantDetailScreen() {
                 <>
                   <View style={[s.companionsHeader, { marginTop: spacing.lg }]}>
                     <Text style={{ fontSize: 18 }}>⛔</Text>
-                    <Text style={[s.companionsTitle, { color: '#C62828' }]}>
+                    <Text style={[s.companionsTitle, { color: colors.error }]}>
                       {t('plantDetail.badNeighbors')}
                     </Text>
                   </View>
@@ -841,9 +838,9 @@ export default function PlantDetailScreen() {
                       <Pressable
                         key={c.id}
                         onPress={() => router.push(`/catalog?focus=${c.id}` as any)}
-                        style={({ pressed }) => [s.companionCard, { backgroundColor: '#EF535018', borderColor: '#EF5350', opacity: pressed ? 0.7 : 1 }]}
+                        style={({ pressed }) => [s.companionCard, { backgroundColor: colors.error + '18', borderColor: colors.error, opacity: pressed ? 0.7 : 1 }]}
                       >
-                        <View style={[s.companionPhoto, { backgroundColor: '#EF535018' }]}>
+                        <View style={[s.companionPhoto, { backgroundColor: colors.error + '18' }]}>
                           {CROP_IMAGES[c.id] ? (
                             <Image source={{ uri: CROP_IMAGES[c.id] }} style={StyleSheet.absoluteFill} resizeMode="cover" />
                           ) : (
@@ -893,8 +890,8 @@ export default function PlantDetailScreen() {
                           {t('reminderType.' + r.type)} · {t('reminderFrequency.' + r.frequency)} · {hour}:{min}
                         </Text>
                       </View>
-                      <View style={[s.enabledBadge, { backgroundColor: r.enabled ? '#4CAF5022' : colors.surfaceAlt }]}>
-                        <Text style={{ fontSize: 12, color: r.enabled ? '#4CAF50' : colors.textDisabled }}>
+                      <View style={[s.enabledBadge, { backgroundColor: r.enabled ? colors.success + '22' : colors.surfaceAlt }]}>
+                        <Text style={{ fontSize: 12, color: r.enabled ? colors.success : colors.textDisabled }}>
                           {r.enabled ? t('plantDetail.active') : t('plantDetail.paused')}
                         </Text>
                       </View>
@@ -921,12 +918,12 @@ export default function PlantDetailScreen() {
           {/* Treatment carencia banner */}
           {treatmentCarencia && (
             <View style={[s.harvestSummaryCard, {
-              backgroundColor: treatmentCarencia.daysLeft > 0 ? '#EF535018' : '#4CAF5018',
-              borderColor: treatmentCarencia.daysLeft > 0 ? '#EF5350' : '#4CAF50',
+              backgroundColor: treatmentCarencia.daysLeft > 0 ? colors.error + '18' : colors.success + '18',
+              borderColor: treatmentCarencia.daysLeft > 0 ? colors.error : colors.success,
             }]}>
               <Text style={{ fontSize: 22 }}>🧴</Text>
               <View style={{ flex: 1 }}>
-                <Text style={[s.harvestSummaryTitle, { color: treatmentCarencia.daysLeft > 0 ? '#EF5350' : '#4CAF50' }]}>
+                <Text style={[s.harvestSummaryTitle, { color: treatmentCarencia.daysLeft > 0 ? colors.error : colors.success }]}>
                   {treatmentCarencia.daysLeft > 0
                     ? t('plantDetail.treatmentActive')
                     : t('plantDetail.treatmentSafeToday')}
@@ -943,10 +940,10 @@ export default function PlantDetailScreen() {
 
           {/* Harvest summary + goal progress */}
           {harvestSummary && (
-            <View style={[s.harvestSummaryCard, { backgroundColor: '#FF704318', borderColor: '#FF7043' }]}>
+            <View style={[s.harvestSummaryCard, { backgroundColor: colors.warning + '18', borderColor: colors.warning }]}>
               <Text style={{ fontSize: 22 }}>🧺</Text>
               <View style={{ flex: 1 }}>
-                <Text style={[s.harvestSummaryTitle, { color: '#FF7043' }]}>
+                <Text style={[s.harvestSummaryTitle, { color: colors.warning }]}>
                   {t('plantDetail.harvestSummary', { count: harvestSummary.count })}
                 </Text>
                 <View style={{ flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap', marginTop: 2 }}>
@@ -967,7 +964,7 @@ export default function PlantDetailScreen() {
                       <Text style={[s.harvestSummaryValue, { color: colors.textSecondary }]}>
                         {t('plantDetail.goalProgress')}
                       </Text>
-                      <Text style={[s.harvestSummaryValue, { color: harvestSummary.totalKg >= plant.harvestGoalKg ? '#4CAF50' : '#FF7043' }]}>
+                      <Text style={[s.harvestSummaryValue, { color: harvestSummary.totalKg >= plant.harvestGoalKg ? colors.success : colors.warning }]}>
                         {harvestSummary.totalKg.toFixed(1)} / {plant.harvestGoalKg} kg
                         {harvestSummary.totalKg >= plant.harvestGoalKg ? ' 🎉' : ''}
                       </Text>
@@ -978,7 +975,7 @@ export default function PlantDetailScreen() {
                           s.goalBarFill,
                           {
                             width: `${Math.min((harvestSummary.totalKg / plant.harvestGoalKg) * 100, 100)}%` as any,
-                            backgroundColor: harvestSummary.totalKg >= plant.harvestGoalKg ? '#4CAF50' : '#FF7043',
+                            backgroundColor: harvestSummary.totalKg >= plant.harvestGoalKg ? colors.success : colors.warning,
                           },
                         ]}
                       />
@@ -1018,8 +1015,8 @@ export default function PlantDetailScreen() {
                 const days = Math.floor((Date.now() - new Date(plantEntries[0].date + 'T12:00:00').getTime()) / 86_400_000);
                 if (days < 1) return null;
                 return (
-                  <View style={[s.daysChip, { backgroundColor: days > 14 ? '#EF535018' : colors.primary + '12' }]}>
-                    <Text style={[s.daysChipText, { color: days > 14 ? '#EF5350' : colors.primary }]}>
+                  <View style={[s.daysChip, { backgroundColor: days > 14 ? colors.error + '18' : colors.primary + '12' }]}>
+                    <Text style={[s.daysChipText, { color: days > 14 ? colors.error : colors.primary }]}>
                       {days}d
                     </Text>
                   </View>
@@ -1075,9 +1072,16 @@ export default function PlantDetailScreen() {
               );
             })
           ) : (
-            <Text style={[s.emptyText, { color: colors.textSecondary }]}>
-              {t('plantDetail.noEntries')}
-            </Text>
+            <View style={[s.emptyDiaryCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+              <Text style={s.emptyDiaryEmoji}>🌱</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.emptyDiaryTitle, { color: colors.text }]}>{t('plantDetail.emptyDiaryTitle')}</Text>
+                <Text style={[s.emptyText, { color: colors.textSecondary, textAlign: 'left', marginVertical: spacing.xs }]}>
+                  {t('plantDetail.noEntries')}
+                </Text>
+                <Button title={t('plantDetail.newEntry')} size="sm" onPress={() => router.push(`/entry/new?plantId=${id}`)} />
+              </View>
+            </View>
           )}
 
           {/* Pest tracker section */}
@@ -1100,11 +1104,11 @@ export default function PlantDetailScreen() {
                 ? router.push(`/plant/identify?plantId=${id}&cropId=${crop.id}` as any)
                 : router.push('/paywall?source=ai_identify_detail' as any)
             }
-            style={[s.identifyBtn, { backgroundColor: '#FF703415', borderColor: '#FF7034' }]}
+            style={[s.identifyBtn, { backgroundColor: colors.warning + '15', borderColor: colors.warning }]}
           >
             <Text style={{ fontSize: 22 }}>📸</Text>
             <View style={{ flex: 1 }}>
-              <Text style={[s.identifyBtnTitle, { color: '#E55A1B' }]}>{t('identify.title')}</Text>
+              <Text style={[s.identifyBtnTitle, { color: colors.warning }]}>{t('identify.title')}</Text>
               <Text style={[s.identifyBtnSub, { color: colors.textSecondary }]}>
                 {isPro ? t('identify.subtitle') : t('identify.proOnly')}
               </Text>
@@ -1167,12 +1171,12 @@ export default function PlantDetailScreen() {
                         <View key={i} style={[s.treatmentRow, { borderTopColor: colors.border }]}>
                           <View style={[s.treatmentTypeBadge, {
                             backgroundColor:
-                              t.type === 'organico' ? '#4CAF5022' :
-                              t.type === 'preventivo' ? '#2196F322' : '#FF572222',
+                              t.type === 'organico' ? colors.success + '22' :
+                              t.type === 'preventivo' ? colors.info + '22' : colors.error + '22',
                           }]}>
                             <Text style={[s.treatmentType, {
-                              color: t.type === 'organico' ? '#2E7D32' :
-                                     t.type === 'preventivo' ? '#1565C0' : '#C62828',
+                              color: t.type === 'organico' ? colors.primaryDark :
+                                     t.type === 'preventivo' ? colors.info : colors.error,
                             }]}>
                               {t.type}
                             </Text>
@@ -1211,13 +1215,13 @@ export default function PlantDetailScreen() {
           </View>
 
           {/* Succession sowing */}
-          <Pressable onPress={handleSuccessionSow} style={[s.duplicateBtn, { backgroundColor: '#4CAF5012', borderColor: '#4CAF5044', borderWidth: 1, borderRadius: radii.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md }]}>
+          <Pressable onPress={handleSuccessionSow} style={[s.duplicateBtn, { backgroundColor: colors.success + '12', borderColor: colors.success + '44', borderWidth: 1, borderRadius: radii.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md }]}>
             <Text style={{ fontSize: 16 }}>🌱</Text>
             <View style={{ flex: 1 }}>
-              <Text style={[s.duplicateText, { color: '#4CAF50' }]}>{t('plantDetail.successionSow')}</Text>
+              <Text style={[s.duplicateText, { color: colors.success }]}>{t('plantDetail.successionSow')}</Text>
               <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary }}>{t('plantDetail.successionSowDesc')}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={16} color="#4CAF50" />
+            <Ionicons name="chevron-forward" size={16} color={colors.success} />
           </Pressable>
 
           {/* Duplicate */}
@@ -1233,6 +1237,40 @@ export default function PlantDetailScreen() {
           </Pressable>
         </View>
       </ScrollView>
+
+      {/* Status picker */}
+      <Modal visible={showStatusModal} transparent animationType="slide" onRequestClose={() => setShowStatusModal(false)}>
+        <Pressable style={s.modalOverlay} onPress={() => setShowStatusModal(false)}>
+          <Pressable style={[s.statusModal, { backgroundColor: colors.surface }]} onPress={(e) => e.stopPropagation()}>
+            <Text style={[s.transplantModalTitle, { color: colors.text }]}>{t('plantDetail.changeStatus')}</Text>
+            <Text style={[s.statusModalHint, { color: colors.textSecondary }]}>{t('plantDetail.statusHint')}</Text>
+            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 360 }}>
+              {ALL_STATUSES.map((status) => {
+                const cfg = PLANT_STATUS_CONFIG[status];
+                const active = plant.status === status;
+                return (
+                  <Pressable
+                    key={status}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: active }}
+                    onPress={() => handleStatusChange(status)}
+                    style={({ pressed }) => [s.statusOption, { backgroundColor: active ? cfg.color + '16' : colors.surfaceAlt, borderColor: active ? cfg.color : colors.border, opacity: pressed ? 0.75 : 1 }]}
+                  >
+                    <View style={[s.statusOptionIcon, { backgroundColor: active ? cfg.color + '25' : colors.surface, borderColor: active ? cfg.color : colors.border }]}>
+                      <Text style={{ fontSize: 18 }}>{cfg.emoji}</Text>
+                    </View>
+                    <Text style={[s.statusOptionText, { color: active ? cfg.color : colors.text }]}>{t('plantStatus.' + status)}</Text>
+                    {active && <Ionicons name="checkmark-circle" size={20} color={cfg.color} />}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+            <Pressable onPress={() => setShowStatusModal(false)} style={[s.modalCancelBtn, { backgroundColor: colors.surfaceAlt, marginTop: spacing.md }]}>
+              <Text style={{ color: colors.textSecondary, fontWeight: fontWeight.medium }}>{t('common.cancel')}</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {/* Transplant modal */}
       <Modal visible={showTransplantModal} transparent animationType="slide">
@@ -1259,12 +1297,12 @@ export default function PlantDetailScreen() {
                     style={[
                       s.modalDateBtn,
                       {
-                        backgroundColor: active ? '#4CAF5022' : colors.surfaceAlt,
-                        borderColor: active ? '#4CAF50' : colors.border,
+                        backgroundColor: active ? colors.success + '22' : colors.surfaceAlt,
+                        borderColor: active ? colors.success : colors.border,
                       },
                     ]}
                   >
-                    <Text style={[s.modalDateBtnText, { color: active ? '#2E7D32' : colors.textSecondary }]}>
+                    <Text style={[s.modalDateBtnText, { color: active ? colors.primaryDark : colors.textSecondary }]}>
                       {label}
                     </Text>
                   </Pressable>
@@ -1310,7 +1348,7 @@ export default function PlantDetailScreen() {
                   });
                   setShowTransplantModal(false);
                 }}
-                style={[s.modalConfirmBtn, { backgroundColor: '#4CAF50' }]}
+                style={[s.modalConfirmBtn, { backgroundColor: colors.success }]}
               >
                 <Text style={[{ color: '#fff', fontWeight: fontWeight.semibold }]}>
                   {t('plantDetail.transplantConfirm')}
@@ -1354,10 +1392,30 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
+    loadingState: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.md,
+      padding: spacing.xl,
+    },
+    loadingText: { fontSize: fontSize.sm },
+    notFoundState: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.lg,
+      padding: spacing.xl,
+    },
+    notFoundTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.semibold, textAlign: 'center' },
     hero: {
       height: 220,
       alignItems: 'center',
       justifyContent: 'center',
+      marginTop: spacing.md,
+      marginHorizontal: spacing.xl,
+      borderRadius: radii.xl,
+      overflow: 'hidden',
     },
     heroPhoto: { width: '100%', height: 220, resizeMode: 'cover' },
     heroEmoji: { fontSize: 80 },
@@ -1671,6 +1729,68 @@ const makeStyles = (
     },
     coachEmoji: { fontSize: 22 },
     coachText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20, fontWeight: fontWeight.medium },
+    statusOverviewCard: { marginBottom: spacing.xl },
+    statusOverviewHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    statusOverviewIcon: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      borderWidth: 1.5,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    statusOverviewEyebrow: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
+    statusOverviewTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginTop: 2 },
+    statusCurrentBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radii.full },
+    statusCurrentBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+    statusOverviewHint: { fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.md },
+    statusChangeButton: {
+      minHeight: 46,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      marginTop: spacing.md,
+    },
+    statusChangeText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    statusModal: {
+      borderTopLeftRadius: radii.xl ?? 20,
+      borderTopRightRadius: radii.xl ?? 20,
+      padding: spacing.xl,
+      paddingBottom: spacing['2xl'],
+    },
+    statusModalHint: { fontSize: fontSize.sm, lineHeight: 20, marginBottom: spacing.md },
+    statusOption: {
+      minHeight: 56,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      paddingHorizontal: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    statusOptionIcon: {
+      width: 34,
+      height: 34,
+      borderRadius: 17,
+      borderWidth: 1.5,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    statusOptionText: { flex: 1, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    emptyDiaryCard: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.md,
+      padding: spacing.lg,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+    },
+    emptyDiaryEmoji: { fontSize: 24, marginTop: 2 },
+    emptyDiaryTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     duplicateBtn: {
       flexDirection: 'row',
       alignItems: 'center',

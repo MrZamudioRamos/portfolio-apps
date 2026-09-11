@@ -715,7 +715,15 @@
     "companions": {
       "empty": "No companion data registered"
     },
-    "currentBadge": "Actual",
+    "currentBadge": "Current",
+    "loading": "Loading your plant…",
+    "backToGarden": "Back to my garden",
+    "currentStage": "Current stage",
+    "nextStage": "Next: {{status}}",
+    "lastStage": "This plant has completed its cycle. You can keep logging harvests.",
+    "changeStatus": "Change stage",
+    "statusHint": "Choose the stage that best describes it today. You can change it whenever you need.",
+    "emptyDiaryTitle": "No care logged yet",
     "harvestInDays_one": "Cosecha en ~{{count}} día",
     "harvestInDays_other": "Cosecha en ~{{count}} días",
     "harvestReadyNow": "Lista para cosechar",

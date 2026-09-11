@@ -133,3 +133,11 @@ La referencia compartida prioriza aire, una ilustración protagonista, progreso 
 Se corrigió también la incoherencia de identidad que hacía que la app raíz usara `bwPalette` mientras la Mascot y el contenido usaban verdes. Semilla pasa a `huertoPalette`, ya existente en el paquete UI, con modo claro y oscuro automático; no se cambió la paleta de otras aplicaciones.
 
 Validación visual en Expo Web de la rama: `/welcome` sin cuenta y transición a `/onboarding`; se comprobó la jerarquía, el único CTA principal, el progreso y el árbol accesible en modo oscuro del entorno. TypeScript, las 156 pruebas de la app y las seis traducciones con las nuevas claves pasan. Queda pendiente comprobar en Expo Go el aspecto en modo claro del dispositivo, tamaños pequeños y lector de pantalla nativo.
+
+## Pulido visual del detalle de planta — 11 de septiembre de 2026
+
+La pantalla `/plant/[id]` tenía dos problemas de jerarquía para una persona principiante: el estado se podía cambiar tocando directamente cualquier etapa de una lista larga, y el diario vacío no ofrecía un siguiente paso. La cabecera ahora usa una imagen contenida con bordes redondeados, la paleta `huertoPalette` y superficies coherentes con la bienvenida; el estado muestra una única tarjeta de resumen con etapa actual, siguiente etapa y «Cambiar estado».
+
+El selector de estado se abre bajo una acción explícita, marca la opción actual con radio accesible y se cierra al guardar o cancelar. Los estados de carga y planta no encontrada tienen Mascot, texto y recuperación visibles. El diario vacío incluye una explicación breve y «Nueva entrada». Se añadieron las claves equivalentes a es, en, ca, eu, gl y val.
+
+Validación: detalle de rábano en Expo Web oscuro, apertura/cierre del selector sin salto accidental, typecheck, 156 pruebas, export Web, export iOS y `git diff --check`. Queda pendiente revisar el detalle en Expo Go con tema claro, VoiceOver/TalkBack y datos reales sin foto.
