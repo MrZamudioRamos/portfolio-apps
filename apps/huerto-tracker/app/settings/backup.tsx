@@ -37,7 +37,7 @@ export default function BackupScreen() {
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -94,7 +94,7 @@ export default function BackupScreen() {
   }
 
   const lastBackupLabel = lastBackupAt
-    ? formatRelative(lastBackupAt)
+    ? formatRelative(lastBackupAt, i18n.language)
     : t('backup.never');
 
   return (

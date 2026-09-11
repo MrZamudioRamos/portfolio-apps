@@ -171,7 +171,7 @@ export default function PlantDetailScreen() {
     return { product: (last.data as any)?.product as string | undefined, daysLeft };
   }, [entries.items, id]);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const SUN_LABEL: Record<string, string> = {
     full: `☀️ ${t('plantDetail.sunFull')}`,
@@ -1056,7 +1056,7 @@ export default function PlantDetailScreen() {
                         {t('diary.filters.' + entry.type)}
                       </Text>
                       <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>
-                        {formatRelative(entry.date)}
+                        {formatRelative(entry.date, i18n.language)}
                       </Text>
                     </View>
                     {entry.notes ? (

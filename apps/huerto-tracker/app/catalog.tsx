@@ -143,6 +143,7 @@ export default function CatalogScreen() {
         <TextInput
           value={search}
           onChangeText={setSearch}
+          accessibilityLabel={t('catalog.search')}
           placeholder={t('catalog.search')}
           placeholderTextColor={colors.textDisabled}
           style={[s.searchInput, { color: colors.text }]}
@@ -172,6 +173,8 @@ export default function CatalogScreen() {
                 return (
                   <Pressable
                     key={f.key ?? 'all'}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
                     onPress={() => setCatFilter(f.key)}
                     style={[s.chip, {
                       backgroundColor: active ? colors.text : colors.surfaceAlt,
@@ -205,6 +208,8 @@ export default function CatalogScreen() {
                 return (
                   <Pressable
                     key={d ?? 'all-diff'}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
                     onPress={() => setDiffFilter(d)}
                     style={[s.chip, {
                       backgroundColor: active ? colors.text : colors.surfaceAlt,
@@ -222,6 +227,8 @@ export default function CatalogScreen() {
                 );
               })}
               <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: containerOnly }}
                 onPress={() => setContainerOnly(v => !v)}
                 style={[s.chip, {
                   backgroundColor: containerOnly ? colors.text : colors.surfaceAlt,
@@ -285,6 +292,8 @@ export default function CatalogScreen() {
           return (
             <Pressable
               key={crop.id}
+              accessibilityRole="button"
+              accessibilityState={{ expanded: isOpen }}
               onPress={() => setExpanded(isOpen ? null : crop.id)}
               style={{ marginBottom: spacing.md }}
             >

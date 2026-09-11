@@ -185,3 +185,13 @@ La prueba Web cubre navegación, árbol accesible, estados vacíos, filtros, rei
 La tarjeta de cuidado de la portada ya no obliga a abrir el detalle para completar la tarea principal. Cuando toca revisar la tierra, muestra las mismas dos decisiones explícitas que el detalle: regar si estaba seca o registrar que sigue húmeda. La tarjeta conserva un segundo botón para abrir la ficha completa y refresca la portada y la lista de plantas después de guardar, de modo que la siguiente planta pendiente aparece sin navegación adicional.
 
 Validación en Expo Web: se registró «Sigue húmeda, hoy no riego» desde la portada y la tarjeta pasó a la siguiente planta pendiente; el botón «Ver ficha completa» siguió disponible. `npm run typecheck`, `npm test`, JSON de traducciones y `git diff --check` pasan.
+
+## Fechas relativas coherentes — 11 de septiembre de 2026
+
+La utilidad compartida de fechas se usaba en Diario, Detalle de planta y Copias de seguridad con textos fijos en español y sin singularización. Ahora acepta el idioma activo y usa `Intl.RelativeTimeFormat`: «hace 1 semana»/«hace 2 semanas», equivalentes en inglés, catalán, euskera, gallego y valenciano, además de fechas futuras legibles como «mañana». La corrección evita que una pantalla cambie de idioma a medias y elimina textos como «Hace 1 semanas».
+
+Validación en Web: el Diario muestra «HACE 1 SEMANA» y «Siembra hace 1 semana» con los datos de QA. Se añadieron regresiones de español, catalán, inglés y fechas futuras; la app queda con 160 pruebas correctas.
+
+## Accesibilidad en Catálogo y Diario — 11 de septiembre de 2026
+
+Los filtros del Catálogo ahora anuncian que son botones y cuál está seleccionado; cada ficha anuncia si sus detalles están abiertos. La búsqueda tiene etiqueta accesible. En el Diario se etiquetaron las tarjetas editables, la búsqueda, la exportación CSV, el borrado de búsqueda y el botón flotante de nueva entrada. Esto deja las acciones principales disponibles también para navegación asistida, sin cambiar el recorrido visual.

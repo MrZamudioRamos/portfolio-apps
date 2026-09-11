@@ -43,7 +43,7 @@ function DiaryInner() {
   const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const coachLevel = useCoachingLevel();
   useTourAutoStart('diary', { firstStep: 'add', disabled: coachLevel !== 'full' });
 
@@ -157,6 +157,7 @@ function DiaryInner() {
 
     return (
       <Pressable
+        accessibilityRole="button"
         onPress={() => router.push(`/entry/edit?id=${item.id}` as any)}
         style={({ pressed }) => [
           s.entryCard,
@@ -178,7 +179,7 @@ function DiaryInner() {
               {t(`diary.filters.${item.type}`)}
             </Text>
             <Text style={[s.entryDate, { color: colors.textSecondary }]}>
-              {formatRelative(item.date)}
+              {formatRelative(item.date, i18n.language)}
             </Text>
           </View>
 
@@ -264,6 +265,8 @@ function DiaryInner() {
           </View>
           {entries.items.length > 0 && (
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('diary.exportCsv')}
               onPress={() => {
                 if (!isPro) {
                   router.push('/paywall?source=csv_export' as any);
@@ -340,12 +343,13 @@ function DiaryInner() {
           <TextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
+            accessibilityLabel={t('diary.search')}
             placeholder={t('diary.search')}
             placeholderTextColor={colors.textDisabled}
             style={[{ flex: 1, color: colors.text, fontSize: fontSize.sm, marginLeft: 6 }]}
           />
           {searchQuery.length > 0 && (
-            <Pressable onPress={() => setSearchQuery('')} hitSlop={8}>
+            <Pressable accessibilityRole="button" accessibilityLabel={t('common.close')} onPress={() => setSearchQuery('')} hitSlop={8}>
               <Ionicons name="close-circle" size={14} color={colors.textDisabled} />
             </Pressable>
           )}
@@ -373,7 +377,7 @@ function DiaryInner() {
           <View style={[s.sectionHeader, { backgroundColor: colors.background }]}>
             <View style={[s.sectionDot, { backgroundColor: colors.primary }]} />
             <Text style={[s.sectionHeaderText, { color: colors.textSecondary }]}>
-              {formatRelative(date)}
+              {formatRelative(date, i18n.language)}
             </Text>
             <View style={[s.sectionLine, { backgroundColor: colors.border }]} />
           </View>
@@ -401,6 +405,8 @@ function DiaryInner() {
       <CopilotStep text={t('coach.diary')} order={1} name="add">
         <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary, bottom: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 12 }]}>
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('diary.newEntry')}
             onPress={() => router.push(plantId ? `/entry/new?plantId=${plantId}` : '/entry/new' as any)}
             style={({ pressed }) => [
               { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28, opacity: pressed ? 0.85 : 1 },
