@@ -915,6 +915,9 @@
   },
   "welcome": {
     "title": "semilla",
+    "eyebrow": "ZURE BARATZEA, PAUSOZ PAUSO",
+    "heroTitle": "Zuretzat zerbait haztea gaur hasten da",
+    "heroSubtitle": "Pauso argi batekin lagunduko dizugu, inoiz landatu ez baduzu ere.",
     "subtitle": "El huerto que siempre quisiste tener.",
     "features": {
       "calendar": "Siembra en el momento exacto",

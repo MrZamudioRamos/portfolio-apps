@@ -123,10 +123,10 @@ export default function OnboardingScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top', 'bottom']}>
       <View style={{ flex: 1, width: '100%', maxWidth: 560, alignSelf: 'center' }}>
         <View style={{ padding: spacing.xl, gap: spacing.sm }}>
-          <Text accessibilityLiveRegion="polite" style={{ color: colors.textSecondary }}>{t('onboarding.stepOf', { current: step, total: 4 })}</Text>
-          <View style={{ flexDirection: 'row', gap: spacing.xs }}>
-            {[1, 2, 3, 4].map((n) => <View key={n} style={{ flex: 1, height: 4, borderRadius: radii.full, backgroundColor: n <= step ? colors.primary : colors.border }} />)}
+          <View accessibilityLabel={t('onboarding.stepOf', { current: step, total: 4 })} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs }}>
+            {[1, 2, 3, 4].map((n) => <View key={n} style={{ width: n === step ? 42 : 8, height: 6, borderRadius: radii.full, backgroundColor: n === step ? colors.primary : colors.border }} />)}
           </View>
+          <Text accessibilityLiveRegion="polite" style={{ color: colors.textSecondary, textAlign: 'center', fontSize: fontSize.xs }}>{t('onboarding.stepOf', { current: step, total: 4 })}</Text>
         </View>
         <ScrollView key={step} style={{ flex: 1 }} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg, gap: spacing.sm }}>
           {step === 1 && <><CoachHeader title={t('onboarding.spaceTitle')} subtitle={t('onboarding.spaceDesc')} pose="point" />{SPACES.map(([id, icon]) => choice(id, space === id, () => setSpace(id), t('onboarding.space.' + id), icon))}</>}

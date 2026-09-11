@@ -125,3 +125,11 @@ La prueba de regresión reprodujo un estado parcial en `useReminders.update` y `
 También se verificó la pantalla de Notificaciones en la build Web de la rama: `/welcome` no autenticado carga, `/settings/notifications` se puede consultar sin prompt y los cinco interruptores anuncian su nombre mediante accesibilidad. La pantalla conserva los estados de carga y de provincia incompleta sin bloquear la navegación.
 
 Validación de esta intervención: `npx vitest run packages/notifications/src/useReminders.test.ts` (7 pruebas), `npm test --workspace apps/huerto-tracker` (156 pruebas en 11 archivos), `npm run typecheck --workspace apps/huerto-tracker`, `npx expo export --platform web`, `npx expo export --platform ios` y `git diff --check`, todos correctos. Persisten solo avisos conocidos de Sentry sin configuración de organización/proyecto, `NO_COLOR`, estilos RN obsoletos y listener de push no efectivo en Web.
+
+## Pulido visual inspirado en la referencia — 11 de septiembre de 2026
+
+La referencia compartida prioriza aire, una ilustración protagonista, progreso reducido a puntos y un único CTA ancho. La bienvenida de Semilla adopta esas reglas sin copiar recursos externos: composición centrada, Mascot SVG existente, decoración vegetal de bajo contraste, pasos agrupados en una tarjeta ligera y CTA con forma de pastilla. El onboarding usa el mismo indicador de puntos y conserva las cuatro preguntas, la selección accesible y el botón de vuelta.
+
+Se corrigió también la incoherencia de identidad que hacía que la app raíz usara `bwPalette` mientras la Mascot y el contenido usaban verdes. Semilla pasa a `huertoPalette`, ya existente en el paquete UI, con modo claro y oscuro automático; no se cambió la paleta de otras aplicaciones.
+
+Validación visual en Expo Web de la rama: `/welcome` sin cuenta y transición a `/onboarding`; se comprobó la jerarquía, el único CTA principal, el progreso y el árbol accesible en modo oscuro del entorno. TypeScript, las 156 pruebas de la app y las seis traducciones con las nuevas claves pasan. Queda pendiente comprobar en Expo Go el aspecto en modo claro del dispositivo, tamaños pequeños y lector de pantalla nativo.

@@ -969,6 +969,9 @@
   },
   "welcome": {
     "title": "semilla",
+    "eyebrow": "TU HUERTO, PASO A PASO",
+    "heroTitle": "Cultivar algo tuyo empieza hoy",
+    "heroSubtitle": "Te guiamos con un siguiente paso claro, aunque nunca hayas plantado.",
     "subtitle": "El huerto que siempre quisiste tener.",
     "features": {
       "calendar": "Siembra en el momento exacto",

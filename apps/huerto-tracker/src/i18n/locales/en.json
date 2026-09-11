@@ -921,6 +921,9 @@
   },
   "welcome": {
     "title": "semilla",
+    "eyebrow": "YOUR GARDEN, ONE STEP AT A TIME",
+    "heroTitle": "Growing something of your own starts today",
+    "heroSubtitle": "We guide you with one clear next step, even if you have never planted before.",
     "subtitle": "El huerto que siempre quisiste tener.",
     "features": {
       "calendar": "Siembra en el momento exacto",

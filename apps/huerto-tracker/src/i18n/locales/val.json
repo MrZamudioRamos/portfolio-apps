@@ -915,6 +915,9 @@
   },
   "welcome": {
     "title": "semilla",
+    "eyebrow": "EL TEU HORT, PAS A PAS",
+    "heroTitle": "Cultivar alguna cosa teua comença hui",
+    "heroSubtitle": "T'acompanyem amb un pas clar, encara que mai hages plantat.",
     "subtitle": "El huerto que siempre quisiste tener.",
     "features": {
       "calendar": "Siembra en el momento exacto",
