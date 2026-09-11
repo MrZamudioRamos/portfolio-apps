@@ -87,6 +87,8 @@ export default function CatalogScreen() {
     });
   }, [search, catFilter, diffFilter, containerOnly, t]);
 
+  const hasFilters = Boolean(search.trim() || catFilter || diffFilter || containerOnly);
+
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
@@ -234,6 +236,31 @@ export default function CatalogScreen() {
               </Pressable>
             </View>
           </ScrollView>
+        </View>
+
+        <View style={s.resultSummary}>
+          <Text style={[s.resultCount, { color: colors.textSecondary }]}>
+            {hasFilters
+              ? t('catalog.filteredResults', { count: filtered.length, total: CROPS.length })
+              : t('catalog.subtitle', { count: filtered.length })}
+          </Text>
+          {hasFilters && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('catalog.clearFilters')}
+              onPress={() => {
+                setSearch('');
+                setCatFilter(null);
+                setDiffFilter(null);
+                setContainerOnly(false);
+              }}
+              hitSlop={8}
+              style={({ pressed }) => [s.clearFilters, { borderColor: colors.primary, opacity: pressed ? 0.65 : 1 }]}
+            >
+              <Ionicons name="close-circle-outline" size={14} color={colors.primary} />
+              <Text style={[s.clearFiltersText, { color: colors.primary }]}>{t('catalog.clearFilters')}</Text>
+            </Pressable>
+          )}
         </View>
 
         {filtered.length === 0 && (
@@ -451,6 +478,25 @@ const makeStyles = (
       borderWidth: 1.5,
     },
     chipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    resultSummary: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.md,
+      minHeight: 30,
+      marginBottom: spacing.sm,
+    },
+    resultCount: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    clearFilters: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      borderRadius: radii.full,
+      borderWidth: 1,
+    },
+    clearFiltersText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     emptyText: { textAlign: 'center', marginTop: spacing['2xl'], fontSize: fontSize.md },
     card: { gap: spacing.sm },
     cropRow: { flexDirection: 'row', alignItems: 'center' },
