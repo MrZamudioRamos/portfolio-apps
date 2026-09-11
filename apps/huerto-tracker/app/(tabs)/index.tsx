@@ -636,6 +636,11 @@ function DashboardInner() {
               </CopilotStep>
             )}
 
+            {/* Seasonal discovery stays close to today's care, so the next plant is easy to find. */}
+            {plants.count > 0 && garden && (
+              <SowNowCard climateZone={garden.climateZone} />
+            )}
+
             {/* My Plants section header + controls */}
             {plants.count > 0 && (
               <>
@@ -821,11 +826,6 @@ function DashboardInner() {
                 </ScalePress>
               );
             })()}
-
-            {/* Sow now — coach surface, what to plant this month in your zone */}
-            {plants.count > 0 && garden && (
-              <SowNowCard climateZone={garden.climateZone} />
-            )}
 
             {/* Quick stats strip */}
             {plants.count > 0 && (

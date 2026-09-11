@@ -153,7 +153,7 @@ const makeStyles = (
     seeAll: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     scroll: { paddingHorizontal: spacing.lg, gap: spacing.md },
     crop: {
-      width: 96,
+      width: 116,
       borderRadius: radii.lg,
       borderWidth: 1,
       padding: spacing.sm,

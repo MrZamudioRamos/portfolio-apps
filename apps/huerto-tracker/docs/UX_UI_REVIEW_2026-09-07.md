@@ -153,3 +153,7 @@ Las capturas de referencia se analizaron como patrones de interacción, no como 
 - La información de cultivo del detalle usa pestañas horizontales con forma de píldora, para que las cuatro vistas sigan siendo legibles en pantallas estrechas.
 
 No se copiaron ilustraciones, textos, precios ni arquitectura de la app de referencia. La validación de esta pasada mantiene typecheck, 156 pruebas, exportaciones Web/iOS y `git diff --check` correctos.
+
+## Descubrimiento estacional en Home — 11 de septiembre de 2026
+
+La recomendación «Siembra ahora» deja de estar escondida dentro de «Más de tu huerto» cuando ya existen plantas. Se muestra después del cuidado de hoy, con el mes y la zona en el encabezado, tres cultivos priorizados para principiantes, fotografías existentes, etiqueta de dificultad y acción directa para iniciar la alta. Se reutiliza `SowNowCard`, `getSowingNow`, el catálogo y las rutas de alta actuales; no se añade una segunda fuente de recomendaciones.
