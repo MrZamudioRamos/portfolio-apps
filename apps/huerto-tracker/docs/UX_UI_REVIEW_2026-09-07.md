@@ -143,3 +143,13 @@ El selector de estado se abre bajo una acción explícita, marca la opción actu
 Validación: detalle de rábano en Expo Web oscuro, apertura/cierre del selector sin salto accidental, typecheck, 156 pruebas, export Web, export iOS y `git diff --check`. Queda pendiente revisar el detalle en Expo Go con tema claro, VoiceOver/TalkBack y datos reales sin foto.
 
 Durante la comprobación de edición se reprodujo y corrigió un aviso de Expo Web al dejar la fecha de siembra vacía: la condición de renderizado devolvía una cadena vacía como hijo de `Pressable`. Ahora devuelve `null`, por lo que `/plant/edit` carga sin el overlay de error y conserva el borrado de fecha.
+
+## Adaptación de referencias externas — 11 de septiembre de 2026
+
+Las capturas de referencia se analizaron como patrones de interacción, no como recursos para replicar: progreso visible, tarjetas de selección grandes, estados marcados fáciles de reconocer, una acción primaria por pantalla, navegación por píldoras y acceso directo a añadir contenido. La adaptación queda integrada en el sistema visual y los textos de Semilla:
+
+- El onboarding conserva las cuatro preguntas, pero presenta cada respuesta como una tarjeta de 68–76 px con icono contenido, check de selección y progreso acumulado. La opción de principiante muestra el mensaje de tranquilidad que ya existía en las traducciones.
+- Home incorpora «Añadir planta» en el encabezado y mantiene la búsqueda disponible desde la primera planta; la acción sigue usando el flujo existente de alta o recomendación.
+- La información de cultivo del detalle usa pestañas horizontales con forma de píldora, para que las cuatro vistas sigan siendo legibles en pantallas estrechas.
+
+No se copiaron ilustraciones, textos, precios ni arquitectura de la app de referencia. La validación de esta pasada mantiene typecheck, 156 pruebas, exportaciones Web/iOS y `git diff --check` correctos.

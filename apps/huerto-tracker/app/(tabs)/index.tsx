@@ -533,6 +533,15 @@ function DashboardInner() {
           </Pressable>
         )}
         <Pressable
+          onPress={() => router.push(plants.count === 0 ? (profile ? '/first-crop' : '/onboarding') : '/plant/new')}
+          accessibilityRole="button"
+          accessibilityLabel={t('home.addPlant')}
+          style={({ pressed }) => [s.headerAddBtn, { backgroundColor: colors.primary, opacity: pressed ? 0.78 : 1 }]}
+        >
+          <Ionicons name="add" size={17} color={colors.background} />
+          <Text style={[s.headerAddText, { color: colors.background }]}>{t('home.addPlant')}</Text>
+        </Pressable>
+        <Pressable
           onPress={() => router.push('/(tabs)/settings' as any)}
           accessibilityRole="button"
           accessibilityLabel={t('tabs.settings')}
@@ -660,7 +669,7 @@ function DashboardInner() {
                     <Text style={[s.showFinishedText, { color: colors.textSecondary }]}>{t('home.hideFinished')}</Text>
                   </Pressable>
                 )}
-                {plants.count > 4 && (
+                {plants.count > 0 && (
                   <View style={[s.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <Ionicons name="search-outline" size={14} color={colors.textSecondary} />
                     <TextInput
@@ -1131,6 +1140,17 @@ const makeStyles = (
       justifyContent: 'center',
       flexShrink: 0,
     },
+    headerAddBtn: {
+      minHeight: 40,
+      paddingHorizontal: spacing.md,
+      borderRadius: radii.full,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+      flexShrink: 0,
+    },
+    headerAddText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
     // Today card
     todayCard: {
       marginHorizontal: spacing.xl,

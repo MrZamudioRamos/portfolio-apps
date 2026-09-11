@@ -725,7 +725,7 @@ export default function PlantDetailScreen() {
               </Pressable>
             )}
           </View>
-          <View style={s.tabBar}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tabBar}>
             {(['overview', 'calendar', 'companions', 'howto'] as const).map((tab) => {
               const active = cropTab === tab;
               return (
@@ -752,7 +752,7 @@ export default function PlantDetailScreen() {
                 </Pressable>
               );
             })}
-          </View>
+          </ScrollView>
 
           {cropTab === 'overview' && (
             <Card padded style={s.infoCard}>
@@ -1804,12 +1804,13 @@ const makeStyles = (
       flexDirection: 'row',
       gap: spacing.xs,
       marginBottom: spacing.md,
+      paddingRight: spacing.xl,
     },
     tabBtn: {
-      flex: 1,
+      minWidth: 84,
       paddingVertical: spacing.sm,
-      paddingHorizontal: spacing.xs,
-      borderRadius: radii.md,
+      paddingHorizontal: spacing.md,
+      borderRadius: radii.full,
       borderWidth: 1.5,
       alignItems: 'center',
     },
