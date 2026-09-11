@@ -587,6 +587,8 @@
     "title": "Landare berria",
     "cropLabel": "LABOREA",
     "selectCrop": "Hautatu laborea",
+    "selectTitle": "Zer landatu nahi duzu?",
+    "selectDesc": "Aukeratu katalogoko labore bat haren zaintza-plana konfiguratzeko.",
     "changeCrop": "Aldatu",
     "nameLabel": "IZENA",
     "namePlaceholder": "Zure landarearen izena",

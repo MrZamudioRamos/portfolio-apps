@@ -599,6 +599,8 @@
     "title": "New plant",
     "cropLabel": "CROP",
     "selectCrop": "Select crop",
+    "selectTitle": "What are you growing?",
+    "selectDesc": "Choose a crop from the catalog to set up its care plan.",
     "changeCrop": "Change",
     "nameLabel": "NAME",
     "namePlaceholder": "Your plant's name",

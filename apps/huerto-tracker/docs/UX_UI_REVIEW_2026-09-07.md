@@ -163,3 +163,19 @@ La recomendación «Siembra ahora» deja de estar escondida dentro de «Más de 
 Se revisaron Diario, Herramientas, Ajustes, Catálogo, Calendario, alta de planta, alta de entrada, recordatorios, Asociaciones, Rotación, Medidor de luz, Estadísticas, Guía de enfermedades, diagnóstico, mapa y gestión de huertos. La jerarquía, los estados Pro y la navegación inferior mantienen un lenguaje coherente. Calendario y Catálogo son las superficies más densas; se mantienen como siguiente área de trabajo si las pruebas en móvil confirman que el contenido requiere más agrupación.
 
 La revisión encontró además una regresión de contenido: algunos cultivos añadidos recientemente no tienen todavía una clave de traducción y mostraban `crops.<id>.name` en Asociaciones, Estadísticas, alta de planta y diagnóstico. Las pantallas ahora usan el nombre del catálogo como fallback para etiquetas, búsquedas, consejos y cultivos afectados por una enfermedad, evitando exponer claves técnicas y manteniendo el contenido legible aunque falte una traducción.
+
+## Auditoría de usabilidad y lavado de cara — 11 de septiembre de 2026
+
+Para comprobar que la app tiene sentido se revisan tareas completas, no pantallas aisladas. Cada tarea debe tener una acción principal evidente, explicar el dato que pide, confirmar el resultado y ofrecer una salida recuperable si algo falla:
+
+| Tarea | Evidencia que buscamos | Estado en Web |
+| --- | --- | --- |
+| Entender qué hacer hoy | La portada prioriza una instrucción concreta y un siguiente paso | Verificado |
+| Añadir una planta | La pantalla explica la decisión antes de abrir el catálogo y no deja un estado ambiguo | Pulido en esta pasada |
+| Registrar un cuidado | La acción distingue comprobar la tierra de regar y actualiza la tarjeta al volver | Verificado |
+| Decidir qué sembrar | La recomendación muestra mes, zona, dificultad y acción directa | Verificado |
+| Recuperarse de un error | El formulario conserva la información y el error explica cómo reintentar | Verificado |
+
+El lavado de cara sigue cuatro reglas: una jerarquía clara, una sola acción primaria por paso, estados visibles y textos que describen el resultado. En `plant/new`, el primer paso ahora presenta a Semillita, la pregunta «¿Qué quieres cultivar?», una explicación breve y después la selección del catálogo; el comportamiento de guardado y los límites no cambian.
+
+La prueba Web cubre navegación, árbol accesible, estados vacíos, filtros, reintentos y recarga. Queda pendiente la comprobación física en Expo Go de tamaños pequeños, modo claro, permisos, lector de pantalla y gestos nativos.

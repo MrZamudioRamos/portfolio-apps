@@ -282,9 +282,15 @@ export default function NewPlantScreen() {
       {step === 'select' && (
         <CopilotStep text={t('coach.plantNew')} order={1} name="plant-select">
         <WalkView style={s.entryContainer}>
-          <Text style={[s.entrySubtitle, { color: colors.textSecondary }]}>
-            {t('plantNew.selectCrop')}
-          </Text>
+          <View style={s.entryIntro}>
+            <Mascot pose="wave" size={96} />
+            <Text accessibilityRole="header" style={[s.entryTitle, { color: colors.text }]}>
+              {t('plantNew.selectTitle')}
+            </Text>
+            <Text style={[s.entrySubtitle, { color: colors.textSecondary }]}>
+              {t('plantNew.selectDesc')}
+            </Text>
+          </View>
 
           {isPro && (
             <ScalePress
@@ -748,14 +754,30 @@ const makeStyles = (
     // Step 1 — entry
     entryContainer: {
       flex: 1,
+      width: '100%',
+      maxWidth: 560,
+      alignSelf: 'center',
       padding: spacing.xl,
       gap: spacing.lg,
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
+      paddingTop: spacing['2xl'],
+    },
+    entryIntro: {
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginBottom: spacing.sm,
+    },
+    entryTitle: {
+      fontSize: fontSize['2xl'],
+      lineHeight: 32,
+      fontWeight: fontWeight.bold,
+      textAlign: 'center',
     },
     entrySubtitle: {
       fontSize: fontSize.md,
       textAlign: 'center',
-      marginBottom: spacing.sm,
+      lineHeight: 22,
+      maxWidth: 420,
     },
     entryBtn: {
       flexDirection: 'row',

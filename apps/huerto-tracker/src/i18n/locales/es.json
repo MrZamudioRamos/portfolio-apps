@@ -634,6 +634,8 @@
     "title": "Nueva planta",
     "cropLabel": "CULTIVO",
     "selectCrop": "Seleccionar cultivo",
+    "selectTitle": "¿Qué quieres cultivar?",
+    "selectDesc": "Elige un cultivo del catálogo para empezar a configurar sus cuidados.",
     "changeCrop": "Cambiar",
     "nameLabel": "NOMBRE",
     "namePlaceholder": "Nombre de tu planta",

@@ -587,6 +587,8 @@
     "title": "Nova planta",
     "cropLabel": "CULTIU",
     "selectCrop": "Seleccionar cultiu",
+    "selectTitle": "Què vols cultivar?",
+    "selectDesc": "Tria un cultiu del catàleg per començar a configurar-ne les cures.",
     "changeCrop": "Canviar",
     "nameLabel": "NOM",
     "namePlaceholder": "Nom de la teua planta",
