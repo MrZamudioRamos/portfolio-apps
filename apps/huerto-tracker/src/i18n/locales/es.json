@@ -579,7 +579,8 @@
     "intentHojas": "Hojas y ensaladas",
     "intentRaices": "Raíces y tubérculos",
     "intentLegumbres": "Legumbres",
-    "intentAromaticas": "Aromáticas"
+    "intentAromaticas": "Aromáticas",
+    "browseCatalog": "Explorar catálogo"
   },
   "activation": {
     "title": "Primeros pasos",

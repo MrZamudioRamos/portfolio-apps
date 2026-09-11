@@ -600,7 +600,8 @@
     "intentHojas": "Hostoak eta entsaladak",
     "intentRaices": "Sustraiak eta tuberkuluak",
     "intentLegumbres": "Lekaleak",
-    "intentAromaticas": "Belar aromatikoak"
+    "intentAromaticas": "Belar aromatikoak",
+    "browseCatalog": "Katalogoa arakatu"
   },
   "plantNew": {
     "title": "Landare berria",

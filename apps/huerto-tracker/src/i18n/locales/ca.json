@@ -600,7 +600,8 @@
     "intentHojas": "Fulles i amanides",
     "intentRaices": "Arrels i tubercles",
     "intentLegumbres": "Llegums",
-    "intentAromaticas": "Aromàtiques"
+    "intentAromaticas": "Aromàtiques",
+    "browseCatalog": "Explorar el catàleg"
   },
   "plantNew": {
     "title": "Nova planta",

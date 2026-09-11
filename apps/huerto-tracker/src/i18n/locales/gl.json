@@ -600,7 +600,8 @@
     "intentHojas": "Follas e ensaladas",
     "intentRaices": "Raíces e tubérculos",
     "intentLegumbres": "Leguminosas",
-    "intentAromaticas": "Aromáticas"
+    "intentAromaticas": "Aromáticas",
+    "browseCatalog": "Explorar o catálogo"
   },
   "plantNew": {
     "title": "Nova planta",

@@ -140,7 +140,7 @@ export default function FirstCropScreen() {
           );
         })}
         {loading && <ActivityIndicator color={colors.primary} />}
-        {!loading && !recommendations.length && <Card padded><Text style={{ color: colors.text, lineHeight: 22 }}>{t('firstCrop.empty')}</Text><Button title={t('firstCrop.adjust')} variant="secondary" size="lg" onPress={() => router.replace('/onboarding')} style={{ marginTop: spacing.md }} /></Card>}
+        {!loading && !recommendations.length && <Card padded><Text style={{ color: colors.text, lineHeight: 22 }}>{t('firstCrop.empty')}</Text><Button title={t('firstCrop.adjust')} variant="secondary" size="lg" onPress={() => router.replace('/onboarding')} style={{ marginTop: spacing.md }} /><Button title={t('firstCrop.browseCatalog')} variant="ghost" size="lg" onPress={() => router.push('/catalog')} style={{ marginTop: spacing.xs }} /></Card>}
         {recommendations.length > 0 && <Button title={t('firstCrop.adjust')} variant="ghost" onPress={() => router.replace('/onboarding')} style={{ minHeight: 44 }} />}
         <Pressable accessibilityRole="button" style={{ minHeight: 48, justifyContent: 'center' }} onPress={() => router.replace('/(tabs)')}><Text style={{ color: colors.textSecondary, textAlign: 'center' }}>{t('firstCrop.later')}</Text></Pressable>
       </ScrollView>
