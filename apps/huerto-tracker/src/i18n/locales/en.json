@@ -589,11 +589,21 @@
       "seasonNow": "You can sow it now",
       "seasonSoon": "Sowing starts next month; prepare your supplies today",
       "easy": "It is easy for beginners",
-      "quick": "It gives a relatively quick result"
+      "quick": "It gives a relatively quick result",
+      "preference": "Matches what you want to grow"
     },
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Estimated harvest: {{min}}–{{max}} days after sowing",
-    "adjust": "Review my answers"
+    "adjust": "Review my answers",
+    "intentTitle": "What would you like to grow?",
+    "intentDesc": "Optional: choose a category to put the options that fit you first.",
+    "intentAny": "I’m open to anything",
+    "intentClear": "Clear selection",
+    "intentFrutas": "Fruit crops",
+    "intentHojas": "Leafy greens",
+    "intentRaices": "Root crops",
+    "intentLegumbres": "Legumes",
+    "intentAromaticas": "Herbs"
   },
   "plantNew": {
     "title": "New plant",

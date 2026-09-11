@@ -577,11 +577,21 @@
       "seasonNow": "Pots sembrar-lo ara",
       "seasonSoon": "La sembra comença el mes vinent; avui pots preparar el material",
       "easy": "És fàcil per a principiants",
-      "quick": "Dona un resultat relativament ràpid"
+      "quick": "Dona un resultat relativament ràpid",
+      "preference": "Encaixa amb el que vols cultivar"
     },
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Collita orientativa: {{min}}–{{max}} dies des de la sembra",
-    "adjust": "Revisar les meves respostes"
+    "adjust": "Revisar les meves respostes",
+    "intentTitle": "Què et ve de gust cultivar?",
+    "intentDesc": "Opcional: triar una categoria ajuda a ordenar primer les opcions que encaixen amb tu.",
+    "intentAny": "M’és igual",
+    "intentClear": "Esborrar selecció",
+    "intentFrutas": "Fruites i fruits",
+    "intentHojas": "Fulles i amanides",
+    "intentRaices": "Arrels i tubercles",
+    "intentLegumbres": "Llegums",
+    "intentAromaticas": "Aromàtiques"
   },
   "plantNew": {
     "title": "Nova planta",

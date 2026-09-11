@@ -1,4 +1,4 @@
-import { CROPS, CROP_CONTAINER_MIN, CROP_DIFFICULTY, type CropInfo } from '../data/crops';
+import { CROPS, CROP_CONTAINER_MIN, CROP_DIFFICULTY, type CropCategory, type CropInfo } from '../data/crops';
 import type { ClimateZone } from '../models/garden';
 import type { SunlightLevel, ExperienceLevel } from '../models/user-profile';
 import { cropMatchesSun } from './cropMatchesSun';
@@ -11,7 +11,8 @@ export type RecommendationReason =
   | 'seasonNow'
   | 'seasonSoon'
   | 'easy'
-  | 'quick';
+  | 'quick'
+  | 'preference';
 
 export interface FirstCropRecommendation {
   crop: CropInfo;
@@ -30,6 +31,7 @@ export interface RecommendationInput {
   crops?: CropInfo[];
   customCropsById?: Record<string, CropInfo>;
   space?: FirstCropSpace;
+  preferredCategories?: CropCategory[];
 }
 
 /**
@@ -45,6 +47,7 @@ export function getFirstCropRecommendations({
   crops = CROPS,
   customCropsById,
   space,
+  preferredCategories = [],
 }: RecommendationInput): FirstCropRecommendation[] {
   const allCrops = dedup(customCropsById ? [...crops, ...Object.values(customCropsById)] : crops);
   const containerSpace = space === 'balcony' || space === 'terrace' || space === 'indoor';
@@ -72,6 +75,10 @@ export function getFirstCropRecommendations({
       score += 25;
       reasons.push('container');
       if (containerLiters >= 20) score -= 25;
+    }
+    if (preferredCategories.includes(crop.category)) {
+      score += 25;
+      reasons.push('preference');
     }
     if (sowNow) {
       score += 20;
@@ -111,8 +118,9 @@ export function getTop2Recommendations({
   experience,
   crops = CROPS,
   customCropsById,
+  preferredCategories,
 }: RecommendationInput): CropInfo[] {
-  return getFirstCropRecommendations({ climateZone, month, sunlight, experience, crops, customCropsById })
+  return getFirstCropRecommendations({ climateZone, month, sunlight, experience, crops, customCropsById, preferredCategories })
     .slice(0, 2)
     .map((recommendation) => recommendation.crop);
 }

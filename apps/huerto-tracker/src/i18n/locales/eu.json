@@ -577,11 +577,21 @@
       "seasonNow": "Orain erein dezakezu",
       "seasonSoon": "Hurrengo hilabetean erein daiteke; prestatu materiala gaur",
       "easy": "Hasiberrientzat erraza da",
-      "quick": "Emaitza nahiko azkarra ematen du"
+      "quick": "Emaitza nahiko azkarra ematen du",
+      "preference": "Landatu nahi duzunarekin bat dator"
     },
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Gutxi gorabeherako uzta: erein eta {{min}}–{{max}} egunera",
-    "adjust": "Berrikusi nire erantzunak"
+    "adjust": "Berrikusi nire erantzunak",
+    "intentTitle": "Zer landatu nahi duzu?",
+    "intentDesc": "Aukerakoa: kategoria bat aukeratuz gero, zurekin bat datozen aukerak lehenetsiko dira.",
+    "intentAny": "Edozerk balio dit",
+    "intentClear": "Hautapena garbitu",
+    "intentFrutas": "Fruta-laboreak",
+    "intentHojas": "Hostoak eta entsaladak",
+    "intentRaices": "Sustraiak eta tuberkuluak",
+    "intentLegumbres": "Lekaleak",
+    "intentAromaticas": "Belar aromatikoak"
   },
   "plantNew": {
     "title": "Landare berria",

@@ -556,11 +556,21 @@
       "seasonNow": "Puedes empezar a sembrarlo ahora",
       "seasonSoon": "La siembra empieza el próximo mes; hoy puedes preparar el material",
       "easy": "Es una opción fácil para principiantes",
-      "quick": "Da un resultado relativamente rápido"
+      "quick": "Da un resultado relativamente rápido",
+      "preference": "Encaja con lo que quieres cultivar"
     },
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Cosecha orientativa: {{min}}–{{max}} días desde la siembra",
-    "adjust": "Revisar mis respuestas"
+    "adjust": "Revisar mis respuestas",
+    "intentTitle": "¿Qué te apetece cultivar?",
+    "intentDesc": "Opcional: elegir una categoría ayuda a ordenar las opciones que encajan contigo.",
+    "intentAny": "Me da igual",
+    "intentClear": "Borrar selección",
+    "intentFrutas": "Frutas y frutos",
+    "intentHojas": "Hojas y ensaladas",
+    "intentRaices": "Raíces y tubérculos",
+    "intentLegumbres": "Legumbres",
+    "intentAromaticas": "Aromáticas"
   },
   "activation": {
     "title": "Primeros pasos",

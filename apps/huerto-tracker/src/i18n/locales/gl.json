@@ -577,11 +577,21 @@
       "seasonNow": "Podes sementalo agora",
       "seasonSoon": "A sementeira comeza o próximo mes; hoxe podes preparar o material",
       "easy": "É fácil para principiantes",
-      "quick": "Dá un resultado relativamente rápido"
+      "quick": "Dá un resultado relativamente rápido",
+      "preference": "Encaixa co que queres cultivar"
     },
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Colleita orientativa: {{min}}–{{max}} días desde a sementeira",
-    "adjust": "Revisar as miñas respostas"
+    "adjust": "Revisar as miñas respostas",
+    "intentTitle": "Que che apetece cultivar?",
+    "intentDesc": "Opcional: escoller unha categoría axuda a ordenar primeiro as opcións que encaixan contigo.",
+    "intentAny": "Dáme igual",
+    "intentClear": "Borrar selección",
+    "intentFrutas": "Froitas e froitos",
+    "intentHojas": "Follas e ensaladas",
+    "intentRaices": "Raíces e tubérculos",
+    "intentLegumbres": "Leguminosas",
+    "intentAromaticas": "Aromáticas"
   },
   "plantNew": {
     "title": "Nova planta",
