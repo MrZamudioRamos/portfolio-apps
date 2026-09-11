@@ -55,7 +55,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
       <Pressable
         onPress={retry}
         accessibilityRole="button"
-        style={{ marginTop: 8, backgroundColor: '#2E7D32', paddingHorizontal: 28, paddingVertical: 12, borderRadius: 24 }}
+        style={{ marginTop: 8, backgroundColor: '#2E7D32', paddingHorizontal: 28, paddingVertical: 12, borderRadius: 8 }}
       >
         <Text style={{ color: '#fff', fontWeight: '700' }}>
           {i18next.t('errorScreen.retry', 'Reintentar')}

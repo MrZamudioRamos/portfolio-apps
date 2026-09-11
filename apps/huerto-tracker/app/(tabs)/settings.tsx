@@ -11,10 +11,9 @@ import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
 import type { CoachingLevel } from '../../src/models/user-profile';
 import type { CostEntry } from '../../src/models/cost-entry';
 import { Ionicons } from '@expo/vector-icons';
-import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
@@ -30,8 +29,6 @@ import { resetCoachMarks } from '../../src/hooks/useCoachMark';
 
 // TODO: replace with real App Store URL once published
 const APP_STORE_URL = 'https://apps.apple.com/app/id<APP_STORE_ID>';
-
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const APP_VERSION = '1.0.0';
 
@@ -351,8 +348,7 @@ export default function SettingsScreen() {
         {/* Language modal */}
         <Modal visible={showLangModal} transparent animationType="fade">
           <Pressable style={s.langModalOverlay} onPress={() => setShowLangModal(false)}>
-            <Pressable style={[s.langModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderColor: glassAvailable ? 'transparent' : colors.border }]} onPress={() => {}}>
-                {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+            <Pressable style={[s.langModalSheet, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => {}}>
               <Text style={[s.langModalTitle, { color: colors.text }]}>{t('settings.sections.language')}</Text>
               {SUPPORTED_LANGS.map((lang, idx) => {
                 const active = i18n.language === lang;

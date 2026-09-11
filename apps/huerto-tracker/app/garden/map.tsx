@@ -5,7 +5,6 @@ import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { usePro } from '../../src/hooks/usePro';
 import { track, EVENTS } from '../../src/analytics';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
-import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -55,7 +54,6 @@ import {
   useGardenLayout,
 } from '../../src/hooks/useGardenLayout';
 
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 const PANEL_COLLAPSED_H = 48;
 const PANEL_EXPANDED_H = 152;
 
@@ -870,8 +868,7 @@ export default function GardenMapScreen() {
           onRequestClose={() => setSelectedCell(null)}
         >
           <Pressable style={s.overlay} onPress={() => setSelectedCell(null)}>
-            <Pressable style={[s.contextCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden', ...shadows.lg }]}>
-              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+            <Pressable style={[s.contextCard, { backgroundColor: colors.surface, overflow: 'hidden', ...shadows.lg }]}>
               {selectedPlant && selectedCrop && (
                 <>
                   <View style={s.contextHeader}>

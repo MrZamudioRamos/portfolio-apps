@@ -2,7 +2,6 @@ import { useColors, useTheme, Card, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { GlassView, isLiquidGlassAvailable } from '../src/utils/glassEffect';
 import { DatePickerModal } from '../src/components/DatePickerModal';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -31,8 +30,6 @@ import type { DiaryEntry } from '../src/models/diary-entry';
 import type { Plant } from '../src/models/plant';
 import { COST_CATEGORY_CONFIG, type CostCategory, type CostEntry } from '../src/models/cost-entry';
 import { Illustration } from '../src/components/Illustration';
-
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const WATER_PRICE_KEY = '@portfolio/costs/water_price';
 const HARVEST_PRICE_KEY = '@portfolio/costs/harvest_price';
@@ -604,10 +601,8 @@ export default function CostsScreen() {
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <Pressable
             onPress={() => {}}
-            style={[s.addModal, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]}
+            style={[s.addModal, { backgroundColor: colors.surface, overflow: 'hidden' }]}
           >
-            {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-
             <View style={[s.handle, { backgroundColor: colors.border }]} />
             <Text style={[s.modalTitle, { color: colors.text }]}>{t('costs.addExpense')}</Text>
 

@@ -4,7 +4,6 @@ import { useCollection } from '@portfolio/storage';
 import { useSession } from '@portfolio/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { GardenWidget } from '../../src/widgets/GardenWidget';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -63,10 +62,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PlantCareCard } from '../../src/components/PlantCareCard';
 import { getTodayPlant, isSeedPlan } from '../../src/utils/dailyCare';
 import { useUserProfile } from '../../src/hooks/useUserProfile';
+import { track, EVENTS } from '../../src/analytics';
 
 const FROM_ONBOARDING_KEY = '@huerto/just_from_onboarding';
-
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 function DashboardInner() {
   const currentDay = useToday();
@@ -996,9 +994,8 @@ function DashboardInner() {
             {/* Lunar */}
             <ScalePress
               onPress={() => router.push('/(tabs)/calendar' as any)}
-              style={[s.lunarCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderColor: colors.border, overflow: 'hidden' }]}
+              style={[s.lunarCard, { backgroundColor: colors.surface, borderColor: colors.border, overflow: 'hidden' }]}
             >
-              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
               <View style={s.lunarLeft}>
                 <Text style={s.lunarMoonEmoji}>{lunar.phaseEmoji}</Text>
                 <View style={[s.lunarIllumBar, { backgroundColor: colors.border }]}>
@@ -1113,8 +1110,7 @@ function DashboardInner() {
       <Modal visible={showWaterAllModal} transparent animationType="slide" onRequestClose={() => setShowWaterAllModal(false)}>
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => setShowWaterAllModal(false)} />
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ justifyContent: 'flex-end' }}>
-          <Pressable onPress={() => {}} style={[{ backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing.xl, paddingBottom: 36, gap: spacing.lg, overflow: 'hidden' }]}>
-            {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+          <Pressable onPress={() => {}} style={[{ backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: spacing.xl, paddingBottom: 36, gap: spacing.lg, overflow: 'hidden' }]}>
             <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: spacing.sm }} />
             <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text }}>
               {t('home.waterAllTitle')}

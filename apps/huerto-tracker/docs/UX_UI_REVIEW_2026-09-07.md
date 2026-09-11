@@ -201,3 +201,14 @@ Los filtros del Catálogo ahora anuncian que son botones y cuál está seleccion
 Se instaló la skill pública [Uncodixfy](https://github.com/cyxzdev/Uncodixfy) como criterio para detectar patrones genéricos de UI. La primera aplicación se hizo en la navegación inferior: se sustituyó la cápsula flotante con desenfoque y sombra amplia por una barra sólida de ancho completo, borde superior y sombra mínima. El estado activo usa el verde de Semilla con un fondo discreto, y el modo compacto durante el scroll conserva una acción clara para recuperar la barra.
 
 La skill se aplica como guía, no como una migración visual automática: se mantienen las formas redondeadas cuando comunican una acción táctil o un filtro, y se conserva la identidad vegetal de la app. La prueba visual en Calendario confirmó que el contenido sigue teniendo contraste y que las cuatro pestañas se pueden identificar y activar.
+
+## Aplicación global de Uncodixfy — 11 de septiembre de 2026
+
+El mismo criterio se extendió al resto de superficies para que el producto no cambie de lenguaje según la ruta:
+
+- El sistema compartido pasa a una escala de radios más contenida (6/8/12/16 px). Cards, campos, hojas y botones mantienen jerarquía sin convertirse en cápsulas decorativas.
+- Las pantallas de Inicio, Herramientas, Ajustes, Costes, Mapa, detalle de planta y los flujos de añadir/editar usan superficies sólidas con borde y contraste estable. Se retiraron los overlays de glass de las superficies de trabajo y de los modales.
+- Las acciones primarias de Bienvenida, Chat, Coach, Compartir y estados de bloqueo usan la misma forma rectangular suave. Los radios completos se reservan para indicadores circulares, avatares y controles que comunican estado.
+- Se redujo el uso de mayúsculas y letter-spacing en etiquetas de contenido para mejorar lectura y escaneo. La información funcional, la navegación y los nombres accesibles se conservaron.
+
+Validación del lote: preview comprobado en Bienvenida, Calendario, Diario, Catálogo, Herramientas, Ajustes y el flujo de nueva planta; `npm test` (160 pruebas), typecheck de la app y del paquete compartido, y export web de Expo completados.

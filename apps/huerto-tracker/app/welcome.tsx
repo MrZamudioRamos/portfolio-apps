@@ -76,7 +76,7 @@ export default function WelcomeScreen() {
               title={t(completed ? 'welcome.returnGarden' : 'welcome.explore')}
               size="lg"
               onPress={() => router.replace(completed ? '/(tabs)' : '/onboarding')}
-              style={{ minHeight: 56, borderRadius: radii.full }}
+              style={{ minHeight: 56, borderRadius: radii.md }}
             />
             <Text style={{ color: colors.textSecondary, textAlign: 'center', lineHeight: 20 }}>{t('welcome.noAccount')}</Text>
             <Button
@@ -84,7 +84,7 @@ export default function WelcomeScreen() {
               variant="ghost"
               size="lg"
               onPress={() => router.push('/auth')}
-              style={{ minHeight: 48, borderRadius: radii.full }}
+              style={{ minHeight: 48, borderRadius: radii.md }}
             />
           </View>
         </View>

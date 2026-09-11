@@ -326,7 +326,7 @@ function CalendarInner() {
             {/* Upcoming harvests — the user's own plants come first */}
             {upcomingHarvests.length > 0 && (
               <View style={{ marginTop: spacing.sm }}>
-                <Text style={[{ fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, color: colors.textSecondary, marginBottom: spacing.xs, paddingHorizontal: spacing.xl }]}>
+                <Text style={[{ fontSize: fontSize.sm, fontWeight: fontWeight.semibold, color: colors.textSecondary, marginBottom: spacing.xs, paddingHorizontal: spacing.xl }]}>
                   {t('calendar.upcomingHarvests')}
                 </Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingVertical: spacing.xs }}>

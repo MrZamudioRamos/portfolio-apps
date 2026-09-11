@@ -304,7 +304,7 @@ const makeStyles = (
     gateBtn: {
       paddingHorizontal: spacing.xl,
       paddingVertical: spacing.md,
-      borderRadius: radii.full,
+      borderRadius: radii.md,
       marginTop: spacing.sm,
     },
     gateBtnText: { color: '#fff', fontWeight: fontWeight.bold, fontSize: fontSize.md },

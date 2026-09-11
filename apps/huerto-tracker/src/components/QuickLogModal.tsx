@@ -1,5 +1,4 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
-import { GlassView, isLiquidGlassAvailable } from '../utils/glassEffect';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,8 +24,6 @@ import { getPestsForCrop } from '../data/pests';
 import { useCustomCrops } from '../hooks/useCustomCrops';
 import { todayStr } from '../utils/dateStr';
 import { successHaptic, tapHaptic } from '../utils/haptics';
-
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 interface QuickAction {
   type: EntryType;
@@ -149,8 +146,7 @@ export function QuickLogModal({ plant, visible, onClose }: Props) {
         style={s.kavWrapper}
         pointerEvents="box-none"
       >
-        <View style={[s.sheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]}>
-          {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+        <View style={[s.sheet, { backgroundColor: colors.surface, overflow: 'hidden' }]}>
           {/* Handle */}
           <View style={[s.handle, { backgroundColor: colors.border }]} />
 

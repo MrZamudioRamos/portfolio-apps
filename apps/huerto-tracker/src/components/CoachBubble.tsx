@@ -116,7 +116,7 @@ const makeStyles = (
     next: {
       paddingVertical: spacing.md,
       paddingHorizontal: spacing.xl,
-      borderRadius: radii.full,
+      borderRadius: radii.md,
     },
     nextText: { color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold },
     dots: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6 },

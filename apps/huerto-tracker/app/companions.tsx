@@ -446,7 +446,7 @@ const makeStyles = (
       gap: spacing.xs,
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.sm,
-      borderRadius: radii.full,
+      borderRadius: radii.md,
     },
     lockText: { color: '#fff', fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     unlockBanner: {

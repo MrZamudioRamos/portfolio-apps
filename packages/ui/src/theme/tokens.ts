@@ -27,9 +27,9 @@ export const fontWeight = {
 
 export const radii = {
   sm: 6,
-  md: 10,
-  lg: 14,
-  xl: 20,
+  md: 8,
+  lg: 12,
+  xl: 16,
   full: 9999,
 } as const;
 
