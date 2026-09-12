@@ -2,10 +2,13 @@ import { useOnboarding } from '@portfolio/shared';
 import { useSession } from '@portfolio/supabase';
 import { useTheme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { Redirect, Tabs } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Animated,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -17,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 
 const TAB_BAR_H = 64;
 const TAB_BAR_GAP_BOTTOM = 0;
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 export const FLOATING_TAB_BOTTOM_CLEARANCE = TAB_BAR_H + TAB_BAR_GAP_BOTTOM + 8;
 
@@ -124,11 +128,44 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
           height: TAB_BAR_H,
           borderRadius: isCollapsed ? TAB_BAR_H / 2 : 0,
           overflow: 'hidden',
-          backgroundColor: colors.surface,
+          backgroundColor: glassAvailable ? 'transparent' : colors.surface,
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: colors.border,
         }}
       >
+        {glassAvailable ? (
+          <GlassView
+            style={StyleSheet.absoluteFill}
+            glassEffectStyle="regular"
+            colorScheme={isDark ? 'dark' : 'light'}
+          />
+        ) : Platform.OS === 'ios' ? (
+          <BlurView
+            intensity={isDark ? 65 : 80}
+            tint={isDark ? 'dark' : 'light'}
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                backgroundColor: isDark
+                  ? 'rgba(18,18,18,0.75)'
+                  : 'rgba(255,255,255,0.75)',
+              },
+            ]}
+          />
+        ) : null}
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              borderRadius: isCollapsed ? TAB_BAR_H / 2 : 0,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderColor: isDark
+                ? 'rgba(255,255,255,0.1)'
+                : 'rgba(0,0,0,0.08)',
+            },
+          ]}
+          pointerEvents="none"
+        />
         {/* Full tab row */}
         <Animated.View
           pointerEvents={isCollapsed ? 'none' : 'box-none'}

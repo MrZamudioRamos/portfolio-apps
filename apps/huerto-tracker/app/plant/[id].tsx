@@ -5,6 +5,7 @@ import { useReminders } from '@portfolio/notifications';
 import { ShareModal, type ShareModalProps } from '../../src/components/ShareModal';
 import { formatDate, formatRelative } from '@portfolio/shared';
 import { Ionicons } from '@expo/vector-icons';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -51,6 +52,8 @@ import { isSeedPlan } from '../../src/utils/dailyCare';
 import { useWeather } from '../../src/hooks/useWeather';
 
 type CropTab = 'overview' | 'calendar' | 'companions' | 'howto';
+
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const ALL_STATUSES: PlantStatus[] = [
   'seedling', 'transplanted', 'growing', 'flowering', 'fruiting', 'harvesting', 'finished',
@@ -1274,7 +1277,8 @@ export default function PlantDetailScreen() {
       {/* Transplant modal */}
       <Modal visible={showTransplantModal} transparent animationType="slide">
         <Pressable style={s.modalOverlay} onPress={() => setShowTransplantModal(false)}>
-          <Pressable style={[s.transplantModal, { backgroundColor: colors.surface, overflow: 'hidden' }]} onPress={(e) => e.stopPropagation()}>
+          <Pressable style={[s.transplantModal, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={(e) => e.stopPropagation()}>
+              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
             <Text style={[s.transplantModalTitle, { color: colors.text }]}>
               {t('plantDetail.transplantModalTitle')}
             </Text>

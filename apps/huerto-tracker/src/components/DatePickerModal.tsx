@@ -3,8 +3,11 @@ import { Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@portfolio/ui';
+import { GlassView, isLiquidGlassAvailable } from '../utils/glassEffect';
 import { Button } from '@portfolio/ui';
 import { dateToStr } from '../utils/dateStr';
+
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 interface DatePickerModalProps {
   value: string;
@@ -114,11 +117,12 @@ export function DatePickerModal({
                 borderTopRightRadius: radii.xl,
                 paddingTop: spacing.sm,
                 alignItems: 'center',
-                backgroundColor: colors.surface,
+                backgroundColor: glassAvailable ? 'transparent' : colors.surface,
                 overflow: 'hidden',
               }}
               onPress={() => {}}
             >
+              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
               <View style={{ width: 40, height: 4, borderRadius: 2, marginBottom: spacing.md, backgroundColor: colors.border }} />
               <DateTimePicker
                 value={new Date(value + 'T12:00:00')}

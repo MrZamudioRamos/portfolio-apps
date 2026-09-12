@@ -1,9 +1,10 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { FLOATING_TAB_BOTTOM_CLEARANCE } from './_layout';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScalePress } from '../../src/components/ScalePress';
@@ -12,6 +13,8 @@ import { CopilotStep } from 'react-native-copilot';
 import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
 import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
+
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 type Tint = 'primary' | 'info' | 'water' | 'warning' | 'success' | 'secondary' | 'error';
 
@@ -58,6 +61,7 @@ function ToolsInner() {
       onPress={() => router.push(tool.route as any)}
       style={[s.tile, { backgroundColor: colors.surface }]}
     >
+      {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
       <View style={[s.iconCircle, { backgroundColor: colors[tool.tint] + '20' }]}>
         <Ionicons name={tool.icon} size={26} color={colors[tool.tint]} />
       </View>

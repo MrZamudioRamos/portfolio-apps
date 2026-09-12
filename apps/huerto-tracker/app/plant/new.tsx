@@ -5,6 +5,7 @@ import { useSession } from '@portfolio/supabase';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { usePickPhoto } from '../../src/hooks/usePickPhoto';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -48,6 +49,8 @@ function TourStarter({ disabled }: { disabled: boolean }) {
   useTourAutoStart('plant-new', { disabled, firstStep: 'plant-select', delay: 400 });
   return null;
 }
+
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const STATIC_SECTIONS = (Object.keys(CATEGORY_CONFIG) as Array<keyof typeof CATEGORY_CONFIG>).map((cat) => ({
   title: cat,
@@ -613,7 +616,8 @@ export default function NewPlantScreen() {
                 {showDatePicker && Platform.OS === 'ios' && (
                   <Modal transparent animationType="slide" visible>
                     <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
-                      <Pressable style={[s.dateModalSheet, { backgroundColor: colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
+                      <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
+                        {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
                         <View style={[s.dateModalHandle, { backgroundColor: colors.border }]} />
                         <DateTimePicker
                           value={new Date(sowingDate)}
