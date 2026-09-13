@@ -2,6 +2,7 @@ import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { Button } from '../../src/components/ActionButton';
 import { useReminders, NotificationPermissionDeniedError, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +31,13 @@ const FREQUENCIES: ReminderFrequency[] = ['daily', 'weekly', 'once'];
 const WEEKDAYS = [2, 3, 4, 5, 6, 7, 1] as const;
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = [0, 15, 30, 45];
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
+const TYPE_ICONS: Record<ReminderType, keyof typeof Ionicons.glyphMap> = {
+  watering: 'water-outline',
+  fertilizing: 'leaf-outline',
+  harvest_check: 'basket-outline',
+  custom: 'notifications-outline',
+};
 
 export default function ReminderNewScreen() {
   const colors = useColors();
@@ -124,6 +132,17 @@ export default function ReminderNewScreen() {
         </View>
 
         <View style={s.body}>
+          <View style={[s.intro, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border, overflow: 'hidden' }]}>
+            {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+            <View style={[s.introIcon, { backgroundColor: colors.primary + '1c' }]}>
+              <Ionicons name="notifications-outline" size={22} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1, gap: 3 }}>
+              <Text style={[s.introTitle, { color: colors.text }]}>{t('reminderNew.subtitle')}</Text>
+              <Text style={[s.introDesc, { color: colors.textSecondary }]}>{t('reminderNew.subtitleDesc')}</Text>
+            </View>
+          </View>
+
           {permissionError && (
             <View style={{ gap: spacing.xs, marginBottom: spacing.md }}>
               <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderNew.permissionError')}</Text>
@@ -137,7 +156,6 @@ export default function ReminderNewScreen() {
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.typeLabel')}</Text>
           <View style={s.typeGrid}>
             {TYPES.map((tp) => {
-              const cfg = REMINDER_TYPE_CONFIG[tp];
               const active = type === tp;
               return (
                 <Pressable
@@ -151,15 +169,13 @@ export default function ReminderNewScreen() {
                     },
                   ]}
                 >
-                  <Text style={{ fontSize: 28 }}>{cfg.emoji}</Text>
-                  <Text
-                    style={[
-                      s.typeLabel,
-                      { color: active ? colors.primary : colors.text },
-                    ]}
-                  >
-                    {t('reminderType.' + tp)}
-                  </Text>
+                  <View style={s.typeCardContent}>
+                    <View style={[s.typeIcon, { backgroundColor: active ? colors.primary + '20' : colors.surfaceAlt }]}>
+                      <Ionicons name={TYPE_ICONS[tp]} size={20} color={active ? colors.primary : colors.textSecondary} />
+                    </View>
+                    <Text style={[s.typeLabel, { color: active ? colors.primary : colors.text }]}>{t('reminderType.' + tp)}</Text>
+                  </View>
+                  {active && <Ionicons name="checkmark-circle" size={18} color={colors.primary} />}
                 </Pressable>
               );
             })}
@@ -167,53 +183,35 @@ export default function ReminderNewScreen() {
 
           {/* Title */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.titleLabel')}</Text>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            style={[
-              s.input,
-              {
-                color: colors.text,
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-                fontSize: fontSize.md,
-              },
-            ]}
-            placeholderTextColor={colors.textDisabled}
-            returnKeyType="done"
-          />
+          <View style={[s.inputShell, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="create-outline" size={19} color={colors.textSecondary} />
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              style={[s.input, { color: colors.text, fontSize: fontSize.md }]}
+              placeholderTextColor={colors.textDisabled}
+              returnKeyType="done"
+            />
+          </View>
 
           {/* Frequency */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.frequencyLabel')}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.lg }}>
-            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-              {FREQUENCIES.map((f) => {
-                const active = frequency === f;
-                return (
-                  <Pressable
-                    key={f}
-                    onPress={() => setFrequency(f)}
-                    style={[
-                      s.chip,
-                      {
-                        backgroundColor: active ? colors.primary : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        s.chipText,
-                        { color: active ? '#fff' : colors.text },
-                      ]}
-                    >
-                      {t('reminderFrequency.' + f)}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </ScrollView>
+          <View style={[s.segment, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+            {FREQUENCIES.map((f) => {
+              const active = frequency === f;
+              return (
+                <Pressable
+                  key={f}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: active }}
+                  onPress={() => setFrequency(f)}
+                  style={[s.segmentOption, { backgroundColor: active ? colors.primary : 'transparent' }]}
+                >
+                  <Text style={[s.segmentText, { color: active ? colors.background : colors.textSecondary }]}>{t('reminderFrequency.' + f)}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
 
           {/* Hour picker */}
           {frequency === 'weekly' && (
@@ -242,7 +240,10 @@ export default function ReminderNewScreen() {
           )}
 
           {/* Hour picker */}
-          <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.hourLabel')}</Text>
+          <View style={s.timeHeading}>
+            <Text style={[s.label, { color: colors.textSecondary, marginTop: 0, marginBottom: 0 }]}>{t('reminderNew.hourLabel')}</Text>
+            <Text style={[s.timeValue, { color: colors.text }]}>{String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}</Text>
+          </View>
           <FlatList
             horizontal
             data={HOURS}
@@ -250,6 +251,8 @@ export default function ReminderNewScreen() {
             showsHorizontalScrollIndicator={false}
             style={{ marginBottom: spacing.md }}
             contentContainerStyle={{ gap: spacing.sm }}
+            initialScrollIndex={hour}
+            getItemLayout={(_, index) => ({ length: 44 + spacing.sm, offset: (44 + spacing.sm) * index, index })}
             renderItem={({ item: h }) => {
               const active = hour === h;
               return (
@@ -272,7 +275,7 @@ export default function ReminderNewScreen() {
           />
 
           {/* Minute picker */}
-          <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.minuteLabel')}</Text>
+          <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.md }]}>{t('reminderNew.minuteLabel')}</Text>
           <View style={[s.minuteRow, { marginBottom: spacing.xl }]}>
             {MINUTES.map((m) => {
               const active = minute === m;
@@ -297,13 +300,15 @@ export default function ReminderNewScreen() {
           </View>
 
           {/* Preview */}
-          <View style={[s.preview, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={[{ color: colors.textSecondary, fontSize: fontSize.sm }]}>
-              {REMINDER_TYPE_CONFIG[type].emoji} {title || REMINDER_TYPE_CONFIG[type].defaultTitle}
-            </Text>
-            <Text style={[{ color: colors.textDisabled, fontSize: fontSize.xs, marginTop: 4 }]}>
-              {t('reminderFrequency.' + frequency)} · {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}
-            </Text>
+          <View style={[s.preview, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border, overflow: 'hidden' }]}>
+            {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="clear" />}
+            <View style={[s.previewIcon, { backgroundColor: colors.primary + '1c' }]}>
+              <Ionicons name={TYPE_ICONS[type]} size={19} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1, gap: 4 }}>
+              <Text style={[s.previewTitle, { color: colors.text }]} numberOfLines={1}>{title || REMINDER_TYPE_CONFIG[type].defaultTitle}</Text>
+              <Text style={[s.previewMeta, { color: colors.textSecondary }]}>{t('reminderFrequency.' + frequency)} · {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}</Text>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -341,11 +346,28 @@ const makeStyles = (
       borderBottomWidth: 1,
     },
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
-    body: { padding: spacing.xl },
+    body: { padding: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xl },
+    intro: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      padding: spacing.md,
+      borderWidth: 1,
+      borderRadius: 14,
+      marginBottom: spacing.xs,
+    },
+    introIcon: {
+      width: 42,
+      height: 42,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    introTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    introDesc: { fontSize: fontSize.sm, lineHeight: 18 },
     label: {
       fontSize: fontSize.xs,
-      fontWeight: fontWeight.semibold,
-      letterSpacing: 0.8,
+      fontWeight: fontWeight.bold,
       marginBottom: spacing.sm,
       marginTop: spacing.lg,
     },
@@ -357,33 +379,51 @@ const makeStyles = (
     },
     typeCard: {
       width: '47%',
-      paddingVertical: spacing.lg,
+      minHeight: 58,
+      paddingVertical: spacing.sm,
       paddingHorizontal: spacing.md,
-      borderRadius: radii.lg,
-      borderWidth: 1.5,
+      borderRadius: 12,
+      borderWidth: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    typeCardContent: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 },
+    typeIcon: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+    typeLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold, flexShrink: 1 },
+    inputShell: {
+      flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.sm,
-    },
-    typeLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.medium, textAlign: 'center' },
-    input: {
       borderWidth: 1,
-      borderRadius: radii.md,
-      paddingHorizontal: spacing.lg,
+      borderRadius: 12,
+      paddingHorizontal: spacing.md,
+    },
+    input: {
+      flex: 1,
       paddingVertical: spacing.md,
-      marginBottom: spacing.sm,
     },
+    segment: { flexDirection: 'row', padding: 4, borderRadius: 12, borderWidth: 1, gap: 4 },
+    segmentOption: { flex: 1, minHeight: 40, borderRadius: 9, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xs },
+    segmentText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, textAlign: 'center' },
     chip: {
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm,
-      borderRadius: radii.full,
-      borderWidth: 1.5,
+      minWidth: 44,
+      minHeight: 40,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: 10,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
-    chipText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    chipText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+    timeHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.lg, marginBottom: spacing.sm },
+    timeValue: { fontSize: 24, fontWeight: fontWeight.bold, letterSpacing: 0.5 },
     timeChip: {
       width: 44,
       height: 44,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
+      borderRadius: 10,
+      borderWidth: 1,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -392,16 +432,22 @@ const makeStyles = (
     minuteChip: {
       flex: 1,
       height: 44,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
+      borderRadius: 10,
+      borderWidth: 1,
       alignItems: 'center',
       justifyContent: 'center',
     },
     preview: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
       padding: spacing.lg,
-      borderRadius: radii.lg,
+      borderRadius: 14,
       borderWidth: 1,
     },
+    previewIcon: { width: 38, height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+    previewTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    previewMeta: { fontSize: fontSize.xs },
     footer: {
       position: 'absolute',
       bottom: 0,

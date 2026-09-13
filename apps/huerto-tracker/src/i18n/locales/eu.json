@@ -845,6 +845,8 @@
   },
   "reminderNew": {
     "title": "Oroigarri berria",
+    "subtitle": "Abisua une egokian",
+    "subtitleDesc": "Aukeratu zer egiaztatu eta noiz komeni zaizun.",
     "typeLabel": "MOTA",
     "titleLabel": "IZENBURUA",
     "frequencyLabel": "MAIZTASUNA",

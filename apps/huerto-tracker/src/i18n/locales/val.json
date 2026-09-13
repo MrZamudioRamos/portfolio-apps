@@ -845,6 +845,8 @@
   },
   "reminderNew": {
     "title": "Nou recordatori",
+    "subtitle": "Un avís en el moment adequat",
+    "subtitleDesc": "Tria què vols revisar i quan et va millor.",
     "typeLabel": "TIPUS",
     "titleLabel": "TÍTOL",
     "frequencyLabel": "FREQÜÈNCIA",
