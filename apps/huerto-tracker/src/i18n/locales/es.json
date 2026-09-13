@@ -1275,6 +1275,15 @@
       "preventivo": "Preventivo",
       "quimico": "Químico"
     },
+    "followUpTitle": "Revisa la planta en 7 días",
+    "followUpDesc": "Comprueba si el tratamiento funcionó y compara la evolución con el diagnóstico guardado.",
+    "followUpCta": "Programar revisión",
+    "followUpScheduled": "Revisión programada para el {{date}}.",
+    "followUpPermissionTitle": "Necesitamos tus notificaciones",
+    "followUpPermissionDesc": "Actívalas para avisarte cuando toque revisar la planta.",
+    "followUpNotifTitle": "Revisión de {{name}}",
+    "followUpNotifBody": "Ha pasado una semana. Haz otra foto y comprueba si {{name}} mejora.",
+    "followUpError": "No se pudo programar la revisión. Inténtalo de nuevo.",
     "proOnly": "Disponible en Pro"
   },
   "plantFaq": {

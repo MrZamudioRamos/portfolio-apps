@@ -7,8 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { track, EVENTS } from '../../src/analytics';
+import { requestPermissions, scheduleDateAlert } from '@portfolio/notifications';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -63,6 +65,8 @@ export default function IdentifyPlantScreen() {
   const [diagnosis, setDiagnosis] = useState<PestDiagnosis | null>(null);
   const [errorKey, setErrorKey] = useState<'noKey' | 'generic' | null>(null);
   const [saved, setSaved] = useState(false);
+  const [followUpScheduled, setFollowUpScheduled] = useState(false);
+  const [followUpDate, setFollowUpDate] = useState<Date | null>(null);
   const { pickFromGallery, pickFromCamera, picking } = usePickPhoto({
     aspect: [4, 3],
     quality: 0.6,
@@ -78,6 +82,8 @@ export default function IdentifyPlantScreen() {
     setErrorKey(null);
     setDiagnosis(null);
     setSaved(false);
+    setFollowUpScheduled(false);
+    setFollowUpDate(null);
     const result = fromCamera ? await pickFromCamera() : await pickFromGallery();
     if (result.kind === 'success') setPhoto(result.uri);
   }
@@ -88,6 +94,8 @@ export default function IdentifyPlantScreen() {
     setErrorKey(null);
     setDiagnosis(null);
     setSaved(false);
+    setFollowUpScheduled(false);
+    setFollowUpDate(null);
 
     try {
       const cropName = crop ? t('crops.' + crop.id + '.name', { defaultValue: crop.name }) : 'plant';
@@ -118,6 +126,29 @@ export default function IdentifyPlantScreen() {
       ...(photo ? { photoUri: photo } : {}),
     });
     setSaved(true);
+    track(EVENTS.diagnosisSaved, { detected: diagnosis.detected, plant_id: plantId ?? null });
+  }
+
+  async function scheduleFollowUp() {
+    if (!diagnosis || followUpScheduled) return;
+    const granted = await requestPermissions();
+    if (!granted) {
+      Alert.alert(t('identify.followUpPermissionTitle'), t('identify.followUpPermissionDesc'));
+      return;
+    }
+    const date = new Date(Date.now() + 7 * 86_400_000);
+    const id = await scheduleDateAlert({
+      date,
+      title: t('identify.followUpNotifTitle'),
+      body: t('identify.followUpNotifBody', { name: diagnosis.name }),
+    });
+    if (!id) {
+      Alert.alert(t('common.error'), t('identify.followUpError'));
+      return;
+    }
+    setFollowUpScheduled(true);
+    setFollowUpDate(date);
+    track(EVENTS.diagnosisFollowupScheduled, { detected: diagnosis.detected, plant_id: plantId ?? null });
   }
 
   /* ---- Pro gate ---- */
@@ -313,6 +344,31 @@ export default function IdentifyPlantScreen() {
                 <Text style={[s.savedText, { color: '#2E7D32' }]}>{t('identify.saved')}</Text>
               </View>
             )}
+
+            {saved && (
+              <Card padded style={StyleSheet.flatten([s.followUpCard, { borderColor: colors.primary + '55', backgroundColor: colors.primary + '0d' }])}>
+                <View style={s.followUpHeader}>
+                  <Text style={s.followUpEmoji}>🔁</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.sectionTitle, { color: colors.text }]}>{t('identify.followUpTitle')}</Text>
+                    <Text style={[s.sectionBody, { color: colors.textSecondary }]}>
+                      {followUpScheduled && followUpDate
+                        ? t('identify.followUpScheduled', { date: followUpDate.toLocaleDateString(i18n.language === 'val' ? 'ca-ES' : i18n.language, { day: 'numeric', month: 'short' }) })
+                        : t('identify.followUpDesc')}
+                    </Text>
+                  </View>
+                </View>
+                {!followUpScheduled && (
+                  <Pressable
+                    onPress={scheduleFollowUp}
+                    style={[s.followUpButton, { backgroundColor: colors.primary }]}
+                  >
+                    <Ionicons name="notifications-outline" size={18} color={colors.background} />
+                    <Text style={[s.followUpButtonText, { color: colors.background }]}>{t('identify.followUpCta')}</Text>
+                  </Pressable>
+                )}
+              </Card>
+            )}
           </View>
         )}
       </ScrollView>
@@ -436,4 +492,9 @@ const makeStyles = (
       alignItems: 'center',
     },
     savedText: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    followUpCard: { marginTop: spacing.md, borderWidth: 1 },
+    followUpHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
+    followUpEmoji: { fontSize: 24 },
+    followUpButton: { marginTop: spacing.md, minHeight: 46, borderRadius: radii.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    followUpButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
   });

@@ -1442,6 +1442,15 @@
       "preventivo": "Prebentiboa",
       "quimico": "Kimikoa"
     },
+    "followUpTitle": "Berrikusi landarea 7 egun barru",
+    "followUpDesc": "Egiaztatu tratamenduak funtzionatu duen eta alderatu bilakaera gordetako diagnostikoarekin.",
+    "followUpCta": "Programatu berrikuspena",
+    "followUpScheduled": "Berrikuspena programatuta: {{date}}.",
+    "followUpPermissionTitle": "Jakinarazpenak behar ditugu",
+    "followUpPermissionDesc": "Aktibatu landarea berrikusteko unea iristen denean abisatzeko.",
+    "followUpNotifTitle": "{{name}} berrikusi",
+    "followUpNotifBody": "Aste bat igaro da. Egin beste argazki bat eta egiaztatu {{name}} hobetzen ari den.",
+    "followUpError": "Ezin izan da berrikuspena programatu. Saiatu berriro.",
     "proOnly": "Pro-rekin eskuragarri"
   },
   "plantFaq": {

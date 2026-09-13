@@ -1604,6 +1604,15 @@
       "preventivo": "Preventive",
       "quimico": "Chemical"
     },
+    "followUpTitle": "Review the plant in 7 days",
+    "followUpDesc": "Check whether the treatment worked and compare progress with the saved diagnosis.",
+    "followUpCta": "Schedule review",
+    "followUpScheduled": "Review scheduled for {{date}}.",
+    "followUpPermissionTitle": "Notifications are needed",
+    "followUpPermissionDesc": "Enable them so we can remind you when it is time to review the plant.",
+    "followUpNotifTitle": "Review {{name}}",
+    "followUpNotifBody": "One week has passed. Take another photo and check whether {{name}} is improving.",
+    "followUpError": "Could not schedule the review. Please try again.",
     "proOnly": "Available with Pro"
   },
   "plantFaq": {

@@ -42,6 +42,8 @@ export const EVENTS = {
   careTaskCompleted: 'care_task_completed',
   autopilotActivated: 'autopilot_activated',
   absencePlanSaved: 'absence_plan_saved',
+  diagnosisSaved: 'diagnosis_saved',
+  diagnosisFollowupScheduled: 'diagnosis_followup_scheduled',
   onboardingStepCompleted: 'onboarding_step_completed',
   coachingLevelChanged: 'coaching_level_changed',
   coachingOverrideSet: 'coaching_override_set',
