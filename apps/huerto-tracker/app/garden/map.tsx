@@ -600,7 +600,13 @@ export default function GardenMapScreen() {
                 </View>
               </View>
 
-              <View style={s.focusSummary}>
+              <Pressable
+                disabled={!focusPlant}
+                onPress={() => focusPlant && router.push(`/plant/${focusPlant.id}`)}
+                accessibilityRole={focusPlant ? 'button' : undefined}
+                accessibilityLabel={focusPlant ? t('gardenMap.viewPlant') : undefined}
+                style={({ pressed }) => [s.focusSummary, { opacity: pressed && focusPlant ? 0.82 : 1 }]}
+              >
                 {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
                 <View style={[s.focusSummaryIcon, { backgroundColor: focusPlant ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)' }]}>
                   <Text style={s.focusSummaryEmoji}>{focusCrop?.emoji ?? '＋'}</Text>
@@ -621,7 +627,8 @@ export default function GardenMapScreen() {
                     <Text style={s.focusStatValue}>{focusAge}</Text>
                   </View>
                 </View>
-              </View>
+                {focusPlant && <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.7)" />}
+              </Pressable>
 
             <View
               ref={gridRef}
@@ -753,14 +760,23 @@ export default function GardenMapScreen() {
               ))}
             </View>
 
-            <View pointerEvents="none" style={s.fieldMetrics}>
+            <View style={s.fieldMetrics}>
                 {[
                 { icon: 'water-outline' as const, label: t('gardenMap.water'), value: waterLabel, accent: '#A8E6CF' },
                 { icon: 'pulse-outline' as const, label: t('gardenMap.health'), value: `${healthPercent}%`, accent: '#B8E986' },
                 { icon: 'layers-outline' as const, label: t('gardenMap.soil'), value: soilLabel, accent: '#F3D9A4' },
                 { icon: 'bug-outline' as const, label: t('gardenMap.pests'), value: pestLabel, accent: activePests ? '#FFD180' : '#B8E986' },
               ].map((metric) => (
-                <View key={metric.label} style={s.fieldMetricCard}>
+                <Pressable
+                  key={metric.label}
+                  onPress={() => {
+                    if (focusPlant) router.push(`/plant/${focusPlant.id}`);
+                    else router.push('/care-plan' as any);
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${metric.label}: ${metric.value}`}
+                  style={({ pressed }) => [s.fieldMetricCard, { opacity: pressed ? 0.78 : 1 }]}
+                >
                   {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
                   <View style={s.fieldMetricHeader}>
                     <View style={[s.fieldMetricIcon, { backgroundColor: `${metric.accent}30` }]}>
@@ -769,7 +785,7 @@ export default function GardenMapScreen() {
                     <Text style={s.fieldMetricLabel}>{metric.label}</Text>
                   </View>
                   <Text style={s.fieldMetricValue} numberOfLines={1}>{metric.value}</Text>
-                </View>
+                </Pressable>
               ))}
             </View>
 
