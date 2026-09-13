@@ -1061,6 +1061,49 @@
     "active": "Plaga activa",
     "treated": "En tractament"
   },
+    "plantGuide": {
+      "chapter": "Capítol",
+      "now": "Ara",
+      "nextStep": "Següent pas",
+      "checklist": "Comprova ara",
+      "avoid": "Evita",
+      "snapshot": "Fitxa ràpida",
+    "cropTip": "Consell per a {{name}}",
+      "sun": "Llum",
+      "water": "Reg",
+      "spacing": "Espai",
+      "harvest": {
+        "action": "Collita en el punt de color, mida o fermesa de la varietat i revisa la planta sovint.",
+        "check1": "Mira-la cada 1–2 dies per collir a temps i evitar fruits passats.",
+        "check2": "Anota què has collit i planifica una nova tanda si t’ha funcionat.",
+        "avoid": "No deixis fruits madurs amagats: frenen la producció i atrauen problemes."
+      },
+      "days": "{{min}}–{{max}} dies",
+      "sowing": {
+        "action": "Prepara el lloc i sembra segons la profunditat del sobre. Apunta la data per seguir-ne el ritme.",
+        "check1": "Comprova que el test té forats i que el substrat drena bé.",
+        "check2": "Posa la llavor a la profunditat indicada i rega suaument.",
+        "avoid": "No deixis la terra xopa: busca humitat uniforme, sense bassals."
+      },
+      "germination": {
+        "action": "Mantén una humitat i una bona llum constants mentre esperes els primers brots.",
+        "check1": "Mira cada dia si surt el brot i gira el planter si rep llum lateral.",
+        "check2": "Quan tingui 2–4 fulles veritables, prepara l’enduriment i el trasplantament.",
+        "avoid": "No adobis encara ni exposis el plançó al fred, al vent o al sol fort."
+      },
+      "growth": {
+        "action": "Prioritza la llum, l’espai i un reg ajustat a la terra per formar una planta forta.",
+        "check1": "Revisa el revers de les fulles i retira les danyades abans que el problema avanci.",
+        "check2": "Comprova l’espai i afegeix un tutor si la planta el necessita.",
+        "avoid": "No mullis les fulles en regar ni mantinguis el substrat entollat."
+      },
+      "flowering": {
+        "action": "Mantén el reg estable i observa les flors i els primers fruits.",
+        "check1": "Busca flors sanes i confirma que la planta rep la llum prevista.",
+        "check2": "Revisa el suport, la ventilació i les plagues als brots i les flors.",
+        "avoid": "No alternis sequera i excés d’aigua: l’estabilitat ajuda a quallar."
+      }
+    },
   "plantStatus": {
     "seedling": "Planter",
     "transplanted": "Trasplantat",

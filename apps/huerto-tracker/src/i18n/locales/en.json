@@ -1067,6 +1067,49 @@
     "active": "Active pest",
     "treated": "Under treatment"
   },
+    "plantGuide": {
+      "chapter": "Chapter",
+      "now": "Now",
+      "nextStep": "Next step",
+      "checklist": "Check now",
+      "avoid": "Avoid",
+      "snapshot": "Quick snapshot",
+    "cropTip": "Tip for {{name}}",
+      "sun": "Light",
+      "water": "Water",
+      "spacing": "Space",
+      "harvest": {
+        "action": "Harvest at the colour, size or firmness this variety calls for, then check the plant often.",
+        "check1": "Check every 1–2 days so you pick on time and avoid overripe fruit.",
+        "check2": "Log what you harvested and save seed or plan a new succession if it worked well.",
+        "avoid": "Do not leave ripe fruit hidden: it slows production and attracts problems."
+      },
+      "days": "{{min}}–{{max}} days",
+      "sowing": {
+        "action": "Prepare the spot and sow at the depth on the packet. Label the date so you can follow its rhythm.",
+        "check1": "Make sure the pot has drainage holes and the mix drains well.",
+        "check2": "Place the seed at the recommended depth and water gently.",
+        "avoid": "Do not leave the soil soaked: aim for even moisture, never puddles."
+      },
+      "germination": {
+        "action": "Keep moisture and good light steady while you wait for the first shoots. Consistency matters more than heavy watering.",
+        "check1": "Look for the shoot each day and turn the tray if light comes from one side.",
+        "check2": "When it has 2–4 true leaves, prepare hardening off and transplanting.",
+        "avoid": "Do not feed yet or expose a tender seedling to cold, wind or harsh sun."
+      },
+      "growth": {
+        "action": "Prioritise light, space and watering based on the soil. This is when you build a strong plant.",
+        "check1": "Check the underside of leaves and remove damaged leaves before the issue spreads.",
+        "check2": "Confirm the spacing and add a stake or support if the plant needs it.",
+        "avoid": "Do not wet the leaves when watering or keep the mix permanently waterlogged."
+      },
+      "flowering": {
+        "action": "Keep watering steady and watch flowers and first fruit. Sudden changes show up in the harvest.",
+        "check1": "Look for healthy flowers and confirm the plant gets the planned light.",
+        "check2": "Check support, airflow and signs of pests around shoots and flowers.",
+        "avoid": "Avoid cycling between drought and excess water: stability helps fruit set."
+      }
+    },
   "plantStatus": {
     "seedling": "Seedling",
     "transplanted": "Transplanted",

@@ -864,7 +864,8 @@ export default function PlantDetailScreen() {
           {cropTab === 'howto' && (
             <Card padded style={s.infoCard}>
               <HowToStages
-                cropId={crop.id}
+                crop={crop}
+                plantStatus={plant.status}
                 fallbackTip={crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips', { defaultValue: crop.tips })}
               />
             </Card>

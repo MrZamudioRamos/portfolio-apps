@@ -1061,6 +1061,49 @@
     "active": "Praga activa",
     "treated": "En tratamento"
   },
+    "plantGuide": {
+      "chapter": "Capítulo",
+      "now": "Agora",
+      "nextStep": "Seguinte paso",
+      "checklist": "Comproba agora",
+      "avoid": "Evita",
+      "snapshot": "Ficha rápida",
+    "cropTip": "Consello para {{name}}",
+      "sun": "Luz",
+      "water": "Rego",
+      "spacing": "Espazo",
+      "harvest": {
+        "action": "Colleita no punto de cor, tamaño ou firmeza da variedade e revisa a planta a miúdo.",
+        "check1": "Mira a planta cada 1–2 días para colleitar a tempo.",
+        "check2": "Anota o que colleitaches e planifica outra quenda se funcionou ben.",
+        "avoid": "Non deixes froitos maduros agochados: frean a produción e atraen problemas."
+      },
+      "days": "{{min}}–{{max}} días",
+      "sowing": {
+        "action": "Prepara o lugar e sementa segundo a profundidade do sobre. Anota a data para seguir o ritmo.",
+        "check1": "Comproba que a maceta ten buratos e que o substrato drena ben.",
+        "check2": "Pon a semente á profundidade indicada e rega con suavidade.",
+        "avoid": "Non deixes a terra empapada: busca humidade uniforme, sen charcos."
+      },
+      "germination": {
+        "action": "Mantén a humidade e unha boa luz mentres agardas os primeiros brotes.",
+        "check1": "Mira cada día se aparece o brote e xira o sementeiro se recibe luz lateral.",
+        "check2": "Cando teña 2–4 follas verdadeiras, prepara o endurecemento e o transplante.",
+        "avoid": "Non abones aínda nin expoñas a plántula ao frío, vento ou sol forte."
+      },
+      "growth": {
+        "action": "Prioriza luz, espazo e un rego adaptado á terra para formar unha planta forte.",
+        "check1": "Revisa o reverso das follas e retira as danadas antes de que avance o problema.",
+        "check2": "Comproba o espazo e engade un titor se a planta o precisa.",
+        "avoid": "Non molles as follas ao regar nin manteñas o substrato encharcado."
+      },
+      "flowering": {
+        "action": "Mantén o rego estable e observa as flores e os primeiros froitos.",
+        "check1": "Busca flores sas e confirma que a planta recibe a luz prevista.",
+        "check2": "Revisa soporte, ventilación e sinais de praga nos brotes e flores.",
+        "avoid": "Non alternes seca e exceso de auga: a estabilidade axuda ao callado."
+      }
+    },
   "plantStatus": {
     "seedling": "Viveiro",
     "transplanted": "Trasplantada",

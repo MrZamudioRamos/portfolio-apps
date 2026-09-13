@@ -102,3 +102,38 @@ La guía de los primeros 7 días ya aparece en la pantalla de éxito de la prime
 La pantalla de primeras opciones también permite indicar, de forma opcional, qué familia de cultivos apetece probar. Esa preferencia solo reordena cultivos que ya cumplen luz, espacio y temporada; no fuerza una opción incompatible y se puede limpiar con «Me da igual».
 
 Las recomendaciones muestran además el ritmo de riego y recuerdan empezar con una sola planta. Tras la primera cosecha, la celebración ofrece guardar una valoración breve en el diario para que el siguiente ciclo conserve ese aprendizaje.
+
+## Revisión de profundidad de la guía — 13 de septiembre de 2026
+
+La comparación con nuevas conversaciones y recursos confirma que la guía debe responder decisiones concretas, no solo reunir artículos. En Reddit se repiten las dudas sobre qué cultivar según el espacio y el tiempo disponible, el espaciado, el momento de cosechar, la ausencia por vacaciones y cómo adaptar el riego al suelo o a la lluvia. Las guías de RHS, University of Maine y University of Maryland añaden pasos que suelen provocar el primer fracaso: preparar el recipiente y el drenaje, endurecer los plantones antes de sacarlos, protegerlos, entutorar, abonar, hacer siembras escalonadas y conservar la cosecha.
+
+- [What do you wish you knew starting out?, r/vegetablegardening](https://www.reddit.com/r/vegetablegardening/comments/1uwfcp4/what_do_you_wish_you_knew_starting_out/)
+- [Complete beginner, I am so lost, r/vegetablegardening](https://www.reddit.com/r/vegetablegardening/comments/1qpk865/complete_beginner_i_am_so_lost/)
+- [Planning a vegetable garden, RHS](https://www.rhs.org.uk/advice/beginners-guide/vegetable-basics/planning-a-vegetable-garden)
+- [Victory Gardens for ME, University of Maine Extension](https://extension.umaine.edu/gardening/victory-gardens-for-me/)
+- [How to Start a Vegetable Garden, University of Maryland Extension](https://www.extension.umd.edu/resource/how-start-vegetable-garden)
+- [Vegetable Gardening Handbook for Beginners, UC Master Gardeners](https://ucanr.edu/sites/default/files/2025-03/vegetable_gardening_handbook_for_beginners.pdf)
+
+La guía de Semilla tenía cinco pestañas, pero si no existía una traducción específica de `cropStages` todas mostraban el mismo consejo genérico del cultivo. Eso daba sensación de contenido incompleto aunque la navegación pareciera amplia. Se ha corregido para que cada capítulo tenga un siguiente paso, dos comprobaciones, un error que evitar y una ficha rápida con luz, agua, espacio y días estimados. El capítulo inicial se abre además según el estado real de la planta.
+
+### Lo que debe cubrir una guía que justifique Premium
+
+1. **Antes de comprar:** objetivo de cosecha, espacio, horas de sol, drenaje, recipiente, material mínimo y tiempo semanal.
+2. **Ahora mismo:** una única acción prioritaria, con expectativa de cuándo revisar de nuevo.
+3. **Cambio de etapa:** germinación, endurecimiento, trasplante, soporte, poda, floración y cuajado como hitos visibles.
+4. **Prevención:** revisión del envés de las hojas, humedad, frío/calor, ventilación y señales tempranas antes de abrir el diagnóstico.
+5. **Riego adaptable:** suelo primero; previsión meteorológica, tamaño de maceta, acolchado y ausencia por vacaciones como ajustes.
+6. **Cierre del ciclo:** señales de cosecha, frecuencia, almacenamiento, conservación, siembra escalonada y nota de aprendizaje.
+
+La propuesta de valor no es añadir más texto: es que Semilla convierta esos datos en el siguiente paso correcto para ese cultivo, espacio y momento. Las conversaciones sobre apps de jardinería valoran especialmente el calendario personalizado, la distribución a escala, recordatorios que respetan la humedad y el seguimiento de bancales; también rechazan los paywalls agresivos y el diagnóstico que promete más de lo que resuelve.
+
+### Siguiente backlog de producto
+
+- **P0:** convertir la guía contextual en un plan de preparación previo a la compra, con objetivo, espacio y esfuerzo semanal.
+- **P0:** añadir un modo de baja dedicación y un plan de ausencia/vacaciones para no perder riegos o cosechas.
+- **P1:** mostrar en cada etapa una checklist que se pueda marcar y que alimente el diario sin duplicar datos.
+- **P1:** unir diagnóstico y prevención: qué observar, qué foto hacer y qué hipótesis descartar antes de tratar.
+- **P1:** añadir hardening-off, soporte, poda, acolchado y fertilización como eventos concretos por cultivo.
+- **P2:** cerrar con cosecha, almacenamiento, conservación, recetas y recomendación de la siguiente tanda.
+
+La hipótesis de pago debe probarse con una pantalla de valor y una prueba controlada: primero se enseña el plan personalizado completo, después se limita solo la automatización y el seguimiento avanzado. Así medimos si la gente paga por decisiones y continuidad, no por desbloquear párrafos.

@@ -1061,6 +1061,49 @@
     "active": "Izurri aktiboa",
     "treated": "Tratamenduan"
   },
+    "plantGuide": {
+      "chapter": "Kapitulua",
+      "now": "Orain",
+      "nextStep": "Hurrengo urratsa",
+      "checklist": "Egiaztatu orain",
+      "avoid": "Saihestu",
+      "snapshot": "Fitxa azkarra",
+    "cropTip": "{{name}}-rentzako aholkua",
+      "sun": "Argia",
+      "water": "Ureztaketa",
+      "spacing": "Tartea",
+      "harvest": {
+        "action": "Bildu barietateak eskatzen duen kolore, tamaina edo sendotasunean eta berrikusi landarea maiz.",
+        "check1": "Begiratu 1–2 egunetik behin garaiz biltzeko.",
+        "check2": "Idatzi bildutakoa eta planifikatu beste txanda bat ondo joan bada.",
+        "avoid": "Ez utzi fruitu heldurik ezkutuan: ekoizpena moteldu eta arazoak erakartzen dituzte."
+      },
+      "days": "{{min}}–{{max}} egun",
+      "sowing": {
+        "action": "Prestatu lekua eta erein gutuneko sakoneran. Idatzi data erritmoa jarraitzeko.",
+        "check1": "Egiaztatu loreontziak drainatze-zuloak dituela eta substratuak ondo drainatzen duela.",
+        "check2": "Jarri hazia adierazitako sakoneran eta ureztatu astiro.",
+        "avoid": "Ez utzi lurra blai: bilatu hezetasun uniformea, putzurik gabe."
+      },
+      "germination": {
+        "action": "Mantendu hezetasuna eta argi ona lehen kimuak itxaroten dituzun bitartean.",
+        "check1": "Begiratu egunero kimua agertu den eta biratu hazitegia alboko argia badu.",
+        "check2": "2–4 benetako hosto dituenean, prestatu gogortzea eta transplantea.",
+        "avoid": "Ez ongarritu oraindik eta ez atera hotzera, haizera edo eguzki gogorrera."
+      },
+      "growth": {
+        "action": "Lehenetsi argia, tartea eta lurrean oinarritutako ureztaketa landare sendoa osatzeko.",
+        "check1": "Egiaztatu hostoen azpia eta kendu kaltetutako hostoak arazoa zabaldu aurretik.",
+        "check2": "Egiaztatu tartea eta gehitu euskarria behar badu.",
+        "avoid": "Ez busti hostoak ureztatzean eta ez eduki substratua beti urez beteta."
+      },
+      "flowering": {
+        "action": "Mantendu ureztaketa egonkorra eta begiratu loreei eta lehen fruituei.",
+        "check1": "Bilatu lore osasuntsuak eta baieztatu aurreikusitako argia jasotzen duela.",
+        "check2": "Egiaztatu euskarria, aireztapena eta izurrite-zantzuak.",
+        "avoid": "Ez txandakatu lehortea eta gehiegizko ura: egonkortasunak fruituaren lotura laguntzen du."
+      }
+    },
   "plantStatus": {
     "seedling": "Landaretegi",
     "transplanted": "Transplantatuta",

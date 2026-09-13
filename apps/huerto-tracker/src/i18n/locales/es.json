@@ -1115,6 +1115,49 @@
     "active": "Plaga activa",
     "treated": "En tratamiento"
   },
+    "plantGuide": {
+      "chapter": "Capítulo",
+      "now": "Ahora",
+      "nextStep": "Siguiente paso",
+      "checklist": "Comprueba ahora",
+      "avoid": "Evita",
+      "snapshot": "Ficha rápida",
+    "cropTip": "Consejo para {{name}}",
+      "sun": "Luz",
+      "water": "Riego",
+      "spacing": "Espacio",
+      "harvest": {
+        "action": "Cosecha en el punto de color, tamaño o firmeza que indica esta variedad y vuelve a revisar la planta con frecuencia.",
+        "check1": "Mira la planta cada 1–2 días para recoger a tiempo y evitar frutos pasados.",
+        "check2": "Anota qué has cosechado y guarda semillas o planifica una nueva tanda si te funciona.",
+        "avoid": "No dejes frutos maduros ocultos: frenan la producción y atraen problemas."
+      },
+      "days": "{{min}}–{{max}} días",
+      "sowing": {
+        "action": "Prepara el sitio y siembra siguiendo la profundidad del sobre. Etiqueta la fecha para poder seguir el ritmo.",
+        "check1": "Comprueba que la maceta tiene agujeros y que el sustrato drena bien.",
+        "check2": "Deja la semilla a la profundidad indicada y riega suavemente.",
+        "avoid": "No dejes la tierra empapada: busca humedad uniforme, sin charcos."
+      },
+      "germination": {
+        "action": "Mantén humedad y buena luz mientras esperas los primeros brotes. La regularidad importa más que regar mucho.",
+        "check1": "Mira cada día si asoma el brote y gira el semillero si recibe luz lateral.",
+        "check2": "Cuando tenga 2–4 hojas verdaderas, prepara el endurecimiento y el trasplante.",
+        "avoid": "No abones todavía ni expongas una plántula tierna a frío, viento o sol intenso."
+      },
+      "growth": {
+        "action": "Prioriza luz, espacio y un riego ajustado a la tierra. Es la etapa para formar una planta fuerte.",
+        "check1": "Revisa el reverso de las hojas y retira hojas dañadas antes de que el problema avance.",
+        "check2": "Comprueba que tiene el espacio indicado y añade tutor o soporte si la planta lo necesita.",
+        "avoid": "No mojes las hojas al regar ni mantengas el sustrato constantemente encharcado."
+      },
+      "flowering": {
+        "action": "Mantén el riego estable y observa las flores y los primeros frutos. Los cambios bruscos aquí se notan en la cosecha.",
+        "check1": "Busca flores sanas y comprueba que la planta recibe la luz prevista.",
+        "check2": "Revisa soporte, ventilación y señales de plaga en brotes y flores.",
+        "avoid": "No alternes sequía y exceso de agua: la estabilidad ayuda al cuajado."
+      }
+    },
   "plantStatus": {
     "seedling": "Semillero",
     "transplanted": "Trasplantada",
