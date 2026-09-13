@@ -64,6 +64,8 @@ import { PlantCareCard } from '../../src/components/PlantCareCard';
 import { getTodayPlant, isSeedPlan } from '../../src/utils/dailyCare';
 import { useUserProfile } from '../../src/hooks/useUserProfile';
 import { track, EVENTS } from '../../src/analytics';
+import { buildCarePlan } from '../../src/utils/carePlan';
+import { usePro } from '../../src/hooks/usePro';
 
 const FROM_ONBOARDING_KEY = '@huerto/just_from_onboarding';
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
@@ -120,6 +122,7 @@ function DashboardInner() {
   const listRef = useRef<FlatList<Plant>>(null);
   const lastScrollY = useRef(0);
   const { profile } = useUserProfile();
+  const { isPro } = usePro();
   // First visit: spotlight tour. Start at the named first step — the today/
   // first-use card lives in the FlatList header, so copilot needs the list
   // ref to measure and scroll to it.
@@ -184,6 +187,11 @@ function DashboardInner() {
     for (const p of plants.items) map.set(p.id, p);
     return map;
   }, [plants.items]);
+
+  const carePlanTasks = useMemo(
+    () => buildCarePlan(plants.items, { ...CROPS_BY_ID, ...customCropsById }, entries.items).filter((task) => task.priority === 'today'),
+    [plants.items, customCropsById, entries.items, currentDay],
+  );
 
   const weeklyTasks = useMemo(() => {
     const tasks: Array<{ emoji: string; label: string; plantId: string }> = [];
@@ -671,6 +679,30 @@ function DashboardInner() {
             {/* Seasonal discovery stays close to today's care, so the next plant is easy to find. */}
             {plants.count > 0 && garden && (
               <SowNowCard climateZone={garden.climateZone} />
+            )}
+
+            {plants.count > 0 && garden && (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push('/care-plan' as any)}
+                style={({ pressed }) => [
+                  { marginHorizontal: spacing.xl, marginTop: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.primary + '55', backgroundColor: colors.primary + '0d', flexDirection: 'row', alignItems: 'center', gap: spacing.md, opacity: pressed ? 0.78 : 1 },
+                ]}
+              >
+                <View style={{ width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary + '20' }}>
+                  <Text style={{ fontSize: 22 }}>✨</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                    <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('carePlan.heading')}</Text>
+                    {!isPro && <Text style={{ color: colors.warning, fontSize: 10, fontWeight: fontWeight.bold }}>PRO</Text>}
+                  </View>
+                  <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 }}>
+                    {carePlanTasks.length > 0 ? t('carePlan.homeToday', { count: carePlanTasks.length }) : t('carePlan.homeReady')}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={colors.primary} />
+              </Pressable>
             )}
 
             {/* My Plants section header + controls */}

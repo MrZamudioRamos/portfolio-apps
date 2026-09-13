@@ -1,5 +1,6 @@
 import { Card, useColors, useTheme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
+import { cancelReminder, requestPermissions, scheduleDateAlert } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -11,10 +12,12 @@ import { Button } from '../src/components/ActionButton';
 import { CROPS_BY_ID } from '../src/data/crops';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../src/hooks/useCustomCrops';
+import { usePro } from '../src/hooks/usePro';
 import type { Plant } from '../src/models/plant';
 import { buildAbsencePlan } from '../src/utils/absencePlan';
 
 const ABSENCE_KEY = '@huerto/absence_plan/';
+const ABSENCE_NOTIF_KEY = '@huerto/absence_plan_notifications/';
 const DURATION_OPTIONS = [2, 4, 7, 14] as const;
 
 export default function AbsenceScreen() {
@@ -22,6 +25,7 @@ export default function AbsenceScreen() {
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const { isPro } = usePro();
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
   const { customCropsById } = useCustomCrops();
@@ -53,6 +57,38 @@ export default function AbsenceScreen() {
   async function savePlan() {
     if (!activeGarden?.id) return;
     await AsyncStorage.setItem(ABSENCE_KEY + activeGarden.id, JSON.stringify({ daysAway, hasHelper, savedAt: new Date().toISOString() }));
+    if (isPro && gardenPlants.length > 0) {
+      const previousRaw = await AsyncStorage.getItem(ABSENCE_NOTIF_KEY + activeGarden.id);
+      let previousIds: string[] = [];
+      if (previousRaw) {
+        try {
+          const parsed = JSON.parse(previousRaw);
+          if (Array.isArray(parsed)) previousIds = parsed.filter((id): id is string => typeof id === 'string');
+        } catch {
+          // Ignore stale notification state and rebuild the plan below.
+        }
+      }
+      await Promise.all(previousIds.map((id) => cancelReminder(id).catch(() => undefined)));
+      const granted = await requestPermissions();
+      if (granted) {
+        const ids: string[] = [];
+        for (let offset = 1; offset <= daysAway; offset += 1) {
+          const visits = plan.plans.filter(({ cadenceDays }) => offset % cadenceDays === 0);
+          if (!visits.length) continue;
+          const fireAt = new Date();
+          fireAt.setDate(fireAt.getDate() + offset);
+          fireAt.setHours(9, 0, 0, 0);
+          const labels = visits.slice(0, 3).map(({ plant }) => plant.name).join(', ');
+          const id = await scheduleDateAlert({
+            date: fireAt,
+            title: t('absence.notificationTitle'),
+            body: t('absence.notificationBody', { plants: labels, count: visits.length }),
+          });
+          if (id) ids.push(id);
+        }
+        await AsyncStorage.setItem(ABSENCE_NOTIF_KEY + activeGarden.id, JSON.stringify(ids));
+      }
+    }
     setSaved(true);
   }
 
@@ -148,7 +184,18 @@ export default function AbsenceScreen() {
           </>
         )}
 
-        <Button title={saved ? t('absence.saved') : t('absence.save')} onPress={savePlan} disabled={!activeGarden?.id} size="lg" />
+        <Card padded style={{ borderColor: isPro ? colors.primary + '66' : colors.border, backgroundColor: isPro ? colors.primary + '0d' : colors.surface }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+            <Text style={{ fontSize: 24 }}>{isPro ? '🔔' : '⭐'}</Text>
+            <View style={{ flex: 1, gap: 3 }}>
+              <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t(isPro ? 'absence.proActiveTitle' : 'absence.proTitle')}</Text>
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, lineHeight: 19 }}>{t(isPro ? 'absence.proActiveDesc' : 'absence.proDesc')}</Text>
+            </View>
+          </View>
+          {!isPro && <Button title={t('absence.proCta')} variant="secondary" size="sm" onPress={() => router.push('/paywall?source=absence_automation' as any)} style={{ marginTop: spacing.md }} />}
+        </Card>
+
+        <Button title={saved ? t('absence.saved') : t(isPro ? 'absence.savePro' : 'absence.save')} onPress={savePlan} disabled={!activeGarden?.id} size="lg" />
       </ScrollView>
     </SafeAreaView>
   );

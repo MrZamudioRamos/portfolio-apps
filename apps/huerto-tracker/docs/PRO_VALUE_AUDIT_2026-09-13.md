@@ -50,4 +50,5 @@ Primer huerto, primera recomendación, guía básica, diario manual, checklist i
 - Ya existe la base para la personalización: perfil de espacio/luz/experiencia, recomendación por tiempo disponible y guía accionable por etapa.
 - Ya existe un plan de ausencia gratuito con riesgo, visitas, ayuda y guardado local.
 - El paywall ahora explica resultados (“plan”, “protección”, “historial”) y muestra la copia automática que ya estaba disponible pero no se anunciaba.
-- El siguiente corte de producto debe ser **Autopiloto de cuidados + modo ausencia Pro**. No conviene añadir otra pantalla de contenido antes de cerrar ese circuito.
+- En esta iteración se ha cerrado el circuito Pro: **Autopiloto de cuidados** genera tareas por planta y etapa, permite completarlas y programa avisos locales; **modo ausencia Pro** convierte el plan en recordatorios diarios durante el viaje. La vista previa gratuita deja ver el valor antes de pedir la suscripción.
+- El siguiente corte puede centrarse en alertas meteorológicas accionables, sucesión/rotación y diagnóstico con seguimiento. No conviene añadir otra pantalla de contenido antes de medir el uso de este circuito.

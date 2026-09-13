@@ -38,6 +38,7 @@ function ToolsInner() {
   // Essentials a beginner needs daily — kept front and uncluttered.
   const essentialTools: ToolItem[] = [
     { icon: 'library-outline',             labelKey: 'settings.tools.catalog',      route: '/catalog',       tint: 'primary' },
+    { icon: 'sparkles-outline',            labelKey: 'carePlan.title',              route: '/care-plan',     tint: 'primary', badge: isPro ? undefined : 'Pro' },
     { icon: 'chatbubble-ellipses-outline', labelKey: 'chat.title',                  route: '/chat',          tint: 'info',    badge: isPro ? undefined : 'Pro' },
     { icon: 'bug-outline',                 labelKey: 'settings.tools.diseaseGuide', route: '/disease-guide', tint: 'error' },
   ];
