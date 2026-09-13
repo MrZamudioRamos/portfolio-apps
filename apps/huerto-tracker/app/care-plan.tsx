@@ -16,6 +16,7 @@ import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { usePro } from '../src/hooks/usePro';
 import type { Plant } from '../src/models/plant';
 import type { DiaryEntry } from '../src/models/diary-entry';
+import { recordCare } from '../src/utils/careWrites';
 import { buildCarePlan, type CareTask, type CareTaskKind } from '../src/utils/carePlan';
 
 const AUTOPILOT_KEY = '@huerto/care_autopilot/';
@@ -45,6 +46,7 @@ export default function CarePlanScreen() {
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [autopilotEnabled, setAutopilotEnabled] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showHowTo, setShowHowTo] = useState(true);
 
   useEffect(() => {
     if (!activeGarden?.id) return;
@@ -74,7 +76,20 @@ export default function CarePlanScreen() {
   async function toggleTask(task: CareTask) {
     if (!activeGarden?.id) return;
     const next = new Set(completed);
-    if (next.has(task.id)) next.delete(task.id); else next.add(task.id);
+    if (next.has(task.id)) {
+      next.delete(task.id);
+    } else {
+      if (task.kind === 'water') {
+        try {
+          const written = await recordCare(task.plantId, 'watering');
+          if (!written) return;
+        } catch {
+          Alert.alert(t('common.error'), t('carePlan.recordError'));
+          return;
+        }
+      }
+      next.add(task.id);
+    }
     setCompleted(next);
     await AsyncStorage.setItem(COMPLETED_KEY + activeGarden.id, JSON.stringify([...next]));
   }
@@ -175,6 +190,35 @@ export default function CarePlanScreen() {
           </View>
         </View>
 
+        <Card padded style={s.howCard}>
+          <Pressable onPress={() => setShowHowTo((value) => !value)} style={s.howHeader} accessibilityRole="button">
+            <View style={{ flex: 1 }}>
+              <Text style={[s.cardTitle, { color: colors.text }]}>{t('carePlan.howTitle')}</Text>
+              <Text style={[s.cardDesc, { color: colors.textSecondary }]}>{t('carePlan.howDesc')}</Text>
+            </View>
+            <Ionicons name={showHowTo ? 'chevron-up' : 'chevron-down'} size={20} color={colors.primary} />
+          </Pressable>
+          {showHowTo && (
+            <View style={s.howSteps}>
+              {[
+                ['1', 'carePlan.howStep1Title', 'carePlan.howStep1Desc'],
+                ['2', 'carePlan.howStep2Title', 'carePlan.howStep2Desc'],
+                ['3', 'carePlan.howStep3Title', 'carePlan.howStep3Desc'],
+              ].map(([number, titleKey, descKey]) => (
+                <View key={number} style={s.howStep}>
+                  <View style={[s.howNumber, { backgroundColor: colors.primary }]}>
+                    <Text style={{ color: colors.background, fontWeight: fontWeight.bold }}>{number}</Text>
+                  </View>
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Text style={[s.howStepTitle, { color: colors.text }]}>{t(titleKey)}</Text>
+                    <Text style={[s.howStepDesc, { color: colors.textSecondary }]}>{t(descKey)}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+        </Card>
+
         {!gardenPlants.length ? (
           <Card padded style={s.card}>
             <Text style={[s.cardTitle, { color: colors.text }]}>{t('carePlan.emptyTitle')}</Text>
@@ -196,6 +240,7 @@ export default function CarePlanScreen() {
                   <View style={{ flex: 1, gap: 3 }}>
                     <Text style={[s.taskTitle, { color: colors.text }]}>{t(task.titleKey, { name: task.plantName })}</Text>
                     <Text style={[s.taskReason, { color: colors.textSecondary }]}>{t(task.reasonKey)}</Text>
+                    <Text style={[s.taskHow, { color: colors.textSecondary }]}>{t(task.howKey)}</Text>
                     <Text style={[s.taskDate, { color: task.priority === 'today' ? colors.primary : colors.textSecondary }]}>{task.priority === 'today' ? t('carePlan.today') : formatDate(task.dueDate)}</Text>
                   </View>
                   <Ionicons name="ellipse-outline" size={23} color={colors.primary} />
@@ -254,6 +299,13 @@ const makeStyles = (colors: ReturnType<typeof useColors>, spacing: Record<string
   card: { borderColor: colors.border },
   cardTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
   cardDesc: { fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs },
+  howCard: { borderColor: colors.border },
+  howHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  howSteps: { gap: spacing.md, marginTop: spacing.lg },
+  howStep: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
+  howNumber: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  howStepTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+  howStepDesc: { fontSize: fontSize.xs, lineHeight: 17 },
   sectionHeader: { gap: 3 },
   sectionTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
   sectionSub: { fontSize: fontSize.sm, lineHeight: 19 },
@@ -261,6 +313,7 @@ const makeStyles = (colors: ReturnType<typeof useColors>, spacing: Record<string
   taskIcon: { width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   taskTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
   taskReason: { fontSize: fontSize.xs, lineHeight: 17 },
+  taskHow: { fontSize: fontSize.xs, lineHeight: 17 },
   taskDate: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, marginTop: 2 },
   unlockCard: { borderWidth: 1, borderRadius: radii.lg },
   unlockTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },

@@ -15,6 +15,7 @@ const TRIAL_REMINDER_NOTIF_ID = '@portfolio/huerto/trial_reminder_notif_id';
 const TRIAL_DAYS = 7;
 
 const MAIN_FEATURE_KEYS = [
+  { emoji: '✨', key: 'paywall.features.careAutopilot' },
   { emoji: '🏡', key: 'paywall.features.gardens' },
   { emoji: '🌱', key: 'paywall.features.plants' },
   { emoji: '🗺️', key: 'paywall.features.gardenMap' },
@@ -45,6 +46,11 @@ export default function PaywallScreen() {
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('annual');
   const [trialReminderOn, setTrialReminderOn] = useState(true);
   const [showAll, setShowAll] = useState(true);
+  const context = source === 'care_autopilot'
+    ? { emoji: '✨', title: 'paywall.contextCareTitle', desc: 'paywall.contextCareDesc' }
+    : source === 'absence_automation'
+      ? { emoji: '🧳', title: 'paywall.contextAbsenceTitle', desc: 'paywall.contextAbsenceDesc' }
+      : null;
 
   useEffect(() => {
     track(EVENTS.paywallViewed, { source: source ?? 'direct' });
@@ -132,6 +138,16 @@ export default function PaywallScreen() {
               : t('paywall.subtitle')}
           </Text>
         </View>
+
+        {context && (
+          <View style={[s.contextCard, { backgroundColor: colors.primary + '12', borderColor: colors.primary + '55' }]}>
+            <Text style={s.contextEmoji}>{context.emoji}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.contextTitle, { color: colors.text }]}>{t(context.title)}</Text>
+              <Text style={[s.contextDesc, { color: colors.textSecondary }]}>{t(context.desc)}</Text>
+            </View>
+          </View>
+        )}
 
         <View style={[s.promiseCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
           <Text style={[s.promiseTitle, { color: colors.text }]}>{t('paywall.promiseTitle')}</Text>
@@ -355,6 +371,10 @@ const makeStyles = (
       marginBottom: spacing.md,
     },
     heroSub: { fontSize: fontSize.md, textAlign: 'center', lineHeight: 22 },
+    contextCard: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, padding: spacing.lg, borderRadius: radii.lg, borderWidth: 1, marginBottom: spacing.xl },
+    contextEmoji: { fontSize: 28 },
+    contextTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    contextDesc: { fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs },
     promiseCard: {
       borderRadius: radii.lg,
       borderWidth: 1,

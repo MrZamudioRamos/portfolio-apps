@@ -26,6 +26,7 @@ export interface CareTask {
   priority: CareTaskPriority;
   titleKey: string;
   reasonKey: string;
+  howKey: string;
 }
 
 function addDays(date: string, days: number): string {
@@ -81,6 +82,7 @@ export function buildCarePlan(
     dueDate: string,
     titleKey: string,
     reasonKey: string,
+    howKey: string,
   ) {
     if (dueDate > horizon && kind !== 'water') return;
     tasks.push({
@@ -94,6 +96,7 @@ export function buildCarePlan(
       priority: priorityFor(dueDate, today),
       titleKey,
       reasonKey,
+      howKey,
     });
   }
 
@@ -111,21 +114,21 @@ export function buildCarePlan(
     const waterReference = lastWatering?.date ?? plant.sowingDate;
     const waterDue = waterReference ? addDays(waterReference, WATER_DAYS[crop.waterNeeds]) : today;
     if (!todaySoilIsMoist && waterDue <= horizon) {
-      addTask(plant, crop, 'water', waterDue, 'carePlan.task.waterTitle', 'carePlan.task.waterReason');
+      addTask(plant, crop, 'water', waterDue, 'carePlan.task.waterTitle', 'carePlan.task.waterReason', 'carePlan.task.waterHow');
     }
 
     if (plant.pestStatus === 'active') {
-      addTask(plant, crop, 'pest', today, 'carePlan.task.pestTitle', 'carePlan.task.pestReason');
+      addTask(plant, crop, 'pest', today, 'carePlan.task.pestTitle', 'carePlan.task.pestReason', 'carePlan.task.pestHow');
     }
 
     if (plant.status === 'seedling' && plant.sowingDate) {
       const transplantDate = addDays(plant.sowingDate, TRANSPLANT_AFTER_DAYS);
-      addTask(plant, crop, 'transplant', transplantDate, 'carePlan.task.transplantTitle', 'carePlan.task.transplantReason');
+      addTask(plant, crop, 'transplant', transplantDate, 'carePlan.task.transplantTitle', 'carePlan.task.transplantReason', 'carePlan.task.transplantHow');
     }
 
     const harvestDate = estimatedHarvestDate(plant, crop);
     if (harvestDate && (harvestDate <= horizon || ['fruiting', 'harvesting'].includes(plant.status))) {
-      addTask(plant, crop, 'harvest', harvestDate, 'carePlan.task.harvestTitle', 'carePlan.task.harvestReason');
+      addTask(plant, crop, 'harvest', harvestDate, 'carePlan.task.harvestTitle', 'carePlan.task.harvestReason', 'carePlan.task.harvestHow');
     }
 
     const treatment = latestEntry(plantEntries, ['treatment']);
@@ -133,18 +136,17 @@ export function buildCarePlan(
     if (treatment && waitDays > 0) {
       const safeDate = addDays(treatment.date, waitDays);
       if (safeDate >= today && safeDate <= horizon) {
-        addTask(plant, crop, 'treatment', safeDate, 'carePlan.task.treatmentTitle', 'carePlan.task.treatmentReason');
+        addTask(plant, crop, 'treatment', safeDate, 'carePlan.task.treatmentTitle', 'carePlan.task.treatmentReason', 'carePlan.task.treatmentHow');
       }
     }
 
     const hasAction = tasks.some((task) => task.plantId === plant.id);
     if (!hasAction) {
       const lastCare = latestEntry(plantEntries)?.date ?? plant.sowingDate ?? today;
-      addTask(plant, crop, 'check', addDays(lastCare, 7), 'carePlan.task.checkTitle', 'carePlan.task.checkReason');
+      addTask(plant, crop, 'check', addDays(lastCare, 7), 'carePlan.task.checkTitle', 'carePlan.task.checkReason', 'carePlan.task.checkHow');
     }
   }
 
   const priorityOrder: Record<CareTaskPriority, number> = { today: 0, soon: 1, planned: 2 };
   return tasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority] || a.dueDate.localeCompare(b.dueDate) || a.plantName.localeCompare(b.plantName));
 }
-
