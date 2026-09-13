@@ -7,6 +7,7 @@ import { ThemeProvider, huertoPalette } from '@portfolio/ui';
 import { Stack, useRouter, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as Linking from 'expo-linking';
+import * as Notifications from 'expo-notifications';
 import i18next from 'i18next';
 import React, { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -87,6 +88,18 @@ function AppServices() {
     return () => sub.remove();
   }, [onboardingDone]);
 
+  useEffect(() => {
+    const openNotificationRoute = (response: Notifications.NotificationResponse) => {
+      const url = response.notification.request.content.data?.url;
+      if (typeof url === 'string' && url.startsWith('/')) router.push(url as any);
+    };
+    const sub = Notifications.addNotificationResponseReceivedListener(openNotificationRoute);
+    Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (response) openNotificationRoute(response);
+    }).catch(() => {});
+    return () => sub.remove();
+  }, [router]);
+
   // Tie analytics + Sentry errors to the signed-in user.
   useEffect(() => {
     if (user?.id) identifyUser(user.id);
@@ -128,6 +141,10 @@ function RootLayout() {
             options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
           />
           <Stack.Screen name="plant/[id]" />
+          <Stack.Screen
+            name="plant/follow-up"
+            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+          />
           <Stack.Screen
             name="entry/new"
             options={{ presentation: 'modal', animation: 'slide_from_bottom' }}

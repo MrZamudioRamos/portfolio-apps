@@ -69,12 +69,13 @@ export async function scheduleDateAlert(input: {
   date: Date;
   title: string;
   body: string;
+  data?: Record<string, unknown>;
 }): Promise<string | null> {
   if (input.date <= new Date()) return null;
   try {
     const T = Notifications.SchedulableTriggerInputTypes;
     return await Notifications.scheduleNotificationAsync({
-      content: { title: input.title, body: input.body, sound: true },
+      content: { title: input.title, body: input.body, sound: true, data: input.data },
       trigger: { type: T.DATE, date: input.date } as any,
     });
   } catch {

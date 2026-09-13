@@ -22,6 +22,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import type { Plant } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
+import type { DiagnosisData } from '../../src/models/diary-entry';
 import { identifyPest, type PestDiagnosis } from '../../src/utils/pestIdentify';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { todayStr } from '../../src/utils/dateStr';
@@ -65,6 +66,7 @@ export default function IdentifyPlantScreen() {
   const [diagnosis, setDiagnosis] = useState<PestDiagnosis | null>(null);
   const [errorKey, setErrorKey] = useState<'noKey' | 'generic' | null>(null);
   const [saved, setSaved] = useState(false);
+  const [savedEntryId, setSavedEntryId] = useState<string | null>(null);
   const [followUpScheduled, setFollowUpScheduled] = useState(false);
   const [followUpDate, setFollowUpDate] = useState<Date | null>(null);
   const { pickFromGallery, pickFromCamera, picking } = usePickPhoto({
@@ -82,6 +84,7 @@ export default function IdentifyPlantScreen() {
     setErrorKey(null);
     setDiagnosis(null);
     setSaved(false);
+    setSavedEntryId(null);
     setFollowUpScheduled(false);
     setFollowUpDate(null);
     const result = fromCamera ? await pickFromCamera() : await pickFromGallery();
@@ -94,6 +97,7 @@ export default function IdentifyPlantScreen() {
     setErrorKey(null);
     setDiagnosis(null);
     setSaved(false);
+    setSavedEntryId(null);
     setFollowUpScheduled(false);
     setFollowUpDate(null);
 
@@ -117,15 +121,23 @@ export default function IdentifyPlantScreen() {
       ? `${diagnosis.name}\n${diagnosis.description}${diagnosis.symptoms ? '\n' + diagnosis.symptoms : ''}`
       : t('identify.healthyDesc');
 
-    await entries.create({
+    const diagnosisData: DiagnosisData = {
+      kind: 'diagnosis',
+      name: diagnosis.name,
+      diagnosisType: diagnosis.detected ? diagnosis.type : 'saludable',
+      confidence: diagnosis.confidence,
+    };
+    const entry = await entries.create({
       gardenId,
       plantId: plantId ?? undefined,
       type: diagnosis.detected ? 'pest' : 'note',
       date: todayStr(),
       notes,
+      data: diagnosisData,
       ...(photo ? { photoUri: photo } : {}),
     });
     setSaved(true);
+    setSavedEntryId(entry.id);
     track(EVENTS.diagnosisSaved, { detected: diagnosis.detected, plant_id: plantId ?? null });
   }
 
@@ -141,6 +153,7 @@ export default function IdentifyPlantScreen() {
       date,
       title: t('identify.followUpNotifTitle'),
       body: t('identify.followUpNotifBody', { name: diagnosis.name }),
+      data: savedEntryId ? { url: `/plant/follow-up?entryId=${encodeURIComponent(savedEntryId)}` } : undefined,
     });
     if (!id) {
       Alert.alert(t('common.error'), t('identify.followUpError'));
@@ -222,7 +235,7 @@ export default function IdentifyPlantScreen() {
           <View>
             <Image source={{ uri: photo }} style={s.photoPreview} />
             <Pressable
-              onPress={() => { setPhoto(null); setDiagnosis(null); setErrorKey(null); setSaved(false); }}
+              onPress={() => { setPhoto(null); setDiagnosis(null); setErrorKey(null); setSaved(false); setSavedEntryId(null); setFollowUpScheduled(false); setFollowUpDate(null); }}
               style={s.retakeBtn}
             >
               <Ionicons name="refresh-outline" size={14} color={colors.primary} />
@@ -367,6 +380,15 @@ export default function IdentifyPlantScreen() {
                     <Text style={[s.followUpButtonText, { color: colors.background }]}>{t('identify.followUpCta')}</Text>
                   </Pressable>
                 )}
+                {followUpScheduled && savedEntryId && (
+                  <Pressable
+                    onPress={() => router.push(`/plant/follow-up?entryId=${encodeURIComponent(savedEntryId)}` as any)}
+                    style={[s.followUpLink, { borderColor: colors.primary }]}
+                  >
+                    <Ionicons name="camera-outline" size={18} color={colors.primary} />
+                    <Text style={[s.followUpLinkText, { color: colors.primary }]}>{t('identify.followUpOpenCta')}</Text>
+                  </Pressable>
+                )}
               </Card>
             )}
           </View>
@@ -497,4 +519,6 @@ const makeStyles = (
     followUpEmoji: { fontSize: 24 },
     followUpButton: { marginTop: spacing.md, minHeight: 46, borderRadius: radii.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
     followUpButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    followUpLink: { marginTop: spacing.sm, minHeight: 44, borderRadius: radii.md, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    followUpLinkText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
   });

@@ -1451,6 +1451,17 @@
     "followUpNotifTitle": "{{name}} berrikusi",
     "followUpNotifBody": "Aste bat igaro da. Egin beste argazki bat eta egiaztatu {{name}} hobetzen ari den.",
     "followUpError": "Ezin izan da berrikuspena programatu. Saiatu berriro.",
+    "followUpOpenCta": "Ireki berrikuspena",
+    "followUpReviewTitle": "Egiaztatu nola dagoen {{name}}",
+    "followUpReviewDescription": "Egin aurrekoaren antzeko argazki bat landarearen egoera alderatzeko eta aldaketa egunkarian jasotzeko.",
+    "followUpOriginal": "Lehen",
+    "followUpNew": "Orain",
+    "followUpPhotoRequired": "Gehitu egungo argazki bat bilakaera alderatzeko.",
+    "followUpCamera": "Kamera",
+    "followUpGallery": "Galeria",
+    "followUpSave": "Gorde berrikuspena",
+    "followUpSaved": "Berrikuspena gordeta",
+    "followUpSavedDesc": "{{name}} landarearen bilakaera egunkarian gorde da.",
     "proOnly": "Pro-rekin eskuragarri"
   },
   "plantFaq": {

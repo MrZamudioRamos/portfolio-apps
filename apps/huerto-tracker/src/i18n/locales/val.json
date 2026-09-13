@@ -1451,6 +1451,17 @@
     "followUpNotifTitle": "Revisió de {{name}}",
     "followUpNotifBody": "Ha passat una setmana. Fes una altra foto i comprova si {{name}} millora.",
     "followUpError": "No s’ha pogut programar la revisió. Torna-ho a intentar.",
+    "followUpOpenCta": "Obrir revisió",
+    "followUpReviewTitle": "Comprova com continua {{name}}",
+    "followUpReviewDescription": "Fes una foto semblant a l’anterior per comparar l’estat de la planta i deixar constància del canvi.",
+    "followUpOriginal": "Abans",
+    "followUpNew": "Ara",
+    "followUpPhotoRequired": "Afig una foto actual per comparar l’evolució.",
+    "followUpCamera": "Càmera",
+    "followUpGallery": "Galeria",
+    "followUpSave": "Guardar revisió",
+    "followUpSaved": "Revisió guardada",
+    "followUpSavedDesc": "L'evolució de {{name}} ha quedat registrada al diari.",
     "proOnly": "Disponible amb Pro"
   },
   "plantFaq": {

@@ -1613,6 +1613,17 @@
     "followUpNotifTitle": "Review {{name}}",
     "followUpNotifBody": "One week has passed. Take another photo and check whether {{name}} is improving.",
     "followUpError": "Could not schedule the review. Please try again.",
+    "followUpOpenCta": "Open review",
+    "followUpReviewTitle": "Check how {{name}} is doing",
+    "followUpReviewDescription": "Take a similar photo to compare the plant and keep a record of the change.",
+    "followUpOriginal": "Before",
+    "followUpNew": "Now",
+    "followUpPhotoRequired": "Add a current photo to compare progress.",
+    "followUpCamera": "Camera",
+    "followUpGallery": "Gallery",
+    "followUpSave": "Save review",
+    "followUpSaved": "Review saved",
+    "followUpSavedDesc": "{{name}} progress has been added to your journal.",
     "proOnly": "Available with Pro"
   },
   "plantFaq": {

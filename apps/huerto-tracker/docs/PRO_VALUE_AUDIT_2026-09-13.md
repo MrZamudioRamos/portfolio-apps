@@ -35,7 +35,7 @@ Añadir sucesión de siembras, rotación por familia, cosecha estimada, conserva
 
 ### 5. Diagnóstico con seguimiento
 
-El diagnóstico Pro guarda la foto, hipótesis, nivel de confianza y tratamiento aplicado. La pantalla ofrece programar una revisión a los siete días para pedir una nueva foto y comparar la evolución. El siguiente paso es que el chat lea ese historial para evitar respuestas genéricas.
+El diagnóstico Pro guarda la foto, hipótesis, nivel de confianza y tratamiento aplicado. La pantalla ofrece programar una revisión a los siete días; esa revisión recupera la foto original, permite añadir otra y deja la evolución registrada en el diario. El siguiente paso es que el chat lea ese historial para evitar respuestas genéricas.
 
 ### 6. Memoria y confianza
 
