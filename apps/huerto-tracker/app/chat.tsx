@@ -23,6 +23,7 @@ import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { usePro } from '../src/hooks/usePro';
 import { track, EVENTS } from '../src/analytics';
 import type { Plant } from '../src/models/plant';
+import type { DiagnosisFollowUpData, DiaryEntry } from '../src/models/diary-entry';
 import { type ChatMessage, sendChatMessage } from '../src/utils/aiChat';
 import { useMemo } from 'react';
 
@@ -47,6 +48,7 @@ export default function ChatScreen() {
   const { user } = useSession();
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
+  const entries = useCollection<DiaryEntry>('diary_entries');
 
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [hydrated, setHydrated] = useState(false);
@@ -93,6 +95,24 @@ export default function ChatScreen() {
     [plants.items, activeGarden?.id]
   );
 
+  const diagnosisFollowUps = useMemo(
+    () => entries.items
+      .filter((entry) => entry.gardenId === activeGarden?.id && entry.type === 'note' && (entry.data as DiagnosisFollowUpData | undefined)?.kind === 'diagnosis_follow_up')
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 5)
+      .map((entry) => {
+        const data = entry.data as DiagnosisFollowUpData;
+        return {
+          plantName: data.diagnosisName ?? t('identify.title'),
+          status: data.comparisonStatus ?? 'incierto',
+          summary: data.comparisonSummary ?? entry.notes ?? '',
+          nextStep: data.comparisonNextStep ?? '',
+          date: entry.date,
+        };
+      }),
+    [entries.items, activeGarden?.id, t],
+  );
+
   const handleSend = useCallback(async () => {
     const text = input.trim();
     if (!text || loading || !activeGarden) return;
@@ -109,7 +129,7 @@ export default function ChatScreen() {
         role: m.role,
         content: m.content,
       }));
-      const reply = await sendChatMessage(history, activeGarden, gardenPlants, i18n.language);
+      const reply = await sendChatMessage(history, activeGarden, gardenPlants, i18n.language, diagnosisFollowUps);
       setMessages((prev) => [...prev, { id: uid(), role: 'assistant', content: reply }]);
     } catch (e) {
       const code = e instanceof Error ? e.message : '';
@@ -121,7 +141,7 @@ export default function ChatScreen() {
       setLoading(false);
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
     }
-  }, [input, loading, activeGarden, messages, gardenPlants, i18n.language, t]);
+  }, [input, loading, activeGarden, messages, gardenPlants, diagnosisFollowUps, i18n.language, t]);
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>

@@ -41,7 +41,7 @@ import { QuickLogModal } from '../../src/components/QuickLogModal';
 import { Button } from '../../src/components/ActionButton';
 import { ScalePress } from '../../src/components/ScalePress';
 import { SowNowCard } from '../../src/components/SowNowCard';
-import type { DiaryEntry } from '../../src/models/diary-entry';
+import type { DiagnosisFollowUpData, DiaryEntry } from '../../src/models/diary-entry';
 import { useWeather } from '../../src/hooks/useWeather';
 import { getWeatherLabel } from '../../src/utils/weather';
 import { buildGamificationData } from '../../src/utils/gamification';
@@ -181,6 +181,14 @@ function DashboardInner() {
     }
     return idx;
   }, [entries.items]);
+
+  const latestDiagnosisFollowUp = useMemo(() => {
+    const entry = entries.items
+      .filter((item) => item.gardenId === garden?.id && item.type === 'note' && (item.data as DiagnosisFollowUpData | undefined)?.kind === 'diagnosis_follow_up')
+      .sort((a, b) => b.date.localeCompare(a.date))[0];
+    if (!entry) return null;
+    return { entry, data: entry.data as DiagnosisFollowUpData };
+  }, [entries.items, garden?.id]);
 
   const plantsById = useMemo(() => {
     const map = new Map<string, Plant>();
@@ -702,6 +710,40 @@ function DashboardInner() {
                   </Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={colors.primary} />
+              </Pressable>
+            )}
+
+            {plants.count > 0 && latestDiagnosisFollowUp && (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push(`/plant/follow-up?entryId=${encodeURIComponent(latestDiagnosisFollowUp.data.parentEntryId)}` as any)}
+                style={({ pressed }) => [
+                  { marginHorizontal: spacing.xl, marginTop: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.info + '55', backgroundColor: colors.info + '0d', gap: spacing.xs, opacity: pressed ? 0.78 : 1 },
+                ]}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                  <Text style={{ fontSize: 22 }}>🔎</Text>
+                  <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold, flex: 1 }} numberOfLines={1}>
+                    {t('home.diagnosisProgressTitle', { name: latestDiagnosisFollowUp.data.diagnosisName ?? t('identify.title') })}
+                  </Text>
+                  <Ionicons name="chevron-forward" size={18} color={colors.info} />
+                </View>
+                <Text style={{ color: colors.info, fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>
+                  {t('home.diagnosisProgressStatus', { status: t('identify.followUpStatus.' + (latestDiagnosisFollowUp.data.comparisonStatus ?? 'incierto')) })}
+                </Text>
+                {!!latestDiagnosisFollowUp.data.comparisonSummary && (
+                  <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, lineHeight: 18 }} numberOfLines={2}>
+                    {latestDiagnosisFollowUp.data.comparisonSummary}
+                  </Text>
+                )}
+                {!!latestDiagnosisFollowUp.data.comparisonNextStep && (
+                  <Text style={{ color: colors.text, fontSize: fontSize.xs, lineHeight: 18 }} numberOfLines={2}>
+                    → {latestDiagnosisFollowUp.data.comparisonNextStep}
+                  </Text>
+                )}
+                <Text style={{ color: colors.info, fontSize: fontSize.xs, fontWeight: fontWeight.semibold, marginTop: spacing.xs }}>
+                  {t('home.diagnosisProgressCta')}
+                </Text>
               </Pressable>
             )}
 
