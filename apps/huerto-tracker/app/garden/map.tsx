@@ -1185,7 +1185,7 @@ const makeStyles = (
       borderColor: 'rgba(210,255,166,0.7)', backgroundColor: 'rgba(222,255,190,0.12)',
     },
     fieldMetrics: {
-      position: 'absolute', left: spacing.lg, right: spacing.lg, bottom: spacing.lg,
+      marginHorizontal: spacing.lg, marginTop: spacing.md,
       flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm,
     },
     fieldMetricCard: {
