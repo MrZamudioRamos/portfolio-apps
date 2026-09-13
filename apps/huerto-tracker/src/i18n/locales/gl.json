@@ -1718,6 +1718,8 @@
   "firstWeek": {
     "title": "Os teus primeiros 7 días",
     "subtitle": "Un plan sinxelo para que {{name}} empece ben.",
+    "progress": "Feito: {{done}} de {{total}}",
+    "completed": "Plan completado",
     "spaceTitle": "Prepara o seu lugar",
     "spaceContainer": "Usa unha maceta de polo menos {{liters}} L con buratos de drenaxe.",
     "spaceGround": "Escolle un lugar luminoso cun solo que drene ben.",

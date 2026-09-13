@@ -107,6 +107,10 @@ Cada tarjeta añade también «Antes de empezar»: si el perfil indica balcón o
 
 En esa misma pantalla se pregunta cuánto tiempo quiere dedicar la persona: poco, regular o seguimiento intensivo. La elección se conserva localmente y modifica la puntuación: con poco tiempo se priorizan cultivos fáciles y de riego moderado, mientras que el modo intensivo deja espacio a cultivos con más seguimiento. Cada tarjeta puede explicar ese ajuste con «Encaja con el tiempo que quieres dedicar».
 
+El plan de los primeros 7 días ahora se puede marcar paso a paso en la pantalla de éxito de la primera planta. El progreso queda guardado por planta en el dispositivo, de modo que la guía deja de ser texto que se lee una vez y se convierte en una pequeña rutina que se puede retomar.
+
+La nueva pantalla «Plan de ausencia» usa las plantas activas y sus necesidades de agua para estimar revisiones durante viajes de 2, 4, 7 o 14 días. Permite indicar si otra persona puede regar, avisa cuando dejar el huerto sin ayuda tiene riesgo alto y deja una lista previa de riego, agrupación de macetas, cosecha y contacto. Responde a una preocupación muy repetida en comunidades de jardinería: el riego automático o una persona de apoyo marca la diferencia cuando se sale unos días ([Reddit, aprendizajes de principiantes](https://www.reddit.com/r/vegetablegardening/comments/1uwfcp4/what_do_you_wish_you_knew_starting_out/)).
+
 Las recomendaciones muestran además el ritmo de riego y recuerdan empezar con una sola planta. Tras la primera cosecha, la celebración ofrece guardar una valoración breve en el diario para que el siguiente ciclo conserve ese aprendizaje.
 
 ## Revisión de profundidad de la guía — 13 de septiembre de 2026
@@ -136,7 +140,7 @@ La propuesta de valor no es añadir más texto: es que Semilla convierta esos da
 ### Siguiente backlog de producto
 
 - **P0:** convertir la guía contextual en un plan de preparación previo a la compra, con objetivo, espacio y esfuerzo semanal.
-- **P0:** añadir un modo de baja dedicación y un plan de ausencia/vacaciones para no perder riegos o cosechas.
+- **P0:** modo de baja dedicación y plan de ausencia/vacaciones ya incorporados; falta conectar el plan con recordatorios programados y una persona de apoyo.
 - **P1:** mostrar en cada etapa una checklist que se pueda marcar y que alimente el diario sin duplicar datos.
 - **P1:** unir diagnóstico y prevención: qué observar, qué foto hacer y qué hipótesis descartar antes de tratar.
 - **P1:** añadir hardening-off, soporte, poda, acolchado y fertilización como eventos concretos por cultivo.

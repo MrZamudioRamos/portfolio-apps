@@ -8,6 +8,7 @@ import { usePickPhoto } from '../../src/hooks/usePickPhoto';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -59,6 +60,7 @@ const STATIC_SECTIONS = (Object.keys(CATEGORY_CONFIG) as Array<keyof typeof CATE
 
 // 4 key milestones for the visual stage picker (matching GrowIt's Inicio/Plántula/Floración/Cosecha)
 const QUICK_STAGES: Plant['status'][] = ['seedling', 'growing', 'flowering', 'harvesting'];
+const FIRST_WEEK_CHECKS_KEY = '@huerto/first_week_checks/';
 
 export default function NewPlantScreen() {
   const colors = useColors();
@@ -71,6 +73,7 @@ export default function NewPlantScreen() {
   const [started, setStarted] = useState(false);
   const [createdPlant, setCreatedPlant] = useState<Plant | null>(null);
   const [showSuccessBurst, setShowSuccessBurst] = useState(false);
+  const [firstWeekChecks, setFirstWeekChecks] = useState<boolean[]>([false, false, false, false]);
   const [saveError, setSaveError] = useState(false);
   const pendingPlant = useRef<Plant | null>(null);
   const submitting = useRef(false);
@@ -79,6 +82,29 @@ export default function NewPlantScreen() {
     const timer = setTimeout(() => setShowSuccessBurst(false), 1200);
     return () => clearTimeout(timer);
   }, [showSuccessBurst]);
+  useEffect(() => {
+    if (!createdPlant) return;
+    let mounted = true;
+    void AsyncStorage.getItem(FIRST_WEEK_CHECKS_KEY + createdPlant.id).then((stored) => {
+      if (!mounted) return;
+      try {
+        const parsed = stored ? JSON.parse(stored) : null;
+        if (Array.isArray(parsed) && parsed.length === 4 && parsed.every((value) => typeof value === 'boolean')) setFirstWeekChecks(parsed);
+      } catch {
+        // Ignore malformed local state and show a fresh checklist.
+      }
+    });
+    return () => { mounted = false; };
+  }, [createdPlant]);
+
+  function toggleFirstWeekCheck(index: number) {
+    if (!createdPlant) return;
+    setFirstWeekChecks((current) => {
+      const next = current.map((checked, itemIndex) => itemIndex === index ? !checked : checked);
+      void AsyncStorage.setItem(FIRST_WEEK_CHECKS_KEY + createdPlant.id, JSON.stringify(next));
+      return next;
+    });
+  }
 
   const { activeGarden } = useActiveGarden();
   const { profile } = useUserProfile();
@@ -259,6 +285,15 @@ export default function NewPlantScreen() {
               <Text accessibilityRole="header" style={[s.firstWeekTitle, { color: colors.text }]}>{t('firstWeek.title')}</Text>
               <Text style={[s.firstWeekSubtitle, { color: colors.textSecondary }]}>{t('firstWeek.subtitle', { name: cropName })}</Text>
             </View>
+            <View style={{ gap: spacing.xs }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>{t('firstWeek.progress', { done: firstWeekChecks.filter(Boolean).length, total: 4 })}</Text>
+                {firstWeekChecks.every(Boolean) && <Text style={{ color: colors.primary, fontSize: fontSize.xs, fontWeight: fontWeight.bold }}>{t('firstWeek.completed')}</Text>}
+              </View>
+              <View style={{ height: 6, borderRadius: radii.full, overflow: 'hidden', backgroundColor: colors.surfaceAlt }}>
+                <View style={{ width: `${(firstWeekChecks.filter(Boolean).length / 4) * 100}%`, height: '100%', backgroundColor: colors.primary }} />
+              </View>
+            </View>
             {[
               {
                 icon: '🪴',
@@ -270,17 +305,30 @@ export default function NewPlantScreen() {
               { icon: '💧', title: t('firstWeek.observeTitle'), body: t('firstWeek.observeBody') },
               { icon: '🧰', title: t('firstWeek.materialTitle'), body: t('firstWeek.materialBody') },
               { icon: '🔎', title: t('firstWeek.checkTitle'), body: t('firstWeek.checkBody') },
-            ].map((item) => (
-              <View key={item.title} style={s.firstWeekItem}>
-                <View style={[s.firstWeekIcon, { backgroundColor: colors.primary + '18' }]}>
-                  <Text style={{ fontSize: 20 }} accessible={false}>{item.icon}</Text>
-                </View>
-                <View style={{ flex: 1, gap: 3 }}>
-                  <Text style={[s.firstWeekItemTitle, { color: colors.text }]}>{item.title}</Text>
-                  <Text style={[s.firstWeekItemBody, { color: colors.textSecondary }]}>{item.body}</Text>
-                </View>
-              </View>
-            ))}
+            ].map((item, index) => {
+              const checked = firstWeekChecks[index] ?? false;
+              return (
+                <Pressable
+                  key={item.title}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked }}
+                  accessibilityLabel={`${item.title}. ${item.body}`}
+                  onPress={() => toggleFirstWeekCheck(index)}
+                  style={({ pressed }) => [s.firstWeekItem, { opacity: pressed ? 0.75 : 1 }]}
+                >
+                  <View style={[s.firstWeekCheck, { borderColor: checked ? colors.primary : colors.border, backgroundColor: checked ? colors.primary : 'transparent' }]}>
+                    {checked && <Text style={{ color: colors.background, fontSize: 14, fontWeight: fontWeight.bold }}>✓</Text>}
+                  </View>
+                  <View style={[s.firstWeekIcon, { backgroundColor: checked ? colors.primary + '18' : colors.surfaceAlt }]}>
+                    <Text style={{ fontSize: 20, opacity: checked ? 0.65 : 1 }} accessible={false}>{item.icon}</Text>
+                  </View>
+                  <View style={{ flex: 1, gap: 3 }}>
+                    <Text style={[s.firstWeekItemTitle, { color: checked ? colors.textSecondary : colors.text, textDecorationLine: checked ? 'line-through' : 'none' }]}>{item.title}</Text>
+                    <Text style={[s.firstWeekItemBody, { color: colors.textSecondary }]}>{item.body}</Text>
+                  </View>
+                </Pressable>
+              );
+            })}
           </View>
           <Button title={t('guidedPlant.today')} size="lg" onPress={() => router.replace('/(tabs)')} style={{ width: '100%' }} />
         </View>
@@ -835,6 +883,7 @@ const makeStyles = (
     firstWeekTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     firstWeekSubtitle: { fontSize: fontSize.sm, lineHeight: 20 },
     firstWeekItem: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
+    firstWeekCheck: { width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
     firstWeekIcon: { width: 40, height: 40, borderRadius: radii.md, alignItems: 'center', justifyContent: 'center' },
     firstWeekItemTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     firstWeekItemBody: { fontSize: fontSize.sm, lineHeight: 20 },

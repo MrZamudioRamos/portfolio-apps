@@ -49,6 +49,21 @@ export default function NotificationsSettingsScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
+        <Card padded style={{ ...s.card, borderColor: colors.primary + '55', backgroundColor: colors.primary + '0d' }}>
+          <View style={s.toggleRow}>
+            <View style={[s.iconBox, { backgroundColor: colors.primary + '18' }]}>
+              <Text style={{ fontSize: 20 }}>🧳</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.rowTitle, { color: colors.text }]}>{t('absence.openTitle')}</Text>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>{t('absence.openDesc')}</Text>
+            </View>
+            <Pressable accessibilityRole="button" accessibilityLabel={t('absence.openCta')} onPress={() => router.push('/absence' as any)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.xs }}>
+              <Ionicons name="chevron-forward" size={22} color={colors.primary} />
+            </Pressable>
+          </View>
+        </Card>
+
         {/* Seasonal alerts toggle */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('notifications.seasonalLabel')}</Text>
         <Card padded style={s.card}>

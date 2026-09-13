@@ -1718,6 +1718,8 @@
   "firstWeek": {
     "title": "Els teus primers 7 dies",
     "subtitle": "Un pla senzill perquè {{name}} comence amb bon peu.",
+    "progress": "Fet: {{done}} de {{total}}",
+    "completed": "Pla complet",
     "spaceTitle": "Prepara el seu espai",
     "spaceContainer": "Usa un test d’almenys {{liters}} L amb forats de drenatge.",
     "spaceGround": "Tria un lloc lluminós amb un sòl que drene bé.",

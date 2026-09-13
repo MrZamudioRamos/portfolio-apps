@@ -1718,6 +1718,8 @@
   "firstWeek": {
     "title": "Zure lehen 7 egunak",
     "subtitle": "Plan erraz bat {{name}} ondo hasteko.",
+    "progress": "Eginda: {{done}} / {{total}}",
+    "completed": "Plana osatuta",
     "spaceTitle": "Prestatu haren lekua",
     "spaceContainer": "Erabili gutxienez {{liters}} L-ko lorontzi bat, drainatze-zuloekin.",
     "spaceGround": "Aukeratu leku argi bat, ura ondo drainatzen duen lurrarekin.",
