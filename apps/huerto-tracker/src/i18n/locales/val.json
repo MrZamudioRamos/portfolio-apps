@@ -514,6 +514,13 @@
     "title": "Fes créixer el teu hort\nsense límits",
     "subtitlePro": "Subscripció activa · Pla {{plan}}",
     "subtitle": "Desbloqueja tot el que necessites per a convertir-te en un autèntic hortolà.",
+    "promiseTitle": "Pro es nota quan el teu hort continua avançant",
+    "promiseDesc": "Reuneix el pla, les alertes i l’historial per decidir sense haver de recordar-ho tot.",
+    "promises": {
+      "plan": "Tot el teu pla en un sol lloc",
+      "protect": "Detecta problemes i actua abans de perdre una planta",
+      "keep": "Conserva el teu historial i emporta-te’l quan el necessites"
+    },
     "features": {
       "gardens": "Huertos ilimitados (gratis: 1 huerto)",
       "plants": "Plantas sin límite (gratis: hasta 5)",

@@ -610,6 +610,13 @@
     "title": "Haz crecer tu huerto\nsin límites",
     "subtitlePro": "Suscripción activa · Plan {{plan}}",
     "subtitle": "Desbloquea todo lo que necesitas para convertirte en un auténtico huertero.",
+    "promiseTitle": "Pro se nota cuando tu huerto sigue avanzando",
+    "promiseDesc": "Reúne el plan, las alertas y el historial para decidir sin acordarte de todo.",
+    "promises": {
+      "plan": "Todo tu plan en un solo sitio",
+      "protect": "Detecta problemas y actúa antes de perder una planta",
+      "keep": "Conserva tu historial y llévatelo cuando lo necesites"
+    },
     "features": {
       "gardens": "Huertos ilimitados (gratis: 1 huerto)",
       "plants": "Plantas sin límite (gratis: hasta 5)",

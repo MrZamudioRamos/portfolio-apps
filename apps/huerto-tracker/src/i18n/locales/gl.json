@@ -514,6 +514,13 @@
     "title": "Fai crecer a túa horta\nsen límites",
     "subtitlePro": "Subscrición activa · Plan {{plan}}",
     "subtitle": "Desbloquea todo o que necesitas para converterte nun verdadeiro horticultor.",
+    "promiseTitle": "Pro nótase cando a túa horta segue avanzando",
+    "promiseDesc": "Reúne o plan, as alertas e o historial para decidir sen ter que lembralo todo.",
+    "promises": {
+      "plan": "Todo o teu plan nun só lugar",
+      "protect": "Detecta problemas e actúa antes de perder unha planta",
+      "keep": "Conserva o teu historial e lévao contigo cando o precises"
+    },
     "features": {
       "gardens": "Huertos ilimitados (gratis: 1 huerto)",
       "plants": "Plantas sin límite (gratis: hasta 5)",

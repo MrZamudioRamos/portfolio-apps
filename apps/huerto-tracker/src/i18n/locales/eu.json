@@ -514,6 +514,13 @@
     "title": "Hazi zure baratzea\nmugagabe",
     "subtitlePro": "Harpidetza aktiboa · {{plan}} Plana",
     "subtitle": "Desblokeatu benetako baratzezain bat izateko behar duzun guztia.",
+    "promiseTitle": "Pro nabaritzen da baratzeak aurrera jarraitzen duenean",
+    "promiseDesc": "Plana, alertak eta historia batera bildu, dena gogoratu beharrik gabe erabakitzeko.",
+    "promises": {
+      "plan": "Zure plan osoa leku bakarrean",
+      "protect": "Arazoak goiz detektatu eta landare bat galdu aurretik jardun",
+      "keep": "Zure historia gorde eta behar duzunean eraman"
+    },
     "features": {
       "gardens": "Huertos ilimitados (gratis: 1 huerto)",
       "plants": "Plantas sin límite (gratis: hasta 5)",

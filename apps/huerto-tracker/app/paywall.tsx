@@ -24,8 +24,15 @@ const MAIN_FEATURE_KEYS = [
 
 const EXTRA_FEATURE_KEYS = [
   { emoji: '📤', key: 'paywall.features.csvExport' },
+  { emoji: '☁️', key: 'paywall.features.backup' },
   { emoji: '🏆', key: 'paywall.features.gamification' },
   { emoji: '🤝', key: 'paywall.features.companions' },
+];
+
+const PROMISE_KEYS = [
+  { emoji: '🗓️', key: 'paywall.promises.plan' },
+  { emoji: '🛡️', key: 'paywall.promises.protect' },
+  { emoji: '🧾', key: 'paywall.promises.keep' },
 ];
 
 export default function PaywallScreen() {
@@ -124,6 +131,17 @@ export default function PaywallScreen() {
               ? t('paywall.subtitlePro', { plan: activePlan ?? 'monthly' })
               : t('paywall.subtitle')}
           </Text>
+        </View>
+
+        <View style={[s.promiseCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+          <Text style={[s.promiseTitle, { color: colors.text }]}>{t('paywall.promiseTitle')}</Text>
+          <Text style={[s.promiseSub, { color: colors.textSecondary }]}>{t('paywall.promiseDesc')}</Text>
+          {PROMISE_KEYS.map((promise) => (
+            <View key={promise.key} style={s.promiseRow}>
+              <Text style={s.promiseEmoji}>{promise.emoji}</Text>
+              <Text style={[s.promiseText, { color: colors.text }]}>{t(promise.key)}</Text>
+            </View>
+          ))}
         </View>
 
         {/* Features */}
@@ -337,6 +355,17 @@ const makeStyles = (
       marginBottom: spacing.md,
     },
     heroSub: { fontSize: fontSize.md, textAlign: 'center', lineHeight: 22 },
+    promiseCard: {
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      padding: spacing.lg,
+      marginBottom: spacing.xl,
+    },
+    promiseTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    promiseSub: { fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs, marginBottom: spacing.md },
+    promiseRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
+    promiseEmoji: { fontSize: 20, width: 28, textAlign: 'center' },
+    promiseText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20 },
     featuresCard: {
       borderRadius: radii.lg,
       borderWidth: 1,

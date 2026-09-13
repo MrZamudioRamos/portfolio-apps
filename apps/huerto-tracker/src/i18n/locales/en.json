@@ -526,6 +526,13 @@
     "title": "Grow your garden\nwithout limits",
     "subtitlePro": "Active subscription · {{plan}} plan",
     "subtitle": "Unlock everything you need to become a true gardener.",
+    "promiseTitle": "Pro pays off when your garden keeps moving",
+    "promiseDesc": "Bring your plan, alerts and history together so you can decide without remembering everything.",
+    "promises": {
+      "plan": "Your full plan in one place",
+      "protect": "Spot problems early and act before you lose a plant",
+      "keep": "Keep your history and take it with you"
+    },
     "features": {
       "gardens": "Huertos ilimitados (gratis: 1 huerto)",
       "plants": "Plantas sin límite (gratis: hasta 5)",
