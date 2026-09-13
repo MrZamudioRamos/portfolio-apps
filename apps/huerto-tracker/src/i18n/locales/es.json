@@ -896,6 +896,7 @@
     "title": "Nuevo recordatorio",
     "subtitle": "Un aviso en el momento adecuado",
     "subtitleDesc": "Elige qué quieres revisar y cuándo te viene mejor.",
+    "previewLabel": "Vista previa",
     "typeLabel": "TIPO",
     "titleLabel": "TÍTULO",
     "frequencyLabel": "FRECUENCIA",

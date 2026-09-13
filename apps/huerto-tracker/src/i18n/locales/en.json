@@ -853,6 +853,7 @@
     "title": "New reminder",
     "subtitle": "A nudge at the right time",
     "subtitleDesc": "Choose what to check and when it works for you.",
+    "previewLabel": "Preview",
     "typeLabel": "TYPE",
     "titleLabel": "TITLE",
     "frequencyLabel": "FREQUENCY",

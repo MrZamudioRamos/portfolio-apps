@@ -18,7 +18,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { REMINDER_TYPE_CONFIG, type GardenReminder, type ReminderType } from '../../src/models/reminder';
+import { type GardenReminder, type ReminderType } from '../../src/models/reminder';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { usePro } from '../../src/hooks/usePro';
 import { track, EVENTS } from '../../src/analytics';
@@ -131,15 +131,28 @@ export default function ReminderNewScreen() {
         </View>
 
         <View style={s.body}>
-          <View style={[s.intro, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border, overflow: 'hidden' }]}>
+          <View style={[s.summaryHero, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderColor: colors.border, overflow: 'hidden' }]}>
             {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-            <View style={[s.introIcon, { backgroundColor: colors.primary + '1c' }]}>
-              <Ionicons name="notifications-outline" size={22} color={colors.primary} />
+            <View style={[s.summaryHeroIcon, { backgroundColor: colors.primary + '1c' }]}>
+              <Ionicons name={TYPE_ICONS[type]} size={24} color={colors.primary} />
             </View>
-            <View style={{ flex: 1, gap: 3 }}>
-              <Text style={[s.introTitle, { color: colors.text }]}>{t('reminderNew.subtitle')}</Text>
-              <Text style={[s.introDesc, { color: colors.textSecondary }]}>{t('reminderNew.subtitleDesc')}</Text>
+            <View style={s.summaryHeroCopy}>
+              <Text style={[s.summaryEyebrow, { color: colors.primary }]}>{t('reminderNew.previewLabel')}</Text>
+              <Text style={[s.summaryTitle, { color: colors.text }]} numberOfLines={1}>
+                {title.trim() || t('reminderDefaultTitle.' + type)}
+              </Text>
+              <Text style={[s.summaryMeta, { color: colors.textSecondary }]} numberOfLines={1}>
+                {t('reminderFrequency.' + frequency)}{frequency === 'weekly' ? ` · ${weekdayLabel(weekday)}` : ''}
+              </Text>
             </View>
+            <Text style={[s.summaryTime, { color: colors.text }]}>
+              {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}
+            </Text>
+          </View>
+
+          <View style={s.intro}>
+            <Ionicons name="sparkles-outline" size={16} color={colors.primary} />
+            <Text style={[s.introDesc, { color: colors.textSecondary }]}>{t('reminderNew.subtitleDesc')}</Text>
           </View>
 
           {permissionError && (
@@ -290,17 +303,6 @@ export default function ReminderNewScreen() {
             </View>
           </View>
 
-          {/* Preview */}
-          <View style={[s.preview, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border, overflow: 'hidden' }]}>
-            {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="clear" />}
-            <View style={[s.previewIcon, { backgroundColor: colors.primary + '1c' }]}>
-              <Ionicons name={TYPE_ICONS[type]} size={19} color={colors.primary} />
-            </View>
-            <View style={{ flex: 1, gap: 4 }}>
-              <Text style={[s.previewTitle, { color: colors.text }]} numberOfLines={1}>{title || REMINDER_TYPE_CONFIG[type].defaultTitle}</Text>
-              <Text style={[s.previewMeta, { color: colors.textSecondary }]}>{t('reminderFrequency.' + frequency)} · {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}</Text>
-            </View>
-          </View>
         </View>
       </ScrollView>
 
@@ -338,24 +340,36 @@ const makeStyles = (
     },
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     body: { padding: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xl },
+    summaryHero: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderRadius: 18,
+      marginBottom: spacing.sm,
+    },
+    summaryHeroIcon: {
+      width: 52,
+      height: 52,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    summaryHeroCopy: { flex: 1, minWidth: 0, gap: 3 },
+    summaryEyebrow: { fontSize: 10, fontWeight: fontWeight.bold, letterSpacing: 1.1, textTransform: 'uppercase' },
+    summaryTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    summaryMeta: { fontSize: fontSize.xs },
+    summaryTime: { fontSize: 22, fontWeight: fontWeight.bold, letterSpacing: 0.5 },
     intro: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.md,
-      padding: spacing.md,
-      borderWidth: 1,
-      borderRadius: 14,
+      paddingHorizontal: spacing.xs,
+      paddingVertical: spacing.sm,
       marginBottom: spacing.xs,
     },
-    introIcon: {
-      width: 42,
-      height: 42,
-      borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    introTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
-    introDesc: { fontSize: fontSize.sm, lineHeight: 18 },
+    introDesc: { flex: 1, fontSize: fontSize.sm, lineHeight: 18 },
     label: {
       fontSize: fontSize.xs,
       fontWeight: fontWeight.bold,
@@ -435,17 +449,6 @@ const makeStyles = (
       alignItems: 'center',
       justifyContent: 'center',
     },
-    preview: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.md,
-      padding: spacing.lg,
-      borderRadius: 14,
-      borderWidth: 1,
-    },
-    previewIcon: { width: 38, height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
-    previewTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-    previewMeta: { fontSize: fontSize.xs },
     footer: {
       position: 'absolute',
       bottom: 0,
