@@ -6,7 +6,6 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
-  FlatList,
   Linking,
   Pressable,
   ScrollView,
@@ -19,14 +18,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { REMINDER_TYPE_CONFIG, type GardenReminder, type ReminderType } from '../../src/models/reminder';
+import { TimePicker } from '../../src/components/TimePicker';
 
 const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'custom'];
 // every_2_days/every_3_days removed: expo can't fire them at a fixed time, so
 // they were mapped to daily — keeping them in the picker would mislead users.
 const FREQUENCIES: ReminderFrequency[] = ['daily', 'weekly', 'once'];
 const WEEKDAYS = [2, 3, 4, 5, 6, 7, 1] as const;
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
-const MINUTES = [0, 15, 30, 45];
 
 export default function ReminderEditScreen() {
   const colors = useColors();
@@ -256,60 +254,15 @@ export default function ReminderEditScreen() {
             </>
           )}
 
-          {/* Hour picker */}
-          <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.hourLabel')}</Text>
-          <FlatList
-            horizontal
-            data={HOURS}
-            keyExtractor={(h) => String(h)}
-            showsHorizontalScrollIndicator={false}
-            style={{ marginBottom: spacing.md }}
-            contentContainerStyle={{ gap: spacing.sm }}
-            renderItem={({ item: h }) => {
-              const active = hour === h;
-              return (
-                <Pressable
-                  onPress={() => setHour(h)}
-                  style={[
-                    s.timeChip,
-                    {
-                      backgroundColor: active ? colors.primary : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
-                    },
-                  ]}
-                >
-                  <Text style={[s.timeChipText, { color: active ? '#fff' : colors.text }]}>
-                    {String(h).padStart(2, '0')}
-                  </Text>
-                </Pressable>
-              );
-            }}
+          {/* Native iOS spinner / Android clock / web time input */}
+          <TimePicker
+            hour={hour}
+            minute={minute}
+            label={t('reminderNew.hourLabel')}
+            hint={t('reminderNew.timeHint')}
+            confirmLabel={t('common.save')}
+            onChange={(nextHour, nextMinute) => { setHour(nextHour); setMinute(nextMinute); }}
           />
-
-          {/* Minute picker */}
-          <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.minuteLabel')}</Text>
-          <View style={[s.minuteRow, { marginBottom: spacing.xl }]}>
-            {MINUTES.map((m) => {
-              const active = minute === m;
-              return (
-                <Pressable
-                  key={m}
-                  onPress={() => setMinute(m)}
-                  style={[
-                    s.minuteChip,
-                    {
-                      backgroundColor: active ? colors.primary : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
-                    },
-                  ]}
-                >
-                  <Text style={[s.timeChipText, { color: active ? '#fff' : colors.text }]}>
-                    :{String(m).padStart(2, '0')}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
 
           {/* Preview */}
           <View style={[s.preview, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
@@ -405,24 +358,6 @@ const makeStyles = (
       borderWidth: 1.5,
     },
     chipText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
-    timeChip: {
-      width: 44,
-      height: 44,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    timeChipText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    minuteRow: { flexDirection: 'row', gap: spacing.md },
-    minuteChip: {
-      flex: 1,
-      height: 44,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
     preview: { padding: spacing.lg, borderRadius: radii.lg, borderWidth: 1 },
     deleteBtn: {
       flexDirection: 'row',

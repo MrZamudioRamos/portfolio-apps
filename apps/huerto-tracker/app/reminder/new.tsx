@@ -22,13 +22,12 @@ import { type GardenReminder, type ReminderType } from '../../src/models/reminde
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { usePro } from '../../src/hooks/usePro';
 import { track, EVENTS } from '../../src/analytics';
+import { TimePicker } from '../../src/components/TimePicker';
 
 const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'custom'];
 // every_2_days/every_3_days removed: expo can't fire them at a fixed time, so
 // they were mapped to daily — keeping them in the picker would mislead users.
 const FREQUENCIES: ReminderFrequency[] = ['daily', 'weekly', 'once'];
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
-const MINUTES = [0, 15, 30, 45];
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 const TYPE_ICONS: Record<ReminderType, keyof typeof Ionicons.glyphMap> = {
   watering: 'water-outline',
@@ -273,57 +272,15 @@ export default function ReminderNewScreen() {
             })}
           </View>
 
-          {/* Time picker */}
-          <View style={[s.timePanel, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border, overflow: 'hidden' }]}>
-            {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-            <View style={s.timeHeading}>
-              <View style={s.timeHeadingCopy}>
-                <View style={[s.timeIcon, { backgroundColor: colors.primary + '1c' }]}>
-                  <Ionicons name="time-outline" size={19} color={colors.primary} />
-                </View>
-                <View>
-                  <Text style={[s.timeLabel, { color: colors.text }]}>{t('reminderNew.hourLabel')}</Text>
-                  <Text style={[s.timeHint, { color: colors.textSecondary }]}>{t('reminderNew.timeHint')}</Text>
-                </View>
-              </View>
-              <Text style={[s.timeValue, { color: colors.text }]}>{String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}</Text>
-            </View>
-            <View style={s.hourGrid}>
-              {HOURS.map((h) => {
-                const active = hour === h;
-                return (
-                  <Pressable
-                    key={h}
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: active }}
-                    accessibilityLabel={`${String(h).padStart(2, '0')}:00`}
-                    onPress={() => setHour(h)}
-                    style={[s.timeChip, { backgroundColor: active ? colors.primary : colors.surface, borderColor: active ? colors.primary : colors.border }]}
-                  >
-                    <Text style={[s.timeChipText, { color: active ? colors.background : colors.text }]}>{String(h).padStart(2, '0')}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-            <Text style={[s.minuteLabel, { color: colors.textSecondary }]}>{t('reminderNew.minuteLabel')}</Text>
-            <View style={s.minuteRow}>
-              {MINUTES.map((m) => {
-                const active = minute === m;
-                return (
-                  <Pressable
-                    key={m}
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: active }}
-                    accessibilityLabel={`:${String(m).padStart(2, '0')}`}
-                    onPress={() => setMinute(m)}
-                    style={[s.minuteChip, { backgroundColor: active ? colors.primary : colors.surface, borderColor: active ? colors.primary : colors.border }]}
-                  >
-                    <Text style={[s.timeChipText, { color: active ? colors.background : colors.text }]}>{String(m).padStart(2, '0')}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
+          {/* Native iOS spinner / Android clock / web time input */}
+          <TimePicker
+            hour={hour}
+            minute={minute}
+            label={t('reminderNew.hourLabel')}
+            hint={t('reminderNew.timeHint')}
+            confirmLabel={t('common.save')}
+            onChange={(nextHour, nextMinute) => { setHour(nextHour); setMinute(nextMinute); }}
+          />
 
         </View>
       </ScrollView>
@@ -470,33 +427,6 @@ const makeStyles = (
     segment: { flexDirection: 'row', padding: 4, borderRadius: 12, borderWidth: 1, gap: 4 },
     segmentOption: { flex: 1, minHeight: 40, borderRadius: 9, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xs },
     segmentText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, textAlign: 'center' },
-    timePanel: { marginTop: spacing.lg, padding: spacing.md, borderRadius: 14, borderWidth: 1 },
-    timeHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md },
-    timeHeadingCopy: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    timeIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-    timeLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-    timeHint: { fontSize: fontSize.xs, marginTop: 2 },
-    timeValue: { fontSize: 24, fontWeight: fontWeight.bold, letterSpacing: 0.5 },
-    hourGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-    minuteLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, marginTop: spacing.lg, marginBottom: spacing.sm },
-    timeChip: {
-      width: 44,
-      height: 38,
-      borderRadius: 10,
-      borderWidth: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    timeChipText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    minuteRow: { flexDirection: 'row', gap: spacing.md },
-    minuteChip: {
-      flex: 1,
-      height: 44,
-      borderRadius: 10,
-      borderWidth: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
     footer: {
       position: 'absolute',
       bottom: 0,
