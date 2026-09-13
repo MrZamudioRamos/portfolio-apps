@@ -18,6 +18,7 @@ import type { Plant } from '../src/models/plant';
 import type { DiaryEntry } from '../src/models/diary-entry';
 import { recordCare } from '../src/utils/careWrites';
 import { buildCarePlan, type CareTask, type CareTaskKind } from '../src/utils/carePlan';
+import { track, EVENTS } from '../src/analytics';
 
 const AUTOPILOT_KEY = '@huerto/care_autopilot/';
 const COMPLETED_KEY = '@huerto/care_completed/';
@@ -73,6 +74,10 @@ export default function CarePlanScreen() {
   const visibleTasks = isPro ? openTasks : openTasks.slice(0, PREVIEW_LIMIT);
   const todayCount = openTasks.filter((task) => task.priority === 'today').length;
 
+  useEffect(() => {
+    track(EVENTS.carePlanViewed, { is_pro: isPro });
+  }, [isPro]);
+
   async function toggleTask(task: CareTask) {
     if (!activeGarden?.id) return;
     const next = new Set(completed);
@@ -89,6 +94,7 @@ export default function CarePlanScreen() {
         }
       }
       next.add(task.id);
+      track(EVENTS.careTaskCompleted, { kind: task.kind, is_pro: isPro });
     }
     setCompleted(next);
     await AsyncStorage.setItem(COMPLETED_KEY + activeGarden.id, JSON.stringify([...next]));
@@ -145,6 +151,7 @@ export default function CarePlanScreen() {
     }
     await AsyncStorage.setItem(AUTOPILOT_KEY + activeGarden.id, '1');
     await AsyncStorage.setItem(AUTOPILOT_KEY + activeGarden.id + ':ids', JSON.stringify(ids));
+    track(EVENTS.autopilotActivated, { task_count: openTasks.length });
     setAutopilotEnabled(true);
     setSaving(false);
   }

@@ -15,6 +15,7 @@ import { useCustomCrops } from '../src/hooks/useCustomCrops';
 import { usePro } from '../src/hooks/usePro';
 import type { Plant } from '../src/models/plant';
 import { buildAbsencePlan } from '../src/utils/absencePlan';
+import { track, EVENTS } from '../src/analytics';
 
 const ABSENCE_KEY = '@huerto/absence_plan/';
 const ABSENCE_NOTIF_KEY = '@huerto/absence_plan_notifications/';
@@ -89,6 +90,7 @@ export default function AbsenceScreen() {
         await AsyncStorage.setItem(ABSENCE_NOTIF_KEY + activeGarden.id, JSON.stringify(ids));
       }
     }
+    track(EVENTS.absencePlanSaved, { days_away: daysAway, has_helper: hasHelper, is_pro: isPro });
     setSaved(true);
   }
 

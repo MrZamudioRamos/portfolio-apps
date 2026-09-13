@@ -53,3 +53,7 @@ Primer huerto, primera recomendación, guía básica, diario manual, checklist i
 - En esta iteración se ha cerrado el circuito Pro: **Autopiloto de cuidados** genera tareas por planta y etapa, explica cómo hacerlas, guarda el riego en el diario y recalcula el siguiente paso; **modo ausencia Pro** convierte el plan en recordatorios diarios durante el viaje. La vista previa gratuita deja ver el valor antes de pedir la suscripción.
 - Para principiantes, el recorrido queda explícito: **añadir una planta → hacer la tarea de hoy → marcarla → recibir el siguiente paso**. El paywall recibe el contexto de entrada, así que “Autopiloto” y “Ausencia” explican el beneficio que el usuario acaba de intentar usar.
 - El siguiente corte puede centrarse en alertas meteorológicas accionables, sucesión/rotación y diagnóstico con seguimiento. No conviene añadir otra pantalla de contenido antes de medir el uso de este circuito.
+
+## Cómo validar si merece pago
+
+El embudo ya deja señales separadas: visita al plan, tarea completada, activación del autopiloto, guardado del plan de ausencia, apertura del paywall por contexto y compra. Antes de ampliar el catálogo Pro conviene medir cuántos principiantes llegan a completar su primera tarea, cuántos vuelven a la pantalla de cuidados y qué contexto convierte mejor. Si el usuario no llega a la primera acción, hay que mejorar la guía; si llega pero no activa Pro, hay que ajustar la promesa o el precio.
