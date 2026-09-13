@@ -29,9 +29,11 @@ interface ScheduleInput {
   body?: string;
   frequency: ReminderFrequency;
   time: { hour: number; minute: number };
+  /** Expo weekday: 1 = Sunday, 2 = Monday ... 7 = Saturday. */
+  weekday?: number;
 }
 
-function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute: number }) {
+function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute: number }, weekday = 2) {
   const { hour, minute } = time;
   const T = Notifications.SchedulableTriggerInputTypes;
   switch (frequency) {
@@ -43,7 +45,7 @@ function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute
     case 'every_3_days':
       return { type: T.DAILY, hour, minute };
     case 'weekly':
-      return { type: T.WEEKLY, weekday: 2, hour, minute };
+      return { type: T.WEEKLY, weekday, hour, minute };
     case 'once': {
       const d = new Date();
       d.setHours(hour, minute, 0, 0);
@@ -54,7 +56,7 @@ function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute
 }
 
 export async function scheduleReminder(input: ScheduleInput): Promise<string> {
-  const trigger = buildTrigger(input.frequency, input.time);
+  const trigger = buildTrigger(input.frequency, input.time, input.weekday);
   return Notifications.scheduleNotificationAsync({
     content: {
       title: input.title,

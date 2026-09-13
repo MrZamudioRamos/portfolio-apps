@@ -848,6 +848,7 @@
     "typeLabel": "TIPO",
     "titleLabel": "TÍTULO",
     "frequencyLabel": "FRECUENCIA",
+    "weekdayLabel": "DÍA DA SEMANA",
     "hourLabel": "HORA",
     "minuteLabel": "MINUTOS",
     "create": "Crear recordatorio",

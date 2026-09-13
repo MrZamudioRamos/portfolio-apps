@@ -848,6 +848,7 @@
     "typeLabel": "MOTA",
     "titleLabel": "IZENBURUA",
     "frequencyLabel": "MAIZTASUNA",
+    "weekdayLabel": "ASTEEKO EGUNA",
     "hourLabel": "ORDUA",
     "minuteLabel": "MINUTUAK",
     "create": "Oroigarria sortu",

@@ -848,6 +848,7 @@
     "typeLabel": "TIPUS",
     "titleLabel": "TÍTOL",
     "frequencyLabel": "FREQÜÈNCIA",
+    "weekdayLabel": "DIA DE LA SETMANA",
     "hourLabel": "HORA",
     "minuteLabel": "MINUTS",
     "create": "Crear recordatori",

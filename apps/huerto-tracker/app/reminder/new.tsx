@@ -27,6 +27,7 @@ const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'cust
 // every_2_days/every_3_days removed: expo can't fire them at a fixed time, so
 // they were mapped to daily — keeping them in the picker would mislead users.
 const FREQUENCIES: ReminderFrequency[] = ['daily', 'weekly', 'once'];
+const WEEKDAYS = [2, 3, 4, 5, 6, 7, 1] as const;
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = [0, 15, 30, 45];
 
@@ -40,10 +41,11 @@ export default function ReminderNewScreen() {
   const reminders = useReminders<GardenReminder>('reminders');
   const { isPro } = usePro();
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [type, setType] = useState<ReminderType>('watering');
   const [title, setTitle] = useState(() => t('reminderDefaultTitle.watering'));
   const [frequency, setFrequency] = useState<ReminderFrequency>('daily');
+  const [weekday, setWeekday] = useState<number>(2);
   const [hour, setHour] = useState(8);
   const [minute, setMinute] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -55,6 +57,12 @@ export default function ReminderNewScreen() {
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
+
+  function weekdayLabel(day: number) {
+    const date = new Date(2024, 0, day === 1 ? 7 : 7 + day - 1);
+    const label = new Intl.DateTimeFormat(i18n.language, { weekday: 'short' }).format(date);
+    return label.charAt(0).toUpperCase() + label.slice(1, 3);
+  }
 
   function handleTypeChange(tp: ReminderType) {
     setType(tp);
@@ -89,6 +97,7 @@ export default function ReminderNewScreen() {
         type,
         title: title.trim() || t('reminderDefaultTitle.' + type),
         frequency,
+        weekday: frequency === 'weekly' ? weekday : undefined,
         time: { hour, minute },
         enabled: true,
       });
@@ -205,6 +214,32 @@ export default function ReminderNewScreen() {
               })}
             </View>
           </ScrollView>
+
+          {/* Hour picker */}
+          {frequency === 'weekly' && (
+            <>
+              <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.weekdayLabel')}</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.lg }}>
+                <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+                  {WEEKDAYS.map((day) => {
+                    const active = weekday === day;
+                    return (
+                      <Pressable
+                        key={day}
+                        accessibilityRole="radio"
+                        accessibilityState={{ checked: active }}
+                        accessibilityLabel={weekdayLabel(day)}
+                        onPress={() => setWeekday(day)}
+                        style={[s.chip, { backgroundColor: active ? colors.primary : colors.surface, borderColor: active ? colors.primary : colors.border }]}
+                      >
+                        <Text style={[s.chipText, { color: active ? '#fff' : colors.text }]}>{weekdayLabel(day)}</Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            </>
+          )}
 
           {/* Hour picker */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.hourLabel')}</Text>

@@ -1060,7 +1060,9 @@ function DashboardInner() {
                       backgroundColor: weather.wateringAdvice === 'skip' ? colors.water + '18' : weather.wateringAdvice === 'reduce' ? colors.warning + '18' : colors.surfaceAlt,
                       borderColor: weather.wateringAdvice === 'skip' ? colors.water : weather.wateringAdvice === 'reduce' ? colors.warning : colors.border,
                     }]}>
-                      <Text style={[s.wateringAdviceText, { color: colors.text }]}>{t('dailyCare.weatherHint')}</Text>
+                      <Text style={[s.wateringAdviceText, { color: colors.text }]}>
+                        {t(weather.wateringKey, weather.wateringParams)}
+                      </Text>
                     </View>
                   </>
                 )}
