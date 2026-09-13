@@ -851,6 +851,7 @@
     "titleLabel": "TÍTOL",
     "frequencyLabel": "FREQÜÈNCIA",
     "weekdayLabel": "DIA DE LA SETMANA",
+    "timeHint": "Tria l'hora exacta de l'avís",
     "hourLabel": "HORA",
     "minuteLabel": "MINUTS",
     "create": "Crear recordatori",

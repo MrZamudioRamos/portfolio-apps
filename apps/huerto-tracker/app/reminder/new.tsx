@@ -8,7 +8,6 @@ import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
-  FlatList,
   Linking,
   Pressable,
   Platform,
@@ -239,64 +238,56 @@ export default function ReminderNewScreen() {
             </>
           )}
 
-          {/* Hour picker */}
-          <View style={s.timeHeading}>
-            <Text style={[s.label, { color: colors.textSecondary, marginTop: 0, marginBottom: 0 }]}>{t('reminderNew.hourLabel')}</Text>
-            <Text style={[s.timeValue, { color: colors.text }]}>{String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}</Text>
-          </View>
-          <FlatList
-            horizontal
-            data={HOURS}
-            keyExtractor={(h) => String(h)}
-            showsHorizontalScrollIndicator={false}
-            style={{ marginBottom: spacing.md }}
-            contentContainerStyle={{ gap: spacing.sm }}
-            initialScrollIndex={hour}
-            getItemLayout={(_, index) => ({ length: 44 + spacing.sm, offset: (44 + spacing.sm) * index, index })}
-            renderItem={({ item: h }) => {
-              const active = hour === h;
-              return (
-                <Pressable
-                  onPress={() => setHour(h)}
-                  style={[
-                    s.timeChip,
-                    {
-                      backgroundColor: active ? colors.primary : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
-                    },
-                  ]}
-                >
-                  <Text style={[s.timeChipText, { color: active ? '#fff' : colors.text }]}>
-                    {String(h).padStart(2, '0')}
-                  </Text>
-                </Pressable>
-              );
-            }}
-          />
-
-          {/* Minute picker */}
-          <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.md }]}>{t('reminderNew.minuteLabel')}</Text>
-          <View style={[s.minuteRow, { marginBottom: spacing.xl }]}>
-            {MINUTES.map((m) => {
-              const active = minute === m;
-              return (
-                <Pressable
-                  key={m}
-                  onPress={() => setMinute(m)}
-                  style={[
-                    s.minuteChip,
-                    {
-                      backgroundColor: active ? colors.primary : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
-                    },
-                  ]}
-                >
-                  <Text style={[s.timeChipText, { color: active ? '#fff' : colors.text }]}>
-                    :{String(m).padStart(2, '0')}
-                  </Text>
-                </Pressable>
-              );
-            })}
+          {/* Time picker */}
+          <View style={[s.timePanel, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border, overflow: 'hidden' }]}>
+            {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+            <View style={s.timeHeading}>
+              <View style={s.timeHeadingCopy}>
+                <View style={[s.timeIcon, { backgroundColor: colors.primary + '1c' }]}>
+                  <Ionicons name="time-outline" size={19} color={colors.primary} />
+                </View>
+                <View>
+                  <Text style={[s.timeLabel, { color: colors.text }]}>{t('reminderNew.hourLabel')}</Text>
+                  <Text style={[s.timeHint, { color: colors.textSecondary }]}>{t('reminderNew.timeHint')}</Text>
+                </View>
+              </View>
+              <Text style={[s.timeValue, { color: colors.text }]}>{String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}</Text>
+            </View>
+            <View style={s.hourGrid}>
+              {HOURS.map((h) => {
+                const active = hour === h;
+                return (
+                  <Pressable
+                    key={h}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: active }}
+                    accessibilityLabel={`${String(h).padStart(2, '0')}:00`}
+                    onPress={() => setHour(h)}
+                    style={[s.timeChip, { backgroundColor: active ? colors.primary : colors.surface, borderColor: active ? colors.primary : colors.border }]}
+                  >
+                    <Text style={[s.timeChipText, { color: active ? colors.background : colors.text }]}>{String(h).padStart(2, '0')}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Text style={[s.minuteLabel, { color: colors.textSecondary }]}>{t('reminderNew.minuteLabel')}</Text>
+            <View style={s.minuteRow}>
+              {MINUTES.map((m) => {
+                const active = minute === m;
+                return (
+                  <Pressable
+                    key={m}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: active }}
+                    accessibilityLabel={`:${String(m).padStart(2, '0')}`}
+                    onPress={() => setMinute(m)}
+                    style={[s.minuteChip, { backgroundColor: active ? colors.primary : colors.surface, borderColor: active ? colors.primary : colors.border }]}
+                  >
+                    <Text style={[s.timeChipText, { color: active ? colors.background : colors.text }]}>{String(m).padStart(2, '0')}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
 
           {/* Preview */}
@@ -417,11 +408,18 @@ const makeStyles = (
       justifyContent: 'center',
     },
     chipText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
-    timeHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.lg, marginBottom: spacing.sm },
+    timePanel: { marginTop: spacing.lg, padding: spacing.md, borderRadius: 14, borderWidth: 1 },
+    timeHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md },
+    timeHeadingCopy: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    timeIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+    timeLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    timeHint: { fontSize: fontSize.xs, marginTop: 2 },
     timeValue: { fontSize: 24, fontWeight: fontWeight.bold, letterSpacing: 0.5 },
+    hourGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    minuteLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, marginTop: spacing.lg, marginBottom: spacing.sm },
     timeChip: {
       width: 44,
-      height: 44,
+      height: 38,
       borderRadius: 10,
       borderWidth: 1,
       alignItems: 'center',

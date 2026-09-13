@@ -857,6 +857,7 @@
     "titleLabel": "TITLE",
     "frequencyLabel": "FREQUENCY",
     "weekdayLabel": "DAY OF THE WEEK",
+    "timeHint": "Choose the exact alert time",
     "hourLabel": "HOUR",
     "minuteLabel": "MINUTES",
     "create": "Create reminder",

@@ -900,6 +900,7 @@
     "titleLabel": "TÍTULO",
     "frequencyLabel": "FRECUENCIA",
     "weekdayLabel": "DÍA DE LA SEMANA",
+    "timeHint": "Elige la hora exacta del aviso",
     "hourLabel": "HORA",
     "minuteLabel": "MINUTOS",
     "create": "Crear recordatorio",

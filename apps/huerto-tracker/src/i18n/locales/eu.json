@@ -851,6 +851,7 @@
     "titleLabel": "IZENBURUA",
     "frequencyLabel": "MAIZTASUNA",
     "weekdayLabel": "ASTEEKO EGUNA",
+    "timeHint": "Aukeratu abisuaren ordu zehatza",
     "hourLabel": "ORDUA",
     "minuteLabel": "MINUTUAK",
     "create": "Oroigarria sortu",
