@@ -58,7 +58,7 @@ Los vídeos más útiles no se quedan en “plantar”: recorren preparación, s
 | Necesidad | Cobertura actual | Hueco que queda | Prioridad |
 | --- | --- | --- | --- |
 | Ubicación, clima, sol y fecha de siembra | Onboarding, huerto, calendario, heladas y recomendaciones | La persona aún debe traducir su espacio real a una decisión de cultivo | P1 |
-| Elegir algo fácil y de temporada | `first-crop`, `SowNowCard`, dificultad y días de cosecha | No preguntamos qué quiere comer ni cuánto tiempo quiere dedicar | P0 |
+| Elegir algo fácil y de temporada | `first-crop`, `SowNowCard`, dificultad, días de cosecha e intención de cultivo | El ritmo de cuidado se guarda en primeras opciones; falta llevarlo también al perfil editable | P1 |
 | Empezar pequeño | Recomendaciones limitadas y planificador | Falta una guía explícita de tamaño, número de plantas y esfuerzo semanal | P0 |
 | Tierra, drenaje y recipiente | Datos de suelo por cultivo y litros mínimos en catálogo/alta | Falta una comprobación previa: recipiente con drenaje, sustrato y material mínimo | P0 |
 | Riego basado en observación | Tarjeta diaria, comprobación de tierra, recordatorios y clima | Falta adaptar claramente la frecuencia a maceta, calor y tipo de suelo en una vista inicial | P1 |
@@ -104,6 +104,8 @@ La pantalla de primeras opciones también permite indicar, de forma opcional, qu
 La pantalla de recomendaciones muestra ahora una ficha «Tus respuestas sí cuentan» con espacio, luz, experiencia y zona climática. Esos datos se reflejan en los filtros y en el orden de los cultivos, mientras que cada tarjeta explica por qué encaja. La persona puede verificar el razonamiento antes de elegir, y un perfil antiguo sin alguno de esos datos sigue usando los valores conservadores existentes.
 
 Cada tarjeta añade también «Antes de empezar»: si el perfil indica balcón o interior se traduce en el tamaño mínimo de maceta y drenaje; si indica patio o huerto se traduce en luz, suelo y acceso al agua. La recomendación deja de ser solo un nombre y pasa a ser una preparación concreta.
+
+En esa misma pantalla se pregunta cuánto tiempo quiere dedicar la persona: poco, regular o seguimiento intensivo. La elección se conserva localmente y modifica la puntuación: con poco tiempo se priorizan cultivos fáciles y de riego moderado, mientras que el modo intensivo deja espacio a cultivos con más seguimiento. Cada tarjeta puede explicar ese ajuste con «Encaja con el tiempo que quieres dedicar».
 
 Las recomendaciones muestran además el ritmo de riego y recuerdan empezar con una sola planta. Tras la primera cosecha, la celebración ofrece guardar una valoración breve en el diario para que el siguiente ciclo conserve ese aprendizaje.
 

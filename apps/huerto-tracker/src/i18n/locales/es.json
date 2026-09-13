@@ -564,7 +564,8 @@
       "seasonSoon": "La siembra empieza el próximo mes; hoy puedes preparar el material",
       "easy": "Es una opción fácil para principiantes",
       "quick": "Da un resultado relativamente rápido",
-      "preference": "Encaja con lo que quieres cultivar"
+      "preference": "Encaja con lo que quieres cultivar",
+      "timeFit": "Encaja con el tiempo que quieres dedicar"
     },
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Cosecha orientativa: {{min}}–{{max}} días desde la siembra",
@@ -580,6 +581,11 @@
     "prepareContainer": "Usa una maceta de al menos {{liters}} L, con agujeros de drenaje y un plato que no retenga agua.",
     "prepareGround": "Prepara un sitio con la luz indicada, suelo que drene bien y agua cerca.",
     "care": {"low": "Riego espaciado", "medium": "Riego regular", "high": "Riego frecuente"},
+    "timeTitle": "¿Cuánto tiempo quieres dedicar?",
+    "timeDesc": "Ajusto el orden para que tu primer cultivo quepa en tu rutina real.",
+    "timeLight": "Poco tiempo · revisiones rápidas",
+    "timeRegular": "Tiempo regular · cuidados equilibrados",
+    "timeHandsOn": "Me gusta dedicarle tiempo · más seguimiento",
     "intentTitle": "¿Qué te apetece cultivar?",
     "intentDesc": "Opcional: elegir una categoría ayuda a ordenar las opciones que encajan contigo.",
     "intentAny": "Me da igual",

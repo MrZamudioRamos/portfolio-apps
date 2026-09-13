@@ -585,7 +585,8 @@
       "seasonSoon": "A sementeira comeza o próximo mes; hoxe podes preparar o material",
       "easy": "É fácil para principiantes",
       "quick": "Dá un resultado relativamente rápido",
-      "preference": "Encaixa co que queres cultivar"
+      "preference": "Encaixa co que queres cultivar",
+      "timeFit": "Encaixa co tempo que queres dedicarlle"
     },
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Colleita orientativa: {{min}}–{{max}} días desde a sementeira",
@@ -601,6 +602,11 @@
     "prepareContainer": "Usa unha maceta de polo menos {{liters}} L, con buratos de drenaxe e un prato que non reteña auga.",
     "prepareGround": "Prepara un lugar coa luz indicada, solo que drene ben e auga preto.",
     "care": {"low": "Rego espazado", "medium": "Rego regular", "high": "Rego frecuente"},
+    "timeTitle": "Canto tempo queres dedicarlle?",
+    "timeDesc": "Ordeno as opcións para que o teu primeiro cultivo encaixe na túa rutina real.",
+    "timeLight": "Pouco tempo · revisións rápidas",
+    "timeRegular": "Tempo regular · coidados equilibrados",
+    "timeHandsOn": "Gústame dedicarlle tempo · máis seguimento",
     "intentTitle": "Que che apetece cultivar?",
     "intentDesc": "Opcional: escoller unha categoría axuda a ordenar primeiro as opcións que encaixan contigo.",
     "intentAny": "Dáme igual",

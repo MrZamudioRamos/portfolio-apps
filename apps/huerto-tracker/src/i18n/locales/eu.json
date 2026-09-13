@@ -585,7 +585,8 @@
       "seasonSoon": "Hurrengo hilabetean erein daiteke; prestatu materiala gaur",
       "easy": "Hasiberrientzat erraza da",
       "quick": "Emaitza nahiko azkarra ematen du",
-      "preference": "Landatu nahi duzunarekin bat dator"
+      "preference": "Landatu nahi duzunarekin bat dator",
+      "timeFit": "Eskaini nahi diozun denborara egokitzen da"
     },
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Gutxi gorabeherako uzta: erein eta {{min}}–{{max}} egunera",
@@ -601,6 +602,11 @@
     "prepareContainer": "Erabili gutxienez {{liters}} L-ko loreontzia, drainatze-zuloekin eta ura pilatzen ez duen platerarekin.",
     "prepareGround": "Prestatu adierazitako argia duen lekua, ondo drainatutako lurra eta ura gertu.",
     "care": {"low": "Noizbehinkako ureztaketa", "medium": "Ohiko ureztaketa", "high": "Maiz ureztatu"},
+    "timeTitle": "Zenbat denbora eskaini nahi diozu?",
+    "timeDesc": "Aukerak ordenatuko ditut zure lehen laborea benetako erritmora egokitzeko.",
+    "timeLight": "Denbora gutxi · egiaztapen azkarrak",
+    "timeRegular": "Ohiko denbora · zaintza orekatua",
+    "timeHandsOn": "Denbora eskaintzea gustatzen zait · jarraipen gehiago",
     "intentTitle": "Zer landatu nahi duzu?",
     "intentDesc": "Aukerakoa: kategoria bat aukeratuz gero, zurekin bat datozen aukerak lehenetsiko dira.",
     "intentAny": "Edozerk balio dit",

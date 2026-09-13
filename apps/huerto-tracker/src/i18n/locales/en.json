@@ -597,7 +597,8 @@
       "seasonSoon": "Sowing starts next month; prepare your supplies today",
       "easy": "It is easy for beginners",
       "quick": "It gives a relatively quick result",
-      "preference": "Matches what you want to grow"
+      "preference": "Matches what you want to grow",
+      "timeFit": "Fits the time you want to give it"
     },
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Estimated harvest: {{min}}–{{max}} days after sowing",
@@ -613,6 +614,11 @@
     "prepareContainer": "Use a pot of at least {{liters}} L with drainage holes and a saucer that does not hold water.",
     "prepareGround": "Prepare a spot with the right light, well-drained soil and water nearby.",
     "care": {"low": "Occasional watering", "medium": "Regular watering", "high": "Frequent watering"},
+    "timeTitle": "How much time do you want to give it?",
+    "timeDesc": "I rank options so your first crop fits your real routine.",
+    "timeLight": "Little time · quick check-ins",
+    "timeRegular": "Regular time · balanced care",
+    "timeHandsOn": "I enjoy the work · more follow-up",
     "intentTitle": "What would you like to grow?",
     "intentDesc": "Optional: choose a category to put the options that fit you first.",
     "intentAny": "I’m open to anything",

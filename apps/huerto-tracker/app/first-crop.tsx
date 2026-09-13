@@ -5,12 +5,13 @@ import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CROP_DIFFICULTY, type CropCategory } from '../src/data/crops';
 import { Mascot } from '../src/components/Mascot';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { useUserProfile } from '../src/hooks/useUserProfile';
 import { EVENTS, track, trackImpression } from '../src/analytics';
-import { getFirstCropRecommendations, type FirstCropSpace, type RecommendationReason } from '../src/utils/firstCropRecommendation';
+import { getFirstCropRecommendations, type CareTimeBudget, type FirstCropSpace, type RecommendationReason } from '../src/utils/firstCropRecommendation';
 import type { SpaceType } from '../src/models/user-profile';
 
 const reasonKey: Record<RecommendationReason, string> = {
@@ -21,7 +22,15 @@ const reasonKey: Record<RecommendationReason, string> = {
   easy: 'firstCrop.reasons.easy',
   quick: 'firstCrop.reasons.quick',
   preference: 'firstCrop.reasons.preference',
+  timeFit: 'firstCrop.reasons.timeFit',
 };
+
+const CARE_TIME_KEY = '@huerto/first_crop_care_time';
+const CARE_TIME_OPTIONS: Array<{ id: CareTimeBudget; labelKey: string }> = [
+  { id: 'light', labelKey: 'firstCrop.timeLight' },
+  { id: 'regular', labelKey: 'firstCrop.timeRegular' },
+  { id: 'handsOn', labelKey: 'firstCrop.timeHandsOn' },
+];
 
 const PREFERENCE_CATEGORIES: Array<{ id: CropCategory; labelKey: string }> = [
   { id: 'frutas', labelKey: 'firstCrop.intentFrutas' },
@@ -47,7 +56,16 @@ export default function FirstCropScreen() {
   const { activeGarden, gardensLoading } = useActiveGarden();
   const loading = profileLoading || gardensLoading;
   const [preferredCategories, setPreferredCategories] = useState<CropCategory[]>([]);
+  const [careTime, setCareTime] = useState<CareTimeBudget>('regular');
   const recommendationSpace = toRecommendationSpace(profile?.spaceTypes);
+  React.useEffect(() => {
+    let mounted = true;
+    void AsyncStorage.getItem(CARE_TIME_KEY).then((stored) => {
+      if (!mounted) return;
+      if (stored === 'light' || stored === 'regular' || stored === 'handsOn') setCareTime(stored);
+    });
+    return () => { mounted = false; };
+  }, []);
   const recommendations = useMemo(() => {
     if (!activeGarden || !profile) return [];
     return getFirstCropRecommendations({
@@ -57,21 +75,23 @@ export default function FirstCropScreen() {
       experience: profile.experience,
       space: recommendationSpace,
       preferredCategories,
+      careTime,
     });
-  }, [activeGarden, profile, preferredCategories, recommendationSpace]);
+  }, [activeGarden, profile, preferredCategories, recommendationSpace, careTime]);
 
   const choosing = useRef(false);
   useFocusEffect(React.useCallback(() => { choosing.current = false; }, []));
   useFocusEffect(React.useCallback(() => {
     if (recommendations.length) {
-      trackImpression('recommendations:' + activeGarden?.id + ':' + JSON.stringify(profile) + ':' + preferredCategories.join(',') + ':' + recommendations.map(item => item.crop.id).join(','), EVENTS.firstCropRecommendationsShown, {
+      trackImpression('recommendations:' + activeGarden?.id + ':' + JSON.stringify(profile) + ':' + preferredCategories.join(',') + ':' + careTime + ':' + recommendations.map(item => item.crop.id).join(','), EVENTS.firstCropRecommendationsShown, {
         count: recommendations.length,
         top_crop_id: recommendations[0].crop.id,
         context_complete: Boolean(activeGarden && profile),
         preferred_categories: preferredCategories,
+        care_time: careTime,
       });
     }
-  }, [recommendations, activeGarden, profile, preferredCategories]));
+  }, [recommendations, activeGarden, profile, preferredCategories, careTime]));
 
   const choose = (index: number) => {
     const recommendation = recommendations[index];
@@ -82,6 +102,7 @@ export default function FirstCropScreen() {
       rank: index + 1,
       match_score: recommendation.score,
       preferred_categories: preferredCategories,
+      care_time: careTime,
     });
     router.push({ pathname: '/plant/new', params: { cropId: recommendation.crop.id, fromOnboarding: '1', recommendationAction: recommendation.action } });
   };
@@ -138,6 +159,26 @@ export default function FirstCropScreen() {
             })}
           </View>
           {preferredCategories.length > 0 && <Pressable accessibilityRole="button" onPress={() => setPreferredCategories([])} style={{ minHeight: 40, justifyContent: 'center', alignSelf: 'flex-start', marginTop: spacing.xs }}><Text style={{ color: colors.primary, fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>{t('firstCrop.intentClear')}</Text></Pressable>}
+        </Card>
+        <Card padded style={{ borderColor: colors.border }}>
+          <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('firstCrop.timeTitle')}</Text>
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs }}>{t('firstCrop.timeDesc')}</Text>
+          <View style={{ gap: spacing.sm, marginTop: spacing.md }}>
+            {CARE_TIME_OPTIONS.map(({ id, labelKey }) => {
+              const selected = careTime === id;
+              return (
+                <Pressable
+                  key={id}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: selected }}
+                  onPress={() => { setCareTime(id); void AsyncStorage.setItem(CARE_TIME_KEY, id); }}
+                  style={({ pressed }) => ({ minHeight: 52, borderWidth: selected ? 2 : 1, borderColor: selected ? colors.primary : colors.border, borderRadius: radii.md, paddingHorizontal: spacing.md, justifyContent: 'center', backgroundColor: selected ? colors.primary + '12' : colors.surface, opacity: pressed ? 0.75 : 1 })}
+                >
+                  <Text style={{ color: selected ? colors.primary : colors.text, fontSize: fontSize.sm, fontWeight: selected ? fontWeight.bold : fontWeight.medium }}>{t(labelKey)}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </Card>
         {recommendations.map((recommendation, index) => {
           const { crop } = recommendation;

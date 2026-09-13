@@ -585,7 +585,8 @@
       "seasonSoon": "La sembra comença el mes vinent; avui pots preparar el material",
       "easy": "És fàcil per a principiants",
       "quick": "Dona un resultat relativament ràpid",
-      "preference": "Encaixa amb el que vols cultivar"
+      "preference": "Encaixa amb el que vols cultivar",
+      "timeFit": "Encaixa amb el temps que vols dedicar"
     },
     "context": "{{province}} · {{sunlight}}",
     "harvestRange": "Collita orientativa: {{min}}–{{max}} dies des de la sembra",
@@ -601,6 +602,11 @@
     "prepareContainer": "Usa un test d’almenys {{liters}} L, amb forats de drenatge i un plat que no retinga aigua.",
     "prepareGround": "Prepara un lloc amb la llum indicada, terra que drene bé i aigua a prop.",
     "care": {"low": "Reg espaiat", "medium": "Reg regular", "high": "Reg freqüent"},
+    "timeTitle": "Quant de temps vols dedicar-li?",
+    "timeDesc": "Ordene les opcions perquè el teu primer cultiu encaixe amb la teua rutina real.",
+    "timeLight": "Poc de temps · revisions ràpides",
+    "timeRegular": "Temps regular · cures equilibrades",
+    "timeHandsOn": "M’agrada dedicar-li temps · més seguiment",
     "intentTitle": "Què et ve de gust cultivar?",
     "intentDesc": "Opcional: triar una categoria ajuda a ordenar primer les opcions que encaixen amb tu.",
     "intentAny": "M’és igual",
