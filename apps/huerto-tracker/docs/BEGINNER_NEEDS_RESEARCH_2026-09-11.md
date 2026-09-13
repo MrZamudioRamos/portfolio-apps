@@ -101,6 +101,8 @@ La guía de los primeros 7 días ya aparece en la pantalla de éxito de la prime
 
 La pantalla de primeras opciones también permite indicar, de forma opcional, qué familia de cultivos apetece probar. Esa preferencia solo reordena cultivos que ya cumplen luz, espacio y temporada; no fuerza una opción incompatible y se puede limpiar con «Me da igual».
 
+La pantalla de recomendaciones muestra ahora una ficha «Tus respuestas sí cuentan» con espacio, luz, experiencia y zona climática. Esos datos se reflejan en los filtros y en el orden de los cultivos, mientras que cada tarjeta explica por qué encaja. La persona puede verificar el razonamiento antes de elegir, y un perfil antiguo sin alguno de esos datos sigue usando los valores conservadores existentes.
+
 Las recomendaciones muestran además el ritmo de riego y recuerdan empezar con una sola planta. Tras la primera cosecha, la celebración ofrece guardar una valoración breve en el diario para que el siguiente ciclo conserve ese aprendizaje.
 
 ## Revisión de profundidad de la guía — 13 de septiembre de 2026

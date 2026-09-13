@@ -10,7 +10,8 @@ import { Mascot } from '../src/components/Mascot';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { useUserProfile } from '../src/hooks/useUserProfile';
 import { EVENTS, track, trackImpression } from '../src/analytics';
-import { getFirstCropRecommendations, type RecommendationReason } from '../src/utils/firstCropRecommendation';
+import { getFirstCropRecommendations, type FirstCropSpace, type RecommendationReason } from '../src/utils/firstCropRecommendation';
+import type { SpaceType } from '../src/models/user-profile';
 
 const reasonKey: Record<RecommendationReason, string> = {
   sunlight: 'firstCrop.reasons.sunlight',
@@ -30,6 +31,13 @@ const PREFERENCE_CATEGORIES: Array<{ id: CropCategory; labelKey: string }> = [
   { id: 'aromaticas', labelKey: 'firstCrop.intentAromaticas' },
 ];
 
+function toRecommendationSpace(spaceTypes: SpaceType[] | undefined): FirstCropSpace {
+  if (spaceTypes?.includes('indoor')) return 'indoor';
+  if (spaceTypes?.includes('balcony')) return 'balcony';
+  if (spaceTypes?.includes('farm')) return 'garden';
+  return 'patio';
+}
+
 export default function FirstCropScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
@@ -39,6 +47,7 @@ export default function FirstCropScreen() {
   const { activeGarden, gardensLoading } = useActiveGarden();
   const loading = profileLoading || gardensLoading;
   const [preferredCategories, setPreferredCategories] = useState<CropCategory[]>([]);
+  const recommendationSpace = toRecommendationSpace(profile?.spaceTypes);
   const recommendations = useMemo(() => {
     if (!activeGarden || !profile) return [];
     return getFirstCropRecommendations({
@@ -46,10 +55,10 @@ export default function FirstCropScreen() {
       month: new Date().getMonth() + 1,
       sunlight: profile.sunlight,
       experience: profile.experience,
-      space: profile.spaceTypes.includes('indoor') ? 'indoor' : profile.spaceTypes.includes('balcony') ? 'balcony' : profile.spaceTypes.includes('farm') ? 'garden' : 'patio',
+      space: recommendationSpace,
       preferredCategories,
     });
-  }, [activeGarden, profile, preferredCategories]);
+  }, [activeGarden, profile, preferredCategories, recommendationSpace]);
 
   const choosing = useRef(false);
   useFocusEffect(React.useCallback(() => { choosing.current = false; }, []));
@@ -89,6 +98,18 @@ export default function FirstCropScreen() {
           <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{activeGarden ? t('firstCrop.context', { province: activeGarden.province, sunlight: t('onboarding.sun' + (profile?.sunlight ?? 'shade')[0].toUpperCase() + (profile?.sunlight ?? 'shade').slice(1)) }) : t('firstCrop.gardenReady')}</Text>
           <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs }}>{t('firstCrop.startSmall')}</Text>
         </Card>
+        {profile && activeGarden && (
+          <Card padded style={{ borderColor: colors.primary + '45', backgroundColor: colors.primary + '08' }}>
+            <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('firstCrop.profileTitle')}</Text>
+            <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs }}>{t('firstCrop.profileDesc')}</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.md }}>
+              <ProfileChip label={t('firstCrop.profileSpace')} value={t('onboarding.space.' + recommendationSpace)} colors={colors} fontSize={fontSize} radii={radii} />
+              <ProfileChip label={t('firstCrop.profileLight')} value={t('onboarding.sun' + profile.sunlight[0].toUpperCase() + profile.sunlight.slice(1))} colors={colors} fontSize={fontSize} radii={radii} />
+              <ProfileChip label={t('firstCrop.profileExperience')} value={t('onboarding.exp' + profile.experience[0].toUpperCase() + profile.experience.slice(1))} colors={colors} fontSize={fontSize} radii={radii} />
+              <ProfileChip label={t('firstCrop.profileClimate')} value={`${activeGarden.province} · ${t('zone.' + activeGarden.climateZone)}`} colors={colors} fontSize={fontSize} radii={radii} />
+            </View>
+          </Card>
+        )}
         <Card padded style={{ borderColor: colors.border }}>
           <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('firstCrop.intentTitle')}</Text>
           <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs }}>{t('firstCrop.intentDesc')}</Text>
@@ -149,3 +170,12 @@ export default function FirstCropScreen() {
 }
 
 const styles = StyleSheet.create({ container: { flex: 1 } });
+
+function ProfileChip({ label, value, colors, fontSize, radii }: { label: string; value: string; colors: ReturnType<typeof useColors>; fontSize: Record<string, number>; radii: Record<string, number> }) {
+  return (
+    <View style={{ width: '48%', minWidth: 150, padding: 10, borderRadius: radii.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}>
+      <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>{label}</Text>
+      <Text style={{ color: colors.text, fontSize: fontSize.sm, fontWeight: '700', marginTop: 2 }} numberOfLines={2}>{value}</Text>
+    </View>
+  );
+}
