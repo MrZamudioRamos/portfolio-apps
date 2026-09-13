@@ -534,11 +534,11 @@
       "keep": "Keep your history and take it with you"
     },
     "features": {
-      "gardens": "Huertos ilimitados (gratis: 1 huerto)",
-      "plants": "Plantas sin límite (gratis: hasta 5)",
-      "gardenMap": "Mapa visual del huerto con arrastrar y soltar",
-      "aiDiagnosis": "Asistente IA: chat + diagnóstico de plagas",
-      "reminders": "Recordatorios ilimitados (gratis: hasta 3)",
+      "gardens": "Unlimited gardens (free: 1 garden)",
+      "plants": "Unlimited plants (free: up to 5)",
+      "gardenMap": "Visual garden map with drag and drop",
+      "aiDiagnosis": "AI assistant: chat + pest diagnosis",
+      "reminders": "Unlimited reminders (free: up to 3)",
       "csvExport": "Full journal CSV export",
       "gamification": "Achievements and advanced stats",
       "companions": "Full companion planting guide",
