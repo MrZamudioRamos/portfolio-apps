@@ -103,6 +103,8 @@ La pantalla de primeras opciones también permite indicar, de forma opcional, qu
 
 La pantalla de recomendaciones muestra ahora una ficha «Tus respuestas sí cuentan» con espacio, luz, experiencia y zona climática. Esos datos se reflejan en los filtros y en el orden de los cultivos, mientras que cada tarjeta explica por qué encaja. La persona puede verificar el razonamiento antes de elegir, y un perfil antiguo sin alguno de esos datos sigue usando los valores conservadores existentes.
 
+Cada tarjeta añade también «Antes de empezar»: si el perfil indica balcón o interior se traduce en el tamaño mínimo de maceta y drenaje; si indica patio o huerto se traduce en luz, suelo y acceso al agua. La recomendación deja de ser solo un nombre y pasa a ser una preparación concreta.
+
 Las recomendaciones muestran además el ritmo de riego y recuerdan empezar con una sola planta. Tras la primera cosecha, la celebración ofrece guardar una valoración breve en el diario para que el siguiente ciclo conserve ese aprendizaje.
 
 ## Revisión de profundidad de la guía — 13 de septiembre de 2026

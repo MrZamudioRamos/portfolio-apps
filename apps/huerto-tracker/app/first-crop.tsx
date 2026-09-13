@@ -156,6 +156,14 @@ export default function FirstCropScreen() {
                 <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t(`firstCrop.difficulty.${CROP_DIFFICULTY[crop.id] ?? 'medium'}`)}</Text>
                 <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t(`firstCrop.care.${crop.waterNeeds}`)}</Text>
               </View>
+              <View style={{ marginTop: spacing.md, padding: spacing.md, borderRadius: radii.md, backgroundColor: colors.primary + '0d', borderWidth: 1, borderColor: colors.primary + '35' }}>
+                <Text style={{ color: colors.primary, fontSize: fontSize.xs, fontWeight: fontWeight.bold, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('firstCrop.prepareTitle')}</Text>
+                <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, lineHeight: 19, marginTop: spacing.xs }}>
+                  {typeof recommendation.containerLiters === 'number'
+                    ? t('firstCrop.prepareContainer', { liters: recommendation.containerLiters })
+                    : t('firstCrop.prepareGround')}
+                </Text>
+              </View>
               <Button title={t(recommendation.action === 'sow' ? 'firstCrop.choose' : 'firstCrop.prepare')} onPress={() => choose(index)} variant={index === 0 ? 'primary' : 'outline'} size="lg" style={{ marginTop: spacing.md }} />
             </Card>
           );
