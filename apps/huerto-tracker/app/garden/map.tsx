@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  ImageBackground,
   Modal,
   Platform,
   Pressable,
@@ -71,7 +72,6 @@ export default function GardenMapScreen() {
   const { customCropsById } = useCustomCrops();
   const gridRows = garden?.gridRows ?? DEFAULT_GRID_ROWS;
   const gridCols = garden?.gridCols ?? DEFAULT_GRID_COLS;
-  const gridColor = garden?.color ?? colors.border;
   const gardenType = garden?.gardenType ?? 'huerto';
   const isPotMode = gardenType === 'balcon' || gardenType === 'maceta';
   const gardenTypeCfg = GARDEN_TYPE_CONFIG[gardenType];
@@ -363,6 +363,45 @@ export default function GardenMapScreen() {
     ? (CROPS_BY_ID[selectedPlant.cropId] ?? customCropsById[selectedPlant.cropId] ?? null)
     : null;
 
+  // The visual field view keeps the map useful at a glance. It follows the
+  // first occupied parcel until the user taps another one, so an empty map
+  // still has a clear invitation to place a plant.
+  const focusCell = useMemo(() => {
+    if (selectedCell !== null && layout[selectedCell]) return selectedCell;
+    const first = layout.findIndex(Boolean);
+    return first >= 0 ? first : null;
+  }, [layout, selectedCell]);
+  const focusPlant = focusCell !== null
+    ? plants.items.find((p) => p.id === layout[focusCell]) ?? null
+    : null;
+  const focusCrop = focusPlant
+    ? (CROPS_BY_ID[focusPlant.cropId] ?? customCropsById[focusPlant.cropId] ?? null)
+    : null;
+  const focusAge = focusPlant?.sowingDate
+    ? `${Math.max(0, Math.floor((Date.now() - new Date(focusPlant.sowingDate).getTime()) / 86_400_000))} d`
+    : '—';
+  const focusYield = focusPlant?.harvestGoalKg
+    ? `${focusPlant.harvestGoalKg} kg`
+    : focusCrop
+    ? `${focusCrop.daysToHarvest[0]}–${focusCrop.daysToHarvest[1]} d`
+    : '—';
+  const healthPercent = gardenPlants.length
+    ? Math.round((gardenPlants.filter((p) => p.status !== 'finished' && p.pestStatus !== 'active').length / gardenPlants.length) * 100)
+    : 0;
+  const activePests = gardenPlants.filter((p) => p.pestStatus === 'active').length;
+  const waterLabel = focusCrop
+    ? t(`gardenMap.waterNeeds.${focusCrop.waterNeeds}`)
+    : t('gardenMap.noData');
+  const soilLabel = focusPlant?.soilPh ? `pH ${focusPlant.soilPh}` : t('gardenMap.noData');
+  const pestLabel = focusPlant?.pestStatus === 'active'
+    ? t('gardenMap.pestActive')
+    : focusPlant?.pestStatus === 'treated'
+    ? t('gardenMap.pestTreated')
+    : activePests > 0
+    ? `${activePests} ${t('gardenMap.active')}`
+    : t('gardenMap.pestClear');
+  const isFocusCell = (idx: number) => focusCell === idx && !!layout[idx];
+
   const rows = Array.from({ length: gridRows }, (_, r) =>
     Array.from({ length: gridCols }, (_, c) => {
       const idx = cellIndex(r, c, gridCols);
@@ -527,27 +566,66 @@ export default function GardenMapScreen() {
           contentContainerStyle={[s.scroll, { paddingBottom: panelH + spacing.xl }]}
           scrollEnabled={!isDragging}
         >
-          <View style={s.compassRow}>
-            <View style={[s.compassBadge, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-              <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary }}>☀️ {t('gardenMap.south')}</Text>
-            </View>
-          </View>
-
           <ViewShot
             ref={viewShotRef as any}
             options={{ format: 'png', quality: 1 }}
             style={{ borderRadius: radii.lg, overflow: 'hidden' }}
           >
-            <View style={[s.shareHeader, { backgroundColor: garden?.color ?? colors.primary }]}>
-              <Text style={s.shareHeaderName}>{garden?.name ?? t('gardenMap.title')}</Text>
-              <Text style={s.shareHeaderMeta}>
-                {gridCols}×{gridRows} · {placedPlantIds.size} {t('gardenMap.plantsBadge')}
-              </Text>
-            </View>
+            <View style={[s.fieldStage, { backgroundColor: garden?.color ?? '#6D9648' }] }>
+              {garden?.photoUri ? (
+                <ImageBackground source={{ uri: garden.photoUri }} style={s.fieldBackdrop} imageStyle={s.fieldBackdropImage}>
+                  <View style={s.fieldBackdropTint} />
+                </ImageBackground>
+              ) : (
+                <View style={s.fieldBackdrop}>
+                  <View style={s.fieldBackdropTint} />
+                  {Array.from({ length: 9 }, (_, index) => (
+                    <View key={index} style={[s.fieldRow, { top: `${index * 12 - 8}%`, transform: [{ rotate: '-14deg' }] }]} />
+                  ))}
+                  <View style={[s.fieldContour, { top: '25%', left: '-8%', transform: [{ rotate: '16deg' }] }]} />
+                  <View style={[s.fieldContour, { top: '63%', left: '35%', transform: [{ rotate: '-19deg' }] }]} />
+                </View>
+              )}
+
+              <View style={s.fieldHeader}>
+                <View style={s.fieldHeaderTitle}>
+                  <Ionicons name="chevron-back" size={17} color="rgba(255,255,255,0.86)" />
+                  <View>
+                    <Text style={s.fieldTitle}>{garden?.name ?? t('gardenMap.title')}</Text>
+                    <Text style={s.fieldSubtitle}>{gridCols}×{gridRows} · {placedPlantIds.size} {t('gardenMap.plantsBadge')}</Text>
+                  </View>
+                </View>
+                <View style={s.fieldSunPill}>
+                  <Text style={s.fieldSunText}>☀️ {t('gardenMap.south')}</Text>
+                </View>
+              </View>
+
+              <View style={s.focusSummary}>
+                {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+                <View style={[s.focusSummaryIcon, { backgroundColor: focusPlant ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)' }]}>
+                  <Text style={s.focusSummaryEmoji}>{focusCrop?.emoji ?? '＋'}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.focusSummaryName}>{focusPlant?.name ?? t('gardenMap.focusEmpty')}</Text>
+                  <Text style={s.focusSummaryHint} numberOfLines={1}>
+                    {focusPlant ? t('gardenMap.focusHint') : t('gardenMap.focusEmptyHint')}
+                  </Text>
+                </View>
+                <View style={s.focusSummaryStats}>
+                  <View>
+                    <Text style={s.focusStatLabel}>{t('gardenMap.yield')}</Text>
+                    <Text style={s.focusStatValue}>{focusYield}</Text>
+                  </View>
+                  <View>
+                    <Text style={s.focusStatLabel}>{t('gardenMap.plantAge')}</Text>
+                    <Text style={s.focusStatValue}>{focusAge}</Text>
+                  </View>
+                </View>
+              </View>
 
             <View
               ref={gridRef}
-              style={[s.grid, { borderColor: gridColor, backgroundColor: gridColor }]}
+              style={[s.grid, s.fieldGrid, { borderColor: 'rgba(255,255,255,0.55)', backgroundColor: 'rgba(28,66,23,0.16)' }]}
               onLayout={() => {
                 gridRef.current?.measureInWindow((x, y, w, h) => {
                   gridMetrics.current = { x, y, w, h };
@@ -557,6 +635,7 @@ export default function GardenMapScreen() {
               {rows.map((row, r) => (
                 <View key={r} style={s.gridRow}>
                   {row.map(({ idx, plant, crop, statusColor, isSource, inMoveMode, isTarget, count, rightMarker, bottomMarker }) => {
+                    const focused = isFocusCell(idx);
                     const cellContent = (
                       <Pressable
                         onPress={() => handleCellPress(idx)}
@@ -568,34 +647,33 @@ export default function GardenMapScreen() {
                               : isSource
                               ? colors.primary + '28'
                               : plant
-                              ? colors.surfaceAlt
+                              ? 'rgba(255,255,255,0.13)'
                               : inMoveMode
-                              ? colors.primary + '08'
-                              : isPotMode
-                              ? '#8B572A18'
-                              : colors.surface,
+                              ? 'rgba(255,255,255,0.12)'
+                              : 'rgba(255,255,255,0.035)',
                             borderColor: isTarget
                               ? colors.primary
                               : isSource
                               ? colors.primary
                               : plant
-                              ? (statusColor + '55')
+                              ? focused
+                              ? 'rgba(255,255,255,0.96)'
+                              : 'rgba(255,255,255,0.66)'
                               : inMoveMode
-                              ? colors.primary + '40'
-                              : isPotMode
-                              ? '#8B572A55'
-                              : colors.border,
-                            borderWidth: (isSource || isTarget) ? 2.5 : 1.5,
-                            borderStyle: isTarget ? 'dashed' : 'solid',
+                              ? 'rgba(255,255,255,0.54)'
+                              : 'rgba(255,255,255,0.42)',
+                            borderWidth: focused || isSource || isTarget ? 2.5 : 1.2,
+                            borderStyle: isTarget || !isPotMode ? 'dashed' : 'solid',
                             opacity: isDragging && isSource ? 0.35 : pressed ? 0.75 : 1,
-                            ...(isPotMode ? { borderRadius: 999, aspectRatio: 1 } : {}),
+                            ...(isPotMode ? { borderRadius: radii.sm, aspectRatio: 1.15 } : {}),
                           },
                         ]}
                       >
+                        {focused && <View pointerEvents="none" style={s.focusRing} />}
                         {plant && crop ? (
                           <>
                             <Text style={s.cellEmoji}>{crop.emoji}</Text>
-                            <Text style={[s.cellLabel, { color: colors.text }]} numberOfLines={1}>
+                            <Text style={s.cellLabel} numberOfLines={1}>
                               {plant.name}
                             </Text>
                             <View style={[s.cellDot, { backgroundColor: statusColor ?? colors.primary }]} />
@@ -675,8 +753,29 @@ export default function GardenMapScreen() {
               ))}
             </View>
 
-            <View style={[s.shareFooter, { backgroundColor: colors.background }]}>
-              <Text style={[s.shareFooterText, { color: colors.textSecondary }]}>🌱 Huerto Tracker</Text>
+            <View pointerEvents="none" style={s.fieldMetrics}>
+                {[
+                { icon: 'water-outline' as const, label: t('gardenMap.water'), value: waterLabel, accent: '#A8E6CF' },
+                { icon: 'pulse-outline' as const, label: t('gardenMap.health'), value: `${healthPercent}%`, accent: '#B8E986' },
+                { icon: 'layers-outline' as const, label: t('gardenMap.soil'), value: soilLabel, accent: '#F3D9A4' },
+                { icon: 'bug-outline' as const, label: t('gardenMap.pests'), value: pestLabel, accent: activePests ? '#FFD180' : '#B8E986' },
+              ].map((metric) => (
+                <View key={metric.label} style={s.fieldMetricCard}>
+                  {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+                  <View style={s.fieldMetricHeader}>
+                    <View style={[s.fieldMetricIcon, { backgroundColor: `${metric.accent}30` }]}>
+                      <Ionicons name={metric.icon} size={13} color={metric.accent} />
+                    </View>
+                    <Text style={s.fieldMetricLabel}>{metric.label}</Text>
+                  </View>
+                  <Text style={s.fieldMetricValue} numberOfLines={1}>{metric.value}</Text>
+                </View>
+              ))}
+            </View>
+
+            <View style={s.fieldFooter}>
+              <Text style={s.fieldFooterText}>🌱 {t('gardenMap.tapToExplore')}</Text>
+            </View>
             </View>
           </ViewShot>
 
@@ -1027,21 +1126,74 @@ const makeStyles = (
     proPill: { borderRadius: radii.full, paddingHorizontal: 6, paddingVertical: 2 },
     proPillText: { fontSize: 9, fontWeight: fontWeight.bold, letterSpacing: 0.4 },
     scroll: { paddingHorizontal: spacing.xl, paddingTop: spacing.md },
-    shareHeader: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, alignItems: 'center' },
-    shareHeaderName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: '#fff' },
-    shareHeaderMeta: { fontSize: fontSize.xs, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
-    shareFooter: { paddingVertical: spacing.sm, alignItems: 'center' },
-    shareFooterText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
-    compassRow: { alignItems: 'center', marginBottom: spacing.sm },
-    compassBadge: { paddingHorizontal: spacing.md, paddingVertical: 3, borderRadius: radii.full, borderWidth: 1 },
+    fieldStage: { position: 'relative', overflow: 'hidden', paddingBottom: spacing.md },
+    fieldBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' },
+    fieldBackdropImage: { opacity: 0.82 },
+    fieldBackdropTint: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(30,76,29,0.46)' },
+    fieldRow: {
+      position: 'absolute', left: '-28%', width: '160%', height: 44,
+      backgroundColor: 'rgba(177,205,91,0.16)', borderTopWidth: 1, borderBottomWidth: 1,
+      borderColor: 'rgba(255,255,255,0.08)',
+    },
+    fieldContour: {
+      position: 'absolute', width: '78%', height: 110, borderWidth: 1,
+      borderColor: 'rgba(221,237,170,0.18)', borderRadius: 90,
+    },
+    fieldHeader: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.md,
+    },
+    fieldHeaderTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    fieldTitle: { color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold, letterSpacing: 0.1 },
+    fieldSubtitle: { color: 'rgba(255,255,255,0.68)', fontSize: 10, marginTop: 2 },
+    fieldSunPill: {
+      borderRadius: radii.full, paddingHorizontal: spacing.sm, paddingVertical: 5,
+      backgroundColor: 'rgba(12,40,17,0.4)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)',
+    },
+    fieldSunText: { color: 'rgba(255,255,255,0.86)', fontSize: 10, fontWeight: fontWeight.semibold },
+    focusSummary: {
+      marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.md,
+      borderRadius: radii.lg, flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+      backgroundColor: 'rgba(8,31,17,0.57)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)', overflow: 'hidden',
+    },
+    focusSummaryIcon: { width: 35, height: 35, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+    focusSummaryEmoji: { fontSize: 22, color: '#fff' },
+    focusSummaryName: { color: '#fff', fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    focusSummaryHint: { color: 'rgba(255,255,255,0.64)', fontSize: 10, marginTop: 2 },
+    focusSummaryStats: { flexDirection: 'row', gap: spacing.md, alignItems: 'center' },
+    focusStatLabel: { color: 'rgba(255,255,255,0.56)', fontSize: 9 },
+    focusStatValue: { color: '#fff', fontSize: 12, fontWeight: fontWeight.bold, marginTop: 2 },
+    fieldGrid: { marginHorizontal: spacing.lg, padding: 2, gap: 2 },
+    focusRing: {
+      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: radii.sm, borderWidth: 1,
+      borderColor: 'rgba(210,255,166,0.7)', backgroundColor: 'rgba(222,255,190,0.12)',
+    },
+    fieldMetrics: {
+      position: 'absolute', left: spacing.lg, right: spacing.lg, bottom: spacing.lg,
+      flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm,
+    },
+    fieldMetricCard: {
+      width: '47%', minHeight: 68, borderRadius: radii.lg, padding: spacing.sm,
+      backgroundColor: 'rgba(10,35,19,0.56)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)',
+      justifyContent: 'space-between', overflow: 'hidden',
+    },
+    fieldMetricHeader: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+    fieldMetricIcon: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+    fieldMetricLabel: { color: 'rgba(255,255,255,0.74)', fontSize: 10, fontWeight: fontWeight.medium },
+    fieldMetricValue: { color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold, marginTop: 6 },
+    fieldFooter: { alignItems: 'center', paddingTop: spacing.sm },
+    fieldFooterText: { color: 'rgba(255,255,255,0.62)', fontSize: 9, fontWeight: fontWeight.medium },
     grid: { borderWidth: 1, overflow: 'hidden', gap: 2, padding: 2 },
     gridRow: { flexDirection: 'row', gap: 2 },
     cell: {
       flex: 1, aspectRatio: 0.85, borderRadius: radii.sm, borderWidth: 1.5,
-      alignItems: 'center', justifyContent: 'center', gap: 1, padding: 2,
+      alignItems: 'center', justifyContent: 'center', gap: 2, padding: 2, overflow: 'visible',
     },
-    cellEmoji: { fontSize: 22 },
-    cellLabel: { fontSize: 8, fontWeight: fontWeight.medium, textAlign: 'center' },
+    cellEmoji: { fontSize: 25, textShadowColor: 'rgba(0,0,0,0.35)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 },
+    cellLabel: {
+      maxWidth: '96%', paddingHorizontal: 5, paddingVertical: 2, borderRadius: radii.full,
+      backgroundColor: 'rgba(7,29,14,0.62)', color: '#fff', fontSize: 8, fontWeight: fontWeight.semibold, textAlign: 'center',
+    },
     cellDot: { width: 5, height: 5, borderRadius: 3 },
     badge: {
       position: 'absolute', bottom: 2, right: 2,

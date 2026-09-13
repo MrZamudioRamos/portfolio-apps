@@ -457,7 +457,27 @@
     "proBadge": "PRO",
     "proTitle": "Visualiza tu huerto",
     "proDesc": "Planifica la distribución de tus cultivos con el mapa interactivo. Disponible en Pro.",
-    "proBtn": "Ver planes Pro"
+    "proBtn": "Ver planes Pro",
+    "focusEmpty": "Selecciona una parcela",
+    "focusEmptyHint": "Toca una celda para colocar o enfocar una planta",
+    "focusHint": "Toca otra parcela para cambiar el foco",
+    "yield": "Cosecha",
+    "plantAge": "Edad",
+    "water": "Riego",
+    "health": "Salud del plan",
+    "soil": "Suelo",
+    "pests": "Plagas",
+    "noData": "Sin datos",
+    "pestActive": "Revisar",
+    "pestTreated": "Tratada",
+    "pestClear": "Sin avisos",
+    "active": "activas",
+    "tapToExplore": "Toca una parcela para ver sus acciones",
+    "waterNeeds": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
+    }
   },
   "onboarding": {
     "step1Title": "Tu huerto digital",

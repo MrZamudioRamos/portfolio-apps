@@ -430,9 +430,29 @@
     "freeDesc": "Place your plants on the grid. Pro adds companions, notes, sharing and more space.",
     "proFeatures": "Pro unlocks companions, notes, sharing and more space.",
     "proBadge": "PRO",
-    "proTitle": "Visualiza tu huerto",
-    "proDesc": "Planifica la distribución de tus cultivos con el mapa interactivo. Disponible en Pro.",
-    "proBtn": "Ver planes Pro"
+    "proTitle": "Visualize your garden",
+    "proDesc": "Plan your crop layout with the interactive map. Available in Pro.",
+    "proBtn": "See Pro plans",
+    "focusEmpty": "Choose a plot",
+    "focusEmptyHint": "Tap a cell to place or focus a plant",
+    "focusHint": "Tap another plot to change focus",
+    "yield": "Harvest",
+    "plantAge": "Age",
+    "water": "Water",
+    "health": "Plan health",
+    "soil": "Soil",
+    "pests": "Pests",
+    "noData": "No data",
+    "pestActive": "Check now",
+    "pestTreated": "Treated",
+    "pestClear": "No alerts",
+    "active": "active",
+    "tapToExplore": "Tap a plot to see its actions",
+    "waterNeeds": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    }
   },
   "onboarding": {
     "locationPrivacy": "Your province helps us know what makes sense to grow now. We do not need to store your exact location.",
