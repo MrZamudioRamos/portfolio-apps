@@ -350,6 +350,13 @@
     "hemisphereNorte": "North",
     "hemisphereSur": "South",
     "hemisphereSurTip": "The calendar will reverse months for the southern hemisphere (Argentina, Chile, Uruguay…)",
+    "calendarSettingTitle": "Growing calendar",
+    "calendarSettingDesc": "Only change this if you grow south of the equator.",
+    "planTitle": "Garden layout",
+    "planOccupied": "occupied plots",
+    "editPlan": "Edit layout",
+    "planHint": "Save changes, then place plants from the map.",
+    "planActiveGardenHint": "Switch to the active garden to edit its layout.",
     "colorLabel": "MAP COLOR",
     "notesLabel": "NOTES",
     "notesPlaceholder": "Observations, watering schedule…"

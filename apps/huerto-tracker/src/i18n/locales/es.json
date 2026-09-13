@@ -375,6 +375,13 @@
     "hemisphereNorte": "Norte",
     "hemisphereSur": "Sur",
     "hemisphereSurTip": "El calendario invertirá los meses para adaptarse al hemisferio sur (Argentina, Chile, Uruguay…)",
+    "calendarSettingTitle": "Calendario de cultivo",
+    "calendarSettingDesc": "Solo cambia esto si cultivas al sur del ecuador.",
+    "planTitle": "Plano del huerto",
+    "planOccupied": "parcelas ocupadas",
+    "editPlan": "Editar plano",
+    "planHint": "Guarda los cambios y coloca las plantas desde el mapa.",
+    "planActiveGardenHint": "Cambia al huerto activo para editar su plano.",
     "colorLabel": "COLOR DEL MAPA",
     "notesLabel": "NOTAS",
     "notesPlaceholder": "Observaciones, turnos de riego…"

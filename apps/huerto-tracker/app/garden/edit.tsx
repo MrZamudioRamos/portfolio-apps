@@ -2,6 +2,9 @@ import { useColors, useTheme, Button, ScreenHeader, type Theme } from '@portfoli
 import { useCollection } from '@portfolio/storage';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { useCustomCrops } from '../../src/hooks/useCustomCrops';
+import { useGardenLayout } from '../../src/hooks/useGardenLayout';
+import { CROPS_BY_ID } from '../../src/data/crops';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
@@ -11,6 +14,7 @@ import {
   Alert,
   FlatList,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -19,8 +23,10 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { PROVINCE_ZONES, CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import type { ClimateZone, Garden, GardenType, Hemisphere } from '../../src/models/garden';
+import type { Plant } from '../../src/models/plant';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { GRID_PRESETS, DEFAULT_GRID_ROWS, DEFAULT_GRID_COLS } from '../../src/hooks/useGardenLayout';
 import { getNearestProvince } from '../../src/utils/weather';
@@ -38,6 +44,8 @@ const GARDEN_COLORS = [
   '#4E7A4E', // verde oscuro
 ];
 
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
+
 export default function GardenEditScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
@@ -45,6 +53,7 @@ export default function GardenEditScreen() {
   const gardens = useCollection<Garden>('gardens');
   const { activeGarden } = useActiveGarden();
   const { isPro } = usePurchases();
+  const { customCropsById } = useCustomCrops();
 
   const [selectedGardenId, setSelectedGardenId] = useState<string | null>(null);
   const [showGardenPicker, setShowGardenPicker] = useState(false);
@@ -64,6 +73,10 @@ export default function GardenEditScreen() {
   const [saving, setSaving] = useState(false);
   const [locating, setLocating] = useState(false);
   const { t } = useTranslation();
+  const plants = useCollection<Plant>('plants');
+  const { layout: planLayout } = useGardenLayout(garden?.id, gridRows, gridCols);
+  const activeGardenSelected = garden?.id === activeGarden?.id;
+  const placedPlanCount = planLayout.filter(Boolean).length;
 
   // Reset form fields whenever the selected garden changes
   useEffect(() => {
@@ -112,7 +125,7 @@ export default function GardenEditScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  async function handleSave() {
+  async function handleSave(openMap = false) {
     if (!name.trim()) {
       Alert.alert(t('gardenEdit.nameRequired'), t('gardenEdit.nameRequiredDesc'));
       return;
@@ -136,7 +149,8 @@ export default function GardenEditScreen() {
         color,
         notes: notes.trim(),
       });
-      router.back();
+      if (openMap) router.push('/garden/map' as any);
+      else router.back();
     } finally {
       setSaving(false);
     }
@@ -225,39 +239,35 @@ export default function GardenEditScreen() {
           </View>
         )}
 
-        {/* Hemisphere */}
-        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.hemisphereLabel')}</Text>
-        <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm }}>
-          {(['norte', 'sur'] as const).map((h) => {
-            const active = hemisphere === h;
-            return (
-              <Pressable
-                key={h}
-                onPress={() => setHemisphere(h)}
-                style={[
-                  s.typeBtn,
-                  {
-                    flex: 1,
-                    backgroundColor: active ? colors.primary + '22' : colors.surface,
-                    borderColor: active ? colors.primary : colors.border,
-                  },
-                ]}
-              >
-                <Text style={s.typeEmoji}>{h === 'norte' ? '🌍' : '🌎'}</Text>
-                <Text style={[s.typeLabel, { color: active ? colors.primary : colors.textSecondary }]}>
-                  {t('gardenEdit.hemisphere' + h.charAt(0).toUpperCase() + h.slice(1))}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-        {hemisphere === 'sur' && (
-          <View style={[s.typeTip, { backgroundColor: '#1565C015', borderColor: '#1565C0' }]}>
-            <Text style={[s.typeTipText, { color: '#1565C0' }]}>
-              🌎 {t('gardenEdit.hemisphereSurTip')}
-            </Text>
+        {/* Calendar setting — compact because most people never need to touch it. */}
+        <View style={[s.calendarSetting, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border }]}>
+          {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+          <View style={s.calendarSettingCopy}>
+            <View style={[s.calendarSettingIcon, { backgroundColor: colors.primary + '18' }]}>
+              <Ionicons name="calendar-outline" size={17} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.calendarSettingTitle, { color: colors.text }]}>{t('gardenEdit.calendarSettingTitle')}</Text>
+              <Text style={[s.calendarSettingDesc, { color: colors.textSecondary }]}>{t('gardenEdit.calendarSettingDesc')}</Text>
+            </View>
           </View>
-        )}
+          <View style={[s.hemisphereToggle, { backgroundColor: colors.background, borderColor: colors.border }]}>
+            {(['norte', 'sur'] as const).map((h) => {
+              const active = hemisphere === h;
+              return (
+                <Pressable
+                  key={h}
+                  onPress={() => setHemisphere(h)}
+                  style={[s.hemisphereChip, active && { backgroundColor: colors.primary }]}
+                >
+                  <Text style={[s.hemisphereChipText, { color: active ? colors.background : colors.textSecondary }]}>
+                    {h === 'norte' ? 'N' : 'S'} · {t('gardenEdit.hemisphere' + h.charAt(0).toUpperCase() + h.slice(1))}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
 
         {/* Province */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.lg, marginBottom: spacing.sm }}>
@@ -340,6 +350,47 @@ export default function GardenEditScreen() {
               </Pressable>
             );
           })}
+        </View>
+
+        {/* Live plan preview — the full editor remains in the map screen. */}
+        <View style={[s.planCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border }]}>
+          {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+          <View style={s.planHeader}>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.planTitle, { color: colors.text }]}>{t('gardenEdit.planTitle')}</Text>
+              <Text style={[s.planMeta, { color: colors.textSecondary }]}>
+                {placedPlanCount}/{gridRows * gridCols} {t('gardenEdit.planOccupied')}
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => void handleSave(true)}
+              disabled={!activeGardenSelected || saving}
+              style={[s.planAction, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '55', opacity: !activeGardenSelected || saving ? 0.45 : 1 }]}
+            >
+              <Text style={[s.planActionText, { color: colors.primary }]}>{t('gardenEdit.editPlan')}</Text>
+              <Ionicons name="arrow-forward" size={15} color={colors.primary} />
+            </Pressable>
+          </View>
+          <View style={[s.miniGrid, { borderColor: colors.border, backgroundColor: colors.background }]}>
+            {Array.from({ length: gridRows }, (_, row) => (
+              <View key={row} style={s.miniGridRow}>
+                {Array.from({ length: gridCols }, (_, col) => {
+                  const idx = row * gridCols + col;
+                  const plantId = planLayout[idx];
+                  const plant = plantId ? plants.items.find((item) => item.id === plantId) : undefined;
+                  const crop = plant ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId]) : undefined;
+                  return (
+                    <View key={idx} style={[s.miniCell, { borderColor: colors.border, backgroundColor: plant ? colors.primary + '18' : 'transparent' }]}>
+                      <Text style={s.miniCellEmoji}>{crop?.emoji ?? ''}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            ))}
+          </View>
+          <Text style={[s.planHint, { color: colors.textSecondary }]}>
+            {activeGardenSelected ? t('gardenEdit.planHint') : t('gardenEdit.planActiveGardenHint')}
+          </Text>
         </View>
 
         {/* Map color */}
@@ -564,6 +615,17 @@ const makeStyles = (
       borderWidth: 1,
     },
     typeTipText: { fontSize: fontSize.xs, lineHeight: 18 },
+    calendarSetting: {
+      marginTop: spacing.lg, padding: spacing.md, borderRadius: radii.lg,
+      borderWidth: 1, gap: spacing.md, overflow: 'hidden',
+    },
+    calendarSettingCopy: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    calendarSettingIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+    calendarSettingTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    calendarSettingDesc: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
+    hemisphereToggle: { flexDirection: 'row', padding: 3, borderRadius: radii.full, borderWidth: 1, alignSelf: 'flex-start' },
+    hemisphereChip: { borderRadius: radii.full, paddingHorizontal: spacing.md, paddingVertical: 6 },
+    hemisphereChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     modal: { flex: 1 },
     modalHeader: {
       flexDirection: 'row',
@@ -623,6 +685,17 @@ const makeStyles = (
     },
     presetLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     presetSub: { fontSize: 10 },
+    planCard: { marginTop: spacing.xl, padding: spacing.md, borderRadius: radii.xl, borderWidth: 1, overflow: 'hidden' },
+    planHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
+    planTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    planMeta: { fontSize: fontSize.xs, marginTop: 3 },
+    planAction: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: radii.full, borderWidth: 1, paddingHorizontal: spacing.sm, paddingVertical: 6 },
+    planActionText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+    miniGrid: { borderWidth: 1, borderRadius: radii.md, padding: 3, gap: 3, overflow: 'hidden' },
+    miniGridRow: { flexDirection: 'row', gap: 3 },
+    miniCell: { flex: 1, aspectRatio: 2.4, borderWidth: 1, borderRadius: 4, alignItems: 'center', justifyContent: 'center' },
+    miniCellEmoji: { fontSize: 11 },
+    planHint: { fontSize: fontSize.xs, lineHeight: 17, marginTop: spacing.sm },
     colorRow: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
     colorSwatch: {
       width: 36,
