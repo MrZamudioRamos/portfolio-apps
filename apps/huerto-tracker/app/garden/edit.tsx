@@ -97,10 +97,12 @@ export default function GardenEditScreen() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') return;
       const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
+      // The calendar needs this for southern-hemisphere seasons, but it
+      // should never be a setup decision for the user.
+      setHemisphere(pos.coords.latitude >= 0 ? 'norte' : 'sur');
       const nearest = getNearestProvince(pos.coords.latitude, pos.coords.longitude);
       if (nearest) {
         setProvince(nearest);
-        setHemisphere(pos.coords.latitude >= 0 ? 'norte' : 'sur');
       }
     } catch {
       // silent — user can pick manually
@@ -239,36 +241,6 @@ export default function GardenEditScreen() {
           </View>
         )}
 
-        {/* Calendar setting — compact because most people never need to touch it. */}
-        <View style={[s.calendarSetting, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border }]}>
-          {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-          <View style={s.calendarSettingCopy}>
-            <View style={[s.calendarSettingIcon, { backgroundColor: colors.primary + '18' }]}>
-              <Ionicons name="calendar-outline" size={17} color={colors.primary} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[s.calendarSettingTitle, { color: colors.text }]}>{t('gardenEdit.calendarSettingTitle')}</Text>
-              <Text style={[s.calendarSettingDesc, { color: colors.textSecondary }]}>{t('gardenEdit.calendarSettingDesc')}</Text>
-            </View>
-          </View>
-          <View style={[s.hemisphereToggle, { backgroundColor: colors.background, borderColor: colors.border }]}>
-            {(['norte', 'sur'] as const).map((h) => {
-              const active = hemisphere === h;
-              return (
-                <Pressable
-                  key={h}
-                  onPress={() => setHemisphere(h)}
-                  style={[s.hemisphereChip, active && { backgroundColor: colors.primary }]}
-                >
-                  <Text style={[s.hemisphereChipText, { color: active ? colors.background : colors.textSecondary }]}>
-                    {h === 'norte' ? 'N' : 'S'} · {t('gardenEdit.hemisphere' + h.charAt(0).toUpperCase() + h.slice(1))}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-
         {/* Province */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.lg, marginBottom: spacing.sm }}>
           <Text style={[s.label, { marginTop: 0, marginBottom: 0, color: colors.textSecondary }]}>{t('gardenEdit.provinceLabel')}</Text>
@@ -301,6 +273,12 @@ export default function GardenEditScreen() {
             </Text>
           </View>
         )}
+        <View style={[s.calendarAutoNote, { backgroundColor: colors.primary + '10' }]}>
+          <Ionicons name="sparkles-outline" size={14} color={colors.primary} />
+          <Text style={[s.calendarAutoNoteText, { color: colors.textSecondary }]}>
+            {t('gardenEdit.calendarAuto')}
+          </Text>
+        </View>
 
         {/* Grid size — Pro feature */}
         <View style={s.gridSizeHeader}>
@@ -519,7 +497,7 @@ export default function GardenEditScreen() {
               const selected = province === p;
               return (
                 <Pressable
-                  onPress={() => { setProvince(p); setShowProvinceModal(false); }}
+                  onPress={() => { setProvince(p); setHemisphere('norte'); setShowProvinceModal(false); }}
                   style={[
                     s.provinceRow,
                     { borderBottomColor: colors.border },
@@ -615,17 +593,8 @@ const makeStyles = (
       borderWidth: 1,
     },
     typeTipText: { fontSize: fontSize.xs, lineHeight: 18 },
-    calendarSetting: {
-      marginTop: spacing.lg, padding: spacing.md, borderRadius: radii.lg,
-      borderWidth: 1, gap: spacing.md, overflow: 'hidden',
-    },
-    calendarSettingCopy: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    calendarSettingIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-    calendarSettingTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    calendarSettingDesc: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
-    hemisphereToggle: { flexDirection: 'row', padding: 3, borderRadius: radii.full, borderWidth: 1, alignSelf: 'flex-start' },
-    hemisphereChip: { borderRadius: radii.full, paddingHorizontal: spacing.md, paddingVertical: 6 },
-    hemisphereChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    calendarAutoNote: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm, padding: spacing.sm, borderRadius: radii.md },
+    calendarAutoNoteText: { flex: 1, fontSize: fontSize.xs, lineHeight: 17 },
     modal: { flex: 1 },
     modalHeader: {
       flexDirection: 'row',
