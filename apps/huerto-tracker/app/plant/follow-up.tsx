@@ -18,13 +18,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { track, EVENTS } from '../../src/analytics';
 import type { DiagnosisData, DiagnosisFollowUpData, DiaryEntry } from '../../src/models/diary-entry';
+import { compareDiagnosis, type DiagnosisComparison } from '../../src/utils/pestIdentify';
 import { todayStr } from '../../src/utils/dateStr';
 
 export default function DiagnosisFollowUpScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { entryId } = useLocalSearchParams<{ entryId?: string }>();
   const { isPro } = usePurchases();
   const entries = useCollection<DiaryEntry>('diary_entries');
@@ -32,6 +33,9 @@ export default function DiagnosisFollowUpScreen() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [comparing, setComparing] = useState(false);
+  const [comparison, setComparison] = useState<DiagnosisComparison | null>(null);
+  const [comparisonError, setComparisonError] = useState(false);
   const { pickFromGallery, pickFromCamera, picking } = usePickPhoto({
     aspect: [4, 3],
     quality: 0.7,
@@ -88,6 +92,22 @@ export default function DiagnosisFollowUpScreen() {
     if (result.kind === 'success') {
       setPhoto(result.uri);
       setSaved(false);
+      setComparison(null);
+      setComparisonError(false);
+    }
+  }
+
+  async function runComparison() {
+    if (!photo || !sourceEntry.photoUri || comparing) return;
+    setComparing(true);
+    setComparisonError(false);
+    try {
+      const result = await compareDiagnosis(sourceEntry.photoUri, photo, name, i18n.language);
+      setComparison(result);
+    } catch {
+      setComparisonError(true);
+    } finally {
+      setComparing(false);
     }
   }
 
@@ -99,18 +119,27 @@ export default function DiagnosisFollowUpScreen() {
         kind: 'diagnosis_follow_up',
         parentEntryId: sourceEntry.id,
         diagnosisName: name,
+        ...(comparison ? {
+          comparisonStatus: comparison.status,
+          comparisonConfidence: comparison.confidence,
+          comparisonSummary: comparison.summary,
+          comparisonNextStep: comparison.nextStep,
+        } : {}),
       };
+      const notes = comparison
+        ? `${t('identify.followUpComparisonTitle')}: ${t('identify.followUpStatus.' + comparison.status)}\n${comparison.summary}\n${t('identify.followUpNextStep')}: ${comparison.nextStep}`
+        : t('identify.followUpSavedDesc', { name });
       await entries.create({
         gardenId: sourceEntry.gardenId,
         plantId: sourceEntry.plantId,
         type: 'note',
         date: todayStr(),
-        notes: t('identify.followUpSavedDesc', { name }),
+        notes,
         photoUri: photo,
         data,
       });
       setSaved(true);
-      track(EVENTS.diagnosisFollowupSaved, { plant_id: sourceEntry.plantId ?? null, source_entry_id: sourceEntry.id });
+      track(EVENTS.diagnosisFollowupSaved, { plant_id: sourceEntry.plantId ?? null, source_entry_id: sourceEntry.id, comparison_status: comparison?.status ?? null });
     } finally {
       setSaving(false);
     }
@@ -150,6 +179,33 @@ export default function DiagnosisFollowUpScreen() {
           <Text style={[s.contextBody, { color: colors.textSecondary }]}>{sourceEntry.notes ?? t('identify.followUpReviewDescription')}</Text>
         </Card>
 
+        {sourceEntry.photoUri && (
+          <View style={s.comparisonSection}>
+            <Button
+              title={comparing ? t('identify.followUpComparing') : t('identify.followUpCompareCta')}
+              onPress={runComparison}
+              loading={comparing}
+              disabled={!photo || comparing}
+              variant="outline"
+              size="lg"
+            />
+            {comparisonError && <Text style={[s.compareError, { color: colors.error }]}>{t('identify.followUpCompareError')}</Text>}
+          </View>
+        )}
+
+        {comparison && (
+          <Card padded style={StyleSheet.flatten([s.comparisonCard, { borderColor: colors.primary + '55', backgroundColor: colors.primary + '0d' }])}>
+            <Text style={[s.comparisonTitle, { color: colors.text }]}>{t('identify.followUpComparisonTitle')}</Text>
+            <View style={[s.statusPill, { backgroundColor: statusColor(comparison.status, colors) + '20' }]}>
+              <Text style={[s.statusPillText, { color: statusColor(comparison.status, colors) }]}>{t('identify.followUpStatus.' + comparison.status)}</Text>
+              <Text style={[s.confidenceText, { color: colors.textSecondary }]}>{t('identify.followUpConfidence', { confidence: t('identify.confidence.' + comparison.confidence) })}</Text>
+            </View>
+            <Text style={[s.comparisonBody, { color: colors.textSecondary }]}>{comparison.summary}</Text>
+            <Text style={[s.nextStepLabel, { color: colors.text }]}>{t('identify.followUpNextStep')}</Text>
+            <Text style={[s.comparisonBody, { color: colors.textSecondary }]}>{comparison.nextStep}</Text>
+          </Card>
+        )}
+
         {!photo && <Text style={[s.selectHint, { color: colors.textSecondary }]}>{t('identify.followUpPhotoRequired')}</Text>}
         <View style={s.pickRow}>
           <Pressable onPress={() => pickPhoto(true)} disabled={picking} style={[s.pickButton, { borderColor: colors.primary, backgroundColor: colors.primary + '12', opacity: picking ? 0.5 : 1 }]}>
@@ -174,6 +230,13 @@ export default function DiagnosisFollowUpScreen() {
       </ScrollView>
     </SafeAreaView>
   );
+}
+
+function statusColor(status: DiagnosisComparison['status'], colors: ReturnType<typeof useColors>) {
+  if (status === 'mejora') return colors.primary;
+  if (status === 'empeora') return colors.error;
+  if (status === 'estable') return colors.info;
+  return colors.warning;
 }
 
 function Header({ title, onBack, styles, colors }: { title: string; onBack: () => void; styles: ReturnType<typeof makeStyles>; colors: ReturnType<typeof useColors> }) {
@@ -212,6 +275,15 @@ const makeStyles = (
   contextCard: { borderColor: colors.border },
   contextTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
   contextBody: { fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs },
+  comparisonSection: { gap: spacing.xs },
+  compareError: { fontSize: fontSize.sm, textAlign: 'center' },
+  comparisonCard: { gap: spacing.sm, borderWidth: 1 },
+  comparisonTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+  statusPill: { alignSelf: 'flex-start', borderRadius: radii.full ?? radii.lg, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, gap: spacing.xs },
+  statusPillText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+  confidenceText: { fontSize: fontSize.xs },
+  comparisonBody: { fontSize: fontSize.md, lineHeight: 22 },
+  nextStepLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, marginTop: spacing.xs },
   selectHint: { fontSize: fontSize.sm, textAlign: 'center' },
   pickRow: { flexDirection: 'row', gap: spacing.sm },
   pickButton: { flex: 1, minHeight: 48, borderRadius: radii.md, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs },

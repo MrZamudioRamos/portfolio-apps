@@ -48,6 +48,10 @@ export interface DiagnosisFollowUpData {
   kind: 'diagnosis_follow_up';
   parentEntryId: string;
   diagnosisName?: string;
+  comparisonStatus?: 'mejora' | 'estable' | 'empeora' | 'incierto';
+  comparisonConfidence?: 'alta' | 'media' | 'baja';
+  comparisonSummary?: string;
+  comparisonNextStep?: string;
 }
 
 export type EntryDataMap = {

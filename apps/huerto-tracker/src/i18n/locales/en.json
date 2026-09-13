@@ -1624,6 +1624,18 @@
     "followUpSave": "Save review",
     "followUpSaved": "Review saved",
     "followUpSavedDesc": "{{name}} progress has been added to your journal.",
+    "followUpCompareCta": "Compare with AI",
+    "followUpComparing": "Comparing photos…",
+    "followUpCompareError": "We could not compare them right now. You can still save the review manually.",
+    "followUpComparisonTitle": "Progress reading",
+    "followUpStatus": {
+      "mejora": "Visible improvement",
+      "estable": "No clear change",
+      "empeora": "Needs attention",
+      "incierto": "Uncertain comparison"
+    },
+    "followUpConfidence": "{{confidence}}",
+    "followUpNextStep": "Next step",
     "proOnly": "Available with Pro"
   },
   "plantFaq": {

@@ -1462,6 +1462,18 @@
     "followUpSave": "Gorde berrikuspena",
     "followUpSaved": "Berrikuspena gordeta",
     "followUpSavedDesc": "{{name}} landarearen bilakaera egunkarian gorde da.",
+    "followUpCompareCta": "Konparatu IArekin",
+    "followUpComparing": "Argazkiak konparatzen…",
+    "followUpCompareError": "Ezin izan dira orain konparatu. Berrikuspena eskuz gorde dezakezu.",
+    "followUpComparisonTitle": "Bilakaeraren irakurketa",
+    "followUpStatus": {
+      "mejora": "Hobekuntza ikusgarria",
+      "estable": "Aldaketa argirik ez",
+      "empeora": "Arreta behar du",
+      "incierto": "Konparaketa zalantzazkoa"
+    },
+    "followUpConfidence": "{{confidence}}",
+    "followUpNextStep": "Hurrengo urratsa",
     "proOnly": "Pro-rekin eskuragarri"
   },
   "plantFaq": {

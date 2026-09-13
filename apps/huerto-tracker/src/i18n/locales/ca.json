@@ -1462,6 +1462,18 @@
     "followUpSave": "Desar revisió",
     "followUpSaved": "Revisió desada",
     "followUpSavedDesc": "L’evolució de {{name}} ha quedat registrada al diari.",
+    "followUpCompareCta": "Comparar amb IA",
+    "followUpComparing": "Comparant fotos…",
+    "followUpCompareError": "No s’han pogut comparar ara. Pots desar la revisió manualment.",
+    "followUpComparisonTitle": "Lectura de l’evolució",
+    "followUpStatus": {
+      "mejora": "Millora visible",
+      "estable": "Sense canvis clars",
+      "empeora": "Necessita atenció",
+      "incierto": "Comparació incerta"
+    },
+    "followUpConfidence": "{{confidence}}",
+    "followUpNextStep": "Següent pas",
     "proOnly": "Disponible amb Pro"
   },
   "plantFaq": {

@@ -1462,6 +1462,18 @@
     "followUpSave": "Gardar revisión",
     "followUpSaved": "Revisión gardada",
     "followUpSavedDesc": "A evolución de {{name}} quedou rexistrada no diario.",
+    "followUpCompareCta": "Comparar con IA",
+    "followUpComparing": "Comparando fotos…",
+    "followUpCompareError": "Non se puideron comparar agora. Podes gardar a revisión manualmente.",
+    "followUpComparisonTitle": "Lectura da evolución",
+    "followUpStatus": {
+      "mejora": "Mellora visible",
+      "estable": "Sen cambios claros",
+      "empeora": "Precisa atención",
+      "incierto": "Comparación incerta"
+    },
+    "followUpConfidence": "{{confidence}}",
+    "followUpNextStep": "Seguinte paso",
     "proOnly": "Dispoñible en Pro"
   },
   "plantFaq": {
