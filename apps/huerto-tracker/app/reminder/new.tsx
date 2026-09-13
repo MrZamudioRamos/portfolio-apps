@@ -27,7 +27,6 @@ const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'cust
 // every_2_days/every_3_days removed: expo can't fire them at a fixed time, so
 // they were mapped to daily — keeping them in the picker would mislead users.
 const FREQUENCIES: ReminderFrequency[] = ['daily', 'weekly', 'once'];
-const WEEKDAYS = [2, 3, 4, 5, 6, 7, 1] as const;
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = [0, 15, 30, 45];
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
@@ -64,6 +63,26 @@ export default function ReminderNewScreen() {
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
+
+  const calendarDays = useMemo(() => {
+    const today = new Date();
+    const mondayOffset = (today.getDay() + 6) % 7;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - mondayOffset);
+    const formatter = new Intl.DateTimeFormat(i18n.language, { weekday: 'short' });
+
+    return Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + index);
+      // Expo notifications use 1 = Sunday, 2 = Monday ... 7 = Saturday.
+      const day = date.getDay() === 0 ? 1 : date.getDay() + 1;
+      const label = formatter.format(date).replace('.', '').slice(0, 1).toUpperCase();
+      return { key: date.toISOString().slice(0, 10), day, label, number: date.getDate() };
+    });
+  }, [i18n.language]);
+
+  const today = new Date().getDay();
+  const activeCalendarDay = frequency === 'weekly' ? weekday : (today === 0 ? 1 : today + 1);
 
   function weekdayLabel(day: number) {
     const date = new Date(2024, 0, day === 1 ? 7 : 7 + day - 1);
@@ -122,37 +141,66 @@ export default function ReminderNewScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Header */}
-        <View style={[s.header, { borderBottomColor: colors.border }]}>
-          <Text style={[s.headerTitle, { color: colors.text }]}>{t('reminderNew.title')}</Text>
-          <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Ionicons name="close" size={24} color={colors.textSecondary} />
-          </Pressable>
-        </View>
-
         <View style={s.body}>
-          <View style={[s.summaryHero, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderColor: colors.border, overflow: 'hidden' }]}>
+          <View style={s.greetingRow}>
+            <View style={s.greetingCopy}>
+              <Text style={[s.greeting, { color: colors.textSecondary }]}>{t('reminderNew.subtitle')}</Text>
+              <Text style={[s.greetingTitle, { color: colors.text }]}>{t('reminderNew.title')}</Text>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('common.close')}
+              onPress={() => router.back()}
+              style={[s.closeButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            >
+              <Ionicons name="close" size={20} color={colors.textSecondary} />
+            </Pressable>
+          </View>
+
+          <View style={s.calendarStrip}>
+            {calendarDays.map((item) => {
+              const active = activeCalendarDay === item.day;
+              return (
+                <Pressable
+                  key={item.key}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: active }}
+                  accessibilityLabel={`${item.label} ${item.number}`}
+                  onPress={() => { setFrequency('weekly'); setWeekday(item.day); }}
+                  style={[s.calendarDay, { backgroundColor: active ? colors.primary : 'transparent', borderColor: active ? colors.primary : colors.border }]}
+                >
+                  <Text style={[s.calendarDayLabel, { color: active ? colors.background : colors.textSecondary }]}>{item.label}</Text>
+                  <Text style={[s.calendarDayNumber, { color: active ? colors.background : colors.text }]}>{item.number}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          <View style={[s.summaryStage, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border, overflow: 'hidden' }]}>
             {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-            <View style={[s.summaryHeroIcon, { backgroundColor: colors.primary + '1c' }]}>
-              <Ionicons name={TYPE_ICONS[type]} size={24} color={colors.primary} />
+            <View style={[s.scoreRing, { borderColor: colors.primary + '36', borderTopColor: colors.primary, borderRightColor: colors.primary }]}>
+              <View style={s.scoreRingInner}>
+                <Text style={[s.scoreTime, { color: colors.text }]}>{String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}</Text>
+                <Text style={[s.scoreLabel, { color: colors.textSecondary }]}>{t('reminderNew.previewLabel')}</Text>
+              </View>
             </View>
-            <View style={s.summaryHeroCopy}>
-              <Text style={[s.summaryEyebrow, { color: colors.primary }]}>{t('reminderNew.previewLabel')}</Text>
-              <Text style={[s.summaryTitle, { color: colors.text }]} numberOfLines={1}>
-                {title.trim() || t('reminderDefaultTitle.' + type)}
-              </Text>
-              <Text style={[s.summaryMeta, { color: colors.textSecondary }]} numberOfLines={1}>
-                {t('reminderFrequency.' + frequency)}{frequency === 'weekly' ? ` · ${weekdayLabel(weekday)}` : ''}
-              </Text>
-            </View>
-            <Text style={[s.summaryTime, { color: colors.text }]}>
-              {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}
+            <Text style={[s.summaryTitle, { color: colors.text }]} numberOfLines={1}>
+              {title.trim() || t('reminderDefaultTitle.' + type)}
+            </Text>
+            <Text style={[s.summaryMeta, { color: colors.textSecondary }]} numberOfLines={1}>
+              {t('reminderFrequency.' + frequency)}{frequency === 'weekly' ? ` · ${weekdayLabel(weekday)}` : ''}
             </Text>
           </View>
 
-          <View style={s.intro}>
-            <Ionicons name="sparkles-outline" size={16} color={colors.primary} />
-            <Text style={[s.introDesc, { color: colors.textSecondary }]}>{t('reminderNew.subtitleDesc')}</Text>
+          <View style={[s.contextCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={[s.contextIcon, { backgroundColor: colors.secondary + '24' }]}>
+              <Ionicons name="sunny-outline" size={20} color={colors.secondary} />
+            </View>
+            <View style={s.contextCopy}>
+              <Text style={[s.contextTitle, { color: colors.text }]}>{t('reminderNew.subtitleDesc')}</Text>
+              <Text style={[s.contextMeta, { color: colors.textSecondary }]}>{t('reminderNew.timeHint')}</Text>
+            </View>
+            <Ionicons name={TYPE_ICONS[type]} size={18} color={colors.primary} />
           </View>
 
           {permissionError && (
@@ -224,32 +272,6 @@ export default function ReminderNewScreen() {
               );
             })}
           </View>
-
-          {/* Hour picker */}
-          {frequency === 'weekly' && (
-            <>
-              <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.weekdayLabel')}</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.lg }}>
-                <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-                  {WEEKDAYS.map((day) => {
-                    const active = weekday === day;
-                    return (
-                      <Pressable
-                        key={day}
-                        accessibilityRole="radio"
-                        accessibilityState={{ checked: active }}
-                        accessibilityLabel={weekdayLabel(day)}
-                        onPress={() => setWeekday(day)}
-                        style={[s.chip, { backgroundColor: active ? colors.primary : colors.surface, borderColor: active ? colors.primary : colors.border }]}
-                      >
-                        <Text style={[s.chipText, { color: active ? '#fff' : colors.text }]}>{weekdayLabel(day)}</Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </ScrollView>
-            </>
-          )}
 
           {/* Time picker */}
           <View style={[s.timePanel, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border, overflow: 'hidden' }]}>
@@ -330,46 +352,83 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
-    header: {
+    greetingRow: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.lg,
-      borderBottomWidth: 1,
+      marginBottom: spacing.lg,
     },
-    headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    greetingCopy: { flex: 1, gap: 2 },
+    greeting: { fontSize: fontSize.sm },
+    greetingTitle: { fontSize: 27, lineHeight: 32, fontWeight: fontWeight.bold },
+    closeButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     body: { padding: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xl },
-    summaryHero: {
+    calendarStrip: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: spacing.lg,
+    },
+    calendarDay: {
+      width: 39,
+      height: 58,
+      borderRadius: 20,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 3,
+    },
+    calendarDayLabel: { fontSize: 10, fontWeight: fontWeight.bold, textTransform: 'uppercase' },
+    calendarDayNumber: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    summaryStage: {
+      alignItems: 'center',
+      paddingVertical: spacing.lg,
+      paddingHorizontal: spacing.md,
+      borderWidth: 1,
+      borderRadius: 24,
+      marginBottom: spacing.sm,
+    },
+    scoreRing: {
+      width: 154,
+      height: 154,
+      borderRadius: 77,
+      borderWidth: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.md,
+      transform: [{ rotate: '-28deg' }],
+    },
+    scoreRingInner: {
+      width: 124,
+      height: 124,
+      borderRadius: 62,
+      alignItems: 'center',
+      justifyContent: 'center',
+      transform: [{ rotate: '28deg' }],
+    },
+    scoreTime: { fontSize: 30, lineHeight: 36, fontWeight: fontWeight.bold, letterSpacing: 0.5 },
+    scoreLabel: { fontSize: fontSize.xs, marginTop: 2 },
+    summaryTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    summaryMeta: { fontSize: fontSize.xs },
+    contextCard: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.md,
-      padding: spacing.lg,
+      padding: spacing.md,
       borderWidth: 1,
       borderRadius: 18,
       marginBottom: spacing.sm,
     },
-    summaryHeroIcon: {
-      width: 52,
-      height: 52,
-      borderRadius: 16,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    summaryHeroCopy: { flex: 1, minWidth: 0, gap: 3 },
-    summaryEyebrow: { fontSize: 10, fontWeight: fontWeight.bold, letterSpacing: 1.1, textTransform: 'uppercase' },
-    summaryTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
-    summaryMeta: { fontSize: fontSize.xs },
-    summaryTime: { fontSize: 22, fontWeight: fontWeight.bold, letterSpacing: 0.5 },
-    intro: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.md,
-      paddingHorizontal: spacing.xs,
-      paddingVertical: spacing.sm,
-      marginBottom: spacing.xs,
-    },
-    introDesc: { flex: 1, fontSize: fontSize.sm, lineHeight: 18 },
+    contextIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+    contextCopy: { flex: 1, gap: 2 },
+    contextTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    contextMeta: { fontSize: fontSize.xs, lineHeight: 16 },
     label: {
       fontSize: fontSize.xs,
       fontWeight: fontWeight.bold,
@@ -411,17 +470,6 @@ const makeStyles = (
     segment: { flexDirection: 'row', padding: 4, borderRadius: 12, borderWidth: 1, gap: 4 },
     segmentOption: { flex: 1, minHeight: 40, borderRadius: 9, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xs },
     segmentText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, textAlign: 'center' },
-    chip: {
-      minWidth: 44,
-      minHeight: 40,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.xs,
-      borderRadius: 10,
-      borderWidth: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    chipText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
     timePanel: { marginTop: spacing.lg, padding: spacing.md, borderRadius: 14, borderWidth: 1 },
     timeHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md },
     timeHeadingCopy: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
