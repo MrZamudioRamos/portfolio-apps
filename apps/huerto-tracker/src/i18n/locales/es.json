@@ -448,6 +448,10 @@
     "notesSave": "Guardar",
     "unplaced": "Sin colocar",
     "dragHint": "Mantén pulsado y arrastra",
+    "freeTitle": "Mapa básico incluido",
+    "freeDesc": "Coloca tus plantas en la cuadrícula. Pro añade asociaciones, notas, compartir y más espacio.",
+    "proFeatures": "Pro desbloquea asociaciones, notas, compartir y más espacio.",
+    "proBadge": "PRO",
     "proTitle": "Visualiza tu huerto",
     "proDesc": "Planifica la distribución de tus cultivos con el mapa interactivo. Disponible en Pro.",
     "proBtn": "Ver planes Pro"
@@ -616,6 +620,8 @@
     "contextCareDesc": "Pro te dice qué hacer hoy, guarda cada cuidado y te avisa sin que tengas que acordarte.",
     "contextAbsenceTitle": "No dejes el riego a la memoria",
     "contextAbsenceDesc": "Pro convierte tu plan de ausencia en avisos claros para cada visita.",
+    "contextMapTitle": "Tu mapa también puede ayudarte a decidir",
+    "contextMapDesc": "Coloca tus plantas y descubre cómo Pro te ayuda a distribuirlas mejor.",
     "promises": {
       "plan": "Todo tu plan en un solo sitio",
       "protect": "Detecta problemas y actúa antes de perder una planta",
@@ -624,7 +630,7 @@
     "features": {
       "gardens": "Huertos ilimitados (gratis: 1 huerto)",
       "plants": "Plantas sin límite (gratis: hasta 5)",
-      "gardenMap": "Mapa visual del huerto con arrastrar y soltar",
+      "gardenMap": "Mapa visual del huerto (gratis: cuadrícula básica)",
       "aiDiagnosis": "Asistente IA: chat + diagnóstico de plagas",
       "reminders": "Recordatorios ilimitados (gratis: hasta 3)",
       "careAutopilot": "Autopiloto: tareas diarias y avisos según tus plantas",

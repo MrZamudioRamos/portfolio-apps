@@ -352,6 +352,10 @@ export default function GardenMapScreen() {
     }
   }
 
+  function openMapPro(source: 'map' | 'map_notes' | 'map_share' = 'map') {
+    router.push(`/paywall?source=${source}` as any);
+  }
+
   const selectedPlant = selectedCell !== null
     ? plants.items.find((p) => p.id === layout[selectedCell]) ?? null
     : null;
@@ -399,41 +403,9 @@ export default function GardenMapScreen() {
 
   const panelH = panelCollapsed ? PANEL_COLLAPSED_H : PANEL_EXPANDED_H;
 
-  if (!isPro) {
-    return (
-      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <View style={[s.header, { borderBottomColor: colors.border }]}>
-          <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Ionicons name="arrow-back" size={24} color={colors.primary} />
-          </Pressable>
-          <Text style={[s.headerTitle, { flex: 1, marginLeft: spacing.md, color: colors.text }]}>
-            {t('gardenMap.title')}
-          </Text>
-        </View>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xl }}>
-          <Text style={{ fontSize: 64, marginBottom: spacing.lg }}>🗺️</Text>
-          <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text, textAlign: 'center', marginBottom: spacing.md }}>
-            {t('gardenMap.proTitle')}
-          </Text>
-          <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: spacing.xl }}>
-            {t('gardenMap.proDesc')}
-          </Text>
-          <Pressable
-            onPress={() => router.push('/paywall?source=map' as any)}
-            style={{ backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, borderRadius: radii.full }}
-          >
-            <Text style={{ color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold }}>
-              {t('gardenMap.proBtn')}
-            </Text>
-          </Pressable>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   // Loading state: render a fallback rather than null so a slow/rejected
-  // AsyncStorage read in useGardenLayout doesn't blank the Pro user's screen
-  // indefinitely. (useGardenLayout also degrades to an empty layout on error.)
+  // AsyncStorage read in useGardenLayout doesn't blank the map indefinitely.
+  // (useGardenLayout also degrades to an empty layout on error.)
   if (loading) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
@@ -481,18 +453,27 @@ export default function GardenMapScreen() {
             <Ionicons name="settings-outline" size={20} color={colors.primary} />
           </Pressable>
           <Pressable
-            onPress={() => setShowNotes(true)}
+            onPress={() => isPro ? setShowNotes(true) : openMapPro('map_notes')}
             hitSlop={12}
-            style={{ marginRight: spacing.sm, opacity: garden?.notes?.trim() ? 1 : 0.5 }}
+            accessibilityLabel={t('gardenMap.notesTitle')}
+            accessibilityHint={!isPro ? t('gardenMap.proDesc') : undefined}
+            style={{ marginRight: spacing.sm, opacity: isPro ? (garden?.notes?.trim() ? 1 : 0.5) : 0.8 }}
           >
             <Ionicons
-              name={garden?.notes?.trim() ? 'document-text' : 'document-text-outline'}
+              name={!isPro ? 'lock-closed-outline' : garden?.notes?.trim() ? 'document-text' : 'document-text-outline'}
               size={20}
               color={colors.primary}
             />
           </Pressable>
-          <Pressable onPress={handleShare} disabled={sharing} hitSlop={12} style={{ opacity: sharing ? 0.4 : 1 }}>
-            <Ionicons name="share-outline" size={22} color={colors.primary} />
+          <Pressable
+            onPress={() => isPro ? void handleShare() : openMapPro('map_share')}
+            disabled={sharing}
+            hitSlop={12}
+            accessibilityLabel={t('gardenMap.shareTitle')}
+            accessibilityHint={!isPro ? t('gardenMap.proDesc') : undefined}
+            style={{ opacity: sharing ? 0.4 : isPro ? 1 : 0.8 }}
+          >
+            <Ionicons name={isPro ? 'share-outline' : 'lock-closed-outline'} size={22} color={colors.primary} />
           </Pressable>
         </View>
 
@@ -515,6 +496,28 @@ export default function GardenMapScreen() {
             <Ionicons name="move-outline" size={16} color={colors.background} />
             <Text style={[s.moveBannerText, { color: colors.background }]}>{t('gardenMap.moveModeHint')}</Text>
             <Ionicons name="close" size={18} color={colors.background} />
+          </Pressable>
+        )}
+
+        {!isPro && (
+          <Pressable
+            onPress={() => openMapPro()}
+            style={[s.freeMapCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.primary + '55' }]}
+          >
+            {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+            <View style={[s.freeMapIcon, { backgroundColor: colors.primary + '18' }]}>
+              <Ionicons name="map-outline" size={20} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={s.freeMapTitleRow}>
+                <Text style={[s.freeMapTitle, { color: colors.text }]}>{t('gardenMap.freeTitle')}</Text>
+                <View style={[s.proPill, { backgroundColor: colors.primary }]}>
+                  <Text style={[s.proPillText, { color: colors.background }]}>{t('gardenMap.proBadge')}</Text>
+                </View>
+              </View>
+              <Text style={[s.freeMapDesc, { color: colors.textSecondary }]}>{t('gardenMap.freeDesc')}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.primary} />
           </Pressable>
         )}
 
@@ -601,7 +604,7 @@ export default function GardenMapScreen() {
                                 <Text style={s.badgeText}>{count}x</Text>
                               </View>
                             )}
-                            {rightMarker && (
+                            {isPro && rightMarker && (
                               <View
                                 style={[
                                   s.companionMarkerRight,
@@ -613,7 +616,7 @@ export default function GardenMapScreen() {
                                 </Text>
                               </View>
                             )}
-                            {bottomMarker && (
+                            {isPro && bottomMarker && (
                               <View
                                 style={[
                                   s.companionMarkerBottom,
@@ -687,6 +690,17 @@ export default function GardenMapScreen() {
               <Text style={[s.legendText, { color: colors.textSecondary }]}>{t('gardenMap.legendEmpty')}</Text>
             </View>
           </View>
+
+          {!isPro && (
+            <Pressable
+              onPress={() => openMapPro()}
+              style={[s.proMapHint, { borderColor: colors.border, backgroundColor: colors.surfaceAlt }]}
+            >
+              <Ionicons name="sparkles-outline" size={16} color={colors.primary} />
+              <Text style={[s.proMapHintText, { color: colors.textSecondary }]}>{t('gardenMap.proFeatures')}</Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.primary} />
+            </Pressable>
+          )}
 
           {gardenPlants.length === 0 && (
             <Text style={[s.emptyNote, { color: colors.textDisabled }]}>
@@ -998,6 +1012,20 @@ const makeStyles = (
       gap: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg,
     },
     moveBannerText: { flex: 1, color: '#fff', fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
+    freeMapCard: {
+      flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+      marginHorizontal: spacing.xl, marginTop: spacing.sm, padding: spacing.md,
+      borderRadius: radii.lg, borderWidth: 1, overflow: 'hidden',
+    },
+    freeMapIcon: {
+      width: 36, height: 36, borderRadius: radii.md,
+      alignItems: 'center', justifyContent: 'center',
+    },
+    freeMapTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    freeMapTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    freeMapDesc: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
+    proPill: { borderRadius: radii.full, paddingHorizontal: 6, paddingVertical: 2 },
+    proPillText: { fontSize: 9, fontWeight: fontWeight.bold, letterSpacing: 0.4 },
     scroll: { paddingHorizontal: spacing.xl, paddingTop: spacing.md },
     shareHeader: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, alignItems: 'center' },
     shareHeaderName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: '#fff' },
@@ -1054,6 +1082,12 @@ const makeStyles = (
     legendItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     legendDot: { width: 10, height: 10, borderRadius: 5 },
     legendText: { fontSize: fontSize.xs },
+    proMapHint: {
+      flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+      marginTop: spacing.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
+      borderRadius: radii.md, borderWidth: 1,
+    },
+    proMapHintText: { flex: 1, fontSize: fontSize.xs, lineHeight: 16 },
     emptyNote: { textAlign: 'center', fontSize: fontSize.sm, marginTop: spacing.xl },
     // ── Plant panel ──
     panel: {

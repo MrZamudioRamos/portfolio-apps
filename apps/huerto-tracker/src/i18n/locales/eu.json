@@ -412,6 +412,10 @@
     "notesSave": "Gorde",
     "unplaced": "Kokatu gabe",
     "dragHint": "Eutsi sakatuta eta arrastatu",
+    "freeTitle": "Oinarrizko mapa barne",
+    "freeDesc": "Jarri landareak sarean. Pro-k elkarketak, oharrak, partekatzea eta leku gehiago gehitzen ditu.",
+    "proFeatures": "Pro-k elkarketak, oharrak, partekatzea eta leku gehiago desblokeatzen ditu.",
+    "proBadge": "PRO",
     "proTitle": "Visualiza tu huerto",
     "proDesc": "Planifica la distribución de tus cultivos con el mapa interactivo. Disponible en Pro.",
     "proBtn": "Ver planes Pro"
@@ -520,6 +524,8 @@
     "contextCareDesc": "Pro-k gaur zer egin esaten dizu, zaintza bakoitza gordetzen du eta automatikoki abisatzen dizu.",
     "contextAbsenceTitle": "Ez utzi ureztatzea memoriaren esku",
     "contextAbsenceDesc": "Pro-k absentzia-plana bisita bakoitzerako abisu argi bihurtzen du.",
+    "contextMapTitle": "Zure mapak erabakitzen ere lagun zaitzake",
+    "contextMapDesc": "Jarri landareak eta utzi Pro-ri konfiantza handiagoz antolatzen laguntzen.",
     "promises": {
       "plan": "Zure plan osoa leku bakarrean",
       "protect": "Arazoak goiz detektatu eta landare bat galdu aurretik jardun",
@@ -528,7 +534,7 @@
     "features": {
       "gardens": "Huertos ilimitados (gratis: 1 huerto)",
       "plants": "Plantas sin límite (gratis: hasta 5)",
-      "gardenMap": "Mapa visual del huerto con arrastrar y soltar",
+      "gardenMap": "Baratzearen mapa bisuala (doan: oinarrizko sarea)",
       "aiDiagnosis": "Asistente IA: chat + diagnóstico de plagas",
       "reminders": "Recordatorios ilimitados (gratis: hasta 3)",
       "careAutopilot": "Autopilota: eguneroko atazak eta abisuak zure landareen arabera",

@@ -43,7 +43,9 @@ Sincronización automática, restauración, exportación PDF/CSV y resumen de fi
 
 ## Qué debe quedar gratis
 
-Primer huerto, primera recomendación, guía básica, diario manual, checklist inicial, cálculo básico de ausencia y recordatorios limitados. Si se bloquea la ayuda esencial, el usuario no llega a experimentar el valor que debe convertir.
+Primer huerto, primera recomendación, guía básica, diario manual, checklist inicial, mapa base para colocar y mover plantas, cálculo básico de ausencia y recordatorios limitados. Si se bloquea la ayuda esencial, el usuario no llega a experimentar el valor que debe convertir.
+
+El mapa sigue esta frontera: cualquier principiante puede probar la distribución desde el primer día; Pro añade asociaciones de cultivos visibles sobre la cuadrícula, notas persistentes, compartir/exportar la vista y tamaños de huerto más grandes. Así el usuario prueba el resultado antes de pagar y entiende qué problema resuelve cada desbloqueo.
 
 ## Estado actual y siguiente corte
 

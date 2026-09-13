@@ -50,6 +50,8 @@ export default function PaywallScreen() {
     ? { emoji: '✨', title: 'paywall.contextCareTitle', desc: 'paywall.contextCareDesc' }
     : source === 'absence_automation'
       ? { emoji: '🧳', title: 'paywall.contextAbsenceTitle', desc: 'paywall.contextAbsenceDesc' }
+      : source === 'map' || source === 'map_notes' || source === 'map_share'
+        ? { emoji: '🗺️', title: 'paywall.contextMapTitle', desc: 'paywall.contextMapDesc' }
       : null;
 
   useEffect(() => {

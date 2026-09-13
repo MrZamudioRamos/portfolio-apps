@@ -423,6 +423,10 @@
     "notesSave": "Save",
     "unplaced": "Unplaced",
     "dragHint": "Hold and drag",
+    "freeTitle": "Basic map included",
+    "freeDesc": "Place your plants on the grid. Pro adds companions, notes, sharing and more space.",
+    "proFeatures": "Pro unlocks companions, notes, sharing and more space.",
+    "proBadge": "PRO",
     "proTitle": "Visualiza tu huerto",
     "proDesc": "Planifica la distribución de tus cultivos con el mapa interactivo. Disponible en Pro.",
     "proBtn": "Ver planes Pro"
@@ -532,6 +536,8 @@
     "contextCareDesc": "Pro tells you what to do today, saves each care action and reminds you automatically.",
     "contextAbsenceTitle": "Do not leave watering to memory",
     "contextAbsenceDesc": "Pro turns your absence plan into clear reminders for every visit.",
+    "contextMapTitle": "Your map can help you decide",
+    "contextMapDesc": "Place your plants and let Pro help you arrange them with more confidence.",
     "promises": {
       "plan": "Your full plan in one place",
       "protect": "Spot problems early and act before you lose a plant",
@@ -540,7 +546,7 @@
     "features": {
       "gardens": "Unlimited gardens (free: 1 garden)",
       "plants": "Unlimited plants (free: up to 5)",
-      "gardenMap": "Visual garden map with drag and drop",
+      "gardenMap": "Visual garden map (free: basic grid)",
       "aiDiagnosis": "AI assistant: chat + pest diagnosis",
       "reminders": "Unlimited reminders (free: up to 3)",
       "careAutopilot": "Autopilot: daily tasks and alerts based on your plants",

@@ -412,6 +412,10 @@
     "notesSave": "Gardar",
     "unplaced": "Sen colocar",
     "dragHint": "Mantén premido e arrastra",
+    "freeTitle": "Mapa básico incluído",
+    "freeDesc": "Coloca as plantas na grella. Pro engade asociacións, notas, compartir e máis espazo.",
+    "proFeatures": "Pro desbloquea asociacións, notas, compartir e máis espazo.",
+    "proBadge": "PRO",
     "proTitle": "Visualiza tu huerto",
     "proDesc": "Planifica la distribución de tus cultivos con el mapa interactivo. Disponible en Pro.",
     "proBtn": "Ver planes Pro"
@@ -520,6 +524,8 @@
     "contextCareDesc": "Pro diche que facer hoxe, garda cada coidado e avísache automaticamente.",
     "contextAbsenceTitle": "Non deixes o rego na memoria",
     "contextAbsenceDesc": "Pro converte o plan de ausencia en avisos claros para cada visita.",
+    "contextMapTitle": "O teu mapa tamén pode axudarche a decidir",
+    "contextMapDesc": "Coloca as plantas e deixa que Pro che axude a distribuílas mellor.",
     "promises": {
       "plan": "Todo o teu plan nun só lugar",
       "protect": "Detecta problemas e actúa antes de perder unha planta",
@@ -528,7 +534,7 @@
     "features": {
       "gardens": "Huertos ilimitados (gratis: 1 huerto)",
       "plants": "Plantas sin límite (gratis: hasta 5)",
-      "gardenMap": "Mapa visual del huerto con arrastrar y soltar",
+      "gardenMap": "Mapa visual da horta (gratis: grella básica)",
       "aiDiagnosis": "Asistente IA: chat + diagnóstico de plagas",
       "reminders": "Recordatorios ilimitados (gratis: hasta 3)",
       "careAutopilot": "Autopiloto: tarefas diarias e avisos segundo as túas plantas",

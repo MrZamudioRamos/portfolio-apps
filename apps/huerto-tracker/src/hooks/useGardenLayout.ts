@@ -59,8 +59,8 @@ export function useGardenLayout(
         }
       })
       // Defensive: a rejected AsyncStorage read used to leave `loading=true`
-      // forever, blanking the entire map screen (garden/map.tsx returns null
-      // while loading). Degrade to an empty layout instead.
+      // forever, leaving the entire map screen without a usable layout.
+      // Degrade to an empty layout instead.
       .catch(() => setLayout(Array(gridSize).fill(null)))
       .finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
