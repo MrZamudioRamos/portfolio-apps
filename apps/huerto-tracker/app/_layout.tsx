@@ -9,7 +9,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as Linking from 'expo-linking';
 import i18next from 'i18next';
 import React, { useEffect } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useSyncProvider } from '../src/sync/useSyncProvider';
@@ -107,6 +107,19 @@ function RootLayout() {
   useEffect(() => {
     if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
   }, [fontsLoaded]);
+
+  useEffect(() => {
+    const webDocument = (globalThis as {
+      document?: {
+        documentElement: { style: { fontFamily: string } };
+        body: { style: { fontFamily: string } };
+      };
+    }).document;
+    if (Platform.OS !== 'web' || !webDocument) return;
+    const prototypeFontStack = 'ui-rounded, "SF Pro Rounded", "Avenir Next", system-ui, sans-serif';
+    webDocument.documentElement.style.fontFamily = prototypeFontStack;
+    webDocument.body.style.fontFamily = prototypeFontStack;
+  }, []);
 
   if (!fontsLoaded) return null;
 

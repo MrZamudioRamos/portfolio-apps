@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
-const PILL_H = 64;
+const PILL_H = 66;
 const PILL_GAP_BOTTOM = 12;
 
 export const FLOATING_TAB_BOTTOM_CLEARANCE = PILL_H + PILL_GAP_BOTTOM + 8;
@@ -107,12 +107,12 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
           left: 12,
           width: pillWidth,
           height: PILL_H,
-          borderRadius: PILL_H / 2,
+          borderRadius: 18,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.45,
-          shadowRadius: 20,
-          elevation: 14,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.16,
+          shadowRadius: 10,
+          elevation: 6,
         }}
       />
 
@@ -125,7 +125,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
           left: 12,
           width: pillWidth,
           height: PILL_H,
-          borderRadius: PILL_H / 2,
+          borderRadius: 18,
           overflow: 'hidden',
         }}
       >
@@ -166,7 +166,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
           style={[
             StyleSheet.absoluteFill,
             {
-              borderRadius: PILL_H / 2,
+              borderRadius: 18,
               borderWidth: StyleSheet.hairlineWidth,
               borderColor: colors.border,
             },
@@ -224,7 +224,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                       left: 6,
                       right: 6,
                       bottom: 4,
-                      borderRadius: 14,
+                      borderRadius: 10,
                       backgroundColor: colors.accent + (isDark ? '38' : '55'),
                     }}
                   />
@@ -237,7 +237,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                 <Text
                   numberOfLines={1}
                   style={{
-                    fontSize: 9,
+                    fontSize: 10,
                     fontWeight: focused ? fontWeight.bold : fontWeight.regular,
                     color: focused ? colors.primaryDark : colors.textSecondary,
                     marginTop: 2,
@@ -303,39 +303,41 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: t('tabs.home'),
+          title: t('tabs.dashboard'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="leaf-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
+        name="map"
+        options={{
+          title: t('tabs.map'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="map-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="plants"
+        options={{
+          title: t('tabs.plants'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="flower-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="calendar"
         options={{
-          title: t('tabs.calendar'),
+          title: t('tabs.calendarNav'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="sunny-outline" size={size} color={color} />
+            <Ionicons name="calendar-outline" size={size} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="diary"
-        options={{
-          title: t('tabs.diary'),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="journal-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="tools"
-        options={{
-          title: t('tabs.tools'),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid-outline" size={size} color={color} />
-          ),
-        }}
-      />
+      <Tabs.Screen name="diary" options={{ href: null }} />
+      <Tabs.Screen name="tools" options={{ href: null }} />
       <Tabs.Screen
         name="settings"
         options={{

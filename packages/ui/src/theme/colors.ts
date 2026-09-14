@@ -28,23 +28,23 @@ export interface ColorPalette {
 
 // ── Huerto — "Fresco y amable" (vivid greens + lime + sun) ───────────────────
 export const huertoColors: AppColors = {
-  primary: '#43A047',        // vivid friendly green
-  primaryLight: '#76C77A',   // soft green
-  primaryDark: '#2E7D32',    // pressed/strong green
-  accent: '#C7E85B',         // lime action accent from the Semilla prototype
-  secondary: '#FBC02D',      // sun yellow accent (warm pop)
-  background: '#F7FBF1',     // near-white with a faint lime cast (cards pop)
-  surface: '#FFFFFF',
-  surfaceAlt: '#EEF7DF',     // lime-tinted surface
-  border: '#D6EBC2',         // light lime-green border
-  text: '#16240F',           // deep warm green-black
-  textSecondary: '#5A7052',
-  textDisabled: '#AEC7A0',
-  success: '#43A047',
-  warning: '#FB8C00',        // friendly orange (vs harsh amber)
-  error: '#E5533D',          // warm coral-red (less clinical than crimson)
-  water: '#29B6F6',          // sky blue for irrigation
-  info: '#1565C0',           // deep blue for info badges
+  primary: '#327E3C',        // prototype green, softened for everyday actions
+  primaryLight: '#78A96E',   // soft green
+  primaryDark: '#205A2B',    // pressed/strong green
+  accent: '#C7CF2A',         // warm lime action accent from the prototype
+  secondary: '#D28354',      // terracotta accent from the prototype
+  background: '#F7F4E1',     // warm ivory canvas
+  surface: '#FEFBF0',        // warm white cards
+  surfaceAlt: '#EFECD0',     // muted lime/ivory surface
+  border: '#D6D2B5',         // low-contrast warm border
+  text: '#1D2C0F',           // deep warm green-black
+  textSecondary: '#626749',  // olive-readable secondary copy
+  textDisabled: '#AEB28A',
+  success: '#327E3C',
+  warning: '#C9863D',        // friendly orange (vs harsh amber)
+  error: '#BC4A3F',          // warm coral-red (less clinical than crimson)
+  water: '#72B2B3',          // softened sky accent from the prototype
+  info: '#497AA4',           // calm informational blue
 };
 
 export const huertoDarkColors: AppColors = {
