@@ -344,12 +344,12 @@ export default function StatsScreen() {
                       s.bar,
                       {
                         height: barAnims[i],
-                        backgroundColor: isCurrentMonth ? colors.primary : colors.primaryLight,
+                        backgroundColor: isCurrentMonth ? colors.accent : colors.primaryLight,
                         opacity: m.count === 0 ? 0.2 : 1,
                       },
                     ]}
                   />
-                  <Text style={[s.barLabel, { color: isCurrentMonth ? colors.primary : colors.textSecondary, fontWeight: isCurrentMonth ? fontWeight.bold : fontWeight.regular }]}>
+                  <Text style={[s.barLabel, { color: isCurrentMonth ? colors.primaryDark : colors.textSecondary, fontWeight: isCurrentMonth ? fontWeight.bold : fontWeight.regular }]}>
                     {m.label}
                   </Text>
                 </View>
@@ -410,7 +410,7 @@ export default function StatsScreen() {
                       {item.name}
                     </Text>
                     <View style={[s.rankBadge, { backgroundColor: colors.surfaceAlt }]}>
-                      <Text style={[s.rankBadgeText, { color: colors.primary }]}>
+                      <Text style={[s.rankBadgeText, { color: colors.primaryDark }]}>
                         {t('stats.entryCount', { count: item.count })}
                       </Text>
                     </View>
@@ -470,7 +470,7 @@ export default function StatsScreen() {
                   <View key={item.year}>
                     {i > 0 && <View style={[s.divider, { backgroundColor: colors.border }]} />}
                     <View style={s.rankRow}>
-                      <Text style={[s.rankNum, { color: isCurrent ? colors.primary : colors.textDisabled, fontWeight: isCurrent ? fontWeight.bold : fontWeight.regular }]}>
+                      <Text style={[s.rankNum, { color: isCurrent ? colors.primaryDark : colors.textDisabled, fontWeight: isCurrent ? fontWeight.bold : fontWeight.regular }]}>
                         {item.year}
                       </Text>
                       <View style={{ flex: 1, gap: 2 }}>
@@ -484,8 +484,8 @@ export default function StatsScreen() {
                         )}
                       </View>
                       {isCurrent && (
-                        <View style={[s.rankBadge, { backgroundColor: colors.primary + '18' }]}>
-                          <Text style={[s.rankBadgeText, { color: colors.primary }]}>
+                        <View style={[s.rankBadge, { backgroundColor: colors.accent }]}>
+                          <Text style={[s.rankBadgeText, { color: colors.primaryDark }]}>
                             {t('stats.currentYear')}
                           </Text>
                         </View>
@@ -504,8 +504,8 @@ export default function StatsScreen() {
             {t('stats.achievements')}
           </Text>
           {isPro && (
-            <View style={[s.badgesCountBadge, { backgroundColor: colors.primary + '22' }]}>
-              <Text style={[s.badgesCountText, { color: colors.primary }]}>
+            <View style={[s.badgesCountBadge, { backgroundColor: colors.accent }]}>
+              <Text style={[s.badgesCountText, { color: colors.primaryDark }]}>
                 {unlockedCount}/{badges.length}
               </Text>
             </View>
@@ -550,8 +550,8 @@ export default function StatsScreen() {
           >
             <Text style={{ fontSize: 32, marginBottom: spacing.sm }}>🏆</Text>
             {unlockedCount > 0 && (
-              <View style={[s.badgesCountBadge, { backgroundColor: colors.primary + '22', marginBottom: spacing.sm }]}>
-                <Text style={[s.badgesCountText, { color: colors.primary }]}>
+              <View style={[s.badgesCountBadge, { backgroundColor: colors.accent, marginBottom: spacing.sm }]}>
+                <Text style={[s.badgesCountText, { color: colors.primaryDark }]}>
                   {t('stats.achievementsProHint', { count: unlockedCount })}
                 </Text>
               </View>
@@ -559,7 +559,7 @@ export default function StatsScreen() {
             <Text style={{ fontSize: fontSize.md, fontWeight: fontWeight.bold, color: colors.text, textAlign: 'center' }}>
               {t('stats.achievementsPro')}
             </Text>
-            <Text style={{ fontSize: fontSize.sm, color: colors.primary, marginTop: spacing.sm }}>
+            <Text style={{ fontSize: fontSize.sm, color: colors.primaryDark, marginTop: spacing.sm }}>
               {t('stats.achievementsProBtn')}
             </Text>
           </Pressable>

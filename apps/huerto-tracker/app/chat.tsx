@@ -146,9 +146,9 @@ export default function ChatScreen() {
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.proDesc')}</Text>
           <Pressable
             onPress={() => router.push('/paywall?source=ai_chat' as any)}
-            style={[s.gateBtn, { backgroundColor: colors.primary }]}
+            style={[s.gateBtn, { backgroundColor: colors.accent }]}
           >
-            <Text style={[s.gateBtnText, { color: colors.background }]}>{t('chat.proBtn')}</Text>
+            <Text style={[s.gateBtnText, { color: colors.primaryDark }]}>{t('chat.proBtn')}</Text>
           </Pressable>
         </View>
       ) : !user ? (
@@ -159,9 +159,9 @@ export default function ChatScreen() {
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.authDesc')}</Text>
           <Pressable
             onPress={() => router.push('/auth' as any)}
-            style={[s.gateBtn, { backgroundColor: colors.primary }]}
+            style={[s.gateBtn, { backgroundColor: colors.accent }]}
           >
-            <Text style={[s.gateBtnText, { color: colors.background }]}>{t('chat.authBtn')}</Text>
+            <Text style={[s.gateBtnText, { color: colors.primaryDark }]}>{t('chat.authBtn')}</Text>
           </Pressable>
         </View>
       ) : (
@@ -252,10 +252,10 @@ export default function ChatScreen() {
               disabled={!input.trim() || loading}
               style={[
                 s.sendBtn,
-                { backgroundColor: input.trim() && !loading ? colors.primary : colors.border },
+                { backgroundColor: input.trim() && !loading ? colors.accent : colors.border },
               ]}
             >
-              <Ionicons name="send" size={18} color={colors.background} />
+              <Ionicons name="send" size={18} color={colors.primaryDark} />
             </Pressable>
           </View>
         </KeyboardAvoidingView>

@@ -420,9 +420,9 @@ export default function GardenMapScreen() {
           </Text>
           <Pressable
             onPress={() => router.push('/paywall?source=map' as any)}
-            style={{ backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, borderRadius: radii.full }}
+            style={{ backgroundColor: colors.accent, paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, borderRadius: radii.md }}
           >
-            <Text style={{ color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold }}>
+            <Text style={{ color: colors.primaryDark, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>
               {t('gardenMap.proBtn')}
             </Text>
           </Pressable>
@@ -510,11 +510,11 @@ export default function GardenMapScreen() {
         {moveSourceCell !== null && (
           <Pressable
             onPress={() => setMoveSourceCell(null)}
-            style={[s.moveBanner, { backgroundColor: colors.primary }]}
+            style={[s.moveBanner, { backgroundColor: colors.accent }]}
           >
-            <Ionicons name="move-outline" size={16} color={colors.background} />
-            <Text style={[s.moveBannerText, { color: colors.background }]}>{t('gardenMap.moveModeHint')}</Text>
-            <Ionicons name="close" size={18} color={colors.background} />
+            <Ionicons name="move-outline" size={16} color={colors.primaryDark} />
+            <Text style={[s.moveBannerText, { color: colors.primaryDark }]}>{t('gardenMap.moveModeHint')}</Text>
+            <Ionicons name="close" size={18} color={colors.primaryDark} />
           </Pressable>
         )}
 
@@ -888,10 +888,10 @@ export default function GardenMapScreen() {
                   <View style={s.contextActions}>
                     <Pressable
                       onPress={() => { setSelectedCell(null); router.push(`/plant/${selectedPlant.id}`); }}
-                      style={[s.contextBtn, { backgroundColor: colors.primary + '15' }]}
+                      style={[s.contextBtn, { backgroundColor: colors.accent }]}
                     >
-                      <Ionicons name="eye-outline" size={20} color={colors.primary} />
-                      <Text style={[s.contextBtnText, { color: colors.primary }]}>{t('gardenMap.viewPlant')}</Text>
+                      <Ionicons name="eye-outline" size={20} color={colors.primaryDark} />
+                      <Text style={[s.contextBtnText, { color: colors.primaryDark }]}>{t('gardenMap.viewPlant')}</Text>
                     </Pressable>
                     <Pressable
                       onPress={handleStartMove}
@@ -951,9 +951,9 @@ export default function GardenMapScreen() {
               <Pressable
                 onPress={handleSaveNotes}
                 disabled={savingNotes}
-                style={[s.notesSaveBtn, { backgroundColor: colors.primary, opacity: savingNotes ? 0.6 : 1 }]}
+                style={[s.notesSaveBtn, { backgroundColor: colors.accent, opacity: savingNotes ? 0.6 : 1 }]}
               >
-                <Text style={[s.notesSaveBtnText, { color: colors.background }]}>{t('gardenMap.notesSave')}</Text>
+                <Text style={[s.notesSaveBtnText, { color: colors.primaryDark }]}>{t('gardenMap.notesSave')}</Text>
               </Pressable>
             </Pressable>
           </Pressable>
