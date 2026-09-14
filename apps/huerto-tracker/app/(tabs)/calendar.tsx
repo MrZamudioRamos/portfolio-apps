@@ -275,7 +275,7 @@ function CalendarInner() {
       <CopilotStep text={t('coach.calendar')} order={1} name="month">
       <WalkView style={[s.monthNav, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <Pressable onPress={prevMonth} hitSlop={16} style={s.navArrow}>
-          <Ionicons name="chevron-back" size={22} color={colors.primary} />
+          <Ionicons name="chevron-back" size={22} color={colors.primaryDark} />
         </Pressable>
         <Pressable
           onPress={() => { setMonth(now.getMonth() + 1); setYear(now.getFullYear()); }}
@@ -288,7 +288,7 @@ function CalendarInner() {
           </Text>
         </Pressable>
         <Pressable onPress={nextMonth} hitSlop={16} style={s.navArrow}>
-          <Ionicons name="chevron-forward" size={22} color={colors.primary} />
+          <Ionicons name="chevron-forward" size={22} color={colors.primaryDark} />
         </Pressable>
       </WalkView>
       </CopilotStep>
@@ -405,12 +405,12 @@ function CalendarInner() {
                     style={[
                       s.catChip,
                       {
-                        backgroundColor: !categoryFilter ? colors.primary + '22' : colors.surfaceAlt,
-                        borderColor: !categoryFilter ? colors.primary : colors.border,
+                        backgroundColor: !categoryFilter ? colors.accent : colors.surfaceAlt,
+                        borderColor: !categoryFilter ? colors.accent : colors.border,
                       },
                     ]}
                   >
-                    <Text style={[s.catChipText, { color: !categoryFilter ? colors.primary : colors.textSecondary }]}>
+                    <Text style={[s.catChipText, { color: !categoryFilter ? colors.primaryDark : colors.textSecondary }]}>
                       {t('calendar.catAll')}
                     </Text>
                   </Pressable>
@@ -424,12 +424,12 @@ function CalendarInner() {
                         style={[
                           s.catChip,
                           {
-                            backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
-                            borderColor: active ? colors.primary : colors.border,
+                            backgroundColor: active ? colors.accent : colors.surfaceAlt,
+                            borderColor: active ? colors.accent : colors.border,
                           },
                         ]}
                       >
-                        <Text style={[s.catChipText, { color: active ? colors.primary : colors.textSecondary }]}>
+                        <Text style={[s.catChipText, { color: active ? colors.primaryDark : colors.textSecondary }]}>
                           {cfg.emoji} {t(`cropCategory.${cat}`, { defaultValue: cfg.label })}
                         </Text>
                       </Pressable>
@@ -482,7 +482,7 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
-    header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.sm },
+    header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
     headerTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
     headerZone: { fontSize: fontSize.sm },
     hemisphereTag: {
@@ -498,7 +498,7 @@ const makeStyles = (
       marginHorizontal: spacing.xl,
       paddingVertical: spacing.md,
       paddingHorizontal: spacing.lg,
-      borderRadius: radii.lg,
+      borderRadius: radii.md,
       borderWidth: 1,
       marginTop: spacing.sm,
     },
@@ -541,7 +541,7 @@ const makeStyles = (
     lunarBannerMoon: { fontSize: 24 },
     lunarBannerPhase: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     lunarBannerDay: { fontSize: fontSize.xs, marginTop: 1 },
-    lunarBannerBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radii.full },
+    lunarBannerBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radii.sm },
     lunarBannerBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     subTitleRow: {
       flexDirection: 'row',
@@ -555,14 +555,14 @@ const makeStyles = (
     companionsLink: {
       paddingHorizontal: spacing.sm,
       paddingVertical: 3,
-      borderRadius: radii.full,
+      borderRadius: radii.sm,
       borderWidth: 1,
     },
     companionsLinkText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     catChip: {
       paddingHorizontal: spacing.md,
       paddingVertical: 5,
-      borderRadius: radii.full,
+      borderRadius: radii.sm,
       borderWidth: 1.5,
     },
     catChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },

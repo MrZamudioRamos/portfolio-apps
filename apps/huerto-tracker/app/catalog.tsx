@@ -172,11 +172,11 @@ export default function CatalogScreen() {
                     key={f.key ?? 'all'}
                     onPress={() => setCatFilter(f.key)}
                     style={[s.chip, {
-                      backgroundColor: active ? colors.text : colors.surfaceAlt,
-                      borderColor: active ? colors.text : colors.border,
+                      backgroundColor: active ? colors.accent : colors.surfaceAlt,
+                      borderColor: active ? colors.accent : colors.border,
                     }]}
                   >
-                    <Text style={[s.chipText, { color: active ? colors.background : colors.textSecondary }]}>
+                    <Text style={[s.chipText, { color: active ? colors.primaryDark : colors.textSecondary }]}>
                       {f.label}
                     </Text>
                   </Pressable>
@@ -205,15 +205,15 @@ export default function CatalogScreen() {
                     key={d ?? 'all-diff'}
                     onPress={() => setDiffFilter(d)}
                     style={[s.chip, {
-                      backgroundColor: active ? colors.text : colors.surfaceAlt,
-                      borderColor: active ? colors.text : colors.border,
+                      backgroundColor: active ? colors.accent : colors.surfaceAlt,
+                      borderColor: active ? colors.accent : colors.border,
                       flexDirection: 'row',
                       alignItems: 'center',
                       gap: 5,
                     }]}
                   >
                     {dotColor && <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: active ? colors.background : dotColor }} />}
-                    <Text style={[s.chipText, { color: active ? colors.background : colors.textSecondary }]}>
+                    <Text style={[s.chipText, { color: active ? colors.primaryDark : colors.textSecondary }]}>
                       {label}
                     </Text>
                   </Pressable>
@@ -222,13 +222,13 @@ export default function CatalogScreen() {
               <Pressable
                 onPress={() => setContainerOnly(v => !v)}
                 style={[s.chip, {
-                  backgroundColor: containerOnly ? colors.text : colors.surfaceAlt,
-                  borderColor: containerOnly ? colors.text : colors.border,
+                  backgroundColor: containerOnly ? colors.accent : colors.surfaceAlt,
+                  borderColor: containerOnly ? colors.accent : colors.border,
                   flexDirection: 'row', alignItems: 'center', gap: 5,
                 }]}
               >
                 <Text style={{ fontSize: 12 }}>🪴</Text>
-                <Text style={[s.chipText, { color: containerOnly ? colors.background : colors.textSecondary }]}>
+                <Text style={[s.chipText, { color: containerOnly ? colors.primaryDark : colors.textSecondary }]}>
                   {t('catalog.containerFilter')}
                 </Text>
               </Pressable>

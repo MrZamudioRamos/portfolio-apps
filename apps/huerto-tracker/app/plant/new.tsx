@@ -289,16 +289,16 @@ export default function NewPlantScreen() {
           {isPro && (
             <ScalePress
               onPress={() => router.push('/plant/scan' as any)}
-              style={[s.entryBtn, { backgroundColor: colors.primary, ...shadows.md }]}
+              style={[s.entryBtn, { backgroundColor: colors.accent, ...shadows.md }]}
             >
               <View style={[s.entryBtnIcon, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                <Ionicons name="scan-outline" size={26} color={colors.background} />
+                <Ionicons name="scan-outline" size={26} color={colors.primaryDark} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[s.entryBtnTitle, { color: colors.background }]}>{t('plantNew.scanTitle')}</Text>
-                <Text style={[s.entryBtnDesc, { color: colors.background + 'BF' }]}>{t('plantNew.scanDesc')}</Text>
+                <Text style={[s.entryBtnTitle, { color: colors.primaryDark }]}>{t('plantNew.scanTitle')}</Text>
+                <Text style={[s.entryBtnDesc, { color: colors.primaryDark + 'BF' }]}>{t('plantNew.scanDesc')}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.background + '99'} />
+              <Ionicons name="chevron-forward" size={18} color={colors.primaryDark} />
             </ScalePress>
           )}
 
@@ -306,8 +306,8 @@ export default function NewPlantScreen() {
             onPress={() => setShowCropPicker(true)}
             style={[s.entryBtn, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1.5, ...shadows.sm }]}
           >
-            <View style={[s.entryBtnIcon, { backgroundColor: colors.primary + '18' }]}>
-              <Ionicons name="search-outline" size={26} color={colors.primary} />
+            <View style={[s.entryBtnIcon, { backgroundColor: colors.surfaceAlt }]}>
+              <Ionicons name="search-outline" size={26} color={colors.primaryDark} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[s.entryBtnTitle, { color: colors.text }]}>{t('plantNew.cropPickerTitle')}</Text>
@@ -323,8 +323,8 @@ export default function NewPlantScreen() {
       {step === 'details' && (
         <>
           {fromOnboarding === '1' && !guided && !isAiFilled && (
-            <View style={{ backgroundColor: colors.primary + '10', borderBottomWidth: 1, borderBottomColor: colors.primary + '30', paddingHorizontal: spacing.xl, paddingVertical: spacing.md }}>
-              <Text style={{ color: colors.primary, fontSize: fontSize.sm, lineHeight: 20 }}>{t('coach.plantDetails')}</Text>
+            <View style={{ backgroundColor: colors.accent + '35', borderBottomWidth: 1, borderBottomColor: colors.accent, paddingHorizontal: spacing.xl, paddingVertical: spacing.md }}>
+              <Text style={{ color: colors.primaryDark, fontSize: fontSize.sm, lineHeight: 20 }}>{t('coach.plantDetails')}</Text>
             </View>
           )}
           {isAiFilled && (
@@ -393,7 +393,7 @@ export default function NewPlantScreen() {
                     </Text>
                   </View>
                   <Pressable accessibilityRole="button" onPress={() => guided ? goBack() : setShowCropPicker(true)} hitSlop={8}>
-                    <Text style={[s.changeText, { color: colors.primary }]}>{t('plantNew.changeCrop')}</Text>
+                    <Text style={[s.changeText, { color: colors.primaryDark }]}>{t('plantNew.changeCrop')}</Text>
                   </Pressable>
                 </View>
               )}
@@ -404,7 +404,7 @@ export default function NewPlantScreen() {
                   <Text style={{ color: colors.text, fontWeight: fontWeight.semibold }}>{activeGarden?.name} · {activeGarden?.province}</Text>
                   {selectedCropId && typeof CROP_CONTAINER_MIN[selectedCropId] === 'number' && <Text style={{ color: colors.textSecondary }}>{t('firstCrop.reasons.container', { liters: CROP_CONTAINER_MIN[selectedCropId] })}</Text>}
                   <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: started }} onPress={() => setStarted(!started)} style={{ minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: spacing.md, borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, padding: spacing.md }}>
-                    <Text style={{ color: colors.primary, fontSize: 24 }} accessible={false}>{started ? '☑' : '☐'}</Text>
+                    <Text style={{ color: started ? colors.primaryDark : colors.textSecondary, fontSize: 24 }} accessible={false}>{started ? '☑' : '☐'}</Text>
                     <Text style={{ color: colors.text, flex: 1 }}>{t('guidedPlant.alreadySown')}</Text>
                   </Pressable>
                   <Text style={{ color: colors.textSecondary, lineHeight: 20 }}>{t(started ? 'guidedPlant.dateToday' : 'guidedPlant.noDate')}</Text>
@@ -449,9 +449,9 @@ export default function NewPlantScreen() {
                   >
                     <Pressable
                       onPress={() => handleSelectVariety(null)}
-                      style={[s.varietyChip, { backgroundColor: !varietyId ? colors.primary + '22' : colors.surface, borderColor: !varietyId ? colors.primary : colors.border }]}
+                      style={[s.varietyChip, { backgroundColor: !varietyId ? colors.accent : colors.surface, borderColor: !varietyId ? colors.accent : colors.border }]}
                     >
-                      <Text style={[s.varietyChipText, { color: !varietyId ? colors.primary : colors.textSecondary }]}>
+                      <Text style={[s.varietyChipText, { color: !varietyId ? colors.primaryDark : colors.textSecondary }]}>
                         🌱 {t('plantNew.varietyGeneric')}
                       </Text>
                     </Pressable>
@@ -461,9 +461,9 @@ export default function NewPlantScreen() {
                         <Pressable
                           key={v.id}
                           onPress={() => handleSelectVariety(v)}
-                          style={[s.varietyChip, { backgroundColor: active ? colors.primary + '22' : colors.surface, borderColor: active ? colors.primary : colors.border }]}
+                          style={[s.varietyChip, { backgroundColor: active ? colors.accent : colors.surface, borderColor: active ? colors.accent : colors.border }]}
                         >
-                          <Text style={[s.varietyChipText, { color: active ? colors.primary : colors.text }]}>
+                          <Text style={[s.varietyChipText, { color: active ? colors.primaryDark : colors.text }]}>
                             {t('varieties.' + v.id, { defaultValue: v.name })}
                           </Text>
                           <Text style={[s.varietyChipDays, { color: colors.textSecondary }]}>
@@ -518,10 +518,10 @@ export default function NewPlantScreen() {
                       <Pressable
                         key={opt.value}
                         onPress={() => { setPropagationMethod(opt.value); tapHaptic(); }}
-                        style={[s.methodChip, { backgroundColor: active ? colors.primary + '22' : colors.surface, borderColor: active ? colors.primary : colors.border }]}
+                        style={[s.methodChip, { backgroundColor: active ? colors.accent : colors.surface, borderColor: active ? colors.accent : colors.border }]}
                       >
                         <Text style={{ fontSize: 16 }}>{opt.emoji}</Text>
-                        <Text style={[s.methodLabel, { color: active ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
+                        <Text style={[s.methodLabel, { color: active ? colors.primaryDark : colors.textSecondary }]} numberOfLines={1}>
                           {t(opt.key)}
                         </Text>
                       </Pressable>
@@ -544,9 +544,9 @@ export default function NewPlantScreen() {
                       <Pressable
                         key={days}
                         onPress={() => setSowingDate(dateStr)}
-                        style={[s.dateBtn, { backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt, borderColor: active ? colors.primary : colors.border }]}
+                        style={[s.dateBtn, { backgroundColor: active ? colors.accent : colors.surfaceAlt, borderColor: active ? colors.accent : colors.border }]}
                       >
-                        <Text style={[s.dateBtnText, { color: active ? colors.primary : colors.textSecondary }]}>
+                        <Text style={[s.dateBtnText, { color: active ? colors.primaryDark : colors.textSecondary }]}>
                           {days === 0 ? t('entryNew.today') : t('entryNew.yesterday')}
                         </Text>
                       </Pressable>
@@ -560,9 +560,9 @@ export default function NewPlantScreen() {
                     return (
                       <Pressable
                         onPress={() => setShowDatePicker(true)}
-                        style={[s.dateBtn, { backgroundColor: isOther ? colors.primary + '22' : colors.surfaceAlt, borderColor: isOther ? colors.primary : colors.border }]}
+                        style={[s.dateBtn, { backgroundColor: isOther ? colors.accent : colors.surfaceAlt, borderColor: isOther ? colors.accent : colors.border }]}
                       >
-                        <Text style={[s.dateBtnText, { color: isOther ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
+                        <Text style={[s.dateBtnText, { color: isOther ? colors.primaryDark : colors.textSecondary }]} numberOfLines={1}>
                           {isOther ? sowingDate : t('plantNew.otherDate')}
                         </Text>
                       </Pressable>

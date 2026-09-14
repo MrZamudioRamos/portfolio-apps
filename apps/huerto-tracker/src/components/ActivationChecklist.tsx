@@ -48,12 +48,12 @@ export function ActivationChecklist({
               style={[
                 s.check,
                 {
-                  backgroundColor: item.completed ? colors.primary : 'transparent',
-                  borderColor: item.completed ? colors.primary : colors.border,
+                  backgroundColor: item.completed ? colors.accent : 'transparent',
+                  borderColor: item.completed ? colors.accent : colors.border,
                 },
               ]}
             >
-              {item.completed && <Text style={[s.checkMark, { color: colors.background }]}>✓</Text>}
+              {item.completed && <Text style={[s.checkMark, { color: colors.primaryDark }]}>✓</Text>}
             </View>
             <Text
               style={[

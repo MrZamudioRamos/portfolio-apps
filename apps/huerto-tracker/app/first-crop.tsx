@@ -78,8 +78,8 @@ export default function FirstCropScreen() {
         {recommendations.map((recommendation, index) => {
           const { crop } = recommendation;
           return (
-            <Card key={crop.id} padded style={{ borderColor: index === 0 ? colors.primary : colors.border, borderWidth: index === 0 ? 2 : 1 }}>
-              {index === 0 && <Text style={{ color: colors.primary, fontSize: fontSize.xs, fontWeight: fontWeight.bold }}>{t('firstCrop.topPick')}</Text>}
+            <Card key={crop.id} padded style={{ borderColor: index === 0 ? colors.accent : colors.border, borderWidth: index === 0 ? 2 : 1 }}>
+              {index === 0 && <Text style={{ color: colors.primaryDark, fontSize: fontSize.xs, fontWeight: fontWeight.bold }}>{t('firstCrop.topPick')}</Text>}
               <View style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'center', marginTop: spacing.xs }}>
                 <Text style={{ fontSize: 42 }}>{crop.emoji}</Text>
                 <View style={{ flex: 1 }}>

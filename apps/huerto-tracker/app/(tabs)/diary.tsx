@@ -303,8 +303,8 @@ function DiaryInner() {
               style={[
                 s.filterChip,
                 {
-                  backgroundColor: isActive ? colors.primary + '22' : colors.surface,
-                  borderColor: isActive ? colors.primary : colors.border,
+                  backgroundColor: isActive ? colors.accent : colors.surface,
+                  borderColor: isActive ? colors.accent : colors.border,
                 },
               ]}
             >
@@ -313,11 +313,11 @@ function DiaryInner() {
                   {ENTRY_TYPE_CONFIG[type as EntryType].emoji}
                 </Text>
               )}
-              <Text style={[s.filterLabel, { color: isActive ? colors.primary : colors.text, fontWeight: isActive ? fontWeight.semibold : fontWeight.medium }]}>
+              <Text style={[s.filterLabel, { color: isActive ? colors.primaryDark : colors.text, fontWeight: isActive ? fontWeight.semibold : fontWeight.medium }]}>
                 {t(`diary.filters.${type}`)}
               </Text>
               {count > 0 && (
-                <Text style={[s.filterCount, { color: isActive ? colors.primary : colors.textSecondary }]}>
+                <Text style={[s.filterCount, { color: isActive ? colors.primaryDark : colors.textSecondary }]}>
                   {count}
                 </Text>
               )}
@@ -392,14 +392,14 @@ function DiaryInner() {
 
       {/* FAB */}
       <CopilotStep text={t('coach.diary')} order={1} name="add">
-        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary, bottom: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 12 }]}>
+        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.accent, bottom: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 12 }]}>
           <Pressable
             onPress={() => router.push(plantId ? `/entry/new?plantId=${plantId}` : '/entry/new' as any)}
             style={({ pressed }) => [
               { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28, opacity: pressed ? 0.85 : 1 },
             ]}
           >
-            <Ionicons name="add" size={28} color={colors.background} />
+            <Ionicons name="add" size={28} color={colors.primaryDark} />
           </Pressable>
         </WalkView>
       </CopilotStep>

@@ -436,10 +436,10 @@ export default function CostsScreen() {
 
         <Pressable
           onPress={() => setShowAddModal(true)}
-          style={[s.addBtn, { backgroundColor: colors.primary + '15', borderColor: colors.primary + '40' }]}
+          style={[s.addBtn, { backgroundColor: colors.accent, borderColor: colors.accent }]}
         >
-          <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
-          <Text style={[s.addBtnText, { color: colors.primary }]}>{t('costs.addExpense')}</Text>
+          <Ionicons name="add-circle-outline" size={20} color={colors.primaryDark} />
+          <Text style={[s.addBtnText, { color: colors.primaryDark }]}>{t('costs.addExpense')}</Text>
         </Pressable>
 
         {/* ── Harvest value ── */}
@@ -649,9 +649,9 @@ export default function CostsScreen() {
                   <View style={{ flexDirection: 'row', gap: spacing.sm }}>
                     <Pressable
                       onPress={() => setNewPlantId(undefined)}
-                      style={[s.catChip, { backgroundColor: !newPlantId ? colors.primary + '22' : colors.surfaceAlt, borderColor: !newPlantId ? colors.primary : colors.border }]}
+                      style={[s.catChip, { backgroundColor: !newPlantId ? colors.accent : colors.surfaceAlt, borderColor: !newPlantId ? colors.accent : colors.border }]}
                     >
-                      <Text style={[s.catChipText, { color: !newPlantId ? colors.primary : colors.textSecondary }]}>{t('costs.noPlant')}</Text>
+                      <Text style={[s.catChipText, { color: !newPlantId ? colors.primaryDark : colors.textSecondary }]}>{t('costs.noPlant')}</Text>
                     </Pressable>
                     {gardenPlants.map((p) => {
                       const crop = CROPS_BY_ID[p.cropId];
@@ -660,10 +660,10 @@ export default function CostsScreen() {
                         <Pressable
                           key={p.id}
                           onPress={() => setNewPlantId(active ? undefined : p.id)}
-                          style={[s.catChip, { backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt, borderColor: active ? colors.primary : colors.border }]}
+                          style={[s.catChip, { backgroundColor: active ? colors.accent : colors.surfaceAlt, borderColor: active ? colors.accent : colors.border }]}
                         >
                           <Text style={{ fontSize: 14 }}>{crop?.emoji ?? '🌱'}</Text>
-                          <Text style={[s.catChipText, { color: active ? colors.primary : colors.textSecondary }]} numberOfLines={1}>{p.name}</Text>
+                          <Text style={[s.catChipText, { color: active ? colors.primaryDark : colors.textSecondary }]} numberOfLines={1}>{p.name}</Text>
                         </Pressable>
                       );
                     })}
@@ -701,7 +701,7 @@ export default function CostsScreen() {
             <Pressable
               onPress={addCost}
               disabled={saving || !newAmount}
-              style={[s.saveBtn, { backgroundColor: colors.primary, opacity: saving || !newAmount ? 0.5 : 1 }]}
+              style={[s.saveBtn, { backgroundColor: colors.accent, opacity: saving || !newAmount ? 0.5 : 1 }]}
             >
               {saving
                 ? <ActivityIndicator color={colors.background} />

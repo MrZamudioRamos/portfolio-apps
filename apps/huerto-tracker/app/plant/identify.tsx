@@ -171,10 +171,10 @@ export default function IdentifyPlantScreen() {
               <Pressable
                 onPress={() => pickPhoto(true)}
                 disabled={picking}
-                style={[s.pickBtn, { backgroundColor: colors.primary + '18', borderColor: colors.primary, opacity: picking ? 0.5 : 1 }]}
+                style={[s.pickBtn, { backgroundColor: colors.accent, borderColor: colors.accent, opacity: picking ? 0.5 : 1 }]}
               >
-                <Ionicons name="camera-outline" size={20} color={colors.primary} />
-                <Text style={[s.pickBtnText, { color: colors.primary }]}>{t('identify.takePhoto')}</Text>
+                <Ionicons name="camera-outline" size={20} color={colors.primaryDark} />
+                <Text style={[s.pickBtnText, { color: colors.primaryDark }]}>{t('identify.takePhoto')}</Text>
               </Pressable>
               <Pressable
                 onPress={() => pickPhoto(false)}
@@ -194,8 +194,8 @@ export default function IdentifyPlantScreen() {
               onPress={() => { setPhoto(null); setDiagnosis(null); setErrorKey(null); setSaved(false); }}
               style={s.retakeBtn}
             >
-              <Ionicons name="refresh-outline" size={14} color={colors.primary} />
-              <Text style={[s.retakeText, { color: colors.primary }]}>{t('identify.retake')}</Text>
+              <Ionicons name="refresh-outline" size={14} color={colors.primaryDark} />
+              <Text style={[s.retakeText, { color: colors.primaryDark }]}>{t('identify.retake')}</Text>
             </Pressable>
           </View>
         )}

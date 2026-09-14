@@ -131,14 +131,14 @@ export default function LightMeterScreen() {
                     style={[
                       s.optionBtn,
                       {
-                        backgroundColor: selected ? colors.primary + '22' : colors.surfaceAlt,
-                        borderColor: selected ? colors.primary : colors.border,
+                        backgroundColor: selected ? colors.accent : colors.surfaceAlt,
+                        borderColor: selected ? colors.accent : colors.border,
                         flex: 1,
                       },
                     ]}
                   >
                     <Text style={{ fontSize: 22 }}>{opt.emoji}</Text>
-                    <Text style={[s.optionText, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={2}>
+                    <Text style={[s.optionText, { color: selected ? colors.primaryDark : colors.textSecondary }]} numberOfLines={2}>
                       {t(opt.labelKey)}
                     </Text>
                   </Pressable>

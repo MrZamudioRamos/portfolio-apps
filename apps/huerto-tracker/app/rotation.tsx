@@ -197,7 +197,7 @@ export default function RotationScreen() {
                 const entries = byYear.get(year)!;
                 return (
                   <View key={year} style={s.yearRow}>
-                    <Text style={[s.yearLabel, { color: year === currentYear ? colors.primary : colors.textSecondary }]}>
+                    <Text style={[s.yearLabel, { color: year === currentYear ? colors.primaryDark : colors.textSecondary }]}>
                       {year}
                     </Text>
                     <View style={s.cropsRow}>

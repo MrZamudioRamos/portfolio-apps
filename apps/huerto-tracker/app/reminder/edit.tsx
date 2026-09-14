@@ -153,13 +153,13 @@ export default function ReminderEditScreen() {
                   style={[
                     s.typeCard,
                     {
-                      backgroundColor: active ? colors.primary + '18' : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
+                      backgroundColor: active ? colors.accent : colors.surface,
+                      borderColor: active ? colors.accent : colors.border,
                     },
                   ]}
                 >
                   <Text style={{ fontSize: 28 }}>{cfg.emoji}</Text>
-                  <Text style={[s.typeLabel, { color: active ? colors.primary : colors.text }]}>
+                  <Text style={[s.typeLabel, { color: active ? colors.primaryDark : colors.text }]}>
                     {t('reminderType.' + tp)}
                   </Text>
                 </Pressable>
@@ -193,8 +193,8 @@ export default function ReminderEditScreen() {
                     style={[
                       s.chip,
                       {
-                        backgroundColor: active ? colors.primary : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
+                        backgroundColor: active ? colors.accent : colors.surface,
+                        borderColor: active ? colors.accent : colors.border,
                       },
                     ]}
                   >
@@ -224,8 +224,8 @@ export default function ReminderEditScreen() {
                   style={[
                     s.timeChip,
                     {
-                      backgroundColor: active ? colors.primary : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
+                      backgroundColor: active ? colors.accent : colors.surface,
+                      borderColor: active ? colors.accent : colors.border,
                     },
                   ]}
                 >
@@ -249,8 +249,8 @@ export default function ReminderEditScreen() {
                   style={[
                     s.minuteChip,
                     {
-                      backgroundColor: active ? colors.primary : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
+                      backgroundColor: active ? colors.accent : colors.surface,
+                      borderColor: active ? colors.accent : colors.border,
                     },
                   ]}
                 >

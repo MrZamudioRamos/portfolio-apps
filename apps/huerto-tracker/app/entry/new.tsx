@@ -190,12 +190,12 @@ export default function NewEntryScreen() {
                     <Pressable
                       key={type}
                       onPress={() => { setSelectedType(type); tapHaptic(); }}
-                      style={[s.typeChip, { backgroundColor: active ? cfg.color + '18' : colors.surface, borderColor: active ? cfg.color : colors.border }]}
+                      style={[s.typeChip, { backgroundColor: active ? colors.accent : colors.surface, borderColor: active ? colors.accent : colors.border }]}
                     >
                       <View style={[s.typeChipIcon, { backgroundColor: active ? cfg.color + '30' : colors.surfaceAlt }]}>
                         <Text style={{ fontSize: 20 }}>{cfg.emoji}</Text>
                       </View>
-                      <Text style={[s.typeLabel, { color: active ? cfg.color : colors.textSecondary }]}>
+                      <Text style={[s.typeLabel, { color: active ? colors.primaryDark : colors.textSecondary }]}>
                         {t('diary.filters.' + type)}
                       </Text>
                     </Pressable>
@@ -212,10 +212,10 @@ export default function NewEntryScreen() {
               <View style={{ flexDirection: 'row', gap: spacing.sm }}>
                 <Pressable
                   onPress={() => setSelectedPlantId(undefined)}
-                  style={[s.plantChip, { backgroundColor: !selectedPlantId ? colors.primary + '22' : colors.surface, borderColor: !selectedPlantId ? colors.primary : colors.border }]}
+                  style={[s.plantChip, { backgroundColor: !selectedPlantId ? colors.accent : colors.surface, borderColor: !selectedPlantId ? colors.accent : colors.border }]}
                 >
                   <Text style={{ fontSize: 16 }}>🏡</Text>
-                  <Text style={[s.plantChipLabel, { color: !selectedPlantId ? colors.primary : colors.textSecondary }]}>
+                  <Text style={[s.plantChipLabel, { color: !selectedPlantId ? colors.primaryDark : colors.textSecondary }]}>
                     {t('entryNew.general')}
                   </Text>
                 </Pressable>

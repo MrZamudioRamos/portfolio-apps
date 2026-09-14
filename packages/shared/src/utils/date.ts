@@ -18,9 +18,16 @@ export function formatRelative(date: Date | string): string {
   if (diffDays === 0) return 'Hoy';
   if (diffDays === 1) return 'Ayer';
   if (diffDays < 7) return `Hace ${diffDays} días`;
-  if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
-  if (diffDays < 365) return `Hace ${Math.floor(diffDays / 30)} meses`;
-  return `Hace ${Math.floor(diffDays / 365)} años`;
+  if (diffDays < 30) {
+    const weeks = Math.floor(diffDays / 7);
+    return `Hace ${weeks} ${weeks === 1 ? 'semana' : 'semanas'}`;
+  }
+  if (diffDays < 365) {
+    const months = Math.floor(diffDays / 30);
+    return `Hace ${months} ${months === 1 ? 'mes' : 'meses'}`;
+  }
+  const years = Math.floor(diffDays / 365);
+  return `Hace ${years} ${years === 1 ? 'año' : 'años'}`;
 }
 
 export function getMonthName(monthIndex: number): string {

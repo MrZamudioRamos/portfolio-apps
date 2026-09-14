@@ -121,8 +121,8 @@ export default function BackupScreen() {
               <View style={s.rowTitleRow}>
                 <Text style={[s.rowTitle, { color: colors.text }]}>{t('backup.icloudSync')}</Text>
                 {!isPro && (
-                  <View style={[s.proBadge, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}>
-                    <Text style={[s.proBadgeText, { color: colors.primary }]}>Pro</Text>
+                  <View style={[s.proBadge, { backgroundColor: colors.accent, borderColor: colors.accent }]}>
+                    <Text style={[s.proBadgeText, { color: colors.primaryDark }]}>Pro</Text>
                   </View>
                 )}
               </View>
@@ -216,8 +216,8 @@ export default function BackupScreen() {
               <View style={s.rowTitleRow}>
                 <Text style={[s.rowTitle, { color: colors.text }]}>{t('backup.pdfTitle')}</Text>
                 {!isPro && (
-                  <View style={[s.proBadge, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}>
-                    <Text style={[s.proBadgeText, { color: colors.primary }]}>Pro</Text>
+                  <View style={[s.proBadge, { backgroundColor: colors.accent, borderColor: colors.accent }]}>
+                    <Text style={[s.proBadgeText, { color: colors.primaryDark }]}>Pro</Text>
                   </View>
                 )}
               </View>

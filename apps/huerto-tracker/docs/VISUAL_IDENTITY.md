@@ -12,6 +12,7 @@ propio frente al verde americano de GrowIt.
 | primary        | `#43A047`  | `#7CC47F`  |
 | primaryLight   | `#76C77A`  | `#A5D6A7`  |
 | primaryDark    | `#2E7D32`  | `#43A047`  |
+| accent (lima)  | `#C7E85B`  | `#D8F27A`  |
 | secondary (sol)| `#FBC02D`  | `#FFD54F`  |
 | background     | `#F7FBF1`  | `#0D160D`  |
 | surface        | `#FFFFFF`  | `#162516`  |
@@ -27,14 +28,13 @@ Notas:
 - El fondo light lleva una pizca de lima (`#F7FBF1`) para que las cards blancas
   resalten sin sombra dura.
 - Dark mode verde-casi-negro se mantiene (se veía premium).
-- Falta un **acento lima** dedicado (`#AEEA00`) — hoy no hay campo `accent` en
-  `AppColors`; si lo queremos como color propio habría que añadir el campo y
-  mapearlo en las 5 paletas. Pendiente decidir.
+- El **acento lima** se reserva para CTA primarias, selección y progreso; el
+  verde sigue siendo la identidad, los enlaces y los estados semánticos.
 
 ## Roadmap del lavado de cara (por impacto)
 
 1. ✅ **Paleta** refinada (este commit).
-2. ⬜ **Tipografía Nunito** — `@expo-google-fonts/nunito` + `expo-font`, cargar en
+2. ✅ **Tipografía Nunito** — `@expo-google-fonts/nunito` + `expo-font`, cargar en
    `_layout`, mapear pesos (Regular/SemiBold/Bold/ExtraBold) a familias y
    aplicarla globalmente. (Trabajo medio: el peso en RN necesita familia por
    peso, no `fontWeight`.)

@@ -2,6 +2,8 @@ export interface AppColors {
   primary: string;
   primaryLight: string;
   primaryDark: string;
+  /** Bright action accent used for primary CTAs and selected states. */
+  accent: string;
   secondary: string;
   background: string;
   surface: string;
@@ -29,6 +31,7 @@ export const huertoColors: AppColors = {
   primary: '#43A047',        // vivid friendly green
   primaryLight: '#76C77A',   // soft green
   primaryDark: '#2E7D32',    // pressed/strong green
+  accent: '#C7E85B',         // lime action accent from the Semilla prototype
   secondary: '#FBC02D',      // sun yellow accent (warm pop)
   background: '#F7FBF1',     // near-white with a faint lime cast (cards pop)
   surface: '#FFFFFF',
@@ -48,6 +51,7 @@ export const huertoDarkColors: AppColors = {
   primary: '#7CC47F',        // brighter green for dark bg
   primaryLight: '#A5D6A7',
   primaryDark: '#43A047',
+  accent: '#D8F27A',
   secondary: '#FFD54F',      // sun yellow (lighter for dark)
   background: '#0D160D',     // deep green-black (kept — looks premium)
   surface: '#1B2D1B',        // lifted for clearer card separation on the dark bg
@@ -70,6 +74,7 @@ export const mascotaColors: AppColors = {
   primary: '#E67E22',
   primaryLight: '#F39C12',
   primaryDark: '#D35400',
+  accent: '#FFE082',
   secondary: '#8E44AD',
   background: '#FFFCF8',
   surface: '#FFFFFF',
@@ -89,6 +94,7 @@ export const mascotaDarkColors: AppColors = {
   primary: '#FFB74D',
   primaryLight: '#FFCC80',
   primaryDark: '#FF9800',
+  accent: '#FFE082',
   secondary: '#CE93D8',
   background: '#170D08',
   surface: '#2C1810',
@@ -111,6 +117,7 @@ export const cocheColors: AppColors = {
   primary: '#1565C0',
   primaryLight: '#1976D2',
   primaryDark: '#0D47A1',
+  accent: '#90CAF9',
   secondary: '#546E7A',
   background: '#F8FAFC',
   surface: '#FFFFFF',
@@ -130,6 +137,7 @@ export const cocheDarkColors: AppColors = {
   primary: '#64B5F6',
   primaryLight: '#90CAF9',
   primaryDark: '#2196F3',
+  accent: '#BBDEFB',
   secondary: '#90A4AE',
   background: '#050D1A',
   surface: '#0D1B2A',
@@ -152,6 +160,7 @@ export const stitchColors: AppColors = {
   primary: '#AD1457',
   primaryLight: '#E91E63',
   primaryDark: '#880E4F',
+  accent: '#F8BBD0',
   secondary: '#6A1B9A',
   background: '#FFF8FC',
   surface: '#FFFFFF',
@@ -171,6 +180,7 @@ export const stitchDarkColors: AppColors = {
   primary: '#F06292',
   primaryLight: '#F48FB1',
   primaryDark: '#E91E63',
+  accent: '#F8BBD0',
   secondary: '#CE93D8',
   background: '#15000A',
   surface: '#2A0A1A',
@@ -193,6 +203,7 @@ export const bwColors: AppColors = {
   primary: '#111111',
   primaryLight: '#444444',
   primaryDark: '#000000',
+  accent: '#E5E5E5',
   secondary: '#666666',
   background: '#FFFFFF',
   surface: '#F6F6F6',
@@ -212,6 +223,7 @@ export const bwDarkColors: AppColors = {
   primary: '#EEEEEE',
   primaryLight: '#CCCCCC',
   primaryDark: '#FFFFFF',
+  accent: '#FFFFFF',
   secondary: '#999999',
   background: '#0A0A0A',
   surface: '#1A1A1A',

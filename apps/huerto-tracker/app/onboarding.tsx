@@ -109,13 +109,13 @@ export default function OnboardingScreen() {
   };
   const choice = (id: string, selected: boolean, select: () => void, label: string, icon?: string, description?: string) => (
     <Pressable key={id} accessibilityRole="radio" accessibilityState={{ checked: selected }} accessibilityLabel={description ? label + '. ' + description : label} onPress={select}
-      style={({ pressed }) => ({ minHeight: 56, borderWidth: selected ? 2 : 1, borderRadius: radii.lg, padding: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: selected ? colors.surfaceAlt : colors.surface, borderColor: selected ? colors.primary : colors.border, opacity: pressed ? 0.75 : 1 })}>
+      style={({ pressed }) => ({ minHeight: 56, borderWidth: selected ? 2 : 1, borderRadius: radii.md, padding: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: selected ? colors.accent + '40' : colors.surface, borderColor: selected ? colors.accent : colors.border, opacity: pressed ? 0.75 : 1 })}>
       {icon && <Text style={{ fontSize: 24 }} accessible={false}>{icon}</Text>}
       <View style={{ flex: 1, gap: 3 }}>
         <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: selected ? fontWeight.bold : fontWeight.medium }}>{label}</Text>
         {description && <Text style={{ color: colors.textSecondary, lineHeight: 20 }}>{description}</Text>}
       </View>
-      <Text style={{ color: colors.primary, fontSize: 20 }} accessible={false}>{selected ? '●' : '○'}</Text>
+      <Text style={{ color: selected ? colors.primaryDark : colors.textSecondary, fontSize: 20 }} accessible={false}>{selected ? '●' : '○'}</Text>
     </Pressable>
   );
 
@@ -125,7 +125,7 @@ export default function OnboardingScreen() {
         <View style={{ padding: spacing.xl, gap: spacing.sm }}>
           <Text accessibilityLiveRegion="polite" style={{ color: colors.textSecondary }}>{t('onboarding.stepOf', { current: step, total: 4 })}</Text>
           <View style={{ flexDirection: 'row', gap: spacing.xs }}>
-            {[1, 2, 3, 4].map((n) => <View key={n} style={{ flex: 1, height: 4, borderRadius: radii.full, backgroundColor: n <= step ? colors.primary : colors.border }} />)}
+            {[1, 2, 3, 4].map((n) => <View key={n} style={{ flex: 1, height: 4, borderRadius: radii.full, backgroundColor: n <= step ? colors.accent : colors.border }} />)}
           </View>
         </View>
         <ScrollView key={step} style={{ flex: 1 }} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg, gap: spacing.sm }}>

@@ -60,7 +60,7 @@ export default function NotificationsSettingsScreen() {
               value={enabled}
               onValueChange={toggle}
               disabled={loading}
-              trackColor={{ true: colors.primary }}
+              trackColor={{ true: colors.accent }}
               thumbColor="#fff"
             />
           </View>

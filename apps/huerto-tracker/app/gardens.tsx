@@ -213,7 +213,7 @@ export default function GardensScreen() {
                 padded
                 style={StyleSheet.flatten([
                   s.gardenCard,
-                  { borderColor: isActive ? colors.primary : colors.border, borderWidth: isActive ? 2 : 1 },
+                  { borderColor: isActive ? colors.accent : colors.border, borderWidth: isActive ? 2 : 1 },
                 ]) as ViewStyle}
               >
                 <View style={s.gardenCardRow}>
@@ -222,8 +222,8 @@ export default function GardensScreen() {
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
                       <Text style={[s.gardenName, { color: colors.text }]}>{garden.name}</Text>
                       {isActive && (
-                        <View style={[s.activeBadge, { backgroundColor: colors.primary + '22' }]}>
-                          <Text style={[s.activeBadgeText, { color: colors.primary }]}>{t('gardens.active')}</Text>
+                        <View style={[s.activeBadge, { backgroundColor: colors.accent }]}>
+                          <Text style={[s.activeBadgeText, { color: colors.primaryDark }]}>{t('gardens.active')}</Text>
                         </View>
                       )}
                     </View>
@@ -232,7 +232,7 @@ export default function GardensScreen() {
                     </Text>
                   </View>
                   {isActive ? (
-                    <Ionicons name="checkmark-circle" size={22} color={colors.primary} />
+                    <Ionicons name="checkmark-circle" size={22} color={colors.primaryDark} />
                   ) : (
                     <Pressable
                       onPress={() => handleDelete(garden)}
@@ -298,14 +298,14 @@ export default function GardensScreen() {
                       style={[
                         s.typeChip,
                         {
-                          backgroundColor: active ? colors.primary + '22' : colors.surfaceAlt,
-                          borderColor: active ? colors.primary : colors.border,
+                          backgroundColor: active ? colors.accent : colors.surfaceAlt,
+                          borderColor: active ? colors.accent : colors.border,
                           flex: 1,
                         },
                       ]}
                     >
                       <Text style={{ fontSize: 20 }}>{cfg.emoji}</Text>
-                      <Text style={[s.typeChipText, { color: active ? colors.primary : colors.textSecondary }]}>
+                      <Text style={[s.typeChipText, { color: active ? colors.primaryDark : colors.textSecondary }]}>
                         {t('gardenType.' + type)}
                       </Text>
                     </Pressable>

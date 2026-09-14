@@ -39,10 +39,10 @@ export function Button({
   }[size];
 
   const variantStyles: Record<ButtonVariant, { bg: string; text: string; border?: string }> = {
-    primary: { bg: colors.primary, text: '#FFFFFF' },
-    secondary: { bg: colors.surfaceAlt, text: colors.primary },
-    outline: { bg: 'transparent', text: colors.primary, border: colors.primary },
-    ghost: { bg: 'transparent', text: colors.primary },
+    primary: { bg: colors.accent, text: colors.primaryDark },
+    secondary: { bg: colors.surfaceAlt, text: colors.primaryDark },
+    outline: { bg: 'transparent', text: colors.primaryDark, border: colors.primary },
+    ghost: { bg: 'transparent', text: colors.primaryDark },
   };
 
   const vs = variantStyles[variant];
@@ -52,6 +52,8 @@ export function Button({
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       style={({ pressed }) => [
         {
           backgroundColor: vs.bg,
@@ -63,6 +65,7 @@ export function Button({
           alignItems: 'center',
           justifyContent: 'center',
           flexDirection: 'row',
+          minHeight: size === 'sm' ? 40 : 48,
           opacity: isDisabled ? 0.5 : pressed ? 0.8 : 1,
         },
         style,

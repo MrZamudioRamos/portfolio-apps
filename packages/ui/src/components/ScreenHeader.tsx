@@ -27,7 +27,7 @@ export function ScreenHeader({
 
   if (variant === 'left') {
     return (
-      <View style={[{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing.md }, borderStyle, backgroundColor ? { backgroundColor } : {}]}>
+      <View style={[{ flexDirection: 'row', alignItems: 'center', minHeight: 56, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm }, borderStyle, backgroundColor ? { backgroundColor } : {}]}>
         {onBack && (
           <Pressable onPress={onBack} hitSlop={12}>
             <Ionicons name="arrow-back" size={24} color={colors.primary} />
@@ -44,7 +44,7 @@ export function ScreenHeader({
 
   // centered variant
   return (
-    <View style={[{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing.md }, borderStyle, backgroundColor ? { backgroundColor } : {}]}>
+    <View style={[{ flexDirection: 'row', alignItems: 'center', minHeight: 56, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm }, borderStyle, backgroundColor ? { backgroundColor } : {}]}>
       {onBack ? (
         <Pressable onPress={onBack} hitSlop={12}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />

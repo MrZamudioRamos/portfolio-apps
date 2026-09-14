@@ -145,8 +145,8 @@ export default function CompanionsScreen() {
         style={[
           s.cropPickerBtn,
           {
-            backgroundColor: isPickingThis ? colors.primary + '18' : colors.surface,
-            borderColor: isPickingThis ? colors.primary : colors.border,
+            backgroundColor: isPickingThis ? colors.accent : colors.surface,
+            borderColor: isPickingThis ? colors.accent : colors.border,
           },
         ]}
       >
@@ -203,9 +203,9 @@ export default function CompanionsScreen() {
           <Pressable
             key={m}
             onPress={() => { setMode(m); setSearch(''); setPickingSlot(null); }}
-            style={[s.tab, mode === m && { backgroundColor: colors.surface, ...shadows.sm }]}
+            style={[s.tab, mode === m && { backgroundColor: colors.accent, ...shadows.sm }]}
           >
-            <Text style={[s.tabText, { color: mode === m ? colors.primary : colors.textSecondary }]}>
+            <Text style={[s.tabText, { color: mode === m ? colors.primaryDark : colors.textSecondary }]}>
               {m === 'browse' ? `📋 ${t('companions.browse')}` : `🔍 ${t('companions.check')}`}
             </Text>
           </Pressable>
@@ -240,12 +240,12 @@ export default function CompanionsScreen() {
             {!isPro && filtered.length > FREE_PREVIEW_COUNT && (
               <Pressable
                 onPress={() => router.push('/paywall?source=companions' as any)}
-                style={[s.unlockBanner, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}
+                style={[s.unlockBanner, { backgroundColor: colors.accent + '55', borderColor: colors.accent }]}
               >
-                <Text style={[s.unlockBannerText, { color: colors.primary }]}>
+                <Text style={[s.unlockBannerText, { color: colors.primaryDark }]}>
                   ⭐ {t('companions.unlockRemaining', { count: filtered.length - FREE_PREVIEW_COUNT })}
                 </Text>
-                <Ionicons name="chevron-forward" size={16} color={colors.primary} />
+                <Ionicons name="chevron-forward" size={16} color={colors.primaryDark} />
               </Pressable>
             )}
             <View style={{ height: 40 }} />

@@ -738,8 +738,8 @@ export default function PlantDetailScreen() {
                   style={[
                     s.tabBtn,
                     {
-                      backgroundColor: active ? colors.primary + '22' : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
+                      backgroundColor: active ? colors.accent : colors.surface,
+                      borderColor: active ? colors.accent : colors.border,
                     },
                   ]}
                 >
@@ -747,7 +747,7 @@ export default function PlantDetailScreen() {
                     style={{
                       fontSize: fontSize.xs,
                       fontWeight: active ? fontWeight.bold : fontWeight.medium,
-                      color: active ? colors.primary : colors.textSecondary,
+                      color: active ? colors.primaryDark : colors.textSecondary,
                     }}
                   >
                     {t('plantDetail.tab.' + tab)}

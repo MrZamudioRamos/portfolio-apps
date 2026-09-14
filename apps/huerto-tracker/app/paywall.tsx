@@ -193,18 +193,16 @@ export default function PaywallScreen() {
                     style={[
                       s.planCard,
                       {
-                        backgroundColor: plan.highlight
-                          ? active ? colors.primary : colors.surface
-                          : active ? colors.primary + '18' : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
+                        backgroundColor: active ? colors.accent : colors.surface,
+                        borderColor: active ? colors.accent : colors.border,
                         borderWidth: active ? 2.5 : 1.5,
                         ...shadows.md,
                       },
                     ]}
                   >
                     {plan.highlight && (
-                      <View style={[s.popularBadge, { backgroundColor: active ? '#fff' : colors.primary }]}>
-                        <Text style={[s.popularText, { color: active ? colors.primary : '#fff' }]}>
+                      <View style={[s.popularBadge, { backgroundColor: active ? colors.primaryDark : colors.primary }]}>
+                        <Text style={[s.popularText, { color: active ? colors.accent : '#fff' }]}>
                           {t('paywall.popular')}
                         </Text>
                       </View>
@@ -212,7 +210,7 @@ export default function PaywallScreen() {
                     <Text
                       style={[
                         s.planLabel,
-                        { color: plan.highlight && active ? '#fff' : active ? colors.primary : colors.textSecondary },
+                        { color: active ? colors.primaryDark : colors.textSecondary },
                       ]}
                     >
                       {plan.id === 'monthly' ? t('paywall.monthly') : t('paywall.annual')}
@@ -220,7 +218,7 @@ export default function PaywallScreen() {
                     <Text
                       style={[
                         s.planPrice,
-                        { color: plan.highlight && active ? '#fff' : active ? colors.primary : colors.text },
+                        { color: active ? colors.primaryDark : colors.text },
                       ]}
                     >
                       {plan.priceString}
@@ -230,11 +228,7 @@ export default function PaywallScreen() {
                         s.planSub,
                         {
                           color:
-                            plan.highlight && active
-                              ? 'rgba(255,255,255,0.8)'
-                              : active
-                              ? colors.primary
-                              : colors.textSecondary,
+                            active ? colors.primaryDark : colors.textSecondary,
                         },
                       ]}
                     >
@@ -263,7 +257,7 @@ export default function PaywallScreen() {
             <Switch
               value={trialReminderOn}
               onValueChange={toggleTrialReminder}
-              trackColor={{ true: colors.primary }}
+              trackColor={{ true: colors.accent }}
             />
           </View>
         )}

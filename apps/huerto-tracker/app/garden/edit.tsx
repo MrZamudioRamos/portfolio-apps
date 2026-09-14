@@ -203,14 +203,14 @@ export default function GardenEditScreen() {
                 style={[
                   s.typeBtn,
                   {
-                    backgroundColor: active ? colors.primary + '22' : colors.surface,
-                    borderColor: active ? colors.primary : colors.border,
+                    backgroundColor: active ? colors.accent : colors.surface,
+                    borderColor: active ? colors.accent : colors.border,
                     flex: 1,
                   },
                 ]}
               >
                 <Text style={s.typeEmoji}>{cfg.emoji}</Text>
-                <Text style={[s.typeLabel, { color: active ? colors.primary : colors.textSecondary }]}>
+                <Text style={[s.typeLabel, { color: active ? colors.primaryDark : colors.textSecondary }]}>
                   {t('gardenType.' + key)}
                 </Text>
               </Pressable>
@@ -238,13 +238,13 @@ export default function GardenEditScreen() {
                   s.typeBtn,
                   {
                     flex: 1,
-                    backgroundColor: active ? colors.primary + '22' : colors.surface,
-                    borderColor: active ? colors.primary : colors.border,
+                    backgroundColor: active ? colors.accent : colors.surface,
+                    borderColor: active ? colors.accent : colors.border,
                   },
                 ]}
               >
                 <Text style={s.typeEmoji}>{h === 'norte' ? '🌍' : '🌎'}</Text>
-                <Text style={[s.typeLabel, { color: active ? colors.primary : colors.textSecondary }]}>
+                <Text style={[s.typeLabel, { color: active ? colors.primaryDark : colors.textSecondary }]}>
                   {t('gardenEdit.hemisphere' + h.charAt(0).toUpperCase() + h.slice(1))}
                 </Text>
               </Pressable>
@@ -322,8 +322,8 @@ export default function GardenEditScreen() {
                 style={[
                   s.presetBtn,
                   {
-                    backgroundColor: active ? colors.primary + '22' : colors.surface,
-                    borderColor: active ? colors.primary : colors.border,
+                    backgroundColor: active ? colors.accent : colors.surface,
+                    borderColor: active ? colors.accent : colors.border,
                     opacity: locked ? 0.5 : 1,
                   },
                 ]}
@@ -331,7 +331,7 @@ export default function GardenEditScreen() {
                 {locked && (
                   <Ionicons name="lock-closed" size={10} color={colors.textSecondary} style={{ marginBottom: 1 }} />
                 )}
-                <Text style={[s.presetLabel, { color: active ? colors.primary : colors.text }]}>
+                <Text style={[s.presetLabel, { color: active ? colors.primaryDark : colors.text }]}>
                   {preset.cols}×{preset.rows}
                 </Text>
                 <Text style={[s.presetSub, { color: colors.textSecondary }]}>

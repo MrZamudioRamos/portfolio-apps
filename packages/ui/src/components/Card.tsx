@@ -7,9 +7,10 @@ interface CardProps {
   onPress?: () => void;
   padded?: boolean;
   style?: ViewStyle;
+  accessibilityLabel?: string;
 }
 
-export function Card({ children, onPress, padded = true, style }: CardProps) {
+export function Card({ children, onPress, padded = true, style, accessibilityLabel }: CardProps) {
   const { colors, spacing, radii, shadows } = useTheme();
 
   const cardStyle: ViewStyle = {
@@ -25,7 +26,9 @@ export function Card({ children, onPress, padded = true, style }: CardProps) {
     return (
       <Pressable
         onPress={onPress}
-        style={({ pressed }) => [cardStyle, { opacity: pressed ? 0.85 : 1 }, style]}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        style={({ pressed }) => [cardStyle, { opacity: pressed ? 0.82 : 1 }, style]}
       >
         {children}
       </Pressable>

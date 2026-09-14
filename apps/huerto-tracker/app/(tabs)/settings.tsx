@@ -322,11 +322,11 @@ export default function SettingsScreen() {
                 style={[
                   s.freeBadge,
                   isPro
-                    ? { backgroundColor: colors.primary + '18', borderColor: colors.primary }
+                    ? { backgroundColor: colors.accent, borderColor: colors.accent }
                     : { backgroundColor: colors.surfaceAlt, borderColor: colors.border },
                 ]}
               >
-                <Text style={[s.freeBadgeText, { color: isPro ? colors.primary : colors.textSecondary }]}>
+                <Text style={[s.freeBadgeText, { color: isPro ? colors.primaryDark : colors.textSecondary }]}>
                   {isPro ? t('settings.subscription.proPlan') : t('settings.subscription.freePlan')}
                 </Text>
               </View>
@@ -584,13 +584,12 @@ const makeStyles = (
   StyleSheet.create({
     container: { flex: 1 },
     scrollContent: { paddingHorizontal: spacing.xl, paddingBottom: 40 },
-    pageTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, marginTop: spacing.lg, marginBottom: spacing.xl },
+    pageTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, marginTop: spacing.lg, marginBottom: spacing.lg },
     sectionLabel: {
-      fontSize: fontSize.xs,
-      fontWeight: fontWeight.semibold,
-      letterSpacing: 0.8,
+      fontSize: fontSize.sm,
+      fontWeight: fontWeight.bold,
       marginBottom: spacing.sm,
-      marginTop: spacing.xl,
+      marginTop: spacing.lg,
     },
     card: { gap: spacing.xs },
     rowContainer: {
@@ -611,7 +610,7 @@ const makeStyles = (
       alignSelf: 'flex-start',
       paddingHorizontal: spacing.sm,
       paddingVertical: 2,
-      borderRadius: radii.full,
+      borderRadius: radii.sm,
       borderWidth: 1,
     },
     freeBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },

@@ -123,8 +123,8 @@ export default function ReminderNewScreen() {
                   style={[
                     s.typeCard,
                     {
-                      backgroundColor: active ? colors.primary + '18' : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
+                      backgroundColor: active ? colors.accent : colors.surface,
+                      borderColor: active ? colors.accent : colors.border,
                     },
                   ]}
                 >
@@ -132,7 +132,7 @@ export default function ReminderNewScreen() {
                   <Text
                     style={[
                       s.typeLabel,
-                      { color: active ? colors.primary : colors.text },
+                      { color: active ? colors.primaryDark : colors.text },
                     ]}
                   >
                     {t('reminderType.' + tp)}
@@ -173,8 +173,8 @@ export default function ReminderNewScreen() {
                     style={[
                       s.chip,
                       {
-                        backgroundColor: active ? colors.primary : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
+                        backgroundColor: active ? colors.accent : colors.surface,
+                        borderColor: active ? colors.accent : colors.border,
                       },
                     ]}
                   >
@@ -209,8 +209,8 @@ export default function ReminderNewScreen() {
                   style={[
                     s.timeChip,
                     {
-                      backgroundColor: active ? colors.primary : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
+                        backgroundColor: active ? colors.accent : colors.surface,
+                        borderColor: active ? colors.accent : colors.border,
                     },
                   ]}
                 >
@@ -234,8 +234,8 @@ export default function ReminderNewScreen() {
                   style={[
                     s.minuteChip,
                     {
-                      backgroundColor: active ? colors.primary : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
+                        backgroundColor: active ? colors.accent : colors.surface,
+                        borderColor: active ? colors.accent : colors.border,
                     },
                   ]}
                 >

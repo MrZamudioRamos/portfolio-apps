@@ -55,10 +55,8 @@ type TabBarProps = {
   navigation: { navigate: (name: string) => void; emit: (event: any) => any };
 };
 
-const ACTIVE_BG = 'rgba(255, 255, 255, 0.13)';
-
 function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
-  const { isDark } = useTheme();
+  const { isDark, colors, fontWeight } = useTheme();
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -146,8 +144,8 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
               StyleSheet.absoluteFill,
               {
                 backgroundColor: isDark
-                  ? 'rgba(18,18,18,0.75)'
-                  : 'rgba(255,255,255,0.75)',
+                  ? colors.surface + 'D9'
+                  : colors.surface + 'B8',
               },
             ]}
           />
@@ -157,8 +155,8 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
               StyleSheet.absoluteFill,
               {
                 backgroundColor: isDark
-                  ? 'rgba(18,18,18,0.96)'
-                  : 'rgba(255,255,255,0.96)',
+                  ? colors.surface + 'F2'
+                  : colors.surface + 'F2',
               },
             ]}
           />
@@ -170,9 +168,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
             {
               borderRadius: PILL_H / 2,
               borderWidth: StyleSheet.hairlineWidth,
-              borderColor: isDark
-                ? 'rgba(255,255,255,0.1)'
-                : 'rgba(0,0,0,0.08)',
+              borderColor: colors.border,
             },
           ]}
           pointerEvents="none"
@@ -229,14 +225,12 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                       right: 6,
                       bottom: 4,
                       borderRadius: 14,
-                      backgroundColor: ACTIVE_BG,
+                      backgroundColor: colors.accent + (isDark ? '38' : '55'),
                     }}
                   />
                 )}
                 {options.tabBarIcon?.({
-                  color: focused
-                    ? (isDark ? '#fff' : '#111')
-                    : (isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.35)'),
+                  color: focused ? colors.primaryDark : colors.textSecondary,
                   size: focused ? 26 : 22,
                   focused,
                 })}
@@ -244,10 +238,8 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                   numberOfLines={1}
                   style={{
                     fontSize: 9,
-                    fontWeight: focused ? '700' : '400',
-                    color: focused
-                      ? (isDark ? '#fff' : '#111')
-                      : (isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.35)'),
+                    fontWeight: focused ? fontWeight.bold : fontWeight.regular,
+                    color: focused ? colors.primaryDark : colors.textSecondary,
                     marginTop: 2,
                   }}
                 >
@@ -283,7 +275,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
               justifyContent: 'center',
             }}
           >
-            {activeOptions?.tabBarIcon?.({ color: isDark ? '#fff' : '#111', size: 28, focused: true })}
+            {activeOptions?.tabBarIcon?.({ color: colors.primaryDark, size: 28, focused: true })}
           </Pressable>
         </Animated.View>
       </Animated.View>

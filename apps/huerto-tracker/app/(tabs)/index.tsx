@@ -490,8 +490,8 @@ function DashboardInner() {
           </View>
         </Card>
       </ScalePress>
-        <Pressable accessibilityRole="button" accessibilityLabel={t('dailyCare.logFor', { name: item.name })} onPress={() => isSeedPlan(item) ? router.push({ pathname: '/plant/[id]', params: { id: item.id } }) : setQuickLogPlant(item)} style={[s.quickLogBtn, { top: 8, bottom: undefined, width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primary }]}>
-          <Ionicons name="add" size={20} color={colors.background} />
+        <Pressable accessibilityRole="button" accessibilityLabel={t('dailyCare.logFor', { name: item.name })} onPress={() => isSeedPlan(item) ? router.push({ pathname: '/plant/[id]', params: { id: item.id } }) : setQuickLogPlant(item)} style={[s.quickLogBtn, { top: 8, bottom: undefined, width: 44, height: 44, borderRadius: 22, backgroundColor: colors.accent }]}>
+          <Ionicons name="add" size={20} color={colors.primaryDark} />
         </Pressable>
       </View>
     );
@@ -587,10 +587,10 @@ function DashboardInner() {
                 <Pressable
                   accessibilityRole="button"
                   onPress={() => router.push(profile ? '/first-crop' : '/onboarding')}
-                  style={({ pressed }) => [s.firstUseCta, { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 }]}
+                  style={({ pressed }) => [s.firstUseCta, { backgroundColor: colors.accent, opacity: pressed ? 0.85 : 1 }]}
                 >
-                  <Ionicons name="add-circle-outline" size={20} color={colors.background} />
-                  <Text style={[s.firstUseCtaText, { color: colors.background }]}>{t('home.firstUseCta')}</Text>
+                  <Ionicons name="add-circle-outline" size={20} color={colors.primaryDark} />
+                  <Text style={[s.firstUseCtaText, { color: colors.primaryDark }]}>{t('home.firstUseCta')}</Text>
                 </Pressable>
                 <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs }}>
                   <Pressable
@@ -981,14 +981,14 @@ function DashboardInner() {
 
       {/* FAB */}
       <CopilotStep text={t('coach.homeAdd')} order={2} name="add">
-        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary, bottom: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 10 }]}>
+        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.accent, bottom: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 10 }]}>
           <ScalePress
             onPress={() => router.push(plants.count === 0 ? (profile ? '/first-crop' : '/onboarding') : '/plant/new')}
             pressedScale={0.9}
             accessibilityLabel={t('home.addPlant')}
             style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28 }}
           >
-            <Ionicons name="add" size={28} color={colors.background} />
+            <Ionicons name="add" size={28} color={colors.primaryDark} />
           </ScalePress>
         </WalkView>
       </CopilotStep>
@@ -1016,9 +1016,9 @@ function DashboardInner() {
             )}
             <Pressable
               onPress={() => setShowHarvestCelebration(false)}
-              style={({ pressed }) => ({ backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: radii.lg, opacity: pressed ? 0.8 : 1 })}
+              style={({ pressed }) => ({ backgroundColor: colors.accent, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: radii.lg, opacity: pressed ? 0.8 : 1 })}
             >
-              <Text style={{ color: colors.background, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('home.firstHarvestCelebClose')}</Text>
+              <Text style={{ color: colors.primaryDark, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('home.firstHarvestCelebClose')}</Text>
             </Pressable>
           </Pressable>
         </Pressable>
