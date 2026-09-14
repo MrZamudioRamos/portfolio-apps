@@ -6,7 +6,7 @@ import { DatePickerModal } from '../../src/components/DatePickerModal';
 import { successHaptic, tapHaptic } from '../../src/utils/haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShareModal, type ShareModalProps } from '../../src/components/ShareModal';
 import {
@@ -68,8 +68,16 @@ export default function NewEntryScreen() {
   const [treatDose, setTreatDose] = useState('');
   const [treatWaitDays, setTreatWaitDays] = useState('');
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const [shareModal, setShareModal] = useState<Omit<ShareModalProps, 'visible' | 'onClose'> | null>(null);
   const { registerActivity, isMilestone } = useStreak('huerto-tracker');
+
+  useEffect(() => {
+    if (!saved) return;
+    const timer = setTimeout(() => router.back(), 700);
+    return () => clearTimeout(timer);
+  }, [router, saved]);
 
   async function pickPhoto() {
     const result = await pickFromGallery();
@@ -83,6 +91,7 @@ export default function NewEntryScreen() {
       return;
     }
     setSaving(true);
+    setSaveError(false);
     let entryData: Record<string, unknown> | undefined;
     if (selectedType === 'harvest' && (harvestWeight || harvestUnits || harvestQuality)) {
       entryData = {
@@ -153,7 +162,9 @@ export default function NewEntryScreen() {
         });
         triggered = true;
       }
-      if (!triggered) router.back();
+      if (!triggered) setSaved(true);
+    } catch {
+      setSaveError(true);
     } finally {
       setSaving(false);
     }
@@ -166,6 +177,7 @@ export default function NewEntryScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+      <View style={[s.sheetHandle, { backgroundColor: colors.border }]} />
       {/* Header */}
       <View style={[s.header, { borderBottomColor: colors.border }]}>
         <Pressable onPress={() => router.back()} hitSlop={12}>
@@ -176,33 +188,51 @@ export default function NewEntryScreen() {
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={{ paddingBottom: 112 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={s.body}>
 
-            {/* Entry type — 2 rows of 5 with semantic color per type */}
-            <Text style={[s.label, { color: colors.textSecondary }]}>{t('entryNew.activityType')}</Text>
-            {([ALL_TYPES.slice(0, 5), ALL_TYPES.slice(5)] as EntryType[][]).map((row, ri) => (
-              <View key={ri} style={[s.typeRow, ri === 0 && { marginBottom: spacing.sm }]}>
-                {row.map((type) => {
-                  const cfg = ENTRY_TYPE_CONFIG[type];
-                  const active = selectedType === type;
-                  return (
-                    <Pressable
-                      key={type}
-                      onPress={() => { setSelectedType(type); tapHaptic(); }}
-                      style={[s.typeChip, { backgroundColor: active ? cfg.color + '18' : colors.surface, borderColor: active ? cfg.color : colors.border }]}
-                    >
-                      <View style={[s.typeChipIcon, { backgroundColor: active ? cfg.color + '30' : colors.surfaceAlt }]}>
-                        <Text style={{ fontSize: 20 }}>{cfg.emoji}</Text>
-                      </View>
-                      <Text style={[s.typeLabel, { color: active ? cfg.color : colors.textSecondary }]}>
-                        {t('diary.filters.' + type)}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+            {saveError && (
+              <View accessibilityRole="alert" style={[s.feedback, { backgroundColor: colors.error + '12', borderColor: colors.error + '55' }]}>
+                <Ionicons name="alert-circle-outline" size={20} color={colors.error} />
+                <Text style={[s.feedbackText, { color: colors.error }]}>{t('entryNew.saveError')}</Text>
               </View>
-            ))}
+            )}
+
+            {saved && (
+              <View accessibilityLiveRegion="polite" style={[s.feedback, { backgroundColor: colors.success + '12', borderColor: colors.success + '55' }]}>
+                <Ionicons name="checkmark-circle-outline" size={20} color={colors.success} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.feedbackTitle, { color: colors.success }]}>{t('entryNew.saved')}</Text>
+                  <Text style={[s.feedbackText, { color: colors.textSecondary }]}>{t('entryNew.savedDesc')}</Text>
+                </View>
+              </View>
+            )}
+
+            {/* Entry type — large, plain-language options */}
+            <Text style={[s.label, { color: colors.textSecondary }]}>{t('entryNew.activityType')}</Text>
+            <View style={s.typeGrid}>
+              {ALL_TYPES.map((type) => {
+                const cfg = ENTRY_TYPE_CONFIG[type];
+                const active = selectedType === type;
+                return (
+                  <Pressable
+                    key={type}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: active }}
+                    onPress={() => { setSelectedType(type); tapHaptic(); }}
+                    style={({ pressed }) => [s.typeChip, { backgroundColor: active ? cfg.color + '18' : colors.surface, borderColor: active ? cfg.color : colors.border, opacity: pressed ? 0.76 : 1 }]}
+                  >
+                    <View style={[s.typeChipIcon, { backgroundColor: active ? cfg.color + '30' : colors.surfaceAlt }]}>
+                      <Text style={{ fontSize: 21 }}>{cfg.emoji}</Text>
+                    </View>
+                    <Text style={[s.typeLabel, { color: active ? cfg.color : colors.text }]}>
+                      {t('diary.filters.' + type)}
+                    </Text>
+                    {active && <Ionicons name="checkmark-circle" size={17} color={cfg.color} />}
+                  </Pressable>
+                );
+              })}
+            </View>
 
             {/* Plant selector */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>
@@ -417,16 +447,19 @@ export default function NewEntryScreen() {
               )}
             </Pressable>
 
-            <Button
-              title={t('entryNew.saveEntry')}
-              onPress={handleSave}
-              loading={saving}
-              size="lg"
-              style={{ marginTop: spacing.xl }}
-            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <View style={[s.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
+        <Button
+          title={t('entryNew.saveEntry')}
+          onPress={handleSave}
+          loading={saving}
+          disabled={saving || saved}
+          size="lg"
+        />
+      </View>
 
       {shareModal && (
         <ShareModal
@@ -447,7 +480,11 @@ const makeStyles = (
   radii: Record<string, number>
 ) =>
   StyleSheet.create({
-    container: { flex: 1 },
+    container: { flex: 1, borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, overflow: 'hidden' },
+    sheetHandle: { width: 40, height: 4, borderRadius: 2, alignSelf: 'center', marginTop: spacing.sm },
+    feedback: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.md, borderWidth: 1, marginBottom: spacing.lg },
+    feedbackTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    feedbackText: { flex: 1, fontSize: fontSize.sm, lineHeight: 19 },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -459,27 +496,30 @@ const makeStyles = (
     body: { padding: spacing.xl },
     label: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, marginBottom: spacing.sm },
     inputLabel: { fontSize: fontSize.xs, marginBottom: spacing.xs },
-    typeRow: {
+    typeGrid: {
       flexDirection: 'row',
+      flexWrap: 'wrap',
       gap: spacing.sm,
     },
     typeChip: {
-      flex: 1,
+      width: '47%',
+      minHeight: 70,
+      flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: spacing.md,
-      paddingHorizontal: 2,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.sm,
       borderRadius: radii.md,
       borderWidth: 1.5,
-      gap: 4,
+      gap: spacing.sm,
     },
     typeChipIcon: {
-      width: 40,
-      height: 40,
-      borderRadius: 10,
+      width: 38,
+      height: 38,
+      borderRadius: 12,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    typeLabel: { fontSize: 9, fontWeight: fontWeight.medium, textAlign: 'center' },
+    typeLabel: { flex: 1, fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     plantChip: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -522,5 +562,10 @@ const makeStyles = (
       borderRadius: radii.sm,
       borderWidth: 1.5,
       alignItems: 'center',
+    },
+    footer: {
+      paddingHorizontal: spacing.xl,
+      paddingVertical: spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
     },
   });

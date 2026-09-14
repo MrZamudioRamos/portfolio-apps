@@ -309,12 +309,16 @@ function DiaryInner() {
           return (
             <Pressable
               key={type}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: isActive }}
               onPress={() => setActiveFilter(type)}
-              style={[
+              style={({ pressed }) => [
                 s.filterChip,
                 {
                   backgroundColor: isActive ? colors.primary + '22' : colors.surface,
                   borderColor: isActive ? colors.primary : colors.border,
+                  opacity: pressed ? 0.72 : 1,
+                  transform: [{ scale: pressed ? 0.97 : 1 }],
                 },
               ]}
             >
@@ -409,7 +413,7 @@ function DiaryInner() {
             accessibilityLabel={t('diary.newEntry')}
             onPress={() => router.push(plantId ? `/entry/new?plantId=${plantId}` : '/entry/new' as any)}
             style={({ pressed }) => [
-              { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28, opacity: pressed ? 0.85 : 1 },
+              { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28, opacity: pressed ? 0.85 : 1, transform: [{ scale: pressed ? 0.94 : 1 }] },
             ]}
           >
             <Ionicons name="add" size={28} color={colors.background} />

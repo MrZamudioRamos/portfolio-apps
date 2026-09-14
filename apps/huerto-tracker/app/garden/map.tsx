@@ -27,6 +27,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ViewShot, isViewShotAvailable } from '../../src/utils/viewShot';
+import { Button } from '../../src/components/ActionButton';
 // Gesture/Reanimated stubs — Expo Go can't run Reanimated 4 native module.
 // Real implementation works in dev builds / production.
 const _noop = () => _chain;
@@ -48,6 +49,11 @@ import { CROPS_BY_ID } from '../../src/data/crops';
 import { getCompatibilityStatus } from '../../src/data/companions';
 import type { Plant } from '../../src/models/plant';
 import { PLANT_STATUS_CONFIG } from '../../src/models/plant';
+import type { DiaryEntry } from '../../src/models/diary-entry';
+import { useWeather } from '../../src/hooks/useWeather';
+import { getWeatherLabel } from '../../src/utils/weather';
+import { isSeedPlan } from '../../src/utils/dailyCare';
+import { buildCarePlan } from '../../src/utils/carePlan';
 import type { Garden } from '../../src/models/garden';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import {
@@ -68,6 +74,13 @@ const MAP_FILTERS: Array<{ key: MapFilter; translationKey: string }> = [
   { key: 'attention', translationKey: 'gardenMap.filterAttention' },
   { key: 'light', translationKey: 'gardenMap.filterLight' },
 ];
+type MapLayer = 'plants' | 'water' | 'light' | 'pests';
+const MAP_LAYERS: Array<{ key: MapLayer; translationKey: string; icon: keyof typeof Ionicons.glyphMap }> = [
+  { key: 'plants', translationKey: 'gardenMap.layerPlants', icon: 'leaf-outline' },
+  { key: 'water', translationKey: 'gardenMap.layerWater', icon: 'water-outline' },
+  { key: 'light', translationKey: 'gardenMap.layerLight', icon: 'sunny-outline' },
+  { key: 'pests', translationKey: 'gardenMap.layerPests', icon: 'bug-outline' },
+];
 
 export function GardenMapContent({ embedded = false }: { embedded?: boolean } = {}) {
   const colors = useColors();
@@ -77,6 +90,7 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
 
   const { isPro } = usePro();
   const { activeGarden: garden, gardens: allGardens, refreshActiveId } = useActiveGarden();
+  const { weather } = useWeather(garden?.province);
   const gardens = useCollection<Garden>('gardens');
   const { customCropsById } = useCustomCrops();
   const gridRows = garden?.gridRows ?? DEFAULT_GRID_ROWS;
@@ -87,6 +101,7 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
   const gardenTypeCfg = GARDEN_TYPE_CONFIG[gardenType];
 
   const plants = useCollection<Plant>('plants');
+  const diaryEntries = useCollection<DiaryEntry>('diary_entries');
   const { layout, loading, setCell, swapCells } = useGardenLayout(garden?.id, gridRows, gridCols);
   const { positions: freePositions, setPosition: setFreePosition } = useGardenFreeLayout(garden?.id);
 
@@ -105,6 +120,8 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [panelDragPlantId, setPanelDragPlantId] = useState<string | null>(null);
   const [mapFilter, setMapFilter] = useState<MapFilter>('all');
+  const [mapLayer, setMapLayer] = useState<MapLayer>('plants');
+  const [editingLocations, setEditingLocations] = useState(false);
   const [selectedFreePlantId, setSelectedFreePlantId] = useState<string | null>(null);
 
   // ── Refs ──────────────────────────────────────────────────────────────────
@@ -146,6 +163,20 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
     () => plants.items.filter((p) => p.gardenId === garden?.id),
     [plants.items, garden?.id]
   );
+  const gardenEntries = useMemo(
+    () => diaryEntries.items.filter((entry) => entry.gardenId === garden?.id),
+    [diaryEntries.items, garden?.id]
+  );
+  const cropCatalog = useMemo(() => ({ ...CROPS_BY_ID, ...customCropsById }), [customCropsById]);
+  const carePlan = useMemo(
+    () => buildCarePlan(gardenPlants, cropCatalog, gardenEntries),
+    [gardenPlants, cropCatalog, gardenEntries]
+  );
+
+  useEffect(() => {
+    if (selectedFreePlantId || gardenPlants.length === 0) return;
+    setSelectedFreePlantId(gardenPlants.find((plant) => plant.pestStatus === 'active')?.id ?? gardenPlants[0].id);
+  }, [gardenPlants, selectedFreePlantId]);
 
   const placedPlantIds = useMemo(() => new Set(layout.filter(Boolean) as string[]), [layout]);
 
@@ -381,6 +412,57 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
   const selectedFreeCrop = selectedFreePlant
     ? (CROPS_BY_ID[selectedFreePlant.cropId] ?? customCropsById[selectedFreePlant.cropId] ?? null)
     : null;
+  const selectedFreeIndex = selectedFreePlant ? gardenPlants.findIndex((plant) => plant.id === selectedFreePlant.id) : -1;
+  const selectedFreeLocation = selectedFreePlant?.bedName ?? (
+    selectedFreeIndex >= 0 ? t('gardenMap.potLabel', { number: selectedFreeIndex + 1 }) : t('gardenMap.potLabel', { number: 1 })
+  );
+  const getLayerColor = useCallback((plant: Plant, crop: CropInfo | null | undefined) => {
+    if (mapLayer === 'pests') {
+      return plant.pestStatus === 'active'
+        ? colors.error
+        : plant.pestStatus === 'treated'
+        ? colors.warning
+        : colors.success;
+    }
+    if (mapLayer === 'water') {
+      return crop?.waterNeeds === 'high'
+        ? colors.warning
+        : crop?.waterNeeds === 'medium'
+        ? colors.secondary
+        : colors.primary;
+    }
+    if (mapLayer === 'light') {
+      return crop?.sunNeeds === 'full'
+        ? colors.warning
+        : crop?.sunNeeds === 'partial'
+        ? colors.secondary
+        : colors.primary;
+    }
+    return plant.pestStatus === 'active' ? colors.warning : colors.primary;
+  }, [colors, mapLayer]);
+  const layerLegend = mapLayer === 'water'
+    ? [
+        { color: colors.warning, label: t('gardenMap.waterNeeds.high') },
+        { color: colors.secondary, label: t('gardenMap.waterNeeds.medium') },
+        { color: colors.primary, label: t('gardenMap.waterNeeds.low') },
+      ]
+    : mapLayer === 'light'
+    ? [
+        { color: colors.warning, label: t('gardenMap.sunNeeds.full') },
+        { color: colors.secondary, label: t('gardenMap.sunNeeds.partial') },
+        { color: colors.primary, label: t('gardenMap.sunNeeds.shade') },
+      ]
+    : mapLayer === 'pests'
+    ? [
+        { color: colors.success, label: t('pestStatus.none') },
+        { color: colors.warning, label: t('pestStatus.treated') },
+        { color: colors.error, label: t('pestStatus.active') },
+      ]
+    : [
+        { color: colors.primary, label: t('gardenMap.freeAllGood') },
+        { color: colors.secondary, label: t('gardenMap.freeReview') },
+        { color: colors.water, label: t('gardenMap.freeNoData') },
+      ];
 
   // The visual field view keeps the map useful at a glance. It follows the
   // first occupied parcel until the user taps another one, so an empty map
@@ -408,6 +490,47 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
     ? Math.round((gardenPlants.filter((p) => p.status !== 'finished' && p.pestStatus !== 'active').length / gardenPlants.length) * 100)
     : 0;
   const activePests = gardenPlants.filter((p) => p.pestStatus === 'active').length;
+  const latestEntryByPlant = useMemo(() => {
+    const latest: Record<string, DiaryEntry | undefined> = {};
+    for (const entry of gardenEntries) {
+      if (!entry.plantId) continue;
+      const current = latest[entry.plantId];
+      if (!current || entry.date > current.date) latest[entry.plantId] = entry;
+    }
+    return latest;
+  }, [gardenEntries]);
+  const todayPlant = useMemo(() => {
+    const pestPlant = gardenPlants.find((plant) => plant.pestStatus === 'active');
+    if (pestPlant) return pestPlant;
+    const harvestPlant = gardenPlants.find((plant) => plant.status === 'harvesting');
+    if (harvestPlant) return harvestPlant;
+    const stalePlant = gardenPlants.find((plant) => {
+      const latest = latestEntryByPlant[plant.id];
+      if (!latest) return true;
+      const daysSinceEntry = Math.floor((Date.now() - new Date(`${latest.date}T12:00:00`).getTime()) / 86_400_000);
+      return daysSinceEntry >= 3;
+    });
+    return stalePlant ?? gardenPlants[0] ?? null;
+  }, [gardenPlants, latestEntryByPlant]);
+  const todayTask = carePlan[0] ?? null;
+  const actionPlant = todayTask
+    ? gardenPlants.find((plant) => plant.id === todayTask.plantId) ?? todayPlant
+    : todayPlant;
+  const weatherPlant = gardenPlants.find((plant) => !isSeedPlan(plant)) ?? gardenPlants[0] ?? null;
+  const weatherAlert = weather && weatherPlant
+    ? weather.today.tempMin <= 2
+      ? 'frost'
+      : weather.today.tempMax >= 35
+      ? 'heat'
+      : weather.wateringAdvice !== 'normal'
+      ? 'rain'
+      : null
+    : null;
+  const todayAction = activePests > 0 || todayTask?.kind === 'pest'
+    ? 'inspect'
+    : todayTask?.kind === 'harvest' || actionPlant?.status === 'harvesting'
+    ? 'harvest'
+    : 'care';
   const waterLabel = focusCrop
     ? t(`gardenMap.waterNeeds.${focusCrop.waterNeeds}`)
     : t('gardenMap.noData');
@@ -427,7 +550,7 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
       const plantId = layout[idx];
       const plant = plantId ? plants.items.find((p) => p.id === plantId) ?? null : null;
       const crop = plant ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId] ?? null) : null;
-      const statusColor = plant ? PLANT_STATUS_CONFIG[plant.status].color : null;
+      const statusColor = plant ? getLayerColor(plant, crop) : null;
       const isSource = isDragging ? dragSrcIdxRef.current === idx : moveSourceCell === idx;
       const inMoveMode = !isDragging && moveSourceCell !== null;
       const isTarget = isDragging && dragTargetIdx === idx && dragSrcIdxRef.current !== idx;
@@ -484,7 +607,115 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
 
         {/* ── Header ── */}
-        <View style={[s.header, { borderBottomColor: colors.border }]}>
+        {embedded && (
+          <View style={s.appHeader}>
+            <View style={s.brandRow}>
+              <View style={[s.brandMark, { backgroundColor: colors.accent }]}>
+                <Ionicons name="leaf" size={15} color={colors.primaryDark} />
+              </View>
+              <Text style={[s.brandName, { color: colors.text }]}>semilla</Text>
+            </View>
+            <View style={s.topActions}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('gardenMap.help')}
+                onPress={() => router.push('/(tabs)/tools' as any)}
+                style={({ pressed }) => [s.topAction, { borderColor: colors.border, opacity: pressed ? 0.68 : 1 }]}
+              >
+                <Ionicons name="help-circle-outline" size={19} color={colors.text} />
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('notifications.title')}
+                onPress={() => router.push('/settings/notifications' as any)}
+                style={({ pressed }) => [s.topAction, { borderColor: colors.border, opacity: pressed ? 0.68 : 1 }]}
+              >
+                <Ionicons name="notifications-outline" size={19} color={colors.text} />
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('tabs.settings')}
+                onPress={() => router.push('/(tabs)/settings' as any)}
+                style={({ pressed }) => [s.topAction, { borderColor: colors.border, opacity: pressed ? 0.68 : 1 }]}
+              >
+                <Ionicons name="settings-outline" size={19} color={colors.text} />
+              </Pressable>
+            </View>
+          </View>
+        )}
+
+        {embedded && (
+          <View style={s.intro}>
+            <Text style={[s.introTitle, { color: colors.text }]}>{t('tabs.map')}</Text>
+            <Text style={[s.introLead, { color: colors.textSecondary }]}>{t('gardenMap.lead')}</Text>
+          </View>
+        )}
+
+        {embedded && actionPlant && (
+          <View style={[s.todayCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={s.todayHeader}>
+              <View style={[s.todayIcon, { backgroundColor: todayAction === 'inspect' ? colors.secondary + '26' : colors.accent }]}>
+                <Ionicons
+                  name={todayAction === 'inspect' ? 'eye-outline' : todayAction === 'harvest' ? 'basket-outline' : 'water-outline'}
+                  size={18}
+                  color={todayAction === 'inspect' ? colors.secondary : colors.primary}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.todayLabel, { color: colors.textSecondary }]}>{t('gardenMap.todayTitle')}</Text>
+                <Text style={[s.todayHeading, { color: colors.text }]} numberOfLines={1}>
+                  {todayTask
+                    ? t(todayTask.titleKey, { name: todayTask.plantName })
+                    : t(`gardenMap.today.${todayAction}Title`, { plant: actionPlant.name })}
+                </Text>
+              </View>
+            </View>
+            <Text style={[s.todayDescription, { color: colors.textSecondary }]}>
+              {todayTask ? t(todayTask.reasonKey) : t(`gardenMap.today.${todayAction}Desc`)}
+            </Text>
+            <Button
+              title={todayAction === 'inspect' ? t('gardenMap.todayViewPlant') : t('gardenMap.todayLogCare')}
+              size="sm"
+              onPress={() => todayAction === 'inspect'
+                ? router.push(`/plant/${actionPlant.id}`)
+                : router.push(`/entry/new?plantId=${actionPlant.id}`)}
+              style={s.todayButton}
+            />
+          </View>
+        )}
+
+        {embedded && weather && weatherAlert && (
+          <View style={[s.weatherAlertStrip, { backgroundColor: colors.secondary + '14', borderColor: colors.secondary + '70' }]}>
+            <Ionicons
+              name={weatherAlert === 'heat' ? 'sunny-outline' : weatherAlert === 'rain' ? 'rainy-outline' : 'thermometer-outline'}
+              size={19}
+              color={colors.secondary}
+            />
+            <Text style={[s.weatherAlertText, { color: colors.text }]}>
+              {weatherAlert === 'frost'
+                ? t('gardenMap.weatherFrostDesc', { temp: weather.today.tempMin, province: weather.province })
+                : weatherAlert === 'heat'
+                ? t('gardenMap.weatherHeatDesc', { temp: weather.today.tempMax, province: weather.province })
+                : t('gardenMap.weatherRainDesc', { rain: weather.today.rainProbability })}
+            </Text>
+          </View>
+        )}
+
+        {embedded && weather && !weatherAlert && (
+          <View style={[s.weatherStrip, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+            <Text style={s.weatherStripEmoji}>{getWeatherLabel(weather.today.weatherCode).emoji}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.weatherStripPlace, { color: colors.textSecondary }]}>{weather.province}</Text>
+              <Text style={[s.weatherStripLabel, { color: colors.text }]}>{t(getWeatherLabel(weather.today.weatherCode).key)}</Text>
+            </View>
+            <View style={s.weatherStripTemps}>
+              <Text style={[s.weatherStripMax, { color: colors.text }]}>{weather.today.tempMax}°</Text>
+              <Text style={[s.weatherStripMin, { color: colors.textSecondary }]}>{weather.today.tempMin}°</Text>
+            </View>
+          </View>
+        )}
+
+        {!embedded && <View style={[s.header, { borderBottomColor: colors.border }]}>
           {!embedded && (
             <Pressable onPress={() => router.back()} hitSlop={12}>
               <Ionicons name="arrow-back" size={24} color={colors.primary} />
@@ -554,7 +785,7 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
           >
             <Ionicons name={isPro ? 'share-outline' : 'lock-closed-outline'} size={22} color={colors.primary} />
           </Pressable>
-        </View>
+        </View>}
 
         <ScrollView
           horizontal
@@ -586,8 +817,38 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
           })}
         </ScrollView>
 
+        <View style={s.layerBar}>
+          <Text style={[s.layerLabel, { color: colors.textSecondary }]}>{t('gardenMap.layerTitle')}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.layerScroll}>
+            {MAP_LAYERS.map(({ key, translationKey, icon }) => {
+              const active = mapLayer === key;
+              return (
+                <Pressable
+                  key={key}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: active }}
+                  onPress={() => setMapLayer(key)}
+                  style={({ pressed }) => [
+                    s.layerChip,
+                    {
+                      backgroundColor: active ? colors.accent : colors.surface,
+                      borderColor: active ? colors.primary : colors.border,
+                      opacity: pressed ? 0.75 : 1,
+                    },
+                  ]}
+                >
+                  <Ionicons name={icon} size={14} color={active ? colors.primary : colors.textSecondary} />
+                  <Text style={[s.layerChipText, { color: active ? colors.primaryDark : colors.textSecondary }]}>
+                    {t(translationKey)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+
         {/* ── Pot mode banner ── */}
-        {isPotMode && moveSourceCell === null && (
+        {!embedded && isPotMode && moveSourceCell === null && (
           <View style={[s.potBanner, { backgroundColor: '#8B572A18', borderBottomColor: '#8B572A30' }]}>
             <Text style={{ fontSize: 14 }}>{gardenTypeCfg.emoji}</Text>
             <Text style={[s.potBannerText, { color: '#8B572A' }]}>
@@ -608,7 +869,7 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
           </Pressable>
         )}
 
-        {!isPro && !isFreeLayout && (
+        {!embedded && !isPro && !isFreeLayout && (
           <Pressable
             onPress={() => openMapPro()}
             style={[s.freeMapCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.primary + '55' }]}
@@ -642,6 +903,22 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
             </View>
           </View>
 
+          {gardenPlants.length === 0 && (
+            <View style={[s.emptyMapCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <View style={[s.emptyMapIcon, { backgroundColor: colors.surfaceAlt }]}>
+                <Ionicons name="map-outline" size={24} color={colors.primary} />
+              </View>
+              <Text style={[s.emptyMapTitle, { color: colors.text }]}>{t('gardenMap.emptyTitle')}</Text>
+              <Text style={[s.emptyMapDesc, { color: colors.textSecondary }]}>{t('gardenMap.emptyDesc')}</Text>
+              <Button
+                title={t('gardenMap.addPlant')}
+                onPress={() => router.push('/plant/new' as any)}
+                size="sm"
+                style={s.emptyMapButton}
+              />
+            </View>
+          )}
+
           {isFreeLayout ? (
             <>
               <ViewShot
@@ -653,6 +930,8 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
                   plants={gardenPlants}
                   positions={freePositions}
                   mapFilter={mapFilter}
+                  mapLayer={mapLayer}
+                  editing={editingLocations}
                   selectedPlantId={selectedFreePlantId}
                   cropById={{ ...CROPS_BY_ID, ...customCropsById }}
                   colors={colors}
@@ -670,33 +949,44 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
 
               <View style={[s.freeInfoCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                 <View style={s.freeLegend}>
-                  <View style={s.freeLegendItem}>
-                    <View style={[s.freeLegendDot, { backgroundColor: colors.primary }]} />
-                    <Text style={[s.freeLegendText, { color: colors.textSecondary }]}>{t('gardenMap.freeAllGood')}</Text>
-                  </View>
-                  <View style={s.freeLegendItem}>
-                    <View style={[s.freeLegendDot, { backgroundColor: colors.secondary }]} />
-                    <Text style={[s.freeLegendText, { color: colors.textSecondary }]}>{t('gardenMap.freeReview')}</Text>
-                  </View>
-                  <View style={s.freeLegendItem}>
-                    <View style={[s.freeLegendDot, { backgroundColor: colors.water }]} />
-                    <Text style={[s.freeLegendText, { color: colors.textSecondary }]}>{t('gardenMap.freeNoData')}</Text>
-                  </View>
+                  {layerLegend.map((item) => (
+                    <View key={item.label} style={s.freeLegendItem}>
+                      <View style={[s.freeLegendDot, { backgroundColor: item.color }]} />
+                      <Text style={[s.freeLegendText, { color: colors.textSecondary }]}>{item.label}</Text>
+                    </View>
+                  ))}
                 </View>
                 {selectedFreePlant && selectedFreeCrop ? (
-                  <Pressable
-                    onPress={() => router.push(`/plant/${selectedFreePlant.id}`)}
-                    style={({ pressed }) => [s.freeSelectedRow, { opacity: pressed ? 0.7 : 1 }]}
-                  >
-                    <Text style={[s.freeSelectedText, { color: colors.textSecondary }]}>
-                      {t('gardenMap.freeSelected', { name: selectedFreePlant.name, crop: selectedFreeCrop.name })}
-                    </Text>
-                    <Ionicons name="arrow-forward" size={17} color={colors.primary} />
-                  </Pressable>
+                  <View style={s.selectedPlantPanel}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[s.freeSelectedText, { color: colors.text }]}>
+                        {t('gardenMap.freeSelected', { location: selectedFreeLocation, crop: selectedFreeCrop.name })}
+                      </Text>
+                      <Text style={[s.selectedPlantHint, { color: colors.textSecondary }]}>{t('gardenMap.selectedHint')}</Text>
+                    </View>
+                    <Button
+                      title={t('gardenMap.viewPlant')}
+                      size="sm"
+                      onPress={() => router.push(`/plant/${selectedFreePlant.id}`)}
+                      style={s.selectedCareButton}
+                    />
+                  </View>
                 ) : (
                   <Text style={[s.freeHint, { color: colors.textSecondary }]}>
                     {t(gardenPlants.length > 0 ? 'gardenMap.freeMoveHint' : 'gardenMap.freeAddHint')}
                   </Text>
+                )}
+                {editingLocations && (
+                  <Text style={[s.editingHint, { color: colors.textSecondary }]}>{t('gardenMap.editingHint')}</Text>
+                )}
+                {embedded && (
+                  <Button
+                    title={editingLocations ? t('gardenMap.doneEditing') : t('gardenMap.editLocations')}
+                    variant={editingLocations ? 'primary' : 'secondary'}
+                    size="sm"
+                    onPress={() => setEditingLocations((value) => !value)}
+                    style={s.editLocationsButton}
+                  />
                 )}
               </View>
             </>
@@ -944,6 +1234,21 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
             </View>
           </View>}
 
+          {!isFreeLayout && gardenPlants.some((plant) => Boolean(plant.bedName?.trim())) && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push('/rotation' as any)}
+              style={({ pressed }) => [s.rotationLink, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.78 : 1 }]}
+            >
+              <Ionicons name="refresh-circle-outline" size={20} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={[s.rotationLinkTitle, { color: colors.text }]}>{t('settings.rotation')}</Text>
+                <Text style={[s.rotationLinkDesc, { color: colors.textSecondary }]}>{t('settings.rotationDesc')}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={17} color={colors.textSecondary} />
+            </Pressable>
+          )}
+
           {!isPro && (
             <Pressable
               onPress={() => openMapPro()}
@@ -955,11 +1260,6 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
             </Pressable>
           )}
 
-          {gardenPlants.length === 0 && (
-            <Text style={[s.emptyNote, { color: colors.textDisabled }]}>
-              {t('gardenMap.emptyNote')}
-            </Text>
-          )}
         </ScrollView>
 
         {/* ── Plant panel ── */}
@@ -1247,6 +1547,8 @@ type FreeGardenCanvasProps = {
   plants: Plant[];
   positions: Record<string, FreeMapPosition>;
   mapFilter: MapFilter;
+  mapLayer: MapLayer;
+  editing: boolean;
   selectedPlantId: string | null;
   cropById: Record<string, CropInfo | undefined>;
   colors: ReturnType<typeof useColors>;
@@ -1265,6 +1567,8 @@ function FreeGardenCanvas({
   plants,
   positions,
   mapFilter,
+  mapLayer,
+  editing,
   selectedPlantId,
   cropById,
   colors,
@@ -1278,7 +1582,7 @@ function FreeGardenCanvas({
   const CARD_HEIGHT = 62;
   const SIDE_PADDING = 14;
   const TOP_PADDING = 24;
-  const canvasHeight = Math.max(332, 52 + Math.ceil(Math.max(plants.length, 1) / 2) * 76);
+  const canvasHeight = Math.max(286, 52 + Math.ceil(Math.max(plants.length, 1) / 2) * 76);
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [draftPositions, setDraftPositions] = useState<Record<string, FreeMapPosition>>(positions);
   const draftPositionsRef = useRef(draftPositions);
@@ -1339,7 +1643,34 @@ function FreeGardenCanvas({
           : mapFilter === 'light'
           ? crop?.sunNeeds !== 'full'
           : false;
-        const statusLabel = plant.pestStatus === 'active'
+        const layerColor = mapLayer === 'pests'
+          ? plant.pestStatus === 'active'
+            ? colors.error
+            : plant.pestStatus === 'treated'
+            ? colors.warning
+            : colors.success
+          : mapLayer === 'water'
+          ? crop?.waterNeeds === 'high'
+            ? colors.warning
+            : crop?.waterNeeds === 'medium'
+            ? colors.secondary
+            : colors.primary
+          : mapLayer === 'light'
+          ? crop?.sunNeeds === 'full'
+            ? colors.warning
+            : crop?.sunNeeds === 'partial'
+            ? colors.secondary
+            : colors.primary
+          : plant.pestStatus === 'active'
+          ? colors.warning
+          : colors.primary;
+        const statusLabel = mapLayer === 'water' && crop?.waterNeeds
+          ? t(`gardenMap.waterNeeds.${crop.waterNeeds}`)
+          : mapLayer === 'light' && crop?.sunNeeds
+          ? t(`gardenMap.sunNeeds.${crop.sunNeeds}`)
+          : mapLayer === 'pests'
+          ? t(`pestStatus.${plant.pestStatus ?? 'none'}`)
+          : plant.pestStatus === 'active'
           ? t('gardenMap.freeReview')
           : !plant.sowingDate
           ? t('gardenMap.freeNoData')
@@ -1355,8 +1686,9 @@ function FreeGardenCanvas({
         const panResponder = PanResponder.create({
           onStartShouldSetPanResponder: () => false,
           onMoveShouldSetPanResponder: (_, gestureState) =>
-            Math.abs(gestureState.dx) > 4 || Math.abs(gestureState.dy) > 4,
+            editing && (Math.abs(gestureState.dx) > 4 || Math.abs(gestureState.dy) > 4),
           onPanResponderGrant: () => {
+            if (!editing) return;
             dragStartsRef.current[plant.id] = position;
             setDraggingId(plant.id);
           },
@@ -1394,7 +1726,7 @@ function FreeGardenCanvas({
                 shadows.sm,
                 {
                   backgroundColor: isSelected ? colors.accent + '35' : colors.surface,
-                  borderColor: isSelected ? colors.primary : colors.border,
+                  borderColor: isSelected ? colors.primary : mapLayer === 'plants' ? colors.border : layerColor + '88',
                   borderWidth: isSelected ? 1.5 : 1,
                   opacity: pressed ? 0.78 : 1,
                 },
@@ -1406,6 +1738,7 @@ function FreeGardenCanvas({
               <Text style={[styles.freePlantMeta, { color: colors.textSecondary }]} numberOfLines={1}>
                 {crop?.name ?? plant.cropId} · {statusLabel}
               </Text>
+              {editing && <Ionicons name="move-outline" size={13} color={colors.textSecondary} />}
             </Pressable>
           </View>
         );
@@ -1423,6 +1756,47 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
+    appHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.sm,
+    },
+    brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    brandMark: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+    brandName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, letterSpacing: -0.3 },
+    topActions: { flexDirection: 'row', gap: 4 },
+    topAction: { width: 40, height: 40, borderRadius: radii.md, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+    intro: { paddingHorizontal: spacing.xl, paddingTop: spacing.sm, paddingBottom: spacing.md },
+    introTitle: { fontSize: 31, lineHeight: 34, fontWeight: fontWeight.bold, letterSpacing: -0.9 },
+    introLead: { fontSize: fontSize.sm, lineHeight: 21, marginTop: spacing.sm, maxWidth: 340 },
+    todayCard: {
+      marginHorizontal: spacing.xl, marginBottom: spacing.sm, padding: spacing.md,
+      borderRadius: radii.md, borderWidth: 1, gap: spacing.sm,
+    },
+    todayHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    todayIcon: { width: 36, height: 36, borderRadius: radii.md, alignItems: 'center', justifyContent: 'center' },
+    todayLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    todayHeading: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, marginTop: 2 },
+    todayDescription: { fontSize: fontSize.xs, lineHeight: 17 },
+    todayButton: { alignSelf: 'flex-start' },
+    weatherStrip: {
+      marginHorizontal: spacing.xl, marginBottom: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
+      borderRadius: radii.md, borderWidth: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+    },
+    weatherStripEmoji: { fontSize: 24 },
+    weatherStripPlace: { fontSize: fontSize.xs },
+    weatherStripLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold, marginTop: 2 },
+    weatherStripTemps: { alignItems: 'flex-end' },
+    weatherStripMax: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    weatherStripMin: { fontSize: fontSize.xs, marginTop: 1 },
+    weatherAlertStrip: {
+      marginHorizontal: spacing.xl, marginBottom: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
+      borderRadius: radii.md, borderWidth: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+    },
+    weatherAlertText: { flex: 1, fontSize: fontSize.xs, lineHeight: 17, fontWeight: fontWeight.medium },
     header: {
       flexDirection: 'row', alignItems: 'center',
       paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, borderBottomWidth: 1,
@@ -1440,6 +1814,14 @@ const makeStyles = (
       borderWidth: 1,
     },
     filterChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    layerBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.xl, paddingBottom: spacing.sm },
+    layerLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, marginRight: spacing.sm },
+    layerScroll: { gap: spacing.sm, paddingRight: spacing.xl },
+    layerChip: {
+      minHeight: 34, flexDirection: 'row', alignItems: 'center', gap: spacing.xs,
+      paddingHorizontal: spacing.md, borderRadius: radii.sm, borderWidth: 1,
+    },
+    layerChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     potBanner: {
       flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
       gap: spacing.sm, paddingVertical: 6, paddingHorizontal: spacing.lg,
@@ -1576,6 +1958,12 @@ const makeStyles = (
     legendItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     legendDot: { width: 10, height: 10, borderRadius: 5 },
     legendText: { fontSize: fontSize.xs },
+    rotationLink: {
+      flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+      marginTop: spacing.md, padding: spacing.md, borderRadius: radii.md, borderWidth: 1,
+    },
+    rotationLinkTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    rotationLinkDesc: { fontSize: fontSize.xs, marginTop: 2 },
     proMapHint: {
       flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
       marginTop: spacing.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
@@ -1584,9 +1972,9 @@ const makeStyles = (
     proMapHintText: { flex: 1, fontSize: fontSize.xs, lineHeight: 16 },
     freeCanvas: {
       position: 'relative',
-      minHeight: 332,
+      minHeight: 286,
       borderWidth: 1,
-      borderRadius: radii.lg,
+      borderRadius: radii.md,
       overflow: 'hidden',
     },
     freeCanvasInner: {
@@ -1626,17 +2014,39 @@ const makeStyles = (
       marginTop: spacing.sm,
       padding: spacing.md,
       borderWidth: 1,
-      borderRadius: radii.lg,
+      borderRadius: radii.md,
       gap: spacing.sm,
     },
     freeLegend: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
     freeLegendItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
     freeLegendDot: { width: 9, height: 9, borderRadius: 5 },
     freeLegendText: { fontSize: fontSize.xs },
-    freeSelectedRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    freeSelectedText: { flex: 1, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    selectedPlantPanel: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 44 },
+    freeSelectedRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 36 },
+    freeSelectedText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    selectedPlantHint: { fontSize: fontSize.xs, lineHeight: 16, marginTop: 2 },
+    selectedCareButton: { minWidth: 92 },
+    editingHint: { fontSize: fontSize.xs, lineHeight: 17 },
     freeHint: { fontSize: fontSize.xs, lineHeight: 18 },
-    emptyNote: { textAlign: 'center', fontSize: fontSize.sm, marginTop: spacing.xl },
+    editLocationsButton: { width: '100%', marginTop: spacing.xs },
+    emptyMapCard: {
+      alignItems: 'center',
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderRadius: radii.lg,
+      marginBottom: spacing.md,
+    },
+    emptyMapIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: radii.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.sm,
+    },
+    emptyMapTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold, textAlign: 'center' },
+    emptyMapDesc: { fontSize: fontSize.sm, lineHeight: 19, textAlign: 'center', marginTop: 4, maxWidth: 290 },
+    emptyMapButton: { alignSelf: 'stretch', marginTop: spacing.md },
     // ── Plant panel ──
     panel: {
       position: 'absolute', bottom: 0, left: 0, right: 0,

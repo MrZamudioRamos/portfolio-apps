@@ -4,7 +4,7 @@ import { useReminders, NotificationPermissionDeniedError, type ReminderFrequency
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -19,6 +19,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type GardenReminder, type ReminderType } from '../../src/models/reminder';
+import { type Plant } from '../../src/models/plant';
+import { CROPS_BY_ID } from '../../src/data/crops';
+import { useCollection } from '@portfolio/storage';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { usePro } from '../../src/hooks/usePro';
 import { track, EVENTS } from '../../src/analytics';
@@ -43,10 +46,12 @@ export default function ReminderNewScreen() {
   const { plantId } = useLocalSearchParams<{ plantId?: string }>();
 
   const { activeGarden } = useActiveGarden();
+  const plants = useCollection<Plant>('plants');
   const reminders = useReminders<GardenReminder>('reminders');
   const { isPro } = usePro();
 
   const { t, i18n } = useTranslation();
+  const [selectedPlantId, setSelectedPlantId] = useState<string | undefined>(plantId);
   const [type, setType] = useState<ReminderType>('watering');
   const [title, setTitle] = useState(() => t('reminderDefaultTitle.watering'));
   const [frequency, setFrequency] = useState<ReminderFrequency>('daily');
@@ -54,9 +59,19 @@ export default function ReminderNewScreen() {
   const [hour, setHour] = useState(8);
   const [minute, setMinute] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [permissionError, setPermissionError] = useState(false);
   const busy = useRef(false);
+
+  useEffect(() => {
+    if (!saved) return;
+    const timeout = setTimeout(() => {
+      if (router.canGoBack()) router.back();
+      else router.replace('/(tabs)');
+    }, 700);
+    return () => clearTimeout(timeout);
+  }, [router, saved]);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -81,7 +96,14 @@ export default function ReminderNewScreen() {
   }, [i18n.language]);
 
   const today = new Date().getDay();
-  const activeCalendarDay = frequency === 'weekly' ? weekday : (today === 0 ? 1 : today + 1);
+  const todayWeekday = today === 0 ? 1 : today + 1;
+  const activeCalendarDay = frequency === 'weekly' || frequency === 'once' ? weekday : todayWeekday;
+  const selectedCalendarDay = calendarDays.find((item) => item.day === activeCalendarDay) ?? calendarDays[0];
+
+  function handleFrequencyChange(next: ReminderFrequency) {
+    setFrequency(next);
+    if (next === 'once' && frequency !== 'weekly') setWeekday(todayWeekday);
+  }
 
   function weekdayLabel(day: number) {
     const date = new Date(2024, 0, day === 1 ? 7 : 7 + day - 1);
@@ -118,16 +140,15 @@ export default function ReminderNewScreen() {
     try {
       await reminders.create({
         gardenId,
-        plantId: plantId ?? undefined,
+        plantId: selectedPlantId ?? undefined,
         type,
         title: title.trim() || t('reminderDefaultTitle.' + type),
         frequency,
-        weekday: frequency === 'weekly' ? weekday : undefined,
+        weekday: frequency === 'weekly' || frequency === 'once' ? weekday : undefined,
         time: { hour, minute },
         enabled: true,
       });
-      if (router.canGoBack()) router.back();
-      else router.replace('/(tabs)');
+      setSaved(true);
     } catch (error) {
       setPermissionError(error instanceof NotificationPermissionDeniedError);
       setSaveError(!(error instanceof NotificationPermissionDeniedError));
@@ -156,6 +177,7 @@ export default function ReminderNewScreen() {
             </Pressable>
           </View>
 
+          <Text style={[s.label, { color: colors.textSecondary, marginTop: 0 }]}>{t('entryNew.date')}</Text>
           <View style={s.calendarStrip}>
             {calendarDays.map((item) => {
               const active = activeCalendarDay === item.day;
@@ -165,7 +187,7 @@ export default function ReminderNewScreen() {
                   accessibilityRole="radio"
                   accessibilityState={{ checked: active }}
                   accessibilityLabel={`${item.label} ${item.number}`}
-                  onPress={() => { setFrequency('weekly'); setWeekday(item.day); }}
+                  onPress={() => { setWeekday(item.day); if (frequency !== 'once') setFrequency('weekly'); }}
                   style={[s.calendarDay, { backgroundColor: active ? colors.primary : 'transparent', borderColor: active ? colors.primary : colors.border }]}
                 >
                   <Text style={[s.calendarDayLabel, { color: active ? colors.background : colors.textSecondary }]}>{item.label}</Text>
@@ -187,7 +209,7 @@ export default function ReminderNewScreen() {
               {title.trim() || t('reminderDefaultTitle.' + type)}
             </Text>
             <Text style={[s.summaryMeta, { color: colors.textSecondary }]} numberOfLines={1}>
-              {t('reminderFrequency.' + frequency)}{frequency === 'weekly' ? ` · ${weekdayLabel(weekday)}` : ''}
+              {t('reminderFrequency.' + frequency)}{frequency === 'weekly' || frequency === 'once' ? ` · ${selectedCalendarDay?.label} ${selectedCalendarDay?.number}` : ''}
             </Text>
           </View>
 
@@ -202,6 +224,36 @@ export default function ReminderNewScreen() {
             <Ionicons name={TYPE_ICONS[type]} size={18} color={colors.primary} />
           </View>
 
+          <Text style={[s.label, { color: colors.textSecondary }]}>{t('entryNew.plant')}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.sm }}>
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+              <Pressable
+                accessibilityRole="radio"
+                accessibilityState={{ checked: !selectedPlantId }}
+                onPress={() => setSelectedPlantId(undefined)}
+                style={[s.plantChip, { backgroundColor: !selectedPlantId ? colors.primary + '18' : colors.surface, borderColor: !selectedPlantId ? colors.primary : colors.border }]}
+              >
+                <Ionicons name="leaf-outline" size={17} color={!selectedPlantId ? colors.primary : colors.textSecondary} />
+                <Text style={[s.plantChipLabel, { color: !selectedPlantId ? colors.primary : colors.textSecondary }]}>{t('entryNew.general')}</Text>
+              </Pressable>
+              {plants.items.filter((p) => p.gardenId === activeGarden?.id).map((p) => {
+                const selected = selectedPlantId === p.id;
+                return (
+                  <Pressable
+                    key={p.id}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: selected }}
+                    onPress={() => setSelectedPlantId(p.id)}
+                    style={[s.plantChip, { backgroundColor: selected ? colors.primary + '18' : colors.surface, borderColor: selected ? colors.primary : colors.border }]}
+                  >
+                    <Text style={{ fontSize: 16 }}>{CROPS_BY_ID[p.cropId]?.emoji ?? '🌱'}</Text>
+                    <Text style={[s.plantChipLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>{p.name}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </ScrollView>
+
           {permissionError && (
             <View style={{ gap: spacing.xs, marginBottom: spacing.md }}>
               <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderNew.permissionError')}</Text>
@@ -211,6 +263,15 @@ export default function ReminderNewScreen() {
             </View>
           )}
           {saveError && <Text accessibilityRole="alert" style={{ color: colors.error }}>{t('reminderNew.saveError')}</Text>}
+          {saved && (
+            <View accessibilityRole="alert" style={[s.savedFeedback, { backgroundColor: colors.primary + '14', borderColor: colors.primary + '36' }]}>
+              <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={[s.savedTitle, { color: colors.primary }]}>{t('reminderNew.saved')}</Text>
+                <Text style={[s.savedDesc, { color: colors.textSecondary }]}>{t('reminderNew.savedDesc')}</Text>
+              </View>
+            </View>
+          )}
           {/* Type selector */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.typeLabel')}</Text>
           <View style={s.typeGrid}>
@@ -263,7 +324,7 @@ export default function ReminderNewScreen() {
                   key={f}
                   accessibilityRole="radio"
                   accessibilityState={{ checked: active }}
-                  onPress={() => setFrequency(f)}
+                  onPress={() => handleFrequencyChange(f)}
                   style={[s.segmentOption, { backgroundColor: active ? colors.primary : 'transparent' }]}
                 >
                   <Text style={[s.segmentText, { color: active ? colors.background : colors.textSecondary }]}>{t('reminderFrequency.' + f)}</Text>
@@ -386,6 +447,19 @@ const makeStyles = (
     contextCopy: { flex: 1, gap: 2 },
     contextTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     contextMeta: { fontSize: fontSize.xs, lineHeight: 16 },
+    savedFeedback: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderWidth: 1, borderRadius: radii.md, marginBottom: spacing.md },
+    savedTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    savedDesc: { fontSize: fontSize.xs, marginTop: 2 },
+    plantChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.full,
+      borderWidth: 1,
+    },
+    plantChipLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold, maxWidth: 120 },
     label: {
       fontSize: fontSize.xs,
       fontWeight: fontWeight.bold,

@@ -79,6 +79,7 @@ export default function PlantDetailScreen() {
   const [wateringFeedback, setWateringFeedback] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showAllTreatments, setShowAllTreatments] = useState(false);
 
   async function onRefresh() {
     setRefreshing(true);
@@ -172,6 +173,11 @@ export default function PlantDetailScreen() {
   }, [entries.items, id]);
 
   const { t, i18n } = useTranslation();
+  const pestSeverity = currentPestStatus === 'none'
+    ? null
+    : currentPestStatus === 'treated'
+      ? 'low'
+      : pestInfo.length > 2 ? 'medium' : 'low';
 
   const SUN_LABEL: Record<string, string> = {
     full: `☀️ ${t('plantDetail.sunFull')}`,
@@ -335,7 +341,7 @@ export default function PlantDetailScreen() {
       >
         {/* Hero */}
         <View style={[s.hero, { backgroundColor: colors.surfaceAlt }]}>
-          <Pressable accessibilityRole="button" accessibilityLabel={t('onboarding.back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')} style={s.backBtn}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('onboarding.back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')} style={({ pressed }) => [s.backBtn, { opacity: pressed ? 0.72 : 1, transform: [{ scale: pressed ? 0.96 : 1 }] }]}>
             <Ionicons name="arrow-back" size={22} color={colors.primary} />
           </Pressable>
           {plant.photoUri ? (
@@ -364,7 +370,7 @@ export default function PlantDetailScreen() {
             accessibilityRole="button"
             accessibilityLabel={t('plantEdit.title')}
             onPress={() => router.push(`/plant/edit?id=${id}`)}
-            style={s.editBtn}
+            style={({ pressed }) => [s.editBtn, { opacity: pressed ? 0.72 : 1, transform: [{ scale: pressed ? 0.96 : 1 }] }]}
           >
             <Ionicons name="pencil" size={16} color={colors.primary} />
           </Pressable>
@@ -374,6 +380,9 @@ export default function PlantDetailScreen() {
           {/* Title + badge */}
           <View style={s.titleRow}>
             <View style={{ flex: 1 }}>
+              <Text style={[s.cropEyebrow, { color: colors.primary }]}>
+                {crop.emoji} {crop.isCustom ? crop.name : t('crops.' + crop.id + '.name', { defaultValue: crop.name })}
+              </Text>
               <Text style={[s.plantName, { color: colors.text }]}>{plant.name}</Text>
               {(plant.varietyId || plant.variety) && (
                 <Text style={[s.variety, { color: colors.textSecondary }]}>
@@ -393,6 +402,44 @@ export default function PlantDetailScreen() {
           </View>
 
           {plant.status !== 'finished' && <PlantCareCard plant={plant} crop={crop} climateZone={activeGarden?.climateZone} entries={entries.items} frost={Boolean(weather && weather.today.tempMin <= 2 && !isSeedPlan(plant))} onUpdated={async () => { await Promise.all([plants.refresh(), entries.refresh()]); }} />}
+
+          {/* Quick links keep the plant's journal and health state in the same care loop. */}
+          <View style={[s.followUpGrid, { marginBottom: spacing.md }]}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('plantDetail.diary')}
+              onPress={() => router.push(`/(tabs)/diary?plantId=${id}` as any)}
+              style={({ pressed }) => [s.followUpTile, { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.76 : 1 }]}
+            >
+              <View style={[s.followUpIcon, { backgroundColor: colors.primary + '16' }]}>
+                <Ionicons name="book-outline" size={19} color={colors.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.followUpTitle, { color: colors.text }]}>{t('plantDetail.diary')}</Text>
+                <Text style={[s.followUpMeta, { color: colors.textSecondary }]} numberOfLines={1}>
+                  {plantEntryCount > 0 ? `${plantEntryCount} · ${t('common.viewAll')}` : t('plantDetail.noEntries')}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={17} color={colors.textSecondary} />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('plantDetail.pestSection')}
+              onPress={() => router.push(`/plant/identify?plantId=${id}&cropId=${crop.id}` as any)}
+              style={({ pressed }) => [s.followUpTile, { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.76 : 1 }]}
+            >
+              <View style={[s.followUpIcon, { backgroundColor: (currentPestStatus === 'none' ? colors.success : colors.warning) + '16' }]}>
+                <Ionicons name="shield-checkmark-outline" size={19} color={currentPestStatus === 'none' ? colors.success : colors.warning} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.followUpTitle, { color: colors.text }]}>{t('plantDetail.pestSection')}</Text>
+                <Text style={[s.followUpMeta, { color: currentPestStatus === 'none' ? colors.success : colors.warning }]} numberOfLines={1}>
+                  {t('pestStatus.' + currentPestStatus)}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={17} color={colors.textSecondary} />
+            </Pressable>
+          </View>
 
           {/* Lifecycle progress bar */}
           {!isSeedPlan(plant) && (() => {
@@ -1149,6 +1196,49 @@ export default function PlantDetailScreen() {
               })}
             </View>
 
+            {currentPestStatus === 'none' ? (
+              <View style={[s.pestEmptyState, { backgroundColor: colors.success + '10', borderColor: colors.success + '44' }]}>
+                <Ionicons name="checkmark-circle-outline" size={22} color={colors.success} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.pestEmptyTitle, { color: colors.text }]}>{t('plantDetail.pestClearTitle')}</Text>
+                  <Text style={[s.pestEmptyBody, { color: colors.textSecondary }]}>{t('plantDetail.pestClearBody')}</Text>
+                </View>
+              </View>
+            ) : (
+              <>
+                {currentPestStatus === 'treated' && (
+                  <View style={[s.pestTreatedState, { backgroundColor: colors.primary + '10', borderColor: colors.primary + '44' }]}>
+                    <Ionicons name="leaf-outline" size={22} color={colors.primary} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={[s.pestTreatedTitle, { color: colors.text }]}>{t('plantDetail.pestTreatedTitle')}</Text>
+                      <Text style={[s.pestTreatedBody, { color: colors.textSecondary }]}>{t('plantDetail.pestTreatedBody')}</Text>
+                    </View>
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => plants.update(id, { pestStatus: 'none' })}
+                      style={({ pressed }) => [s.pestCompleteButton, { borderColor: colors.primary, opacity: pressed ? 0.72 : 1 }]}
+                    >
+                      <Text style={[s.pestCompleteButtonText, { color: colors.primary }]}>{t('plantDetail.pestMarkComplete')}</Text>
+                    </Pressable>
+                  </View>
+                )}
+                <View style={[s.pestSummary, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.pestSummaryLabel, { color: colors.textSecondary }]}>{t('plantDetail.pestSeverityLabel')}</Text>
+                    <Text style={[s.pestSummaryValue, { color: pestSeverity === 'medium' ? colors.warning : colors.primary }]}>
+                      {t('pestSeverity.' + pestSeverity)}
+                    </Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.pestSummaryLabel, { color: colors.textSecondary }]}>{t('plantDetail.pestNextStepLabel')}</Text>
+                    <Text style={[s.pestSummaryBody, { color: colors.text }]}>
+                      {t(currentPestStatus === 'active' ? 'plantDetail.pestNextTreat' : 'plantDetail.pestNextCheck')}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            )}
+
             {/* Pest reference for this crop */}
             {currentPestStatus !== 'none' && pestInfo.length > 0 && (
               <>
@@ -1158,7 +1248,7 @@ export default function PlantDetailScreen() {
                     crop: (crop?.isCustom ? crop.name : t('crops.' + crop?.id + '.name', { defaultValue: crop?.name })).toUpperCase(),
                   })}
                 </Text>
-                {pestInfo.slice(0, 3).map((pest) => (
+                {pestInfo.slice(0, showAllTreatments ? 3 : 1).map((pest) => (
                   <View key={pest.id} style={[s.pestCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
                     <View style={s.pestCardHeader}>
                       <Text style={s.pestEmoji}>{pest.emoji}</Text>
@@ -1195,6 +1285,18 @@ export default function PlantDetailScreen() {
                     </View>
                   </View>
                 ))}
+                {pestInfo.length > 1 && (
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => setShowAllTreatments((value) => !value)}
+                    style={({ pressed }) => [s.treatmentsToggle, { borderColor: colors.primary, opacity: pressed ? 0.72 : 1 }]}
+                  >
+                    <Text style={[s.treatmentsToggleText, { color: colors.primary }]}>
+                      {t(showAllTreatments ? 'plantDetail.hideTreatments' : 'plantDetail.showTreatments')}
+                    </Text>
+                    <Ionicons name={showAllTreatments ? 'chevron-up' : 'chevron-down'} size={16} color={colors.primary} />
+                  </Pressable>
+                )}
               </>
             )}
           </Card>
@@ -1448,6 +1550,7 @@ const makeStyles = (
     },
     body: { padding: spacing.xl },
     titleRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: spacing.sm },
+    cropEyebrow: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, marginBottom: 3 },
     plantName: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
     variety: { fontSize: fontSize.sm, marginTop: 2 },
     statusBadge: {
@@ -1591,6 +1694,20 @@ const makeStyles = (
       gap: 2,
     },
     pestStatusLabel: { fontSize: 10, fontWeight: fontWeight.semibold, textAlign: 'center' },
+    pestEmptyState: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.md, borderWidth: 1 },
+    pestEmptyTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    pestEmptyBody: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
+    pestTreatedState: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.md, borderWidth: 1 },
+    pestTreatedTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    pestTreatedBody: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
+    pestCompleteButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing.sm, borderWidth: 1, borderRadius: radii.sm },
+    pestCompleteButtonText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
+    pestSummary: { flexDirection: 'row', gap: spacing.md, padding: spacing.md, borderRadius: radii.md, borderWidth: 1 },
+    pestSummaryLabel: { fontSize: 10, fontWeight: fontWeight.semibold, textTransform: 'uppercase', letterSpacing: 0.4 },
+    pestSummaryValue: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, marginTop: 3 },
+    pestSummaryBody: { fontSize: fontSize.xs, lineHeight: 16, marginTop: 3 },
+    treatmentsToggle: { minHeight: 44, borderWidth: 1, borderRadius: radii.md, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: spacing.xs },
+    treatmentsToggleText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     pestCard: {
       borderRadius: radii.md,
       borderWidth: 1,
@@ -1732,6 +1849,20 @@ const makeStyles = (
     },
     coachEmoji: { fontSize: 22 },
     coachText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20, fontWeight: fontWeight.medium },
+    followUpGrid: { flexDirection: 'row', gap: spacing.sm },
+    followUpTile: {
+      flex: 1,
+      minHeight: 78,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      padding: spacing.sm,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+    },
+    followUpIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+    followUpTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    followUpMeta: { fontSize: 10, marginTop: 2 },
     statusOverviewCard: { marginBottom: spacing.xl },
     statusOverviewHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     statusOverviewIcon: {

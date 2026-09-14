@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Card, useTheme } from '@portfolio/ui';
 import { Button } from './ActionButton';
 import { recordCare } from '../utils/careWrites';
@@ -36,6 +37,8 @@ export function PlantCareCard({ plant, crop, climateZone, entries, onOpen, frost
   const pest = plant.pestStatus === 'active';
   const sowNow = Boolean(crop && climateZone && crop.sowingMonths[climateZone]?.includes(new Date().getMonth() + 1));
   const state = frost ? 'frost' : pest ? 'pest' : plan ? 'prepare' : checked ? 'done' : 'check';
+  const tone = frost || pest ? colors.warning : state === 'done' ? colors.success : colors.primary;
+  const icon = state === 'done' ? 'checkmark-circle-outline' : state === 'prepare' ? 'leaf-outline' : 'water-outline';
   const source = onOpen ? 'home' : 'plant_detail';
   useFocusEffect(React.useCallback(() => {
     const key = `${today}:${plant.id}:${state}:${source}`;
@@ -58,15 +61,20 @@ export function PlantCareCard({ plant, crop, climateZone, entries, onOpen, frost
   }
 
   return (
-    <Card padded style={{ borderWidth: 1, borderColor: frost || pest ? colors.warning : colors.primary, marginBottom: spacing.lg }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-        <Mascot pose={checked ? 'celebrate' : 'point'} size={48} />
+    <Card padded style={{ borderWidth: 1.5, borderColor: tone, marginBottom: spacing.lg }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+        <View style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: tone + '18', borderWidth: 1, borderColor: tone + '55' }}>
+          <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={23} color={tone} />
+        </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('dailyCare.eyebrow')}</Text>
+          <Text style={{ color: tone, fontSize: fontSize.xs, fontWeight: fontWeight.bold, textTransform: 'uppercase', letterSpacing: 0.6 }}>{t('dailyCare.nextStep')}</Text>
           <Text accessibilityRole="header" style={{ color: colors.text, fontWeight: fontWeight.bold, fontSize: fontSize.lg }}>{t('dailyCare.' + state + 'Title', { name: plant.name })}</Text>
         </View>
       </View>
-      <Text accessibilityLiveRegion="polite" style={{ color: colors.textSecondary, fontSize: fontSize.md, lineHeight: 23, marginVertical: spacing.md }}>{t('dailyCare.' + state + 'Body')}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, marginTop: spacing.md, borderRadius: spacing.md, backgroundColor: tone + '0d' }}>
+        <Mascot pose={checked ? 'celebrate' : 'point'} size={42} />
+        <Text accessibilityLiveRegion="polite" style={{ flex: 1, color: colors.textSecondary, fontSize: fontSize.md, lineHeight: 23 }}>{t('dailyCare.' + state + 'Body')}</Text>
+      </View>
       {error && <Text accessibilityRole="alert" style={{ color: colors.error, marginBottom: spacing.sm }}>{t('dailyCare.saveError')}</Text>}
       {state === 'prepare' && <>
         <Text style={{ color: colors.textSecondary, lineHeight: 22, marginBottom: spacing.md }}>{t(sowNow ? 'dailyCare.sowNow' : 'dailyCare.waitSeason')}</Text>

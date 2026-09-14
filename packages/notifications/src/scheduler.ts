@@ -33,7 +33,7 @@ interface ScheduleInput {
   weekday?: number;
 }
 
-function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute: number }, weekday = 2) {
+function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute: number }, weekday?: number) {
   const { hour, minute } = time;
   const T = Notifications.SchedulableTriggerInputTypes;
   switch (frequency) {
@@ -45,11 +45,22 @@ function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute
     case 'every_3_days':
       return { type: T.DAILY, hour, minute };
     case 'weekly':
-      return { type: T.WEEKLY, weekday, hour, minute };
+      return { type: T.WEEKLY, weekday: weekday ?? 2, hour, minute };
     case 'once': {
       const d = new Date();
       d.setHours(hour, minute, 0, 0);
-      if (d <= new Date()) d.setDate(d.getDate() + 1);
+      if (weekday == null) {
+        if (d <= new Date()) d.setDate(d.getDate() + 1);
+        return { type: T.DATE, date: d };
+      }
+      // A one-off reminder can reuse the existing Expo weekday field. This
+      // keeps the persisted reminder shape backwards-compatible while making
+      // the selected day in the UI meaningful.
+      const selectedWeekday = weekday;
+      const todayWeekday = d.getDay() === 0 ? 1 : d.getDay() + 1;
+      let daysUntil = (selectedWeekday - todayWeekday + 7) % 7;
+      if (daysUntil === 0 && d <= new Date()) daysUntil = 7;
+      d.setDate(d.getDate() + daysUntil);
       return { type: T.DATE, date: d };
     }
   }

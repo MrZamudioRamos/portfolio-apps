@@ -347,6 +347,9 @@
     "photo": "FOTO (opcional)",
     "addPhoto": "Añadir foto",
     "saveEntry": "Guardar entrada",
+    "saved": "Entrada guardada",
+    "savedDesc": "Tu cuidado ya forma parte del diario.",
+    "saveError": "No se ha podido guardar la entrada. Vuelve a intentarlo.",
     "watering": "RIEGO",
     "liters": "Litros",
     "litersPlaceholder": "10",
@@ -455,6 +458,7 @@
   "gardenMap": {
     "title": "Mapa del huerto",
     "summary": "{{placed}} / {{total}} plantas colocadas · {{cols}}×{{rows}} parcelas",
+    "lead": "Toca una parcela para ver qué planta vive ahí. No necesitas conocer símbolos.",
     "freeSummary": "{{total}} plantas en este espacio",
     "south": "Sur",
     "assignPlant": "Asignar planta",
@@ -464,6 +468,8 @@
     "legendOccupied": "Parcela con planta",
     "legendEmpty": "Parcela vacía",
     "emptyNote": "Añade plantas primero desde el dashboard para colocarlas en el mapa.",
+    "emptyTitle": "Empieza por una planta",
+    "emptyDesc": "Añade tu primera planta y después podrás colocarla en el mapa.",
     "viewPlant": "Ver planta",
     "removeFromMap": "Quitar del mapa",
     "removeTitle": "Quitar del mapa",
@@ -477,6 +483,8 @@
     "shareNotAvailable": "Compartir no está disponible en este dispositivo.",
     "shareError": "No se pudo capturar el mapa.",
     "addPlant": "Añadir planta",
+    "editLocations": "Editar ubicaciones",
+    "help": "Ayuda",
     "noEmptyCell": "No hay parcelas vacías",
     "plantsBadge": "plantas",
     "notesTitle": "Notas del huerto",
@@ -518,10 +526,38 @@
     "freeAllGood": "Todo bien",
     "freeReview": "Revisar",
     "freeNoData": "Sin datos",
-    "freeSelected": "Seleccionada: {{name}} · {{crop}}",
+    "freeSelected": "Seleccionada: {{location}} · {{crop}}",
     "freeMoveHint": "Mantén pulsada una tarjeta para moverla. Tócala para ver sus cuidados.",
     "freeAddHint": "Añade tu primera planta para empezar a organizar este espacio.",
-    "freeCanvasHint": "Organiza tus macetas libremente"
+    "freeCanvasHint": "Organiza tus macetas libremente",
+    "layerTitle": "Ver por",
+    "layerPlants": "Cultivos",
+    "layerWater": "Riego",
+    "layerLight": "Luz",
+    "layerPests": "Plagas",
+    "selectedHint": "Abre la planta para ver sus cuidados.",
+    "editingHint": "Mantén pulsada una planta para moverla.",
+    "doneEditing": "Listo",
+    "sunNeeds": {
+      "full": "Sol directo",
+      "partial": "Luz media",
+      "shade": "Poca luz"
+    },
+    "todayTitle": "Para hoy",
+    "todayViewPlant": "Ver planta",
+    "todayLogCare": "Registrar cuidado",
+    "today": {
+      "inspectTitle": "Revisa {{plant}}",
+      "inspectDesc": "Comprueba sus hojas y registra lo que veas.",
+      "harvestTitle": "¿Hay algo para cosechar en {{plant}}?",
+      "harvestDesc": "Anota la cantidad y añade una foto si quieres.",
+      "careTitle": "Haz una revisión de {{plant}}",
+      "careDesc": "Registra un riego, una foto o cualquier cambio."
+    },
+    "weatherAlertTitle": "El tiempo cambia el plan de hoy",
+    "weatherFrostDesc": "Se esperan {{temp}} °C en {{province}}. Protege las plantas sensibles.",
+    "weatherHeatDesc": "Se esperan hasta {{temp}} °C en {{province}}. Comprueba la tierra y riega temprano.",
+    "weatherRainDesc": "Hay un {{rain}}% de lluvia prevista. Comprueba la tierra antes de regar."
   },
   "onboarding": {
     "step1Title": "Tu huerto digital",
@@ -804,6 +840,17 @@
     "diary": "Diario",
     "noEntries": "Sin entradas aún. ¡Registra tu primera actividad!",
     "pestSection": "Estado de plagas",
+    "pestClearTitle": "No vemos señales por ahora",
+    "pestClearBody": "Sigue revisando las hojas con calma, especialmente por debajo.",
+    "pestTreatedTitle": "Tratamiento en seguimiento",
+    "pestTreatedBody": "Observa cómo responde la planta antes de volver a tratarla.",
+    "pestMarkComplete": "Marcar completado",
+    "pestSeverityLabel": "Nivel de atención",
+    "pestNextStepLabel": "Siguiente paso",
+    "pestNextTreat": "Empieza por la opción más suave y observa la respuesta.",
+    "pestNextCheck": "Vuelve a revisar las hojas antes de cambiar el tratamiento.",
+    "showTreatments": "Ver opciones de tratamiento",
+    "hideTreatments": "Ocultar opciones",
     "diseaseGuideBtn": "📖 Guía de enfermedades",
     "commonPests": "PLAGAS FRECUENTES EN {{crop}}",
     "newEntry": "Nueva entrada",
@@ -953,6 +1000,8 @@
     "deleteTitle": "¿Eliminar recordatorio?",
     "deleteDesc": "Se cancelará la notificación y se eliminará el recordatorio.",
     "saveError": "No se pudo guardar el recordatorio.",
+    "saved": "Recordatorio guardado",
+    "savedDesc": "Ya está listo para avisarte.",
     "permissionError": "No se han permitido las notificaciones. Puedes activarlas en Ajustes y volver a intentarlo.",
     "notFound": "Recordatorio no encontrado"
   },
@@ -972,6 +1021,8 @@
     "noGardenTitle": "Sin huerto",
     "noGardenDesc": "Completa el onboarding primero.",
     "saveError": "No se pudo crear el recordatorio.",
+    "saved": "Recordatorio guardado",
+    "savedDesc": "Ya está listo para avisarte.",
     "permissionError": "No se han permitido las notificaciones. Puedes activarlas en Ajustes y volver a intentarlo."
   },
   "backup": {
@@ -1219,6 +1270,11 @@
     "none": "Sin plagas",
     "active": "Plaga activa",
     "treated": "En tratamiento"
+  },
+  "pestSeverity": {
+    "low": "Vigilar",
+    "medium": "Atención",
+    "high": "Actuar pronto"
   },
     "plantGuide": {
       "chapter": "Capítulo",
@@ -2325,6 +2381,7 @@
   },
   "dailyCare": {
     "eyebrow": "Hoy en tu huerto",
+    "nextStep": "Siguiente paso",
     "checkTitle": "Comprueba la tierra de {{name}}",
     "checkBody": "Toca la superficie de la tierra. Si está seca, riega suavemente; si sigue húmeda, espera. Al terminar, registra lo que has observado.",
     "prepareTitle": "Prepara el espacio de {{name}}",

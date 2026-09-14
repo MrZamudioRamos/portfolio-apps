@@ -2,7 +2,7 @@ import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useReminders, NotificationPermissionDeniedError, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -48,12 +48,20 @@ export default function ReminderEditScreen() {
   const [minute, setMinute] = useState(reminder?.time?.minute ?? 0);
   const [enabled, setEnabled] = useState(reminder?.enabled ?? true);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const [permissionError, setPermissionError] = useState(false);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
+
+  useEffect(() => {
+    if (!saved) return;
+    const timeout = setTimeout(() => router.back(), 700);
+    return () => clearTimeout(timeout);
+  }, [router, saved]);
 
   function weekdayLabel(day: number) {
     const date = new Date(2024, 0, day === 1 ? 7 : 7 + day - 1);
@@ -88,20 +96,24 @@ export default function ReminderEditScreen() {
 
   async function handleSave() {
     setSaving(true);
+    setSaveError(false);
     setPermissionError(false);
     try {
       await reminders.update(id, {
         type,
         title: title.trim() || REMINDER_TYPE_CONFIG[type].defaultTitle,
         frequency,
-        weekday: frequency === 'weekly' ? weekday : undefined,
+        weekday: frequency === 'weekly' || frequency === 'once' ? weekday : undefined,
         time: { hour, minute },
         enabled,
       });
-      router.back();
+      setSaved(true);
     } catch (error) {
       if (error instanceof NotificationPermissionDeniedError) setPermissionError(true);
-      else Alert.alert(t('common.error'), t('reminderEdit.saveError'));
+      else {
+        setSaveError(true);
+        Alert.alert(t('common.error'), t('reminderEdit.saveError'));
+      }
     } finally {
       setSaving(false);
     }
@@ -144,6 +156,16 @@ export default function ReminderEditScreen() {
               <Pressable accessibilityRole="button" onPress={openSystemSettings} style={{ minHeight: 44, justifyContent: 'center' }}>
                 <Text style={{ color: colors.primary, fontWeight: fontWeight.semibold }}>{t('common.openSettings')}</Text>
               </Pressable>
+            </View>
+          )}
+          {saveError && <Text accessibilityRole="alert" style={{ color: colors.error, marginBottom: spacing.md }}>{t('reminderEdit.saveError')}</Text>}
+          {saved && (
+            <View accessibilityRole="alert" style={[s.savedFeedback, { backgroundColor: colors.primary + '14', borderColor: colors.primary + '36' }]}>
+              <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={[s.savedTitle, { color: colors.primary }]}>{t('reminderEdit.saved')}</Text>
+                <Text style={[s.savedDesc, { color: colors.textSecondary }]}>{t('reminderEdit.savedDesc')}</Text>
+              </View>
             </View>
           )}
           {/* Enabled toggle */}
@@ -229,7 +251,7 @@ export default function ReminderEditScreen() {
           </ScrollView>
 
           {/* Hour picker */}
-          {frequency === 'weekly' && (
+          {(frequency === 'weekly' || frequency === 'once') && (
             <>
               <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.weekdayLabel')}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.lg }}>
@@ -326,6 +348,9 @@ const makeStyles = (
     },
     enabledLabel: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     enabledDesc: { fontSize: fontSize.xs, marginTop: 2 },
+    savedFeedback: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderWidth: 1, borderRadius: radii.md, marginBottom: spacing.md },
+    savedTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    savedDesc: { fontSize: fontSize.xs, marginTop: 2 },
     label: {
       fontSize: fontSize.xs,
       fontWeight: fontWeight.semibold,
