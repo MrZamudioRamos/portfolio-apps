@@ -57,9 +57,9 @@ export function CoachBubble({
         {onNext && (
           <ScalePress
             onPress={onNext}
-            style={[s.next, { backgroundColor: colors.primary, ...shadows.sm }]}
+            style={[s.next, { backgroundColor: colors.accent, ...shadows.sm }]}
           >
-            <Text style={[s.nextText, { color: colors.background }]}>{nextLabel ?? 'Siguiente'}</Text>
+            <Text style={[s.nextText, { color: colors.primaryDark }]}>{nextLabel ?? 'Siguiente'}</Text>
           </ScalePress>
         )}
       </View>
@@ -73,7 +73,7 @@ export function CoachBubble({
               style={[
                 s.dot,
                 {
-                  backgroundColor: i <= step ? colors.primary : colors.border,
+                  backgroundColor: i <= step ? colors.accent : colors.border,
                   width: i === step ? 20 : 8,
                 },
               ]}

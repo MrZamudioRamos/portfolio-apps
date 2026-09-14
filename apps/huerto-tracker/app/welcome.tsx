@@ -28,7 +28,7 @@ export default function WelcomeScreen() {
           <View style={{ padding: spacing.lg, borderRadius: radii.lg, backgroundColor: colors.surfaceAlt, gap: spacing.md }}>
             {(['space', 'crop', 'care'] as const).map((key, index) => (
               <View key={key} style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'center' }}>
-                <Text style={{ color: colors.primary, fontWeight: fontWeight.bold }}>{index + 1}</Text>
+                <Text style={{ color: colors.primaryDark, fontWeight: fontWeight.bold }}>{index + 1}</Text>
                 <Text style={{ color: colors.text, flex: 1, fontSize: fontSize.md }}>{t('welcome.path.' + key)}</Text>
               </View>
             ))}
