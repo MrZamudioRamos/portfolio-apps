@@ -556,6 +556,12 @@ function DashboardInner() {
       {/* Header — simplified: name + compact info strip */}
       <View style={s.header}>
         <View style={{ flex: 1, minWidth: 0 }}>
+          <View style={s.brandRow}>
+            <View style={[s.brandMark, { backgroundColor: colors.accent }]}>
+              <Ionicons name="leaf" size={15} color={colors.primaryDark} />
+            </View>
+            <Text style={[s.brandName, { color: colors.text }]}>semilla</Text>
+          </View>
           <Text style={[s.headerTitle, { color: colors.text }]} numberOfLines={1}>
             {garden?.name ?? t('home.defaultGardenName')}
           </Text>
@@ -1265,7 +1271,10 @@ const makeStyles = (
       paddingBottom: spacing.md,
       gap: spacing.sm,
     },
-    headerTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
+    brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: 3 },
+    brandMark: { width: 26, height: 26, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+    brandName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, letterSpacing: -0.3 },
+    headerTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     headerSub: { fontSize: fontSize.xs, marginTop: 1 },
     headerBtn: {
       width: 40,

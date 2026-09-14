@@ -258,6 +258,12 @@ function CalendarInner() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={s.header}>
+        <View style={s.brandRow}>
+          <View style={[s.brandMark, { backgroundColor: colors.accent }]}>
+            <Ionicons name="leaf" size={15} color={colors.primaryDark} />
+          </View>
+          <Text style={[s.brandName, { color: colors.text }]}>semilla</Text>
+        </View>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('calendar.title')}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
           <Text style={[s.headerZone, { color: colors.textSecondary }]}>
@@ -482,8 +488,11 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
-    header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.sm },
-    headerTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
+    header: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.md },
+    brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
+    brandMark: { width: 26, height: 26, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+    brandName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, letterSpacing: -0.3 },
+    headerTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
     headerZone: { fontSize: fontSize.sm },
     hemisphereTag: {
       paddingHorizontal: 6,

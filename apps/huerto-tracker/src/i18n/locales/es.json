@@ -1,10 +1,25 @@
 {
   "tabs": {
     "home": "Mi Huerto",
+    "dashboard": "Dashboard",
+    "map": "Map",
+    "plants": "Plantas",
     "calendar": "Temporada",
+    "calendarNav": "Calendar",
     "diary": "Diario",
     "settings": "Ajustes",
     "tools": "Herramientas"
+  },
+  "plantsTab": {
+    "eyebrow": "Tu espacio verde",
+    "title": "Tus plantas",
+    "countLabel": "plantas",
+    "listTitle": "En tu huerto",
+    "progress": "Avance de la temporada",
+    "add": "Añadir planta",
+    "open": "Abrir ficha",
+    "emptyTitle": "Todavía no tienes plantas",
+    "emptyDesc": "Añade tu primera planta y Semilla te acompañará con los siguientes cuidados."
   },
   "common": {
     "cancel": "Cancelar",
@@ -440,6 +455,7 @@
   "gardenMap": {
     "title": "Mapa del huerto",
     "summary": "{{placed}} / {{total}} plantas colocadas · {{cols}}×{{rows}} parcelas",
+    "freeSummary": "{{total}} plantas en este espacio",
     "south": "Sur",
     "assignPlant": "Asignar planta",
     "searchPlant": "Buscar planta…",
@@ -455,7 +471,7 @@
     "remove": "Quitar",
     "movePlant": "Mover",
     "moveModeHint": "Toca la parcela de destino · Pulsa ✕ para cancelar",
-    "potModeHint": "Cada celda representa una maceta",
+    "potModeHint": "Organiza tus macetas libremente",
     "moveCancelled": "Movimiento cancelado",
     "shareTitle": "Mi Huerto",
     "shareNotAvailable": "Compartir no está disponible en este dispositivo.",
@@ -494,7 +510,18 @@
       "high": "Alta",
       "medium": "Media",
       "low": "Baja"
-    }
+    },
+    "filterAll": "Todo",
+    "filterAttention": "Necesita atención",
+    "filterLight": "Por luz",
+    "potLabel": "Maceta {{number}}",
+    "freeAllGood": "Todo bien",
+    "freeReview": "Revisar",
+    "freeNoData": "Sin datos",
+    "freeSelected": "Seleccionada: {{name}} · {{crop}}",
+    "freeMoveHint": "Mantén pulsada una tarjeta para moverla. Tócala para ver sus cuidados.",
+    "freeAddHint": "Añade tu primera planta para empezar a organizar este espacio.",
+    "freeCanvasHint": "Organiza tus macetas libremente"
   },
   "onboarding": {
     "step1Title": "Tu huerto digital",

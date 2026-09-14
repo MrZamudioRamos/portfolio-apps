@@ -18,11 +18,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
-const TAB_BAR_H = 64;
-const TAB_BAR_GAP_BOTTOM = 0;
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
-export const FLOATING_TAB_BOTTOM_CLEARANCE = TAB_BAR_H + TAB_BAR_GAP_BOTTOM + 8;
+const PILL_H = 66;
+const PILL_GAP_BOTTOM = 12;
+
+export const FLOATING_TAB_BOTTOM_CLEARANCE = PILL_H + PILL_GAP_BOTTOM + 8;
 
 // 0 = expanded, 1 = collapsed to circle
 export const collapseAnim = new Animated.Value(0);
@@ -55,7 +56,7 @@ type TabBarProps = {
 };
 
 function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
-  const { colors, isDark } = useTheme();
+  const { colors, isDark, fontWeight } = useTheme();
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const { t } = useTranslation();
@@ -67,7 +68,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
     return () => collapseAnim.removeListener(id);
   }, []);
 
-  const fullWidth = screenWidth;
+  const fullWidth = screenWidth - 24;
 
   const visibleRoutes = state.routes.filter(
     (r) => typeof descriptors[r.key].options.tabBarIcon === 'function'
@@ -79,11 +80,10 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
   const activeOptions = activeRoute ? descriptors[activeRoute.key]?.options : null;
 
   // The bar collapses to a small restore control while scrolling.
-  const tabBarWidth = collapseAnim.interpolate({
+  const pillWidth = collapseAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [fullWidth, TAB_BAR_H],
+    outputRange: [fullWidth, PILL_H],
   });
-  const tabBarLeft = collapseAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 12] });
 
   // Tab row fades out early in the collapse
   const tabRowOpacity = collapseAnim.interpolate({
@@ -104,16 +104,16 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
         pointerEvents="none"
         style={{
           position: 'absolute',
-          bottom: insets.bottom + TAB_BAR_GAP_BOTTOM,
-          left: tabBarLeft,
-          width: tabBarWidth,
-          height: TAB_BAR_H,
-          borderRadius: isCollapsed ? TAB_BAR_H / 2 : 0,
+          bottom: insets.bottom + PILL_GAP_BOTTOM,
+          left: 12,
+          width: pillWidth,
+          height: PILL_H,
+          borderRadius: 18,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.14,
-          shadowRadius: 6,
-          elevation: 4,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.16,
+          shadowRadius: 10,
+          elevation: 6,
         }}
       />
 
@@ -122,11 +122,11 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
         pointerEvents="box-none"
         style={{
           position: 'absolute',
-          bottom: insets.bottom + TAB_BAR_GAP_BOTTOM,
-          left: tabBarLeft,
-          width: tabBarWidth,
-          height: TAB_BAR_H,
-          borderRadius: isCollapsed ? TAB_BAR_H / 2 : 0,
+          bottom: insets.bottom + PILL_GAP_BOTTOM,
+          left: 12,
+          width: pillWidth,
+          height: PILL_H,
+          borderRadius: 18,
           overflow: 'hidden',
           backgroundColor: glassAvailable ? 'transparent' : colors.surface,
           borderTopWidth: StyleSheet.hairlineWidth,
@@ -157,7 +157,7 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
           style={[
             StyleSheet.absoluteFill,
             {
-              borderRadius: isCollapsed ? TAB_BAR_H / 2 : 0,
+              borderRadius: 18,
               borderWidth: StyleSheet.hairlineWidth,
               borderColor: isDark
                 ? 'rgba(255,255,255,0.1)'
@@ -217,8 +217,8 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                       left: 6,
                       right: 6,
                       bottom: 4,
-                      borderRadius: 8,
-                      backgroundColor: colors.primary + (isDark ? '26' : '16'),
+                      borderRadius: 10,
+                      backgroundColor: colors.accent + (isDark ? '38' : '55'),
                     }}
                   />
                 )}
@@ -232,11 +232,9 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
                 <Text
                   numberOfLines={1}
                   style={{
-                    fontSize: 11,
-                    fontWeight: focused ? '700' : '400',
-                    color: focused
-                      ? (isDark ? '#fff' : '#111')
-                      : (isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.35)'),
+                    fontSize: 10,
+                    fontWeight: focused ? fontWeight.bold : fontWeight.regular,
+                    color: focused ? colors.primaryDark : colors.textSecondary,
                     marginTop: 2,
                   }}
                 >
@@ -254,8 +252,8 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
             position: 'absolute',
             top: 0,
             left: 0,
-            width: TAB_BAR_H,
-            height: TAB_BAR_H,
+            width: PILL_H,
+            height: PILL_H,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: restoreOpacity,
@@ -266,13 +264,13 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
             accessibilityRole="button"
             accessibilityLabel={t('common.showMenu')}
             style={{
-              width: TAB_BAR_H,
-              height: TAB_BAR_H,
+              width: PILL_H,
+              height: PILL_H,
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            {activeOptions?.tabBarIcon?.({ color: isDark ? '#fff' : '#111', size: 28, focused: true })}
+            {activeOptions?.tabBarIcon?.({ color: colors.primaryDark, size: 28, focused: true })}
           </Pressable>
         </Animated.View>
       </Animated.View>
@@ -300,39 +298,41 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: t('tabs.home'),
+          title: t('tabs.dashboard'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="leaf-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
+        name="map"
+        options={{
+          title: t('tabs.map'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="map-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="plants"
+        options={{
+          title: t('tabs.plants'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="flower-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="calendar"
         options={{
-          title: t('tabs.calendar'),
+          title: t('tabs.calendarNav'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="sunny-outline" size={size} color={color} />
+            <Ionicons name="calendar-outline" size={size} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="diary"
-        options={{
-          title: t('tabs.diary'),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="journal-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="tools"
-        options={{
-          title: t('tabs.tools'),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid-outline" size={size} color={color} />
-          ),
-        }}
-      />
+      <Tabs.Screen name="diary" options={{ href: null }} />
+      <Tabs.Screen name="tools" options={{ href: null }} />
       <Tabs.Screen
         name="settings"
         options={{
