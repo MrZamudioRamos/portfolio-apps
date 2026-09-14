@@ -72,7 +72,7 @@ export default function MagicSentScreen() {
                   s.otpBox,
                   {
                     backgroundColor: colors.surface,
-                    borderColor: code.length === i ? colors.primary : code[i] ? colors.primary + '66' : colors.border,
+                    borderColor: code.length === i ? colors.accent : code[i] ? colors.accent + '99' : colors.border,
                   },
                 ]}
               >
@@ -95,10 +95,10 @@ export default function MagicSentScreen() {
             disabled={verifying || code.length !== 6}
             style={({ pressed }) => [
               s.verifyBtn,
-              { backgroundColor: colors.primary, opacity: pressed || verifying || code.length !== 6 ? 0.5 : 1 },
+              { backgroundColor: colors.accent, opacity: pressed || verifying || code.length !== 6 ? 0.5 : 1 },
             ]}
           >
-            <Text style={[s.verifyBtnText, { color: colors.background }]}>
+            <Text style={[s.verifyBtnText, { color: colors.primaryDark }]}>
               {verifying ? t('magicSent.verifying') : t('magicSent.verify')}
             </Text>
           </Pressable>

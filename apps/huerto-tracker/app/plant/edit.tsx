@@ -160,7 +160,7 @@ export default function EditPlantScreen() {
           hitSlop={12}
           style={{ opacity: !plantName.trim() || saving ? 0.4 : 1 }}
         >
-          <Text style={[{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }]}>
+          <Text style={[{ color: colors.primaryDark, fontSize: fontSize.md, fontWeight: fontWeight.semibold }]}>
             {t('common.save')}
           </Text>
         </Pressable>
@@ -233,12 +233,12 @@ export default function EditPlantScreen() {
                 style={[
                   s.varietyChip,
                   {
-                    backgroundColor: !varietyId ? colors.primary + '22' : colors.surface,
-                    borderColor: !varietyId ? colors.primary : colors.border,
+                    backgroundColor: !varietyId ? colors.accent : colors.surface,
+                    borderColor: !varietyId ? colors.accent : colors.border,
                   },
                 ]}
               >
-                <Text style={[s.varietyChipText, { color: !varietyId ? colors.primary : colors.textSecondary }]}>
+                <Text style={[s.varietyChipText, { color: !varietyId ? colors.primaryDark : colors.textSecondary }]}>
                   🌱 {t('plantNew.varietyGeneric')}
                 </Text>
               </Pressable>
@@ -251,12 +251,12 @@ export default function EditPlantScreen() {
                     style={[
                       s.varietyChip,
                       {
-                        backgroundColor: active ? colors.primary + '22' : colors.surface,
-                        borderColor: active ? colors.primary : colors.border,
+                        backgroundColor: active ? colors.accent : colors.surface,
+                        borderColor: active ? colors.accent : colors.border,
                       },
                     ]}
                   >
-                    <Text style={[s.varietyChipText, { color: active ? colors.primary : colors.text }]}>
+                    <Text style={[s.varietyChipText, { color: active ? colors.primaryDark : colors.text }]}>
                       {t('varieties.' + v.id, { defaultValue: v.name })}
                     </Text>
                     <Text style={[s.varietyChipDays, { color: colors.textSecondary }]}>

@@ -172,7 +172,7 @@ export default function EditEntryScreen() {
           <Text style={[s.headerTitle, { color: colors.text }]}>{t('entryEdit.title')}</Text>
         </View>
         <Pressable onPress={handleSave} disabled={saving} hitSlop={12}>
-          <Text style={[{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }, saving && { opacity: 0.5 }]}>
+          <Text style={[{ color: colors.primaryDark, fontSize: fontSize.md, fontWeight: fontWeight.semibold }, saving && { opacity: 0.5 }]}>
             {t('entryEdit.save')}
           </Text>
         </Pressable>
@@ -299,8 +299,8 @@ export default function EditEntryScreen() {
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
                       {(['g','kg','ml','L'] as const).map((u) => (
                         <Pressable key={u} onPress={() => setFertUnit(u)}
-                          style={[s.unitChip, { backgroundColor: fertUnit === u ? colors.primary + '22' : colors.surface, borderColor: fertUnit === u ? colors.primary : colors.border }]}>
-                          <Text style={{ fontSize: fontSize.sm, color: fertUnit === u ? colors.primary : colors.textSecondary, fontWeight: fontWeight.semibold }}>{u}</Text>
+                          style={[s.unitChip, { backgroundColor: fertUnit === u ? colors.accent : colors.surface, borderColor: fertUnit === u ? colors.accent : colors.border }]}>
+                          <Text style={{ fontSize: fontSize.sm, color: fertUnit === u ? colors.primaryDark : colors.textSecondary, fontWeight: fontWeight.semibold }}>{u}</Text>
                         </Pressable>
                       ))}
                     </View>

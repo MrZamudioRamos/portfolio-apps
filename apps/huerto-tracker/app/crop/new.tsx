@@ -150,13 +150,13 @@ export default function NewCustomCropScreen() {
                 style={[
                   s.chip,
                   {
-                    backgroundColor: category === cat ? colors.primary : colors.surface,
-                    borderColor: category === cat ? colors.primary : colors.border,
+                    backgroundColor: category === cat ? colors.accent : colors.surface,
+                    borderColor: category === cat ? colors.accent : colors.border,
                   },
                 ]}
               >
                 <Text style={{ fontSize: 14 }}>{CATEGORY_CONFIG[cat].emoji}</Text>
-                <Text style={[s.chipText, { color: category === cat ? '#fff' : colors.text }]}>
+                <Text style={[s.chipText, { color: category === cat ? colors.primaryDark : colors.text }]}>
                   {t('cropCategory.' + cat)}
                 </Text>
               </Pressable>
@@ -198,12 +198,12 @@ export default function NewCustomCropScreen() {
                 style={[
                   s.monthChip,
                   {
-                    backgroundColor: sowingMonths.includes(m) ? '#4CAF50' : colors.surface,
-                    borderColor: sowingMonths.includes(m) ? '#4CAF50' : colors.border,
+                    backgroundColor: sowingMonths.includes(m) ? colors.accent : colors.surface,
+                    borderColor: sowingMonths.includes(m) ? colors.accent : colors.border,
                   },
                 ]}
               >
-                <Text style={[s.monthText, { color: sowingMonths.includes(m) ? '#fff' : colors.textSecondary }]}>
+                <Text style={[s.monthText, { color: sowingMonths.includes(m) ? colors.primaryDark : colors.textSecondary }]}>
                   {monthLabels[m - 1]}
                 </Text>
               </Pressable>
@@ -242,13 +242,13 @@ export default function NewCustomCropScreen() {
                 style={[
                   s.optionChip,
                   {
-                    backgroundColor: sunNeeds === v ? colors.primary : colors.surface,
-                    borderColor: sunNeeds === v ? colors.primary : colors.border,
+                    backgroundColor: sunNeeds === v ? colors.accent : colors.surface,
+                    borderColor: sunNeeds === v ? colors.accent : colors.border,
                   },
                 ]}
               >
                 <Text style={{ fontSize: 16 }}>{v === 'full' ? '☀️' : v === 'partial' ? '⛅' : '🌥'}</Text>
-                <Text style={[s.chipText, { color: sunNeeds === v ? '#fff' : colors.text, marginLeft: 4 }]}>
+                <Text style={[s.chipText, { color: sunNeeds === v ? colors.primaryDark : colors.text, marginLeft: 4 }]}>
                   {t('customCrop.sun' + (v === 'full' ? 'Full' : v === 'partial' ? 'Partial' : 'Shade'))}
                 </Text>
               </Pressable>
@@ -305,10 +305,10 @@ export default function NewCustomCropScreen() {
             disabled={saving || !name.trim()}
             style={[
               s.saveBtn,
-              { backgroundColor: (!name.trim() || saving) ? colors.border : colors.primary },
+              { backgroundColor: (!name.trim() || saving) ? colors.border : colors.accent },
             ]}
           >
-            <Text style={[s.saveBtnText, { color: !name.trim() || saving ? colors.textSecondary : '#fff' }]}>
+            <Text style={[s.saveBtnText, { color: !name.trim() || saving ? colors.textSecondary : colors.primaryDark }]}>
               {t('customCrop.save')}
             </Text>
           </Pressable>

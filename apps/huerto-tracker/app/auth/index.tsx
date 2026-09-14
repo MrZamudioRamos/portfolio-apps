@@ -102,7 +102,7 @@ export default function AuthScreen() {
         <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
           {/* Header */}
           <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={12}>
-            <Text style={[s.backText, { color: colors.primary }]}>{t('common.back')}</Text>
+            <Text style={[s.backText, { color: colors.primaryDark }]}>{t('common.back')}</Text>
           </Pressable>
 
           <Text style={s.heroEmoji}>🌱</Text>
@@ -157,7 +157,7 @@ export default function AuthScreen() {
                 onPress={() => setEmailMode('otp')}
                 style={({ pressed }) => [s.magicToggle, { opacity: pressed ? 0.7 : 1 }]}
               >
-                <Text style={[s.magicToggleText, { color: colors.primary }]}>
+                <Text style={[s.magicToggleText, { color: colors.primaryDark }]}>
                   {t('auth.emailLink')}
                 </Text>
               </Pressable>
@@ -190,10 +190,10 @@ export default function AuthScreen() {
                 disabled={loadingEmail}
                 style={({ pressed }) => [
                   s.magicBtn,
-                  { backgroundColor: colors.primary, opacity: pressed || loadingEmail ? 0.7 : 1 },
+                  { backgroundColor: colors.accent, opacity: pressed || loadingEmail ? 0.7 : 1 },
                 ]}
               >
-                <Text style={[s.magicBtnText, { color: colors.background }]}>
+                <Text style={[s.magicBtnText, { color: colors.primaryDark }]}>
                   {loadingEmail
                     ? t('auth.sending')
                     : emailMode === 'password'

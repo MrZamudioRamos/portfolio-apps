@@ -38,7 +38,7 @@ export default function ManageCustomCropsScreen() {
           hitSlop={12}
           style={s.addBtn}
         >
-          <Ionicons name="add" size={26} color={colors.primary} />
+          <Ionicons name="add" size={26} color={colors.primaryDark} />
         </Pressable>
       </View>
 

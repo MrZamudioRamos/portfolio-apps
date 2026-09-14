@@ -116,7 +116,7 @@ export default function DiseaseGuideScreen() {
             <View style={{ flexDirection: 'row', gap: spacing.sm }}>
               {FILTERS.map((f) => {
                 const active = typeFilter === f.key;
-                const color = f.key ? TYPE_COLOR[f.key] : colors.primary;
+                const color = f.key ? TYPE_COLOR[f.key] : colors.accent;
                 return (
                   <Pressable
                     key={f.key ?? 'all'}
@@ -129,7 +129,7 @@ export default function DiseaseGuideScreen() {
                       },
                     ]}
                   >
-                    <Text style={[s.filterChipText, { color: active ? color : colors.textSecondary }]}>
+                    <Text style={[s.filterChipText, { color: active ? (f.key ? color : colors.primaryDark) : colors.textSecondary }]}>
                       {f.label}
                     </Text>
                   </Pressable>
