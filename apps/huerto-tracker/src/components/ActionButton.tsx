@@ -12,7 +12,7 @@ export function Button({ title, onPress, variant = 'primary', size = 'md', loadi
   const foreground = variant === 'primary' ? colors.primaryDark : colors.text;
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ disabled: inactive, busy: Boolean(loading) }} disabled={inactive} onPress={onPress}
-      style={({ pressed }) => [{ minHeight: 48, paddingVertical: size === 'lg' ? spacing.md : spacing.sm, paddingHorizontal: spacing.lg, borderRadius: radii.md, borderWidth: variant === 'outline' ? 1.5 : 0, borderColor: colors.border, backgroundColor, alignItems: 'center', justifyContent: 'center', opacity: inactive ? 0.5 : pressed ? 0.8 : 1 }, style]}>
+      style={({ pressed }) => [{ minHeight: size === 'lg' ? 52 : 44, paddingVertical: size === 'lg' ? spacing.md : spacing.sm, paddingHorizontal: spacing.lg, borderRadius: radii.xl, borderWidth: variant === 'outline' ? 1.5 : 0, borderColor: colors.border, backgroundColor, alignItems: 'center', justifyContent: 'center', opacity: inactive ? 0.5 : pressed ? 0.8 : 1 }, style]}>
       {loading ? <ActivityIndicator color={foreground} /> : <Text style={{ color: foreground, textAlign: 'center', fontSize: size === 'sm' ? fontSize.sm : fontSize.md, fontWeight: fontWeight.semibold }}>{title}</Text>}
     </Pressable>
   );

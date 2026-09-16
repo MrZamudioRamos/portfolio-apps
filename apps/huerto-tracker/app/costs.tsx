@@ -24,13 +24,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
-import { usePro } from '../src/hooks/usePro';
 import { CROPS_BY_ID } from '../src/data/crops';
 import { dateToStr, todayStr } from '../src/utils/dateStr';
 import type { DiaryEntry } from '../src/models/diary-entry';
 import type { Plant } from '../src/models/plant';
 import { COST_CATEGORY_CONFIG, type CostCategory, type CostEntry } from '../src/models/cost-entry';
 import { Illustration } from '../src/components/Illustration';
+import { CollectionError } from '../src/components/CollectionError';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -51,10 +51,9 @@ export default function CostsScreen() {
   const { spacing, fontSize, fontWeight, radii, shadows, isDark } = useTheme();
   const router = useRouter();
   const { t, i18n } = useTranslation();
-  const { isPro } = usePro();
   const { activeGarden, refreshActiveId } = useActiveGarden();
 
-  useFocusEffect(useCallback(() => { refreshActiveId(); }, []));
+  useFocusEffect(useCallback(() => { void refreshActiveId().catch(() => {}); }, []));
 
   const plants = useCollection<Plant>('plants');
   const diaryEntries = useCollection<DiaryEntry>('diary_entries');
@@ -264,60 +263,62 @@ export default function CostsScreen() {
   const roiColor = roi === null ? colors.textSecondary : roi >= 0 ? '#4CAF50' : '#EF5350';
   const locale = i18n.language;
 
-  if (!isPro) {
-    return (
-      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <View style={[s.header, { borderBottomColor: colors.border }]}>
-          <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Ionicons name="arrow-back" size={24} color={colors.primary} />
-          </Pressable>
-          <Text style={[s.headerTitle, { color: colors.text }]}>💰 {t('costs.title')}</Text>
-          <View style={{ width: 80 }} />
-        </View>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing['2xl'] }}>
-          <Text style={{ fontSize: 56, marginBottom: spacing.lg }}>💶</Text>
-          <Text style={{ fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text, textAlign: 'center', marginBottom: spacing.md }}>
-            {t('costs.proTitle')}
-          </Text>
-          <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: spacing['2xl'] }}>
-            {t('costs.proDesc')}
-          </Text>
-          <Pressable
-            onPress={() => router.push('/paywall?source=costs' as any)}
-            style={{ backgroundColor: colors.primary, paddingVertical: spacing.lg, paddingHorizontal: spacing['2xl'], borderRadius: radii.lg }}
-          >
-            <Text style={{ color: colors.background, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('costs.proBtn')}</Text>
-          </Pressable>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
+        <Pressable onPress={() => router.back()} hitSlop={12} style={s.headerBackButton}>
+          <Ionicons name="arrow-back" size={21} color={colors.primary} />
+          <Text style={[s.headerBackText, { color: colors.primary }]}>Volver a Mi Huerto</Text>
         </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>💰 {t('costs.title')}</Text>
-        {/* Year selector */}
-        <View style={s.yearRow}>
-          <Pressable onPress={() => setYear((y) => y - 1)} hitSlop={10}>
-            <Ionicons name="chevron-back" size={20} color={colors.primary} />
-          </Pressable>
-          <Text style={[s.yearLabel, { color: colors.text }]}>{year}</Text>
-          <Pressable onPress={() => setYear((y) => Math.min(y + 1, new Date().getFullYear()))} hitSlop={10}>
-            <Ionicons name="chevron-forward" size={20} color={year >= new Date().getFullYear() ? colors.textDisabled : colors.primary} />
-          </Pressable>
-        </View>
+        <Pressable onPress={() => setShowAddModal(true)} hitSlop={10} style={s.newButton}>
+          <Ionicons name="add" size={18} color={colors.primary} />
+          <Text style={[s.newButtonText, { color: colors.primary }]}>Nuevo</Text>
+        </Pressable>
       </View>
+
+      {(plants.loading || diaryEntries.loading || costEntries.loading) &&
+        plants.items.length === 0 && diaryEntries.items.length === 0 && costEntries.items.length === 0 && (
+          <View style={{ alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.lg }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+            <ActivityIndicator color={colors.primary} />
+            <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+          </View>
+        )}
+
+      {(plants.error || diaryEntries.error || costEntries.error) && (
+        <View style={{ paddingHorizontal: spacing.xl, marginBottom: spacing.md }}>
+          <CollectionError onRetry={() => Promise.all([plants.refresh(), diaryEntries.refresh(), costEntries.refresh()]).catch(() => {})} />
+        </View>
+      )}
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={s.scroll}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
       >
+
+        <View style={[s.costHero, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={s.costHeroTop}>
+            <View style={[s.costHeroIcon, { backgroundColor: colors.primary + '18' }]}>
+              <Ionicons name="receipt-outline" size={25} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.costHeroEyebrow, { color: colors.primary }]}>{t('costs.stitchEyebrow', { defaultValue: 'Huerto Fresco · ' + year })}</Text>
+              <Text style={[s.costHeroTitle, { color: colors.text }]}>{t('costs.stitchHeading', { defaultValue: 'Gastos e inversión' })}</Text>
+              <Text style={[s.costHeroDesc, { color: colors.textSecondary }]}>{t('costs.stitchDesc', { defaultValue: 'Control económico de sustratos, macetas y semillas.' })}</Text>
+            </View>
+          </View>
+          <View style={[s.costHeroSummary, { backgroundColor: colors.primary + '10', borderColor: colors.primary + '30' }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.costHeroSummaryLabel, { color: colors.textSecondary }]}>{t('costs.stitchInvested', { defaultValue: 'Total invertido esta temporada' })}</Text>
+              <Text style={[s.costHeroSummaryValue, { color: colors.text }]}>{fmt(totalCost, locale)}</Text>
+            </View>
+            <View style={s.costHeroSaved}>
+              <Ionicons name="leaf-outline" size={17} color={colors.primary} />
+              <Text style={[s.costHeroSavedText, { color: colors.primary }]}>{t('costs.stitchSaved', { defaultValue: 'Valor estimado de cosecha' })} · {fmt(harvestValue, locale)}</Text>
+            </View>
+          </View>
+        </View>
 
         {/* ── Empty state ── */}
         {yearCosts.length === 0 && harvestData.totalKg === 0 && (
@@ -418,7 +419,7 @@ export default function CostsScreen() {
           {/* Water auto-derived */}
           <View style={s.costRow}>
             <View style={[s.catIcon, { backgroundColor: '#29B6F618' }]}>
-              <Text style={{ fontSize: 18 }}>💧</Text>
+              <Ionicons name="water-outline" size={18} color="#29B6F6" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[s.costLabel, { color: colors.text }]}>{t('costs.waterAuto')}</Text>
@@ -446,7 +447,7 @@ export default function CostsScreen() {
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('costs.harvestLabel')}</Text>
         <Card padded style={s.card}>
           <View style={s.costRow}>
-            <Text style={{ fontSize: 22 }}>🧺</Text>
+            <Ionicons name="basket-outline" size={22} color={colors.primary} />
             <Text style={[s.costLabel, { color: colors.text, flex: 1, marginLeft: spacing.sm }]}>{t('costs.totalKg')}</Text>
             <Text style={[s.costAmt, { color: colors.text }]}>{harvestData.totalKg.toFixed(2)} kg</Text>
           </View>
@@ -474,7 +475,7 @@ export default function CostsScreen() {
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('costs.waterLabel')}</Text>
         <Card padded style={s.card}>
           <View style={s.costRow}>
-            <Text style={{ fontSize: 22 }}>💧</Text>
+            <Ionicons name="water-outline" size={22} color="#29B6F6" />
             <Text style={[s.costLabel, { color: colors.text, flex: 1, marginLeft: spacing.sm }]}>{t('costs.totalLiters')}</Text>
             <Text style={[s.costAmt, { color: colors.text }]}>{totalLiters.toFixed(0)} L</Text>
           </View>
@@ -607,7 +608,6 @@ export default function CostsScreen() {
             style={[s.addModal, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]}
           >
             {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-
             <View style={[s.handle, { backgroundColor: colors.border }]} />
             <Text style={[s.modalTitle, { color: colors.text }]}>{t('costs.addExpense')}</Text>
 
@@ -733,10 +733,26 @@ const makeStyles = (
       paddingVertical: spacing.lg,
       borderBottomWidth: 1,
     },
-    headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, flex: 1, marginLeft: spacing.md },
+    headerBackButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    headerBackText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    newButton: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
+    newButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    headerTitleRow: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     yearRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
     yearLabel: { fontSize: fontSize.md, fontWeight: fontWeight.semibold, minWidth: 42, textAlign: 'center' },
     scroll: { paddingHorizontal: spacing.xl, paddingBottom: 40 },
+    costHero: { borderRadius: radii.xl, borderWidth: 1, overflow: 'hidden', marginTop: spacing.lg, marginBottom: spacing.md },
+    costHeroTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, padding: spacing.lg },
+    costHeroIcon: { width: 48, height: 48, borderRadius: radii.lg, alignItems: 'center', justifyContent: 'center' },
+    costHeroEyebrow: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, letterSpacing: 0.3 },
+    costHeroTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, marginTop: 2 },
+    costHeroDesc: { fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs },
+    costHeroSummary: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, marginHorizontal: spacing.lg, marginBottom: spacing.lg, borderRadius: radii.md, borderWidth: 1 },
+    costHeroSummaryLabel: { fontSize: fontSize.xs },
+    costHeroSummaryValue: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, marginTop: 2 },
+    costHeroSaved: { flex: 1, flexDirection: 'row', alignItems: 'flex-start', gap: spacing.xs },
+    costHeroSavedText: { flex: 1, fontSize: fontSize.xs, lineHeight: 17, fontWeight: fontWeight.semibold },
     sectionLabel: {
       fontSize: fontSize.xs,
       fontWeight: fontWeight.semibold,

@@ -62,7 +62,7 @@ o no tener sentido.
 - [ ] ⚠️ Android: picker de fecha abre diálogo del sistema. iOS: abre spinner en sheet. Ambos actualizan la fecha correctamente.
 
 ## 6. Mapa del huerto
-- [ ] **Free: acceder al mapa → ve pantalla upsell** con botón "Ver planes Pro" (`source: map`).
+- [ ] **Free: acceder al mapa → puede colocar y mover plantas** sin bloqueo; las asociaciones, notas, compartir y tamaños avanzados muestran el upsell contextual (`source` correcto).
 - [ ] Pro: mapa carga correctamente.
 - [ ] Drag & drop de plantas (long-press).
 - [ ] Badge Nx por celda.
@@ -71,7 +71,7 @@ o no tener sentido.
 
 ## 7. Recordatorios y notificaciones
 - [ ] Crear recordatorio (diario / semanal / una vez) → llega la notificación a su hora.
-- [ ] ⚠️ "Semanal" fijado a lunes — no se elige día. ¿Tiene sentido?
+- [ ] "Semanal" permite elegir el día de la semana y conserva esa elección al editar.
 - [ ] Editar / borrar recordatorio → se cancela su notificación.
 - [ ] **Free: 3 recordatorios por huerto máximo** → al intentar crear el 4º → paywall (`source: reminders`).
 - [ ] Pro: recordatorios ilimitados.
@@ -143,7 +143,7 @@ o no tener sentido.
 - [ ] **Botón azul de Expo Go** — NO es bug; no sale en build publicado.
 - [ ] **SMTP propio** en Supabase (Resend) para emails de auth en producción.
 - [ ] **Migration 010** (propagation fields) — pendiente de correr en prod.
-- [ ] **Edge Function ai-chat** — pendiente de deploy en prod.
+- [x] **Edge Function ai-chat** — desplegada en producción; validar también desde una build distribuida.
 - [ ] Revisar **assets de App Store**: icono, capturas, descripción, política de privacidad, URL de soporte.
 
 ---

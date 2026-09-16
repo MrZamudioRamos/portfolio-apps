@@ -1,9 +1,10 @@
-import { CROPS, CROP_CONTAINER_MIN, CROP_DIFFICULTY, type CropInfo } from '../data/crops';
+import { CROPS, CROP_CONTAINER_MIN, CROP_DIFFICULTY, type CropCategory, type CropDifficulty, type CropInfo } from '../data/crops';
 import type { ClimateZone } from '../models/garden';
 import type { SunlightLevel, ExperienceLevel } from '../models/user-profile';
 import { cropMatchesSun } from './cropMatchesSun';
 
 export type FirstCropSpace = 'balcony' | 'terrace' | 'patio' | 'garden' | 'indoor';
+export type CareTimeBudget = 'light' | 'regular' | 'handsOn';
 export type RecommendationAction = 'sow' | 'prepare';
 export type RecommendationReason =
   | 'sunlight'
@@ -11,7 +12,9 @@ export type RecommendationReason =
   | 'seasonNow'
   | 'seasonSoon'
   | 'easy'
-  | 'quick';
+  | 'quick'
+  | 'preference'
+  | 'timeFit';
 
 export interface FirstCropRecommendation {
   crop: CropInfo;
@@ -30,6 +33,8 @@ export interface RecommendationInput {
   crops?: CropInfo[];
   customCropsById?: Record<string, CropInfo>;
   space?: FirstCropSpace;
+  preferredCategories?: CropCategory[];
+  careTime?: CareTimeBudget;
 }
 
 /**
@@ -45,6 +50,8 @@ export function getFirstCropRecommendations({
   crops = CROPS,
   customCropsById,
   space,
+  preferredCategories = [],
+  careTime,
 }: RecommendationInput): FirstCropRecommendation[] {
   const allCrops = dedup(customCropsById ? [...crops, ...Object.values(customCropsById)] : crops);
   const containerSpace = space === 'balcony' || space === 'terrace' || space === 'indoor';
@@ -73,6 +80,10 @@ export function getFirstCropRecommendations({
       reasons.push('container');
       if (containerLiters >= 20) score -= 25;
     }
+    if (preferredCategories.includes(crop.category)) {
+      score += 25;
+      reasons.push('preference');
+    }
     if (sowNow) {
       score += 20;
       reasons.push('seasonNow');
@@ -93,9 +104,31 @@ export function getFirstCropRecommendations({
       score += 5;
     }
 
+    if (careTime) {
+      const timeScore = getCareTimeScore(careTime, difficulty, crop.waterNeeds);
+      score += timeScore;
+      if (timeScore > 0) reasons.push('timeFit');
+    }
+
     const action: RecommendationAction = sowNow ? 'sow' : 'prepare';
     return [{ crop, score, action, reasons, ...(typeof containerLiters === 'number' ? { containerLiters } : {}) }];
   }).sort((a, b) => b.score - a.score || a.crop.daysToHarvest[0] - b.crop.daysToHarvest[0] || a.crop.id.localeCompare(b.crop.id)).slice(0, 3);
+}
+
+function getCareTimeScore(careTime: CareTimeBudget, difficulty: CropDifficulty, waterNeeds: CropInfo['waterNeeds']): number {
+  if (careTime === 'light') {
+    if (difficulty === 'hard') return -18;
+    if (difficulty === 'easy' && waterNeeds !== 'high') return 18;
+    if (waterNeeds === 'high') return -8;
+    return 4;
+  }
+  if (careTime === 'handsOn') {
+    if (difficulty === 'hard' || waterNeeds === 'high') return 10;
+    if (difficulty === 'medium') return 5;
+    return 2;
+  }
+  if (difficulty === 'easy' || difficulty === 'medium') return 5;
+  return 0;
 }
 
 /**
@@ -111,8 +144,9 @@ export function getTop2Recommendations({
   experience,
   crops = CROPS,
   customCropsById,
+  preferredCategories,
 }: RecommendationInput): CropInfo[] {
-  return getFirstCropRecommendations({ climateZone, month, sunlight, experience, crops, customCropsById })
+  return getFirstCropRecommendations({ climateZone, month, sunlight, experience, crops, customCropsById, preferredCategories })
     .slice(0, 2)
     .map((recommendation) => recommendation.crop);
 }

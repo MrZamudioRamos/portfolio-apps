@@ -8,11 +8,20 @@ export interface ChatMessage {
   content: string;
 }
 
+export interface DiagnosisFollowUpContext {
+  plantName: string;
+  status: string;
+  summary: string;
+  nextStep: string;
+  date: string;
+}
+
 export async function sendChatMessage(
   messages: ChatMessage[],
   garden: Garden,
   plants: Plant[],
   language: string,
+  diagnosisFollowUps: DiagnosisFollowUpContext[] = [],
 ): Promise<string> {
   const plantNames = plants
     .filter((p) => p.status !== 'finished')
@@ -30,6 +39,7 @@ export async function sendChatMessage(
     gardenType: garden.gardenType ?? 'huerto',
     currentMonth: new Date().getMonth() + 1,
     plantNames,
+    diagnosisFollowUps,
   };
 
   const { data, error } = await getSupabase().functions.invoke('ai-chat', {

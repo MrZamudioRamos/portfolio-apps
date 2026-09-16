@@ -6,14 +6,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBackup } from '../../src/hooks/useBackup';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
+import { CollectionError } from '../../src/components/CollectionError';
 import { usePdfReport } from '../../src/hooks/usePdfReport';
+import { useCsvExport } from '../../src/hooks/useCsvExport';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import type { Plant } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
+import type { Garden } from '../../src/models/garden';
 
 export default function BackupScreen() {
   const colors = useColors();
@@ -31,13 +34,15 @@ export default function BackupScreen() {
     toggleAutoBackup,
   } = useBackup();
   const { generating, generateAndShare } = usePdfReport();
+  const { exporting: exportingCsv, exportEntries } = useCsvExport();
   const { customCropsById } = useCustomCrops();
 
   const { activeGarden } = useActiveGarden();
+  const gardens = useCollection<Garden>('gardens');
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -94,8 +99,37 @@ export default function BackupScreen() {
   }
 
   const lastBackupLabel = lastBackupAt
-    ? formatRelative(lastBackupAt)
+    ? formatRelative(lastBackupAt, i18n.language)
     : t('backup.never');
+
+  const backupStats = useMemo(() => {
+    const gardenPlants = activeGarden
+      ? plants.items.filter((plant) => plant.gardenId === activeGarden.id)
+      : plants.items;
+    const gardenEntries = activeGarden
+      ? entries.items.filter((entry) => entry.gardenId === activeGarden.id)
+      : entries.items;
+    return {
+      gardens: gardens.items.length,
+      plants: gardenPlants.length,
+      entries: gardenEntries.length,
+      photos: gardenPlants.filter((plant) => Boolean(plant.photoUri)).length,
+    };
+  }, [activeGarden, gardens.items.length, plants.items, entries.items]);
+
+  async function handleCsvExport() {
+    if (!isPro) {
+      router.push('/paywall?source=backup_export' as any);
+      return;
+    }
+    const gardenPlants = activeGarden
+      ? plants.items.filter((plant) => plant.gardenId === activeGarden.id)
+      : plants.items;
+    const gardenEntries = activeGarden
+      ? entries.items.filter((entry) => entry.gardenId === activeGarden.id)
+      : entries.items;
+    await exportEntries(gardenEntries, gardenPlants, customCropsById);
+  }
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -109,6 +143,66 @@ export default function BackupScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+
+        {(gardens.loading || plants.loading || entries.loading) && gardens.items.length === 0 && plants.items.length === 0 && entries.items.length === 0 && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+            <ActivityIndicator color={colors.primary} />
+            <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+          </View>
+        )}
+
+        {(gardens.error || plants.error || entries.error) && (
+          <CollectionError onRetry={() => Promise.all([gardens.refresh(), plants.refresh(), entries.refresh()]).catch(() => {})} />
+        )}
+
+        <View style={[s.heroCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={s.heroTop}>
+            <View style={[s.heroIcon, { backgroundColor: colors.primary + '18' }]}>
+              <Ionicons name={lastBackupAt ? 'cloud-done-outline' : 'cloud-upload-outline'} size={26} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.heroTitle, { color: colors.text }]}>
+                {t('backup.stitchHeading', { defaultValue: 'Copia y restauración' })}
+              </Text>
+              <Text style={[s.heroDesc, { color: colors.textSecondary }]}>
+                {t('backup.stitchDesc', { defaultValue: 'Protege tu huerto y conserva cada comprobación de sustrato.' })}
+              </Text>
+            </View>
+            <View style={[s.statusBadge, { backgroundColor: lastBackupAt ? colors.primary + '18' : colors.surfaceAlt, borderColor: lastBackupAt ? colors.primary + '55' : colors.border }]}>
+              <Text style={{ color: lastBackupAt ? colors.primary : colors.textSecondary, fontSize: 11, fontWeight: fontWeight.bold }}>
+                {lastBackupAt
+                  ? t('backup.updated', { defaultValue: 'Actualizada' })
+                  : t('backup.pending', { defaultValue: 'Pendiente' })}
+              </Text>
+            </View>
+          </View>
+          <View style={[s.statsRow, { borderTopColor: colors.border }]}>
+            <View style={s.statItem}>
+              <Text style={[s.statValue, { color: colors.text }]}>{backupStats.gardens}</Text>
+              <Text style={[s.statLabel, { color: colors.textSecondary }]}>{t('backup.gardensStat', { defaultValue: 'huertos' })}</Text>
+            </View>
+            <View style={s.statItem}>
+              <Text style={[s.statValue, { color: colors.text }]}>{backupStats.plants}</Text>
+              <Text style={[s.statLabel, { color: colors.textSecondary }]}>{t('backup.plantsStat', { defaultValue: 'plantas' })}</Text>
+            </View>
+            <View style={s.statItem}>
+              <Text style={[s.statValue, { color: colors.text }]}>{backupStats.entries}</Text>
+              <Text style={[s.statLabel, { color: colors.textSecondary }]}>{t('backup.entriesStat', { defaultValue: 'registros' })}</Text>
+            </View>
+            <View style={s.statItem}>
+              <Text style={[s.statValue, { color: colors.text }]}>{backupStats.photos}</Text>
+              <Text style={[s.statLabel, { color: colors.textSecondary }]}>{t('backup.photosStat', { defaultValue: 'fotos' })}</Text>
+            </View>
+          </View>
+          <View style={s.lastSyncRow}>
+            <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
+            <Text style={[s.lastSyncText, { color: colors.textSecondary }]}>
+              {lastBackupAt
+                ? `${t('backup.lastBackup', { defaultValue: 'Última copia' })} · ${lastBackupLabel}`
+                : t('backup.never', { defaultValue: 'Todavía no hay una copia guardada' })}
+            </Text>
+          </View>
+        </View>
 
         {/* iCloud auto-sync */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('backup.autoSyncLabel')}</Text>
@@ -203,6 +297,34 @@ export default function BackupScreen() {
               disabled={exporting || importing}
             />
           </View>
+
+          <View style={[s.divider, { backgroundColor: colors.border }]} />
+
+          <View style={s.actionRow}>
+            <View style={s.rowIcon}>
+              <Ionicons name="grid-outline" size={20} color={isPro ? colors.primary : colors.textDisabled} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={s.rowTitleRow}>
+                <Text style={[s.rowTitle, { color: colors.text }]}>{t('backup.csvTitle', { defaultValue: 'Cuaderno en CSV' })}</Text>
+                {!isPro && (
+                  <View style={[s.proBadge, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}>
+                    <Text style={[s.proBadgeText, { color: colors.primary }]}>Pro</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>
+                {t('backup.csvDesc', { defaultValue: 'Formato abierto para conservar o analizar tus registros.' })}
+              </Text>
+            </View>
+            <Button
+              title={exportingCsv ? '…' : t('backup.csvExport', { defaultValue: 'CSV' })}
+              variant={isPro ? 'outline' : 'secondary'}
+              size="sm"
+              onPress={() => void handleCsvExport()}
+              disabled={exportingCsv || exporting || importing}
+            />
+          </View>
         </Card>
 
         {/* PDF seasonal report */}
@@ -292,6 +414,18 @@ const makeStyles = (
     },
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     scroll: { paddingHorizontal: spacing.xl, paddingBottom: 40 },
+    heroCard: { borderRadius: radii.xl, borderWidth: 1, overflow: 'hidden', marginTop: spacing.lg },
+    heroTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, padding: spacing.lg },
+    heroIcon: { width: 50, height: 50, borderRadius: radii.lg, alignItems: 'center', justifyContent: 'center' },
+    heroTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+    heroDesc: { fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs },
+    statusBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radii.full, borderWidth: 1 },
+    statsRow: { flexDirection: 'row', justifyContent: 'space-around', borderTopWidth: StyleSheet.hairlineWidth, paddingVertical: spacing.md },
+    statItem: { alignItems: 'center', minWidth: 48 },
+    statValue: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    statLabel: { fontSize: 11, marginTop: 2 },
+    lastSyncRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
+    lastSyncText: { flex: 1, fontSize: fontSize.xs },
     sectionLabel: {
       fontSize: fontSize.xs,
       fontWeight: fontWeight.semibold,

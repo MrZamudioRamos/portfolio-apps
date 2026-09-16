@@ -33,9 +33,11 @@ export function Button({
   const { colors, spacing, fontSize, radii, fontWeight } = useTheme();
 
   const sizeStyles = {
-    sm: { paddingVertical: spacing.xs, paddingHorizontal: spacing.md, textSize: fontSize.sm },
-    md: { paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, textSize: fontSize.md },
-    lg: { paddingVertical: spacing.md, paddingHorizontal: spacing.xl, textSize: fontSize.lg },
+    // Keep every action comfortable for iOS and VoiceOver users. Stitch's
+    // generated screens consistently used 44pt controls and 52pt primaries.
+    sm: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, minHeight: 44, textSize: fontSize.sm },
+    md: { paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, minHeight: 44, textSize: fontSize.md },
+    lg: { paddingVertical: spacing.md, paddingHorizontal: spacing.xl, minHeight: 52, textSize: fontSize.lg },
   }[size];
 
   const variantStyles: Record<ButtonVariant, { bg: string; text: string; border?: string }> = {
@@ -53,13 +55,15 @@ export function Button({
       onPress={onPress}
       disabled={isDisabled}
       accessibilityRole="button"
+      accessibilityLabel={title}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       style={({ pressed }) => [
         {
           backgroundColor: vs.bg,
           paddingVertical: sizeStyles.paddingVertical,
           paddingHorizontal: sizeStyles.paddingHorizontal,
-          borderRadius: radii.md,
+          minHeight: sizeStyles.minHeight,
+          borderRadius: radii.xl,
           borderWidth: vs.border ? 1.5 : 0,
           borderColor: vs.border,
           alignItems: 'center',

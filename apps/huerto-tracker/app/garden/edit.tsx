@@ -2,6 +2,10 @@ import { useColors, useTheme, Button, ScreenHeader, type Theme } from '@portfoli
 import { useCollection } from '@portfolio/storage';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { useCustomCrops } from '../../src/hooks/useCustomCrops';
+import { useGardenLayout } from '../../src/hooks/useGardenLayout';
+import { CollectionError } from '../../src/components/CollectionError';
+import { CROPS_BY_ID } from '../../src/data/crops';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
@@ -9,8 +13,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
+  ActivityIndicator,
   FlatList,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -19,8 +25,10 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { PROVINCE_ZONES, CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import type { ClimateZone, Garden, GardenType, Hemisphere } from '../../src/models/garden';
+import type { Plant } from '../../src/models/plant';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { GRID_PRESETS, DEFAULT_GRID_ROWS, DEFAULT_GRID_COLS } from '../../src/hooks/useGardenLayout';
 import { getNearestProvince } from '../../src/utils/weather';
@@ -38,6 +46,8 @@ const GARDEN_COLORS = [
   '#4E7A4E', // verde oscuro
 ];
 
+const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
+
 export default function GardenEditScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
@@ -45,6 +55,7 @@ export default function GardenEditScreen() {
   const gardens = useCollection<Garden>('gardens');
   const { activeGarden } = useActiveGarden();
   const { isPro } = usePurchases();
+  const { customCropsById } = useCustomCrops();
 
   const [selectedGardenId, setSelectedGardenId] = useState<string | null>(null);
   const [showGardenPicker, setShowGardenPicker] = useState(false);
@@ -61,9 +72,16 @@ export default function GardenEditScreen() {
   const [notes, setNotes] = useState(garden?.notes ?? '');
   const [provinceSearch, setProvinceSearch] = useState('');
   const [showProvinceModal, setShowProvinceModal] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [saving, setSaving] = useState(false);
   const [locating, setLocating] = useState(false);
   const { t } = useTranslation();
+  const plants = useCollection<Plant>('plants');
+  const { layout: planLayout } = useGardenLayout(garden?.id, gridRows, gridCols);
+  const activeGardenSelected = garden?.id === activeGarden?.id;
+  const placedPlanCount = planLayout.filter(Boolean).length;
+  const totalCells = gridRows * gridCols;
+  const currentTypeConfig = GARDEN_TYPE_CONFIG[gardenType];
 
   // Reset form fields whenever the selected garden changes
   useEffect(() => {
@@ -84,10 +102,12 @@ export default function GardenEditScreen() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') return;
       const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
+      // The calendar needs this for southern-hemisphere seasons, but it
+      // should never be a setup decision for the user.
+      setHemisphere(pos.coords.latitude >= 0 ? 'norte' : 'sur');
       const nearest = getNearestProvince(pos.coords.latitude, pos.coords.longitude);
       if (nearest) {
         setProvince(nearest);
-        setHemisphere(pos.coords.latitude >= 0 ? 'norte' : 'sur');
       }
     } catch {
       // silent — user can pick manually
@@ -112,7 +132,7 @@ export default function GardenEditScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  async function handleSave() {
+  async function handleSave(openMap = false) {
     if (!name.trim()) {
       Alert.alert(t('gardenEdit.nameRequired'), t('gardenEdit.nameRequiredDesc'));
       return;
@@ -136,18 +156,45 @@ export default function GardenEditScreen() {
         color,
         notes: notes.trim(),
       });
-      router.back();
+      if (openMap) router.push('/garden/map' as any);
+      else router.back();
     } finally {
       setSaving(false);
     }
   }
 
+  if (gardens.loading && gardens.items.length === 0) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+        <View style={s.collectionState} accessibilityRole="progressbar">
+          <ActivityIndicator size="small" color={colors.primary} />
+          <Text style={[s.collectionStateText, { color: colors.textSecondary }]}>{t('common.loading')}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (gardens.error) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+        <View style={{ padding: spacing.xl }}>
+          <CollectionError onRetry={() => gardens.refresh().catch(() => {})} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (!garden) {
     return (
-      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Text style={[{ color: colors.textSecondary, textAlign: 'center', marginTop: 80 }]}>
-          {t('gardenEdit.noGarden')}
-        </Text>
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+        <View style={s.collectionState}>
+          <Text style={[s.collectionStateTitle, { color: colors.text }]}>{t('gardens.emptyTitle')}</Text>
+          <Text style={[s.collectionStateText, { color: colors.textSecondary }]}>{t('gardenEdit.noGarden')}</Text>
+          <Button title={t('common.back')} variant="secondary" size="lg" onPress={() => router.push('/gardens')} style={s.collectionStateButton} />
+        </View>
       </SafeAreaView>
     );
   }
@@ -176,210 +223,256 @@ export default function GardenEditScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={s.body}
       >
-        {/* Name */}
-        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.nameLabel')}</Text>
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          style={[
-            s.input,
-            { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border, fontSize: fontSize.md },
-          ]}
-          placeholder={t('gardenEdit.namePlaceholder')}
-          placeholderTextColor={colors.textDisabled}
-          returnKeyType="done"
-          maxLength={40}
-        />
-
-        {/* Garden type */}
-        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.typeLabel')}</Text>
-        <View style={s.typeRow}>
-          {(Object.entries(GARDEN_TYPE_CONFIG) as [GardenType, typeof GARDEN_TYPE_CONFIG[GardenType]][]).map(([key, cfg]) => {
-            const active = gardenType === key;
-            return (
-              <Pressable
-                key={key}
-                onPress={() => setGardenType(key)}
-                style={[
-                  s.typeBtn,
-                  {
-                    backgroundColor: active ? colors.accent : colors.surface,
-                    borderColor: active ? colors.accent : colors.border,
-                    flex: 1,
-                  },
-                ]}
-              >
-                <Text style={s.typeEmoji}>{cfg.emoji}</Text>
-                <Text style={[s.typeLabel, { color: active ? colors.primaryDark : colors.textSecondary }]}>
-                  {t('gardenType.' + key)}
+        {/* Summary: the garden itself is the starting point, not a settings form. */}
+        <View style={[s.heroCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border }]}>
+          {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+          <View style={s.heroTop}>
+            <View style={[s.heroIcon, { backgroundColor: colors.primary + '1A' }]}>
+              <Text style={s.heroEmoji}>{currentTypeConfig.emoji}</Text>
+            </View>
+            <View style={s.heroCopy}>
+              <Text style={[s.eyebrow, { color: colors.primary }]}>{t('gardenEdit.heroEyebrow')}</Text>
+              <TextInput
+                value={name}
+                onChangeText={setName}
+                style={[s.heroInput, { color: colors.text }]}
+                placeholder={t('gardenEdit.namePlaceholder')}
+                placeholderTextColor={colors.textDisabled}
+                returnKeyType="done"
+                maxLength={40}
+              />
+              <View style={s.heroMetaRow}>
+                <Ionicons name="grid-outline" size={14} color={colors.textSecondary} />
+                <Text style={[s.heroMeta, { color: colors.textSecondary }]} numberOfLines={1}>
+                  {province || t('gardenEdit.locationMissing')} · {totalCells} {t('gardenEdit.cells')} · {placedPlanCount} {t('gardenEdit.occupied')}
                 </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-        {gardenType !== 'huerto' && (
-          <View style={[s.typeTip, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={[s.typeTipText, { color: colors.textSecondary }]}>
-              {GARDEN_TYPE_CONFIG[gardenType].emoji} {t('gardenType.' + gardenType + 'Desc')}
-            </Text>
+              </View>
+            </View>
           </View>
-        )}
-
-        {/* Hemisphere */}
-        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.hemisphereLabel')}</Text>
-        <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm }}>
-          {(['norte', 'sur'] as const).map((h) => {
-            const active = hemisphere === h;
-            return (
-              <Pressable
-                key={h}
-                onPress={() => setHemisphere(h)}
-                style={[
-                  s.typeBtn,
-                  {
-                    flex: 1,
-                    backgroundColor: active ? colors.accent : colors.surface,
-                    borderColor: active ? colors.accent : colors.border,
-                  },
-                ]}
-              >
-                <Text style={s.typeEmoji}>{h === 'norte' ? '🌍' : '🌎'}</Text>
-                <Text style={[s.typeLabel, { color: active ? colors.primaryDark : colors.textSecondary }]}>
-                  {t('gardenEdit.hemisphere' + h.charAt(0).toUpperCase() + h.slice(1))}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-        {hemisphere === 'sur' && (
-          <View style={[s.typeTip, { backgroundColor: '#1565C015', borderColor: '#1565C0' }]}>
-            <Text style={[s.typeTipText, { color: '#1565C0' }]}>
-              🌎 {t('gardenEdit.hemisphereSurTip')}
-            </Text>
-          </View>
-        )}
-
-        {/* Province */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.lg, marginBottom: spacing.sm }}>
-          <Text style={[s.label, { marginTop: 0, marginBottom: 0, color: colors.textSecondary }]}>{t('gardenEdit.provinceLabel')}</Text>
           <Pressable
-            onPress={detectLocation}
-            disabled={locating}
-            style={[s.detectBtn, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '44', opacity: locating ? 0.6 : 1 }]}
+            onPress={() => void handleSave(true)}
+            disabled={!activeGardenSelected || saving}
+            style={[s.heroAction, { backgroundColor: colors.primary, opacity: !activeGardenSelected || saving ? 0.55 : 1 }]}
           >
-            <Ionicons name="location-outline" size={13} color={colors.primary} />
-            <Text style={[s.detectBtnText, { color: colors.primary }]}>
-              {locating ? t('onboarding.detecting') : t('onboarding.detectLocation')}
-            </Text>
+            <Ionicons name="map-outline" size={18} color="#fff" />
+            <Text style={[s.heroActionText, { color: '#fff' }]}>{t('gardenEdit.editPlan')}</Text>
+            <Ionicons name="arrow-forward" size={17} color="#fff" />
           </Pressable>
         </View>
-        <Pressable
-          onPress={() => { setProvinceSearch(''); setShowProvinceModal(true); }}
-          style={[s.picker, { backgroundColor: colors.surface, borderColor: colors.border }]}
-        >
-          <Text style={[{ flex: 1, fontSize: fontSize.md }, province ? { color: colors.text } : { color: colors.textDisabled }]}>
-            {province || t('gardenEdit.provincePlaceholder')}
-          </Text>
-          <Ionicons name="chevron-down" size={18} color={colors.textSecondary} />
-        </Pressable>
 
-        {/* Climate zone derived */}
-        {zoneConfig && (
-          <View style={[s.zoneBadge, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={[s.zoneText, { color: colors.textSecondary }]}>
-              {zoneConfig.emoji} {zoneConfig.label} — {t('zoneDescription.' + climateZone)}
+        {/* Space and location */}
+        <View style={[s.sectionCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={s.sectionHeading}>
+            <View style={[s.sectionIcon, { backgroundColor: colors.primary + '16' }]}>
+              <Ionicons name="leaf-outline" size={19} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.sectionTitle, { color: colors.text }]}>{t('gardenEdit.spaceTitle')}</Text>
+              <Text style={[s.sectionSubtitle, { color: colors.textSecondary }]}>{t('gardenEdit.spaceSubtitle')}</Text>
+            </View>
+          </View>
+
+          <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.typeLabel')}</Text>
+          <View style={s.typeRow}>
+            {(Object.entries(GARDEN_TYPE_CONFIG) as [GardenType, typeof GARDEN_TYPE_CONFIG[GardenType]][]).map(([key, cfg]) => {
+              const active = gardenType === key;
+              return (
+                <Pressable
+                  key={key}
+                  onPress={() => setGardenType(key)}
+                  style={[
+                    s.typeBtn,
+                    {
+                      backgroundColor: active ? colors.primary + '18' : colors.surfaceAlt,
+                      borderColor: active ? colors.primary : colors.border,
+                    },
+                  ]}
+                >
+                  <Text style={s.typeEmoji}>{cfg.emoji}</Text>
+                  <Text style={[s.typeLabel, { color: active ? colors.primary : colors.textSecondary }]}>
+                    {t('gardenType.' + key)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          {gardenType !== 'huerto' && (
+            <View style={[s.typeTip, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+              <Text style={[s.typeTipText, { color: colors.textSecondary }]}>
+                {GARDEN_TYPE_CONFIG[gardenType].emoji} {t('gardenType.' + gardenType + 'Desc')}
+              </Text>
+            </View>
+          )}
+
+          <View style={[s.locationBlock, { borderTopColor: colors.border }]}>
+            <View style={[s.locationIcon, { backgroundColor: colors.primary + '16' }]}>
+              <Ionicons name="location-outline" size={18} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.locationLabel, { color: colors.textSecondary }]}>{t('gardenEdit.whereLabel')}</Text>
+              <Pressable
+                onPress={() => { setProvinceSearch(''); setShowProvinceModal(true); }}
+                style={s.locationPicker}
+              >
+                <Text style={[s.locationValue, { color: province ? colors.text : colors.textDisabled }]} numberOfLines={1}>
+                  {province || t('gardenEdit.provincePlaceholder')}
+                </Text>
+                <Ionicons name="chevron-forward" size={17} color={colors.textSecondary} />
+              </Pressable>
+              {zoneConfig && (
+                <Text style={[s.zoneInline, { color: colors.textSecondary }]} numberOfLines={1}>
+                  {zoneConfig.emoji} {zoneConfig.label} · {t('zoneDescription.' + climateZone)}
+                </Text>
+              )}
+            </View>
+            <Pressable
+              onPress={detectLocation}
+              disabled={locating}
+              accessibilityLabel={t('onboarding.detectLocation')}
+              style={[s.locationAction, { backgroundColor: colors.primary + '14', borderColor: colors.primary + '44', opacity: locating ? 0.6 : 1 }]}
+            >
+              <Ionicons name="navigate-outline" size={16} color={colors.primary} />
+            </Pressable>
+          </View>
+          <View style={[s.calendarAutoNote, { backgroundColor: colors.primary + '0D' }]}>
+            <Ionicons name="sparkles-outline" size={14} color={colors.primary} />
+            <Text style={[s.calendarAutoNoteText, { color: colors.textSecondary }]}>
+              {t('gardenEdit.calendarAuto')}
             </Text>
           </View>
-        )}
+        </View>
 
-        {/* Grid size — Pro feature */}
-        <View style={s.gridSizeHeader}>
-          <Text style={[s.label, { color: colors.textSecondary, marginTop: 0, marginBottom: 0 }]}>
-            {t('gardenEdit.gridSizeLabel')}
+        {/* Layout: the main editing action */}
+        <View style={[s.layoutCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border }]}>
+          {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
+          <View style={s.sectionHeading}>
+            <View style={[s.sectionIcon, { backgroundColor: colors.primary + '16' }]}>
+              <Ionicons name="grid-outline" size={19} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.sectionTitle, { color: colors.text }]}>{t('gardenEdit.layoutSection')}</Text>
+              <Text style={[s.sectionSubtitle, { color: colors.textSecondary }]}>{t('gardenEdit.layoutSubtitle')}</Text>
+            </View>
+            <View style={[s.countPill, { backgroundColor: colors.primary + '18' }]}>
+              <Text style={[s.countPillText, { color: colors.primary }]}>{placedPlanCount}/{totalCells}</Text>
+            </View>
+          </View>
+
+          <View style={[s.miniGrid, { borderColor: colors.border, backgroundColor: colors.background }]}>
+            {Array.from({ length: gridRows }, (_, row) => (
+              <View key={row} style={s.miniGridRow}>
+                {Array.from({ length: gridCols }, (_, col) => {
+                  const idx = row * gridCols + col;
+                  const plantId = planLayout[idx];
+                  const plant = plantId ? plants.items.find((item) => item.id === plantId) : undefined;
+                  const crop = plant ? (CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId]) : undefined;
+                  return (
+                    <View key={idx} style={[s.miniCell, { borderColor: colors.border, backgroundColor: plant ? colors.primary + '18' : 'transparent' }]}>
+                      <Text style={s.miniCellEmoji}>{crop?.emoji ?? ''}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            ))}
+          </View>
+
+          <View style={s.layoutSizeHeader}>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.layoutSizeTitle, { color: colors.text }]}>{t('gardenEdit.gridSizeLabel')}</Text>
+              <Text style={[s.layoutSizeHint, { color: colors.textSecondary }]}>{t('gardenEdit.layoutSizeHint')}</Text>
+            </View>
+            {!isPro && (
+              <View style={[s.proBadge, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}>
+                <Text style={[s.proBadgeText, { color: colors.primary }]}>Pro</Text>
+              </View>
+            )}
+          </View>
+          <View style={s.presetRow}>
+            {GRID_PRESETS.map((preset) => {
+              const active = gridRows === preset.rows && gridCols === preset.cols;
+              const locked = !isPro && !(preset.rows === DEFAULT_GRID_ROWS && preset.cols === DEFAULT_GRID_COLS);
+              return (
+                <Pressable
+                  key={`${preset.rows}x${preset.cols}`}
+                  onPress={() => {
+                    if (locked) {
+                      Alert.alert(t('gardenEdit.gridProTitle'), t('gardenEdit.gridProDesc'));
+                      return;
+                    }
+                    setGridRows(preset.rows);
+                    setGridCols(preset.cols);
+                  }}
+                  style={[
+                    s.presetBtn,
+                    {
+                      backgroundColor: active ? colors.primary + '18' : colors.surface,
+                      borderColor: active ? colors.primary : colors.border,
+                      opacity: locked ? 0.5 : 1,
+                    },
+                  ]}
+                >
+                  {locked && <Ionicons name="lock-closed" size={10} color={colors.textSecondary} style={{ marginBottom: 1 }} />}
+                  <Text style={[s.presetLabel, { color: active ? colors.primary : colors.text }]}>{preset.cols}×{preset.rows}</Text>
+                  <Text style={[s.presetSub, { color: colors.textSecondary }]}>{preset.rows * preset.cols} {t('gardenEdit.cells')}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <Text style={[s.planHint, { color: colors.textSecondary }]}>
+            {activeGardenSelected ? t('gardenEdit.planHint') : t('gardenEdit.planActiveGardenHint')}
           </Text>
-          {!isPro && (
-            <View style={[s.proBadge, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}>
-              <Text style={[s.proBadgeText, { color: colors.primary }]}>Pro</Text>
+          <Pressable
+            onPress={() => void handleSave(true)}
+            disabled={!activeGardenSelected || saving}
+            style={[s.layoutAction, { borderColor: colors.primary, opacity: !activeGardenSelected || saving ? 0.5 : 1 }]}
+          >
+            <Text style={[s.layoutActionText, { color: colors.primary }]}>{t('gardenEdit.editPlan')}</Text>
+            <Ionicons name="arrow-forward" size={16} color={colors.primary} />
+          </Pressable>
+        </View>
+
+        {/* Optional details stay out of the main flow until requested. */}
+        <View style={[s.detailsCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Pressable onPress={() => setShowDetails((value) => !value)} style={s.detailsToggle}>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.sectionTitle, { color: colors.text }]}>{t('gardenEdit.detailsTitle')}</Text>
+              <Text style={[s.sectionSubtitle, { color: colors.textSecondary }]}>{t('gardenEdit.detailsOptional')}</Text>
+            </View>
+            <Ionicons name={showDetails ? 'chevron-up' : 'chevron-down'} size={19} color={colors.textSecondary} />
+          </Pressable>
+          {showDetails && (
+            <View style={s.detailsBody}>
+              <Text style={[s.label, { color: colors.textSecondary, marginTop: 0 }]}>{t('gardenEdit.colorLabel')}</Text>
+              <View style={s.colorRow}>
+                {GARDEN_COLORS.map((c) => (
+                  <Pressable
+                    key={c}
+                    onPress={() => setColor(color === c ? undefined : c)}
+                    style={[s.colorSwatch, { backgroundColor: c }, color === c && s.colorSwatchActive]}
+                  >
+                    {color === c && <Ionicons name="checkmark" size={16} color="#fff" />}
+                  </Pressable>
+                ))}
+                <Pressable
+                  onPress={() => setColor(undefined)}
+                  style={[s.colorSwatch, { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: color === undefined ? colors.primary : colors.border }]}
+                >
+                  {color === undefined && <Ionicons name="checkmark" size={16} color={colors.primary} />}
+                </Pressable>
+              </View>
+              <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.notesLabel')}</Text>
+              <TextInput
+                value={notes}
+                onChangeText={setNotes}
+                style={[s.notesInput, { color: colors.text, backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}
+                placeholder={t('gardenEdit.notesPlaceholder')}
+                placeholderTextColor={colors.textDisabled}
+                multiline
+                maxLength={500}
+              />
             </View>
           )}
         </View>
-
-        <View style={s.presetRow}>
-          {GRID_PRESETS.map((preset) => {
-            const active = gridRows === preset.rows && gridCols === preset.cols;
-            const locked = !isPro && !(preset.rows === DEFAULT_GRID_ROWS && preset.cols === DEFAULT_GRID_COLS);
-            return (
-              <Pressable
-                key={`${preset.rows}x${preset.cols}`}
-                onPress={() => {
-                  if (locked) {
-                    Alert.alert(t('gardenEdit.gridProTitle'), t('gardenEdit.gridProDesc'));
-                    return;
-                  }
-                  setGridRows(preset.rows);
-                  setGridCols(preset.cols);
-                }}
-                style={[
-                  s.presetBtn,
-                  {
-                    backgroundColor: active ? colors.accent : colors.surface,
-                    borderColor: active ? colors.accent : colors.border,
-                    opacity: locked ? 0.5 : 1,
-                  },
-                ]}
-              >
-                {locked && (
-                  <Ionicons name="lock-closed" size={10} color={colors.textSecondary} style={{ marginBottom: 1 }} />
-                )}
-                <Text style={[s.presetLabel, { color: active ? colors.primaryDark : colors.text }]}>
-                  {preset.cols}×{preset.rows}
-                </Text>
-                <Text style={[s.presetSub, { color: colors.textSecondary }]}>
-                  {preset.rows * preset.cols} {t('gardenEdit.cells')}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        {/* Map color */}
-        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.colorLabel')}</Text>
-        <View style={s.colorRow}>
-          {GARDEN_COLORS.map((c) => (
-            <Pressable
-              key={c}
-              onPress={() => setColor(color === c ? undefined : c)}
-              style={[
-                s.colorSwatch,
-                { backgroundColor: c },
-                color === c && s.colorSwatchActive,
-              ]}
-            >
-              {color === c && <Ionicons name="checkmark" size={16} color="#fff" />}
-            </Pressable>
-          ))}
-          <Pressable
-            onPress={() => setColor(undefined)}
-            style={[
-              s.colorSwatch,
-              { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: color === undefined ? colors.primary : colors.border },
-            ]}
-          >
-            {color === undefined && <Ionicons name="checkmark" size={16} color={colors.primary} />}
-          </Pressable>
-        </View>
-
-        {/* Notes */}
-        <Text style={[s.label, { color: colors.textSecondary }]}>{t('gardenEdit.notesLabel')}</Text>
-        <TextInput
-          value={notes}
-          onChangeText={setNotes}
-          style={[s.notesInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
-          placeholder={t('gardenEdit.notesPlaceholder')}
-          placeholderTextColor={colors.textDisabled}
-          multiline
-          maxLength={500}
-        />
 
         <Button
           title={saving ? t('common.saving') : t('gardenEdit.save')}
@@ -468,7 +561,7 @@ export default function GardenEditScreen() {
               const selected = province === p;
               return (
                 <Pressable
-                  onPress={() => { setProvince(p); setShowProvinceModal(false); }}
+                  onPress={() => { setProvince(p); setHemisphere('norte'); setShowProvinceModal(false); }}
                   style={[
                     s.provinceRow,
                     { borderBottomColor: colors.border },
@@ -508,7 +601,54 @@ const makeStyles = (
       borderRadius: radii.lg, borderWidth: 1,
     },
     gardenSelectorName: { flex: 1, fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    body: { padding: spacing.xl },
+    body: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing['2xl'] },
+    heroCard: {
+      padding: spacing.lg,
+      borderRadius: radii.xl,
+      borderWidth: 1,
+      overflow: 'hidden',
+      ...Platform.select({
+        web: { boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.06)' },
+        default: { shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 2 },
+      }),
+    },
+    heroTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    heroIcon: { width: 52, height: 52, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+    heroEmoji: { fontSize: 27 },
+    heroCopy: { flex: 1, minWidth: 0 },
+    eyebrow: { fontSize: 10, fontWeight: fontWeight.bold, letterSpacing: 0.8, textTransform: 'uppercase' },
+    heroInput: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, paddingVertical: 2, paddingHorizontal: 0 },
+    heroMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4 },
+    heroMeta: { flex: 1, fontSize: fontSize.xs },
+    heroAction: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.lg, paddingVertical: spacing.md, borderRadius: radii.lg },
+    heroActionText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    sectionCard: { marginTop: spacing.lg, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1 },
+    sectionHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    sectionIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+    sectionTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    sectionSubtitle: { fontSize: fontSize.xs, marginTop: 2, lineHeight: 17 },
+    locationBlock: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginTop: spacing.lg, paddingTop: spacing.lg, borderTopWidth: StyleSheet.hairlineWidth },
+    locationIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+    locationLabel: { fontSize: 10, fontWeight: fontWeight.bold, letterSpacing: 0.7, textTransform: 'uppercase' },
+    locationPicker: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingTop: 3 },
+    locationValue: { flex: 1, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    locationAction: { width: 44, height: 44, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+    zoneInline: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 3 },
+    layoutCard: { marginTop: spacing.lg, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, overflow: 'hidden' },
+    countPill: { paddingHorizontal: spacing.sm, paddingVertical: 5, borderRadius: radii.full },
+    countPillText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+    layoutSizeHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.lg, marginBottom: spacing.sm },
+    layoutSizeTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    layoutSizeHint: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
+    layoutAction: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.lg, paddingVertical: spacing.md, borderRadius: radii.lg, borderWidth: 1.5 },
+    layoutActionText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    detailsCard: { marginTop: spacing.lg, borderRadius: radii.xl, borderWidth: 1, overflow: 'hidden' },
+    collectionState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.sm },
+    collectionStateTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, textAlign: 'center' },
+    collectionStateText: { fontSize: fontSize.sm, lineHeight: 20, textAlign: 'center', maxWidth: 320 },
+    collectionStateButton: { width: '100%', maxWidth: 320, marginTop: spacing.sm },
+    detailsToggle: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg },
+    detailsBody: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
     label: {
       fontSize: fontSize.xs,
       fontWeight: fontWeight.semibold,
@@ -549,7 +689,9 @@ const makeStyles = (
     zoneText: { fontSize: fontSize.sm, lineHeight: 20 },
     typeRow: { flexDirection: 'row', gap: spacing.sm },
     typeBtn: {
+      flex: 1,
       alignItems: 'center',
+      paddingHorizontal: 4,
       paddingVertical: spacing.md,
       borderRadius: radii.md,
       borderWidth: 1.5,
@@ -564,6 +706,8 @@ const makeStyles = (
       borderWidth: 1,
     },
     typeTipText: { fontSize: fontSize.xs, lineHeight: 18 },
+    calendarAutoNote: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm, padding: spacing.sm, borderRadius: radii.md },
+    calendarAutoNoteText: { flex: 1, fontSize: fontSize.xs, lineHeight: 17 },
     modal: { flex: 1 },
     modalHeader: {
       flexDirection: 'row',
@@ -623,6 +767,17 @@ const makeStyles = (
     },
     presetLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     presetSub: { fontSize: 10 },
+    planCard: { marginTop: spacing.xl, padding: spacing.md, borderRadius: radii.xl, borderWidth: 1, overflow: 'hidden' },
+    planHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
+    planTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    planMeta: { fontSize: fontSize.xs, marginTop: 3 },
+    planAction: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: radii.full, borderWidth: 1, paddingHorizontal: spacing.sm, paddingVertical: 6 },
+    planActionText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+    miniGrid: { borderWidth: 1, borderRadius: radii.md, padding: 3, gap: 3, overflow: 'hidden' },
+    miniGridRow: { flexDirection: 'row', gap: 3 },
+    miniCell: { flex: 1, aspectRatio: 2.4, borderWidth: 1, borderRadius: 4, alignItems: 'center', justifyContent: 'center' },
+    miniCellEmoji: { fontSize: 11 },
+    planHint: { fontSize: fontSize.xs, lineHeight: 17, marginTop: spacing.sm },
     colorRow: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
     colorSwatch: {
       width: 36,
@@ -634,11 +789,10 @@ const makeStyles = (
     colorSwatchActive: {
       borderWidth: 3,
       borderColor: '#fff',
-      shadowColor: '#000',
-      shadowOpacity: 0.3,
-      shadowRadius: 4,
-      shadowOffset: { width: 0, height: 2 },
-      elevation: 4,
+      ...Platform.select({
+        web: { boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' },
+        default: { shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 4 },
+      }),
     },
     notesInput: {
       borderWidth: 1,

@@ -288,7 +288,7 @@ export const CROPS: CropInfo[] = [
   {
     id: 'rabano',
     name: 'Rábano',
-    emoji: '🌶️',
+    emoji: '🥕',
     category: 'raices',
     sowingMonths: {
       atlantica:    [3, 4, 5, 8, 9],

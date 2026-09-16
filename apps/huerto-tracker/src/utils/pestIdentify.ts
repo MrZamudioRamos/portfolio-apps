@@ -14,6 +14,13 @@ export interface PestDiagnosis {
   }>;
 }
 
+export interface DiagnosisComparison {
+  status: 'mejora' | 'estable' | 'empeora' | 'incierto';
+  confidence: 'alta' | 'media' | 'baja';
+  summary: string;
+  nextStep: string;
+}
+
 async function imageToBase64(uri: string): Promise<string> {
   // Metro requires static string literals in require() — no dynamic require allowed
 
@@ -84,4 +91,30 @@ export async function identifyPest(
   if ((data as { code?: string }).code) throw fail((data as { code: string }).code);
 
   return data as PestDiagnosis;
+}
+
+export async function compareDiagnosis(
+  beforeUri: string,
+  afterUri: string,
+  plantName: string,
+  language: string
+): Promise<DiagnosisComparison> {
+  const [before, after] = await Promise.all([imageToBase64(beforeUri), imageToBase64(afterUri)]);
+  const { data, error } = await getSupabase().functions.invoke('ai-vision', {
+    body: {
+      mode: 'compare-diagnosis',
+      beforeBase64: before,
+      beforeMediaType: mediaTypeFromUri(beforeUri),
+      afterBase64: after,
+      afterMediaType: mediaTypeFromUri(afterUri),
+      language,
+      plantName,
+    },
+  });
+  if (error || !data) {
+    console.error('[pestIdentify] comparison edge function error', error);
+    throw fail('API_ERROR');
+  }
+  if ((data as { code?: string }).code) throw fail((data as { code: string }).code);
+  return data as DiagnosisComparison;
 }

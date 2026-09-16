@@ -51,6 +51,13 @@ interface GardenContext {
   gardenType?: string;
   currentMonth?: number;
   plantNames?: string[];
+  diagnosisFollowUps?: Array<{
+    plantName: string;
+    status: string;
+    summary: string;
+    nextStep: string;
+    date: string;
+  }>;
 }
 
 function buildSystemPrompt(lang: string, ctx: GardenContext): string {
@@ -64,6 +71,9 @@ function buildSystemPrompt(lang: string, ctx: GardenContext): string {
   const province = ctx.province ? ` (${ctx.province})` : '';
   const hemisphere = ctx.hemisphere === 'sur' ? 'Southern Hemisphere' : 'Northern Hemisphere';
   const gardenType = ctx.gardenType ?? 'garden';
+  const followUps = ctx.diagnosisFollowUps?.length
+    ? ctx.diagnosisFollowUps.map((item) => `- ${item.date} · ${item.plantName} · ${item.status}: ${item.summary}${item.nextStep ? ` Next step: ${item.nextStep}` : ''}`).join('\n')
+    : 'none recorded';
 
   return `You are Semilla, a friendly expert gardening assistant for home vegetable growers in Spain and Latin America. \
 You have deep knowledge of organic growing, companion planting, pests, soil health, and seasonal planning.
@@ -74,6 +84,7 @@ User's garden context:
 - Garden type: ${gardenType}
 - Current month: ${month}
 - Plants currently growing: ${plants}
+- Recent diagnosis follow-ups:\n${followUps}
 
 Guidelines:
 - Respond ONLY in ${lang}. Never switch language.
@@ -81,6 +92,7 @@ Guidelines:
 - Reference the user's specific climate zone and month when relevant.
 - When mentioning plants not in their garden, suggest they add them via the app.
 - Be warm and encouraging. Growers appreciate positive reinforcement.
+- When a user asks about plant health or a previous diagnosis, use the recent follow-up history above and refer to the recorded result. If the status is uncertain, say so and recommend a new well-framed photo.
 - Do NOT make up facts. If unsure, say so briefly.`;
 }
 

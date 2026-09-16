@@ -20,5 +20,7 @@ export interface SchedulableReminder extends BaseItem {
   notificationId?: string;
   frequency: ReminderFrequency;
   time: { hour: number; minute: number };
+  /** Expo weekday: 1 = Sunday, 2 = Monday ... 7 = Saturday. */
+  weekday?: number;
   title: string;
 }

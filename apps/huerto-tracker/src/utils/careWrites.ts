@@ -61,7 +61,7 @@ export function recordQuickEntry(data: Omit<DiaryEntry, 'id' | 'createdAt' | 'up
   return serial(async () => {
     const plant = data.plantId ? await plants.getById(data.plantId) : null;
     if (!plant || plant.deletedAt) throw new Error('Plant unavailable');
-    if (data.type === 'watering' && isSeedPlan(plant)) throw new Error('Confirm sowing first');
+    if (data.type === 'watering') throw new Error('Confirm substrate before watering');
     const entry = await diary.create({ ...data, gardenId: plant.gardenId });
     try {
       if (data.type === 'pest' && !await plants.update(plant.id, { pestStatus: 'active' })) throw new Error('Plant unavailable');

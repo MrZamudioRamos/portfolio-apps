@@ -24,12 +24,16 @@ export function ScreenHeader({
 }: ScreenHeaderProps) {
   const { colors, spacing, fontSize, fontWeight } = useTheme();
   const borderStyle = borderBottom ? { borderBottomColor: colors.border, borderBottomWidth: 1 } : {};
+  const baseStyle = {
+    minHeight: 56,
+    backgroundColor: backgroundColor ?? colors.background,
+  };
 
   if (variant === 'left') {
     return (
-      <View style={[{ flexDirection: 'row', alignItems: 'center', minHeight: 56, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm }, borderStyle, backgroundColor ? { backgroundColor } : {}]}>
+      <View style={[{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing.sm }, baseStyle, borderStyle]}>
         {onBack && (
-          <Pressable onPress={onBack} hitSlop={12}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Volver" onPress={onBack} hitSlop={12} style={{ minWidth: 44, minHeight: 44, alignItems: 'flex-start', justifyContent: 'center' }}>
             <Ionicons name="arrow-back" size={24} color={colors.primary} />
           </Pressable>
         )}
@@ -44,9 +48,9 @@ export function ScreenHeader({
 
   // centered variant
   return (
-    <View style={[{ flexDirection: 'row', alignItems: 'center', minHeight: 56, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm }, borderStyle, backgroundColor ? { backgroundColor } : {}]}>
+    <View style={[{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing.sm }, baseStyle, borderStyle]}>
       {onBack ? (
-        <Pressable onPress={onBack} hitSlop={12}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Volver" onPress={onBack} hitSlop={12} style={{ minWidth: 44, minHeight: 44, alignItems: 'flex-start', justifyContent: 'center' }}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
       ) : (

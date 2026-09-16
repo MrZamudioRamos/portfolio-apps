@@ -15,7 +15,7 @@ export function Card({ children, onPress, padded = true, style, accessibilityLab
 
   const cardStyle: ViewStyle = {
     backgroundColor: colors.surface,
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     borderWidth: 1,
     borderColor: colors.border,
     ...(padded ? { padding: spacing.lg } : {}),
@@ -25,6 +25,7 @@ export function Card({ children, onPress, padded = true, style, accessibilityLab
   if (onPress) {
     return (
       <Pressable
+        accessibilityRole="button"
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}

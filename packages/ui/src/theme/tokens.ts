@@ -27,32 +27,24 @@ export const fontWeight = {
 
 export const radii = {
   sm: 6,
-  md: 10,
-  lg: 14,
-  xl: 20,
+  md: 8,
+  lg: 12,
+  xl: 16,
   full: 9999,
 } as const;
 
 export const shadows = {
-  sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  lg: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.16,
-    shadowRadius: 8,
-    elevation: 8,
-  },
+  sm: Platform.select({
+    web: { boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.08)' },
+    default: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 2, elevation: 2 },
+  })!,
+  md: Platform.select({
+    web: { boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.12)' },
+    default: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 4 },
+  })!,
+  lg: Platform.select({
+    web: { boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.16)' },
+    default: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.16, shadowRadius: 8, elevation: 8 },
+  })!,
 } as const;
+import { Platform } from 'react-native';

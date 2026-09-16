@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Animated, Pressable, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
+import { Animated, Platform, Pressable, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -17,7 +17,7 @@ export function ScalePress({ style, pressedScale = 0.96, onPressIn, onPressOut, 
   const scale = useRef(new Animated.Value(1)).current;
 
   const springTo = (toValue: number) =>
-    Animated.spring(scale, { toValue, useNativeDriver: true, speed: 40, bounciness: 6 }).start();
+    Animated.spring(scale, { toValue, useNativeDriver: Platform.OS !== 'web', speed: 40, bounciness: 6 }).start();
 
   return (
     <AnimatedPressable

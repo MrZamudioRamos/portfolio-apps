@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Animated,
   Image,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -17,36 +18,39 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FLOATING_TAB_BOTTOM_CLEARANCE } from './_layout';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { formatRelative } from '@portfolio/shared';
 import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
 import { type Plant } from '../../src/models/plant';
-import { CROPS_BY_ID } from '../../src/data/crops';
 import { useTranslation } from 'react-i18next';
 import { useCsvExport } from '../../src/hooks/useCsvExport';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { usePro } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
-import { CopilotStep } from 'react-native-copilot';
-import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
-import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
-import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
 
 const ALL_TYPES: Array<EntryType | 'all'> = [
   'all', 'watering', 'sowing', 'harvest', 'fertilizing', 'transplant',
   'pest', 'treatment', 'pruning', 'photo', 'note',
 ];
 
+const DIARY_TYPE_ICONS: Record<EntryType, keyof typeof Ionicons.glyphMap> = {
+  watering: 'water-outline',
+  sowing: 'leaf-outline',
+  transplant: 'flower-outline',
+  fertilizing: 'flask-outline',
+  harvest: 'basket-outline',
+  pruning: 'cut-outline',
+  pest: 'bug-outline',
+  treatment: 'medkit-outline',
+  photo: 'camera-outline',
+  note: 'document-text-outline',
+};
+
 function DiaryInner() {
   const colors = useColors();
-  const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
-  const { t } = useTranslation();
-  const coachLevel = useCoachingLevel();
-  useTourAutoStart('diary', { firstStep: 'add', disabled: coachLevel !== 'full' });
-
+  const { t, i18n } = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(fadeAnim, { toValue: 1, duration: 280, useNativeDriver: true }).start();
@@ -80,12 +84,12 @@ function DiaryInner() {
   const lastDataRefresh = useRef(0);
   useFocusEffect(
     useCallback(() => {
-      refreshActiveId();
+      void refreshActiveId().catch(() => {});
       const now = Date.now();
       if (now - lastDataRefresh.current > 5_000) {
         lastDataRefresh.current = now;
-        entries.refresh();
-        plants.refresh();
+        void entries.refresh().catch(() => {});
+        void plants.refresh().catch(() => {});
       }
     }, [])
   );
@@ -129,6 +133,14 @@ function DiaryInner() {
     return counts;
   }, [gardenEntries, plantId]);
 
+  const diarySummary = useMemo(() => ({
+    entries: gardenEntries.length,
+    activeDays: new Set(gardenEntries.map((entry) => entry.date.slice(0, 10))).size,
+    soilChecks: gardenEntries.filter((entry) =>
+      entry.type === 'watering' || ((entry.data as any)?.soilCheck === 'moist' || (entry.data as any)?.soilCheck === 'dry')
+    ).length,
+  }), [gardenEntries]);
+
   const sections = useMemo(() => {
     const groups = new Map<string, DiaryEntry[]>();
     filtered.forEach((entry) => {
@@ -138,6 +150,13 @@ function DiaryInner() {
     });
     return [...groups.entries()].map(([date, data]) => ({ date, data }));
   }, [filtered]);
+
+  const hasFilters = activeFilter !== 'all' || Boolean(plantId) || Boolean(searchQuery.trim());
+  const clearFilters = () => {
+    setActiveFilter('all');
+    setSearchQuery('');
+    if (plantId) router.setParams({ plantId: undefined } as any);
+  };
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -150,19 +169,19 @@ function DiaryInner() {
 
     return (
       <Pressable
+        accessibilityRole="button"
         onPress={() => router.push(`/entry/edit?id=${item.id}` as any)}
         style={({ pressed }) => [
           s.entryCard,
           {
             backgroundColor: colors.surface,
-            borderLeftColor: config.color,
+            borderColor: colors.border,
             opacity: pressed ? 0.92 : 1,
-            transform: [{ scale: pressed ? 0.99 : 1 }],
           },
         ]}
       >
         <View style={[s.entryIconBadge, { backgroundColor: config.color + '20' }]}>
-          <Text style={{ fontSize: 22 }}>{config.emoji}</Text>
+          <Ionicons name={DIARY_TYPE_ICONS[item.type]} size={20} color={config.color} />
         </View>
 
         <View style={{ flex: 1, marginLeft: spacing.md }}>
@@ -171,7 +190,7 @@ function DiaryInner() {
               {t(`diary.filters.${item.type}`)}
             </Text>
             <Text style={[s.entryDate, { color: colors.textSecondary }]}>
-              {formatRelative(item.date)}
+              {formatRelative(item.date, i18n.language)}
             </Text>
           </View>
 
@@ -181,7 +200,7 @@ function DiaryInner() {
               hitSlop={4}
             >
               <Text style={[s.entryPlant, { color: colors.primary }]}>
-                {CROPS_BY_ID[plant.cropId]?.emoji ?? '🌱'} {plant.name}
+                <Ionicons name="leaf-outline" size={14} color={colors.primary} /> {plant.name}
               </Text>
             </Pressable>
           )}
@@ -196,12 +215,12 @@ function DiaryInner() {
             <View style={s.harvestData}>
               {((item.data as any).weightGrams ?? (item.data as any).weight) ? (
                 <Text style={[s.harvestChip, { color: colors.warning, backgroundColor: colors.warning + '18' }]}>
-                  ⚖️ {(item.data as any).weightGrams ?? (item.data as any).weight} kg
+                  <Ionicons name="scale-outline" size={13} color={colors.warning} /> {(item.data as any).weightGrams ?? (item.data as any).weight} kg
                 </Text>
               ) : null}
               {(item.data as any).units ? (
                 <Text style={[s.harvestChip, { color: colors.primary, backgroundColor: colors.surfaceAlt }]}>
-                  🔢 {(item.data as any).units} uds
+                  <Ionicons name="layers-outline" size={13} color={colors.primary} /> {(item.data as any).units} uds
                 </Text>
               ) : null}
               {(item.data as any).quality ? (
@@ -211,7 +230,7 @@ function DiaryInner() {
               ) : null}
               {(item.data as any).liters ? (
                 <Text style={[s.harvestChip, { color: colors.water, backgroundColor: colors.water + '18' }]}>
-                  💧 {(item.data as any).liters} L
+                  <Ionicons name="water-outline" size={13} color={colors.water} /> {(item.data as any).liters} L
                 </Text>
               ) : null}
               {(item.data as any).product ? (
@@ -249,7 +268,7 @@ function DiaryInner() {
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
             {plantId && (
-              <Pressable onPress={() => router.back()} hitSlop={8}>
+              <Pressable onPress={() => router.back()} hitSlop={8} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={t('common.back')}>
                 <Ionicons name="arrow-back" size={22} color={colors.primary} />
               </Pressable>
             )}
@@ -257,6 +276,8 @@ function DiaryInner() {
           </View>
           {entries.items.length > 0 && (
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('diary.exportCsv')}
               onPress={() => {
                 if (!isPro) {
                   router.push('/paywall?source=csv_export' as any);
@@ -265,6 +286,7 @@ function DiaryInner() {
                 exportEntries(gardenEntries, Object.values(plantsById), customCropsById);
               }}
               hitSlop={8}
+              style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
               disabled={exporting}
             >
               {exporting
@@ -276,14 +298,61 @@ function DiaryInner() {
         </View>
         {filteredPlant && (
           <View style={[s.plantFilterBanner, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={[s.plantFilterText, { color: colors.primary }]}>
-              {CROPS_BY_ID[filteredPlant.cropId]?.emoji ?? '🌱'} {filteredPlant.name}
-            </Text>
-            <Pressable onPress={() => router.setParams({ plantId: undefined } as any)} hitSlop={8}>
+            <View style={s.plantFilterLabel}>
+              <Ionicons name="leaf-outline" size={14} color={colors.primary} />
+              <Text style={[s.plantFilterText, { color: colors.primary }]}>{filteredPlant.name}</Text>
+            </View>
+            <Pressable onPress={() => router.setParams({ plantId: undefined } as any)} hitSlop={8} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={t('common.close')}>
               <Ionicons name="close-circle" size={16} color={colors.textSecondary} />
             </Pressable>
           </View>
         )}
+      </View>
+
+      <View style={[s.diaryHero, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View style={s.diaryHeroTop}>
+          <View style={[s.diaryHeroIcon, { backgroundColor: colors.primaryLight }]}>
+            <Ionicons name="book-outline" size={21} color={colors.primaryDark} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.diaryHeroTitle, { color: colors.text }]}>
+              {t('diary.heroTitle', { defaultValue: 'Cuaderno de bitácora' })}
+            </Text>
+            <Text style={[s.diaryHeroSubtitle, { color: colors.textSecondary }]} numberOfLines={2}>
+              {t('diary.heroSubtitle', { defaultValue: 'Cada observación convierte el cuidado de hoy en aprendizaje para mañana.' })}
+            </Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('diary.newEntry')}
+            onPress={() => router.push(plantId ? `/entry/new?plantId=${plantId}` : '/entry/new' as any)}
+            style={({ pressed }) => [s.diaryHeroAdd, { backgroundColor: colors.primary, opacity: pressed ? 0.74 : 1 }]}
+          >
+            <Ionicons name="add" size={20} color={colors.background} />
+          </Pressable>
+        </View>
+        <View style={s.diaryStatsRow}>
+          <View style={[s.diaryStat, { backgroundColor: colors.primaryLight + '38' }]}>
+            <Text style={[s.diaryStatValue, { color: colors.primaryDark }]}>{diarySummary.entries}</Text>
+            <Text style={[s.diaryStatLabel, { color: colors.textSecondary }]}>{t('diary.entries', { defaultValue: 'entradas' })}</Text>
+          </View>
+          <View style={[s.diaryStat, { backgroundColor: colors.accent + '32' }]}>
+            <Text style={[s.diaryStatValue, { color: colors.text }]}>{diarySummary.activeDays}</Text>
+            <Text style={[s.diaryStatLabel, { color: colors.textSecondary }]}>{t('diary.activeDays', { defaultValue: 'días observados' })}</Text>
+          </View>
+          <View style={[s.diaryStat, { backgroundColor: colors.water + '25' }]}>
+            <Text style={[s.diaryStatValue, { color: colors.text }]}>{diarySummary.soilChecks}</Text>
+            <Text style={[s.diaryStatLabel, { color: colors.textSecondary }]}>{t('diary.soilChecks', { defaultValue: 'comprobaciones' })}</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={[s.diaryRule, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+        <Ionicons name="finger-print-outline" size={19} color={colors.primary} />
+        <Text style={[s.diaryRuleText, { color: colors.textSecondary }]}>
+          <Text style={{ color: colors.text, fontWeight: fontWeight.bold }}>{t('diary.ruleTitle', { defaultValue: 'Regla de Semillita: ' })}</Text>
+          {t('diary.ruleText', { defaultValue: 'anota la comprobación a 2 cm para entender cuándo tu planta necesita agua de verdad.' })}
+        </Text>
       </View>
 
       {/* Filter chips */}
@@ -299,21 +368,21 @@ function DiaryInner() {
           return (
             <Pressable
               key={type}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: isActive }}
               onPress={() => setActiveFilter(type)}
-              style={[
+              style={({ pressed }) => [
                 s.filterChip,
                 {
-                  backgroundColor: isActive ? colors.accent : colors.surface,
-                  borderColor: isActive ? colors.accent : colors.border,
+                  backgroundColor: isActive ? colors.primary + '22' : colors.surface,
+                  borderColor: isActive ? colors.primary : colors.border,
+                  opacity: pressed ? 0.72 : 1,
+                  transform: [{ scale: pressed ? 0.97 : 1 }],
                 },
               ]}
             >
-              {type !== 'all' && (
-                <Text style={{ fontSize: 13, marginRight: 4 }}>
-                  {ENTRY_TYPE_CONFIG[type as EntryType].emoji}
-                </Text>
-              )}
-              <Text style={[s.filterLabel, { color: isActive ? colors.primaryDark : colors.text, fontWeight: isActive ? fontWeight.semibold : fontWeight.medium }]}>
+              {type !== 'all' && <Ionicons name={DIARY_TYPE_ICONS[type as EntryType]} size={15} color={isActive ? colors.primary : colors.textSecondary} />}
+              <Text style={[s.filterLabel, { color: isActive ? colors.primary : colors.text, fontWeight: isActive ? fontWeight.semibold : fontWeight.medium }]}>
                 {t(`diary.filters.${type}`)}
               </Text>
               {count > 0 && (
@@ -333,12 +402,13 @@ function DiaryInner() {
           <TextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
+            accessibilityLabel={t('diary.search')}
             placeholder={t('diary.search')}
             placeholderTextColor={colors.textDisabled}
             style={[{ flex: 1, color: colors.text, fontSize: fontSize.sm, marginLeft: 6 }]}
           />
           {searchQuery.length > 0 && (
-            <Pressable onPress={() => setSearchQuery('')} hitSlop={8}>
+            <Pressable accessibilityRole="button" accessibilityLabel={t('common.close')} onPress={() => setSearchQuery('')} hitSlop={8} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="close-circle" size={14} color={colors.textDisabled} />
             </Pressable>
           )}
@@ -366,7 +436,7 @@ function DiaryInner() {
           <View style={[s.sectionHeader, { backgroundColor: colors.background }]}>
             <View style={[s.sectionDot, { backgroundColor: colors.primary }]} />
             <Text style={[s.sectionHeaderText, { color: colors.textSecondary }]}>
-              {formatRelative(date)}
+              {formatRelative(date, i18n.language)}
             </Text>
             <View style={[s.sectionLine, { backgroundColor: colors.border }]} />
           </View>
@@ -375,10 +445,10 @@ function DiaryInner() {
           !entries.loading ? (
             <EmptyState
               illustration={<Illustration name="diary-empty" size={128} />}
-              title={t('diary.emptyTitle')}
-              description={t('diary.emptyDesc')}
-              ctaLabel={t('diary.newEntry')}
-              onCta={() => router.push('/entry/new')}
+              title={t(hasFilters ? 'diary.noResultsTitle' : 'diary.emptyTitle')}
+              description={t(hasFilters ? 'diary.noResultsDesc' : 'diary.emptyDesc')}
+              ctaLabel={t(hasFilters ? 'diary.clearFilters' : 'diary.newEntry')}
+              onCta={hasFilters ? clearFilters : () => router.push('/entry/new')}
             />
           ) : (
             <View style={{ paddingVertical: 48, alignItems: 'center' }}>
@@ -390,29 +460,12 @@ function DiaryInner() {
 
       </Animated.View>
 
-      {/* FAB */}
-      <CopilotStep text={t('coach.diary')} order={1} name="add">
-        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.accent, bottom: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 12 }]}>
-          <Pressable
-            onPress={() => router.push(plantId ? `/entry/new?plantId=${plantId}` : '/entry/new' as any)}
-            style={({ pressed }) => [
-              { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28, opacity: pressed ? 0.85 : 1 },
-            ]}
-          >
-            <Ionicons name="add" size={28} color={colors.primaryDark} />
-          </Pressable>
-        </WalkView>
-      </CopilotStep>
     </SafeAreaView>
   );
 }
 
 export default function DiaryScreen() {
-  return (
-    <SemillitaTourProvider>
-      <DiaryInner />
-    </SemillitaTourProvider>
-  );
+  return <DiaryInner />;
 }
 
 const makeStyles = (
@@ -425,7 +478,19 @@ const makeStyles = (
   StyleSheet.create({
     container: { flex: 1 },
     header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.sm },
-    headerTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
+    headerTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+    diaryHero: { marginHorizontal: spacing.xl, marginBottom: spacing.sm, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, gap: spacing.md },
+    diaryHeroTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    diaryHeroIcon: { width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+    diaryHeroTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    diaryHeroSubtitle: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
+    diaryHeroAdd: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+    diaryStatsRow: { flexDirection: 'row', gap: spacing.sm },
+    diaryStat: { flex: 1, minHeight: 58, padding: spacing.sm, borderRadius: radii.md, justifyContent: 'center' },
+    diaryStatValue: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    diaryStatLabel: { fontSize: 10, lineHeight: 14, marginTop: 1 },
+    diaryRule: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginHorizontal: spacing.xl, marginBottom: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1 },
+    diaryRuleText: { flex: 1, fontSize: fontSize.xs, lineHeight: 17 },
     filtersScroll: { flexGrow: 0 },
     filtersContainer: {
       paddingHorizontal: spacing.xl,
@@ -435,8 +500,9 @@ const makeStyles = (
     filterChip: {
       flexDirection: 'row',
       alignItems: 'center',
+      minHeight: 44,
+      justifyContent: 'center',
       paddingHorizontal: spacing.md,
-      paddingVertical: 6,
       borderRadius: radii.full,
       borderWidth: 1.5,
     },
@@ -449,6 +515,7 @@ const makeStyles = (
       marginBottom: spacing.sm,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
+      minHeight: 44,
       borderRadius: radii.md,
       borderWidth: 1,
     },
@@ -464,6 +531,7 @@ const makeStyles = (
       alignSelf: 'flex-start',
       gap: spacing.sm,
     },
+    plantFilterLabel: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
     plantFilterText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     listContent: { paddingHorizontal: spacing.xl, paddingBottom: 100 },
     sectionHeader: {
@@ -475,19 +543,18 @@ const makeStyles = (
     },
     sectionDot: { width: 6, height: 6, borderRadius: 3 },
     sectionLine: { flex: 1, height: StyleSheet.hairlineWidth },
-    sectionHeaderText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.6, textTransform: 'uppercase' },
+    sectionHeaderText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.2 },
     entryCard: {
       flexDirection: 'row',
       alignItems: 'flex-start',
       borderRadius: radii.lg,
-      borderLeftWidth: 3,
+      borderWidth: 1,
       marginBottom: spacing.sm,
       padding: spacing.md,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.06,
-      shadowRadius: 4,
-      elevation: 2,
+      ...Platform.select({
+        web: { boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.06)' },
+        default: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+      }),
     },
     entryIconBadge: {
       width: 44,
@@ -504,14 +571,4 @@ const makeStyles = (
     harvestData: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: spacing.sm },
     harvestChip: { fontSize: fontSize.xs, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radii.full },
     entryThumb: { width: 52, height: 52, borderRadius: radii.sm, marginLeft: spacing.sm },
-    fab: {
-      position: 'absolute',
-      bottom: 24,
-      right: 24,
-      width: 56,
-      height: 56,
-      borderRadius: 28,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
   });

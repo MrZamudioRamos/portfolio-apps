@@ -29,9 +29,11 @@ interface ScheduleInput {
   body?: string;
   frequency: ReminderFrequency;
   time: { hour: number; minute: number };
+  /** Expo weekday: 1 = Sunday, 2 = Monday ... 7 = Saturday. */
+  weekday?: number;
 }
 
-function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute: number }) {
+function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute: number }, weekday?: number) {
   const { hour, minute } = time;
   const T = Notifications.SchedulableTriggerInputTypes;
   switch (frequency) {
@@ -43,18 +45,29 @@ function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute
     case 'every_3_days':
       return { type: T.DAILY, hour, minute };
     case 'weekly':
-      return { type: T.WEEKLY, weekday: 2, hour, minute };
+      return { type: T.WEEKLY, weekday: weekday ?? 2, hour, minute };
     case 'once': {
       const d = new Date();
       d.setHours(hour, minute, 0, 0);
-      if (d <= new Date()) d.setDate(d.getDate() + 1);
+      if (weekday == null) {
+        if (d <= new Date()) d.setDate(d.getDate() + 1);
+        return { type: T.DATE, date: d };
+      }
+      // A one-off reminder can reuse the existing Expo weekday field. This
+      // keeps the persisted reminder shape backwards-compatible while making
+      // the selected day in the UI meaningful.
+      const selectedWeekday = weekday;
+      const todayWeekday = d.getDay() === 0 ? 1 : d.getDay() + 1;
+      let daysUntil = (selectedWeekday - todayWeekday + 7) % 7;
+      if (daysUntil === 0 && d <= new Date()) daysUntil = 7;
+      d.setDate(d.getDate() + daysUntil);
       return { type: T.DATE, date: d };
     }
   }
 }
 
 export async function scheduleReminder(input: ScheduleInput): Promise<string> {
-  const trigger = buildTrigger(input.frequency, input.time);
+  const trigger = buildTrigger(input.frequency, input.time, input.weekday);
   return Notifications.scheduleNotificationAsync({
     content: {
       title: input.title,
@@ -69,12 +82,13 @@ export async function scheduleDateAlert(input: {
   date: Date;
   title: string;
   body: string;
+  data?: Record<string, unknown>;
 }): Promise<string | null> {
   if (input.date <= new Date()) return null;
   try {
     const T = Notifications.SchedulableTriggerInputTypes;
     return await Notifications.scheduleNotificationAsync({
-      content: { title: input.title, body: input.body, sound: true },
+      content: { title: input.title, body: input.body, sound: true, data: input.data },
       trigger: { type: T.DATE, date: input.date } as any,
     });
   } catch {

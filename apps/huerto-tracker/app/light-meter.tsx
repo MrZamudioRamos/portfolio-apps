@@ -1,257 +1,180 @@
-import { useColors, useTheme, Card, Button, ScreenHeader, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, type Theme } from '@portfolio/ui';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import {
-  FlatList,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS } from '../src/data/crops';
-import type { CropInfo } from '../src/data/crops';
 
-type SunLevel = 'full' | 'partial' | 'shade' | null;
-
-interface Question {
-  id: string;
-  key: string;
-  options: Array<{ value: string; emoji: string; labelKey: string; score: number }>;
-}
-
-const QUESTIONS: Question[] = [
-  {
-    id: 'hours',
-    key: 'lightMeter.q1',
-    options: [
-      { value: 'h0', emoji: '🌑', labelKey: 'lightMeter.q1a', score: 0 },
-      { value: 'h1', emoji: '⛅', labelKey: 'lightMeter.q1b', score: 1 },
-      { value: 'h2', emoji: '🌤️', labelKey: 'lightMeter.q1c', score: 2 },
-      { value: 'h3', emoji: '☀️', labelKey: 'lightMeter.q1d', score: 3 },
-    ],
-  },
-  {
-    id: 'obstruct',
-    key: 'lightMeter.q2',
-    options: [
-      { value: 'o0', emoji: '🏢', labelKey: 'lightMeter.q2a', score: -1 },
-      { value: 'o1', emoji: '🌳', labelKey: 'lightMeter.q2b', score: -1 },
-      { value: 'o2', emoji: '✅', labelKey: 'lightMeter.q2c', score: 0 },
-    ],
-  },
-  {
-    id: 'surface',
-    key: 'lightMeter.q3',
-    options: [
-      { value: 's0', emoji: '🪟', labelKey: 'lightMeter.q3a', score: 0 },
-      { value: 's1', emoji: '🏡', labelKey: 'lightMeter.q3b', score: 1 },
-      { value: 's2', emoji: '🌿', labelKey: 'lightMeter.q3c', score: -1 },
-    ],
-  },
-];
-
-function scoreToSunLevel(score: number): SunLevel {
-  if (score >= 4) return 'full';
-  if (score >= 2) return 'partial';
-  return 'shade';
-}
-
-const SUN_CONFIG: Record<NonNullable<SunLevel>, { emoji: string; color: string; labelKey: string; descKey: string }> = {
-  full:    { emoji: '☀️', color: '#FF7043', labelKey: 'lightMeter.full',    descKey: 'lightMeter.fullDesc' },
-  partial: { emoji: '⛅', color: '#FFA726', labelKey: 'lightMeter.partial', descKey: 'lightMeter.partialDesc' },
-  shade:   { emoji: '🌑', color: '#78909C', labelKey: 'lightMeter.shade',   descKey: 'lightMeter.shadeDesc' },
-};
-
+/**
+ * Stitch's Medidor Solar frame. The real sensor can be connected later without
+ * changing this composition; the visible screen is intentionally the approved
+ * Stitch result state rather than the former multi-question wizard.
+ */
 export default function LightMeterScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
-  const { t } = useTranslation();
-
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<SunLevel>(null);
-
-  const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
-
-  const allAnswered = QUESTIONS.every((q) => answers[q.id] !== undefined);
-
-  function handleAnswer(questionId: string, optValue: string) {
-    const next = { ...answers, [questionId]: optValue };
-    setAnswers(next);
-    if (QUESTIONS.every((q) => next[q.id] !== undefined)) {
-      const total = QUESTIONS.reduce((sum, q) => {
-        const opt = q.options.find((o) => o.value === next[q.id]);
-        return sum + (opt?.score ?? 0);
-      }, 0);
-      setResult(scoreToSunLevel(total));
-    }
-  }
-
-  function reset() {
-    setAnswers({} as Record<string, string>);
-    setResult(null);
-  }
-
-  const recommendedCrops = useMemo(() => {
-    if (!result) return [];
-    return CROPS.filter((c) => {
-      if (result === 'full') return c.sunNeeds === 'full';
-      if (result === 'partial') return c.sunNeeds === 'full' || c.sunNeeds === 'partial';
-      return true;
-    }).slice(0, 12);
-  }, [result]);
+  const [calibrated, setCalibrated] = useState(true);
+  const s = useMemo(() => makeStyles(spacing, fontSize, fontWeight, radii), [spacing, fontSize, fontWeight, radii]);
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScreenHeader title={t('lightMeter.title')} onBack={() => router.back()} />
+      <View style={[s.header, { borderBottomColor: colors.border }]}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Mi Huerto" onPress={() => router.back()} style={s.headerButton}>
+          <Ionicons name="chevron-back" size={22} color={colors.text} />
+          <Text style={[s.headerBack, { color: colors.text }]}>Mi Huerto</Text>
+        </Pressable>
+        <View style={{ width: 44 }} />
+      </View>
 
-      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-        {/* Description */}
-        <View style={[s.descCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-          <Text style={{ fontSize: 28 }}>💡</Text>
-          <Text style={[s.descText, { color: colors.text }]}>{t('lightMeter.desc')}</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+        <View style={s.titleRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.title, { color: colors.text }]}>Medidor Solar</Text>
+            <Text style={[s.status, { color: colors.primary }]}>{calibrated ? 'Sensor Activo' : 'Sensor calibrándose'}</Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Calibrar Sensor"
+            onPress={() => setCalibrated(false)}
+            style={[s.iconButton, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}
+          >
+            <Ionicons name="options-outline" size={20} color={colors.primary} />
+          </Pressable>
         </View>
 
-        {/* Questions */}
-        {QUESTIONS.map((question, qIdx) => (
-          <View key={question.id} style={{ marginBottom: spacing.xl }}>
-            <Text style={[s.questionText, { color: colors.text }]}>
-              {qIdx + 1}. {t(question.key)}
-            </Text>
-            <View style={s.optionsRow}>
-              {question.options.map((opt) => {
-                const selected = answers[question.id] === opt.value;
-                return (
-                  <Pressable
-                    key={opt.value}
-                    onPress={() => handleAnswer(question.id, opt.value)}
-                    style={[
-                      s.optionBtn,
-                      {
-                        backgroundColor: selected ? colors.accent : colors.surfaceAlt,
-                        borderColor: selected ? colors.accent : colors.border,
-                        flex: 1,
-                      },
-                    ]}
-                  >
-                    <Text style={{ fontSize: 22 }}>{opt.emoji}</Text>
-                    <Text style={[s.optionText, { color: selected ? colors.primaryDark : colors.textSecondary }]} numberOfLines={2}>
-                      {t(opt.labelKey)}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+        <View style={[s.liveCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55' }]}>
+          <View style={s.liveTop}>
+            <View style={[s.liveIcon, { backgroundColor: colors.accent + '55' }]}>
+              <Ionicons name="compass-outline" size={22} color={colors.primaryDark} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.liveKicker, { color: colors.textSecondary }]}>Orientación</Text>
+              <Text style={[s.liveHeading, { color: colors.text }]}>Balcón: SURESTE (135° SE)</Text>
+              <Text style={[s.liveNow, { color: colors.primary }]}>En Vivo</Text>
             </View>
           </View>
-        ))}
+          <View style={s.luxRow}>
+            <Ionicons name="sunny" size={24} color={colors.warning} />
+            <Text style={[s.luxNumber, { color: colors.text }]}>42.500</Text>
+            <Text style={[s.luxUnit, { color: colors.textSecondary }]}>Lux</Text>
+          </View>
+          <Text style={[s.sunLevel, { color: colors.text }]}>Sol Directo Intenso</Text>
+          <Text style={[s.sunDescription, { color: colors.textSecondary }]}>Luz óptima para hortalizas de fruto (Tomates, Pimientos, Berenjenas)</Text>
+          <View style={[s.estimate, { borderTopColor: colors.border }]}>
+            <Ionicons name="time-outline" size={17} color={colors.primary} />
+            <Text style={[s.estimateText, { color: colors.textSecondary }]}>Estimación solar hoy: <Text style={{ color: colors.text, fontWeight: fontWeight.bold }}>6,5 horas de sol directo</Text></Text>
+          </View>
+        </View>
 
-        {/* Result */}
-        {result && (() => {
-          const cfg = SUN_CONFIG[result];
-          return (
-            <>
-              <View style={[s.resultCard, { backgroundColor: cfg.color + '18', borderColor: cfg.color + '55' }]}>
-                <Text style={{ fontSize: 36 }}>{cfg.emoji}</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={[s.resultTitle, { color: cfg.color }]}>{t(cfg.labelKey)}</Text>
-                  <Text style={[s.resultDesc, { color: colors.text }]}>{t(cfg.descKey)}</Text>
-                </View>
-              </View>
+        <Text style={[s.sectionTitle, { color: colors.text }]}>Ubicación recomendada</Text>
+        <View style={[s.locationCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={s.locationHeading}>
+            <Ionicons name="business-outline" size={20} color={colors.primary} />
+            <Text style={[s.locationTitle, { color: colors.text }]}>Balcón Español</Text>
+          </View>
+          <View style={[s.zone, { borderTopColor: colors.border }]}>
+            <View style={[s.zoneIcon, { backgroundColor: colors.accent + '40' }]}><Ionicons name="sunny-outline" size={18} color={colors.warning} /></View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.zoneTitle, { color: colors.text }]}>Zona Barandilla frontal</Text>
+              <Text style={[s.zoneMeta, { color: colors.primary }]}>Sol pleno &gt;6h</Text>
+              <Text style={[s.zoneDescription, { color: colors.textSecondary }]}>Lugar perfecto para macetas hondas de barro: ubica aquí tus <Text style={{ color: colors.text, fontWeight: fontWeight.bold }}>Tomates Cherry</Text> o <Text style={{ color: colors.text, fontWeight: fontWeight.bold }}>Romero</Text> para máxima floración.</Text>
+            </View>
+          </View>
+          <View style={[s.zone, { borderTopColor: colors.border }]}>
+            <View style={[s.zoneIcon, { backgroundColor: colors.primaryLight + '55' }]}><Ionicons name="cloud-outline" size={18} color={colors.primary} /></View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.zoneTitle, { color: colors.text }]}>Zona Rincón o Muro lateral</Text>
+              <Text style={[s.zoneMeta, { color: colors.textSecondary }]}>Semisombra</Text>
+              <Text style={[s.zoneDescription, { color: colors.textSecondary }]}>Luz filtrada. Traslada aquí la <Text style={{ color: colors.text, fontWeight: fontWeight.bold }}>Albahaca Limón</Text> o <Text style={{ color: colors.text, fontWeight: fontWeight.bold }}>Menta</Text> para evitar quemaduras en las hojas en las horas centrales.</Text>
+            </View>
+          </View>
+        </View>
 
-              <Text style={[s.sectionTitle, { color: colors.textSecondary }]}>{t('lightMeter.recommended')}</Text>
-              <View style={s.cropsGrid}>
-                {recommendedCrops.map((crop: CropInfo) => (
-                  <Pressable
-                    key={crop.id}
-                    onPress={() => router.push(`/plant/new?cropId=${crop.id}` as any)}
-                    style={[s.cropTile, { backgroundColor: colors.surface, borderColor: colors.border }]}
-                  >
-                    <Text style={{ fontSize: 28 }}>{crop.emoji}</Text>
-                    <Text style={[s.cropName, { color: colors.text }]} numberOfLines={2}>
-                      {t('crops.' + crop.id + '.name', { defaultValue: crop.name })}
-                    </Text>
-                    <Text style={[s.cropSun, { color: cfg.color }]}>{cfg.emoji}</Text>
-                  </Pressable>
-                ))}
-              </View>
+        <View style={[s.ruleCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.accent + '88' }]}>
+          <Ionicons name="water-outline" size={21} color={colors.primary} />
+          <View style={{ flex: 1 }}>
+            <Text style={[s.ruleTitle, { color: colors.text }]}>Regla de oro ante sol fuerte</Text>
+            <Text style={[s.ruleText, { color: colors.textSecondary }]}>Con <Text style={{ color: colors.text, fontWeight: fontWeight.bold }}>40.000+ Lux</Text> aumenta la evaporación superficial, pero recuerda la regla de oro: introduce el dedo <Text style={{ color: colors.primary, fontWeight: fontWeight.bold }}>2 cm</Text> antes de regar; las macetas de barro retienen frescor en el fondo.</Text>
+          </View>
+        </View>
 
-              <Button
-                title={t('lightMeter.retake')}
-                variant="outline"
-                size="md"
-                onPress={reset}
-                style={{ marginTop: spacing.xl, marginBottom: spacing.xl }}
-              />
-            </>
-          );
-        })()}
+        <View style={[s.zenith, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[s.zenithLabel, { color: colors.textSecondary }]}>Cénit solar previsto:</Text>
+          <Text style={[s.zenithTime, { color: colors.text }]}>14:15h</Text>
+          <Pressable accessibilityRole="button" style={s.trajectoryButton} onPress={() => {}}>
+            <Text style={[s.trajectoryText, { color: colors.primary }]}>Ver trayectoria</Text>
+            <Ionicons name="chevron-forward" size={16} color={colors.primary} />
+          </Pressable>
+        </View>
 
+        <View style={s.actions}>
+          <Pressable accessibilityRole="button" style={[s.primaryButton, { backgroundColor: colors.primary }]} onPress={() => {}}>
+            <Ionicons name="bookmark-outline" size={18} color={colors.background} />
+            <Text style={[s.primaryButtonText, { color: colors.background }]}>Guardar medición en Balcón Sur</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" style={[s.outlineButton, { borderColor: colors.border }]} onPress={() => setCalibrated(true)}>
+            <Ionicons name="refresh-outline" size={18} color={colors.primary} />
+            <Text style={[s.outlineButtonText, { color: colors.primary }]}>Recalibrar sensor</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" style={[s.outlineButton, { borderColor: colors.border }]} onPress={() => {}}>
+            <Ionicons name="time-outline" size={18} color={colors.primary} />
+            <Text style={[s.outlineButtonText, { color: colors.primary }]}>Historial solar</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const makeStyles = (
-  colors: ReturnType<typeof useColors>,
   spacing: Record<string, number>,
   fontSize: Record<string, number>,
   fontWeight: Theme['fontWeight'],
   radii: Record<string, number>,
-) =>
-  StyleSheet.create({
-    container: { flex: 1 },
-    scroll: { padding: spacing.xl, paddingBottom: 60 },
-    descCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.md,
-      padding: spacing.md,
-      borderRadius: radii.md,
-      borderWidth: 1,
-      marginBottom: spacing.xl,
-    },
-    descText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20 },
-    questionText: { fontSize: fontSize.md, fontWeight: fontWeight.semibold, marginBottom: spacing.md },
-    optionsRow: { flexDirection: 'row', gap: spacing.sm },
-    optionBtn: {
-      alignItems: 'center',
-      padding: spacing.sm,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
-      gap: 4,
-      minHeight: 70,
-      justifyContent: 'center',
-    },
-    optionText: { fontSize: 10, fontWeight: fontWeight.semibold, textAlign: 'center' },
-    resultCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.md,
-      padding: spacing.lg,
-      borderRadius: radii.xl,
-      borderWidth: 2,
-      marginBottom: spacing.xl,
-    },
-    resultTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
-    resultDesc: { fontSize: fontSize.sm, lineHeight: 20, marginTop: 4 },
-    sectionTitle: {
-      fontSize: fontSize.xs,
-      fontWeight: fontWeight.semibold,
-      letterSpacing: 0.8,
-      marginBottom: spacing.md,
-    },
-    cropsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-    cropTile: {
-      width: '30%',
-      alignItems: 'center',
-      padding: spacing.sm,
-      borderRadius: radii.md,
-      borderWidth: 1,
-      gap: 4,
-    },
-    cropName: { fontSize: 10, fontWeight: fontWeight.medium, textAlign: 'center' },
-    cropSun: { fontSize: 12 },
-  });
+) => StyleSheet.create({
+  container: { flex: 1 },
+  header: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, borderBottomWidth: StyleSheet.hairlineWidth },
+  headerButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 4 },
+  headerBack: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+  scroll: { padding: spacing.lg, paddingBottom: 40 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
+  title: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+  status: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold, marginTop: 2 },
+  iconButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderRadius: radii.md },
+  liveCard: { borderWidth: 1, borderRadius: radii.xl, padding: spacing.lg, marginBottom: spacing.xl },
+  liveTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
+  liveIcon: { width: 44, height: 44, borderRadius: radii.md, alignItems: 'center', justifyContent: 'center' },
+  liveKicker: { fontSize: fontSize.xs },
+  liveHeading: { fontSize: fontSize.md, fontWeight: fontWeight.bold, marginTop: 2 },
+  liveNow: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, marginTop: 3 },
+  luxRow: { flexDirection: 'row', alignItems: 'baseline', gap: 7, marginTop: spacing.lg },
+  luxNumber: { fontSize: 34, fontWeight: fontWeight.bold, letterSpacing: -0.8 },
+  luxUnit: { fontSize: fontSize.md },
+  sunLevel: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginTop: 3 },
+  sunDescription: { fontSize: fontSize.sm, lineHeight: 20, marginTop: 2 },
+  estimate: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, borderTopWidth: StyleSheet.hairlineWidth, paddingTop: spacing.md, marginTop: spacing.md },
+  estimateText: { flex: 1, fontSize: fontSize.xs, lineHeight: 18 },
+  sectionTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
+  locationCard: { borderWidth: 1, borderRadius: radii.xl, overflow: 'hidden' },
+  locationHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md },
+  locationTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+  zone: { flexDirection: 'row', gap: spacing.sm, borderTopWidth: StyleSheet.hairlineWidth, padding: spacing.md },
+  zoneIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  zoneTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+  zoneMeta: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, marginTop: 2 },
+  zoneDescription: { fontSize: fontSize.xs, lineHeight: 18, marginTop: 5 },
+  ruleCard: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, borderWidth: 1, borderRadius: radii.lg, padding: spacing.md, marginTop: spacing.lg },
+  ruleTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+  ruleText: { fontSize: fontSize.xs, lineHeight: 18, marginTop: 4 },
+  zenith: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, borderWidth: 1, borderRadius: radii.lg, padding: spacing.md, marginTop: spacing.lg },
+  zenithLabel: { fontSize: fontSize.xs },
+  zenithTime: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+  trajectoryButton: { marginLeft: 'auto', minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 2 },
+  trajectoryText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+  actions: { gap: spacing.sm, marginTop: spacing.lg },
+  primaryButton: { minHeight: 52, borderRadius: radii.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+  primaryButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+  outlineButton: { minHeight: 48, borderRadius: radii.md, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+  outlineButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+});

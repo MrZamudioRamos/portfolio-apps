@@ -73,7 +73,7 @@ export function ShareModal({
           <View style={[s.actions, { gap: spacing.md }]}>
             <Pressable
               onPress={async () => { await share(); onClose(); }}
-              style={[s.shareBtn, { backgroundColor: colors.primary, borderRadius: radii.full }]}
+              style={[s.shareBtn, { backgroundColor: colors.primary, borderRadius: radii.md }]}
             >
               <Text style={[s.shareBtnText, { fontSize: fontSize.md, fontWeight: fontWeight.bold, color: colors.background }]}>
                 {t('share.cta')}

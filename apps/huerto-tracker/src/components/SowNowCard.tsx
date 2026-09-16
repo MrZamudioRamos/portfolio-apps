@@ -26,7 +26,7 @@ interface Props {
  * in THEIR climate zone, easy crops first. One tap to add. Hidden when nothing
  * is sowable this month (avoids an empty/sad card).
  */
-export function SowNowCard({ climateZone, beginnerFirst = true, max = 8 }: Props) {
+export function SowNowCard({ climateZone, beginnerFirst = true, max = 3 }: Props) {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
@@ -153,7 +153,7 @@ const makeStyles = (
     seeAll: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     scroll: { paddingHorizontal: spacing.lg, gap: spacing.md },
     crop: {
-      width: 96,
+      width: 116,
       borderRadius: radii.lg,
       borderWidth: 1,
       padding: spacing.sm,

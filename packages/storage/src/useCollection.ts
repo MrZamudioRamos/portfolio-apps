@@ -4,6 +4,7 @@ import { BaseItem, createStore, Store } from './store';
 export interface UseCollectionResult<T extends BaseItem> {
   items: T[];
   loading: boolean;
+  error: Error | null;
   create: (data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>) => Promise<T>;
   update: (id: string, data: Partial<Omit<T, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<T | null>;
   remove: (id: string) => Promise<void>;
@@ -19,9 +20,11 @@ export function useCollection<T extends BaseItem>(key: string): UseCollectionRes
   const [store] = useState<Store<T>>(() => createStore<T>(key));
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const all = await store.getAll();
       // Hide soft-deleted rows from the UI; they're kept in storage so the
@@ -30,13 +33,20 @@ export function useCollection<T extends BaseItem>(key: string): UseCollectionRes
         .filter((item) => !item.deletedAt)
         .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
       setItems(sorted);
+    } catch (cause) {
+      const nextError = cause instanceof Error ? cause : new Error(String(cause));
+      setError(nextError);
+      throw nextError;
     } finally {
       setLoading(false);
     }
   }, [store]);
 
   useEffect(() => {
-    refresh();
+    refresh().catch(() => {
+      // The screen receives the error through state; avoid an unhandled
+      // rejection during the initial background load.
+    });
   }, [refresh]);
 
   const create = useCallback(
@@ -97,6 +107,7 @@ export function useCollection<T extends BaseItem>(key: string): UseCollectionRes
   return {
     items,
     loading,
+    error,
     create,
     update,
     remove,

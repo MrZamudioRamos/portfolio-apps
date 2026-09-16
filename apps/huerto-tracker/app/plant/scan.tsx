@@ -1,294 +1,145 @@
-import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
-import { usePro as usePurchases } from '../../src/hooks/usePro';
-import { usePickPhoto } from '../../src/hooks/usePickPhoto';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { track, EVENTS } from '../../src/analytics';
-import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS_BY_ID } from '../../src/data/crops';
-import { scanPlant, type PlantScanResult } from '../../src/utils/plantScan';
-import { Illustration } from '../../src/components/Illustration';
+import { useColors, useTheme, type Theme } from '@portfolio/ui';
+import { usePickPhoto } from '../../src/hooks/usePickPhoto';
 
-const CONFIDENCE_COLOR: Record<string, string> = {
-  alta: '#4CAF50',
-  media: '#FFA726',
-  baja: '#EF5350',
-};
-
-const STAGE_TO_STATUS: Record<string, string> = {
-  seedling: 'seedling',
-  vegetative: 'growing',
-  flowering: 'flowering',
-  fruiting: 'fruiting',
-  dormant: 'finished',
-};
-
-const SNAP_TIPS = ['tip1', 'tip2', 'tip3', 'tip4'] as const;
-
+/** Stitch's native camera frame. Capture is still delegated to Expo Go's picker. */
 export default function PlantScanScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
-  const { t, i18n } = useTranslation();
-  const { isPro } = usePurchases();
-
-  const [showTips, setShowTips] = useState(true);
-  const [photo, setPhoto] = useState<string | null>(null);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [result, setResult] = useState<PlantScanResult | null>(null);
-  const [errorKey, setErrorKey] = useState<'noKey' | 'generic' | null>(null);
-  const { pickFromGallery, pickFromCamera, picking } = usePickPhoto({
+  const [diagnosisMode, setDiagnosisMode] = useState(false);
+  const [flashEnabled, setFlashEnabled] = useState(false);
+  const { pickFromCamera, pickFromGallery, picking } = usePickPhoto({
     aspect: [4, 3],
-    quality: 0.6,
+    quality: 0.8,
     i18nNamespace: 'plantScan',
   });
-
-  const cropNames = useMemo(
-    () => Object.fromEntries(Object.entries(CROPS_BY_ID).map(([id, c]) => [id, c.name])),
-    []
-  );
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  async function pickPhoto(fromCamera: boolean) {
-    setErrorKey(null);
-    setResult(null);
+  async function capture(fromCamera: boolean) {
     const result = fromCamera ? await pickFromCamera() : await pickFromGallery();
-    if (result.kind === 'success') setPhoto(result.uri);
-  }
-
-  async function analyze() {
-    if (!photo) return;
-    setAnalyzing(true);
-    setErrorKey(null);
-    setResult(null);
-
-    try {
-      const scan = await scanPlant(photo, i18n.language, cropNames);
-      setResult(scan);
-    } catch (err: unknown) {
-      const e = err as { code?: string };
-      setErrorKey(e.code === 'NO_KEY' ? 'noKey' : 'generic');
-    } finally {
-      setAnalyzing(false);
+    if (result.kind === 'success') {
+      router.push({ pathname: '/plant/identify', params: { photo: result.uri } });
     }
   }
 
-  function useThisPlant() {
-    if (!result) return;
-    const params: Record<string, string> = { scan: '1' };
-    if (result.cropId) params.cropId = result.cropId;
-    if (result.growthStage) params.status = STAGE_TO_STATUS[result.growthStage] ?? 'seedling';
-    router.replace({ pathname: '/plant/new', params });
-  }
-
-  if (!isPro) {
-    return (
-      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <View style={[s.header, { borderBottomColor: colors.border }]}>
-          <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Ionicons name="arrow-back" size={24} color={colors.textSecondary} />
-          </Pressable>
-          <Text style={[s.title, { color: colors.text }]}>{t('plantScan.title')}</Text>
-          <View style={{ width: 24 }} />
-        </View>
-        <View style={s.gate}>
-          <Text style={s.gateEmoji}>🌿</Text>
-          <Text style={[s.gateTitle, { color: colors.text }]}>{t('plantScan.proTitle')}</Text>
-          <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('plantScan.proDesc')}</Text>
-          <Button
-            title={t('plantScan.upgradePro')}
-            onPress={() => router.push('/paywall?source=ai_scan' as any)}
-            size="lg"
-            style={{ marginTop: spacing.xl, alignSelf: 'stretch' }}
-          />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      {/* Header */}
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.textSecondary} />
-        </Pressable>
-        <Text style={[s.title, { color: colors.text }]}>{t('plantScan.title')}</Text>
-        <View style={{ width: 24 }} />
-      </View>
-
-      <ScrollView contentContainerStyle={s.body} showsVerticalScrollIndicator={false}>
-        {/* Photo area */}
-        {!photo ? (
-          <View style={[s.photoPlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={s.placeholderEmoji}>🌱</Text>
-            <Text style={[s.placeholderHint, { color: colors.textSecondary }]}>
-              {t('plantScan.subtitle')}
-            </Text>
-            <View style={s.pickRow}>
+    <View style={s.container}>
+      <View style={s.cameraSurface}>
+        <SafeAreaView style={s.safeArea} edges={['top', 'bottom']}>
+          <View style={s.topBar}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar escáner"
+              hitSlop={12}
+              onPress={() => router.back()}
+              style={s.iconButton}
+            >
+              <Ionicons name="close" size={26} color="#fff" />
+            </Pressable>
+            <View style={s.modeTabs} accessibilityRole="tablist">
               <Pressable
-                onPress={() => pickPhoto(true)}
-                disabled={picking}
-                style={[s.pickBtn, { backgroundColor: colors.accent, borderColor: colors.accent, opacity: picking ? 0.5 : 1 }]}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: !diagnosisMode }}
+                onPress={() => setDiagnosisMode(false)}
+                style={[s.modeTab, !diagnosisMode && s.modeTabActive]}
               >
-                <Ionicons name="camera-outline" size={20} color={colors.primaryDark} />
-                <Text style={[s.pickBtnText, { color: colors.primaryDark }]}>{t('plantScan.takePhoto')}</Text>
+                <Text style={s.modeTabText}>Identificar</Text>
               </Pressable>
               <Pressable
-                onPress={() => pickPhoto(false)}
-                disabled={picking}
-                style={[s.pickBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: picking ? 0.5 : 1 }]}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: diagnosisMode }}
+                onPress={() => setDiagnosisMode(true)}
+                style={[s.modeTab, diagnosisMode && s.modeTabActive]}
               >
-                <Ionicons name="images-outline" size={20} color={colors.textSecondary} />
-                <Text style={[s.pickBtnText, { color: colors.textSecondary }]}>{t('plantScan.fromGallery')}</Text>
+                <Text style={s.modeTabText}>Diagnóstico</Text>
               </Pressable>
             </View>
-          </View>
-        ) : (
-          <View>
-            <Image source={{ uri: photo }} style={s.photoPreview} />
             <Pressable
-              onPress={() => { setPhoto(null); setResult(null); setErrorKey(null); }}
-              style={s.retakeBtn}
+              accessibilityRole="button"
+              accessibilityLabel="Control de linterna"
+              accessibilityState={{ checked: flashEnabled }}
+              hitSlop={12}
+              onPress={() => setFlashEnabled((value) => !value)}
+              style={[s.iconButton, flashEnabled && s.iconButtonActive]}
             >
-              <Ionicons name="refresh-outline" size={14} color={colors.primaryDark} />
-              <Text style={[s.retakeText, { color: colors.primaryDark }]}>{t('plantScan.retake')}</Text>
+              <Ionicons name={flashEnabled ? 'flash' : 'flash-off-outline'} size={22} color="#fff" />
             </Pressable>
           </View>
-        )}
 
-        {/* Analyze */}
-        {photo && !analyzing && !result && (
-          <Button
-            title={t('plantScan.analyze')}
-            onPress={analyze}
-            size="lg"
-            style={{ marginTop: spacing.xl }}
-          />
-        )}
+          <View style={s.cameraContent}>
+            <View style={s.lightNotice}>
+              <Ionicons name="sunny" size={17} color="#FBC02D" />
+              <Text style={s.lightNoticeText}>Buena luz solar detectada · Enfocando hojas</Text>
+            </View>
 
-        {/* Loading */}
-        {analyzing && (
-          <View style={s.loading}>
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={[s.loadingText, { color: colors.textSecondary }]}>{t('plantScan.analyzing')}</Text>
-          </View>
-        )}
+            <View style={s.focusFrame} accessibilityLabel="Encuadre de cámara">
+              <View style={[s.corner, s.cornerTopLeft]} />
+              <View style={[s.corner, s.cornerTopRight]} />
+              <View style={[s.corner, s.cornerBottomLeft]} />
+              <View style={[s.corner, s.cornerBottomRight]} />
+              <Ionicons name={diagnosisMode ? 'leaf-outline' : 'flower-outline'} size={44} color="rgba(255,255,255,0.72)" />
+              <Text style={s.focusHint}>Centra las hojas o el sustrato en el recuadro</Text>
+            </View>
 
-        {/* Error */}
-        {errorKey && (
-          <View style={[s.errorCard, { backgroundColor: colors.error + '12', borderColor: colors.error }]}>
-            <Text style={[s.errorTitle, { color: colors.error }]}>{t('plantScan.error')}</Text>
-            <Text style={[s.errorDesc, { color: colors.textSecondary }]}>
-              {t(errorKey === 'noKey' ? 'plantScan.noKeyDesc' : 'plantScan.errorDesc')}
-            </Text>
-          </View>
-        )}
+            <View style={s.permissionBadge} accessibilityRole="text">
+              <Ionicons name="checkmark-circle" size={17} color="#B8E986" />
+              <Text style={s.permissionText}>Permiso de cámara concedido</Text>
+            </View>
 
-        {/* Result */}
-        {result && (
-          <View style={s.result}>
-            {result.identified ? (
-              <>
-                {/* Crop identified */}
-                <View style={[s.resultCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <View style={s.resultHeader}>
-                    <Text style={s.cropEmoji}>
-                      {result.cropId ? (CROPS_BY_ID[result.cropId]?.emoji ?? '🌱') : '🌱'}
-                    </Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[s.cropName, { color: colors.text }]}>{result.cropName}</Text>
-                      <View style={[s.confidenceBadge, { backgroundColor: (CONFIDENCE_COLOR[result.confidence] ?? '#999') + '22' }]}>
-                        <Text style={[s.confidenceText, { color: CONFIDENCE_COLOR[result.confidence] ?? '#999' }]}>
-                          {t('plantScan.confidence.' + result.confidence)}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  {/* Growth stage */}
-                  <View style={[s.stageRow, { borderTopColor: colors.border }]}>
-                    <Text style={[s.stageLabel, { color: colors.textSecondary }]}>{t('plantScan.stage')}</Text>
-                    <Text style={[s.stageValue, { color: colors.text }]}>
-                      {t('plantScan.growthStage.' + result.growthStage)}
-                    </Text>
-                  </View>
-
-                  {/* Notes */}
-                  {!!result.notes && (
-                    <Text style={[s.notes, { color: colors.textSecondary, borderTopColor: colors.border }]}>
-                      {result.notes}
-                    </Text>
-                  )}
-                </View>
-
-                <Button
-                  title={t('plantScan.useThis')}
-                  onPress={useThisPlant}
-                  size="lg"
-                  style={{ marginTop: spacing.lg }}
-                />
-              </>
-            ) : (
-              /* Not identified */
-              <View style={[s.notFound, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-                <Illustration name="not-found" size={96} />
-                <Text style={[s.notFoundTitle, { color: colors.text }]}>{t('plantScan.notIdentified')}</Text>
-                <Text style={[s.notFoundDesc, { color: colors.textSecondary }]}>{t('plantScan.notIdentifiedDesc')}</Text>
+            <View style={s.tipCard}>
+              <View style={s.tipIcon}>
+                <Ionicons name="leaf" size={20} color={colors.primary} />
               </View>
-            )}
+              <View style={{ flex: 1 }}>
+                <Text style={s.tipTitle}>Consejo de Semillita</Text>
+                <Text style={s.tipText}>Fotografía las hojas de cerca y con luz natural para un diagnóstico exacto.</Text>
+              </View>
+            </View>
+          </View>
 
+          <View style={s.bottomControls}>
             <Pressable
-              onPress={() => (router.canGoBack() ? router.back() : router.replace('/plant/new'))}
-              style={[s.manualBtn, { borderColor: colors.border }]}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir galería de fotos"
+              hitSlop={12}
+              onPress={() => capture(false)}
+              disabled={picking}
+              style={({ pressed }) => [s.galleryButton, pressed && s.pressed, picking && s.disabled]}
             >
-              <Text style={[s.manualBtnText, { color: colors.textSecondary }]}>
-                {t('plantScan.tryManual')}
-              </Text>
+              <Ionicons name="images-outline" size={26} color="#fff" />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Capturar fotografía de planta"
+              hitSlop={12}
+              onPress={() => capture(true)}
+              disabled={picking}
+              style={({ pressed }) => [s.shutterOuter, pressed && s.pressed, picking && s.disabled]}
+            >
+              <View style={s.shutterInner} />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cambiar cámara"
+              hitSlop={12}
+              onPress={() => undefined}
+              style={({ pressed }) => [s.switchButton, pressed && s.pressed]}
+            >
+              <Ionicons name="camera-reverse-outline" size={29} color="#fff" />
             </Pressable>
           </View>
-        )}
-      </ScrollView>
-
-      {/* Snap Tips modal */}
-      <Modal visible={showTips} transparent animationType="slide">
-        <View style={s.tipsOverlay}>
-          <View style={[s.tipsSheet, { backgroundColor: colors.surface }]}>
-            <View style={[s.tipsHandle, { backgroundColor: colors.border }]} />
-            <Text style={s.tipsEmoji}>📸</Text>
-            <Text style={[s.tipsTitle, { color: colors.text }]}>{t('plantScan.tipsTitle')}</Text>
-            {SNAP_TIPS.map((key) => (
-              <View key={key} style={s.tipRow}>
-                <Text style={[s.tipCheck, { color: colors.primary }]}>✓</Text>
-                <Text style={[s.tipText, { color: colors.textSecondary }]}>{t(`plantScan.${key}`)}</Text>
-              </View>
-            ))}
-            <Button
-              title={t('plantScan.gotIt')}
-              onPress={() => setShowTips(false)}
-              size="lg"
-              style={{ marginTop: spacing.xl }}
-            />
-          </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+        </SafeAreaView>
+      </View>
+    </View>
   );
 }
 
@@ -298,149 +149,38 @@ const makeStyles = (
   fontSize: Record<string, number>,
   fontWeight: Theme['fontWeight'],
   radii: Record<string, number>
-) =>
-  StyleSheet.create({
-    container: { flex: 1 },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: spacing.lg,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-    },
-    title: { flex: 1, textAlign: 'center', fontSize: fontSize.lg, fontWeight: fontWeight.bold },
-    body: { padding: spacing.xl, paddingBottom: 60 },
-
-    gate: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl * 2 },
-    gateEmoji: { fontSize: 48, marginBottom: spacing.lg },
-    gateTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, textAlign: 'center', marginBottom: spacing.sm },
-    gateDesc: { textAlign: 'center', fontSize: fontSize.md, lineHeight: 22 },
-
-    photoPlaceholder: {
-      borderRadius: radii.lg,
-      borderWidth: 2,
-      borderStyle: 'dashed',
-      padding: spacing.xl * 1.5,
-      alignItems: 'center',
-    },
-    placeholderEmoji: { fontSize: 48, marginBottom: spacing.md },
-    placeholderHint: { fontSize: fontSize.sm, textAlign: 'center', marginBottom: spacing.xl },
-    pickRow: { flexDirection: 'row', gap: spacing.md },
-    pickBtn: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
-    },
-    pickBtnText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    photoPreview: { width: '100%', height: 240, borderRadius: radii.lg, resizeMode: 'cover' },
-    retakeBtn: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      alignSelf: 'flex-end',
-      marginTop: spacing.sm,
-    },
-    retakeText: { fontSize: fontSize.sm },
-
-    loading: { alignItems: 'center', paddingVertical: spacing.xl * 2, gap: spacing.lg },
-    loadingText: { fontSize: fontSize.md },
-
-    errorCard: {
-      marginTop: spacing.xl,
-      padding: spacing.lg,
-      borderRadius: radii.md,
-      borderWidth: 1,
-    },
-    errorTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
-    errorDesc: { fontSize: fontSize.sm, lineHeight: 20 },
-
-    result: { marginTop: spacing.xl },
-    resultCard: {
-      borderRadius: radii.lg,
-      borderWidth: StyleSheet.hairlineWidth,
-      overflow: 'hidden',
-    },
-    resultHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.md,
-      padding: spacing.lg,
-    },
-    cropEmoji: { fontSize: 40 },
-    cropName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginBottom: 4 },
-    confidenceBadge: {
-      alignSelf: 'flex-start',
-      paddingHorizontal: spacing.sm,
-      paddingVertical: 2,
-      borderRadius: radii.full,
-    },
-    confidenceText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
-    stageRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-      borderTopWidth: StyleSheet.hairlineWidth,
-    },
-    stageLabel: { fontSize: fontSize.sm },
-    stageValue: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    notes: {
-      padding: spacing.lg,
-      fontSize: fontSize.sm,
-      lineHeight: 20,
-      borderTopWidth: StyleSheet.hairlineWidth,
-    },
-
-    notFound: {
-      borderRadius: radii.lg,
-      borderWidth: 1.5,
-      padding: spacing.xl,
-      alignItems: 'center',
-    },
-    notFoundEmoji: { fontSize: 36, marginBottom: spacing.md },
-    notFoundTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
-    notFoundDesc: { fontSize: fontSize.sm, textAlign: 'center', lineHeight: 20 },
-
-    manualBtn: {
-      marginTop: spacing.lg,
-      padding: spacing.md,
-      borderRadius: radii.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      alignItems: 'center',
-    },
-    manualBtnText: { fontSize: fontSize.sm },
-
-    tipsOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      justifyContent: 'flex-end',
-    },
-    tipsSheet: {
-      borderTopLeftRadius: radii.xl,
-      borderTopRightRadius: radii.xl,
-      padding: spacing.xl,
-      paddingBottom: spacing.xl * 2,
-      alignItems: 'center',
-    },
-    tipsHandle: {
-      width: 40,
-      height: 4,
-      borderRadius: 2,
-      marginBottom: spacing.lg,
-    },
-    tipsEmoji: { fontSize: 40, marginBottom: spacing.md },
-    tipsTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginBottom: spacing.xl, textAlign: 'center' },
-    tipRow: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      gap: spacing.md,
-      marginBottom: spacing.md,
-      alignSelf: 'stretch',
-    },
-    tipCheck: { fontSize: fontSize.md, fontWeight: fontWeight.bold, width: 20 },
-    tipText: { flex: 1, fontSize: fontSize.md, lineHeight: 22 },
-  });
+) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#0D120E' },
+  cameraSurface: { flex: 1, backgroundColor: '#101510' },
+  safeArea: { flex: 1 },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingTop: spacing.sm },
+  iconButton: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.35)' },
+  iconButtonActive: { backgroundColor: colors.primary + '88' },
+  modeTabs: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.35)', borderRadius: radii.full, padding: 3 },
+  modeTab: { minHeight: 38, paddingHorizontal: spacing.md, borderRadius: radii.full, alignItems: 'center', justifyContent: 'center' },
+  modeTabActive: { backgroundColor: 'rgba(255,255,255,0.18)' },
+  modeTabText: { color: '#fff', fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+  cameraContent: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.lg, paddingHorizontal: spacing.xl },
+  lightNotice: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radii.full, backgroundColor: 'rgba(24,35,22,0.82)' },
+  lightNoticeText: { color: '#F5F8EC', fontSize: fontSize.xs, fontWeight: fontWeight.medium },
+  focusFrame: { width: '88%', aspectRatio: 0.9, maxHeight: 360, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
+  corner: { position: 'absolute', width: 38, height: 38, borderColor: '#B8E986' },
+  cornerTopLeft: { top: 0, left: 0, borderTopWidth: 3, borderLeftWidth: 3, borderTopLeftRadius: 10 },
+  cornerTopRight: { top: 0, right: 0, borderTopWidth: 3, borderRightWidth: 3, borderTopRightRadius: 10 },
+  cornerBottomLeft: { bottom: 0, left: 0, borderBottomWidth: 3, borderLeftWidth: 3, borderBottomLeftRadius: 10 },
+  cornerBottomRight: { bottom: 0, right: 0, borderBottomWidth: 3, borderRightWidth: 3, borderBottomRightRadius: 10 },
+  focusHint: { color: 'rgba(255,255,255,0.82)', fontSize: fontSize.sm, textAlign: 'center', maxWidth: 220 },
+  permissionBadge: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radii.full, backgroundColor: 'rgba(32,65,38,0.76)' },
+  permissionText: { color: '#E5F5D8', fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+  tipCard: { width: '100%', maxWidth: 360, flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: radii.lg, backgroundColor: 'rgba(247,251,241,0.96)' },
+  tipIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceAlt },
+  tipTitle: { color: colors.text, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+  tipText: { color: colors.textSecondary, fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
+  bottomControls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.xl, paddingBottom: spacing.lg },
+  galleryButton: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)' },
+  shutterOuter: { width: 78, height: 78, borderRadius: 39, borderWidth: 4, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' },
+  shutterInner: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#fff' },
+  switchButton: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)' },
+  pressed: { transform: [{ scale: 0.96 }], opacity: 0.82 },
+  disabled: { opacity: 0.5 },
+});

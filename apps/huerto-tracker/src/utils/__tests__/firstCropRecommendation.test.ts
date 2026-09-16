@@ -41,4 +41,31 @@ describe('getFirstCropRecommendations', () => {
     const result = getFirstCropRecommendations({ climateZone: 'mediterranea', month: 3, sunlight: 'full', space: 'balcony', crops: [crop('unknown-container', 'shade', [3], 30)] });
     expect(result).toEqual([]);
   });
+
+  it('uses an optional crop preference to reorder compatible results', () => {
+    const result = getFirstCropRecommendations({
+      climateZone: 'mediterranea',
+      month: 3,
+      sunlight: 'full',
+      preferredCategories: ['frutas'],
+      crops: [crop('a-hojas', 'shade', [3], 30, 'hojas'), crop('z-fruta', 'shade', [3], 30, 'frutas')],
+    });
+    expect(result[0].crop.id).toBe('z-fruta');
+    expect(result[0].reasons).toContain('preference');
+  });
+
+  it('prioritizes easy crops when the user has little time', () => {
+    const result = getFirstCropRecommendations({
+      climateZone: 'mediterranea',
+      month: 3,
+      sunlight: 'full',
+      careTime: 'light',
+      crops: [
+        crop('berenjena', 'shade', [3], 45),
+        crop('rabano', 'shade', [3], 45),
+      ],
+    });
+    expect(result[0].crop.id).toBe('rabano');
+    expect(result[0].reasons).toContain('timeFit');
+  });
 });

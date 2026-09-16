@@ -2,10 +2,11 @@ import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -44,6 +45,21 @@ export default function NewCustomCropScreen() {
   const [spacingCm, setSpacingCm] = useState(String(existing?.spacing ?? 30));
   const [notes, setNotes] = useState(existing?.notes ?? '');
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!existing) return;
+    setName(existing.name);
+    setEmoji(existing.emoji);
+    setCategory(existing.category);
+    setDaysMin(String(existing.daysToHarvestMin));
+    setDaysMax(String(existing.daysToHarvestMax));
+    setSowingMonths(existing.sowingMonths);
+    setHarvestMonths(existing.harvestMonths);
+    setSunNeeds(existing.sunNeeds);
+    setWaterNeeds(existing.waterNeeds);
+    setSpacingCm(String(existing.spacing));
+    setNotes(existing.notes ?? '');
+  }, [existing?.id]);
 
   const monthLabels = (t('customCrop.months', { returnObjects: true }) as unknown) as string[];
 
@@ -101,6 +117,34 @@ export default function NewCustomCropScreen() {
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
 
+  if (editId && collection.loading) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
+        <View style={s.header}>
+          <Pressable onPress={() => router.back()} hitSlop={12} style={s.backBtn}>
+            <Ionicons name="chevron-back" size={24} color={colors.text} />
+          </Pressable>
+          <Text style={[s.title, { color: colors.text }]}>{t('customCrop.edit')}</Text>
+        </View>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+          <ActivityIndicator color={colors.primary} />
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (editId && !existing) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
+        <Pressable onPress={() => router.back()} hitSlop={12} style={s.backBtn}>
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
+        </Pressable>
+        <Text style={{ color: colors.textSecondary, textAlign: 'center', padding: spacing.xl }}>{t('customCrop.notFound', { defaultValue: t('customCrop.empty') })}</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
       <View style={s.header}>
@@ -108,20 +152,27 @@ export default function NewCustomCropScreen() {
           <Ionicons name="chevron-back" size={24} color={colors.text} />
         </Pressable>
         <Text style={[s.title, { color: colors.text }]}>
-          {editId ? t('customCrop.edit') : t('customCrop.create')}
+          {editId ? 'Editar Cultivo' : 'Nuevo Cultivo'}
         </Text>
-        {editId ? (
-          <Pressable onPress={handleDelete} hitSlop={12} style={s.deleteBtn}>
-            <Ionicons name="trash-outline" size={20} color={colors.error ?? '#EF5350'} />
-          </Pressable>
-        ) : (
-          <View style={{ width: 40 }} />
-        )}
+        <Pressable onPress={editId ? handleSave : handleSave} hitSlop={12} style={s.saveHeaderBtn} disabled={saving || !name.trim()}>
+          <Text style={{ color: !name.trim() || saving ? colors.textDisabled : colors.primary, fontWeight: fontWeight.bold }}>Guardar</Text>
+        </Pressable>
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
 
+          <View style={[s.stitchHero, { backgroundColor: colors.surfaceAlt, borderColor: colors.primary + '33' }]}>
+            <View style={[s.stitchHeroIcon, { backgroundColor: colors.surface }]}>
+              <Ionicons name="leaf-outline" size={22} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.stitchHeroTitle, { color: colors.text }]}>¡Ampliando tu huerto urbano!</Text>
+              <Text style={[s.stitchHeroText, { color: colors.textSecondary }]}>Configura las condiciones ideales para que crezca sano en balcones y terrazas.</Text>
+            </View>
+          </View>
+
+          <Text style={[s.sectionHeading, { color: colors.text }]}>1. IDENTIFICACIÓN BÁSICA</Text>
           {/* Name + Emoji */}
           <View style={s.row}>
             <TextInput
@@ -141,7 +192,7 @@ export default function NewCustomCropScreen() {
           </View>
 
           {/* Category */}
-          <Text style={[s.label, { color: colors.textSecondary }]}>{t('customCrop.category')}</Text>
+          <Text style={[s.label, { color: colors.textSecondary }]}>Familia botánica</Text>
           <View style={s.chips}>
             {CATEGORIES.map((cat) => (
               <Pressable
@@ -162,6 +213,10 @@ export default function NewCustomCropScreen() {
               </Pressable>
             ))}
           </View>
+
+          <Text style={[s.sectionHeading, { color: colors.text }]}>2. MACETA Y LUZ SOLAR</Text>
+          <Text style={[s.label, { color: colors.textSecondary }]}>Volumen mínimo de sustrato</Text>
+          <Text style={[s.stitchHint, { color: colors.textSecondary }]}>Selecciona la capacidad que mejor encaja con este cultivo.</Text>
 
           {/* Days to harvest */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('customCrop.daysToHarvest')}</Text>
@@ -188,6 +243,7 @@ export default function NewCustomCropScreen() {
             </View>
           </View>
 
+          <Text style={[s.sectionHeading, { color: colors.text }]}>3. ESTACIONALIDAD EN ESPAÑA</Text>
           {/* Sowing months */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('customCrop.sowingMonths')}</Text>
           <View style={s.monthGrid}>
@@ -247,12 +303,22 @@ export default function NewCustomCropScreen() {
                   },
                 ]}
               >
-                <Text style={{ fontSize: 16 }}>{v === 'full' ? '☀️' : v === 'partial' ? '⛅' : '🌥'}</Text>
-                <Text style={[s.chipText, { color: sunNeeds === v ? colors.primaryDark : colors.text, marginLeft: 4 }]}>
+                <Ionicons
+                  name={v === 'full' ? 'sunny-outline' : v === 'partial' ? 'partly-sunny-outline' : 'moon-outline'}
+                  size={17}
+                  color={sunNeeds === v ? '#fff' : colors.secondary}
+                />
+                <Text style={[s.chipText, { color: sunNeeds === v ? '#fff' : colors.text, marginLeft: 4 }]}>
                   {t('customCrop.sun' + (v === 'full' ? 'Full' : v === 'partial' ? 'Partial' : 'Shade'))}
                 </Text>
               </Pressable>
             ))}
+          </View>
+
+          <Text style={[s.sectionHeading, { color: colors.text }]}>4. REGLA DE RIEGO</Text>
+          <View style={[s.irrigationNote, { backgroundColor: colors.surfaceAlt, borderColor: colors.accent + '66' }]}>
+            <Ionicons name="finger-print-outline" size={19} color={colors.primary} />
+            <Text style={[s.stitchHint, { color: colors.textSecondary }]}>Diagnóstico de 2 cm en sustrato · Avisar para comprobar humedad antes de regar.</Text>
           </View>
 
           {/* Water needs */}
@@ -270,7 +336,11 @@ export default function NewCustomCropScreen() {
                   },
                 ]}
               >
-                <Text style={{ fontSize: 16 }}>{v === 'high' ? '💧💧' : v === 'medium' ? '💧' : '🏜'}</Text>
+                <Ionicons
+                  name={v === 'low' ? 'rainy-outline' : 'water-outline'}
+                  size={17}
+                  color={waterNeeds === v ? '#fff' : '#2196F3'}
+                />
                 <Text style={[s.chipText, { color: waterNeeds === v ? '#fff' : colors.text, marginLeft: 4 }]}>
                   {t('customCrop.water' + (v === 'high' ? 'High' : v === 'medium' ? 'Medium' : 'Low'))}
                 </Text>
@@ -288,6 +358,8 @@ export default function NewCustomCropScreen() {
             maxLength={4}
           />
 
+          <Text style={[s.sectionHeading, { color: colors.text }]}>5. FOTO DEL CULTIVO</Text>
+          <Text style={[s.stitchHint, { color: colors.textSecondary }]}>Personaliza tu maceta con una nota o una imagen en el siguiente paso.</Text>
           {/* Notes */}
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('customCrop.notes')}</Text>
           <TextInput
@@ -331,8 +403,16 @@ const makeStyles = (colors: any, spacing: any, fontSize: any, fontWeight: any, r
     },
     backBtn: { padding: spacing.xs, marginRight: spacing.sm },
     deleteBtn: { padding: spacing.xs, marginLeft: 'auto' },
+    saveHeaderBtn: { minWidth: 56, minHeight: 44, alignItems: 'flex-end', justifyContent: 'center' },
     title: { flex: 1, fontSize: fontSize.lg, fontWeight: fontWeight.semibold },
     scroll: { padding: spacing.md, paddingBottom: 60 },
+    stitchHero: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, marginBottom: spacing.sm },
+    stitchHeroIcon: { width: 44, height: 44, borderRadius: radii.lg, alignItems: 'center', justifyContent: 'center' },
+    stitchHeroTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    stitchHeroText: { fontSize: fontSize.sm, lineHeight: 20, marginTop: 3 },
+    sectionHeading: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, letterSpacing: 0.3, marginTop: spacing.lg, marginBottom: spacing.xs },
+    stitchHint: { fontSize: fontSize.xs, lineHeight: 18 },
+    irrigationNote: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderWidth: 1, borderRadius: radii.md, marginTop: spacing.sm },
     label: { fontSize: fontSize.sm, fontWeight: fontWeight.medium, marginTop: spacing.lg, marginBottom: spacing.xs },
     sublabel: { fontSize: fontSize.xs, marginBottom: 4 },
     row: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },

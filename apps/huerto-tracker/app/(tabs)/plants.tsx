@@ -10,13 +10,16 @@ import {
   Image,
   Pressable,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data';
 import { CROP_IMAGES } from '../../src/data/cropImages';
+import { Illustration } from '../../src/components/Illustration';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { PLANT_STATUS_CONFIG, type Plant } from '../../src/models/plant';
@@ -52,6 +55,8 @@ export default function PlantsTabScreen() {
   const { customCropsById } = useCustomCrops();
   const [refreshing, setRefreshing] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<'all' | 'attention' | 'active'>('all');
 
   const plants = useMemo(
     () => allPlants.items
@@ -60,10 +65,23 @@ export default function PlantsTabScreen() {
     [allPlants.items, garden?.id]
   );
 
+  const filteredPlants = useMemo(
+    () => plants.filter((plant) => {
+      const matchesSearch = search.trim() === '' || plant.name.toLowerCase().includes(search.trim().toLowerCase());
+      const matchesFilter = filter === 'all'
+        || (filter === 'attention' && plant.pestStatus === 'active')
+        || (filter === 'active' && plant.status !== 'finished');
+      return matchesSearch && matchesFilter;
+    }),
+    [plants, search, filter]
+  );
+
   const onRefresh = async () => {
     setRefreshing(true);
     try {
       await Promise.all([allPlants.refresh(), refreshActiveId()]);
+    } catch {
+      // The collection exposes the error state for the screen; do not leak a rejected refresh to RefreshControl.
     } finally {
       setRefreshing(false);
     }
@@ -97,7 +115,7 @@ export default function PlantsTabScreen() {
       </View>
 
       <FlatList
-        data={plants}
+        data={filteredPlants}
         keyExtractor={(plant) => plant.id}
         renderItem={({ item: plant }) => {
           const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
@@ -109,7 +127,6 @@ export default function PlantsTabScreen() {
             <Card
               padded={false}
               onPress={() => router.push({ pathname: '/plant/[id]', params: { id: plant.id } })}
-              accessibilityLabel={`${plant.name}. ${t('plantsTab.open')}`}
               style={s.plantRow}
             >
               <View style={s.rowTop}>
@@ -164,6 +181,42 @@ export default function PlantsTabScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         ListHeaderComponent={
           <>
+            <View style={s.searchBox}>
+              <Ionicons name="search-outline" size={19} color={colors.textSecondary} />
+              <TextInput
+                accessibilityLabel={t('common.search')}
+                value={search}
+                onChangeText={setSearch}
+                placeholder={t('common.search')}
+                placeholderTextColor={colors.textSecondary}
+                style={[s.searchInput, { color: colors.text }]}
+              />
+              {search.length > 0 && (
+                <Pressable accessibilityRole="button" accessibilityLabel={t('common.clear', { defaultValue: 'Limpiar búsqueda' })} onPress={() => setSearch('')} style={s.clearSearch}>
+                  <Ionicons name="close-circle" size={19} color={colors.textSecondary} />
+                </Pressable>
+              )}
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filterRow}>
+              {([
+                ['all', t('plantsTab.filterAll', { defaultValue: 'Todas' })],
+                ['active', t('plantsTab.filterActive', { defaultValue: 'Activas' })],
+                ['attention', t('plantsTab.filterAttention', { defaultValue: 'Necesitan atención' })],
+              ] as const).map(([value, label]) => {
+                const selected = filter === value;
+                return (
+                  <Pressable
+                    key={value}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: selected }}
+                    onPress={() => setFilter(value)}
+                    style={({ pressed }) => [s.filterChip, { backgroundColor: selected ? colors.primary : colors.surface, borderColor: selected ? colors.primary : colors.border, opacity: pressed ? 0.72 : 1 }]}
+                  >
+                    <Text style={{ color: selected ? colors.background : colors.textSecondary, fontSize: fontSize.xs, fontWeight: selected ? fontWeight.bold : fontWeight.medium }}>{label}</Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
             <Card
               padded={false}
               style={{ ...s.overview, backgroundColor: colors.primary, borderColor: colors.primary }}
@@ -181,18 +234,39 @@ export default function PlantsTabScreen() {
               </View>
             </Card>
 
+            {allPlants.error && (
+              <Card padded style={{ marginTop: spacing.md, borderColor: colors.error, backgroundColor: colors.error + '0d' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }} accessibilityRole="alert">
+                  <Ionicons name="alert-circle-outline" size={22} color={colors.error} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: colors.text, fontWeight: fontWeight.bold }}>{t('errorScreen.title')}</Text>
+                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: 2 }}>{t('errorScreen.desc')}</Text>
+                  </View>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={t('errorScreen.retry')}
+                    onPress={() => allPlants.refresh().catch(() => {})}
+                    style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <Ionicons name="refresh-outline" size={20} color={colors.primary} />
+                  </Pressable>
+                </View>
+              </Card>
+            )}
+
             <View style={s.sectionHeader}>
               <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantsTab.listTitle')}</Text>
               {allPlants.loading && <ActivityIndicator size="small" color={colors.primary} />}
+              {!allPlants.loading && filteredPlants.length !== plants.length && <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>{filteredPlants.length} / {plants.length}</Text>}
             </View>
           </>
         }
         ListEmptyComponent={
           !allPlants.loading ? (
             <EmptyState
-              emoji="🌱"
-              title={t('plantsTab.emptyTitle')}
-              description={t('plantsTab.emptyDesc')}
+              illustration={<Illustration name="crops" size={120} />}
+              title={plants.length === 0 ? t('plantsTab.emptyTitle') : t('plantsTab.noMatches', { defaultValue: 'No hay plantas que coincidan' })}
+              description={plants.length === 0 ? t('plantsTab.emptyDesc') : t('plantsTab.noMatchesDesc', { defaultValue: 'Prueba a cambiar la búsqueda o el filtro.' })}
               ctaLabel={t('plantsTab.add')}
               onCta={openAddPlant}
             />
@@ -231,7 +305,7 @@ const makeStyles = (
     },
     brandName: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, letterSpacing: -0.4 },
     addButton: {
-      minHeight: 40,
+      minHeight: 44,
       flexDirection: 'row',
       alignItems: 'center',
       gap: 4,
@@ -239,6 +313,21 @@ const makeStyles = (
       borderRadius: radii.md,
     },
     addButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    searchBox: {
+      minHeight: 48,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingHorizontal: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radii.lg,
+      backgroundColor: colors.surface,
+    },
+    searchInput: { flex: 1, minHeight: 44, fontSize: fontSize.md },
+    clearSearch: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+    filterRow: { gap: spacing.sm, paddingVertical: spacing.xs },
+    filterChip: { minHeight: 44, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.md, borderWidth: 1, borderRadius: radii.full },
     listContent: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: 118, gap: spacing.sm },
     overview: {
       minHeight: 116,

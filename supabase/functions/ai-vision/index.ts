@@ -11,6 +11,7 @@
 //
 // Request body:
 //   { mode: 'identify-pest', base64, mediaType, language, cropName }
+//   { mode: 'compare-diagnosis', beforeBase64, beforeMediaType, afterBase64, afterMediaType, language, plantName }
 //   { mode: 'scan-plant',    base64, mediaType, language, cropNames: {id:name} }
 // Response: the parsed JSON result, or { error, code } with a 4xx/5xx status.
 
@@ -72,6 +73,17 @@ If you cannot identify the plant: identified=false, cropId=null, confidence="baj
 All text fields (cropName, notes) must be in ${lang}.`;
 }
 
+function buildComparisonPrompt(lang: string): string {
+  return `You are a careful plant pathology expert. Compare the BEFORE and AFTER photos of the same plant and respond ONLY with valid JSON (no other text):
+{
+  "status": one of: "mejora", "estable", "empeora", "incierto",
+  "confidence": one of: "alta", "media", "baja",
+  "summary": "1-2 concise sentences in ${lang} describing the visible change",
+  "nextStep": "one practical next step in ${lang}"
+}
+Use "incierto" when the framing, lighting, or image quality does not allow a fair comparison. Never claim certainty about a disease from photos alone. All text must be in ${lang}.`;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return json({ error: 'Method not allowed', code: 'METHOD' }, 405);
@@ -97,6 +109,11 @@ Deno.serve(async (req: Request) => {
     language?: string;
     cropName?: string;
     cropNames?: Record<string, string>;
+    plantName?: string;
+    beforeBase64?: string;
+    beforeMediaType?: string;
+    afterBase64?: string;
+    afterMediaType?: string;
   };
   try {
     body = await req.json();
@@ -105,20 +122,43 @@ Deno.serve(async (req: Request) => {
   }
 
   const { mode, base64, mediaType, language } = body;
-  if (!base64 || !mediaType) return json({ error: 'Missing image', code: 'BAD_REQUEST' }, 400);
+  const isComparison = mode === 'compare-diagnosis';
+  if (isComparison
+    ? !body.beforeBase64 || !body.beforeMediaType || !body.afterBase64 || !body.afterMediaType
+    : !base64 || !mediaType) return json({ error: 'Missing image', code: 'BAD_REQUEST' }, 400);
   const lang = LANG_NAMES[language ?? 'es'] ?? 'Spanish';
 
   let system: string;
   let userText: string;
   let maxTokens: number;
+  let content: Array<Record<string, unknown>>;
   if (mode === 'identify-pest') {
     system = buildPestPrompt(lang);
     userText = `Analyze this ${body.cropName ?? 'plant'} for pests, diseases, or deficiencies.`;
     maxTokens = 1024;
+    content = [
+      { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+      { type: 'text', text: userText },
+    ];
   } else if (mode === 'scan-plant') {
     system = buildScanPrompt(lang, body.cropNames ?? {});
     userText = 'Identify this plant and match it to our database.';
     maxTokens = 512;
+    content = [
+      { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+      { type: 'text', text: userText },
+    ];
+  } else if (mode === 'compare-diagnosis') {
+    system = buildComparisonPrompt(lang);
+    userText = `Compare these two photos of ${body.plantName ?? 'the plant'}. The first image is BEFORE treatment and the second is AFTER treatment.`;
+    maxTokens = 512;
+    content = [
+      { type: 'text', text: 'BEFORE photo:' },
+      { type: 'image', source: { type: 'base64', media_type: body.beforeMediaType, data: body.beforeBase64 } },
+      { type: 'text', text: 'AFTER photo:' },
+      { type: 'image', source: { type: 'base64', media_type: body.afterMediaType, data: body.afterBase64 } },
+      { type: 'text', text: userText },
+    ];
   } else {
     return json({ error: 'Unknown mode', code: 'BAD_REQUEST' }, 400);
   }
@@ -138,10 +178,7 @@ Deno.serve(async (req: Request) => {
         system,
         messages: [{
           role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
-            { type: 'text', text: userText },
-          ],
+          content,
         }],
       }),
     });

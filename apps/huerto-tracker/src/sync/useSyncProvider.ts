@@ -33,8 +33,14 @@ export function useSyncProvider() {
     // rows; safer to skip the pull and retry on next lifecycle.
     if (wasGuest && !syncedRef.current.has(userId)) {
       syncedRef.current.add(userId);
-      syncToCloud(userId).then((pushOk) => {
-        if (pushOk) syncFromCloud(userId);
+      void syncToCloud(userId).then((pushOk) => {
+        if (pushOk) return syncFromCloud(userId);
+        // Keep the account retryable after a partial push (for example while
+        // the remote crop catalogue migration is still pending).
+        syncedRef.current.delete(userId);
+        return undefined;
+      }).catch(() => {
+        syncedRef.current.delete(userId);
       });
       return;
     }

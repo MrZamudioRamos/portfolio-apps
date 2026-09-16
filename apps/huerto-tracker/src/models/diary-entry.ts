@@ -37,6 +37,23 @@ export interface TreatmentData {
   waitDays?: number;
 }
 
+export interface DiagnosisData {
+  kind: 'diagnosis';
+  name: string;
+  diagnosisType?: string;
+  confidence?: string;
+}
+
+export interface DiagnosisFollowUpData {
+  kind: 'diagnosis_follow_up';
+  parentEntryId: string;
+  diagnosisName?: string;
+  comparisonStatus?: 'mejora' | 'estable' | 'empeora' | 'incierto';
+  comparisonConfidence?: 'alta' | 'media' | 'baja';
+  comparisonSummary?: string;
+  comparisonNextStep?: string;
+}
+
 export type EntryDataMap = {
   sowing: undefined;
   transplant: undefined;
@@ -44,10 +61,10 @@ export type EntryDataMap = {
   fertilizing: FertilizingData;
   pruning: undefined;
   harvest: HarvestData;
-  pest: undefined;
+  pest: DiagnosisData | undefined;
   treatment: TreatmentData;
   photo: undefined;
-  note: { soilCheck: 'moist' } | undefined;
+  note: { soilCheck: 'moist' } | DiagnosisData | DiagnosisFollowUpData | undefined;
 };
 
 export interface DiaryEntry extends BaseItem {

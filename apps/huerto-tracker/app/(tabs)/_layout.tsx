@@ -2,52 +2,15 @@ import { useOnboarding } from '@portfolio/shared';
 import { useSession } from '@portfolio/supabase';
 import { useTheme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
-import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { Redirect, Tabs } from 'expo-router';
-import { useEffect, useState } from 'react';
-import {
-  Animated,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
+const TAB_BAR_HEIGHT = 64;
 
-const PILL_H = 66;
-const PILL_GAP_BOTTOM = 12;
-
-export const FLOATING_TAB_BOTTOM_CLEARANCE = PILL_H + PILL_GAP_BOTTOM + 8;
-
-// 0 = expanded, 1 = collapsed to circle
-export const collapseAnim = new Animated.Value(0);
-let _isHidden = false;
-
-export function showTabBar() {
-  _isHidden = false;
-  Animated.spring(collapseAnim, {
-    toValue: 0,
-    useNativeDriver: false,
-    tension: 70,
-    friction: 11,
-  }).start();
-}
-
-export function hideTabBar() {
-  _isHidden = true;
-  Animated.spring(collapseAnim, {
-    toValue: 1,
-    useNativeDriver: false,
-    tension: 70,
-    friction: 11,
-  }).start();
-}
+// Shared clearance for scroll content below the stable Stitch navigation bar.
+export const TAB_BAR_BOTTOM_CLEARANCE = TAB_BAR_HEIGHT + 16;
 
 type TabBarProps = {
   state: { routes: Array<{ key: string; name: string }>; index: number };
@@ -55,240 +18,89 @@ type TabBarProps = {
   navigation: { navigate: (name: string) => void; emit: (event: any) => any };
 };
 
-function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
-  const { isDark, colors, fontWeight } = useTheme();
+function StitchTabBar({ state, descriptors, navigation }: TabBarProps) {
+  const { colors, fontWeight } = useTheme();
   const insets = useSafeAreaInsets();
-  const { width: screenWidth } = useWindowDimensions();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  // Track collapse state reactively for pointerEvents
-  useEffect(() => {
-    const id = collapseAnim.addListener(({ value }) => setIsCollapsed(value > 0.5));
-    return () => collapseAnim.removeListener(id);
-  }, []);
-
-  const fullWidth = screenWidth - 24;
 
   const visibleRoutes = state.routes.filter(
-    (r) => typeof descriptors[r.key].options.tabBarIcon === 'function'
+    (route) => typeof descriptors[route.key]?.options.tabBarIcon === 'function'
   );
-  const activeVisibleIdx = visibleRoutes.findIndex(
-    (r) => r.key === state.routes[state.index]?.key
-  );
-  const activeRoute = visibleRoutes[activeVisibleIdx];
-  const activeOptions = activeRoute ? descriptors[activeRoute.key]?.options : null;
-
-  // Width shrinks from full → PILL_H (circle) when hidden
-  const pillWidth = collapseAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [fullWidth, PILL_H],
-  });
-
-  // Tab row fades out early in the collapse
-  const tabRowOpacity = collapseAnim.interpolate({
-    inputRange: [0, 0.35, 1],
-    outputRange: [1, 0, 0],
-  });
-
-  // Collapsed icon fades in at the end
-  const restoreOpacity = collapseAnim.interpolate({
-    inputRange: [0, 0.55, 1],
-    outputRange: [0, 0, 1],
-  });
 
   return (
-    <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
-      {/* Shadow layer — same animated width, no overflow clipping */}
-      <Animated.View
-        pointerEvents="none"
-        style={{
-          position: 'absolute',
-          bottom: insets.bottom + PILL_GAP_BOTTOM,
-          left: 12,
-          width: pillWidth,
-          height: PILL_H,
-          borderRadius: 18,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.16,
-          shadowRadius: 10,
-          elevation: 6,
-        }}
-      />
-
-      {/* Pill content */}
-      <Animated.View
-        pointerEvents="box-none"
-        style={{
-          position: 'absolute',
-          bottom: insets.bottom + PILL_GAP_BOTTOM,
-          left: 12,
-          width: pillWidth,
-          height: PILL_H,
-          borderRadius: 18,
-          overflow: 'hidden',
-        }}
+    <View style={[StyleSheet.absoluteFill, { pointerEvents: 'box-none' }]}>
+      <View
+        style={[
+          styles.bar,
+          {
+            height: TAB_BAR_HEIGHT + insets.bottom,
+            paddingBottom: insets.bottom,
+            backgroundColor: colors.surface,
+            borderTopColor: colors.border,
+          },
+        ]}
       >
-        {/* Glass / blur background */}
-        {glassAvailable ? (
-          <GlassView
-            style={StyleSheet.absoluteFill}
-            glassEffectStyle="regular"
-            colorScheme={isDark ? 'dark' : 'light'}
-          />
-        ) : Platform.OS === 'ios' ? (
-          <BlurView
-            intensity={isDark ? 65 : 80}
-            tint={isDark ? 'dark' : 'light'}
-            style={[
-              StyleSheet.absoluteFill,
-              {
-                backgroundColor: isDark
-                  ? colors.surface + 'D9'
-                  : colors.surface + 'B8',
-              },
-            ]}
-          />
-        ) : (
-          <View
-            style={[
-              StyleSheet.absoluteFill,
-              {
-                backgroundColor: isDark
-                  ? colors.surface + 'F2'
-                  : colors.surface + 'F2',
-              },
-            ]}
-          />
-        )}
-        {/* Border */}
-        <View
-          style={[
-            StyleSheet.absoluteFill,
-            {
-              borderRadius: 18,
-              borderWidth: StyleSheet.hairlineWidth,
-              borderColor: colors.border,
-            },
-          ]}
-          pointerEvents="none"
-        />
-        {/* Full tab row */}
-        <Animated.View
-          pointerEvents={isCollapsed ? 'none' : 'box-none'}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            flexDirection: 'row',
-            opacity: tabRowOpacity,
-          }}
-        >
-          {visibleRoutes.map((route) => {
-            const { options } = descriptors[route.key];
-            const focused = route.key === state.routes[state.index]?.key;
+        {visibleRoutes.map((route) => {
+          const { options } = descriptors[route.key];
+          const focused = route.key === state.routes[state.index]?.key;
+          const color = focused ? colors.primaryDark : colors.textSecondary;
 
-            return (
-              <Pressable
-                key={route.key}
-                onPress={() => {
-                  if (_isHidden) {
-                    showTabBar();
-                    return;
-                  }
-                  const event = navigation.emit({
-                    type: 'tabPress',
-                    target: route.key,
-                    canPreventDefault: true,
-                  });
-                  if (!focused && !event.defaultPrevented) {
-                    navigation.navigate(route.name);
-                  }
+          return (
+            <Pressable
+              key={route.key}
+              onPress={() => {
+                const event = navigation.emit({
+                  type: 'tabPress',
+                  target: route.key,
+                  canPreventDefault: true,
+                });
+                if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+              }}
+              onLongPress={() => navigation.emit({ type: 'tabLongPress', target: route.key })}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: focused }}
+              accessibilityLabel={options.title}
+              style={({ pressed }) => [
+                styles.tab,
+                focused && { backgroundColor: `${colors.primary}14` },
+                { opacity: pressed ? 0.7 : 1 },
+              ]}
+            >
+              {options.tabBarIcon?.({ color, size: focused ? 24 : 23, focused })}
+              <Text
+                numberOfLines={1}
+                style={{
+                  color,
+                  fontSize: 11,
+                  fontWeight: focused ? fontWeight.bold : fontWeight.medium,
+                  marginTop: 2,
                 }}
-                onLongPress={() =>
-                  navigation.emit({ type: 'tabLongPress', target: route.key })
-                }
-                style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-                accessibilityRole="button"
-                accessibilityState={{ selected: focused }}
-                accessibilityLabel={options.title}
               >
-                {/* Squircle active background */}
-                {focused && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      top: 4,
-                      left: 6,
-                      right: 6,
-                      bottom: 4,
-                      borderRadius: 10,
-                      backgroundColor: colors.accent + (isDark ? '38' : '55'),
-                    }}
-                  />
-                )}
-                {options.tabBarIcon?.({
-                  color: focused ? colors.primaryDark : colors.textSecondary,
-                  size: focused ? 26 : 22,
-                  focused,
-                })}
-                <Text
-                  numberOfLines={1}
-                  style={{
-                    fontSize: 10,
-                    fontWeight: focused ? fontWeight.bold : fontWeight.regular,
-                    color: focused ? colors.primaryDark : colors.textSecondary,
-                    marginTop: 2,
-                  }}
-                >
-                  {options.title}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </Animated.View>
-
-        {/* Collapsed: active icon centered in the circle */}
-        <Animated.View
-          pointerEvents={isCollapsed ? 'box-none' : 'none'}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: PILL_H,
-            height: PILL_H,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: restoreOpacity,
-          }}
-        >
-          <Pressable
-            onPress={showTabBar}
-            accessibilityRole="button"
-            accessibilityLabel="Mostrar menú"
-            style={{
-              width: PILL_H,
-              height: PILL_H,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {activeOptions?.tabBarIcon?.({ color: colors.primaryDark, size: 28, focused: true })}
-          </Pressable>
-        </Animated.View>
-      </Animated.View>
+                {options.title}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 }
 
 export default function TabsLayout() {
+  const { colors } = useTheme();
   const { completed, isLoading: onboardingLoading } = useOnboarding('huerto');
   const { loading: sessionLoading, isAuthenticated } = useSession();
   const { t } = useTranslation();
 
-  if (onboardingLoading || sessionLoading) return null;
+  if (onboardingLoading || sessionLoading) {
+    return (
+      <View style={[styles.loading, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="small" color={colors.primary} />
+        <Text style={{ color: colors.text, fontSize: 15, fontWeight: '600' }}>
+          {t('common.loading')}
+        </Text>
+      </View>
+    );
+  }
 
   if (!completed) {
     if (isAuthenticated) return <Redirect href="/onboarding" />;
@@ -297,16 +109,28 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      tabBar={(props) => <FloatingTabBar {...(props as any)} />}
+      tabBar={(props) => <StitchTabBar {...(props as any)} />}
       screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: t('tabs.dashboard'),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="leaf-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="leaf-outline" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="map"
+        options={{
+          title: t('tabs.map'),
+          tabBarIcon: ({ color, size }) => <Ionicons name="map-outline" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="plants"
+        options={{
+          title: t('tabs.plants'),
+          tabBarIcon: ({ color, size }) => <Ionicons name="flower-outline" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -331,19 +155,40 @@ export default function TabsLayout() {
         name="calendar"
         options={{
           title: t('tabs.calendarNav'),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" size={size} color={color} />,
         }}
       />
       <Tabs.Screen name="diary" options={{ href: null }} />
       <Tabs.Screen name="tools" options={{ href: null }} />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          href: null,
-        }}
-      />
+      <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  bar: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    left: 0,
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: 8,
+  },
+  tab: {
+    flex: 1,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 14,
+    marginVertical: 6,
+    marginHorizontal: 3,
+  },
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+});

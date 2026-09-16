@@ -2,13 +2,15 @@ import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { usePickPhoto } from '../../src/hooks/usePickPhoto';
 import { DatePickerModal } from '../../src/components/DatePickerModal';
+import { CollectionError } from '../../src/components/CollectionError';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -30,6 +32,24 @@ const ALL_TYPES: EntryType[] = [
 ];
 const ROW1 = ALL_TYPES.slice(0, 5);
 const ROW2 = ALL_TYPES.slice(5);
+const ENTRY_TYPE_ICONS: Record<EntryType, keyof typeof Ionicons.glyphMap> = {
+  watering: 'water-outline',
+  sowing: 'leaf-outline',
+  transplant: 'flower-outline',
+  fertilizing: 'flask-outline',
+  harvest: 'basket-outline',
+  pruning: 'cut-outline',
+  pest: 'bug-outline',
+  treatment: 'medkit-outline',
+  photo: 'camera-outline',
+  note: 'document-text-outline',
+};
+const WATER_METHOD_ICONS: Record<'hand' | 'drip' | 'sprinkler' | 'flood', keyof typeof Ionicons.glyphMap> = {
+  hand: 'beaker-outline',
+  drip: 'water-outline',
+  sprinkler: 'rainy-outline',
+  flood: 'swap-vertical-outline',
+};
 
 export default function EditEntryScreen() {
   const colors = useColors();
@@ -64,10 +84,56 @@ export default function EditEntryScreen() {
   const [treatWaitDays, setTreatWaitDays] = useState(String((entry?.data as TreatmentData)?.waitDays ?? ''));
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    if (!entry) return;
+    setSelectedType(entry.type);
+    setNotes(entry.notes ?? '');
+    setDate(entry.date);
+    setPhotoUri(entry.photoUri ?? null);
+    setWaterLiters(String((entry.data as WateringData)?.liters ?? ''));
+    setWaterMethod((entry.data as WateringData)?.method ?? 'hand');
+    setHarvestWeight(String((entry.data as HarvestData)?.weightGrams ?? (entry.data as HarvestData)?.weight ?? ''));
+    setHarvestUnits(String((entry.data as HarvestData)?.units ?? ''));
+    setHarvestQuality(Number((entry.data as HarvestData)?.quality ?? 0));
+    setFertProduct(String((entry.data as FertilizingData)?.product ?? ''));
+    setFertAmount(String((entry.data as FertilizingData)?.amount ?? ''));
+    setFertUnit((entry.data as FertilizingData)?.unit ?? 'g');
+    setTreatProduct(String((entry.data as TreatmentData)?.product ?? ''));
+    setTreatDose(String((entry.data as TreatmentData)?.dose ?? ''));
+    setTreatWaitDays(String((entry.data as TreatmentData)?.waitDays ?? ''));
+  }, [entry?.id]);
+
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
+
+  if (entries.loading) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
+        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+          <Ionicons name="close" size={24} color={colors.textSecondary} />
+        </Pressable>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+          <ActivityIndicator color={colors.primary} />
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (entries.error) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
+        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+          <Ionicons name="close" size={24} color={colors.textSecondary} />
+        </Pressable>
+        <View style={{ flex: 1, justifyContent: 'center', padding: spacing.xl }}>
+          <CollectionError onRetry={() => entries.refresh().catch(() => {})} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!entry || (activeGarden && entry.gardenId !== activeGarden.id)) {
     return (
@@ -148,10 +214,12 @@ export default function EditEntryScreen() {
       <Pressable
         key={type}
         onPress={() => { setSelectedType(type); tapHaptic(); }}
-        style={[s.typeChip, { backgroundColor: active ? cfg.color + '22' : colors.surface, borderColor: active ? cfg.color : colors.border }]}
+        accessibilityRole="radio"
+        accessibilityState={{ checked: active }}
+        style={({ pressed }) => [s.typeChip, { backgroundColor: active ? cfg.color + '22' : colors.surface, borderColor: active ? cfg.color : colors.border, opacity: pressed ? 0.76 : 1 }]}
       >
         <View style={[s.typeChipIcon, { backgroundColor: active ? cfg.color + '30' : colors.surfaceAlt }]}>
-          <Text style={{ fontSize: 18 }}>{cfg.emoji}</Text>
+          <Ionicons name={ENTRY_TYPE_ICONS[type]} size={18} color={active ? cfg.color : colors.textSecondary} />
         </View>
         <Text style={[s.typeLabel, { color: active ? cfg.color : colors.textSecondary }]} numberOfLines={1}>
           {t('diary.filters.' + type)}
@@ -168,7 +236,7 @@ export default function EditEntryScreen() {
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
-          <Text style={{ fontSize: 20 }}>{selectedCfg.emoji}</Text>
+          <Ionicons name={ENTRY_TYPE_ICONS[selectedType]} size={20} color={selectedCfg.color} />
           <Text style={[s.headerTitle, { color: colors.text }]}>{t('entryEdit.title')}</Text>
         </View>
         <Pressable onPress={handleSave} disabled={saving} hitSlop={12}>
@@ -187,6 +255,13 @@ export default function EditEntryScreen() {
               <View style={s.typeRow}>{ROW1.map(renderTypeChip)}</View>
               <View style={s.typeRow}>{ROW2.map(renderTypeChip)}</View>
             </View>
+
+            {selectedType === 'watering' && (
+              <View style={[s.careRule, { backgroundColor: colors.accent + '55', borderColor: colors.secondary + '66' }]}>
+                <Ionicons name="water-outline" size={18} color={colors.primary} />
+                <Text style={[s.careRuleText, { color: colors.text }]}>El registro empieza por una comprobación: toca la tierra a 2 cm antes de decidir si riegas.</Text>
+              </View>
+            )}
 
             {/* Date */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>{t('entryNew.date')}</Text>
@@ -208,7 +283,7 @@ export default function EditEntryScreen() {
             {/* Watering extras */}
             {selectedType === 'watering' && (
               <View style={[s.extraCard, { backgroundColor: colors.water + '10', borderColor: colors.water + '44' }]}>
-                <Text style={[s.extraCardTitle, { color: colors.water }]}>💧 {t('entryNew.watering')}</Text>
+                <View style={s.extraCardTitleRow}><Ionicons name="water-outline" size={17} color={colors.water} /><Text style={[s.extraCardTitle, { color: colors.water }]}>{t('entryNew.watering')}</Text></View>
                 <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.liters')}</Text>
                 <TextInput
                   value={waterLiters}
@@ -223,7 +298,7 @@ export default function EditEntryScreen() {
                   {(['hand','drip','sprinkler','flood'] as const).map((m) => (
                     <Pressable key={m} onPress={() => setWaterMethod(m)}
                       style={[s.methodChip, { flex: 1, backgroundColor: waterMethod === m ? colors.water + '22' : colors.surface, borderColor: waterMethod === m ? colors.water : colors.border }]}>
-                      <Text style={{ fontSize: 16 }}>{m === 'hand' ? '🪣' : m === 'drip' ? '💧' : m === 'sprinkler' ? '🌦️' : '🌊'}</Text>
+                      <Ionicons name={WATER_METHOD_ICONS[m]} size={16} color={waterMethod === m ? colors.water : colors.textSecondary} />
                       <Text style={[s.methodLabel, { color: waterMethod === m ? colors.water : colors.textSecondary }]} numberOfLines={1}>{t('waterMethod.' + m)}</Text>
                     </Pressable>
                   ))}
@@ -234,7 +309,7 @@ export default function EditEntryScreen() {
             {/* Harvest extras */}
             {selectedType === 'harvest' && (
               <View style={[s.extraCard, { backgroundColor: '#FF704310', borderColor: '#FF704344' }]}>
-                <Text style={[s.extraCardTitle, { color: '#E65100' }]}>🧺 {t('entryNew.harvest')}</Text>
+                <View style={s.extraCardTitleRow}><Ionicons name="basket-outline" size={17} color="#E65100" /><Text style={[s.extraCardTitle, { color: '#E65100' }]}>{t('entryNew.harvest')}</Text></View>
                 <View style={{ flexDirection: 'row', gap: spacing.md }}>
                   <View style={{ flex: 1 }}>
                     <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.weightKg')}</Text>
@@ -273,7 +348,7 @@ export default function EditEntryScreen() {
             {/* Fertilizing extras */}
             {selectedType === 'fertilizing' && (
               <View style={[s.extraCard, { backgroundColor: '#4CAF5010', borderColor: '#4CAF5044' }]}>
-                <Text style={[s.extraCardTitle, { color: '#2E7D32' }]}>🌿 {t('entryNew.fertilizing')}</Text>
+                <View style={s.extraCardTitleRow}><Ionicons name="flask-outline" size={17} color="#2E7D32" /><Text style={[s.extraCardTitle, { color: '#2E7D32' }]}>{t('entryNew.fertilizing')}</Text></View>
                 <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.fertProduct')}</Text>
                 <TextInput
                   value={fertProduct}
@@ -312,7 +387,7 @@ export default function EditEntryScreen() {
             {/* Treatment extras */}
             {selectedType === 'treatment' && (
               <View style={[s.extraCard, { backgroundColor: '#EF535010', borderColor: '#EF535044' }]}>
-                <Text style={[s.extraCardTitle, { color: '#C62828' }]}>🧴 {t('entryNew.treatment')}</Text>
+                <View style={s.extraCardTitleRow}><Ionicons name="medkit-outline" size={17} color="#C62828" /><Text style={[s.extraCardTitle, { color: '#C62828' }]}>{t('entryNew.treatment')}</Text></View>
                 <Text style={[s.inputLabel, { color: colors.textSecondary }]}>{t('entryNew.treatProduct')}</Text>
                 <TextInput
                   value={treatProduct}
@@ -350,8 +425,10 @@ export default function EditEntryScreen() {
             {/* Photo — full-width area */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>{t('entryNew.photo')}</Text>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('entryNew.addPhoto')}
               onPress={pickPhoto}
-              style={[s.photoArea, { backgroundColor: colors.surfaceAlt, borderColor: photoUri ? 'transparent' : colors.border }]}
+              style={({ pressed }) => [s.photoArea, { backgroundColor: colors.surfaceAlt, borderColor: photoUri ? 'transparent' : colors.border, opacity: pressed ? 0.82 : 1 }]}
             >
               {photoUri ? (
                 <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
@@ -421,6 +498,8 @@ const makeStyles = (
       justifyContent: 'center',
     },
     typeLabel: { fontSize: 9, fontWeight: fontWeight.medium, textAlign: 'center' },
+    careRule: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1, marginTop: spacing.md },
+    careRuleText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20 },
     // Date
     input: { borderWidth: 1.5, borderRadius: radii.md, padding: spacing.lg, fontSize: fontSize.md },
     textarea: { minHeight: 100 },
@@ -433,6 +512,7 @@ const makeStyles = (
       gap: spacing.sm,
     },
     extraCardTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, marginBottom: spacing.xs },
+    extraCardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.xs },
     methodRow: { flexDirection: 'row', gap: spacing.sm },
     methodChip: {
       alignItems: 'center',

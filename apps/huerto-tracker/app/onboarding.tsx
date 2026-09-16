@@ -1,5 +1,6 @@
 import { useOnboarding } from '@portfolio/shared';
 import { useColors, useTheme } from '@portfolio/ui';
+import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../src/components/ActionButton';
 import { createStore, useCollection } from '@portfolio/storage';
 import * as Location from 'expo-location';
@@ -21,7 +22,13 @@ import type { FirstCropSpace } from '../src/utils/firstCropRecommendation';
 
 type Step = 1 | 2 | 3 | 4;
 type LocationMethod = 'auto' | 'manual';
-const SPACES: Array<[FirstCropSpace, string]> = [['balcony', '🪟'], ['terrace', '☀️'], ['patio', '🌿'], ['garden', '🪴'], ['indoor', '🏠']];
+const SPACES: Array<[FirstCropSpace, keyof typeof Ionicons.glyphMap]> = [
+  ['balcony', 'square-outline'],
+  ['terrace', 'sunny-outline'],
+  ['patio', 'leaf-outline'],
+  ['garden', 'flower-outline'],
+  ['indoor', 'home-outline'],
+];
 const SPACE_MAP: Record<FirstCropSpace, { space: SpaceType; method: GrowingMethod; gardenType: Garden['gardenType'] }> = {
   balcony: { space: 'balcony', method: 'outdoorContainers', gardenType: 'balcon' },
   terrace: { space: 'balcony', method: 'outdoorContainers', gardenType: 'balcon' },
@@ -107,15 +114,17 @@ export default function OnboardingScreen() {
     } catch { setError('onboarding.saveError'); }
     finally { submitting.current = false; setSaving(false); }
   };
-  const choice = (id: string, selected: boolean, select: () => void, label: string, icon?: string, description?: string) => (
+  const choice = (id: string, selected: boolean, select: () => void, label: string, icon?: keyof typeof Ionicons.glyphMap, description?: string) => (
     <Pressable key={id} accessibilityRole="radio" accessibilityState={{ checked: selected }} accessibilityLabel={description ? label + '. ' + description : label} onPress={select}
-      style={({ pressed }) => ({ minHeight: 56, borderWidth: selected ? 2 : 1, borderRadius: radii.md, padding: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: selected ? colors.accent + '40' : colors.surface, borderColor: selected ? colors.accent : colors.border, opacity: pressed ? 0.75 : 1 })}>
-      {icon && <Text style={{ fontSize: 24 }} accessible={false}>{icon}</Text>}
+      style={({ pressed }) => ({ minHeight: description ? 76 : 68, borderWidth: selected ? 2 : 1, borderRadius: radii.lg, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: selected ? colors.primary + '18' : colors.surface, borderColor: selected ? colors.primary : colors.border, opacity: pressed ? 0.75 : 1 })}>
+      {icon && <View style={{ width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: selected ? colors.primary + '25' : colors.surfaceAlt }}><Ionicons name={icon} size={22} color={selected ? colors.primary : colors.textSecondary} accessible={false} /></View>}
       <View style={{ flex: 1, gap: 3 }}>
         <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: selected ? fontWeight.bold : fontWeight.medium }}>{label}</Text>
         {description && <Text style={{ color: colors.textSecondary, lineHeight: 20 }}>{description}</Text>}
       </View>
-      <Text style={{ color: selected ? colors.primaryDark : colors.textSecondary, fontSize: 20 }} accessible={false}>{selected ? '●' : '○'}</Text>
+      <View style={{ width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: selected ? colors.primary : colors.border, backgroundColor: selected ? colors.primary : 'transparent' }} accessible={false}>
+        <Text style={{ color: selected ? colors.background : colors.textDisabled, fontSize: selected ? 16 : 17, fontWeight: fontWeight.bold }}>{selected ? '✓' : ''}</Text>
+      </View>
     </Pressable>
   );
 
@@ -123,15 +132,15 @@ export default function OnboardingScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top', 'bottom']}>
       <View style={{ flex: 1, width: '100%', maxWidth: 560, alignSelf: 'center' }}>
         <View style={{ padding: spacing.xl, gap: spacing.sm }}>
-          <Text accessibilityLiveRegion="polite" style={{ color: colors.textSecondary }}>{t('onboarding.stepOf', { current: step, total: 4 })}</Text>
-          <View style={{ flexDirection: 'row', gap: spacing.xs }}>
-            {[1, 2, 3, 4].map((n) => <View key={n} style={{ flex: 1, height: 4, borderRadius: radii.full, backgroundColor: n <= step ? colors.accent : colors.border }} />)}
+          <View accessibilityLabel={t('onboarding.stepOf', { current: step, total: 4 })} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs }}>
+            {[1, 2, 3, 4].map((n) => <View key={n} style={{ width: 42, height: 6, borderRadius: radii.full, backgroundColor: n <= step ? colors.primary : colors.border }} />)}
           </View>
+          <Text accessibilityLiveRegion="polite" style={{ color: colors.textSecondary, textAlign: 'center', fontSize: fontSize.xs }}>{t('onboarding.stepOf', { current: step, total: 4 })}</Text>
         </View>
         <ScrollView key={step} style={{ flex: 1 }} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg, gap: spacing.sm }}>
           {step === 1 && <><CoachHeader title={t('onboarding.spaceTitle')} subtitle={t('onboarding.spaceDesc')} pose="point" />{SPACES.map(([id, icon]) => choice(id, space === id, () => setSpace(id), t('onboarding.space.' + id), icon))}</>}
-          {step === 2 && <><CoachHeader title={t('onboarding.sunTitle')} subtitle={t('onboarding.sunDesc')} />{(['full', 'partial', 'shade', 'unknown'] as const).map((id) => choice(id, sunlight === id, () => setSunlight(id), t('onboarding.sun' + id[0].toUpperCase() + id.slice(1)), undefined, id === 'unknown' ? t('onboarding.sunUnknownDesc') : undefined))}</>}
-          {step === 3 && <><CoachHeader title={t('onboarding.expTitle')} subtitle={t('onboarding.expDesc')} />{(['beginner', 'some', 'expert'] as const).map((id) => choice(id, experience === id, () => setExperience(id), t('onboarding.exp' + id[0].toUpperCase() + id.slice(1))))}</>}
+          {step === 2 && <><CoachHeader title={t('onboarding.sunTitle')} subtitle={t('onboarding.sunDesc')} />{([['full', 'sunny'], ['partial', 'partly-sunny-outline'], ['shade', 'moon-outline'], ['unknown', 'help-circle-outline']] as const).map(([id, icon]) => choice(id, sunlight === id, () => setSunlight(id), t('onboarding.sun' + id[0].toUpperCase() + id.slice(1)), icon, id === 'unknown' ? t('onboarding.sunUnknownDesc') : undefined))}</>}
+          {step === 3 && <><CoachHeader title={t('onboarding.expTitle')} subtitle={t('onboarding.expDesc')} />{(['beginner', 'some', 'expert'] as const).map((id) => choice(id, experience === id, () => setExperience(id), t('onboarding.exp' + id[0].toUpperCase() + id.slice(1)), undefined, id === 'beginner' ? t('onboarding.expBeginnerNote') : undefined))}</>}
           {step === 4 && <>
             <CoachHeader title={t('onboarding.locationTitle')} subtitle={t('onboarding.locationPrivacy')} />
             <Button title={locating ? t('onboarding.detecting') : t('onboarding.detectLocation')} onPress={locate} disabled={locating || saving} variant="secondary" size="lg" />

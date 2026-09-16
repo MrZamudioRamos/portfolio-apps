@@ -23,6 +23,7 @@ import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { usePro } from '../src/hooks/usePro';
 import { track, EVENTS } from '../src/analytics';
 import type { Plant } from '../src/models/plant';
+import type { DiagnosisFollowUpData, DiaryEntry } from '../src/models/diary-entry';
 import { type ChatMessage, sendChatMessage } from '../src/utils/aiChat';
 import { useMemo } from 'react';
 
@@ -47,6 +48,7 @@ export default function ChatScreen() {
   const { user } = useSession();
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
+  const entries = useCollection<DiaryEntry>('diary_entries');
 
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [hydrated, setHydrated] = useState(false);
@@ -66,6 +68,7 @@ export default function ChatScreen() {
           setMessages([]);
         }
       })
+      .catch(() => setMessages([]))
       .finally(() => setHydrated(true));
   }, [activeGarden?.id]);
 
@@ -93,6 +96,24 @@ export default function ChatScreen() {
     [plants.items, activeGarden?.id]
   );
 
+  const diagnosisFollowUps = useMemo(
+    () => entries.items
+      .filter((entry) => entry.gardenId === activeGarden?.id && entry.type === 'note' && (entry.data as DiagnosisFollowUpData | undefined)?.kind === 'diagnosis_follow_up')
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 5)
+      .map((entry) => {
+        const data = entry.data as DiagnosisFollowUpData;
+        return {
+          plantName: data.diagnosisName ?? t('identify.title'),
+          status: data.comparisonStatus ?? 'incierto',
+          summary: data.comparisonSummary ?? entry.notes ?? '',
+          nextStep: data.comparisonNextStep ?? '',
+          date: entry.date,
+        };
+      }),
+    [entries.items, activeGarden?.id, t],
+  );
+
   const handleSend = useCallback(async () => {
     const text = input.trim();
     if (!text || loading || !activeGarden) return;
@@ -109,7 +130,7 @@ export default function ChatScreen() {
         role: m.role,
         content: m.content,
       }));
-      const reply = await sendChatMessage(history, activeGarden, gardenPlants, i18n.language);
+      const reply = await sendChatMessage(history, activeGarden, gardenPlants, i18n.language, diagnosisFollowUps);
       setMessages((prev) => [...prev, { id: uid(), role: 'assistant', content: reply }]);
     } catch (e) {
       const code = e instanceof Error ? e.message : '';
@@ -121,7 +142,7 @@ export default function ChatScreen() {
       setLoading(false);
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
     }
-  }, [input, loading, activeGarden, messages, gardenPlants, i18n.language, t]);
+  }, [input, loading, activeGarden, messages, gardenPlants, diagnosisFollowUps, i18n.language, t]);
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
@@ -141,7 +162,7 @@ export default function ChatScreen() {
       {/* PRO gate */}
       {!isPro ? (
         <View style={s.gate}>
-          <Text style={{ fontSize: 56 }}>🤖</Text>
+          <Ionicons name="chatbubble-ellipses-outline" size={56} color={colors.primary} />
           <Text style={[s.gateTitle, { color: colors.text }]}>{t('chat.proTitle')}</Text>
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.proDesc')}</Text>
           <Pressable
@@ -154,7 +175,7 @@ export default function ChatScreen() {
       ) : !user ? (
         /* Auth gate — the Edge Function requires a signed-in user */
         <View style={s.gate}>
-          <Text style={{ fontSize: 56 }}>🔐</Text>
+          <Ionicons name="lock-closed-outline" size={56} color={colors.primary} />
           <Text style={[s.gateTitle, { color: colors.text }]}>{t('chat.authTitle')}</Text>
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.authDesc')}</Text>
           <Pressable
@@ -170,6 +191,13 @@ export default function ChatScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={0}
         >
+          {(plants.loading || entries.loading) && plants.items.length === 0 && entries.items.length === 0 && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.sm }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+              <ActivityIndicator size="small" color={colors.primary} />
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+            </View>
+          )}
+
           {/* Messages */}
           <FlatList
             ref={listRef}
@@ -179,9 +207,13 @@ export default function ChatScreen() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={s.emptyWrap}>
-                <Text style={{ fontSize: 48 }}>🌱</Text>
+                <Ionicons name="leaf-outline" size={48} color={colors.primary} />
                 <Text style={[s.emptyTitle, { color: colors.text }]}>{t('chat.emptyTitle')}</Text>
                 <Text style={[s.emptyDesc, { color: colors.textSecondary }]}>{t('chat.emptyDesc')}</Text>
+                <View style={[s.ruleCard, { backgroundColor: colors.accent + '55', borderColor: colors.secondary + '66' }]}>
+                  <Ionicons name="water-outline" size={18} color={colors.primary} />
+                  <Text style={[s.ruleText, { color: colors.text }]}>Si preguntas por el riego, empieza por tocar la tierra a 2 cm.</Text>
+                </View>
                 <View style={s.suggestions}>
                   {[t('chat.suggest1'), t('chat.suggest2'), t('chat.suggest3')].map((s, i) => (
                     <Pressable
@@ -201,7 +233,7 @@ export default function ChatScreen() {
                 <View style={[s.bubbleRow, isUser && s.bubbleRowUser]}>
                   {!isUser && (
                     <View style={[s.avatar, { backgroundColor: colors.primary + '22' }]}>
-                      <Text style={{ fontSize: 14 }}>🌱</Text>
+                      <Ionicons name="leaf-outline" size={16} color={colors.primary} />
                     </View>
                   )}
                   <View
@@ -304,7 +336,7 @@ const makeStyles = (
     gateBtn: {
       paddingHorizontal: spacing.xl,
       paddingVertical: spacing.md,
-      borderRadius: radii.full,
+      borderRadius: radii.md,
       marginTop: spacing.sm,
     },
     gateBtnText: { color: '#fff', fontWeight: fontWeight.bold, fontSize: fontSize.md },
@@ -312,6 +344,8 @@ const makeStyles = (
     emptyWrap: { alignItems: 'center', paddingTop: 40, gap: spacing.sm },
     emptyTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, textAlign: 'center' },
     emptyDesc: { fontSize: fontSize.sm, textAlign: 'center', maxWidth: 260, lineHeight: 20 },
+    ruleCard: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1, marginTop: spacing.sm },
+    ruleText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20, textAlign: 'left' },
     suggestions: { gap: spacing.sm, marginTop: spacing.sm, width: '100%' },
     bubbleRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
     bubbleRowUser: { justifyContent: 'flex-end' },

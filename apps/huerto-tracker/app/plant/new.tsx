@@ -8,6 +8,7 @@ import { usePickPhoto } from '../../src/hooks/usePickPhoto';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -38,17 +39,9 @@ import type { DiaryEntry } from '../../src/models/diary-entry';
 import { track, EVENTS } from '../../src/analytics';
 import { successHaptic, tapHaptic } from '../../src/utils/haptics';
 import { ScalePress } from '../../src/components/ScalePress';
-import { CopilotStep } from 'react-native-copilot';
-import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
-import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 import { Mascot } from '../../src/components/Mascot';
 import { SuccessBurst } from '../../src/components/SuccessBurst';
 import { WebDatePicker } from '../../src/components/WebDatePicker';
-
-function TourStarter({ disabled }: { disabled: boolean }) {
-  useTourAutoStart('plant-new', { disabled, firstStep: 'plant-select', delay: 400 });
-  return null;
-}
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -59,6 +52,7 @@ const STATIC_SECTIONS = (Object.keys(CATEGORY_CONFIG) as Array<keyof typeof CATE
 
 // 4 key milestones for the visual stage picker (matching GrowIt's Inicio/Plántula/Floración/Cosecha)
 const QUICK_STAGES: Plant['status'][] = ['seedling', 'growing', 'flowering', 'harvesting'];
+const FIRST_WEEK_CHECKS_KEY = '@huerto/first_week_checks/';
 
 export default function NewPlantScreen() {
   const colors = useColors();
@@ -71,6 +65,7 @@ export default function NewPlantScreen() {
   const [started, setStarted] = useState(false);
   const [createdPlant, setCreatedPlant] = useState<Plant | null>(null);
   const [showSuccessBurst, setShowSuccessBurst] = useState(false);
+  const [firstWeekChecks, setFirstWeekChecks] = useState<boolean[]>([false, false, false, false]);
   const [saveError, setSaveError] = useState(false);
   const pendingPlant = useRef<Plant | null>(null);
   const submitting = useRef(false);
@@ -79,6 +74,29 @@ export default function NewPlantScreen() {
     const timer = setTimeout(() => setShowSuccessBurst(false), 1200);
     return () => clearTimeout(timer);
   }, [showSuccessBurst]);
+  useEffect(() => {
+    if (!createdPlant) return;
+    let mounted = true;
+    void AsyncStorage.getItem(FIRST_WEEK_CHECKS_KEY + createdPlant.id).then((stored) => {
+      if (!mounted) return;
+      try {
+        const parsed = stored ? JSON.parse(stored) : null;
+        if (Array.isArray(parsed) && parsed.length === 4 && parsed.every((value) => typeof value === 'boolean')) setFirstWeekChecks(parsed);
+      } catch {
+        // Ignore malformed local state and show a fresh checklist.
+      }
+    }).catch(() => {});
+    return () => { mounted = false; };
+  }, [createdPlant]);
+
+  function toggleFirstWeekCheck(index: number) {
+    if (!createdPlant) return;
+    setFirstWeekChecks((current) => {
+      const next = current.map((checked, itemIndex) => itemIndex === index ? !checked : checked);
+      void AsyncStorage.setItem(FIRST_WEEK_CHECKS_KEY + createdPlant.id, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  }
 
   const { activeGarden } = useActiveGarden();
   const { profile } = useUserProfile();
@@ -105,7 +123,7 @@ export default function NewPlantScreen() {
   const [plantName, setPlantName] = useState(() => {
     if (!paramCropId) return '';
     const staticCrop = CROPS_BY_ID[paramCropId];
-    return staticCrop ? (t('crops.' + paramCropId + '.name') || staticCrop.name) : '';
+    return staticCrop ? t('crops.' + paramCropId + '.name', { defaultValue: staticCrop.name }) : '';
   });
   const [variety, setVariety] = useState('');
   const [varietyId, setVarietyId] = useState<string | null>(null);
@@ -134,7 +152,7 @@ export default function NewPlantScreen() {
         ? sec.data.filter(
             (c) =>
               c.name.toLowerCase().includes(q) ||
-              t('crops.' + c.id + '.name').toLowerCase().includes(q)
+              t('crops.' + c.id + '.name', { defaultValue: c.name }).toLowerCase().includes(q)
           )
         : sec.data,
     })).filter((sec) => sec.data.length > 0);
@@ -155,7 +173,7 @@ export default function NewPlantScreen() {
   function handleSelectCrop(crop: CropInfo) {
     setSelectedCropId(crop.id);
     if (!plantName) {
-      const label = crop.isCustom ? crop.name : (t('crops.' + crop.id + '.name') || crop.name);
+      const label = crop.isCustom ? crop.name : t('crops.' + crop.id + '.name', { defaultValue: crop.name });
       setPlantName(label);
     }
     setShowCropPicker(false);
@@ -244,16 +262,66 @@ export default function NewPlantScreen() {
   }
 
   const cropName = selectedCrop
-    ? (selectedCrop.isCustom ? selectedCrop.name : t('crops.' + selectedCrop.id + '.name'))
+    ? (selectedCrop.isCustom ? selectedCrop.name : t('crops.' + selectedCrop.id + '.name', { defaultValue: selectedCrop.name }))
     : '';
 
   if (createdPlant) return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: spacing.xl }}>
-        <View style={{ alignSelf: 'center', width: '100%', maxWidth: 520, alignItems: 'center', gap: spacing.lg }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, padding: spacing.xl }}>
+        <View style={{ alignSelf: 'center', width: '100%', maxWidth: 560, alignItems: 'center', gap: spacing.lg }}>
           <Mascot pose="celebrate" size={120} />
           <Text accessibilityRole="header" style={{ color: colors.text, fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, textAlign: 'center' }}>{t('guidedPlant.success', { name: createdPlant.name })}</Text>
           <Text style={{ color: colors.textSecondary, lineHeight: 24, textAlign: 'center' }}>{t('guidedPlant.successBody')}</Text>
+          <View style={[s.firstWeekPanel, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={{ gap: spacing.xs }}>
+              <Text accessibilityRole="header" style={[s.firstWeekTitle, { color: colors.text }]}>{t('firstWeek.title')}</Text>
+              <Text style={[s.firstWeekSubtitle, { color: colors.textSecondary }]}>{t('firstWeek.subtitle', { name: cropName })}</Text>
+            </View>
+            <View style={{ gap: spacing.xs }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>{t('firstWeek.progress', { done: firstWeekChecks.filter(Boolean).length, total: 4 })}</Text>
+                {firstWeekChecks.every(Boolean) && <Text style={{ color: colors.primary, fontSize: fontSize.xs, fontWeight: fontWeight.bold }}>{t('firstWeek.completed')}</Text>}
+              </View>
+              <View style={{ height: 6, borderRadius: radii.full, overflow: 'hidden', backgroundColor: colors.surfaceAlt }}>
+                <View style={{ width: `${(firstWeekChecks.filter(Boolean).length / 4) * 100}%`, height: '100%', backgroundColor: colors.primary }} />
+              </View>
+            </View>
+            {[
+              {
+                icon: 'flower-outline' as const,
+                title: t('firstWeek.spaceTitle'),
+                body: typeof (selectedCropId ? CROP_CONTAINER_MIN[selectedCropId] : null) === 'number'
+                  ? t('firstWeek.spaceContainer', { liters: CROP_CONTAINER_MIN[selectedCropId!] })
+                  : t('firstWeek.spaceGround'),
+              },
+              { icon: 'water-outline' as const, title: t('firstWeek.observeTitle'), body: t('firstWeek.observeBody') },
+              { icon: 'construct-outline' as const, title: t('firstWeek.materialTitle'), body: t('firstWeek.materialBody') },
+              { icon: 'search-outline' as const, title: t('firstWeek.checkTitle'), body: t('firstWeek.checkBody') },
+            ].map((item, index) => {
+              const checked = firstWeekChecks[index] ?? false;
+              return (
+                <Pressable
+                  key={item.title}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked }}
+                  accessibilityLabel={`${item.title}. ${item.body}`}
+                  onPress={() => toggleFirstWeekCheck(index)}
+                  style={({ pressed }) => [s.firstWeekItem, { opacity: pressed ? 0.75 : 1 }]}
+                >
+                  <View style={[s.firstWeekCheck, { borderColor: checked ? colors.primary : colors.border, backgroundColor: checked ? colors.primary : 'transparent' }]}>
+                    {checked && <Text style={{ color: colors.background, fontSize: 14, fontWeight: fontWeight.bold }}>✓</Text>}
+                  </View>
+                  <View style={[s.firstWeekIcon, { backgroundColor: checked ? colors.primary + '18' : colors.surfaceAlt }]}>
+                    <Ionicons name={item.icon} size={20} color={checked ? colors.primary : colors.textSecondary} accessible={false} />
+                  </View>
+                  <View style={{ flex: 1, gap: 3 }}>
+                    <Text style={[s.firstWeekItemTitle, { color: checked ? colors.textSecondary : colors.text, textDecorationLine: checked ? 'line-through' : 'none' }]}>{item.title}</Text>
+                    <Text style={[s.firstWeekItemBody, { color: colors.textSecondary }]}>{item.body}</Text>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
           <Button title={t('guidedPlant.today')} size="lg" onPress={() => router.replace('/(tabs)')} style={{ width: '100%' }} />
         </View>
       </ScrollView>
@@ -262,8 +330,7 @@ export default function NewPlantScreen() {
   );
 
   return (
-    <SemillitaTourProvider>
-      <TourStarter disabled={guided || fromOnboarding !== '1'} />
+    <>
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={[s.header, { borderBottomColor: colors.border }]}>
@@ -280,11 +347,16 @@ export default function NewPlantScreen() {
 
       {/* ── STEP 1: Choose how to add ── */}
       {step === 'select' && (
-        <CopilotStep text={t('coach.plantNew')} order={1} name="plant-select">
-        <WalkView style={s.entryContainer}>
-          <Text style={[s.entrySubtitle, { color: colors.textSecondary }]}>
-            {t('plantNew.selectCrop')}
-          </Text>
+        <View style={s.entryContainer}>
+          <View style={s.entryIntro}>
+            <Mascot pose="wave" size={96} />
+            <Text accessibilityRole="header" style={[s.entryTitle, { color: colors.text }]}>
+              {t('plantNew.selectTitle')}
+            </Text>
+            <Text style={[s.entrySubtitle, { color: colors.textSecondary }]}>
+              {t('plantNew.selectDesc')}
+            </Text>
+          </View>
 
           {isPro && (
             <ScalePress
@@ -315,16 +387,15 @@ export default function NewPlantScreen() {
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
           </ScalePress>
-        </WalkView>
-        </CopilotStep>
+        </View>
       )}
 
       {/* ── STEP 2: Plant details ── */}
       {step === 'details' && (
         <>
           {fromOnboarding === '1' && !guided && !isAiFilled && (
-            <View style={{ backgroundColor: colors.accent + '35', borderBottomWidth: 1, borderBottomColor: colors.accent, paddingHorizontal: spacing.xl, paddingVertical: spacing.md }}>
-              <Text style={{ color: colors.primaryDark, fontSize: fontSize.sm, lineHeight: 20 }}>{t('coach.plantDetails')}</Text>
+            <View style={{ backgroundColor: colors.primary + '10', borderBottomWidth: 1, borderBottomColor: colors.primary + '30', paddingHorizontal: spacing.xl, paddingVertical: spacing.md }}>
+              <Text style={{ color: colors.primary, fontSize: fontSize.sm, lineHeight: 20 }}>{t('plantNew.guidedDetails')}</Text>
             </View>
           )}
           {isAiFilled && (
@@ -363,7 +434,7 @@ export default function NewPlantScreen() {
                   </>
                 ) : (
                   <>
-                    <Text style={{ fontSize: 40 }}>📷</Text>
+                    <Ionicons name="camera-outline" size={40} color={colors.primary} />
                     <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: spacing.xs }}>
                       {t('plantNew.addPhoto')}
                     </Text>
@@ -416,7 +487,7 @@ export default function NewPlantScreen() {
                   return (
                     <View style={[s.companionHint, { backgroundColor: '#4CAF5012', borderColor: '#4CAF5055' }]}>
                       <Text style={[s.companionHintText, { color: '#2E7D32' }]}>
-                        🤝 {t('plantNew.goodWith')}{' '}
+                        <Ionicons name="people-outline" size={15} color="#2E7D32" /> {t('plantNew.goodWith')}{' '}
                         {companions.map((c) => `${c.emoji} ${t('crops.' + c.id + '.name', { defaultValue: c.name })}`).join('  ')}
                       </Text>
                     </View>
@@ -451,8 +522,8 @@ export default function NewPlantScreen() {
                       onPress={() => handleSelectVariety(null)}
                       style={[s.varietyChip, { backgroundColor: !varietyId ? colors.accent : colors.surface, borderColor: !varietyId ? colors.accent : colors.border }]}
                     >
-                      <Text style={[s.varietyChipText, { color: !varietyId ? colors.primaryDark : colors.textSecondary }]}>
-                        🌱 {t('plantNew.varietyGeneric')}
+                      <Text style={[s.varietyChipText, { color: !varietyId ? colors.primary : colors.textSecondary }]}>
+                        <Ionicons name="leaf-outline" size={14} color={!varietyId ? colors.primary : colors.textSecondary} /> {t('plantNew.varietyGeneric')}
                       </Text>
                     </Pressable>
                     {cropVarieties.map((v) => {
@@ -685,7 +756,7 @@ export default function NewPlantScreen() {
                 )}
                 <View style={{ flex: 1, marginLeft: spacing.md }}>
                   <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.medium }}>
-                    {item.isCustom ? item.name : t('crops.' + item.id + '.name')}
+                    {item.isCustom ? item.name : t('crops.' + item.id + '.name', { defaultValue: item.name })}
                   </Text>
                   {!item.isCustom && (CROP_DIFFICULTY[item.id] || item.daysToHarvest) && (
                     <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, marginTop: 2 }}>
@@ -717,7 +788,7 @@ export default function NewPlantScreen() {
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
-    </SemillitaTourProvider>
+    </>
   );
 }
 
@@ -748,14 +819,30 @@ const makeStyles = (
     // Step 1 — entry
     entryContainer: {
       flex: 1,
+      width: '100%',
+      maxWidth: 560,
+      alignSelf: 'center',
       padding: spacing.xl,
       gap: spacing.lg,
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
+      paddingTop: spacing['2xl'],
+    },
+    entryIntro: {
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginBottom: spacing.sm,
+    },
+    entryTitle: {
+      fontSize: fontSize['2xl'],
+      lineHeight: 32,
+      fontWeight: fontWeight.bold,
+      textAlign: 'center',
     },
     entrySubtitle: {
       fontSize: fontSize.md,
       textAlign: 'center',
-      marginBottom: spacing.sm,
+      lineHeight: 22,
+      maxWidth: 420,
     },
     entryBtn: {
       flexDirection: 'row',
@@ -773,6 +860,22 @@ const makeStyles = (
     },
     entryBtnTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
     entryBtnDesc: { fontSize: fontSize.xs, marginTop: 2 },
+
+    // First-week guide shown immediately after the first plant is saved.
+    firstWeekPanel: {
+      width: '100%',
+      borderRadius: radii.xl,
+      borderWidth: 1,
+      padding: spacing.lg,
+      gap: spacing.lg,
+    },
+    firstWeekTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    firstWeekSubtitle: { fontSize: fontSize.sm, lineHeight: 20 },
+    firstWeekItem: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
+    firstWeekCheck: { width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
+    firstWeekIcon: { width: 40, height: 40, borderRadius: radii.md, alignItems: 'center', justifyContent: 'center' },
+    firstWeekItemTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    firstWeekItemBody: { fontSize: fontSize.sm, lineHeight: 20 },
 
     // Step 2 — crop hero
     cropHero: {
@@ -863,17 +966,6 @@ const makeStyles = (
       paddingVertical: 4,
       borderRadius: 99,
     },
-    // Photo (legacy — kept for safety but unused)
-    photoArea: {
-      height: 140,
-      borderRadius: radii.xl,
-      borderWidth: 1.5,
-      borderStyle: 'dashed',
-      alignItems: 'center',
-      justifyContent: 'center',
-      overflow: 'hidden',
-    },
-
     // Variety
     varietyChip: {
       flexDirection: 'row',

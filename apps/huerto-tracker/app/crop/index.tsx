@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   FlatList,
   Pressable,
   StyleSheet,
@@ -15,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type CustomCrop } from '../../src/models/custom-crop';
 import { CATEGORY_CONFIG } from '../../src/data/crops';
+import { CollectionError } from '../../src/components/CollectionError';
 
 export default function ManageCustomCropsScreen() {
   const colors = useColors();
@@ -47,13 +49,22 @@ export default function ManageCustomCropsScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: spacing.md, paddingBottom: 40 }}
         ListEmptyComponent={
-          <EmptyState
-            illustration={<Illustration name="crops" size={120} />}
-            title={t('customCrop.empty')}
-            description={t('customCrop.emptyDesc')}
-            ctaLabel={t('customCrop.addNew')}
-            onCta={() => router.push('/crop/new' as any)}
-          />
+          collection.error ? (
+            <CollectionError onRetry={() => collection.refresh().catch(() => {})} />
+          ) : collection.loading ? (
+            <View style={s.loadingState} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+              <ActivityIndicator color={colors.primary} />
+              <Text style={[s.loadingText, { color: colors.textSecondary }]}>{t('common.loading')}</Text>
+            </View>
+          ) : (
+            <EmptyState
+              illustration={<Illustration name="crops" size={120} />}
+              title={t('customCrop.empty')}
+              description={t('customCrop.emptyDesc')}
+              ctaLabel={t('customCrop.addNew')}
+              onCta={() => router.push('/crop/new' as any)}
+            />
+          )
         }
         renderItem={({ item }) => (
           <Pressable
@@ -98,6 +109,8 @@ const makeStyles = (colors: any, spacing: any, fontSize: any, fontWeight: any, r
     backBtn: { padding: spacing.xs, marginRight: spacing.sm },
     addBtn: { padding: spacing.xs, marginLeft: 'auto' },
     title: { flex: 1, fontSize: fontSize.lg, fontWeight: fontWeight.semibold },
+    loadingState: { alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.xxl, gap: spacing.sm },
+    loadingText: { fontSize: fontSize.sm },
     row: {
       flexDirection: 'row',
       alignItems: 'center',

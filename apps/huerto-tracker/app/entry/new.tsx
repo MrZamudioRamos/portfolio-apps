@@ -6,12 +6,12 @@ import { DatePickerModal } from '../../src/components/DatePickerModal';
 import { successHaptic, tapHaptic } from '../../src/utils/haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShareModal, type ShareModalProps } from '../../src/components/ShareModal';
 import {
-  Alert,
   Image,
+  ActivityIndicator,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -28,6 +28,26 @@ import type { Plant } from '../../src/models/plant';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
+
+const ENTRY_TYPE_ICONS: Record<EntryType, keyof typeof Ionicons.glyphMap> = {
+  watering: 'water-outline',
+  sowing: 'leaf-outline',
+  transplant: 'flower-outline',
+  fertilizing: 'flask-outline',
+  harvest: 'basket-outline',
+  pruning: 'cut-outline',
+  pest: 'bug-outline',
+  treatment: 'medkit-outline',
+  photo: 'camera-outline',
+  note: 'document-text-outline',
+};
+
+const WATER_METHOD_ICONS: Record<'hand' | 'drip' | 'sprinkler' | 'flood', keyof typeof Ionicons.glyphMap> = {
+  hand: 'beaker-outline',
+  drip: 'water-outline',
+  sprinkler: 'rainy-outline',
+  flood: 'swap-vertical-outline',
+};
 
 const ALL_TYPES: EntryType[] = [
   'watering', 'sowing', 'transplant', 'fertilizing',
@@ -51,6 +71,8 @@ export default function NewEntryScreen() {
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(todayStr());
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [dateError, setDateError] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
   const { pickFromGallery } = usePickPhoto({ aspect: [4, 3] });
   // watering
   const [waterLiters, setWaterLiters] = useState('');
@@ -68,8 +90,16 @@ export default function NewEntryScreen() {
   const [treatDose, setTreatDose] = useState('');
   const [treatWaitDays, setTreatWaitDays] = useState('');
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const [shareModal, setShareModal] = useState<Omit<ShareModalProps, 'visible' | 'onClose'> | null>(null);
   const { registerActivity, isMilestone } = useStreak('huerto-tracker');
+
+  useEffect(() => {
+    if (!saved) return;
+    const timer = setTimeout(() => router.back(), 1200);
+    return () => clearTimeout(timer);
+  }, [router, saved]);
 
   async function pickPhoto() {
     const result = await pickFromGallery();
@@ -79,10 +109,13 @@ export default function NewEntryScreen() {
   async function handleSave() {
     if (!gardenId) return;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(new Date(date + 'T12:00:00').getTime())) {
-      Alert.alert(t('entryNew.invalidDateTitle'), t('entryNew.invalidDateMsg'));
+      setDateError(true);
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
       return;
     }
+    setDateError(false);
     setSaving(true);
+    setSaveError(false);
     let entryData: Record<string, unknown> | undefined;
     if (selectedType === 'harvest' && (harvestWeight || harvestUnits || harvestQuality)) {
       entryData = {
@@ -153,7 +186,13 @@ export default function NewEntryScreen() {
         });
         triggered = true;
       }
-      if (!triggered) router.back();
+      if (!triggered) {
+        setSaved(true);
+        requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: 0, animated: true }));
+      }
+    } catch {
+      setSaveError(true);
+      requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: 0, animated: true }));
     } finally {
       setSaving(false);
     }
@@ -166,43 +205,82 @@ export default function NewEntryScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+      <View style={[s.sheetHandle, { backgroundColor: colors.border }]} />
       {/* Header */}
       <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="close" size={24} color={colors.textSecondary} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
+          onPress={() => router.back()}
+          hitSlop={12}
+          style={({ pressed }) => [s.headerButton, { opacity: pressed ? 0.55 : 1 }]}
+        >
+          <Ionicons name="arrow-back" size={22} color={colors.textSecondary} />
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('entryNew.title')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
+      {(plants.loading || entries.loading) && plants.items.length === 0 && entries.items.length === 0 && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+          <ActivityIndicator color={colors.primary} />
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+        </View>
+      )}
+
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: 112 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={s.body}>
 
-            {/* Entry type — 2 rows of 5 with semantic color per type */}
-            <Text style={[s.label, { color: colors.textSecondary }]}>{t('entryNew.activityType')}</Text>
-            {([ALL_TYPES.slice(0, 5), ALL_TYPES.slice(5)] as EntryType[][]).map((row, ri) => (
-              <View key={ri} style={[s.typeRow, ri === 0 && { marginBottom: spacing.sm }]}>
-                {row.map((type) => {
-                  const cfg = ENTRY_TYPE_CONFIG[type];
-                  const active = selectedType === type;
-                  return (
-                    <Pressable
-                      key={type}
-                      onPress={() => { setSelectedType(type); tapHaptic(); }}
-                      style={[s.typeChip, { backgroundColor: active ? colors.accent : colors.surface, borderColor: active ? colors.accent : colors.border }]}
-                    >
-                      <View style={[s.typeChipIcon, { backgroundColor: active ? cfg.color + '30' : colors.surfaceAlt }]}>
-                        <Text style={{ fontSize: 20 }}>{cfg.emoji}</Text>
-                      </View>
-                      <Text style={[s.typeLabel, { color: active ? colors.primaryDark : colors.textSecondary }]}>
-                        {t('diary.filters.' + type)}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+            {saveError && (
+              <View accessibilityRole="alert" style={[s.feedback, { backgroundColor: colors.error + '12', borderColor: colors.error + '55' }]}>
+                <Ionicons name="alert-circle-outline" size={20} color={colors.error} />
+                <Text style={[s.feedbackText, { color: colors.error }]}>{t('entryNew.saveError')}</Text>
               </View>
-            ))}
+            )}
+
+            {saved && (
+              <View accessibilityLiveRegion="polite" style={[s.feedback, { backgroundColor: colors.success + '12', borderColor: colors.success + '55' }]}>
+                <Ionicons name="checkmark-circle-outline" size={20} color={colors.success} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.feedbackTitle, { color: colors.success }]}>{t('entryNew.saved')}</Text>
+                  <Text style={[s.feedbackText, { color: colors.textSecondary }]}>{t('entryNew.savedDesc')}</Text>
+                </View>
+              </View>
+            )}
+
+            {/* Entry type — large, plain-language options */}
+            <Text style={[s.label, { color: colors.textSecondary }]}>{t('entryNew.activityType')}</Text>
+            <View style={s.typeGrid}>
+              {ALL_TYPES.map((type) => {
+                const cfg = ENTRY_TYPE_CONFIG[type];
+                const active = selectedType === type;
+                return (
+                  <Pressable
+                    key={type}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: active }}
+                    onPress={() => { setSelectedType(type); tapHaptic(); }}
+                    style={({ pressed }) => [s.typeChip, { backgroundColor: active ? cfg.color + '18' : colors.surface, borderColor: active ? cfg.color : colors.border, opacity: pressed ? 0.76 : 1 }]}
+                  >
+                    <View style={[s.typeChipIcon, { backgroundColor: active ? cfg.color + '22' : colors.surfaceAlt }]}>
+                      <Ionicons name={ENTRY_TYPE_ICONS[type]} size={20} color={active ? cfg.color : colors.textSecondary} />
+                    </View>
+                    <Text style={[s.typeLabel, { color: active ? cfg.color : colors.text }]}>
+                      {t('diary.filters.' + type)}
+                    </Text>
+                    {active && <Ionicons name="checkmark-circle" size={17} color={cfg.color} />}
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            {selectedType === 'watering' && (
+              <View style={[s.careRule, { backgroundColor: colors.accent + '55', borderColor: colors.secondary + '66' }]}>
+                <Ionicons name="water-outline" size={18} color={colors.primary} />
+                <Text style={[s.careRuleText, { color: colors.text }]}>Primero toca la tierra a 2 cm: si sigue húmeda, no hace falta regar todavía.</Text>
+              </View>
+            )}
 
             {/* Plant selector */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>
@@ -211,21 +289,25 @@ export default function NewEntryScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.md }}>
               <View style={{ flexDirection: 'row', gap: spacing.sm }}>
                 <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: !selectedPlantId }}
                   onPress={() => setSelectedPlantId(undefined)}
-                  style={[s.plantChip, { backgroundColor: !selectedPlantId ? colors.accent : colors.surface, borderColor: !selectedPlantId ? colors.accent : colors.border }]}
+                  style={({ pressed }) => [s.plantChip, { backgroundColor: !selectedPlantId ? colors.primary + '22' : colors.surface, borderColor: !selectedPlantId ? colors.primary : colors.border, opacity: pressed ? 0.75 : 1 }]}
                 >
-                  <Text style={{ fontSize: 16 }}>🏡</Text>
-                  <Text style={[s.plantChipLabel, { color: !selectedPlantId ? colors.primaryDark : colors.textSecondary }]}>
+                  <Ionicons name="home-outline" size={17} color={!selectedPlantId ? colors.primary : colors.textSecondary} />
+                  <Text style={[s.plantChipLabel, { color: !selectedPlantId ? colors.primary : colors.textSecondary }]}>
                     {t('entryNew.general')}
                   </Text>
                 </Pressable>
                 {plants.items.filter((p) => p.gardenId === gardenId).map((p) => (
                   <Pressable
                     key={p.id}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: selectedPlantId === p.id }}
                     onPress={() => setSelectedPlantId(p.id)}
-                    style={[s.plantChip, { backgroundColor: selectedPlantId === p.id ? colors.primary + '22' : colors.surface, borderColor: selectedPlantId === p.id ? colors.primary : colors.border }]}
+                    style={({ pressed }) => [s.plantChip, { backgroundColor: selectedPlantId === p.id ? colors.primary + '22' : colors.surface, borderColor: selectedPlantId === p.id ? colors.primary : colors.border, opacity: pressed ? 0.75 : 1 }]}
                   >
-                    <Text style={{ fontSize: 16 }}>{CROPS_BY_ID[p.cropId]?.emoji ?? '🌱'}</Text>
+                    <Ionicons name="leaf-outline" size={17} color={selectedPlantId === p.id ? colors.primary : colors.textSecondary} />
                     <Text style={[s.plantChipLabel, { color: selectedPlantId === p.id ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
                       {p.name}
                     </Text>
@@ -236,7 +318,19 @@ export default function NewEntryScreen() {
 
             {/* Date — quick buttons + calendar picker */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.md }]}>{t('entryNew.date')}</Text>
-            <DatePickerModal value={date} onChange={setDate} quickChips={[0, 1, 2]} i18nPrefix="entryNew" inputStyle={s.input} />
+            <DatePickerModal
+              value={date}
+              onChange={(nextDate) => { setDate(nextDate); setDateError(false); }}
+              quickChips={[0, 1, 2]}
+              i18nPrefix="entryNew"
+              inputStyle={dateError ? [s.input, { borderColor: colors.error }] : s.input}
+            />
+            {dateError && (
+              <View style={s.inlineError} accessibilityRole="alert">
+                <Ionicons name="alert-circle-outline" size={16} color={colors.error} />
+                <Text style={[s.inlineErrorText, { color: colors.error }]}>{t('entryNew.invalidDateMsg')}</Text>
+              </View>
+            )}
 
             {/* Notes */}
             <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.lg }]}>
@@ -273,7 +367,7 @@ export default function NewEntryScreen() {
                   {(['hand','drip','sprinkler','flood'] as const).map((m) => (
                     <Pressable key={m} onPress={() => setWaterMethod(m)}
                       style={[s.methodChip, { backgroundColor: waterMethod === m ? colors.primary + '22' : colors.surface, borderColor: waterMethod === m ? colors.primary : colors.border }]}>
-                      <Text style={{ fontSize: 18 }}>{m === 'hand' ? '🪣' : m === 'drip' ? '💧' : m === 'sprinkler' ? '🌦️' : '🌊'}</Text>
+                      <Ionicons name={WATER_METHOD_ICONS[m]} size={18} color={waterMethod === m ? colors.primary : colors.textSecondary} />
                       <Text style={[s.methodLabel, { color: waterMethod === m ? colors.primary : colors.textSecondary }]}>{t('waterMethod.' + m)}</Text>
                     </Pressable>
                   ))}
@@ -402,11 +496,18 @@ export default function NewEntryScreen() {
               {t('entryNew.photo')}
             </Text>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('entryNew.addPhoto')}
               onPress={pickPhoto}
-              style={[s.photoArea, { backgroundColor: colors.surfaceAlt, borderColor: photoUri ? 'transparent' : colors.border }]}
+              style={({ pressed }) => [s.photoArea, { backgroundColor: colors.surfaceAlt, borderColor: photoUri ? 'transparent' : colors.border, opacity: pressed ? 0.82 : 1 }]}
             >
               {photoUri ? (
-                <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                <>
+                  <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                  <View style={[s.photoBadge, { backgroundColor: colors.surface }]}>
+                    <Ionicons name="checkmark" size={15} color={colors.success} />
+                  </View>
+                </>
               ) : (
                 <>
                   <Ionicons name="camera-outline" size={32} color={colors.textSecondary} />
@@ -417,16 +518,19 @@ export default function NewEntryScreen() {
               )}
             </Pressable>
 
-            <Button
-              title={t('entryNew.saveEntry')}
-              onPress={handleSave}
-              loading={saving}
-              size="lg"
-              style={{ marginTop: spacing.xl }}
-            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <View style={[s.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
+        <Button
+          title={t('entryNew.saveEntry')}
+          onPress={handleSave}
+          loading={saving}
+          disabled={saving || saved}
+          size="lg"
+        />
+      </View>
 
       {shareModal && (
         <ShareModal
@@ -447,7 +551,11 @@ const makeStyles = (
   radii: Record<string, number>
 ) =>
   StyleSheet.create({
-    container: { flex: 1 },
+    container: { flex: 1, borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, overflow: 'hidden' },
+    sheetHandle: { width: 40, height: 4, borderRadius: 2, alignSelf: 'center', marginTop: spacing.sm },
+    feedback: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.md, borderWidth: 1, marginBottom: spacing.lg },
+    feedbackTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    feedbackText: { flex: 1, fontSize: fontSize.sm, lineHeight: 19 },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -455,36 +563,43 @@ const makeStyles = (
       padding: spacing.lg,
       borderBottomWidth: StyleSheet.hairlineWidth,
     },
+    headerButton: { width: 44, height: 44, alignItems: 'flex-start', justifyContent: 'center' },
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     body: { padding: spacing.xl },
     label: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.8, marginBottom: spacing.sm },
     inputLabel: { fontSize: fontSize.xs, marginBottom: spacing.xs },
-    typeRow: {
+    typeGrid: {
       flexDirection: 'row',
+      flexWrap: 'wrap',
       gap: spacing.sm,
     },
     typeChip: {
-      flex: 1,
+      width: '47%',
+      minHeight: 70,
+      flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: spacing.md,
-      paddingHorizontal: 2,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.sm,
       borderRadius: radii.md,
       borderWidth: 1.5,
-      gap: 4,
+      gap: spacing.sm,
     },
     typeChipIcon: {
-      width: 40,
-      height: 40,
-      borderRadius: 10,
+      width: 38,
+      height: 38,
+      borderRadius: radii.md,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    typeLabel: { fontSize: 9, fontWeight: fontWeight.medium, textAlign: 'center' },
+    typeLabel: { flex: 1, fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    careRule: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1, marginBottom: spacing.md },
+    careRuleText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20 },
     plantChip: {
       flexDirection: 'row',
       alignItems: 'center',
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
+      minHeight: 44,
       borderRadius: radii.full,
       borderWidth: 1.5,
       gap: 5,
@@ -497,15 +612,18 @@ const makeStyles = (
       fontSize: fontSize.md,
     },
     textarea: { minHeight: 100 },
+    inlineError: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginTop: spacing.sm },
+    inlineErrorText: { flex: 1, fontSize: fontSize.xs, lineHeight: 17 },
     photoArea: {
-      height: 140,
-      borderRadius: radii.xl,
+      height: 128,
+      borderRadius: radii.lg,
       borderWidth: 1.5,
       borderStyle: 'dashed',
       alignItems: 'center',
       justifyContent: 'center',
       overflow: 'hidden',
     },
+    photoBadge: { position: 'absolute', top: spacing.sm, right: spacing.sm, width: 28, height: 28, borderRadius: radii.full, alignItems: 'center', justifyContent: 'center' },
     methodChip: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -522,5 +640,14 @@ const makeStyles = (
       borderRadius: radii.sm,
       borderWidth: 1.5,
       alignItems: 'center',
+    },
+    footer: {
+      paddingHorizontal: spacing.xl,
+      paddingVertical: spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      ...Platform.select({
+        web: { boxShadow: '0px -2px 5px rgba(0, 0, 0, 0.06)' },
+        default: { shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.06, shadowRadius: 5, elevation: 4 },
+      }),
     },
   });

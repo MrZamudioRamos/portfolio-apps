@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { getNearestProvince } from '../src/utils/weather';
 import {
   Alert,
+  ActivityIndicator,
   Modal,
   Pressable,
   RefreshControl,
@@ -26,6 +27,7 @@ import type { ClimateZone, Garden, GardenType } from '../src/models/garden';
 import { GARDEN_TYPE_CONFIG } from '../src/models/garden';
 import { DEFAULT_GRID_ROWS, DEFAULT_GRID_COLS } from '../src/hooks/useGardenLayout';
 import { usePro as usePurchases } from '../src/hooks/usePro';
+import { CollectionError } from '../src/components/CollectionError';
 import type { Plant } from '../src/models/plant';
 import type { DiaryEntry } from '../src/models/diary-entry';
 import type { GardenReminder } from '../src/models/reminder';
@@ -49,7 +51,7 @@ export default function GardensScreen() {
   const [activeId, setActiveIdState] = useState<string | null>(null);
 
   React.useEffect(() => {
-    AsyncStorage.getItem(ACTIVE_KEY).then(setActiveIdState);
+    void AsyncStorage.getItem(ACTIVE_KEY).then(setActiveIdState).catch(() => {});
   }, []);
 
   const effectiveActiveId = activeId ?? gardens.items[0]?.id ?? null;
@@ -200,9 +202,32 @@ export default function GardensScreen() {
         contentContainerStyle={{ padding: spacing.xl, paddingBottom: 60 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
       >
+        <View style={[s.stitchHero, { backgroundColor: colors.surfaceAlt, borderColor: colors.primary + '33' }]}>
+          <View style={[s.stitchHeroIcon, { backgroundColor: colors.surface }]}>
+            <Ionicons name="leaf-outline" size={22} color={colors.primary} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.stitchHeroTitle, { color: colors.text }]}>Tu huerto, a tu manera</Text>
+            <Text style={[s.stitchHeroText, { color: colors.textSecondary }]}>Organiza tus espacios y adapta cada cuidado a la luz, el viento y tus plantas.</Text>
+          </View>
+        </View>
+
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>Espacios activos</Text>
         <Text style={[s.hint, { color: colors.textSecondary }]}>{t('gardens.hint')}</Text>
 
-        {gardens.items.map((garden) => {
+        {gardens.loading && gardens.items.length === 0 ? (
+          <View accessibilityRole="progressbar" style={s.collectionState}>
+            <ActivityIndicator size="small" color={colors.primary} />
+            <Text style={[s.collectionStateText, { color: colors.textSecondary }]}>{t('common.loading')}</Text>
+          </View>
+        ) : gardens.error ? (
+          <CollectionError onRetry={() => gardens.refresh().catch(() => {})} />
+        ) : gardens.items.length === 0 ? (
+          <Card padded style={{ borderColor: colors.border, backgroundColor: colors.surface }}>
+            <Text style={[s.gardenName, { color: colors.text }]}>{t('gardens.emptyTitle')}</Text>
+            <Text style={[s.hint, { color: colors.textSecondary }]}>{t('gardens.hint')}</Text>
+          </Card>
+        ) : gardens.items.map((garden) => {
           const isActive = garden.id === effectiveActiveId;
           const zc = CLIMATE_ZONE_CONFIG[garden.climateZone];
           const gtc = garden.gardenType ? GARDEN_TYPE_CONFIG[garden.gardenType] : null;
@@ -228,8 +253,18 @@ export default function GardensScreen() {
                       )}
                     </View>
                     <Text style={[s.gardenSub, { color: colors.textSecondary }]}>
-                      {zc?.emoji} {garden.province} · {garden.gardenType ? t('gardenType.' + garden.gardenType) : ''} · 🌱 {plantCount}
+                      {zc?.emoji} {garden.province} · {garden.gardenType ? t('gardenType.' + garden.gardenType) : ''} · <Ionicons name="leaf-outline" size={12} color={colors.textSecondary} /> {plantCount}
                     </Text>
+                    <View style={s.metaRow}>
+                      <View style={s.metaItem}>
+                        <Ionicons name="sunny-outline" size={14} color={colors.secondary} />
+                        <Text style={[s.metaText, { color: colors.textSecondary }]}>Luz y clima configurados</Text>
+                      </View>
+                      <View style={s.metaItem}>
+                        <Ionicons name="notifications-outline" size={14} color={colors.primary} />
+                        <Text style={[s.metaText, { color: colors.textSecondary }]}>Alertas activas</Text>
+                      </View>
+                    </View>
                   </View>
                   {isActive ? (
                     <Ionicons name="checkmark-circle" size={22} color={colors.primaryDark} />
@@ -247,6 +282,14 @@ export default function GardensScreen() {
             </Pressable>
           );
         })}
+
+        <Pressable
+          onPress={() => canCreateMore ? setShowCreate(true) : router.push('/paywall?source=garden_limit' as any)}
+          style={({ pressed }) => [s.createCta, { borderColor: colors.primary, backgroundColor: colors.surface, opacity: pressed ? 0.78 : 1 }]}
+        >
+          <Ionicons name="add-circle-outline" size={22} color={colors.primary} />
+          <Text style={[s.createCtaText, { color: colors.primary }]}>Crear nuevo huerto o terraza</Text>
+        </Pressable>
       </ScrollView>
 
       {/* ── Create garden modal ── */}
@@ -413,8 +456,20 @@ const makeStyles = (
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
     saveText: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     hint: { fontSize: fontSize.sm, marginBottom: spacing.lg, lineHeight: 20 },
+    collectionState: { minHeight: 96, alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    collectionStateText: { fontSize: fontSize.sm },
+    sectionLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: spacing.xs },
+    stitchHero: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, marginBottom: spacing.xl },
+    stitchHeroIcon: { width: 44, height: 44, borderRadius: radii.lg, alignItems: 'center', justifyContent: 'center' },
+    stitchHeroTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    stitchHeroText: { fontSize: fontSize.sm, lineHeight: 20, marginTop: 3 },
     gardenCard: { borderRadius: radii.lg },
     gardenCardRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginTop: spacing.sm },
+    metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    metaText: { fontSize: 11 },
+    createCta: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, borderRadius: radii.lg, borderWidth: 1.5, marginTop: spacing.sm, marginBottom: spacing.xl },
+    createCtaText: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     gardenName: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
     gardenSub: { fontSize: fontSize.xs, marginTop: 2 },
     activeBadge: {

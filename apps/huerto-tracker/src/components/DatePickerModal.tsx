@@ -6,6 +6,7 @@ import { useTheme } from '@portfolio/ui';
 import { GlassView, isLiquidGlassAvailable } from '../utils/glassEffect';
 import { Button } from '@portfolio/ui';
 import { dateToStr } from '../utils/dateStr';
+import { useTranslation } from 'react-i18next';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -29,6 +30,7 @@ export function DatePickerModal({
   inputStyle,
 }: DatePickerModalProps) {
   const { colors, spacing, fontSize, fontWeight, radii } = useTheme();
+  const { t } = useTranslation();
   const [showPicker, setShowPicker] = useState(false);
 
   return (
@@ -48,6 +50,7 @@ export function DatePickerModal({
                 style={{
                   flex: 1,
                   alignItems: 'center',
+                  minHeight: 44,
                   paddingVertical: spacing.sm,
                   borderRadius: radii.full,
                   borderWidth: 1.5,
@@ -56,7 +59,11 @@ export function DatePickerModal({
                 }}
               >
                 <Text style={{ fontSize: fontSize.xs, fontWeight: fontWeight.semibold, color: active ? colors.primary : colors.textSecondary }}>
-                  {days === 0 ? 'Hoy' : days === 1 ? 'Ayer' : `Hace ${days} días`}
+                  {days === 0
+                    ? t(`${i18nPrefix}.today`)
+                    : days === 1
+                      ? t(`${i18nPrefix}.yesterday`)
+                      : t(`${i18nPrefix}.twoDaysAgo`)}
                 </Text>
               </Pressable>
             );
@@ -85,7 +92,11 @@ export function DatePickerModal({
           <Text style={{ color: colors.text, fontSize: fontSize.md, flex: 1 }}>{value}</Text>
         </Pressable>
         {showClear && (
-          <Pressable onPress={onClear} hitSlop={8}>
+          <Pressable
+            onPress={onClear}
+            hitSlop={8}
+            style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+          >
             <Ionicons name="close-circle" size={20} color={colors.textSecondary} />
           </Pressable>
         )}
@@ -132,7 +143,7 @@ export function DatePickerModal({
                 style={{ width: '100%' }}
               />
               <Button
-                title="Guardar"
+                title={t('common.save')}
                 onPress={() => setShowPicker(false)}
                 size="lg"
                 style={{ margin: spacing.xl, marginTop: 0 }}

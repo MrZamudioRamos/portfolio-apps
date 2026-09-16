@@ -24,13 +24,12 @@ import type { DiaryEntry } from '../../src/models/diary-entry';
 import type { GardenReminder } from '../../src/models/reminder';
 import { saveLanguage, SUPPORTED_LANGS, LANG_LABELS, type SupportedLang } from '../../src/i18n';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { CollectionError } from '../../src/components/CollectionError';
 import { syncToCloud } from '../../src/sync/syncAll';
 import { resetAnalyticsUser, track, EVENTS } from '../../src/analytics';
-import { resetCoachMarks } from '../../src/hooks/useCoachMark';
 
 // TODO: replace with real App Store URL once published
 const APP_STORE_URL = 'https://apps.apple.com/app/id<APP_STORE_ID>';
-
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const APP_VERSION = '1.0.0';
@@ -65,7 +64,7 @@ export default function SettingsScreen() {
   const [showLangModal, setShowLangModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useFocusEffect(useCallback(() => { gardens.refresh(); }, []));
+  useFocusEffect(useCallback(() => { void gardens.refresh().catch(() => {}); }, []));
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -191,7 +190,51 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scrollContent}>
+        {(gardens.loading || plants.loading || entries.loading || reminders.loading || costEntriesCollection.loading) &&
+          gardens.items.length === 0 && plants.items.length === 0 && entries.items.length === 0 && reminders.items.length === 0 && costEntriesCollection.items.length === 0 && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+              <ActivityIndicator color={colors.primary} />
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+          </View>
+        )}
+        {(gardens.error || plants.error || entries.error || reminders.error || costEntriesCollection.error) && (
+          <View style={{ marginBottom: spacing.md }}>
+            <CollectionError onRetry={() => Promise.all([
+              gardens.refresh(),
+              plants.refresh(),
+              entries.refresh(),
+              reminders.refresh(),
+              costEntriesCollection.refresh(),
+            ]).catch(() => {})} />
+          </View>
+        )}
         <Text style={[s.pageTitle, { color: colors.text }]}>{t('settings.title')}</Text>
+
+        <View style={[s.settingsHero, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={s.settingsHeroTop}>
+            <View style={[s.settingsAvatar, { backgroundColor: colors.primaryLight }]}>
+              <Ionicons name="person" size={24} color={colors.primaryDark} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.settingsHeroTitle, { color: colors.text }]}>{isGuest ? t('settings.account.guestTitle') : (user?.email ?? t('settings.account.email'))}</Text>
+              <Text style={[s.settingsHeroSubtitle, { color: colors.textSecondary }]}>{t('settings.heroSubtitle', { defaultValue: 'Tu espacio de cultivo y tus preferencias' })}</Text>
+              <View style={[s.settingsPlanBadge, { backgroundColor: isPro ? colors.primary + '18' : colors.surfaceAlt, borderColor: isPro ? colors.primary : colors.border }]}>
+                <Ionicons name={isPro ? 'sparkles-outline' : 'leaf-outline'} size={13} color={isPro ? colors.primary : colors.textSecondary} />
+                <Text style={{ color: isPro ? colors.primary : colors.textSecondary, fontSize: 11, fontWeight: fontWeight.bold }}>{isPro ? t('settings.subscription.proPlan') : t('settings.subscription.freePlan')}</Text>
+              </View>
+            </View>
+          </View>
+          <View style={[s.settingsHeroGarden, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+            <Ionicons name="location-outline" size={18} color={colors.primary} />
+            <View style={{ flex: 1 }}>
+              <Text style={[s.settingsHeroGardenName, { color: colors.text }]}>{garden?.name ?? t('home.defaultGardenName')}</Text>
+              <Text style={[s.settingsHeroGardenMeta, { color: colors.textSecondary }]}>
+                {[garden?.province, zoneConfig?.label, 'L · cm · °C'].filter(Boolean).join(' · ')}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={17} color={colors.textDisabled} />
+          </View>
+        </View>
 
         {/* ── Cuenta ── */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('settings.sections.account')}</Text>
@@ -236,7 +279,18 @@ export default function SettingsScreen() {
                         // Push any unsynced changes while the session is still
                         // valid, then wipe local data so the next account on this
                         // device doesn't see the previous user's plants/gardens.
-                        if (user?.id) { try { await syncToCloud(user.id); } catch {} }
+                        if (user?.id) {
+                          const synced = await syncToCloud(user.id);
+                          if (!synced) {
+                            Alert.alert(
+                              t('common.error'),
+                              t('settings.account.syncIncomplete', {
+                                defaultValue: 'No se han podido sincronizar todos tus datos. Mantendremos la sesión abierta para que puedas intentarlo de nuevo.',
+                              }),
+                            );
+                            return;
+                          }
+                        }
                         await clearLocalData({ keepOnboarding: true });
                         await signOut().catch(() => {});
                         resetAnalyticsUser();
@@ -433,17 +487,6 @@ export default function SettingsScreen() {
             <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />
           </Pressable>
           <Separator colors={colors} />
-          <RowAction
-            icon="sparkles-outline"
-            label={t('settings.app.tutorial')}
-            colors={colors}
-            s={s}
-            onPress={async () => {
-              await resetCoachMarks();
-              Alert.alert(t('settings.app.tutorial'), t('settings.app.tutorialDone'));
-            }}
-          />
-          <Separator colors={colors} />
           {/* Coaching level override */}
           <View style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.md, gap: spacing.sm }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
@@ -584,7 +627,16 @@ const makeStyles = (
   StyleSheet.create({
     container: { flex: 1 },
     scrollContent: { paddingHorizontal: spacing.xl, paddingBottom: 40 },
-    pageTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, marginTop: spacing.lg, marginBottom: spacing.lg },
+    pageTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, marginTop: spacing.lg, marginBottom: spacing.xl },
+    settingsHero: { padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, marginBottom: spacing.sm, gap: spacing.md },
+    settingsHeroTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    settingsAvatar: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
+    settingsHeroTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    settingsHeroSubtitle: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
+    settingsPlanBadge: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radii.full, borderWidth: 1, marginTop: spacing.xs },
+    settingsHeroGarden: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1 },
+    settingsHeroGardenName: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    settingsHeroGardenMeta: { fontSize: fontSize.xs, marginTop: 2 },
     sectionLabel: {
       fontSize: fontSize.sm,
       fontWeight: fontWeight.bold,

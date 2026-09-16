@@ -26,41 +26,41 @@ export interface ColorPalette {
   dark: AppColors;
 }
 
-// ── Huerto — "Fresco y amable" (vivid greens + lime + sun) ───────────────────
+// ── Huerto Fresco — Stitch source of truth ───────────────────────────────────
 export const huertoColors: AppColors = {
-  primary: '#327E3C',        // prototype green, softened for everyday actions
-  primaryLight: '#78A96E',   // soft green
-  primaryDark: '#205A2B',    // pressed/strong green
-  accent: '#C7CF2A',         // warm lime action accent from the prototype
-  secondary: '#D28354',      // terracotta accent from the prototype
-  background: '#F7F4E1',     // warm ivory canvas
-  surface: '#FEFBF0',        // warm white cards
-  surfaceAlt: '#EFECD0',     // muted lime/ivory surface
-  border: '#D6D2B5',         // low-contrast warm border
-  text: '#1D2C0F',           // deep warm green-black
-  textSecondary: '#626749',  // olive-readable secondary copy
-  textDisabled: '#AEB28A',
-  success: '#327E3C',
-  warning: '#C9863D',        // friendly orange (vs harsh amber)
-  error: '#BC4A3F',          // warm coral-red (less clinical than crimson)
-  water: '#72B2B3',          // softened sky accent from the prototype
-  info: '#497AA4',           // calm informational blue
+  primary: '#43A047',
+  primaryLight: '#8BC34A',
+  primaryDark: '#2E7D32',
+  accent: '#8BC34A',
+  secondary: '#FBC02D',
+  background: '#F7FBF1',
+  surface: '#FFFFFF',
+  surfaceAlt: '#EEF7DF',
+  border: '#D6EBC2',
+  text: '#16240F',
+  textSecondary: '#4A5D4B',
+  textDisabled: '#9CAF9A',
+  success: '#43A047',
+  warning: '#E65100',
+  error: '#E5533D',
+  water: '#72B2B3',
+  info: '#497AA4',
 };
 
 export const huertoDarkColors: AppColors = {
-  primary: '#7CC47F',        // brighter green for dark bg
+  primary: '#81C784',
   primaryLight: '#A5D6A7',
-  primaryDark: '#43A047',
-  accent: '#D8F27A',
-  secondary: '#FFD54F',      // sun yellow (lighter for dark)
-  background: '#0D160D',     // deep green-black (kept — looks premium)
-  surface: '#1B2D1B',        // lifted for clearer card separation on the dark bg
-  surfaceAlt: '#243824',
-  border: '#3A573A',         // stronger so cards read as cards
-  text: '#ECF7E9',
-  textSecondary: '#A8C8A0',
-  textDisabled: '#4A6741',
-  success: '#7CC47F',
+  primaryDark: '#66BB6A',
+  accent: '#AED581',
+  secondary: '#FFD54F',
+  background: '#102014',
+  surface: '#1B2C1E',
+  surfaceAlt: '#263D28',
+  border: '#3C5940',
+  text: '#F1F8EE',
+  textSecondary: '#B7D0B5',
+  textDisabled: '#6E896F',
+  success: '#81C784',
   warning: '#FFB74D',
   error: '#EF6E5B',
   water: '#4FC3F7',
@@ -94,7 +94,7 @@ export const mascotaDarkColors: AppColors = {
   primary: '#FFB74D',
   primaryLight: '#FFCC80',
   primaryDark: '#FF9800',
-  accent: '#FFE082',
+  accent: '#FFE0A3',
   secondary: '#CE93D8',
   background: '#170D08',
   surface: '#2C1810',
@@ -160,7 +160,7 @@ export const stitchColors: AppColors = {
   primary: '#AD1457',
   primaryLight: '#E91E63',
   primaryDark: '#880E4F',
-  accent: '#F8BBD0',
+  accent: '#F8BBD9',
   secondary: '#6A1B9A',
   background: '#FFF8FC',
   surface: '#FFFFFF',
@@ -180,7 +180,7 @@ export const stitchDarkColors: AppColors = {
   primary: '#F06292',
   primaryLight: '#F48FB1',
   primaryDark: '#E91E63',
-  accent: '#F8BBD0',
+  accent: '#F8BBD9',
   secondary: '#CE93D8',
   background: '#15000A',
   surface: '#2A0A1A',
@@ -203,7 +203,7 @@ export const bwColors: AppColors = {
   primary: '#111111',
   primaryLight: '#444444',
   primaryDark: '#000000',
-  accent: '#E5E5E5',
+  accent: '#DDDDDD',
   secondary: '#666666',
   background: '#FFFFFF',
   surface: '#F6F6F6',
@@ -223,7 +223,7 @@ export const bwDarkColors: AppColors = {
   primary: '#EEEEEE',
   primaryLight: '#CCCCCC',
   primaryDark: '#FFFFFF',
-  accent: '#FFFFFF',
+  accent: '#333333',
   secondary: '#999999',
   background: '#0A0A0A',
   surface: '#1A1A1A',
