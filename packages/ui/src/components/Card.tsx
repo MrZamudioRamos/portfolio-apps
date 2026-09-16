@@ -25,7 +25,6 @@ export function Card({ children, onPress, padded = true, style, accessibilityLab
   if (onPress) {
     return (
       <Pressable
-        accessibilityRole="button"
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}

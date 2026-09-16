@@ -69,7 +69,6 @@ export function Button({
           alignItems: 'center',
           justifyContent: 'center',
           flexDirection: 'row',
-          minHeight: size === 'sm' ? 40 : 48,
           opacity: isDisabled ? 0.5 : pressed ? 0.8 : 1,
         },
         style,
