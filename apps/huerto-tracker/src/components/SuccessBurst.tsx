@@ -40,7 +40,7 @@ export function SuccessBurst({ visible, size = 90 }: Props) {
   if (!visible) return null;
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFill, { pointerEvents: 'none' }]}>
       <View style={s.overlay}>
         <Animated.View
           style={[

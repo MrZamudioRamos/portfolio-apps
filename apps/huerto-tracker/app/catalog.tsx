@@ -31,8 +31,6 @@ const CATEGORY_COLORS: Record<string, string> = {
   bulbos: '#AB47BC',
   medicinales: '#FFA726',
 };
-const SUN_EMOJI: Record<string, string> = { full: '☀️', partial: '⛅', shade: '🌑' };
-const WATER_EMOJI: Record<string, string> = { high: '💧💧💧', medium: '💧💧', low: '💧' };
 
 const norm = (x: string) => x.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 
@@ -86,6 +84,16 @@ export default function CatalogScreen() {
       return name.includes(q) || c.name.toLowerCase().includes(q);
     });
   }, [search, catFilter, diffFilter, containerOnly, t]);
+
+  const recommendedCrop = useMemo(() => {
+    const month = new Date().getMonth() + 1;
+    return CROPS.find((crop) =>
+      CROP_DIFFICULTY[crop.id] === 'easy'
+      && CROP_CONTAINER_MIN[crop.id] !== null
+      && CROP_CONTAINER_MIN[crop.id] !== undefined
+      && (crop.sowingMonths[zone] ?? []).includes(month)
+    ) ?? CROPS.find((crop) => CROP_DIFFICULTY[crop.id] === 'easy');
+  }, [zone]);
 
   const hasFilters = Boolean(search.trim() || catFilter || diffFilter || containerOnly);
 
@@ -236,13 +244,76 @@ export default function CatalogScreen() {
                   flexDirection: 'row', alignItems: 'center', gap: 5,
                 }]}
               >
-                <Text style={{ fontSize: 12 }}>🪴</Text>
+                <Ionicons name="flower-outline" size={15} color={containerOnly ? colors.background : colors.textSecondary} />
                 <Text style={[s.chipText, { color: containerOnly ? colors.background : colors.textSecondary }]}>
                   {t('catalog.containerFilter')}
                 </Text>
               </Pressable>
             </View>
           </ScrollView>
+        </View>
+
+        {!hasFilters && recommendedCrop && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('catalog.recommended', { defaultValue: 'Cultivo recomendado para principiantes' })}
+            onPress={() => goToCrop(recommendedCrop.id)}
+            style={({ pressed }) => ({ opacity: pressed ? 0.82 : 1 })}
+          >
+            <Card padded={false} style={s.recommendationCard}>
+              <View style={s.recommendationImageWrap}>
+                {CROP_IMAGES[recommendedCrop.id] && (
+                  <Image
+                    source={{ uri: CROP_IMAGES[recommendedCrop.id] }}
+                    style={s.recommendationImage}
+                    resizeMode="cover"
+                  />
+                )}
+                <View style={[s.recommendationBadge, { backgroundColor: colors.surface }]}>
+                  <Ionicons name="checkmark-circle" size={14} color={colors.primary} />
+                  <Text style={[s.recommendationBadgeText, { color: colors.primary }]}>
+                    {t('catalog.recommended', { defaultValue: 'Recomendado principiante' })}
+                  </Text>
+                </View>
+              </View>
+              <View style={s.recommendationContent}>
+                <Text style={[s.recommendationTitle, { color: colors.text }]}>
+                  {t(`crops.${recommendedCrop.id}.name`, { defaultValue: recommendedCrop.name })}
+                </Text>
+                <Text style={[s.recommendationSubtitle, { color: colors.textSecondary }]} numberOfLines={2}>
+                  {t('catalog.recommendedDesc', { defaultValue: 'Una elección sencilla para empezar a cultivar en maceta.' })}
+                </Text>
+                <View style={s.recommendationMetaRow}>
+                  <View style={s.metaItem}>
+                    <Ionicons name="sunny-outline" size={14} color={colors.textSecondary} />
+                    <Text style={[s.recommendationMeta, { color: colors.textSecondary }]}>{t(`catalog.sun.${recommendedCrop.sunNeeds}`)}</Text>
+                  </View>
+                  <View style={s.metaItem}>
+                    <Ionicons name="flower-outline" size={14} color={colors.textSecondary} />
+                    <Text style={[s.recommendationMeta, { color: colors.textSecondary }]}>{CROP_CONTAINER_MIN[recommendedCrop.id]} L</Text>
+                  </View>
+                  <View style={s.metaItem}>
+                    <Ionicons name="calendar-outline" size={14} color={colors.textSecondary} />
+                    <Text style={[s.recommendationMeta, { color: colors.textSecondary }]}>{recommendedCrop.daysToHarvest[0]}–{recommendedCrop.daysToHarvest[1]} d</Text>
+                  </View>
+                </View>
+                <View style={s.recommendationCta}>
+                  <Text style={[s.recommendationCtaText, { color: colors.primary }]}>{t('catalog.viewDetails', { defaultValue: 'Ver ficha del cultivo' })}</Text>
+                  <Ionicons name="arrow-forward" size={16} color={colors.primary} />
+                </View>
+              </View>
+            </Card>
+          </Pressable>
+        )}
+
+        <View style={[s.wateringRule, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+          <View style={[s.wateringRuleIcon, { backgroundColor: colors.accent }]}>
+            <Ionicons name="finger-print-outline" size={19} color={colors.text} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.wateringRuleTitle, { color: colors.text }]}>{t('catalog.wateringRuleTitle', { defaultValue: 'Regla preventiva del riego' })}</Text>
+            <Text style={[s.wateringRuleText, { color: colors.textSecondary }]}>{t('catalog.wateringRule', { defaultValue: 'No riegues por calendario: introduce un dedo 2 cm en el sustrato y actúa solo si está seco.' })}</Text>
+          </View>
         </View>
 
         <View style={s.resultSummary}>
@@ -338,7 +409,7 @@ export default function CatalogScreen() {
                       </Text>
                     </View>
                     <Text style={[s.metaLine, { color: colors.textSecondary }]}>
-                      {SUN_EMOJI[crop.sunNeeds]} · {WATER_EMOJI[crop.waterNeeds]} · 🗓 {crop.daysToHarvest[0]}–{crop.daysToHarvest[1]}d{isPotFriendly ? ` · 🪴${containerMin}L` : ''}
+                      <Ionicons name="sunny-outline" size={13} color={colors.textSecondary} /> · <Ionicons name="water-outline" size={13} color={colors.textSecondary} /> · <Ionicons name="calendar-outline" size={13} color={colors.textSecondary} /> {crop.daysToHarvest[0]}–{crop.daysToHarvest[1]}d{isPotFriendly ? <> · <Ionicons name="flower-outline" size={13} color={colors.textSecondary} />{containerMin}L</> : null}
                     </Text>
                   </View>
                   <Ionicons
@@ -394,21 +465,21 @@ export default function CatalogScreen() {
                     <View style={[s.detailRow, { marginTop: spacing.md }]}>
                       <View style={[s.detailChip, { backgroundColor: colors.surfaceAlt }]}>
                         <Text style={[s.detailTxt, { color: colors.textSecondary }]}>
-                          {SUN_EMOJI[crop.sunNeeds]} {t(`catalog.sun.${crop.sunNeeds}`)}
+                          <Ionicons name="sunny-outline" size={14} color={colors.textSecondary} /> {t(`catalog.sun.${crop.sunNeeds}`)}
                         </Text>
                       </View>
                       <View style={[s.detailChip, { backgroundColor: colors.surfaceAlt }]}>
                         <Text style={[s.detailTxt, { color: colors.textSecondary }]}>
-                          {t(`catalog.water.${crop.waterNeeds}`)}
+                          <Ionicons name="water-outline" size={14} color={colors.textSecondary} /> {t(`catalog.water.${crop.waterNeeds}`)}
                         </Text>
                       </View>
                       <View style={[s.detailChip, { backgroundColor: colors.surfaceAlt }]}>
-                        <Text style={[s.detailTxt, { color: colors.textSecondary }]}>📏 {crop.spacing} cm</Text>
+                        <Text style={[s.detailTxt, { color: colors.textSecondary }]}><Ionicons name="resize-outline" size={14} color={colors.textSecondary} /> {crop.spacing} cm</Text>
                       </View>
                       {isPotFriendly ? (
                         <View style={[s.detailChip, { backgroundColor: '#79554818' }]}>
                           <Text style={[s.detailTxt, { color: '#795548' }]}>
-                            🪴 {t('catalog.containerMin', { liters: containerMin })}
+                            <Ionicons name="flower-outline" size={14} color="#795548" /> {t('catalog.containerMin', { liters: containerMin })}
                           </Text>
                         </View>
                       ) : (
@@ -478,6 +549,7 @@ const makeStyles = (
       borderRadius: radii.lg,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
+      minHeight: 44,
     },
     searchInput: { flex: 1, fontSize: fontSize.md },
     chip: {
@@ -485,6 +557,8 @@ const makeStyles = (
       paddingVertical: 5,
       borderRadius: radii.full,
       borderWidth: 1.5,
+      minHeight: 44,
+      justifyContent: 'center',
     },
     chipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     resultSummary: {
@@ -504,8 +578,26 @@ const makeStyles = (
       paddingVertical: 4,
       borderRadius: radii.full,
       borderWidth: 1,
+      minHeight: 44,
     },
     clearFiltersText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    recommendationCard: { overflow: 'hidden', borderRadius: radii.xl, borderWidth: 1, borderColor: colors.border, marginBottom: spacing.md },
+    recommendationImageWrap: { height: 150, backgroundColor: colors.surfaceAlt, position: 'relative' },
+    recommendationImage: { width: '100%', height: '100%' },
+    recommendationBadge: { position: 'absolute', top: spacing.md, left: spacing.md, flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: spacing.sm, paddingVertical: 6, borderRadius: radii.full },
+    recommendationBadgeText: { fontSize: 11, fontWeight: fontWeight.bold },
+    recommendationContent: { padding: spacing.lg, gap: spacing.xs },
+    recommendationTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+    recommendationSubtitle: { fontSize: fontSize.sm, lineHeight: 19 },
+    recommendationMetaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
+    metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    recommendationMeta: { fontSize: fontSize.xs },
+    recommendationCta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.sm, minHeight: 44 },
+    recommendationCtaText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    wateringRule: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1, marginBottom: spacing.md },
+    wateringRuleIcon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+    wateringRuleTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    wateringRuleText: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
     emptyText: { textAlign: 'center', marginTop: spacing['2xl'], fontSize: fontSize.md },
     card: { gap: spacing.sm },
     cropRow: { flexDirection: 'row', alignItems: 'center' },

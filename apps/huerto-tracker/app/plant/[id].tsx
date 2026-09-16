@@ -27,7 +27,7 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CROPS_BY_ID, CATEGORY_CONFIG } from '../../src/data/crops';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 import { INDOOR_START, getSeedlingSchedule } from '../../src/data/indoorStart';
@@ -39,7 +39,7 @@ import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import { getCompanions, getIncompatible } from '../../src/data/companions';
 import { PLANT_STATUS_CONFIG, type Plant, type PlantStatus } from '../../src/models/plant';
-import { ENTRY_TYPE_CONFIG, type DiaryEntry } from '../../src/models/diary-entry';
+import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
 import { REMINDER_TYPE_CONFIG, type GardenReminder } from '../../src/models/reminder';
 import { getPestsForCrop, PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
@@ -59,12 +59,42 @@ const ALL_STATUSES: PlantStatus[] = [
   'seedling', 'transplanted', 'growing', 'flowering', 'fruiting', 'harvesting', 'finished',
 ];
 
+const PLANT_STATUS_ICONS: Record<PlantStatus, keyof typeof Ionicons.glyphMap> = {
+  seedling: 'leaf-outline',
+  transplanted: 'flower-outline',
+  growing: 'trending-up-outline',
+  flowering: 'sparkles-outline',
+  fruiting: 'nutrition-outline',
+  harvesting: 'basket-outline',
+  finished: 'checkmark-circle-outline',
+};
+
+const PEST_STATUS_ICONS = {
+  none: 'shield-checkmark-outline',
+  active: 'bug-outline',
+  treated: 'medkit-outline',
+} as const;
+
+const ENTRY_TYPE_ICONS: Record<EntryType, keyof typeof Ionicons.glyphMap> = {
+  watering: 'water-outline',
+  sowing: 'leaf-outline',
+  transplant: 'flower-outline',
+  fertilizing: 'flask-outline',
+  harvest: 'basket-outline',
+  pruning: 'cut-outline',
+  pest: 'bug-outline',
+  treatment: 'medkit-outline',
+  photo: 'camera-outline',
+  note: 'document-text-outline',
+};
+
 // Sun/water labels are now derived from t() inside the component
 
 export default function PlantDetailScreen() {
   const colors = useColors();
-  const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
+  const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const plants = useCollection<Plant>('plants');
@@ -76,6 +106,7 @@ export default function PlantDetailScreen() {
   const [cropTab, setCropTab] = useState<CropTab>('overview');
   const [cropImgErr, setCropImgErr] = useState(false);
   const [shareModal, setShareModal] = useState<Omit<ShareModalProps, 'visible' | 'onClose'> | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [wateringFeedback, setWateringFeedback] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -221,6 +252,19 @@ export default function PlantDetailScreen() {
   }
   const currentStatusConfig = statusConfig ?? PLANT_STATUS_CONFIG.seedling;
 
+  function openPlantShare() {
+    if (!plant || !crop) return;
+    setShareModal({
+      title: plant.name,
+      primaryStat: t('plantStatus.' + plant.status),
+      primaryStatLabel: t('plantDetail.currentStage'),
+      secondaryStat: crop.name,
+      secondaryStatLabel: t('plantDetail.cropInfo'),
+      badgeIcon: crop.emoji,
+      eventType: 'plant_progress',
+    });
+  }
+
   async function handleStatusChange(status: PlantStatus) {
     if (plant!.status === status) {
       setShowStatusModal(false);
@@ -336,7 +380,7 @@ export default function PlantDetailScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 60 }}
+        contentContainerStyle={{ paddingBottom: 140 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
       >
         {/* Hero */}
@@ -366,14 +410,33 @@ export default function PlantDetailScreen() {
               </View>
             </View>
           )}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t('plantEdit.title')}
-            onPress={() => router.push(`/plant/edit?id=${id}`)}
-            style={({ pressed }) => [s.editBtn, { opacity: pressed ? 0.72 : 1, transform: [{ scale: pressed ? 0.96 : 1 }] }]}
-          >
-            <Ionicons name="pencil" size={16} color={colors.primary} />
-          </Pressable>
+          <View style={s.heroActions}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('plantDetail.favorite', { defaultValue: 'Guardar planta' })}
+              accessibilityState={{ selected: isFavorite }}
+              onPress={() => setIsFavorite((value) => !value)}
+              style={({ pressed }) => [s.heroAction, { backgroundColor: colors.surface, opacity: pressed ? 0.72 : 1 }]}
+            >
+              <Ionicons name={isFavorite ? 'heart' : 'heart-outline'} size={17} color={isFavorite ? colors.error : colors.primary} />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('plantDetail.share', { defaultValue: 'Compartir planta' })}
+              onPress={openPlantShare}
+              style={({ pressed }) => [s.heroAction, { backgroundColor: colors.surface, opacity: pressed ? 0.72 : 1 }]}
+            >
+              <Ionicons name="share-outline" size={17} color={colors.primary} />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('plantEdit.title')}
+              onPress={() => router.push(`/plant/edit?id=${id}`)}
+              style={({ pressed }) => [s.heroAction, { backgroundColor: colors.surface, opacity: pressed ? 0.72 : 1 }]}
+            >
+              <Ionicons name="pencil" size={16} color={colors.primary} />
+            </Pressable>
+          </View>
         </View>
 
         <View style={s.body}>
@@ -394,8 +457,9 @@ export default function PlantDetailScreen() {
             </View>
             {statusConfig && (
               <View style={[s.statusBadge, { backgroundColor: statusConfig.color + '22' }]}>
+                <Ionicons name={PLANT_STATUS_ICONS[plant.status]} size={15} color={statusConfig.color} />
                 <Text style={[s.statusText, { color: statusConfig.color }]}>
-                  {statusConfig.emoji} {t(isSeedPlan(plant) ? 'dailyCare.planStatus' : 'plantStatus.' + plant.status)}
+                  {t(isSeedPlan(plant) ? 'dailyCare.planStatus' : 'plantStatus.' + plant.status)}
                 </Text>
               </View>
             )}
@@ -467,7 +531,7 @@ export default function PlantDetailScreen() {
                           borderColor: isCurrent ? cfg.color : isDone ? colors.primary + '55' : colors.border,
                         }}>
                           <Text style={{ fontSize: isCurrent ? 15 : 12, opacity: isDone ? 0.5 : 1 }}>
-                            {cfg.emoji}
+                            <Ionicons name={PLANT_STATUS_ICONS[st]} size={isCurrent ? 15 : 13} color={isCurrent ? cfg.color : colors.textSecondary} />
                           </Text>
                         </View>
                       </React.Fragment>
@@ -521,7 +585,7 @@ export default function PlantDetailScreen() {
           {/* Notes */}
           {plant.notes && (
             <View style={[s.notesCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-              <Text style={s.notesEmoji}>📝</Text>
+              <Ionicons name="document-text-outline" size={18} color={colors.textSecondary} />
               <Text style={[s.notesText, { color: colors.text }]}>{plant.notes}</Text>
             </View>
           )}
@@ -560,7 +624,7 @@ export default function PlantDetailScreen() {
                     backgroundColor: isReady ? colors.success + '15' : colors.primary + '12',
                     borderColor: isReady ? colors.success : colors.primary,
                   }]}>
-                    <Text style={{ fontSize: 16 }}>🧺</Text>
+                    <Ionicons name="basket-outline" size={18} color={isReady ? colors.success : colors.primary} />
                     <Text style={[s.harvestEstText, { color: isReady ? colors.success : colors.primary }]}>
                       {isReady
                         ? t('plantDetail.harvestReadyNow')
@@ -582,7 +646,7 @@ export default function PlantDetailScreen() {
               <Card padded style={s.statusOverviewCard}>
                 <View style={s.statusOverviewHeader}>
                   <View style={[s.statusOverviewIcon, { backgroundColor: currentStatusConfig.color + '20', borderColor: currentStatusConfig.color }]}>
-                    <Text style={{ fontSize: 20 }}>{currentStatusConfig.emoji}</Text>
+                    <Ionicons name={PLANT_STATUS_ICONS[plant.status]} size={20} color={currentStatusConfig.color} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={[s.statusOverviewEyebrow, { color: colors.textSecondary }]}>{t('plantDetail.currentStage')}</Text>
@@ -621,7 +685,7 @@ export default function PlantDetailScreen() {
                 onPress={() => setShowTransplantModal(true)}
                 style={[s.transplantCta, { backgroundColor: colors.success + '15', borderColor: colors.success }]}
               >
-                <Text style={{ fontSize: 24 }}>🪴</Text>
+                <Ionicons name="flower-outline" size={23} color={colors.success} />
                 <View style={{ flex: 1 }}>
                   <Text style={[s.transplantCtaTitle, { color: colors.primaryDark }]}>
                     {t('plantDetail.transplantCta')}
@@ -647,14 +711,14 @@ export default function PlantDetailScreen() {
             return (
               <View style={[{ borderRadius: radii.md, borderWidth: 1.5, padding: spacing.md, marginBottom: spacing.md, borderColor: colors.primary + '44', backgroundColor: colors.primary + '08' }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md }}>
-                  <Text style={{ fontSize: 18 }}>🌱</Text>
+                  <Ionicons name="leaf-outline" size={18} color={colors.primary} />
                   <Text style={[s.transplantCtaTitle, { color: colors.text }]}>{t('plantDetail.seedlingGuide')}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 0 }}>
                   {[
-                    { emoji: '🏠', labelKey: 'plantDetail.indoorStart', date: schedule.indoorStart, done: hardeningPast },
-                    { emoji: '☀️', labelKey: 'plantDetail.hardening', date: schedule.hardeningStart, done: transplantPast },
-                    { emoji: '🪴', labelKey: 'plantDetail.transplantOut', date: schedule.transplant, done: transplantPast },
+                    { icon: 'home-outline' as keyof typeof Ionicons.glyphMap, labelKey: 'plantDetail.indoorStart', date: schedule.indoorStart, done: hardeningPast },
+                    { icon: 'sunny-outline' as keyof typeof Ionicons.glyphMap, labelKey: 'plantDetail.hardening', date: schedule.hardeningStart, done: transplantPast },
+                    { icon: 'flower-outline' as keyof typeof Ionicons.glyphMap, labelKey: 'plantDetail.transplantOut', date: schedule.transplant, done: transplantPast },
                   ].map((step, idx, arr) => (
                     <React.Fragment key={step.labelKey}>
                       <View style={{ alignItems: 'center', flex: 1 }}>
@@ -665,7 +729,7 @@ export default function PlantDetailScreen() {
                           borderWidth: 1.5,
                           borderColor: step.done ? colors.primary : colors.border,
                         }]}>
-                          <Text style={{ fontSize: 14 }}>{step.emoji}</Text>
+                          <Ionicons name={step.icon} size={18} color={step.done ? colors.primary : colors.textSecondary} />
                         </View>
                         <Text style={{ fontSize: 9, color: colors.textSecondary, textAlign: 'center', marginTop: 4, fontWeight: fontWeight.semibold }}>
                           {t(step.labelKey)}
@@ -695,7 +759,7 @@ export default function PlantDetailScreen() {
               const days = Math.floor((Date.now() - new Date(plant.germinationDate + 'T12:00:00').getTime()) / 86_400_000);
               return (
                 <View style={[s.transplantCta, { backgroundColor: colors.success + '10', borderColor: colors.success + '50', marginBottom: spacing.md }]}>
-                  <Text style={{ fontSize: 20 }}>🌿</Text>
+                  <Ionicons name="leaf-outline" size={20} color={colors.primary} />
                   <View style={{ flex: 1 }}>
                     <Text style={[s.transplantCtaTitle, { color: colors.primaryDark }]}>{t('plantDetail.germinatedTitle')}</Text>
                     <Text style={[s.transplantCtaDesc, { color: colors.textSecondary }]}>
@@ -715,7 +779,7 @@ export default function PlantDetailScreen() {
                 }}
                 style={[s.transplantCta, { backgroundColor: colors.warning + '10', borderColor: colors.warning + '50', marginBottom: spacing.md }]}
               >
-                <Text style={{ fontSize: 20 }}>🌰</Text>
+                <Ionicons name="leaf-outline" size={20} color={colors.warning} />
                 <View style={{ flex: 1 }}>
                   <Text style={[s.transplantCtaTitle, { color: colors.warning }]}>{t('plantDetail.germinationQ')}</Text>
                   <Text style={[s.transplantCtaDesc, { color: colors.textSecondary }]}>
@@ -731,7 +795,7 @@ export default function PlantDetailScreen() {
           {(plant.soilPh || plant.soilTexture || plant.soilNotes || plant.bedName) && (
             <Card padded style={[s.infoCard, { marginBottom: spacing.lg }] as unknown as ViewStyle}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm }}>
-                <Text style={{ fontSize: 16 }}>🌍</Text>
+                <Ionicons name="earth-outline" size={18} color={colors.primary} />
                 <Text style={[s.sectionTitle, { color: colors.text, marginTop: 0, marginBottom: 0 }]}>{t('plantDetail.soilSection')}</Text>
               </View>
               <View style={s.infoGrid}>
@@ -741,7 +805,7 @@ export default function PlantDetailScreen() {
               </View>
               {plant.soilNotes ? (
                 <View style={[s.tipBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-                  <Text style={[s.tipText, { color: colors.textSecondary }]}>📝 {plant.soilNotes}</Text>
+                  <Text style={[s.tipText, { color: colors.textSecondary }]}><Ionicons name="document-text-outline" size={14} color={colors.textSecondary} /> {plant.soilNotes}</Text>
                 </View>
               ) : null}
               {plant.bedName && (
@@ -820,7 +884,7 @@ export default function PlantDetailScreen() {
               </View>
               <View style={[s.tipBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
                 <Text style={[s.tipText, { color: colors.textSecondary }]}>
-                  💡 {crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips', { defaultValue: crop.tips })}
+                  <Ionicons name="bulb-outline" size={14} color={colors.secondary} /> {crop.isCustom ? crop.tips : t('crops.' + crop.id + '.tips', { defaultValue: crop.tips })}
                 </Text>
               </View>
             </Card>
@@ -847,7 +911,7 @@ export default function PlantDetailScreen() {
               {companions.length > 0 && (
                 <>
                   <View style={s.companionsHeader}>
-                    <Text style={{ fontSize: 18 }}>✅</Text>
+                    <Ionicons name="checkmark-circle-outline" size={18} color={colors.primary} />
                     <Text style={[s.companionsTitle, { color: colors.primaryDark }]}>
                       {t('plantDetail.goodNeighbors')}
                     </Text>
@@ -875,7 +939,7 @@ export default function PlantDetailScreen() {
               {incompatibles.length > 0 && (
                 <>
                   <View style={[s.companionsHeader, { marginTop: spacing.lg }]}>
-                    <Text style={{ fontSize: 18 }}>⛔</Text>
+                    <Ionicons name="close-circle-outline" size={18} color={colors.error} />
                     <Text style={[s.companionsTitle, { color: colors.error }]}>
                       {t('plantDetail.badNeighbors')}
                     </Text>
@@ -969,7 +1033,7 @@ export default function PlantDetailScreen() {
               backgroundColor: treatmentCarencia.daysLeft > 0 ? colors.error + '18' : colors.success + '18',
               borderColor: treatmentCarencia.daysLeft > 0 ? colors.error : colors.success,
             }]}>
-              <Text style={{ fontSize: 22 }}>🧴</Text>
+              <Ionicons name="beaker-outline" size={22} color={treatmentCarencia.daysLeft > 0 ? colors.error : colors.success} />
               <View style={{ flex: 1 }}>
                 <Text style={[s.harvestSummaryTitle, { color: treatmentCarencia.daysLeft > 0 ? colors.error : colors.success }]}>
                   {treatmentCarencia.daysLeft > 0
@@ -989,7 +1053,7 @@ export default function PlantDetailScreen() {
           {/* Harvest summary + goal progress */}
           {harvestSummary && (
             <View style={[s.harvestSummaryCard, { backgroundColor: colors.warning + '18', borderColor: colors.warning }]}>
-              <Text style={{ fontSize: 22 }}>🧺</Text>
+               <Ionicons name="basket-outline" size={22} color={colors.warning} />
               <View style={{ flex: 1 }}>
                 <Text style={[s.harvestSummaryTitle, { color: colors.warning }]}>
                   {t('plantDetail.harvestSummary', { count: harvestSummary.count })}
@@ -997,12 +1061,12 @@ export default function PlantDetailScreen() {
                 <View style={{ flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap', marginTop: 2 }}>
                   {harvestSummary.totalKg !== null && (
                     <Text style={[s.harvestSummaryValue, { color: colors.text }]}>
-                      ⚖️ {harvestSummary.totalKg.toFixed(2)} kg
+                      <Ionicons name="scale-outline" size={14} color={colors.text} /> {harvestSummary.totalKg.toFixed(2)} kg
                     </Text>
                   )}
                   {harvestSummary.totalUnits !== null && (
                     <Text style={[s.harvestSummaryValue, { color: colors.text }]}>
-                      🔢 {Math.round(harvestSummary.totalUnits)} {t('plantDetail.units')}
+                      <Ionicons name="layers-outline" size={14} color={colors.text} /> {Math.round(harvestSummary.totalUnits)} {t('plantDetail.units')}
                     </Text>
                   )}
                 </View>
@@ -1014,7 +1078,7 @@ export default function PlantDetailScreen() {
                       </Text>
                       <Text style={[s.harvestSummaryValue, { color: harvestSummary.totalKg >= plant.harvestGoalKg ? colors.success : colors.warning }]}>
                         {harvestSummary.totalKg.toFixed(1)} / {plant.harvestGoalKg} kg
-                        {harvestSummary.totalKg >= plant.harvestGoalKg ? ' 🎉' : ''}
+                        {harvestSummary.totalKg >= plant.harvestGoalKg ? ' ✓' : ''}
                       </Text>
                     </View>
                     <View style={[s.goalBarTrack, { backgroundColor: colors.border }]}>
@@ -1089,14 +1153,14 @@ export default function PlantDetailScreen() {
                     s.diaryEntryCard,
                     {
                       backgroundColor: colors.surface,
-                      borderLeftColor: cfg.color,
+                       borderColor: colors.border,
                       opacity: pressed ? 0.92 : 1,
                       transform: [{ scale: pressed ? 0.99 : 1 }],
                     },
                   ]}
                 >
                   <View style={[s.entryIcon, { backgroundColor: cfg.color + '20' }]}>
-                    <Text style={{ fontSize: 18 }}>{cfg.emoji}</Text>
+                    <Ionicons name={ENTRY_TYPE_ICONS[entry.type]} size={18} color={cfg.color} />
                   </View>
                   <View style={{ flex: 1, marginLeft: spacing.md }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1121,7 +1185,7 @@ export default function PlantDetailScreen() {
             })
           ) : (
             <View style={[s.emptyDiaryCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-              <Text style={s.emptyDiaryEmoji}>🌱</Text>
+              <Ionicons name="leaf-outline" size={24} color={colors.primary} />
               <View style={{ flex: 1 }}>
                 <Text style={[s.emptyDiaryTitle, { color: colors.text }]}>{t('plantDetail.emptyDiaryTitle')}</Text>
                 <Text style={[s.emptyText, { color: colors.textSecondary, textAlign: 'left', marginVertical: spacing.xs }]}>
@@ -1154,7 +1218,7 @@ export default function PlantDetailScreen() {
             }
             style={[s.identifyBtn, { backgroundColor: colors.warning + '15', borderColor: colors.warning }]}
           >
-            <Text style={{ fontSize: 22 }}>📸</Text>
+            <Ionicons name="camera-outline" size={22} color={colors.warning} />
             <View style={{ flex: 1 }}>
               <Text style={[s.identifyBtnTitle, { color: colors.warning }]}>{t('identify.title')}</Text>
               <Text style={[s.identifyBtnSub, { color: colors.textSecondary }]}>
@@ -1187,7 +1251,7 @@ export default function PlantDetailScreen() {
                       },
                     ]}
                   >
-                    <Text style={{ fontSize: 16 }}>{cfg.emoji}</Text>
+                    <Ionicons name={PEST_STATUS_ICONS[status]} size={17} color={isActive ? cfg.color : colors.textSecondary} />
                     <Text style={[s.pestStatusLabel, { color: isActive ? cfg.color : colors.textSecondary }]}>
                       {t('pestStatus.' + status)}
                     </Text>
@@ -1321,7 +1385,7 @@ export default function PlantDetailScreen() {
 
           {/* Succession sowing */}
           <Pressable onPress={handleSuccessionSow} style={[s.duplicateBtn, { backgroundColor: colors.success + '12', borderColor: colors.success + '44', borderWidth: 1, borderRadius: radii.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md }]}>
-            <Text style={{ fontSize: 16 }}>🌱</Text>
+            <Ionicons name="leaf-outline" size={18} color={colors.success} />
             <View style={{ flex: 1 }}>
               <Text style={[s.duplicateText, { color: colors.success }]}>{t('plantDetail.successionSow')}</Text>
               <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary }}>{t('plantDetail.successionSowDesc')}</Text>
@@ -1343,6 +1407,15 @@ export default function PlantDetailScreen() {
         </View>
       </ScrollView>
 
+      <View style={[s.stickyActionBar, { backgroundColor: colors.background, borderTopColor: colors.border, paddingBottom: insets.bottom + spacing.sm }]}>
+        <Button
+          title={t('plantDetail.notePhotoAction', { defaultValue: 'Anotar observación o foto de hoy' })}
+          size="lg"
+          onPress={() => router.push(`/entry/new?plantId=${id}`)}
+          style={{ flex: 1 }}
+        />
+      </View>
+
       {/* Status picker */}
       <Modal visible={showStatusModal} transparent animationType="slide" onRequestClose={() => setShowStatusModal(false)}>
         <Pressable style={s.modalOverlay} onPress={() => setShowStatusModal(false)}>
@@ -1362,7 +1435,7 @@ export default function PlantDetailScreen() {
                     style={({ pressed }) => [s.statusOption, { backgroundColor: active ? cfg.color + '16' : colors.surfaceAlt, borderColor: active ? cfg.color : colors.border, opacity: pressed ? 0.75 : 1 }]}
                   >
                     <View style={[s.statusOptionIcon, { backgroundColor: active ? cfg.color + '25' : colors.surface, borderColor: active ? cfg.color : colors.border }]}>
-                      <Text style={{ fontSize: 18 }}>{cfg.emoji}</Text>
+                       <Ionicons name={PLANT_STATUS_ICONS[status]} size={18} color={active ? cfg.color : colors.textSecondary} />
                     </View>
                     <Text style={[s.statusOptionText, { color: active ? cfg.color : colors.text }]}>{t('plantStatus.' + status)}</Text>
                     {active && <Ionicons name="checkmark-circle" size={20} color={cfg.color} />}
@@ -1548,12 +1621,40 @@ const makeStyles = (
       alignItems: 'center',
       justifyContent: 'center',
     },
+    heroActions: {
+      zIndex: 1,
+      position: 'absolute',
+      top: spacing.lg,
+      right: spacing.lg,
+      flexDirection: 'row',
+      gap: spacing.xs,
+    },
+    heroAction: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    stickyActionBar: {
+      position: 'absolute',
+      right: 0,
+      bottom: 0,
+      left: 0,
+      flexDirection: 'row',
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+      borderTopWidth: StyleSheet.hairlineWidth,
+    },
     body: { padding: spacing.xl },
     titleRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: spacing.sm },
     cropEyebrow: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, marginBottom: 3 },
     plantName: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
     variety: { fontSize: fontSize.sm, marginTop: 2 },
     statusBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
       paddingHorizontal: spacing.md,
       paddingVertical: 4,
       borderRadius: radii.full,
@@ -1661,16 +1762,15 @@ const makeStyles = (
       flexDirection: 'row',
       alignItems: 'flex-start',
       borderRadius: radii.lg,
-      borderLeftWidth: 3,
+      borderWidth: 1,
       marginBottom: spacing.sm,
       padding: spacing.md,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.06,
-      shadowRadius: 4,
-      elevation: 2,
+      ...Platform.select({
+        web: { boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.06)' },
+        default: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+      }),
     },
-    entryIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+    entryIcon: { width: 38, height: 38, borderRadius: radii.md, alignItems: 'center', justifyContent: 'center' },
     entryThumb: { width: 44, height: 44, borderRadius: radii.sm, marginLeft: spacing.sm },
     emptyText: { fontSize: fontSize.sm, textAlign: 'center', marginVertical: spacing.md },
     actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xl },
@@ -1700,7 +1800,7 @@ const makeStyles = (
     pestTreatedState: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.md, borderWidth: 1 },
     pestTreatedTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     pestTreatedBody: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
-    pestCompleteButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing.sm, borderWidth: 1, borderRadius: radii.sm },
+    pestCompleteButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.sm, borderWidth: 1, borderRadius: radii.sm },
     pestCompleteButtonText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
     pestSummary: { flexDirection: 'row', gap: spacing.md, padding: spacing.md, borderRadius: radii.md, borderWidth: 1 },
     pestSummaryLabel: { fontSize: 10, fontWeight: fontWeight.semibold, textTransform: 'uppercase', letterSpacing: 0.4 },
@@ -1999,28 +2099,4 @@ const makeStyles = (
       marginTop: spacing.xs,
     },
     harvestEstText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    fab: {
-      position: 'absolute',
-      bottom: 24,
-      right: 24,
-      width: 56,
-      height: 56,
-      borderRadius: 28,
-      alignItems: 'center',
-      justifyContent: 'center',
-      elevation: 6,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.3,
-      shadowRadius: 6,
-    },
-    fabFeedback: {
-      position: 'absolute',
-      bottom: 90,
-      right: 16,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: radii.full,
-      elevation: 4,
-    },
   });

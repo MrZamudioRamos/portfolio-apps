@@ -1,11 +1,11 @@
-import { useColors, useTheme, Card, ScreenHeader, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { usePro } from '../src/hooks/usePro';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Animated, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Animated, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../src/data/crops';
 import type { DiaryEntry, EntryType } from '../src/models/diary-entry';
@@ -14,6 +14,7 @@ import type { Plant } from '../src/models/plant';
 import { buildGamificationData, evaluateBadges, sortBadges, getUnlockedCount, TIER_COLORS } from '../src/utils/gamification';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../src/hooks/useCustomCrops';
+import { CollectionError } from '../src/components/CollectionError';
 
 const BAR_MAX_H = 72;
 
@@ -65,7 +66,11 @@ export default function StatsScreen() {
     }
   }
 
-  useFocusEffect(useCallback(() => { refreshActiveId(); plants.refresh(); entries.refresh(); }, []));
+  useFocusEffect(useCallback(() => {
+    void refreshActiveId().catch(() => {});
+    void plants.refresh().catch(() => {});
+    void entries.refresh().catch(() => {});
+  }, []));
   const { customCropsById } = useCustomCrops();
 
   const gardenId = activeGarden?.id;
@@ -193,6 +198,10 @@ export default function StatsScreen() {
 
     // Water stats
     const wateringEntries = allEntries.filter((e) => e.type === 'watering');
+    const soilCheckEntries = allEntries.filter(
+      (e) => e.type === 'watering' || (e.type === 'note' && (e.data as any)?.soilCheck === 'moist' || e.type === 'note' && (e.data as any)?.soilCheck === 'dry')
+    );
+    const moistSoilChecks = allEntries.filter((e) => e.type === 'note' && (e.data as any)?.soilCheck === 'moist').length;
     const totalLiters = wateringEntries.reduce((sum, e) => {
       const l = (e.data as any)?.liters;
       const parsed = typeof l === 'string' ? parseFloat(l) : typeof l === 'number' ? l : 0;
@@ -223,6 +232,10 @@ export default function StatsScreen() {
       totalLiters: totalLiters > 0 ? totalLiters : null,
       litersPerKg,
       avgQuality,
+      soilChecks: soilCheckEntries.length,
+      moistSoilChecks,
+      healthyPlants: allPlants.filter((plant) => plant.pestStatus !== 'active').length,
+      activePlants: allPlants.filter((plant) => plant.status !== 'finished').length,
     };
   }, [entries.items, plants.items, i18n.language, activeGarden?.id, customCropsById]);
 
@@ -255,27 +268,124 @@ export default function StatsScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
-      {/* Header */}
-      <ScreenHeader title={t('stats.title')} onBack={() => router.back()} />
+      <View style={[s.statsHeader, { borderBottomColor: colors.border }]}>
+        <View style={s.statsHeaderRow}>
+          <Pressable onPress={() => router.back()} hitSlop={12} style={s.statsBackButton}>
+            <Ionicons name="arrow-back" size={20} color={colors.primary} />
+            <Text style={[s.statsBackText, { color: colors.primary }]}>Volver a Mi Huerto</Text>
+          </Pressable>
+          <View style={s.statsHeaderActions}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Compartir estadísticas" hitSlop={8}>
+              <Ionicons name="share-outline" size={19} color={colors.primary} />
+            </Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="Filtrar por período" hitSlop={8}>
+              <Ionicons name="options-outline" size={20} color={colors.primary} />
+            </Pressable>
+          </View>
+        </View>
+        <Text style={[s.statsHeaderTitle, { color: colors.text }]}>Estadísticas y Cosechas</Text>
+      </View>
+
+      {(plants.loading || entries.loading) && plants.items.length === 0 && entries.items.length === 0 && (
+        <View style={{ alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.lg }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+          <ActivityIndicator color={colors.primary} />
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+        </View>
+      )}
+
+      {(plants.error || entries.error) && (
+        <View style={{ paddingHorizontal: spacing.xl, marginBottom: spacing.md }}>
+          <CollectionError onRetry={() => Promise.all([plants.refresh(), entries.refresh()]).catch(() => {})} />
+        </View>
+      )}
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={s.scroll}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
       >
+        <View style={s.statsFilterRow}>
+          <View style={[s.statsChip, { backgroundColor: colors.primary + '14', borderColor: colors.primary + '40' }]}>
+            <Ionicons name="calendar-outline" size={14} color={colors.primary} />
+            <Text style={[s.statsChipText, { color: colors.primary }]}>Mis Datos (Mayo 2025)</Text>
+          </View>
+          <View style={[s.statsChip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="leaf-outline" size={14} color={colors.textSecondary} />
+            <Text style={[s.statsChipText, { color: colors.textSecondary }]}>Huerto Nuevo</Text>
+          </View>
+        </View>
+        <View style={[s.companionCallout, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+          <View style={[s.companionAvatar, { backgroundColor: colors.primary + '20' }]}>
+            <Ionicons name="leaf" size={18} color={colors.primary} />
+          </View>
+          <Text style={[s.companionText, { color: colors.text }]}>Semillita: cada dato cuenta para cuidar mejor tu huerto.</Text>
+        </View>
+        <View style={[s.statsHero, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={s.statsHeroTop}>
+            <View style={[s.statsHeroIcon, { backgroundColor: colors.primary + '18' }]}>
+              <Ionicons name="leaf-outline" size={24} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={s.statsHeroTitleRow}>
+                <Text style={[s.statsHeroEyebrow, { color: colors.primary }]}>
+                  {t('stats.stitchEyebrow', { defaultValue: isPro ? 'Semilla Tracker Pro' : 'Semilla Tracker' })}
+                </Text>
+                {isPro && <Ionicons name="sparkles" size={16} color={colors.primary} />}
+              </View>
+              <Text style={[s.statsHeroTitle, { color: colors.text }]}>
+                {t('stats.stitchHeading', { defaultValue: 'Estadísticas y cosechas' })}
+              </Text>
+              <Text style={[s.statsHeroDesc, { color: colors.textSecondary }]}>
+                {t('stats.stitchDesc', { defaultValue: 'Evolución de salud, rachas de diagnóstico y cosechas de tu huerto.' })}
+              </Text>
+            </View>
+          </View>
+          <View style={[s.statsCallout, { backgroundColor: colors.primary + '10', borderColor: colors.primary + '35' }]}>
+            <Ionicons name="finger-print-outline" size={18} color={colors.primary} />
+            <Text style={[s.statsCalloutText, { color: colors.text }]}>
+              {stats.moistSoilChecks > 0
+                ? t('stats.stitchCalloutSaved', { defaultValue: `Has esperado antes de regar ${stats.moistSoilChecks} ${stats.moistSoilChecks === 1 ? 'vez' : 'veces'} gracias al tacto a 2 cm.` })
+                : t('stats.stitchCallout', { defaultValue: 'Cada comprobación a 2 cm convierte el cuidado en una decisión consciente.' })}
+            </Text>
+          </View>
+        </View>
+
+        <View style={s.stitchKpiGrid}>
+          <View style={[s.stitchKpi, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="flame-outline" size={21} color={colors.secondary} />
+            <Text style={[s.stitchKpiValue, { color: colors.text }]}>{stats.streak}</Text>
+            <Text style={[s.stitchKpiLabel, { color: colors.textSecondary }]}>Racha Verde</Text>
+          </View>
+          <View style={[s.stitchKpi, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="finger-print-outline" size={21} color={colors.primary} />
+            <Text style={[s.stitchKpiValue, { color: colors.text }]}>{stats.totalLiters !== null ? `${Math.round(stats.totalLiters)} L` : '—'}</Text>
+            <Text style={[s.stitchKpiLabel, { color: colors.textSecondary }]}>Agua Ahorrada</Text>
+          </View>
+          <View style={[s.stitchKpi, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="heart-outline" size={21} color={colors.primary} />
+            <Text style={[s.stitchKpiValue, { color: colors.text }]}>{stats.healthyPlants}/{stats.activePlants || stats.healthyPlants}</Text>
+            <Text style={[s.stitchKpiLabel, { color: colors.textSecondary }]}>Macetas Sanas</Text>
+          </View>
+          <View style={[s.stitchKpi, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="basket-outline" size={21} color={colors.accent} />
+            <Text style={[s.stitchKpiValue, { color: colors.text }]}>{stats.totalWeight !== null ? `${stats.totalWeight.toFixed(1)} kg` : '—'}</Text>
+            <Text style={[s.stitchKpiLabel, { color: colors.textSecondary }]}>Cosechas Totales</Text>
+          </View>
+        </View>
+
         {/* Key stats */}
-        <View style={s.keyStatsGrid}>
-          <KeyStat emoji="📓" value={stats.totalEntries} label={t('stats.entries')} colors={colors} s={s} />
-          <KeyStat emoji="🧺" value={stats.totalHarvests} label={t('stats.harvests')} colors={colors} s={s} />
+        <View style={[s.keyStatsGrid, { display: 'none' }]}>
+          <KeyStat icon="book-outline" value={stats.totalEntries} label={t('stats.entries')} colors={colors} s={s} />
+          <KeyStat icon="basket-outline" value={stats.totalHarvests} label={t('stats.harvests')} colors={colors} s={s} />
           <KeyStat
-            emoji="⚡"
+            icon="flame-outline"
             value={stats.streak}
             label={t('stats.activeDays', { count: stats.streak })}
             colors={colors}
             s={s}
           />
           <KeyStat
-            emoji="⚖️"
+            icon="bar-chart-outline"
             value={stats.totalWeight !== null ? `${stats.totalWeight.toFixed(2)} kg` : '—'}
             label={t('stats.harvested')}
             colors={colors}
@@ -283,7 +393,7 @@ export default function StatsScreen() {
           />
           {stats.successRate !== null && (
             <KeyStat
-              emoji="🏆"
+              icon="trophy-outline"
               value={`${stats.successRate}%`}
               label={t('stats.successRate')}
               colors={colors}
@@ -292,7 +402,7 @@ export default function StatsScreen() {
           )}
           {stats.avgDays !== null && (
             <KeyStat
-              emoji="⏱️"
+              icon="time-outline"
               value={`${stats.avgDays}d`}
               label={t('stats.avgDaysToHarvest')}
               colors={colors}
@@ -301,7 +411,7 @@ export default function StatsScreen() {
           )}
           {stats.totalLiters !== null && (
             <KeyStat
-              emoji="🪣"
+              icon="water-outline"
               value={`${Math.round(stats.totalLiters)} L`}
               label={t('stats.totalLiters')}
               colors={colors}
@@ -310,7 +420,7 @@ export default function StatsScreen() {
           )}
           {stats.litersPerKg !== null && (
             <KeyStat
-              emoji="💧"
+              icon="water-outline"
               value={`${Math.round(stats.litersPerKg)} L/kg`}
               label={t('stats.litersPerKg')}
               colors={colors}
@@ -319,7 +429,7 @@ export default function StatsScreen() {
           )}
           {stats.avgQuality !== null && (
             <KeyStat
-              emoji="⭐"
+              icon="star-outline"
               value={stats.avgQuality.toFixed(1)}
               label={t('stats.avgQuality')}
               colors={colors}
@@ -527,9 +637,11 @@ export default function StatsScreen() {
                   },
                 ]}
               >
-                <Text style={[s.badgeEmoji, { opacity: badge.unlocked ? 1 : 0.4 }]}>
-                  {badge.unlocked ? badge.emoji : '🔒'}
-                </Text>
+                {badge.unlocked ? (
+                  <Text style={[s.badgeEmoji, { opacity: 1 }]}>{badge.emoji}</Text>
+                ) : (
+                  <Ionicons name="lock-closed-outline" size={28} color={colors.textDisabled} />
+                )}
                 <Text
                   style={[
                     s.badgeName,
@@ -550,7 +662,7 @@ export default function StatsScreen() {
             onPress={() => router.push('/paywall?source=achievements' as any)}
             style={[s.badgesGrid, { backgroundColor: colors.surfaceAlt, borderRadius: radii.lg, padding: spacing.xl, alignItems: 'center', justifyContent: 'center', minHeight: 120 }]}
           >
-            <Text style={{ fontSize: 32, marginBottom: spacing.sm }}>🏆</Text>
+            <Ionicons name="trophy-outline" size={36} color={colors.primary} style={{ marginBottom: spacing.sm }} />
             {unlockedCount > 0 && (
               <View style={[s.badgesCountBadge, { backgroundColor: colors.primary + '22', marginBottom: spacing.sm }]}>
                 <Text style={[s.badgesCountText, { color: colors.primary }]}>
@@ -574,9 +686,9 @@ export default function StatsScreen() {
 }
 
 function KeyStat({
-  emoji, value, label, colors, s,
+  icon, value, label, colors, s,
 }: {
-  emoji: string;
+  icon: keyof typeof Ionicons.glyphMap;
   value: number | string;
   label: string;
   colors: ReturnType<typeof useColors>;
@@ -584,7 +696,7 @@ function KeyStat({
 }) {
   return (
     <View style={[s.keyStat, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-      <Text style={s.keyStatEmoji}>{emoji}</Text>
+      <Ionicons name={icon} size={28} color={colors.primary} />
       <Text style={[s.keyStatValue, { color: colors.text }]}>{value}</Text>
       <Text style={[s.keyStatLabel, { color: colors.textSecondary }]}>{label}</Text>
     </View>
@@ -601,6 +713,31 @@ const makeStyles = (
   StyleSheet.create({
     container: { flex: 1 },
     scroll: { padding: spacing.xl, paddingTop: spacing.lg },
+    statsHeader: { paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, borderBottomWidth: 1, gap: spacing.xs },
+    statsHeaderRow: { minHeight: 34, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    statsBackButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, flexShrink: 1 },
+    statsBackText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    statsHeaderTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, paddingBottom: spacing.xs },
+    statsHeaderActions: { marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    statsFilterRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
+    statsChip: { minHeight: 34, flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.md, borderRadius: radii.full, borderWidth: 1 },
+    statsChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    companionCallout: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1, marginBottom: spacing.md },
+    companionAvatar: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+    companionText: { flex: 1, fontSize: fontSize.sm, lineHeight: 19 },
+    statsHero: { borderRadius: radii.xl, borderWidth: 1, overflow: 'hidden', marginBottom: spacing.md },
+    statsHeroTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, padding: spacing.lg },
+    statsHeroIcon: { width: 48, height: 48, borderRadius: radii.lg, alignItems: 'center', justifyContent: 'center' },
+    statsHeroTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    statsHeroEyebrow: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, letterSpacing: 0.3 },
+    statsHeroTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, marginTop: 2 },
+    statsHeroDesc: { fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs },
+    statsCallout: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, marginHorizontal: spacing.lg, marginBottom: spacing.lg, borderRadius: radii.md, borderWidth: 1 },
+    statsCalloutText: { flex: 1, fontSize: fontSize.sm, lineHeight: 19 },
+    stitchKpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.lg },
+    stitchKpi: { width: '48%', minHeight: 108, borderRadius: radii.lg, borderWidth: 1, padding: spacing.md, gap: 4 },
+    stitchKpiValue: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+    stitchKpiLabel: { fontSize: fontSize.xs, lineHeight: 16 },
     keyStatsGrid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
@@ -615,7 +752,6 @@ const makeStyles = (
       alignItems: 'center',
       gap: 4,
     },
-    keyStatEmoji: { fontSize: 28 },
     keyStatValue: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
     keyStatLabel: { fontSize: fontSize.xs, textAlign: 'center' },
     sectionTitle: {

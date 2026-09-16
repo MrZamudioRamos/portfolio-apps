@@ -1,4 +1,4 @@
-export { initSupabase, getSupabase } from './client';
+export { initSupabase, getSupabase, isSupabaseConfigured } from './client';
 export { pullAll, upsertAll, deleteRow, deleteAllForUser } from './sync';
 export { useSession } from './useSession';
 export type { SessionState } from './useSession';

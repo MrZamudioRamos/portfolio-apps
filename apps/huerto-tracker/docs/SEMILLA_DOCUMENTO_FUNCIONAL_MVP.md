@@ -111,8 +111,8 @@ Antes de crear nada nuevo, OpenCode debe inspeccionar y reutilizar estas piezas 
 
 | Necesidad | Piezas existentes a inspeccionar/reutilizar |
 |---|---|
-| Mascota y tono | `src/components/Mascot.tsx`, `CoachBubble.tsx`, `CoachHeader.tsx`, `SemillitaTooltip.tsx` |
-| Tours y spotlights | `CoachMark.tsx`, `SemillitaTourProvider.tsx`, `useCoachMark.ts`, `useTourAutoStart.ts`, `useCoachingLevel.ts` |
+| Mascota y tono | `src/components/Mascot.tsx`, `CoachHeader.tsx` |
+| Ayuda contextual | `PlantCareCard.tsx`, `SowNowCard.tsx`, `useCoachingLevel.ts` |
 | Activación | `ActivationChecklist.tsx`, `useActivationChecklist.ts` |
 | Éxito y tacto | `SuccessBurst.tsx`, `ScalePress.tsx` |
 | Perfil | `useUserProfile` y modelo/almacenamiento asociado |
@@ -448,28 +448,17 @@ Semillita guía acciones, reduce ansiedad y celebra avances. No debe aparecer pa
 
 ---
 
-## 11. Tours y spotlights
+## 11. Acompañamiento contextual
 
 ### Regla general
 
-Los tours enseñan solo controles que impiden avanzar. No son una visita guiada de toda la aplicación.
-
-### Tour posterior a primera planta
-
-Máximo 3 pasos, solo una vez.
-
-| Paso | Objetivo | Copy |
-|---:|---|---|
-| 1 | Card “Hoy” | “Aquí encontrarás lo único importante para tu huerto hoy.” |
-| 2 | Acción de registro rápido / QuickLog | “Cuando termines una tarea, márcala aquí. Así adapto tu plan.” |
-| 3 | Planta activa | “Toca una planta para ver sus cuidados, calendario y progreso.” |
+La experiencia Stitch no inicia overlays ni tours automáticamente. La ayuda de Semillita aparece integrada en el onboarding, las tarjetas de cuidado y las recomendaciones de principiante; `useCoachingLevel` solo regula esas sugerencias no intrusivas.
 
 ### Reglas técnicas
 
-- Reutilizar `SemillitaTourProvider`, `CoachMark`, `useCoachMark` y `useTourAutoStart`.
-- Persistir finalización por tour y no relanzar automáticamente.
-- Respetar `useCoachingLevel`; en `full`, activar; en `light`, ofrecer manualmente; en `off`, no activar.
-- Nunca más de 4 pasos en ningún tour.
+- No montar overlays spotlight sobre Hoy, Mapa, Plantas, Calendario ni formularios.
+- Respetar `useCoachingLevel` para las recomendaciones no intrusivas.
+- Mantener las tarjetas y consejos dentro del flujo principal, sin rutas de demostración separadas.
 
 ---
 
@@ -923,7 +912,7 @@ Lee primero `SEMILLA_DOCUMENTO_FUNCIONAL_MVP.md` en la raíz del repositorio y �
 Estamos trabajando en `apps/huerto-tracker`. Objetivo de esta sesión: implementar únicamente la Fase A del apartado 20, de forma incremental y sin reconstruir funcionalidad existente.
 
 Antes de editar:
-1. Lee los archivos existentes relacionados: onboarding, welcome, home tabs, Mascot, CoachBubble, useUserProfile, modelos de perfil/planta/huerto, crops/zones/containers, creación de planta y analytics.
+1. Lee los archivos existentes relacionados: onboarding, welcome, home tabs, Mascot, CoachHeader, PlantCareCard, SowNowCard, useUserProfile, modelos de perfil/planta/huerto, crops/zones/containers, creación de planta y analytics.
 2. Escribe un plan breve que indique qué componentes y rutas existentes reutilizarás.
 3. Identifica incompatibilidades entre el documento y el código actual; resuélvelas con el cambio mínimo compatible.
 

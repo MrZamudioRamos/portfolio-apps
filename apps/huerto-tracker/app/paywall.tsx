@@ -13,28 +13,37 @@ import { track, EVENTS } from '../src/analytics';
 const TRIAL_REMINDER_KEY = '@portfolio/huerto/trial_reminder_enabled';
 const TRIAL_REMINDER_NOTIF_ID = '@portfolio/huerto/trial_reminder_notif_id';
 const TRIAL_DAYS = 7;
+type PaywallIcon = keyof typeof Ionicons.glyphMap;
 
-const MAIN_FEATURE_KEYS = [
-  { emoji: '✨', key: 'paywall.features.careAutopilot' },
-  { emoji: '🏡', key: 'paywall.features.gardens' },
-  { emoji: '🌱', key: 'paywall.features.plants' },
-  { emoji: '🗺️', key: 'paywall.features.gardenMap' },
-  { emoji: '🤖', key: 'paywall.features.aiDiagnosis' },
-  { emoji: '⏰', key: 'paywall.features.reminders' },
+const MAIN_FEATURE_KEYS: Array<{ icon: PaywallIcon; key: string }> = [
+  { icon: 'sparkles-outline', key: 'paywall.features.careAutopilot' },
+  { icon: 'home-outline', key: 'paywall.features.gardens' },
+  { icon: 'leaf-outline', key: 'paywall.features.plants' },
+  { icon: 'map-outline', key: 'paywall.features.gardenMap' },
+  { icon: 'chatbubble-ellipses-outline', key: 'paywall.features.aiDiagnosis' },
+  { icon: 'notifications-outline', key: 'paywall.features.reminders' },
 ];
 
-const EXTRA_FEATURE_KEYS = [
-  { emoji: '📤', key: 'paywall.features.csvExport' },
-  { emoji: '☁️', key: 'paywall.features.backup' },
-  { emoji: '🏆', key: 'paywall.features.gamification' },
-  { emoji: '🤝', key: 'paywall.features.companions' },
+const EXTRA_FEATURE_KEYS: Array<{ icon: PaywallIcon; key: string }> = [
+  { icon: 'share-outline', key: 'paywall.features.csvExport' },
+  { icon: 'cloud-outline', key: 'paywall.features.backup' },
+  { icon: 'trophy-outline', key: 'paywall.features.gamification' },
+  { icon: 'people-outline', key: 'paywall.features.companions' },
 ];
 
-const PROMISE_KEYS = [
-  { emoji: '🗓️', key: 'paywall.promises.plan' },
-  { emoji: '🛡️', key: 'paywall.promises.protect' },
-  { emoji: '🧾', key: 'paywall.promises.keep' },
+const PROMISE_KEYS: Array<{ icon: PaywallIcon; key: string }> = [
+  { icon: 'calendar-outline', key: 'paywall.promises.plan' },
+  { icon: 'shield-checkmark-outline', key: 'paywall.promises.protect' },
+  { icon: 'receipt-outline', key: 'paywall.promises.keep' },
 ];
+
+const STITCH_COMPARISON_ROWS = [
+  { label: 'Comprobar la humedad a 2 cm', free: true, pro: true },
+  { label: 'Asistente IA y diagnóstico de plagas', free: false, pro: true },
+  { label: 'Medidor de luz y lux', free: false, pro: true },
+  { label: 'Simulador de sombras', free: false, pro: true },
+  { label: 'Rotación e historial del huerto', free: false, pro: true },
+] as const;
 
 export default function PaywallScreen() {
   const colors = useColors();
@@ -42,16 +51,16 @@ export default function PaywallScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { source } = useLocalSearchParams<{ source?: string }>();
-  const { isPro, activePlan, purchasing, offerings, purchase, restore } = usePurchases();
+  const { isPro, activePlan, loading: billingLoading, purchasing, isBillingAvailable, offerings, purchase, restore } = usePurchases();
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('annual');
   const [trialReminderOn, setTrialReminderOn] = useState(true);
   const [showAll, setShowAll] = useState(true);
   const context = source === 'care_autopilot'
-    ? { emoji: '✨', title: 'paywall.contextCareTitle', desc: 'paywall.contextCareDesc' }
+    ? { icon: 'sparkles-outline' as PaywallIcon, title: 'paywall.contextCareTitle', desc: 'paywall.contextCareDesc' }
     : source === 'absence_automation'
-      ? { emoji: '🧳', title: 'paywall.contextAbsenceTitle', desc: 'paywall.contextAbsenceDesc' }
+      ? { icon: 'briefcase-outline' as PaywallIcon, title: 'paywall.contextAbsenceTitle', desc: 'paywall.contextAbsenceDesc' }
       : source === 'map' || source === 'map_notes' || source === 'map_share'
-        ? { emoji: '🗺️', title: 'paywall.contextMapTitle', desc: 'paywall.contextMapDesc' }
+        ? { icon: 'map-outline' as PaywallIcon, title: 'paywall.contextMapTitle', desc: 'paywall.contextMapDesc' }
       : null;
 
   useEffect(() => {
@@ -130,20 +139,20 @@ export default function PaywallScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scrollContent}>
         {/* Hero */}
         <View style={s.hero}>
-          <Text style={s.heroEmoji}>{isPro ? '🏆' : '🌻'}</Text>
+          <Ionicons name={isPro ? 'trophy-outline' : 'sunny-outline'} size={52} color={colors.primary} />
           <Text style={[s.heroTitle, { color: colors.text }]}>
-            {isPro ? t('paywall.titlePro') : t('paywall.title')}
+            {isPro ? t('paywall.titlePro') : t('paywall.stitchTitle', { defaultValue: 'Semilla Pro' })}
           </Text>
           <Text style={[s.heroSub, { color: colors.textSecondary }]}>
             {isPro
               ? t('paywall.subtitlePro', { plan: activePlan ?? 'monthly' })
-              : t('paywall.subtitle')}
+              : t('paywall.stitchSubtitle', { defaultValue: 'Desbloquea todo el potencial de tu huerto' })}
           </Text>
         </View>
 
         {context && (
           <View style={[s.contextCard, { backgroundColor: colors.primary + '12', borderColor: colors.primary + '55' }]}>
-            <Text style={s.contextEmoji}>{context.emoji}</Text>
+            <Ionicons name={context.icon} size={28} color={colors.primary} />
             <View style={{ flex: 1 }}>
               <Text style={[s.contextTitle, { color: colors.text }]}>{t(context.title)}</Text>
               <Text style={[s.contextDesc, { color: colors.textSecondary }]}>{t(context.desc)}</Text>
@@ -151,12 +160,40 @@ export default function PaywallScreen() {
           </View>
         )}
 
+        <View style={[s.careFreeCard, { backgroundColor: colors.primary + '12', borderColor: colors.primary + '55' }]}>
+          <View style={[s.careFreeIcon, { backgroundColor: colors.primary + '20' }]}>
+            <Ionicons name="finger-print-outline" size={22} color={colors.primary} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.careFreeTitle, { color: colors.text }]}>La comprobación a 2 cm siempre es gratis</Text>
+            <Text style={[s.careFreeDesc, { color: colors.textSecondary }]}>El cuidado consciente de tus plantas no está detrás de un pago.</Text>
+          </View>
+          <Ionicons name="checkmark-circle" size={22} color={colors.primary} />
+        </View>
+
+        <View style={[s.comparisonCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[s.comparisonTitle, { color: colors.text }]}>Semilla Pro</Text>
+          <Text style={[s.comparisonSub, { color: colors.textSecondary }]}>Más contexto para decidir mejor en cada cuidado.</Text>
+          <View style={[s.comparisonHeader, { borderBottomColor: colors.border }]}>
+            <Text style={[s.comparisonHeaderLabel, { color: colors.textSecondary }]}>FUNCIONES</Text>
+            <Text style={[s.comparisonHeaderValue, { color: colors.textSecondary }]}>GRATIS</Text>
+            <Text style={[s.comparisonHeaderValue, { color: colors.primary }]}>PRO</Text>
+          </View>
+          {STITCH_COMPARISON_ROWS.map((row, index) => (
+            <View key={row.label} style={[s.comparisonRow, index < STITCH_COMPARISON_ROWS.length - 1 && { borderBottomColor: colors.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+              <Text style={[s.comparisonLabel, { color: colors.text }]}>{row.label}</Text>
+              <Ionicons name={row.free ? 'checkmark' : 'close'} size={20} color={row.free ? colors.primary : colors.textDisabled} />
+              <Ionicons name={row.pro ? 'checkmark' : 'close'} size={20} color={row.pro ? colors.primary : colors.textDisabled} />
+            </View>
+          ))}
+        </View>
+
         <View style={[s.promiseCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
           <Text style={[s.promiseTitle, { color: colors.text }]}>{t('paywall.promiseTitle')}</Text>
           <Text style={[s.promiseSub, { color: colors.textSecondary }]}>{t('paywall.promiseDesc')}</Text>
           {PROMISE_KEYS.map((promise) => (
             <View key={promise.key} style={s.promiseRow}>
-              <Text style={s.promiseEmoji}>{promise.emoji}</Text>
+              <Ionicons name={promise.icon} size={20} color={colors.primary} />
               <Text style={[s.promiseText, { color: colors.text }]}>{t(promise.key)}</Text>
             </View>
           ))}
@@ -173,7 +210,7 @@ export default function PaywallScreen() {
               ]}
             >
               <View style={[s.featureIconBox, { backgroundColor: colors.surfaceAlt }]}>
-                <Text style={{ fontSize: 18 }}>{feat.emoji}</Text>
+                <Ionicons name={feat.icon} size={18} color={colors.primary} />
               </View>
               <Text style={[s.featureText, { color: colors.text }]}>{t(feat.key)}</Text>
               <Ionicons
@@ -203,7 +240,7 @@ export default function PaywallScreen() {
               ]}
             >
               <View style={[s.featureIconBox, { backgroundColor: colors.surfaceAlt }]}>
-                <Text style={{ fontSize: 18 }}>{feat.emoji}</Text>
+                <Ionicons name={feat.icon} size={18} color={colors.primary} />
               </View>
               <Text style={[s.featureText, { color: colors.text }]}>{t(feat.key)}</Text>
               <Ionicons
@@ -214,6 +251,18 @@ export default function PaywallScreen() {
             </View>
           ))}
         </View>
+
+        {!isPro && !billingLoading && !isBillingAvailable && (
+          <View
+            accessibilityRole="alert"
+            style={{ flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, marginBottom: spacing.xl, backgroundColor: colors.surfaceAlt, borderColor: colors.border, borderWidth: 1, borderRadius: radii.md }}
+          >
+            <Ionicons name="information-circle-outline" size={20} color={colors.textSecondary} />
+            <Text style={{ flex: 1, color: colors.textSecondary, fontSize: fontSize.sm, lineHeight: 20 }}>
+              {t('paywall.billingUnavailable')}
+            </Text>
+          </View>
+        )}
 
         {/* Plans — hidden when already Pro */}
         {!isPro && (
@@ -287,7 +336,7 @@ export default function PaywallScreen() {
         {/* Trial reminder switch */}
         {!isPro && (
           <View style={[s.trialSwitchRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <Text style={{ fontSize: 22 }}>🔔</Text>
+            <Ionicons name="notifications-outline" size={22} color={colors.primary} />
             <View style={{ flex: 1, marginHorizontal: spacing.md }}>
               <Text style={[s.trialSwitchTitle, { color: colors.text }]}>
                 {t('paywall.trialReminderTitle')}
@@ -318,6 +367,7 @@ export default function PaywallScreen() {
             onPress={handlePurchase}
             size="lg"
             style={{ marginTop: spacing.xl }}
+            disabled={billingLoading || (!isPro && !isBillingAvailable)}
           />
         )}
 
@@ -328,7 +378,7 @@ export default function PaywallScreen() {
         )}
 
         {!isPro && (
-          <Pressable onPress={handleRestore} style={s.restoreBtn} disabled={purchasing}>
+          <Pressable onPress={handleRestore} style={s.restoreBtn} disabled={purchasing || billingLoading || !isBillingAvailable}>
             <Text style={[s.restoreText, { color: colors.textSecondary }]}>{t('paywall.restore')}</Text>
           </Pressable>
         )}
@@ -373,6 +423,37 @@ const makeStyles = (
       marginBottom: spacing.md,
     },
     heroSub: { fontSize: fontSize.md, textAlign: 'center', lineHeight: 22 },
+    careFreeCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      padding: spacing.lg,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      marginBottom: spacing.xl,
+    },
+    careFreeIcon: {
+      width: 44,
+      height: 44,
+      borderRadius: radii.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    careFreeTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: 2 },
+    careFreeDesc: { fontSize: fontSize.sm, lineHeight: 19 },
+    comparisonCard: {
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      overflow: 'hidden',
+      marginBottom: spacing.xl,
+    },
+    comparisonTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
+    comparisonSub: { fontSize: fontSize.sm, lineHeight: 20, paddingHorizontal: spacing.lg, marginTop: spacing.xs, marginBottom: spacing.md },
+    comparisonHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderBottomWidth: 1 },
+    comparisonHeaderLabel: { flex: 1, fontSize: 11, fontWeight: fontWeight.semibold, letterSpacing: 0.6 },
+    comparisonHeaderValue: { width: 42, textAlign: 'center', fontSize: 11, fontWeight: fontWeight.semibold, letterSpacing: 0.4 },
+    comparisonRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, gap: spacing.sm },
+    comparisonLabel: { flex: 1, fontSize: fontSize.sm, lineHeight: 19 },
     contextCard: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, padding: spacing.lg, borderRadius: radii.lg, borderWidth: 1, marginBottom: spacing.xl },
     contextEmoji: { fontSize: 28 },
     contextTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },

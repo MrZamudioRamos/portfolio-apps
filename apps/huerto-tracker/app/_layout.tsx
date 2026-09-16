@@ -3,14 +3,15 @@ import { loadSavedLanguage } from '../src/i18n';
 import { initSupabase, getSupabase, handleDeepLink, useSession } from '@portfolio/supabase';
 import { useOnboarding } from '@portfolio/shared';
 import { initAnalytics, track, identifyUser, EVENTS, Sentry } from '../src/analytics';
-import { ThemeProvider, huertoPalette } from '@portfolio/ui';
+import { ThemeProvider, huertoColors, huertoPalette } from '@portfolio/ui';
 import { Stack, useRouter, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
 import i18next from 'i18next';
 import React, { useEffect } from 'react';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useSyncProvider } from '../src/sync/useSyncProvider';
@@ -28,7 +29,7 @@ import { applyNunito } from '../src/theme/applyNunito';
 // Fast Refresh re-evaluates this route while the shared client module survives.
 // Reuse that exact client so auth subscribers never point at different clients.
 try { getSupabase(); } catch {
-  initSupabase(process.env.EXPO_PUBLIC_SUPABASE_URL!, process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!);
+  initSupabase(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY);
 }
 
 initAnalytics();
@@ -45,18 +46,18 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   }, [error]);
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12, backgroundColor: '#FAFAF5' }}>
-      <Text style={{ fontSize: 48 }}>🥀</Text>
-      <Text style={{ fontSize: 20, fontWeight: '700', color: '#2E2E2E', textAlign: 'center' }}>
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12, backgroundColor: huertoColors.background }}>
+        <Ionicons name="alert-circle-outline" size={52} color={huertoColors.error} />
+      <Text style={{ fontSize: 20, fontWeight: '700', color: huertoColors.text, textAlign: 'center' }}>
         {i18next.t('errorScreen.title', 'Algo ha salido mal')}
       </Text>
-      <Text style={{ fontSize: 14, color: '#757575', textAlign: 'center' }}>
+      <Text style={{ fontSize: 14, color: huertoColors.textSecondary, textAlign: 'center' }}>
         {i18next.t('errorScreen.desc', 'Tus datos están a salvo. Vuelve a intentarlo.')}
       </Text>
       <Pressable
         onPress={retry}
         accessibilityRole="button"
-        style={{ marginTop: 8, backgroundColor: '#2E7D32', paddingHorizontal: 28, paddingVertical: 12, borderRadius: 8 }}
+        style={{ marginTop: 8, backgroundColor: huertoColors.primaryDark, paddingHorizontal: 28, paddingVertical: 12, borderRadius: 16, minHeight: 44 }}
       >
         <Text style={{ color: '#fff', fontWeight: '700' }}>
           {i18next.t('errorScreen.retry', 'Reintentar')}
@@ -108,6 +109,20 @@ function AppServices() {
   return null;
 }
 
+/**
+ * Stitch's source screens are phone compositions. Expo Go naturally supplies
+ * that viewport on iOS; keeping the same bound on web makes localhost a
+ * faithful preview instead of silently turning the mobile UI into a desktop
+ * dashboard.
+ */
+function MobileViewport({ children }: { children: React.ReactNode }) {
+  return (
+    <View style={styles.webStage}>
+      <View style={styles.mobileFrame}>{children}</View>
+    </View>
+  );
+}
+
 function RootLayout() {
   const [fontsLoaded] = useFonts({
     Nunito_400Regular,
@@ -115,6 +130,7 @@ function RootLayout() {
     Nunito_600SemiBold,
     Nunito_700Bold,
     Nunito_800ExtraBold,
+    ...Ionicons.font,
   });
 
   useEffect(() => {
@@ -134,7 +150,16 @@ function RootLayout() {
     webDocument.body.style.fontFamily = prototypeFontStack;
   }, []);
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, backgroundColor: huertoColors.background }}>
+        <ActivityIndicator size="small" color={huertoColors.primary} />
+        <Text style={{ color: huertoColors.text, fontSize: 15, fontWeight: '600' }}>
+          {i18next.t('common.loading', 'Cargando…')}
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -142,45 +167,51 @@ function RootLayout() {
       <ThemeProvider palette={huertoPalette}>
         <StatusBar style="auto" />
         <AppServices />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="welcome" />
-          <Stack.Screen name="auth/index" />
-          <Stack.Screen name="auth/magic-sent" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="onboarding" />
-          <Stack.Screen name="first-crop" />
-          <Stack.Screen
-            name="plant/new"
-            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
-          />
-          <Stack.Screen name="plant/[id]" />
-          <Stack.Screen
-            name="plant/follow-up"
-            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
-          />
-          <Stack.Screen
-            name="entry/new"
-            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
-          />
-          <Stack.Screen
-            name="paywall"
-            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
-          />
-          <Stack.Screen
-            name="reminder/new"
-            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
-          />
-          <Stack.Screen name="garden/edit" />
-          <Stack.Screen name="garden/map" />
-          <Stack.Screen name="settings/backup" />
-          <Stack.Screen name="settings/notifications" />
-          <Stack.Screen name="stats" />
-          <Stack.Screen name="companions" />
-          <Stack.Screen name="disease-guide" />
-          <Stack.Screen name="catalog" />
-          <Stack.Screen name="gardens" />
-          <Stack.Screen name="rotation" />
-        </Stack>
+        <MobileViewport>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="welcome" />
+            <Stack.Screen name="auth/index" />
+            <Stack.Screen name="auth/magic-sent" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="onboarding" />
+            <Stack.Screen name="first-crop" />
+            <Stack.Screen
+              name="plant/new"
+              options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+            />
+            <Stack.Screen name="plant/[id]" />
+            <Stack.Screen
+              name="plant/follow-up"
+              options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+            />
+            <Stack.Screen
+              name="entry/new"
+              options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+            />
+            <Stack.Screen
+              name="paywall"
+              options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+            />
+            <Stack.Screen
+              name="reminder/new"
+              options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+            />
+            <Stack.Screen name="garden/edit" />
+            <Stack.Screen name="garden/map" />
+            <Stack.Screen name="settings/backup" />
+            <Stack.Screen name="settings/notifications" />
+            <Stack.Screen name="stats" />
+            <Stack.Screen name="companions" />
+            <Stack.Screen name="disease-guide" />
+            <Stack.Screen name="catalog" />
+            <Stack.Screen name="gardens" />
+            <Stack.Screen name="rotation" />
+            <Stack.Screen
+              name="modal/check-soil-sheet"
+              options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+            />
+          </Stack>
+        </MobileViewport>
       </ThemeProvider>
     </SafeAreaProvider>
     </GestureHandlerRootView>
@@ -188,3 +219,26 @@ function RootLayout() {
 }
 
 export default Sentry.wrap(RootLayout);
+
+const styles = StyleSheet.create({
+  webStage: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: Platform.OS === 'web' ? '#E9E7DE' : 'transparent',
+  },
+  mobileFrame: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 430,
+    overflow: 'hidden',
+    backgroundColor: huertoColors.background,
+    ...(Platform.OS === 'web'
+      ? {
+          borderLeftWidth: StyleSheet.hairlineWidth,
+          borderRightWidth: StyleSheet.hairlineWidth,
+          borderLeftColor: '#DCE3D5',
+          borderRightColor: '#DCE3D5',
+        }
+      : {}),
+  },
+});

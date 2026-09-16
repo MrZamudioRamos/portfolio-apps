@@ -39,17 +39,9 @@ import type { DiaryEntry } from '../../src/models/diary-entry';
 import { track, EVENTS } from '../../src/analytics';
 import { successHaptic, tapHaptic } from '../../src/utils/haptics';
 import { ScalePress } from '../../src/components/ScalePress';
-import { CopilotStep } from 'react-native-copilot';
-import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
-import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 import { Mascot } from '../../src/components/Mascot';
 import { SuccessBurst } from '../../src/components/SuccessBurst';
 import { WebDatePicker } from '../../src/components/WebDatePicker';
-
-function TourStarter({ disabled }: { disabled: boolean }) {
-  useTourAutoStart('plant-new', { disabled, firstStep: 'plant-select', delay: 400 });
-  return null;
-}
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -93,7 +85,7 @@ export default function NewPlantScreen() {
       } catch {
         // Ignore malformed local state and show a fresh checklist.
       }
-    });
+    }).catch(() => {});
     return () => { mounted = false; };
   }, [createdPlant]);
 
@@ -101,7 +93,7 @@ export default function NewPlantScreen() {
     if (!createdPlant) return;
     setFirstWeekChecks((current) => {
       const next = current.map((checked, itemIndex) => itemIndex === index ? !checked : checked);
-      void AsyncStorage.setItem(FIRST_WEEK_CHECKS_KEY + createdPlant.id, JSON.stringify(next));
+      void AsyncStorage.setItem(FIRST_WEEK_CHECKS_KEY + createdPlant.id, JSON.stringify(next)).catch(() => {});
       return next;
     });
   }
@@ -296,15 +288,15 @@ export default function NewPlantScreen() {
             </View>
             {[
               {
-                icon: '🪴',
+                icon: 'flower-outline' as const,
                 title: t('firstWeek.spaceTitle'),
                 body: typeof (selectedCropId ? CROP_CONTAINER_MIN[selectedCropId] : null) === 'number'
                   ? t('firstWeek.spaceContainer', { liters: CROP_CONTAINER_MIN[selectedCropId!] })
                   : t('firstWeek.spaceGround'),
               },
-              { icon: '💧', title: t('firstWeek.observeTitle'), body: t('firstWeek.observeBody') },
-              { icon: '🧰', title: t('firstWeek.materialTitle'), body: t('firstWeek.materialBody') },
-              { icon: '🔎', title: t('firstWeek.checkTitle'), body: t('firstWeek.checkBody') },
+              { icon: 'water-outline' as const, title: t('firstWeek.observeTitle'), body: t('firstWeek.observeBody') },
+              { icon: 'construct-outline' as const, title: t('firstWeek.materialTitle'), body: t('firstWeek.materialBody') },
+              { icon: 'search-outline' as const, title: t('firstWeek.checkTitle'), body: t('firstWeek.checkBody') },
             ].map((item, index) => {
               const checked = firstWeekChecks[index] ?? false;
               return (
@@ -320,7 +312,7 @@ export default function NewPlantScreen() {
                     {checked && <Text style={{ color: colors.background, fontSize: 14, fontWeight: fontWeight.bold }}>✓</Text>}
                   </View>
                   <View style={[s.firstWeekIcon, { backgroundColor: checked ? colors.primary + '18' : colors.surfaceAlt }]}>
-                    <Text style={{ fontSize: 20, opacity: checked ? 0.65 : 1 }} accessible={false}>{item.icon}</Text>
+                    <Ionicons name={item.icon} size={20} color={checked ? colors.primary : colors.textSecondary} accessible={false} />
                   </View>
                   <View style={{ flex: 1, gap: 3 }}>
                     <Text style={[s.firstWeekItemTitle, { color: checked ? colors.textSecondary : colors.text, textDecorationLine: checked ? 'line-through' : 'none' }]}>{item.title}</Text>
@@ -338,8 +330,7 @@ export default function NewPlantScreen() {
   );
 
   return (
-    <SemillitaTourProvider>
-      <TourStarter disabled={guided || fromOnboarding !== '1'} />
+    <>
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={[s.header, { borderBottomColor: colors.border }]}>
@@ -356,8 +347,7 @@ export default function NewPlantScreen() {
 
       {/* ── STEP 1: Choose how to add ── */}
       {step === 'select' && (
-        <CopilotStep text={t('coach.plantNew')} order={1} name="plant-select">
-        <WalkView style={s.entryContainer}>
+        <View style={s.entryContainer}>
           <View style={s.entryIntro}>
             <Mascot pose="wave" size={96} />
             <Text accessibilityRole="header" style={[s.entryTitle, { color: colors.text }]}>
@@ -397,8 +387,7 @@ export default function NewPlantScreen() {
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
           </ScalePress>
-        </WalkView>
-        </CopilotStep>
+        </View>
       )}
 
       {/* ── STEP 2: Plant details ── */}
@@ -406,7 +395,7 @@ export default function NewPlantScreen() {
         <>
           {fromOnboarding === '1' && !guided && !isAiFilled && (
             <View style={{ backgroundColor: colors.primary + '10', borderBottomWidth: 1, borderBottomColor: colors.primary + '30', paddingHorizontal: spacing.xl, paddingVertical: spacing.md }}>
-              <Text style={{ color: colors.primary, fontSize: fontSize.sm, lineHeight: 20 }}>{t('coach.plantDetails')}</Text>
+              <Text style={{ color: colors.primary, fontSize: fontSize.sm, lineHeight: 20 }}>{t('plantNew.guidedDetails')}</Text>
             </View>
           )}
           {isAiFilled && (
@@ -445,7 +434,7 @@ export default function NewPlantScreen() {
                   </>
                 ) : (
                   <>
-                    <Text style={{ fontSize: 40 }}>📷</Text>
+                    <Ionicons name="camera-outline" size={40} color={colors.primary} />
                     <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: spacing.xs }}>
                       {t('plantNew.addPhoto')}
                     </Text>
@@ -498,7 +487,7 @@ export default function NewPlantScreen() {
                   return (
                     <View style={[s.companionHint, { backgroundColor: '#4CAF5012', borderColor: '#4CAF5055' }]}>
                       <Text style={[s.companionHintText, { color: '#2E7D32' }]}>
-                        🤝 {t('plantNew.goodWith')}{' '}
+                        <Ionicons name="people-outline" size={15} color="#2E7D32" /> {t('plantNew.goodWith')}{' '}
                         {companions.map((c) => `${c.emoji} ${t('crops.' + c.id + '.name', { defaultValue: c.name })}`).join('  ')}
                       </Text>
                     </View>
@@ -534,7 +523,7 @@ export default function NewPlantScreen() {
                       style={[s.varietyChip, { backgroundColor: !varietyId ? colors.primary + '22' : colors.surface, borderColor: !varietyId ? colors.primary : colors.border }]}
                     >
                       <Text style={[s.varietyChipText, { color: !varietyId ? colors.primary : colors.textSecondary }]}>
-                        🌱 {t('plantNew.varietyGeneric')}
+                        <Ionicons name="leaf-outline" size={14} color={!varietyId ? colors.primary : colors.textSecondary} /> {t('plantNew.varietyGeneric')}
                       </Text>
                     </Pressable>
                     {cropVarieties.map((v) => {
@@ -799,7 +788,7 @@ export default function NewPlantScreen() {
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
-    </SemillitaTourProvider>
+    </>
   );
 }
 
@@ -977,17 +966,6 @@ const makeStyles = (
       paddingVertical: 4,
       borderRadius: 99,
     },
-    // Photo (legacy — kept for safety but unused)
-    photoArea: {
-      height: 140,
-      borderRadius: radii.xl,
-      borderWidth: 1.5,
-      borderStyle: 'dashed',
-      alignItems: 'center',
-      justifyContent: 'center',
-      overflow: 'hidden',
-    },
-
     // Variety
     varietyChip: {
       flexDirection: 'row',

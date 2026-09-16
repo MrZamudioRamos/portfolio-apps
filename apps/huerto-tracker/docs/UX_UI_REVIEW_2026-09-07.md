@@ -49,7 +49,7 @@ Implementación centrada en el recorrido de una persona principiante: bienvenida
 ## Archivos principales
 
 - Pantallas: `app/welcome.tsx`, `app/onboarding.tsx`, `app/first-crop.tsx`, `app/plant/new.tsx`, `app/plant/[id].tsx`, `app/(tabs)/index.tsx`.
-- Componentes: `PlantCareCard`, `ActionButton`, `WebDatePicker`, `ActivationChecklist`, `SemillitaTourProvider`, `SemillitaTooltip`, `SowNowCard`.
+- Componentes: `PlantCareCard`, `ActionButton`, `WebDatePicker`, `ActivationChecklist`, `CoachBubble`, `SowNowCard`.
 - Lógica: `dailyCare`, `wateringStatus`, `wateringUtils`, hooks de checklist, tutorial y recordatorios, modelo de diario y eventos de analítica.
 - Idiomas: `src/i18n/locales/{es,en,ca,eu,gl,val}.json`; pruebas en `src/utils/__tests__`.
 

@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RefreshControl, ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { CROPS_BY_ID } from '../src/data/crops';
@@ -91,17 +91,25 @@ export default function RotationScreen() {
 
   const plantStore = useMemo(() => createStore<Plant>('plants'), []);
   const [allPlants, setAllPlants] = useState<Plant[]>([]);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(useCallback(() => {
-    plantStore.getAll().then((items) => setAllPlants(items));
+    let active = true;
+    setLoading(true);
+    plantStore.getAll().then((items) => {
+      if (active) setAllPlants(items.filter((item) => !item.deletedAt));
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
   }, [plantStore]));
 
   async function onRefresh() {
     setRefreshing(true);
     try {
       const items = await plantStore.getAll();
-      setAllPlants(items);
+      setAllPlants(items.filter((item) => !item.deletedAt));
     } finally {
       setRefreshing(false);
     }
@@ -166,15 +174,36 @@ export default function RotationScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
       >
-        {(activeGarden?.gardenType === 'balcon' || activeGarden?.gardenType === 'maceta') ? (
+        <View style={[s.stitchHero, { backgroundColor: colors.surfaceAlt, borderColor: colors.primary + '33' }]}>
+          <View style={[s.stitchHeroIcon, { backgroundColor: colors.surface }]}>
+            <Ionicons name="sync-outline" size={22} color={colors.primary} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.stitchHeroTitle, { color: colors.text }]}>Cuida el suelo de una temporada a otra</Text>
+            <Text style={[s.stitchHeroText, { color: colors.textSecondary }]}>Consulta las familias cultivadas y elige el siguiente paso con más criterio.</Text>
+          </View>
+        </View>
+        <View style={[s.ruleCard, { backgroundColor: colors.accent + '55', borderColor: colors.secondary + '66' }]}>
+          <Ionicons name="bulb-outline" size={18} color={colors.secondary} />
+          <Text style={[s.ruleText, { color: colors.text }]}>La rotación ayuda a prevenir agotamiento y problemas repetidos en el mismo bancal.</Text>
+        </View>
+
+        {loading && (
+          <View style={{ alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+            <ActivityIndicator color={colors.primary} />
+            <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+          </View>
+        )}
+
+        {!loading && (activeGarden?.gardenType === 'balcon' || activeGarden?.gardenType === 'maceta') ? (
           <View style={s.emptyState}>
-            <Text style={{ fontSize: 48 }}>🪴</Text>
+            <Ionicons name="flower-outline" size={48} color={colors.primary} />
             <Text style={[s.emptyTitle, { color: colors.text }]}>{t('rotation.notApplicable')}</Text>
             <Text style={[s.emptyDesc, { color: colors.textSecondary }]}>{t('rotation.notApplicableDesc')}</Text>
           </View>
-        ) : bedData.length === 0 ? (
+        ) : !loading && bedData.length === 0 ? (
           <View style={s.emptyState}>
-            <Text style={{ fontSize: 48 }}>🌱</Text>
+            <Ionicons name="leaf-outline" size={48} color={colors.primary} />
             <Text style={[s.emptyTitle, { color: colors.text }]}>{t('rotation.empty')}</Text>
             <Text style={[s.emptyDesc, { color: colors.textSecondary }]}>{t('rotation.emptyDesc')}</Text>
           </View>
@@ -182,7 +211,7 @@ export default function RotationScreen() {
           bedData.map(({ bedName, byYear, sortedYears, conflicts, suggestions, currentFamilies }) => (
             <View key={bedName} style={{ marginBottom: spacing.xl }}>
               <View style={s.bedHeader}>
-                <Text style={{ fontSize: 18 }}>🌱</Text>
+                <Ionicons name="leaf-outline" size={18} color={colors.primary} />
                 <Text style={[s.bedName, { color: colors.text }]}>{bedName}</Text>
                 {conflicts.length > 0 && (
                   <View style={[s.warningBadge, { backgroundColor: '#EF535018', borderColor: '#EF5350' }]}>
@@ -288,6 +317,12 @@ const makeStyles = (
   StyleSheet.create({
     container: { flex: 1 },
     scroll: { padding: spacing.xl, paddingBottom: 60 },
+    stitchHero: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, marginBottom: spacing.md },
+    stitchHeroIcon: { width: 44, height: 44, borderRadius: radii.lg, alignItems: 'center', justifyContent: 'center' },
+    stitchHeroTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    stitchHeroText: { fontSize: fontSize.sm, lineHeight: 20, marginTop: 3 },
+    ruleCard: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1, marginBottom: spacing.xl },
+    ruleText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20 },
     bedHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
     bedName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, flex: 1 },
     warningBadge: {

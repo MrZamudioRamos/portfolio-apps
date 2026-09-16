@@ -1,6 +1,7 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { usePickPhoto } from '../../src/hooks/usePickPhoto';
+import { CollectionError } from '../../src/components/CollectionError';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
@@ -9,6 +10,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
+  Alert,
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -93,6 +96,37 @@ export default function EditPlantScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
+  const cropLoading = Boolean(
+    plant && !CROPS_BY_ID[plant.cropId] && customCrops.loading && !customCropsById[plant.cropId]
+  );
+
+  if ((plants.loading && !plant) || cropLoading) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
+        <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={12}>
+          <Ionicons name="close" size={24} color={colors.textSecondary} />
+        </Pressable>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+          <ActivityIndicator color={colors.primary} />
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (plants.error) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
+        <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={12}>
+          <Ionicons name="close" size={24} color={colors.textSecondary} />
+        </Pressable>
+        <View style={{ flex: 1, justifyContent: 'center', padding: spacing.xl }}>
+          <CollectionError onRetry={() => plants.refresh().catch(() => {})} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (!plant || !crop || (activeGarden && plant.gardenId !== activeGarden.id)) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
@@ -147,6 +181,24 @@ export default function EditPlantScreen() {
     }
   }
 
+  function handleDelete() {
+    Alert.alert(
+      'Archivar planta',
+      'La planta dejará de aparecer en tu huerto, pero conservarás su historial.',
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: 'Archivar',
+          style: 'destructive',
+          onPress: async () => {
+            await plants.softRemove(id);
+            router.back();
+          },
+        },
+      ]
+    );
+  }
+
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       <View style={[s.header, { borderBottomColor: colors.border }]}>
@@ -198,6 +250,11 @@ export default function EditPlantScreen() {
             </View>
           </View>
 
+          <View style={[s.careRule, { backgroundColor: colors.accent + '55', borderColor: colors.secondary + '66' }]}>
+            <Ionicons name="water-outline" size={18} color={colors.primary} />
+            <Text style={[s.careRuleText, { color: colors.text }]}>Antes de regar, toca la tierra a 2 cm. Si sigue húmeda, espera.</Text>
+          </View>
+
           {/* Name */}
           <Text style={[s.label, { color: colors.textSecondary, marginTop: spacing.xl }]}>
             {t('plantNew.nameLabel')}
@@ -239,7 +296,7 @@ export default function EditPlantScreen() {
                 ]}
               >
                 <Text style={[s.varietyChipText, { color: !varietyId ? colors.primary : colors.textSecondary }]}>
-                  🌱 {t('plantNew.varietyGeneric')}
+                  <Ionicons name="leaf-outline" size={14} color={!varietyId ? colors.primary : colors.textSecondary} /> {t('plantNew.varietyGeneric')}
                 </Text>
               </Pressable>
               {cropVarieties.map((v) => {
@@ -459,6 +516,10 @@ export default function EditPlantScreen() {
             size="lg"
             style={{ marginTop: spacing.xl }}
           />
+          <Pressable onPress={handleDelete} style={s.archiveButton} hitSlop={8}>
+            <Ionicons name="archive-outline" size={17} color={colors.error} />
+            <Text style={[s.archiveText, { color: colors.error }]}>Archivar planta</Text>
+          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -502,6 +563,8 @@ const makeStyles = (
     },
     cropName: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     cropCategory: { fontSize: fontSize.xs, marginTop: 2 },
+    careRule: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1, marginTop: spacing.md },
+    careRuleText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20 },
     fixedBadge: {
       paddingHorizontal: spacing.sm,
       paddingVertical: 3,
@@ -571,4 +634,6 @@ const makeStyles = (
       borderRadius: radii.sm,
       borderWidth: 1.5,
     },
+    archiveButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs, paddingVertical: spacing.lg, marginTop: spacing.sm },
+    archiveText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
   });

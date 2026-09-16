@@ -107,19 +107,56 @@ export async function syncToCloud(userId: string): Promise<boolean> {
     // Use allSettled per table so a single RLS blip / network glitch on one
     // table doesn't abort the whole push — pushed what can be pushed, and
     // surface the partial failure to the caller via the boolean return.
-    const results = await Promise.allSettled([
-      upsertAll('gardens',        gardens.filter(     (g) => isUUID(g.id)).map((g) => gardenToRow(g, userId))),
-      upsertAll('plants',         plants.filter(      (p) => isUUID(p.id)).map((p) => plantToRow(p, userId))),
-      upsertAll('diary_entries',  entries.filter(     (e) => isUUID(e.id)).map((e) => entryToRow(e, userId))),
-      upsertAll('reminders',      reminders.filter(   (r) => isUUID(r.id)).map((r) => reminderToRow(r, userId))),
-      upsertAll('user_profiles',  userProfiles.filter((p) => isUUID(p.id)).map((p) => userProfileToRow(p, userId))),
-      upsertAll('custom_crops',   customCrops.filter( (c) => isUUID(c.id)).map((c) => customCropToRow(c, userId))),
-      upsertAll('cost_entries',   costEntries.filter( (c) => isUUID(c.id)).map((c) => costEntryToRow(c, userId))),
-      upsertAll('garden_layouts', layouts.map((l) => gardenLayoutToRow(l.gardenId, l.layout, userId, l.updatedAt))),
+    type PushJob = { table: string; run: () => Promise<void> };
+    type SyncFailure = { table: string; reason: unknown };
+    const runPushWave = async (jobs: PushJob[]) => {
+      const results = await Promise.allSettled(jobs.map(({ run }) => run()));
+      return results.flatMap((result, index) =>
+        result.status === 'rejected' ? [{ table: jobs[index].table, reason: result.reason }] : []
+      );
+    };
+    const dependencyFailure = (table: string, dependency: string): SyncFailure => ({
+      table,
+      reason: new Error(`skipped: dependency ${dependency} push failed`),
+    });
+
+    // Respect the database foreign-key graph: profiles/gardens first, then
+    // plants, and finally entries/reminders. Independent tables still share
+    // a wave, so a transient failure in one table does not abort the others.
+    const failures: SyncFailure[] = [];
+    const profileGardenFailures = await runPushWave([
+      { table: 'user_profiles', run: () => upsertAll('user_profiles', userProfiles.filter((p) => isUUID(p.id)).map((p) => userProfileToRow(p, userId))) },
+      { table: 'gardens', run: () => upsertAll('gardens', gardens.filter((g) => isUUID(g.id)).map((g) => gardenToRow(g, userId))) },
     ]);
-    const failures = results.filter((r) => r.status === 'rejected');
+    failures.push(...profileGardenFailures);
+    const gardensFailed = profileGardenFailures.some(({ table }) => table === 'gardens');
+
+    const secondaryFailures = await runPushWave([
+      { table: 'custom_crops', run: () => upsertAll('custom_crops', customCrops.filter((c) => isUUID(c.id)).map((c) => customCropToRow(c, userId))) },
+      { table: 'cost_entries', run: () => upsertAll('cost_entries', costEntries.filter((c) => isUUID(c.id)).map((c) => costEntryToRow(c, userId))) },
+      ...(!gardensFailed ? [{ table: 'garden_layouts', run: () => upsertAll('garden_layouts', layouts.map((l) => gardenLayoutToRow(l.gardenId, l.layout, userId, l.updatedAt))) }] : []),
+    ]);
+    failures.push(...secondaryFailures);
+    if (gardensFailed && layouts.length > 0) failures.push(dependencyFailure('garden_layouts', 'gardens'));
+
+    const plantFailures = gardensFailed
+      ? [dependencyFailure('plants', 'gardens')]
+      : await runPushWave([
+        { table: 'plants', run: () => upsertAll('plants', plants.filter((p) => isUUID(p.id)).map((p) => plantToRow(p, userId))) },
+      ]);
+    failures.push(...plantFailures);
+
+    if (plantFailures.length > 0) {
+      if (entries.some((entry) => isUUID(entry.id))) failures.push(dependencyFailure('diary_entries', 'plants'));
+      if (reminders.some((reminder) => isUUID(reminder.id))) failures.push(dependencyFailure('reminders', 'plants'));
+    } else {
+      failures.push(...await runPushWave([
+        { table: 'diary_entries', run: () => upsertAll('diary_entries', entries.filter((e) => isUUID(e.id)).map((e) => entryToRow(e, userId))) },
+        { table: 'reminders', run: () => upsertAll('reminders', reminders.filter((r) => isUUID(r.id)).map((r) => reminderToRow(r, userId))) },
+      ]));
+    }
     if (failures.length > 0) {
-      console.warn(`[sync] syncToCloud: ${failures.length}/${results.length} tables failed`);
+      console.warn(`[sync] syncToCloud failed tables: ${failures.map(({ table, reason }) => `${table} (${describeSyncError(reason)})`).join(', ')}`);
     }
     return failures.length === 0;
   } catch (e) {
@@ -137,6 +174,7 @@ export async function syncFromCloud(userId: string): Promise<boolean> {
   try {
     // allSettled per table: one table's network failure doesn't keep the
     // others from refreshing local state.
+    const pullTableNames = ['gardens', 'plants', 'diary_entries', 'reminders', 'user_profiles', 'custom_crops', 'cost_entries', 'garden_layouts'];
     const results = await Promise.allSettled([
       pullAll<ReturnType<typeof gardenToRow>>('gardens', userId),
       pullAll<ReturnType<typeof plantToRow>>('plants', userId),
@@ -147,9 +185,11 @@ export async function syncFromCloud(userId: string): Promise<boolean> {
       pullAll<ReturnType<typeof costEntryToRow>>('cost_entries', userId),
       pullAll<ReturnType<typeof gardenLayoutToRow>>('garden_layouts', userId),
     ]);
-    const failures = results.filter((r) => r.status === 'rejected');
+    const failures = results.flatMap((result, index) =>
+      result.status === 'rejected' ? [{ table: pullTableNames[index], reason: result.reason }] : []
+    );
     if (failures.length > 0) {
-      console.warn(`[sync] syncFromCloud: ${failures.length}/${results.length} tables failed`);
+      console.warn(`[sync] syncFromCloud failed tables: ${failures.map(({ table, reason }) => `${table} (${describeSyncError(reason)})`).join(', ')}`);
     }
     // Only the fulfilled tables are merged (rejected ones are skipped).
     const ok = <T>(p: PromiseSettledResult<T>, fallback: T): T =>
@@ -190,6 +230,14 @@ export async function syncFromCloud(userId: string): Promise<boolean> {
     console.warn('[sync] syncFromCloud failed:', e);
     return false;
   }
+}
+
+function describeSyncError(reason: unknown): string {
+  if (reason && typeof reason === 'object') {
+    const error = reason as { code?: string; message?: string };
+    return [error.code, error.message].filter(Boolean).join(': ') || 'unknown error';
+  }
+  return String(reason || 'unknown error');
 }
 
 async function mergeLocal<T extends { id: string; updatedAt: string }>(

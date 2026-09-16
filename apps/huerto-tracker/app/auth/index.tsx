@@ -2,6 +2,7 @@ import { signInWithApple, signInWithGoogle, signInWithMagicLink, signInWithPassw
 import { useOnboarding } from '@portfolio/shared';
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +18,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Mascot } from '../../src/components/Mascot';
 
 type EmailMode = 'none' | 'password' | 'otp';
 
@@ -105,7 +107,9 @@ export default function AuthScreen() {
             <Text style={[s.backText, { color: colors.primary }]}>{t('common.back')}</Text>
           </Pressable>
 
-          <Text style={s.heroEmoji}>🌱</Text>
+          <View style={[s.heroMascot, { backgroundColor: colors.surfaceAlt }]}>
+            <Mascot pose="wave" size={88} />
+          </View>
           <Text style={[s.title, { color: colors.text }]}>{t('auth.title')}</Text>
           <Text style={[s.subtitle, { color: colors.textSecondary }]}>
             {t('auth.subtitle')}
@@ -120,7 +124,7 @@ export default function AuthScreen() {
               { backgroundColor: colors.surface, borderColor: colors.border, ...shadows.sm, opacity: pressed || loadingGoogle ? 0.7 : 1 },
             ]}
           >
-            <Text style={s.socialIcon}>🌐</Text>
+            <Ionicons name="globe-outline" size={20} color={colors.textSecondary} />
             <Text style={[s.socialText, { color: colors.text }]}>
               {loadingGoogle ? t('auth.connecting') : t('auth.continueGoogle')}
             </Text>
@@ -151,7 +155,10 @@ export default function AuthScreen() {
                 onPress={() => setEmailMode('password')}
                 style={({ pressed }) => [s.emailModeBtn, { borderColor: colors.border, backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 }]}
               >
-                <Text style={[s.emailModeBtnText, { color: colors.text }]}>🔑 {t('auth.emailPassword')}</Text>
+                <View style={s.emailModeBtnContent}>
+                  <Ionicons name="key-outline" size={20} color={colors.textSecondary} />
+                  <Text style={[s.emailModeBtnText, { color: colors.text }]}>{t('auth.emailPassword')}</Text>
+                </View>
               </Pressable>
               <Pressable
                 onPress={() => setEmailMode('otp')}
@@ -234,7 +241,7 @@ const makeStyles = (
     scroll: { paddingHorizontal: spacing.xl, paddingBottom: spacing['3xl'] },
     backBtn: { paddingTop: spacing.lg, paddingBottom: spacing.md },
     backText: { fontSize: fontSize.md },
-    heroEmoji: { fontSize: 56, textAlign: 'center', marginTop: spacing.xl },
+    heroMascot: { width: 116, height: 116, borderRadius: 58, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', marginTop: spacing.xl },
     title: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, textAlign: 'center', marginTop: spacing.md },
     subtitle: { fontSize: fontSize.sm, textAlign: 'center', marginTop: spacing.sm, marginBottom: spacing['2xl'], lineHeight: 20 },
     socialBtn: {
@@ -247,7 +254,6 @@ const makeStyles = (
       borderWidth: 1,
       marginBottom: spacing.md,
     },
-    socialIcon: { fontSize: 20 },
     socialText: { fontSize: fontSize.md, fontWeight: fontWeight.medium },
     appleBtn: { height: 52, marginBottom: spacing.md },
     divider: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginVertical: spacing.md },
@@ -260,6 +266,7 @@ const makeStyles = (
       alignItems: 'center',
       justifyContent: 'center',
     },
+    emailModeBtnContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
     emailModeBtnText: { fontSize: fontSize.md, fontWeight: fontWeight.medium },
     magicToggle: { alignItems: 'center', paddingVertical: spacing.md },
     magicToggleText: { fontSize: fontSize.md },

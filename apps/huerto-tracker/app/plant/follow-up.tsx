@@ -52,7 +52,7 @@ export default function DiagnosisFollowUpScreen() {
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
         <Header title={t('identify.followUpTitle')} onBack={() => router.back()} styles={s} colors={colors} />
         <View style={s.emptyState}>
-          <Text style={s.emptyEmoji}>🔒</Text>
+          <Ionicons name="lock-closed-outline" size={44} color={colors.primary} />
           <Text style={[s.emptyTitle, { color: colors.text }]}>{t('identify.proTitle')}</Text>
           <Text style={[s.emptyDesc, { color: colors.textSecondary }]}>{t('identify.proDesc')}</Text>
           <Button title={t('identify.upgradePro')} onPress={() => router.push('/paywall?source=ai_identify' as any)} size="lg" style={{ marginTop: spacing.xl, alignSelf: 'stretch' }} />
@@ -75,7 +75,7 @@ export default function DiagnosisFollowUpScreen() {
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
         <Header title={t('identify.followUpTitle')} onBack={() => router.back()} styles={s} colors={colors} />
         <View style={s.emptyState}>
-          <Text style={s.emptyEmoji}>🌱</Text>
+          <Ionicons name="leaf-outline" size={44} color={colors.primary} />
           <Text style={[s.emptyTitle, { color: colors.text }]}>{t('identify.followUpNoSource')}</Text>
           <Button title={t('common.back')} onPress={() => router.back()} variant="secondary" size="lg" style={{ marginTop: spacing.xl, alignSelf: 'stretch' }} />
         </View>
@@ -150,7 +150,7 @@ export default function DiagnosisFollowUpScreen() {
       <Header title={t('identify.followUpTitle')} onBack={() => router.back()} styles={s} colors={colors} />
       <ScrollView contentContainerStyle={s.body} showsVerticalScrollIndicator={false}>
         <View style={{ gap: spacing.xs }}>
-          <Text style={s.heroEmoji}>🔁</Text>
+          <Ionicons name="refresh-outline" size={34} color={colors.primary} style={s.heroEmoji} />
           <Text style={[s.heading, { color: colors.text }]}>{t('identify.followUpReviewTitle', { name })}</Text>
           <Text style={[s.description, { color: colors.textSecondary }]}>{t('identify.followUpReviewDescription')}</Text>
         </View>
@@ -161,7 +161,7 @@ export default function DiagnosisFollowUpScreen() {
             {sourceEntry.photoUri ? (
               <Image source={{ uri: sourceEntry.photoUri }} style={s.compareImage} />
             ) : (
-              <View style={[s.imagePlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Text style={s.placeholderEmoji}>🌿</Text></View>
+              <View style={[s.imagePlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Ionicons name="leaf-outline" size={32} color={colors.primary} /></View>
             )}
           </View>
           <View style={s.compareColumn}>
@@ -169,7 +169,7 @@ export default function DiagnosisFollowUpScreen() {
             {photo ? (
               <Image source={{ uri: photo }} style={s.compareImage} />
             ) : (
-              <View style={[s.imagePlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Text style={s.placeholderEmoji}>📸</Text></View>
+              <View style={[s.imagePlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Ionicons name="camera-outline" size={32} color={colors.primary} /></View>
             )}
           </View>
         </View>
@@ -260,7 +260,7 @@ const makeStyles = (
 ) => StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, borderBottomWidth: 1 },
-  backButton: { minWidth: 40, minHeight: 40, justifyContent: 'center' },
+  backButton: { minWidth: 44, minHeight: 44, justifyContent: 'center' },
   headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
   body: { padding: spacing.xl, gap: spacing.lg, paddingBottom: spacing['3xl'] ?? spacing.xl },
   heroEmoji: { fontSize: 34 },

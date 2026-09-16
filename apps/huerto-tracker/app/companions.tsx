@@ -78,7 +78,10 @@ export default function CompanionsScreen() {
             <>
               {companions.length > 0 && (
                 <View style={s.chipSection}>
-                  <Text style={[s.chipSectionLabel, { color: colors.success }]}>🤝 {t('companions.goodNeighbors')}</Text>
+                  <View style={s.chipSectionLabelRow}>
+                    <Ionicons name="people-outline" size={15} color={colors.success} />
+                    <Text style={[s.chipSectionLabel, { color: colors.success }]}>{t('companions.goodNeighbors')}</Text>
+                  </View>
                   <View style={s.chipRow}>
                     {companions.map((c) => (
                       <View key={c.id} style={[s.chip, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
@@ -91,7 +94,10 @@ export default function CompanionsScreen() {
 
               {incompatible.length > 0 && (
                 <View style={s.chipSection}>
-                  <Text style={[s.chipSectionLabel, { color: colors.error }]}>❌ {t('companions.badNeighbors')}</Text>
+                  <View style={s.chipSectionLabelRow}>
+                    <Ionicons name="close-circle-outline" size={15} color={colors.error} />
+                    <Text style={[s.chipSectionLabel, { color: colors.error }]}>{t('companions.badNeighbors')}</Text>
+                  </View>
                   <View style={s.chipRow}>
                     {incompatible.map((c) => (
                       <View key={c.id} style={[s.chip, { backgroundColor: '#EF535018', borderColor: '#EF5350' }]}>
@@ -134,9 +140,9 @@ export default function CompanionsScreen() {
   }, [selectedA, selectedB]);
 
   const COMPAT_CONFIG = {
-    companion:    { emoji: '🤝', label: t('companions.goodMatch'), color: '#4CAF50', bg: '#4CAF5018' },
-    incompatible: { emoji: '❌', label: t('companions.badMatch'), color: '#EF5350', bg: '#EF535018' },
-    neutral:      { emoji: '➖', label: t('companions.neutral'), color: '#757575', bg: colors.surfaceAlt },
+    companion:    { icon: 'people-outline' as const, label: t('companions.goodMatch'), color: '#4CAF50', bg: '#4CAF5018' },
+    incompatible: { icon: 'close-circle-outline' as const, label: t('companions.badMatch'), color: '#EF5350', bg: '#EF535018' },
+    neutral:      { icon: 'remove-outline' as const, label: t('companions.neutral'), color: '#757575', bg: colors.surfaceAlt },
   };
 
   function CropPicker({ slot, crop }: { slot: 'A' | 'B'; crop: CropInfo | null }) {
@@ -207,11 +213,33 @@ export default function CompanionsScreen() {
             onPress={() => { setMode(m); setSearch(''); setPickingSlot(null); }}
             style={[s.tab, mode === m && { backgroundColor: colors.surface, ...shadows.sm }]}
           >
-            <Text style={[s.tabText, { color: mode === m ? colors.primary : colors.textSecondary }]}>
-              {m === 'browse' ? `📋 ${t('companions.browse')}` : `🔍 ${t('companions.check')}`}
-            </Text>
+            <View style={s.tabLabelRow}>
+              <Ionicons
+                name={m === 'browse' ? 'clipboard-outline' : 'search-outline'}
+                size={16}
+                color={mode === m ? colors.primary : colors.textSecondary}
+              />
+              <Text style={[s.tabText, { color: mode === m ? colors.primary : colors.textSecondary }]}>
+                {m === 'browse' ? t('companions.browse') : t('companions.check')}
+              </Text>
+            </View>
           </Pressable>
         ))}
+      </View>
+
+      <View style={[s.stitchIntro, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View style={[s.stitchIntroIcon, { backgroundColor: colors.primary + '18' }]}>
+          <Ionicons name="leaf-outline" size={23} color={colors.primary} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[s.stitchIntroTitle, { color: colors.text }]}>{t('companions.stitchHeading', { defaultValue: 'Compañeros de maceta' })}</Text>
+          <Text style={[s.stitchIntroDesc, { color: colors.textSecondary }]}>{t('companions.stitchDesc', { defaultValue: 'Combina cultivos que se ayudan y evita que compitan por luz, raíces y nutrientes.' })}</Text>
+        </View>
+      </View>
+
+      <View style={[s.stitchRule, { backgroundColor: colors.accent + '15', borderColor: colors.accent + '55' }]}>
+        <Ionicons name="bulb-outline" size={19} color={colors.primaryDark} />
+        <Text style={[s.stitchRuleText, { color: colors.text }]}>{t('companions.stitchRule', { defaultValue: 'En macetas pequeñas, combina una hortaliza de raíz profunda con una aromática superficial y comprueba siempre los 2 cm antes de regar.' })}</Text>
       </View>
 
       {/* ── Browse mode ── */}
@@ -279,7 +307,7 @@ export default function CompanionsScreen() {
                 { backgroundColor: COMPAT_CONFIG[compatibility].bg, borderColor: COMPAT_CONFIG[compatibility].color },
               ]}
             >
-              <Text style={s.resultEmoji}>{COMPAT_CONFIG[compatibility].emoji}</Text>
+              <Ionicons name={COMPAT_CONFIG[compatibility].icon} size={30} color={COMPAT_CONFIG[compatibility].color} />
               <Text style={[s.resultLabel, { color: COMPAT_CONFIG[compatibility].color }]}>
                 {COMPAT_CONFIG[compatibility].label}
               </Text>
@@ -353,7 +381,7 @@ export default function CompanionsScreen() {
 
           {!selectedA && !selectedB && !pickingSlot && (
             <View style={s.checkEmpty}>
-              <Text style={s.checkEmptyEmoji}>🌿</Text>
+              <Ionicons name="leaf-outline" size={42} color={colors.primary} />
               <Text style={[s.checkEmptyText, { color: colors.textSecondary }]}>
                 {t('companions.checkEmpty')}
               </Text>
@@ -403,7 +431,14 @@ const makeStyles = (
       borderRadius: radii.md,
       alignItems: 'center',
     },
+    tabLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs },
     tabText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    stitchIntro: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, marginHorizontal: spacing.xl, marginBottom: spacing.sm, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1 },
+    stitchIntroIcon: { width: 44, height: 44, borderRadius: radii.md, alignItems: 'center', justifyContent: 'center' },
+    stitchIntroTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    stitchIntroDesc: { fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs },
+    stitchRule: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginHorizontal: spacing.xl, marginBottom: spacing.md, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1 },
+    stitchRuleText: { flex: 1, fontSize: fontSize.xs, lineHeight: 18 },
     searchBox: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -424,6 +459,7 @@ const makeStyles = (
     browseName: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     browseCategory: { fontSize: fontSize.xs, marginTop: 1 },
     chipSection: { gap: spacing.xs },
+    chipSectionLabelRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
     chipSectionLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
     chip: {
@@ -500,7 +536,6 @@ const makeStyles = (
       alignItems: 'center',
       gap: spacing.sm,
     },
-    resultEmoji: { fontSize: 48 },
     resultLabel: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
     resultDesc: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     resultNote: { fontSize: fontSize.sm, textAlign: 'center', lineHeight: 20, marginTop: spacing.xs },
@@ -515,6 +550,5 @@ const makeStyles = (
     },
     cropPickName: { fontSize: fontSize.md },
     checkEmpty: { alignItems: 'center', paddingVertical: spacing['3xl'], gap: spacing.md },
-    checkEmptyEmoji: { fontSize: 56 },
     checkEmptyText: { fontSize: fontSize.md, textAlign: 'center', lineHeight: 22 },
   });

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Modal, Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, useTheme } from '@portfolio/ui';
 import { Button } from './ActionButton';
@@ -30,6 +30,7 @@ export function PlantCareCard({ plant, crop, climateZone, entries, onOpen, frost
   const { t } = useTranslation();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(false);
+  const [showSoilSheet, setShowSoilSheet] = useState(false);
   const busy = useRef(false);
   const plan = isSeedPlan(plant);
   const today = useToday();
@@ -80,11 +81,69 @@ export function PlantCareCard({ plant, crop, climateZone, entries, onOpen, frost
         <Text style={{ color: colors.textSecondary, lineHeight: 22, marginBottom: spacing.md }}>{t(sowNow ? 'dailyCare.sowNow' : 'dailyCare.waitSeason')}</Text>
         <Button title={t('dailyCare.sown')} onPress={() => record('sowing')} loading={saving} size="lg" />
       </>}
-      {state === 'check' && <View style={{ gap: spacing.sm }}>
-        <Button title={t('dailyCare.watered')} onPress={() => record('watering')} loading={saving} size="lg" />
-        <Button title={t('dailyCare.moist')} onPress={() => record('moist')} disabled={saving} variant="outline" size="lg" />
-      </View>}
+      {state === 'check' && (
+        <Button
+          title={t('dailyCare.checkSoil')}
+          onPress={() => setShowSoilSheet(true)}
+          disabled={saving}
+          size="lg"
+        />
+      )}
       {onOpen && <Button title={t('dailyCare.viewPlant')} size="lg" variant="outline" onPress={onOpen} style={{ marginTop: spacing.sm }} />}
+
+      <Modal
+        visible={showSoilSheet}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowSoilSheet(false)}
+      >
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(22,36,15,0.34)' }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('common.cancel')}
+            onPress={() => setShowSoilSheet(false)}
+            style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
+          />
+          <View
+            accessibilityViewIsModal
+            style={{
+              backgroundColor: colors.surface,
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              padding: spacing.xl,
+              paddingBottom: spacing.xl + 12,
+              gap: spacing.md,
+            }}
+          >
+            <View style={{ width: 40, height: 4, borderRadius: 2, alignSelf: 'center', backgroundColor: colors.border }} />
+            <Text style={{ color: colors.text, fontSize: fontSize.xl, fontWeight: fontWeight.bold }}>
+              {t('dailyCare.checkTitle', { name: plant.name })}
+            </Text>
+            <Text style={{ color: colors.textSecondary, fontSize: fontSize.md, lineHeight: 23 }}>
+              {t('dailyCare.checkBody')}
+            </Text>
+            <Button
+              title={t('dailyCare.watered')}
+              onPress={() => {
+                setShowSoilSheet(false);
+                void record('watering');
+              }}
+              loading={saving}
+              size="lg"
+            />
+            <Button
+              title={t('dailyCare.moist')}
+              onPress={() => {
+                setShowSoilSheet(false);
+                void record('moist');
+              }}
+              disabled={saving}
+              variant="outline"
+              size="lg"
+            />
+          </View>
+        </View>
+      </Modal>
     </Card>
   );
 }

@@ -64,6 +64,12 @@ describe('care write recovery', () => {
       expect.objectContaining({ data: { liters: '1.5', method: 'drip' } }),
     ]);
   });
+  it('rejects direct quick watering so legacy helpers cannot bypass the substrate check', async () => {
+    const plant = await createPlantWithSowing({ ...data, sowingDate: '2026-09-04' });
+    await expect(recordQuickEntry({ gardenId: 'g', plantId: plant.id, type: 'watering', date: '2026-09-09' }))
+      .rejects.toThrow('Confirm substrate before watering');
+    expect(live().filter(row => row.type === 'watering')).toHaveLength(0);
+  });
   it('rejects watering a plan and a deleted plant', async () => {
     const plan = await createPlantWithSowing(data);
     await expect(recordCare(plan.id, 'watering')).rejects.toThrow();

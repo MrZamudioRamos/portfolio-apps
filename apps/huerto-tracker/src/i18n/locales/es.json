@@ -1,11 +1,11 @@
 {
   "tabs": {
     "home": "Mi Huerto",
-    "dashboard": "Dashboard",
-    "map": "Map",
+    "dashboard": "Hoy",
+    "map": "Mapa",
     "plants": "Plantas",
-    "calendar": "Temporada",
-    "calendarNav": "Calendar",
+    "calendar": "Calendario",
+    "calendarNav": "Calendario",
     "diary": "Diario",
     "settings": "Ajustes",
     "tools": "Herramientas"
@@ -255,8 +255,6 @@
     },
     "app": {
       "version": "Versión",
-      "tutorial": "Ver tutorial otra vez",
-      "tutorialDone": "Verás de nuevo los consejos de Semillita 🌱",
       "rate": "Valorar en App Store",
       "privacy": "Política de privacidad",
       "contact": "Contacto",
@@ -417,6 +415,7 @@
   "gardens": {
     "title": "Mis huertos",
     "hint": "Toca un huerto para hacerlo activo. Las plantas del inicio se filtran según el huerto activo.",
+    "emptyTitle": "Aún no tienes espacios activos",
     "active": "Activo",
     "createTitle": "Nuevo huerto",
     "fieldName": "Nombre",
@@ -459,6 +458,8 @@
     "title": "Mapa del huerto",
     "summary": "{{placed}} / {{total}} plantas colocadas · {{cols}}×{{rows}} parcelas",
     "lead": "Toca una parcela para ver qué planta vive ahí. No necesitas conocer símbolos.",
+    "viewVisual": "Mapa visual",
+    "viewList": "Vista lista",
     "freeSummary": "{{total}} plantas en este espacio",
     "south": "Sur",
     "assignPlant": "Asignar planta",
@@ -522,6 +523,8 @@
     "filterAll": "Todo",
     "filterAttention": "Necesita atención",
     "filterLight": "Por luz",
+    "filterEmpty": "No hay plantas que coincidan con este filtro.",
+    "filtersTitle": "Filtrar",
     "potLabel": "Maceta {{number}}",
     "freeAllGood": "Todo bien",
     "freeReview": "Revisar",
@@ -616,10 +619,6 @@
     "readySummaryPlant": "🌱 {{name}}",
     "enableReminders": "Activar recordatorios 🔔",
     "remindersActivated": "✓ Recordatorios activados",
-    "viewTour": "Ver tour rápido (30s)",
-    "skipToGarden": "Ver mi huerto →",
-    "coachWelcome": "¡Hola! Soy Semillita 🌱 Te acompañaré para que tu huerto salga adelante.",
-    "coachCelebrate": "¡Tu huerto «{{name}}» ya está listo! 🎉 ¿Plantamos la primera?",
     "welcomeTitle": "Tu primer cultivo empieza hoy",
     "welcomeSubtitle": "Dime dónde vas a cultivar y te ayudaré a elegir una planta fácil para empezar.",
     "feature1Title": "Luna y siembra",
@@ -766,6 +765,7 @@
     "restoreNoneTitle": "Sin compras anteriores",
     "restoreNoneDesc": "No encontramos ninguna suscripción activa asociada a tu cuenta.",
     "restoreError": "No se pudo conectar. Inténtalo de nuevo.",
+    "billingUnavailable": "Las compras estarán disponibles en la beta nativa cuando se configure la tienda. Tus datos y las funciones gratuitas siguen disponibles.",
     "showAll": "Ver todo lo incluido",
     "showLess": "Ocultar extras",
     "badgeProPartial": "Pro parcial"
@@ -788,6 +788,7 @@
   },
   "plantNew": {
     "title": "Nueva planta",
+    "guidedDetails": "Ponle nombre, elige en qué fase está y cuándo la sembraste. Luego pulsa Guardar para empezar el seguimiento.",
     "cropLabel": "CULTIVO",
     "selectCrop": "Seleccionar cultivo",
     "selectTitle": "¿Qué quieres cultivar?",
@@ -1444,22 +1445,6 @@
     "noKeyDesc": "El servicio de IA no está disponible ahora mismo. Inténtalo más tarde.",
     "retry": "Reintentar",
     "aiNote": "Respuestas generadas por IA · verifica con un experto agronómico"
-  },
-  "coach": {
-    "gotIt": "¡Entendido!",
-    "home": "Esta es tu pantalla Hoy: cada día verás aquí qué hacer. Abajo, qué sembrar este mes.",
-    "tourAdd": "Pulsa el botón + para añadir una planta a tu huerto.",
-    "homeStart": "¡Bienvenido a tu huerto! Aquí verás el resumen diario: tareas pendientes, cosechas que se acercan y alertas de riego o plagas.",
-    "homeToday": "Aquí tienes tu siguiente paso de hoy. Toca el botón para ver cómo hacerlo y registrar el cuidado.",
-    "homeSow": "Cada mes te recomendamos qué sembrar según tu zona climática. ¡No pierdas el mejor momento para plantar!",
-    "homeAI": "El asistente IA responde cualquier duda sobre tu huerto. La cámara identifica plagas y enfermedades al instante.",
-    "homeAdd": "Pulsa aquí para registrar una nueva planta en tu huerto y empezar a hacer seguimiento.",
-    "plantNew": "Elige el cultivo que quieres añadir: busca por nombre o navega por las 150+ variedades del catálogo.",
-    "plantDetails": "Ponle nombre, elige en qué fase está y cuándo la sembraste. Luego pulsa Guardar para empezar el seguimiento.",
-    "calendar": "Aquí ves qué sembrar y cosechar cada mes según tu zona. Toca un cultivo para ver sus fechas.",
-    "diary": "Tu diario: cada riego, cosecha y nota queda registrada. Pulsa + para añadir.",
-    "tools": "Aquí tienes todo lo extra: catálogo, identificar plantas y herramientas avanzadas cuando las necesites.",
-    "toolsAdvanced": "Y aquí, herramientas avanzadas para cuando tengas más experiencia."
   },
   "plantCoach": {
     "germWindow": "Recién sembrada. Suele brotar en {{min}}–{{max}} días: mantén el sustrato húmedo y cálido.",
@@ -2396,6 +2381,7 @@
     "sowNow": "Según el calendario de tu zona, este mes puedes sembrar. Sigue las indicaciones del sobre de semillas.",
     "waitSeason": "El calendario no indica siembra este mes. Puedes preparar el material y consultar la próxima ventana en la pestaña Calendario de esta planta. Confirma solo si ya has sembrado.",
     "sown": "Confirmar: he sembrado hoy",
+    "checkSoil": "Comprobar sustrato (2 cm)",
     "watered": "La tierra estaba seca y he regado",
     "moist": "Sigue húmeda, hoy no riego",
     "moistNote": "Tierra revisada: sigue húmeda. Hoy no hace falta regar.",

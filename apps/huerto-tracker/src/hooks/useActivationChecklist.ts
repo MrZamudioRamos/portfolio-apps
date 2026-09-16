@@ -35,7 +35,7 @@ export function useActivationChecklist(): UseActivationChecklistResult {
   // Tabs stay mounted: returning from a care or calendar must update the checklist.
   useFocusEffect(useCallback(() => {
     let active = true;
-    void Promise.all([gardens.refresh(), plants.refresh(), entries.refresh()]);
+    void Promise.all([gardens.refresh(), plants.refresh(), entries.refresh()]).catch(() => {});
     (async () => {
       const [calFlag, tsStr] = await Promise.all([
         AsyncStorage.getItem(ACTIVATION_CALENDAR_KEY),

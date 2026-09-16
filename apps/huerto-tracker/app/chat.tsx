@@ -68,6 +68,7 @@ export default function ChatScreen() {
           setMessages([]);
         }
       })
+      .catch(() => setMessages([]))
       .finally(() => setHydrated(true));
   }, [activeGarden?.id]);
 
@@ -161,7 +162,7 @@ export default function ChatScreen() {
       {/* PRO gate */}
       {!isPro ? (
         <View style={s.gate}>
-          <Text style={{ fontSize: 56 }}>🤖</Text>
+          <Ionicons name="chatbubble-ellipses-outline" size={56} color={colors.primary} />
           <Text style={[s.gateTitle, { color: colors.text }]}>{t('chat.proTitle')}</Text>
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.proDesc')}</Text>
           <Pressable
@@ -174,7 +175,7 @@ export default function ChatScreen() {
       ) : !user ? (
         /* Auth gate — the Edge Function requires a signed-in user */
         <View style={s.gate}>
-          <Text style={{ fontSize: 56 }}>🔐</Text>
+          <Ionicons name="lock-closed-outline" size={56} color={colors.primary} />
           <Text style={[s.gateTitle, { color: colors.text }]}>{t('chat.authTitle')}</Text>
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.authDesc')}</Text>
           <Pressable
@@ -190,6 +191,13 @@ export default function ChatScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={0}
         >
+          {(plants.loading || entries.loading) && plants.items.length === 0 && entries.items.length === 0 && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.sm }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+              <ActivityIndicator size="small" color={colors.primary} />
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+            </View>
+          )}
+
           {/* Messages */}
           <FlatList
             ref={listRef}
@@ -199,9 +207,13 @@ export default function ChatScreen() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={s.emptyWrap}>
-                <Text style={{ fontSize: 48 }}>🌱</Text>
+                <Ionicons name="leaf-outline" size={48} color={colors.primary} />
                 <Text style={[s.emptyTitle, { color: colors.text }]}>{t('chat.emptyTitle')}</Text>
                 <Text style={[s.emptyDesc, { color: colors.textSecondary }]}>{t('chat.emptyDesc')}</Text>
+                <View style={[s.ruleCard, { backgroundColor: colors.accent + '55', borderColor: colors.secondary + '66' }]}>
+                  <Ionicons name="water-outline" size={18} color={colors.primary} />
+                  <Text style={[s.ruleText, { color: colors.text }]}>Si preguntas por el riego, empieza por tocar la tierra a 2 cm.</Text>
+                </View>
                 <View style={s.suggestions}>
                   {[t('chat.suggest1'), t('chat.suggest2'), t('chat.suggest3')].map((s, i) => (
                     <Pressable
@@ -221,7 +233,7 @@ export default function ChatScreen() {
                 <View style={[s.bubbleRow, isUser && s.bubbleRowUser]}>
                   {!isUser && (
                     <View style={[s.avatar, { backgroundColor: colors.primary + '22' }]}>
-                      <Text style={{ fontSize: 14 }}>🌱</Text>
+                      <Ionicons name="leaf-outline" size={16} color={colors.primary} />
                     </View>
                   )}
                   <View
@@ -332,6 +344,8 @@ const makeStyles = (
     emptyWrap: { alignItems: 'center', paddingTop: 40, gap: spacing.sm },
     emptyTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, textAlign: 'center' },
     emptyDesc: { fontSize: fontSize.sm, textAlign: 'center', maxWidth: 260, lineHeight: 20 },
+    ruleCard: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1, marginTop: spacing.sm },
+    ruleText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20, textAlign: 'left' },
     suggestions: { gap: spacing.sm, marginTop: spacing.sm, width: '100%' },
     bubbleRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
     bubbleRowUser: { justifyContent: 'flex-end' },

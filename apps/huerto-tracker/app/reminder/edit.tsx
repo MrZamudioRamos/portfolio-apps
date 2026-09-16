@@ -2,10 +2,11 @@ import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
 import { useReminders, NotificationPermissionDeniedError, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
+  ActivityIndicator,
   Linking,
   Pressable,
   ScrollView,
@@ -19,12 +20,19 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { REMINDER_TYPE_CONFIG, type GardenReminder, type ReminderType } from '../../src/models/reminder';
 import { TimePicker } from '../../src/components/TimePicker';
+import { CollectionError } from '../../src/components/CollectionError';
 
 const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'custom'];
 // every_2_days/every_3_days removed: expo can't fire them at a fixed time, so
 // they were mapped to daily — keeping them in the picker would mislead users.
 const FREQUENCIES: ReminderFrequency[] = ['daily', 'weekly', 'once'];
 const WEEKDAYS = [2, 3, 4, 5, 6, 7, 1] as const;
+const TYPE_ICONS: Record<ReminderType, keyof typeof Ionicons.glyphMap> = {
+  watering: 'water-outline',
+  fertilizing: 'leaf-outline',
+  harvest_check: 'basket-outline',
+  custom: 'notifications-outline',
+};
 
 export default function ReminderEditScreen() {
   const colors = useColors();
@@ -51,6 +59,7 @@ export default function ReminderEditScreen() {
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [permissionError, setPermissionError] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
@@ -59,14 +68,52 @@ export default function ReminderEditScreen() {
 
   useEffect(() => {
     if (!saved) return;
-    const timeout = setTimeout(() => router.back(), 700);
+    const timeout = setTimeout(() => router.back(), 1200);
     return () => clearTimeout(timeout);
   }, [router, saved]);
+
+  useEffect(() => {
+    if (!reminder) return;
+    setType(reminder.type);
+    setTitle(reminder.title);
+    setFrequency(FREQUENCIES.includes(reminder.frequency) ? reminder.frequency : 'daily');
+    setWeekday(reminder.weekday ?? 2);
+    setHour(reminder.time?.hour ?? 8);
+    setMinute(reminder.time?.minute ?? 0);
+    setEnabled(reminder.enabled);
+  }, [reminder?.id]);
 
   function weekdayLabel(day: number) {
     const date = new Date(2024, 0, day === 1 ? 7 : 7 + day - 1);
     const label = new Intl.DateTimeFormat(i18n.language, { weekday: 'short' }).format(date);
     return label.charAt(0).toUpperCase() + label.slice(1, 3);
+  }
+
+  if (reminders.loading) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
+        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+          <Ionicons name="close" size={24} color={colors.textSecondary} />
+        </Pressable>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+          <ActivityIndicator color={colors.primary} />
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (reminders.error) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
+        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+          <Ionicons name="close" size={24} color={colors.textSecondary} />
+        </Pressable>
+        <View style={{ flex: 1, justifyContent: 'center', padding: spacing.xl }}>
+          <CollectionError onRetry={() => reminders.refresh().catch(() => {})} />
+        </View>
+      </SafeAreaView>
+    );
   }
 
   if (!reminder) {
@@ -108,10 +155,12 @@ export default function ReminderEditScreen() {
         enabled,
       });
       setSaved(true);
+      requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: 0, animated: true }));
     } catch (error) {
       if (error instanceof NotificationPermissionDeniedError) setPermissionError(true);
       else {
         setSaveError(true);
+        requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: 0, animated: true }));
         Alert.alert(t('common.error'), t('reminderEdit.saveError'));
       }
     } finally {
@@ -140,11 +189,11 @@ export default function ReminderEditScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
         <View style={[s.header, { borderBottomColor: colors.border }]}>
           <Text style={[s.headerTitle, { color: colors.text }]}>{t('reminderEdit.title')}</Text>
-          <Pressable onPress={() => router.back()} hitSlop={12}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('common.close')} onPress={() => router.back()} hitSlop={12} style={({ pressed }) => ({ opacity: pressed ? 0.55 : 1 })}>
             <Ionicons name="close" size={24} color={colors.textSecondary} />
           </Pressable>
         </View>
@@ -187,24 +236,29 @@ export default function ReminderEditScreen() {
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.typeLabel')}</Text>
           <View style={s.typeGrid}>
             {TYPES.map((tp) => {
-              const cfg = REMINDER_TYPE_CONFIG[tp];
               const active = type === tp;
               return (
                 <Pressable
                   key={tp}
                   onPress={() => handleTypeChange(tp)}
-                  style={[
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: type === tp }}
+                  style={({ pressed }) => [
                     s.typeCard,
                     {
                       backgroundColor: active ? colors.primary + '18' : colors.surface,
                       borderColor: active ? colors.primary : colors.border,
+                      opacity: pressed ? 0.76 : 1,
                     },
                   ]}
                 >
-                  <Text style={{ fontSize: 28 }}>{cfg.emoji}</Text>
-                  <Text style={[s.typeLabel, { color: active ? colors.primary : colors.text }]}>
-                    {t('reminderType.' + tp)}
-                  </Text>
+                  <View style={s.typeCardContent}>
+                    <View style={[s.typeIcon, { backgroundColor: active ? colors.primary + '20' : colors.surfaceAlt }]}>
+                      <Ionicons name={TYPE_ICONS[tp]} size={20} color={active ? colors.primary : colors.textSecondary} />
+                    </View>
+                    <Text style={[s.typeLabel, { color: active ? colors.primary : colors.text }]}>{t('reminderType.' + tp)}</Text>
+                  </View>
+                  {active && <Ionicons name="checkmark-circle" size={18} color={colors.primary} />}
                 </Pressable>
               );
             })}
@@ -233,11 +287,12 @@ export default function ReminderEditScreen() {
                   <Pressable
                     key={f}
                     onPress={() => setFrequency(f)}
-                    style={[
+                    style={({ pressed }) => [
                       s.chip,
                       {
                         backgroundColor: active ? colors.primary : colors.surface,
                         borderColor: active ? colors.primary : colors.border,
+                        opacity: pressed ? 0.76 : 1,
                       },
                     ]}
                   >
@@ -265,7 +320,7 @@ export default function ReminderEditScreen() {
                         accessibilityState={{ checked: active }}
                         accessibilityLabel={weekdayLabel(day)}
                         onPress={() => setWeekday(day)}
-                        style={[s.chip, { backgroundColor: active ? colors.primary : colors.surface, borderColor: active ? colors.primary : colors.border }]}
+                        style={({ pressed }) => [s.chip, { backgroundColor: active ? colors.primary : colors.surface, borderColor: active ? colors.primary : colors.border, opacity: pressed ? 0.76 : 1 }]}
                       >
                         <Text style={[s.chipText, { color: active ? '#fff' : colors.text }]}>{weekdayLabel(day)}</Text>
                       </Pressable>
@@ -288,9 +343,12 @@ export default function ReminderEditScreen() {
 
           {/* Preview */}
           <View style={[s.preview, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={[{ color: colors.textSecondary, fontSize: fontSize.sm }]}>
-              {REMINDER_TYPE_CONFIG[type].emoji} {title || REMINDER_TYPE_CONFIG[type].defaultTitle}
-            </Text>
+            <View style={s.previewTitleRow}>
+              <Ionicons name={TYPE_ICONS[type]} size={18} color={colors.primary} />
+              <Text style={[{ color: colors.textSecondary, fontSize: fontSize.sm, flex: 1 }]}>
+                {title || REMINDER_TYPE_CONFIG[type].defaultTitle}
+              </Text>
+            </View>
             <Text style={[{ color: colors.textDisabled, fontSize: fontSize.xs, marginTop: 4 }]}>
               {t('reminderFrequency.' + frequency)} · {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}
             </Text>
@@ -361,14 +419,18 @@ const makeStyles = (
     typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginBottom: spacing.sm },
     typeCard: {
       width: '47%',
-      paddingVertical: spacing.lg,
+      minHeight: 58,
+      paddingVertical: spacing.sm,
       paddingHorizontal: spacing.md,
-      borderRadius: radii.lg,
-      borderWidth: 1.5,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.sm,
+      justifyContent: 'space-between',
     },
-    typeLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.medium, textAlign: 'center' },
+    typeCardContent: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 },
+    typeIcon: { width: 34, height: 34, borderRadius: radii.md, alignItems: 'center', justifyContent: 'center' },
+    typeLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.medium, flexShrink: 1 },
     input: {
       borderWidth: 1,
       borderRadius: radii.md,
@@ -384,6 +446,7 @@ const makeStyles = (
     },
     chipText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     preview: { padding: spacing.lg, borderRadius: radii.lg, borderWidth: 1 },
+    previewTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     deleteBtn: {
       flexDirection: 'row',
       alignItems: 'center',

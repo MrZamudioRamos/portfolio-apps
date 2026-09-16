@@ -6,7 +6,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS, CROPS_BY_ID, CATEGORY_CONFIG, type CropCategory } from '../../src/data/crops';
 import { CROP_IMAGES } from '../../src/data/cropImages';
@@ -20,19 +20,12 @@ import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import type { Plant } from '../../src/models/plant';
-import { CopilotStep } from 'react-native-copilot';
-import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
-import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
-import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
 
 function CalendarInner() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { t, i18n } = useTranslation();
-  const coachLevel = useCoachingLevel();
-  useTourAutoStart('calendar', { firstStep: 'month', disabled: coachLevel !== 'full' });
-
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1); // 1-12
   const [year, setYear] = useState(now.getFullYear());
@@ -42,8 +35,8 @@ function CalendarInner() {
   const { activeGarden: garden, refreshActiveId } = useActiveGarden();
 
   useFocusEffect(useCallback(() => {
-    refreshActiveId();
-    AsyncStorage.setItem('@huerto/activation_calendar_visited', '1');
+    void refreshActiveId().catch(() => {});
+    void AsyncStorage.setItem('@huerto/activation_calendar_visited', '1').catch(() => {});
   }, []));
   const allPlants = useCollection<Plant>('plants');
   const [refreshing, setRefreshing] = useState(false);
@@ -230,13 +223,16 @@ function CalendarInner() {
           </View>
         )}
 
-        <Text style={[s.tipText, { color: colors.textSecondary, borderTopColor: colors.border }]}>
-          💡 {t(`crops.${item.id}.tips`, { defaultValue: item.tips })}
-        </Text>
+        <View style={[s.tipRow, { borderTopColor: colors.border }]}>
+          <Ionicons name="bulb-outline" size={16} color={colors.secondary} />
+          <Text style={[s.tipText, { color: colors.textSecondary }]}>
+            {t(`crops.${item.id}.tips`, { defaultValue: item.tips })}
+          </Text>
+        </View>
 
         {INDOOR_START[item.id] && (
           <View style={[s.indoorBadge, { backgroundColor: colors.info + '18', borderColor: colors.info + '66' }]}>
-            <Text style={{ fontSize: 12 }}>🏠</Text>
+            <Ionicons name="home-outline" size={15} color={colors.info} />
             <Text style={[s.indoorBadgeText, { color: colors.info }]}>
               {t('calendar.startIndoors', { weeks: INDOOR_START[item.id]!.indoorWeeks })}
             </Text>
@@ -271,15 +267,58 @@ function CalendarInner() {
           </Text>
           {hemisphere === 'sur' && (
             <View style={[s.hemisphereTag, { backgroundColor: colors.info + '18', borderColor: colors.info + '66' }]}>
-              <Text style={{ fontSize: 11, color: colors.info }}>🌎 {t('calendar.hemisphereSouth')}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Ionicons name="globe-outline" size={13} color={colors.info} />
+                <Text style={{ fontSize: 11, color: colors.info }}>{t('calendar.hemisphereSouth')}</Text>
+              </View>
             </View>
           )}
         </View>
       </View>
 
+      <View style={[s.plannerHero, { backgroundColor: colors.primary, borderColor: colors.primary }]}>
+        <View style={s.plannerHeroTop}>
+          <View style={[s.plannerHeroIcon, { backgroundColor: colors.accent }]}>
+            <Ionicons name="calendar" size={21} color={colors.primaryDark} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.plannerHeroTitle, { color: colors.background }]}>
+              {t('calendar.plannerTitle', { defaultValue: 'Planifica tu huerto' })}
+            </Text>
+            <Text style={[s.plannerHeroSubtitle, { color: colors.background + 'CC' }]} numberOfLines={1}>
+              {garden?.name ?? t('home.defaultGardenName')} · {t(`zone.${zone}`)}
+            </Text>
+          </View>
+          <Ionicons name="sparkles-outline" size={22} color={colors.background + 'CC'} />
+        </View>
+        <Text style={[s.plannerHeroBody, { color: colors.background + 'E6' }]}>
+          {t('calendar.plannerBody', { defaultValue: 'Decide qué sembrar según tu clima, la luz y el espacio disponible.' })}
+        </Text>
+        <View style={s.plannerHeroStats}>
+          <View style={[s.plannerHeroStat, { backgroundColor: colors.background + '18' }]}>
+            <Text style={[s.plannerHeroStatValue, { color: colors.background }]}>{availableCrops.length}</Text>
+            <Text style={[s.plannerHeroStatLabel, { color: colors.background + 'CC' }]}>{t('calendar.availableLabel', { defaultValue: 'aptos este mes' })}</Text>
+          </View>
+          <View style={[s.plannerHeroStat, { backgroundColor: colors.background + '18' }]}>
+            <Text style={[s.plannerHeroStatValue, { color: colors.background }]}>{upcomingHarvests.length}</Text>
+            <Text style={[s.plannerHeroStatLabel, { color: colors.background + 'CC' }]}>{t('calendar.harvestLabel', { defaultValue: 'en seguimiento' })}</Text>
+          </View>
+          <View style={[s.plannerHeroStat, { backgroundColor: colors.background + '18' }]}>
+            <Ionicons name="finger-print-outline" size={18} color={colors.background} />
+            <Text style={[s.plannerHeroStatLabel, { color: colors.background + 'CC' }]}>{t('calendar.soilRuleLabel', { defaultValue: 'riego consciente' })}</Text>
+          </View>
+        </View>
+      </View>
+
+      {allPlants.loading && allPlants.items.length === 0 && (
+        <View style={s.dataLoading} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+          <ActivityIndicator color={colors.primary} />
+          <Text style={[s.dataLoadingText, { color: colors.textSecondary }]}>{t('common.loading')}</Text>
+        </View>
+      )}
+
       {/* Month navigation */}
-      <CopilotStep text={t('coach.calendar')} order={1} name="month">
-      <WalkView style={[s.monthNav, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View style={[s.monthNav, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <Pressable onPress={prevMonth} hitSlop={16} style={s.navArrow}>
           <Ionicons name="chevron-back" size={22} color={colors.primary} />
         </Pressable>
@@ -296,8 +335,7 @@ function CalendarInner() {
         <Pressable onPress={nextMonth} hitSlop={16} style={s.navArrow}>
           <Ionicons name="chevron-forward" size={22} color={colors.primary} />
         </Pressable>
-      </WalkView>
-      </CopilotStep>
+      </View>
 
       {/* Banners + chips scroll with the list so the crop list gets the screen */}
       <FlatList
@@ -472,11 +510,7 @@ function CalendarInner() {
 }
 
 export default function CalendarScreen() {
-  return (
-    <SemillitaTourProvider>
-      <CalendarInner />
-    </SemillitaTourProvider>
-  );
+  return <CalendarInner />;
 }
 
 const makeStyles = (
@@ -511,9 +545,21 @@ const makeStyles = (
       borderWidth: 1,
       marginTop: spacing.sm,
     },
-    navArrow: { padding: spacing.xs },
+    navArrow: { width: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
     monthName: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
     yearText: { fontSize: fontSize.sm },
+    plannerHero: { marginHorizontal: spacing.xl, marginTop: spacing.sm, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, gap: spacing.md },
+    plannerHeroTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    plannerHeroIcon: { width: 42, height: 42, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+    plannerHeroTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+    plannerHeroSubtitle: { fontSize: fontSize.xs, marginTop: 2 },
+    plannerHeroBody: { fontSize: fontSize.sm, lineHeight: 20 },
+    plannerHeroStats: { flexDirection: 'row', gap: spacing.sm },
+    plannerHeroStat: { flex: 1, minHeight: 58, padding: spacing.sm, borderRadius: radii.md, justifyContent: 'center', gap: 2 },
+    plannerHeroStatValue: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    plannerHeroStatLabel: { fontSize: 10, lineHeight: 14 },
+    dataLoading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.sm },
+    dataLoadingText: { fontSize: fontSize.xs },
     containerBanner: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -564,13 +610,17 @@ const makeStyles = (
     companionsLink: {
       paddingHorizontal: spacing.sm,
       paddingVertical: 3,
+      minHeight: 44,
+      justifyContent: 'center',
       borderRadius: radii.full,
       borderWidth: 1,
     },
     companionsLinkText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
     catChip: {
       paddingHorizontal: spacing.md,
-      paddingVertical: 5,
+      minHeight: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
       borderRadius: radii.full,
       borderWidth: 1.5,
     },
@@ -597,11 +647,17 @@ const makeStyles = (
       borderRadius: radii.full,
     },
     metaText: { fontSize: fontSize.xs },
-    tipText: {
-      fontSize: fontSize.sm,
-      lineHeight: 20,
+    tipRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
       paddingTop: spacing.md,
       borderTopWidth: StyleSheet.hairlineWidth,
+    },
+    tipText: {
+      flex: 1,
+      fontSize: fontSize.sm,
+      lineHeight: 20,
     },
     harvestCard: {
       alignItems: 'center',

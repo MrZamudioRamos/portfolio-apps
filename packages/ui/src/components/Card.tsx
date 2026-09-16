@@ -14,7 +14,7 @@ export function Card({ children, onPress, padded = true, style }: CardProps) {
 
   const cardStyle: ViewStyle = {
     backgroundColor: colors.surface,
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     borderWidth: 1,
     borderColor: colors.border,
     ...(padded ? { padding: spacing.lg } : {}),
@@ -24,6 +24,7 @@ export function Card({ children, onPress, padded = true, style }: CardProps) {
   if (onPress) {
     return (
       <Pressable
+        accessibilityRole="button"
         onPress={onPress}
         style={({ pressed }) => [cardStyle, { opacity: pressed ? 0.85 : 1 }, style]}
       >

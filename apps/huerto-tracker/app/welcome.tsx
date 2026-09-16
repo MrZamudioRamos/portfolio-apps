@@ -1,91 +1,129 @@
 import { useOnboarding } from '@portfolio/shared';
 import { useColors, useTheme } from '@portfolio/ui';
-import { Button } from '../src/components/ActionButton';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
 import { Mascot } from '../src/components/Mascot';
+
+const features = [
+  {
+    icon: 'water' as const,
+    iconColor: '#087FC4',
+    iconBackground: '#DDF3FF',
+    title: 'Diagnóstico antes de regar',
+    body: 'Prueba infalible de 2 cm en sustrato',
+  },
+  {
+    icon: 'thermometer' as const,
+    iconColor: '#4A9A00',
+    iconBackground: '#D9FF9B',
+    title: 'Aprende según tu clima en España',
+    body: 'Mediterráneo, Continental, Cantábrico',
+  },
+  {
+    icon: 'sunny' as const,
+    iconColor: '#F28C00',
+    iconBackground: '#FFF4B8',
+    title: 'Mapeo de sol y sombras',
+    body: 'Orientación sur, este o semisombra',
+  },
+];
 
 export default function WelcomeScreen() {
   const colors = useColors();
-  const { spacing, fontSize, fontWeight, radii } = useTheme();
+  const { fontWeight } = useTheme();
   const router = useRouter();
-  const { t } = useTranslation();
   const { completed } = useOnboarding('huerto');
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <ScrollView
         bounces={false}
-        contentContainerStyle={{ flexGrow: 1, padding: spacing.xl }}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
-        <View style={[styles.decorations, { pointerEvents: 'none' }]}>
-          <View style={[styles.decorOrb, styles.orbTopLeft, { backgroundColor: colors.primaryLight + '35' }]}>
-            <Mascot pose="idle" size={58} />
+        <View style={styles.page}>
+          <View pointerEvents="none" style={styles.dotField}>
+            {Array.from({ length: 36 }, (_, index) => (
+              <View key={index} style={[styles.dot, { left: (index % 6) * 22, top: Math.floor(index / 6) * 22 }]} />
+            ))}
           </View>
-          <View style={[styles.decorOrb, styles.orbTopRight, { backgroundColor: colors.secondary + '35' }]}>
-            <Text style={{ fontSize: 30 }}>🌱</Text>
-          </View>
-          <View style={[styles.decorOrb, styles.orbBottomRight, { backgroundColor: colors.water + '28' }]}>
-            <Text style={{ fontSize: 28 }}>💧</Text>
-          </View>
-        </View>
 
-        <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', flex: 1, justifyContent: 'center', gap: spacing.lg }}>
-          <View style={{ alignItems: 'center', gap: spacing.md }}>
-            <Text style={{ color: colors.text, fontWeight: fontWeight.bold, letterSpacing: 3, textTransform: 'uppercase' }}>
-              {t('welcome.title')}
-            </Text>
-            <View accessibilityLabel={t('onboarding.stepOf', { current: 1, total: 3 })} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
-              <View style={{ width: 42, height: 6, borderRadius: radii.full, backgroundColor: colors.primary }} />
-              <View style={{ width: 8, height: 6, borderRadius: radii.full, backgroundColor: colors.border }} />
-              <View style={{ width: 8, height: 6, borderRadius: radii.full, backgroundColor: colors.border }} />
+          <View style={styles.brandRow}>
+            <View style={styles.brandDot} />
+            <Text style={[styles.brand, { fontWeight: fontWeight.bold }]}>SEMILLA · HUERTOS URBANOS</Text>
+          </View>
+
+          <View style={styles.heroVisual}>
+            <View style={styles.heroRing} />
+            <View style={styles.mockPhone}>
+              <View style={styles.mockPhoneTop}>
+                <Text style={styles.mockPhoneLabel}>semilla</Text>
+                <Ionicons name="leaf" size={12} color="#2E7D32" />
+              </View>
+              <View style={styles.mockPlantPhoto}>
+                <Mascot pose="idle" size={58} />
+              </View>
+              <View style={styles.mockPhoneLine} />
+              <Text style={styles.mockPhoneCaption}>Tu primer cultivo</Text>
+            </View>
+            <View style={styles.leafBadge}>
+              <Ionicons name="leaf" size={24} color="#087B2C" />
             </View>
           </View>
 
-          <View style={{ alignItems: 'center', gap: spacing.md }}>
-            <Text style={{ color: colors.primary, fontSize: fontSize.xs, fontWeight: fontWeight.bold, letterSpacing: 3, textAlign: 'center' }}>
-              {t('welcome.eyebrow')}
+          <View style={styles.copyBlock}>
+            <Text accessibilityRole="header" style={[styles.headline, { fontWeight: fontWeight.bold }]}>
+              Cultiva sin miedo,{ '\n' }
+              <Text style={styles.headlineAccent}>siente la tierra</Text>
             </Text>
-            <Text accessibilityRole="header" style={{ color: colors.text, fontSize: fontSize['3xl'], lineHeight: 42, fontWeight: fontWeight.bold, textAlign: 'center', maxWidth: 390 }}>
-              {t('welcome.heroTitle')}
+            <Text style={styles.subtitle}>
+              Tu huerto urbano en casa, paso a paso y sin{ '\n' }ahogar tus plantas
             </Text>
-            <Text style={{ color: colors.textSecondary, fontSize: fontSize.md, lineHeight: 24, textAlign: 'center', maxWidth: 360 }}>
-              {t('welcome.heroSubtitle')}
-            </Text>
-            <View style={{ width: 168, height: 168, borderRadius: 84, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center', marginVertical: spacing.sm }}>
-              <Mascot pose="wave" size={142} />
-            </View>
           </View>
 
-          <View style={{ padding: spacing.lg, borderRadius: radii.xl, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, gap: spacing.md }}>
-            {(['space', 'crop', 'care'] as const).map((key, index) => (
-              <View key={key} style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'center' }}>
-                <View style={{ width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceAlt }}>
-                  <Text style={{ color: colors.primary, fontWeight: fontWeight.bold }}>{index + 1}</Text>
+          <View style={styles.featureList}>
+            {features.map((feature) => (
+              <View key={feature.title} style={styles.featureRow}>
+                <View style={[styles.featureIcon, { backgroundColor: feature.iconBackground }]}>
+                  <Ionicons name={feature.icon} size={21} color={feature.iconColor} />
                 </View>
-                <Text style={{ color: colors.text, flex: 1, fontSize: fontSize.md }}>{t('welcome.path.' + key)}</Text>
+                <View style={styles.featureCopy}>
+                  <Text style={[styles.featureTitle, { fontWeight: fontWeight.bold }]}>{feature.title}</Text>
+                  <Text style={styles.featureBody}>{feature.body}</Text>
+                </View>
+                <Ionicons name="checkmark-circle-outline" size={21} color="#B7C7B7" />
               </View>
             ))}
           </View>
 
-          <View style={{ gap: spacing.sm }}>
-            <Button
-              title={t(completed ? 'welcome.returnGarden' : 'welcome.explore')}
-              size="lg"
+          <View style={styles.actions}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Empezar mi huerto"
               onPress={() => router.replace(completed ? '/(tabs)' : '/onboarding')}
-              style={{ minHeight: 56, borderRadius: radii.md }}
-            />
-            <Text style={{ color: colors.textSecondary, textAlign: 'center', lineHeight: 20 }}>{t('welcome.noAccount')}</Text>
-            <Button
-              title={t('welcome.signIn')}
-              variant="ghost"
-              size="lg"
+              style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
+            >
+              <Text style={[styles.primaryButtonText, { fontWeight: fontWeight.bold }]}>
+                Empezar mi huerto
+              </Text>
+              <Ionicons name="arrow-forward" size={22} color="#FFFFFF" />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Ya tengo cuenta. Iniciar sesión"
               onPress={() => router.push('/auth')}
-              style={{ minHeight: 48, borderRadius: radii.md }}
-            />
+              style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+            >
+              <Text style={[styles.secondaryButtonText, { fontWeight: fontWeight.bold }]}>Ya tengo cuenta · Iniciar sesión</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.footer}>
+            <Ionicons name="business-outline" size={16} color="#4E7651" />
+            <Text style={styles.footerText}>Adaptado a terrazas, balcones y ventanas en España</Text>
           </View>
         </View>
       </ScrollView>
@@ -93,10 +131,166 @@ export default function WelcomeScreen() {
   );
 }
 
-const styles = {
-  decorations: { position: 'absolute' as const, top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' as const },
-  decorOrb: { position: 'absolute' as const, width: 86, height: 86, borderRadius: 43, alignItems: 'center' as const, justifyContent: 'center' as const },
-  orbTopLeft: { top: 84, left: -24 },
-  orbTopRight: { top: 152, right: -18 },
-  orbBottomRight: { bottom: 110, right: -20 },
-};
+const styles = StyleSheet.create({
+  safeArea: { flex: 1 },
+  scrollContent: { flexGrow: 1 },
+  page: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 430,
+    alignSelf: 'center',
+    overflow: 'hidden',
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 22,
+    backgroundColor: '#EDFFE9',
+  },
+  dotField: {
+    position: 'absolute',
+    top: 18,
+    left: 16,
+    width: 132,
+    height: 132,
+    opacity: 0.24,
+  },
+  dot: {
+    position: 'absolute',
+    width: 2,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: '#6E9B6D',
+  },
+  brandRow: {
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    marginBottom: 12,
+  },
+  brandDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#007A28' },
+  brand: { color: '#006D25', fontSize: 13, letterSpacing: 0.7 },
+  heroVisual: {
+    height: 212,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    marginBottom: 4,
+  },
+  heroRing: {
+    position: 'absolute',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    borderWidth: 2,
+    borderColor: '#86F27F',
+    backgroundColor: 'rgba(185, 255, 115, 0.2)',
+  },
+  mockPhone: {
+    width: 164,
+    height: 106,
+    padding: 9,
+    borderWidth: 1,
+    borderColor: '#E2E9E0',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#1B4E24',
+    shadowOpacity: 0.13,
+    shadowRadius: 15,
+    shadowOffset: { width: 0, height: 7 },
+    elevation: 4,
+  },
+  mockPhoneTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  mockPhoneLabel: { color: '#203A22', fontSize: 9, fontWeight: '700' },
+  mockPlantPhoto: {
+    position: 'absolute',
+    left: 61,
+    top: 8,
+    width: 43,
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    borderRadius: 3,
+    backgroundColor: '#EFF9D9',
+  },
+  mockPhoneLine: { width: 39, height: 3, borderRadius: 2, backgroundColor: '#D6EAD2', marginTop: 15 },
+  mockPhoneCaption: { color: '#587058', fontSize: 7, marginTop: 4 },
+  leafBadge: {
+    position: 'absolute',
+    right: 53,
+    bottom: 15,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#DCEBDD',
+    backgroundColor: '#FFFFFF',
+  },
+  copyBlock: { alignItems: 'center', marginBottom: 22 },
+  headline: {
+    color: '#102313',
+    fontSize: 29,
+    lineHeight: 35,
+    letterSpacing: -0.8,
+    textAlign: 'center',
+  },
+  headlineAccent: {
+    color: '#00842C',
+    textDecorationLine: 'underline',
+    textDecorationColor: '#A2F36E',
+    textDecorationStyle: 'solid',
+  },
+  subtitle: { color: '#416148', fontSize: 16, lineHeight: 23, textAlign: 'center', marginTop: 9 },
+  featureList: { gap: 10, marginBottom: 24 },
+  featureRow: {
+    minHeight: 64,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 13,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E3EDE0',
+    shadowColor: '#2B5D31',
+    shadowOpacity: 0.07,
+    shadowRadius: 7,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+  },
+  featureIcon: { width: 45, height: 45, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
+  featureCopy: { flex: 1, minWidth: 0 },
+  featureTitle: { color: '#142317', fontSize: 15, lineHeight: 19 },
+  featureBody: { color: '#58705A', fontSize: 12, lineHeight: 16, marginTop: 1 },
+  actions: { gap: 11 },
+  primaryButton: {
+    minHeight: 64,
+    paddingHorizontal: 22,
+    borderRadius: 32,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    backgroundColor: '#007A25',
+    shadowColor: '#00621D',
+    shadowOpacity: 0.22,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 5,
+  },
+  primaryButtonText: { color: '#FFFFFF', fontSize: 16 },
+  secondaryButton: {
+    minHeight: 55,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: '#CFDCCE',
+    backgroundColor: 'rgba(255,255,255,0.78)',
+  },
+  secondaryButtonText: { color: '#007A25', fontSize: 15 },
+  pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
+  footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 17 },
+  footerText: { color: '#4E7651', fontSize: 12, lineHeight: 17, textAlign: 'center' },
+});

@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => {
     update,
     collection: {
       items: [], loading: false, create, update,
-      remove: vi.fn(), removeMany: vi.fn(), softRemove: vi.fn(), softRemoveMany: vi.fn(),
+      remove: vi.fn(), removeMany: vi.fn(), softRemove: vi.fn(), softRemoveMany: vi.fn(), error: null,
       getById: vi.fn(), refresh: vi.fn(),
     },
   };
@@ -41,7 +41,7 @@ describe('useReminders permission boundary', () => {
   });
 
   it('does not request permission when the hook is mounted for reading', () => {
-    useReminders('reminders');
+    expect(useReminders('reminders').error).toBeNull();
     expect(requestPermissions).not.toHaveBeenCalled();
   });
 

@@ -7,8 +7,8 @@ import type { CustomCrop } from '../models/custom-crop';
 import type { CostEntry } from '../models/cost-entry';
 import type { GridLayout } from '../hooks/useGardenLayout';
 
-// Skip local-only file:// URIs when syncing to cloud — they don't exist on other devices.
-// Multi-device photo sync would require uploading to Supabase Storage (not yet implemented).
+// Skip local-only file:// URIs when syncing to cloud — syncAll uploads them to
+// Supabase Storage first, then this adapter carries the resulting https URL.
 function syncablePhotoUri(uri: string | undefined): string | null {
   if (!uri) return null;
   if (uri.startsWith('http://') || uri.startsWith('https://')) return uri;

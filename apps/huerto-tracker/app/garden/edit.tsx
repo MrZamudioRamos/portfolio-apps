@@ -4,6 +4,7 @@ import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { useGardenLayout } from '../../src/hooks/useGardenLayout';
+import { CollectionError } from '../../src/components/CollectionError';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -12,6 +13,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
+  ActivityIndicator,
   FlatList,
   Modal,
   Platform,
@@ -161,12 +163,38 @@ export default function GardenEditScreen() {
     }
   }
 
+  if (gardens.loading && gardens.items.length === 0) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+        <View style={s.collectionState} accessibilityRole="progressbar">
+          <ActivityIndicator size="small" color={colors.primary} />
+          <Text style={[s.collectionStateText, { color: colors.textSecondary }]}>{t('common.loading')}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (gardens.error) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+        <View style={{ padding: spacing.xl }}>
+          <CollectionError onRetry={() => gardens.refresh().catch(() => {})} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (!garden) {
     return (
-      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Text style={[{ color: colors.textSecondary, textAlign: 'center', marginTop: 80 }]}>
-          {t('gardenEdit.noGarden')}
-        </Text>
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+        <View style={s.collectionState}>
+          <Text style={[s.collectionStateTitle, { color: colors.text }]}>{t('gardens.emptyTitle')}</Text>
+          <Text style={[s.collectionStateText, { color: colors.textSecondary }]}>{t('gardenEdit.noGarden')}</Text>
+          <Button title={t('common.back')} variant="secondary" size="lg" onPress={() => router.push('/gardens')} style={s.collectionStateButton} />
+        </View>
       </SafeAreaView>
     );
   }
@@ -579,11 +607,10 @@ const makeStyles = (
       borderRadius: radii.xl,
       borderWidth: 1,
       overflow: 'hidden',
-      shadowColor: '#000',
-      shadowOpacity: 0.06,
-      shadowRadius: 16,
-      shadowOffset: { width: 0, height: 8 },
-      elevation: 2,
+      ...Platform.select({
+        web: { boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.06)' },
+        default: { shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 2 },
+      }),
     },
     heroTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     heroIcon: { width: 52, height: 52, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
@@ -605,7 +632,7 @@ const makeStyles = (
     locationLabel: { fontSize: 10, fontWeight: fontWeight.bold, letterSpacing: 0.7, textTransform: 'uppercase' },
     locationPicker: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingTop: 3 },
     locationValue: { flex: 1, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
-    locationAction: { width: 34, height: 34, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+    locationAction: { width: 44, height: 44, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     zoneInline: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 3 },
     layoutCard: { marginTop: spacing.lg, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, overflow: 'hidden' },
     countPill: { paddingHorizontal: spacing.sm, paddingVertical: 5, borderRadius: radii.full },
@@ -616,6 +643,10 @@ const makeStyles = (
     layoutAction: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.lg, paddingVertical: spacing.md, borderRadius: radii.lg, borderWidth: 1.5 },
     layoutActionText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     detailsCard: { marginTop: spacing.lg, borderRadius: radii.xl, borderWidth: 1, overflow: 'hidden' },
+    collectionState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.sm },
+    collectionStateTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, textAlign: 'center' },
+    collectionStateText: { fontSize: fontSize.sm, lineHeight: 20, textAlign: 'center', maxWidth: 320 },
+    collectionStateButton: { width: '100%', maxWidth: 320, marginTop: spacing.sm },
     detailsToggle: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg },
     detailsBody: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
     label: {
@@ -758,11 +789,10 @@ const makeStyles = (
     colorSwatchActive: {
       borderWidth: 3,
       borderColor: '#fff',
-      shadowColor: '#000',
-      shadowOpacity: 0.3,
-      shadowRadius: 4,
-      shadowOffset: { width: 0, height: 2 },
-      elevation: 4,
+      ...Platform.select({
+        web: { boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' },
+        default: { shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 4 },
+      }),
     },
     notesInput: {
       borderWidth: 1,

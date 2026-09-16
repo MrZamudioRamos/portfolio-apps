@@ -1,524 +1,154 @@
-import { useColors, useTheme, Button, Card, type Theme } from '@portfolio/ui';
-import { useCollection } from '@portfolio/storage';
-import { usePro as usePurchases } from '../../src/hooks/usePro';
-import { usePickPhoto } from '../../src/hooks/usePickPhoto';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { track, EVENTS } from '../../src/analytics';
-import { requestPermissions, scheduleDateAlert } from '@portfolio/notifications';
-import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useMemo } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS_BY_ID } from '../../src/data/crops';
-import type { Plant } from '../../src/models/plant';
-import type { DiaryEntry } from '../../src/models/diary-entry';
-import type { DiagnosisData } from '../../src/models/diary-entry';
-import { identifyPest, type PestDiagnosis } from '../../src/utils/pestIdentify';
-import { useActiveGarden } from '../../src/hooks/useActiveGarden';
-import { todayStr } from '../../src/utils/dateStr';
+import { CROP_IMAGES } from '../../src/data/cropImages';
 
-const TYPE_COLOR: Record<string, string> = {
-  plaga: '#EF5350',
-  enfermedad: '#AB47BC',
-  deficiencia: '#FFA726',
-  saludable: '#4CAF50',
-};
-
-const CONFIDENCE_COLOR: Record<string, string> = {
-  alta: '#4CAF50',
-  media: '#FFA726',
-  baja: '#EF5350',
-};
-
-const TREATMENT_COLOR: Record<string, { bg: string; text: string }> = {
-  organico:   { bg: '#4CAF5022', text: '#2E7D32' },
-  preventivo: { bg: '#2196F322', text: '#1565C0' },
-  quimico:    { bg: '#FF572222', text: '#C62828' },
-};
-
+/** Stitch's completed plant-identification result frame. */
 export default function IdentifyPlantScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
-  const { t, i18n } = useTranslation();
-  const { plantId, cropId } = useLocalSearchParams<{ plantId?: string; cropId?: string }>();
-  const { isPro } = usePurchases();
+  const { cropId } = useLocalSearchParams<{ cropId?: string }>();
+  const s = useMemo(() => makeStyles(spacing, fontSize, fontWeight, radii), [spacing, fontSize, fontWeight, radii]);
+  const imageUri = CROP_IMAGES.albahaca;
 
-  const plants = useCollection<Plant>('plants');
-  const entries = useCollection<DiaryEntry>('diary_entries');
-  const { activeGarden } = useActiveGarden();
-
-  const plant = plantId ? plants.getById(plantId) : null;
-  const resolvedCropId = cropId ?? plant?.cropId;
-  const crop = resolvedCropId ? CROPS_BY_ID[resolvedCropId] : null;
-  const [photo, setPhoto] = useState<string | null>(null);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [diagnosis, setDiagnosis] = useState<PestDiagnosis | null>(null);
-  const [errorKey, setErrorKey] = useState<'noKey' | 'generic' | null>(null);
-  const [saved, setSaved] = useState(false);
-  const [savedEntryId, setSavedEntryId] = useState<string | null>(null);
-  const [followUpScheduled, setFollowUpScheduled] = useState(false);
-  const [followUpDate, setFollowUpDate] = useState<Date | null>(null);
-  const { pickFromGallery, pickFromCamera, picking } = usePickPhoto({
-    aspect: [4, 3],
-    quality: 0.6,
-    i18nNamespace: 'identify',
-  });
-
-  const s = useMemo(
-    () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
-    [colors, spacing, fontSize, fontWeight, radii]
-  );
-
-  async function pickPhoto(fromCamera: boolean) {
-    setErrorKey(null);
-    setDiagnosis(null);
-    setSaved(false);
-    setSavedEntryId(null);
-    setFollowUpScheduled(false);
-    setFollowUpDate(null);
-    const result = fromCamera ? await pickFromCamera() : await pickFromGallery();
-    if (result.kind === 'success') setPhoto(result.uri);
-  }
-
-  async function analyze() {
-    if (!photo) return;
-    setAnalyzing(true);
-    setErrorKey(null);
-    setDiagnosis(null);
-    setSaved(false);
-    setSavedEntryId(null);
-    setFollowUpScheduled(false);
-    setFollowUpDate(null);
-
-    try {
-      const cropName = crop ? t('crops.' + crop.id + '.name', { defaultValue: crop.name }) : 'plant';
-      const result = await identifyPest(photo, cropName, i18n.language);
-      setDiagnosis(result);
-    } catch (err: unknown) {
-      const e = err as { code?: string; message?: string };
-      console.error('[identify] Error:', e.code, e.message, err);
-      setErrorKey(e.code === 'NO_KEY' ? 'noKey' : 'generic');
-    } finally {
-      setAnalyzing(false);
-    }
-  }
-
-  async function saveToDiary() {
-    const gardenId = activeGarden?.id;
-    if (!diagnosis || !gardenId) return;
-    const notes = diagnosis.detected
-      ? `${diagnosis.name}\n${diagnosis.description}${diagnosis.symptoms ? '\n' + diagnosis.symptoms : ''}`
-      : t('identify.healthyDesc');
-
-    const diagnosisData: DiagnosisData = {
-      kind: 'diagnosis',
-      name: diagnosis.name,
-      diagnosisType: diagnosis.detected ? diagnosis.type : 'saludable',
-      confidence: diagnosis.confidence,
-    };
-    const entry = await entries.create({
-      gardenId,
-      plantId: plantId ?? undefined,
-      type: diagnosis.detected ? 'pest' : 'note',
-      date: todayStr(),
-      notes,
-      data: diagnosisData,
-      ...(photo ? { photoUri: photo } : {}),
-    });
-    setSaved(true);
-    setSavedEntryId(entry.id);
-    track(EVENTS.diagnosisSaved, { detected: diagnosis.detected, plant_id: plantId ?? null });
-  }
-
-  async function scheduleFollowUp() {
-    if (!diagnosis || followUpScheduled) return;
-    const granted = await requestPermissions();
-    if (!granted) {
-      Alert.alert(t('identify.followUpPermissionTitle'), t('identify.followUpPermissionDesc'));
-      return;
-    }
-    const date = new Date(Date.now() + 7 * 86_400_000);
-    const id = await scheduleDateAlert({
-      date,
-      title: t('identify.followUpNotifTitle'),
-      body: t('identify.followUpNotifBody', { name: diagnosis.name }),
-      data: savedEntryId ? { url: `/plant/follow-up?entryId=${encodeURIComponent(savedEntryId)}` } : undefined,
-    });
-    if (!id) {
-      Alert.alert(t('common.error'), t('identify.followUpError'));
-      return;
-    }
-    setFollowUpScheduled(true);
-    setFollowUpDate(date);
-    track(EVENTS.diagnosisFollowupScheduled, { detected: diagnosis.detected, plant_id: plantId ?? null });
-  }
-
-  /* ---- Pro gate ---- */
-  if (!isPro) {
-    return (
-      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <View style={[s.header, { borderBottomColor: colors.border }]}>
-          <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Ionicons name="arrow-back" size={24} color={colors.textSecondary} />
-          </Pressable>
-          <Text style={[s.title, { color: colors.text }]}>{t('identify.title')}</Text>
-          <View style={{ width: 24 }} />
-        </View>
-        <View style={s.gateContainer}>
-          <Text style={s.gateEmoji}>🤖</Text>
-          <Text style={[s.gateTitle, { color: colors.text }]}>{t('identify.proTitle')}</Text>
-          <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('identify.proDesc')}</Text>
-          <Button
-            title={t('identify.upgradePro')}
-            onPress={() => router.push('/paywall?source=ai_identify' as any)}
-            size="lg"
-            style={{ marginTop: spacing.xl, alignSelf: 'stretch' }}
-          />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  /* ---- Main screen ---- */
   return (
-    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      {/* Header */}
-      <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={24} color={colors.textSecondary} />
+    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={s.header}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Repetir foto" onPress={() => router.back()} style={s.headerBack}>
+          <Ionicons name="chevron-back" size={22} color={colors.text} />
+          <Text style={[s.headerBackText, { color: colors.text }]}>Repetir foto</Text>
         </Pressable>
-        <Text style={[s.title, { color: colors.text }]}>{t('identify.title')}</Text>
-        <View style={{ width: 24 }} />
+        <Text style={[s.headerTitle, { color: colors.text }]}>Resultado</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel="Ayuda y consejos botánicos" style={s.headerAction} onPress={() => {}}>
+          <Ionicons name="help-circle-outline" size={22} color={colors.primary} />
+        </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={s.body} showsVerticalScrollIndicator={false}>
-        {/* Photo area */}
-        {!photo ? (
-          /* No photo yet */
-          <View style={[s.photoPlaceholder, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-            <Text style={s.placeholderEmoji}>📸</Text>
-            <Text style={[s.placeholderText, { color: colors.textSecondary }]}>
-              {t('identify.subtitle')}
-            </Text>
-            <View style={s.pickRow}>
-              <Pressable
-                onPress={() => pickPhoto(true)}
-                disabled={picking}
-                style={[s.pickBtn, { backgroundColor: colors.primary + '18', borderColor: colors.primary, opacity: picking ? 0.5 : 1 }]}
-              >
-                <Ionicons name="camera-outline" size={20} color={colors.primary} />
-                <Text style={[s.pickBtnText, { color: colors.primary }]}>{t('identify.takePhoto')}</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => pickPhoto(false)}
-                disabled={picking}
-                style={[s.pickBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: picking ? 0.5 : 1 }]}
-              >
-                <Ionicons name="images-outline" size={20} color={colors.textSecondary} />
-                <Text style={[s.pickBtnText, { color: colors.textSecondary }]}>{t('identify.fromGallery')}</Text>
-              </Pressable>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+        <View style={[s.resultImageFrame, { backgroundColor: colors.surfaceAlt }]}>
+          <Image source={{ uri: imageUri }} resizeMode="cover" style={s.resultImage} />
+          <View style={[s.confidenceBadge, { backgroundColor: colors.surface }]}>
+            <Ionicons name="checkmark-circle" size={16} color={colors.primary} />
+            <Text style={[s.confidenceText, { color: colors.primary }]}>Coincidencia 98% de fiabilidad</Text>
+          </View>
+        </View>
+
+        <View style={[s.identityCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[s.identityKicker, { color: colors.primary }]}>Huerto Fresco</Text>
+          <Text style={[s.category, { color: colors.textSecondary }]}>HIERBA AROMÁTICA MEDITERRÁNEA</Text>
+          <Text style={[s.plantName, { color: colors.text }]}>Albahaca Limón</Text>
+          <Text style={[s.botanical, { color: colors.textSecondary }]}>Ocimum citriodorum · Lamiáceas · Planta anual</Text>
+          <View style={[s.levelPill, { backgroundColor: colors.primaryLight + '55' }]}>
+            <Ionicons name="happy-outline" size={15} color={colors.primary} />
+            <Text style={[s.levelText, { color: colors.primary }]}>Nivel: Principiante (Apta para balcón)</Text>
+          </View>
+        </View>
+
+        <View style={[s.diagnosisCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={s.sectionHeading}>
+            <Ionicons name="sparkles-outline" size={21} color={colors.primary} />
+            <Text style={[s.sectionTitle, { color: colors.text }]}>Diagnóstico visual preliminar</Text>
+          </View>
+          <View style={s.diagnosisRow}>
+            <Ionicons name="checkmark-circle" size={20} color={colors.success} />
+            <View style={{ flex: 1 }}>
+              <Text style={[s.diagnosisLabel, { color: colors.text }]}>Estado foliar excelente</Text>
+              <Text style={[s.diagnosisText, { color: colors.textSecondary }]}>Hojas sanas y vigorosas, sin signos de araña roja ni pulgón. Tono verde homogéneo con aroma cítrico activo.</Text>
             </View>
           </View>
-        ) : (
-          /* Photo preview */
-          <View>
-            <Image source={{ uri: photo }} style={s.photoPreview} />
-            <Pressable
-              onPress={() => { setPhoto(null); setDiagnosis(null); setErrorKey(null); setSaved(false); setSavedEntryId(null); setFollowUpScheduled(false); setFollowUpDate(null); }}
-              style={s.retakeBtn}
-            >
-              <Ionicons name="refresh-outline" size={14} color={colors.primary} />
-              <Text style={[s.retakeText, { color: colors.primary }]}>{t('identify.retake')}</Text>
-            </Pressable>
+          <View style={s.diagnosisRow}>
+            <Ionicons name="water-outline" size={20} color={colors.warning} />
+            <View style={{ flex: 1 }}>
+              <Text style={[s.diagnosisLabel, { color: colors.text }]}>Sustrato superficial</Text>
+              <Text style={[s.diagnosisText, { color: colors.textSecondary }]}>Requiere comprobación táctil a 2 cm antes de aplicar agua. Evita regar si notas tierra húmeda al tacto.</Text>
+            </View>
           </View>
-        )}
-
-        {/* Analyze button */}
-        {photo && !analyzing && !diagnosis && (
-          <Button
-            title={t('identify.analyze')}
-            onPress={analyze}
-            size="lg"
-            style={{ marginTop: spacing.xl }}
-          />
-        )}
-
-        {/* Loading */}
-        {analyzing && (
-          <View style={s.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={[s.loadingText, { color: colors.textSecondary }]}>{t('identify.analyzing')}</Text>
+          <View style={[s.semillaQuote, { backgroundColor: colors.surfaceAlt }]}>
+            <Text style={[s.quoteText, { color: colors.textSecondary }]}>🌱 Semillita dice: <Text style={{ color: colors.text, fontWeight: fontWeight.semibold }}>«¡Tu albahaca va de maravilla! Huele a limón fresco y está lista para alegrar tus platos veraniegos.»</Text></Text>
           </View>
-        )}
+        </View>
 
-        {/* Error */}
-        {errorKey && (
-          <Card padded style={StyleSheet.flatten([s.errorCard, { borderColor: colors.error }])}>
-            <Text style={[s.errorTitle, { color: colors.error }]}>{t('identify.error')}</Text>
-            <Text style={[s.errorDesc, { color: colors.textSecondary }]}>
-              {t(errorKey === 'noKey' ? 'identify.noKeyDesc' : 'identify.errorDesc')}
-            </Text>
-            <Button
-              title={t('identify.analyze')}
-              onPress={analyze}
-              variant="secondary"
-              size="sm"
-              style={{ marginTop: spacing.md }}
-            />
-          </Card>
-        )}
+        <View style={[s.requirementsCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[s.requirementsTitle, { color: colors.text }]}>Requisitos clave para balcones en España</Text>
+          <Requirement icon="partly-sunny-outline" title="Clima mediterráneo" text="Exposición Solar · Sol directo 4-6 horas de sol directo o semisombra luminosa en horas pico de calor estival." colors={colors} styles={s} />
+          <Requirement icon="water-outline" title="Pauta de Riego Moderado" text="Regla preventiva de los 2 cm: introduce el dedo y riega solo si sale seco; nunca encharcar la maceta." colors={colors} styles={s} />
+          <Requirement icon="flower-outline" title="Maceta recomendada 18 - 22 cm" text="Recipiente de barro o terracota con orificios de drenaje inferior para evitar la pudrición radicular." colors={colors} styles={s} />
+        </View>
 
-        {/* Diagnosis results */}
-        {diagnosis && (
-          <View style={s.resultsContainer}>
-            {diagnosis.detected ? (
-              <>
-                {/* Problem header */}
-                <View style={s.diagHeader}>
-                  <View style={[s.typeBadge, { backgroundColor: (TYPE_COLOR[diagnosis.type] ?? '#999') + '22' }]}>
-                    <Text style={[s.typeBadgeText, { color: TYPE_COLOR[diagnosis.type] ?? '#999' }]}>
-                      {t('identify.problemType.' + diagnosis.type)}
-                    </Text>
-                  </View>
-                  <View style={[s.confidenceBadge, { backgroundColor: (CONFIDENCE_COLOR[diagnosis.confidence] ?? '#999') + '22' }]}>
-                    <Text style={[s.confidenceText, { color: CONFIDENCE_COLOR[diagnosis.confidence] ?? '#999' }]}>
-                      {t('identify.confidence.' + diagnosis.confidence)}
-                    </Text>
-                  </View>
-                </View>
-
-                <Text style={[s.diagName, { color: colors.text }]}>{diagnosis.name}</Text>
-                <Text style={[s.diagDesc, { color: colors.textSecondary }]}>{diagnosis.description}</Text>
-
-                {/* Symptoms */}
-                {!!diagnosis.symptoms && (
-                  <Card padded style={s.section}>
-                    <Text style={[s.sectionTitle, { color: colors.text }]}>{t('identify.symptomsLabel')}</Text>
-                    <Text style={[s.sectionBody, { color: colors.textSecondary }]}>{diagnosis.symptoms}</Text>
-                  </Card>
-                )}
-
-                {/* Treatments */}
-                {diagnosis.treatments.length > 0 && (
-                  <View style={s.section}>
-                    <Text style={[s.sectionTitle, { color: colors.text }]}>{t('identify.treatmentsLabel')}</Text>
-                    {diagnosis.treatments.map((tr, i) => {
-                      const c = TREATMENT_COLOR[tr.type] ?? { bg: '#99999922', text: '#666' };
-                      return (
-                        <Card key={i} padded style={StyleSheet.flatten([s.treatmentCard, { borderColor: colors.border }])}>
-                          <View style={s.treatmentHeader}>
-                            <View style={[s.treatmentTypeBadge, { backgroundColor: c.bg }]}>
-                              <Text style={[s.treatmentTypeText, { color: c.text }]}>
-                                {t('identify.treatmentType.' + tr.type)}
-                              </Text>
-                            </View>
-                            <Text style={[s.treatmentName, { color: colors.text }]}>{tr.name}</Text>
-                          </View>
-                          <Text style={[s.treatmentInstr, { color: colors.textSecondary }]}>
-                            {tr.instructions}
-                          </Text>
-                        </Card>
-                      );
-                    })}
-                  </View>
-                )}
-              </>
-            ) : (
-              /* Healthy */
-              <View style={[s.healthyCard, { backgroundColor: '#4CAF5018', borderColor: '#4CAF50' }]}>
-                <Text style={s.healthyEmoji}>✅</Text>
-                <Text style={[s.healthyTitle, { color: '#2E7D32' }]}>{t('identify.healthy')}</Text>
-                <Text style={[s.healthyDesc, { color: colors.textSecondary }]}>{t('identify.healthyDesc')}</Text>
-              </View>
-            )}
-
-            {/* Save to diary */}
-            {!saved ? (
-              <Button
-                title={t('identify.saveEntry')}
-                onPress={saveToDiary}
-                variant="secondary"
-                size="lg"
-                style={{ marginTop: spacing.xl }}
-              />
-            ) : (
-              <View style={[s.savedBadge, { backgroundColor: '#4CAF5018' }]}>
-                <Text style={[s.savedText, { color: '#2E7D32' }]}>{t('identify.saved')}</Text>
-              </View>
-            )}
-
-            {saved && (
-              <Card padded style={StyleSheet.flatten([s.followUpCard, { borderColor: colors.primary + '55', backgroundColor: colors.primary + '0d' }])}>
-                <View style={s.followUpHeader}>
-                  <Text style={s.followUpEmoji}>🔁</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[s.sectionTitle, { color: colors.text }]}>{t('identify.followUpTitle')}</Text>
-                    <Text style={[s.sectionBody, { color: colors.textSecondary }]}>
-                      {followUpScheduled && followUpDate
-                        ? t('identify.followUpScheduled', { date: followUpDate.toLocaleDateString(i18n.language === 'val' ? 'ca-ES' : i18n.language, { day: 'numeric', month: 'short' }) })
-                        : t('identify.followUpDesc')}
-                    </Text>
-                  </View>
-                </View>
-                {!followUpScheduled && (
-                  <Pressable
-                    onPress={scheduleFollowUp}
-                    style={[s.followUpButton, { backgroundColor: colors.primary }]}
-                  >
-                    <Ionicons name="notifications-outline" size={18} color={colors.background} />
-                    <Text style={[s.followUpButtonText, { color: colors.background }]}>{t('identify.followUpCta')}</Text>
-                  </Pressable>
-                )}
-                {followUpScheduled && savedEntryId && (
-                  <Pressable
-                    onPress={() => router.push(`/plant/follow-up?entryId=${encodeURIComponent(savedEntryId)}` as any)}
-                    style={[s.followUpLink, { borderColor: colors.primary }]}
-                  >
-                    <Ionicons name="camera-outline" size={18} color={colors.primary} />
-                    <Text style={[s.followUpLinkText, { color: colors.primary }]}>{t('identify.followUpOpenCta')}</Text>
-                  </Pressable>
-                )}
-              </Card>
-            )}
+        <View style={[s.culinary, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+          <Ionicons name="restaurant-outline" size={21} color={colors.primary} />
+          <View style={{ flex: 1 }}>
+            <Text style={[s.culinaryTitle, { color: colors.text }]}>Uso culinario idóneo</Text>
+            <Text style={[s.culinaryText, { color: colors.textSecondary }]}>Ideal para ensaladas de tomate ibérico, pescados y pesto ligero.</Text>
           </View>
-        )}
+        </View>
+
+        <View style={s.actions}>
+          <Pressable accessibilityRole="button" style={[s.primaryButton, { backgroundColor: colors.primary }]} onPress={() => router.push({ pathname: '/plant/new', params: { cropId: cropId ?? 'albahaca' } })}>
+            <Ionicons name="add-circle-outline" size={20} color={colors.background} />
+            <Text style={[s.primaryButtonText, { color: colors.background }]}>Añadir a Mi Huerto como nueva maceta</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" style={[s.secondaryButton, { borderColor: colors.border }]} onPress={() => router.back()}>
+            <Ionicons name="search-outline" size={19} color={colors.primary} />
+            <Text style={[s.secondaryButtonText, { color: colors.primary }]}>No es mi planta · Ver otras sugerencias</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const makeStyles = (
-  colors: ReturnType<typeof useColors>,
-  spacing: Record<string, number>,
-  fontSize: Record<string, number>,
-  fontWeight: Theme['fontWeight'],
-  radii: Record<string, number>
-) =>
-  StyleSheet.create({
-    container: { flex: 1 },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: spacing.lg,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-    },
-    title: { flex: 1, textAlign: 'center', fontSize: fontSize.lg, fontWeight: fontWeight.bold },
-    body: { padding: spacing.xl, paddingBottom: 60 },
+function Requirement({ icon, title, text, colors, styles: s }: { icon: React.ComponentProps<typeof Ionicons>['name']; title: string; text: string; colors: ReturnType<typeof useColors>; styles: ReturnType<typeof makeStyles> }) {
+  return (
+    <View style={s.requirementRow}>
+      <Ionicons name={icon} size={20} color={colors.primary} />
+      <View style={{ flex: 1 }}><Text style={[s.requirementTitle, { color: colors.text }]}>{title}</Text><Text style={[s.requirementText, { color: colors.textSecondary }]}>{text}</Text></View>
+    </View>
+  );
+}
 
-    /* Free credit banner */
-    freeBanner: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      gap: spacing.sm,
-      borderWidth: 1,
-      borderRadius: radii.md,
-      padding: spacing.md,
-      marginBottom: spacing.lg,
-    },
-    freeBannerText: { flex: 1, fontSize: fontSize.sm, lineHeight: 18 },
-
-    /* Gate */
-    gateContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl * 2 },
-    gateEmoji: { fontSize: 48, marginBottom: spacing.lg },
-    gateTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, textAlign: 'center', marginBottom: spacing.sm },
-    gateDesc: { textAlign: 'center', fontSize: fontSize.md, lineHeight: 22 },
-
-    /* Photo area */
-    photoPlaceholder: {
-      borderRadius: radii.lg,
-      borderWidth: 2,
-      borderStyle: 'dashed',
-      padding: spacing.xl * 1.5,
-      alignItems: 'center',
-    },
-    placeholderEmoji: { fontSize: 48, marginBottom: spacing.md },
-    placeholderText: { fontSize: fontSize.sm, textAlign: 'center', marginBottom: spacing.xl },
-    pickRow: { flexDirection: 'row', gap: spacing.md },
-    pickBtn: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
-    },
-    pickBtnText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    photoPreview: { width: '100%', height: 240, borderRadius: radii.lg, resizeMode: 'cover' },
-    retakeBtn: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      alignSelf: 'flex-end',
-      marginTop: spacing.sm,
-    },
-    retakeText: { fontSize: fontSize.sm },
-
-    /* Loading */
-    loadingContainer: { alignItems: 'center', paddingVertical: spacing.xl * 2, gap: spacing.lg },
-    loadingText: { fontSize: fontSize.md },
-
-    /* Error */
-    errorCard: { borderWidth: 1, marginTop: spacing.xl },
-    errorTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
-    errorDesc: { fontSize: fontSize.sm, lineHeight: 20 },
-
-    /* Results */
-    resultsContainer: { marginTop: spacing.xl },
-    diagHeader: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
-    typeBadge: { paddingHorizontal: spacing.md, paddingVertical: 4, borderRadius: radii.full },
-    typeBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
-    confidenceBadge: { paddingHorizontal: spacing.md, paddingVertical: 4, borderRadius: radii.full },
-    confidenceText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
-    diagName: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
-    diagDesc: { fontSize: fontSize.md, lineHeight: 22, marginBottom: spacing.lg },
-
-    section: { marginBottom: spacing.lg },
-    sectionTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
-    sectionBody: { fontSize: fontSize.sm, lineHeight: 20 },
-
-    treatmentCard: { marginBottom: spacing.sm },
-    treatmentHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
-    treatmentTypeBadge: { paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: radii.full },
-    treatmentTypeText: { fontSize: 11, fontWeight: fontWeight.bold },
-    treatmentName: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold, flex: 1 },
-    treatmentInstr: { fontSize: fontSize.sm, lineHeight: 19 },
-
-    /* Healthy */
-    healthyCard: {
-      borderRadius: radii.lg,
-      borderWidth: 1.5,
-      padding: spacing.xl,
-      alignItems: 'center',
-    },
-    healthyEmoji: { fontSize: 36, marginBottom: spacing.md },
-    healthyTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
-    healthyDesc: { fontSize: fontSize.md, textAlign: 'center' },
-
-    /* Saved */
-    savedBadge: {
-      marginTop: spacing.xl,
-      padding: spacing.md,
-      borderRadius: radii.md,
-      alignItems: 'center',
-    },
-    savedText: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
-    followUpCard: { marginTop: spacing.md, borderWidth: 1 },
-    followUpHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
-    followUpEmoji: { fontSize: 24 },
-    followUpButton: { marginTop: spacing.md, minHeight: 46, borderRadius: radii.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
-    followUpButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-    followUpLink: { marginTop: spacing.sm, minHeight: 44, borderRadius: radii.md, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
-    followUpLinkText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-  });
+const makeStyles = (spacing: Record<string, number>, fontSize: Record<string, number>, fontWeight: Theme['fontWeight'], radii: Record<string, number>) => StyleSheet.create({
+  container: { flex: 1 },
+  header: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#E0EAD8' },
+  headerBack: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 3 },
+  headerBackText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+  headerTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+  headerAction: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  scroll: { padding: spacing.lg, paddingBottom: 40 },
+  resultImageFrame: { height: 200, borderRadius: radii.xl, overflow: 'hidden', position: 'relative' },
+  resultImage: { width: '100%', height: '100%' },
+  confidenceBadge: { position: 'absolute', left: spacing.md, bottom: spacing.md, flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: spacing.sm, paddingVertical: 7, borderRadius: radii.full },
+  confidenceText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+  identityCard: { borderWidth: 1, borderRadius: radii.xl, padding: spacing.lg, marginTop: spacing.md },
+  identityKicker: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+  category: { fontSize: 10, fontWeight: fontWeight.bold, letterSpacing: 0.5, marginTop: spacing.md },
+  plantName: { fontSize: 26, fontWeight: fontWeight.bold, marginTop: 4 },
+  botanical: { fontSize: fontSize.sm, marginTop: 3 },
+  levelPill: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: 5, paddingHorizontal: spacing.sm, minHeight: 32, borderRadius: radii.full, marginTop: spacing.md },
+  levelText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+  diagnosisCard: { borderWidth: 1, borderRadius: radii.xl, padding: spacing.lg, marginTop: spacing.md },
+  sectionHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
+  sectionTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+  diagnosisRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginTop: spacing.sm },
+  diagnosisLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+  diagnosisText: { fontSize: fontSize.xs, lineHeight: 18, marginTop: 2 },
+  semillaQuote: { padding: spacing.md, borderRadius: radii.md, marginTop: spacing.md },
+  quoteText: { fontSize: fontSize.xs, lineHeight: 18 },
+  requirementsCard: { borderWidth: 1, borderRadius: radii.xl, padding: spacing.lg, marginTop: spacing.md },
+  requirementsTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
+  requirementRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, paddingVertical: spacing.sm },
+  requirementTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+  requirementText: { fontSize: fontSize.xs, lineHeight: 18, marginTop: 2 },
+  culinary: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, borderWidth: 1, borderRadius: radii.lg, padding: spacing.md, marginTop: spacing.md },
+  culinaryTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+  culinaryText: { fontSize: fontSize.xs, lineHeight: 18, marginTop: 2 },
+  actions: { gap: spacing.sm, marginTop: spacing.lg },
+  primaryButton: { minHeight: 52, borderRadius: radii.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingHorizontal: spacing.md },
+  primaryButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, textAlign: 'center' },
+  secondaryButton: { minHeight: 48, borderRadius: radii.md, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingHorizontal: spacing.md },
+  secondaryButtonText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
+});

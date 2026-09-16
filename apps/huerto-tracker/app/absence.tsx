@@ -6,9 +6,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../src/components/ActionButton';
+import { CollectionError } from '../src/components/CollectionError';
 import { CROPS_BY_ID } from '../src/data/crops';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../src/hooks/useCustomCrops';
@@ -106,7 +107,7 @@ export default function AbsenceScreen() {
 
       <ScrollView contentContainerStyle={{ padding: spacing.xl, gap: spacing.lg, maxWidth: 560, width: '100%', alignSelf: 'center' }} showsVerticalScrollIndicator={false}>
         <View style={{ gap: spacing.xs }}>
-          <Text style={{ fontSize: 34 }}>🧳</Text>
+          <Ionicons name="briefcase-outline" size={34} color={colors.primary} />
           <Text style={{ color: colors.text, fontSize: fontSize['2xl'], fontWeight: fontWeight.bold }}>{t('absence.heading')}</Text>
           <Text style={{ color: colors.textSecondary, fontSize: fontSize.md, lineHeight: 22 }}>{t('absence.description')}</Text>
         </View>
@@ -134,7 +135,7 @@ export default function AbsenceScreen() {
 
         <Card padded style={{ borderColor: colors.border }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-            <Text style={{ fontSize: 26 }}>🤝</Text>
+            <Ionicons name="people-outline" size={26} color={colors.primary} />
             <View style={{ flex: 1, gap: 3 }}>
               <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('absence.helperTitle')}</Text>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, lineHeight: 19 }}>{t('absence.helperDesc')}</Text>
@@ -143,7 +144,14 @@ export default function AbsenceScreen() {
           </View>
         </Card>
 
-        {!gardenPlants.length ? (
+        {plants.loading ? (
+          <View accessibilityRole="progressbar" style={{ minHeight: 160, alignItems: 'center', justifyContent: 'center', gap: spacing.sm }}>
+            <ActivityIndicator size="small" color={colors.primary} />
+            <Text style={{ color: colors.textSecondary }}>{t('common.loading')}</Text>
+          </View>
+        ) : plants.error ? (
+          <CollectionError onRetry={() => plants.refresh().catch(() => {})} />
+        ) : !gardenPlants.length ? (
           <Card padded style={{ borderColor: colors.border }}>
             <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('absence.noPlantsTitle')}</Text>
             <Text style={{ color: colors.textSecondary, lineHeight: 21, marginTop: spacing.xs }}>{t('absence.noPlantsDesc')}</Text>
@@ -188,7 +196,7 @@ export default function AbsenceScreen() {
 
         <Card padded style={{ borderColor: isPro ? colors.primary + '66' : colors.border, backgroundColor: isPro ? colors.primary + '0d' : colors.surface }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-            <Text style={{ fontSize: 24 }}>{isPro ? '🔔' : '⭐'}</Text>
+            <Ionicons name={isPro ? 'notifications-outline' : 'sparkles-outline'} size={24} color={isPro ? colors.primary : colors.warning} />
             <View style={{ flex: 1, gap: 3 }}>
               <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t(isPro ? 'absence.proActiveTitle' : 'absence.proTitle')}</Text>
               <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, lineHeight: 19 }}>{t(isPro ? 'absence.proActiveDesc' : 'absence.proDesc')}</Text>

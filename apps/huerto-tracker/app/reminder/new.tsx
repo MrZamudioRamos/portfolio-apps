@@ -2,12 +2,12 @@ import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { Button } from '../../src/components/ActionButton';
 import { useReminders, NotificationPermissionDeniedError, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
-import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
+  ActivityIndicator,
   Linking,
   Pressable,
   Platform,
@@ -20,7 +20,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type GardenReminder, type ReminderType } from '../../src/models/reminder';
 import { type Plant } from '../../src/models/plant';
-import { CROPS_BY_ID } from '../../src/data/crops';
 import { useCollection } from '@portfolio/storage';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { usePro } from '../../src/hooks/usePro';
@@ -31,7 +30,6 @@ const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'cust
 // every_2_days/every_3_days removed: expo can't fire them at a fixed time, so
 // they were mapped to daily — keeping them in the picker would mislead users.
 const FREQUENCIES: ReminderFrequency[] = ['daily', 'weekly', 'once'];
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 const TYPE_ICONS: Record<ReminderType, keyof typeof Ionicons.glyphMap> = {
   watering: 'water-outline',
   fertilizing: 'leaf-outline',
@@ -63,13 +61,14 @@ export default function ReminderNewScreen() {
   const [saveError, setSaveError] = useState(false);
   const [permissionError, setPermissionError] = useState(false);
   const busy = useRef(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (!saved) return;
     const timeout = setTimeout(() => {
       if (router.canGoBack()) router.back();
       else router.replace('/(tabs)');
-    }, 700);
+    }, 1200);
     return () => clearTimeout(timeout);
   }, [router, saved]);
 
@@ -149,9 +148,11 @@ export default function ReminderNewScreen() {
         enabled: true,
       });
       setSaved(true);
+      requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: 0, animated: true }));
     } catch (error) {
       setPermissionError(error instanceof NotificationPermissionDeniedError);
       setSaveError(!(error instanceof NotificationPermissionDeniedError));
+      requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: 0, animated: true }));
     } finally {
       busy.current = false;
       setSaving(false);
@@ -160,7 +161,7 @@ export default function ReminderNewScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         <View style={s.body}>
           <View style={s.greetingRow}>
             <View style={s.greetingCopy}>
@@ -171,13 +172,20 @@ export default function ReminderNewScreen() {
               accessibilityRole="button"
               accessibilityLabel={t('common.close')}
               onPress={() => router.back()}
-              style={[s.closeButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              style={({ pressed }) => [s.closeButton, { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.65 : 1 }]}
             >
               <Ionicons name="close" size={20} color={colors.textSecondary} />
             </Pressable>
           </View>
 
-          <Text style={[s.label, { color: colors.textSecondary, marginTop: 0 }]}>{t('entryNew.date')}</Text>
+          {plants.loading && plants.items.length === 0 && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
+              <ActivityIndicator color={colors.primary} />
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+            </View>
+          )}
+
+          <Text style={[s.label, { color: colors.textSecondary, marginTop: 0 }]}>{t('reminderNew.weekdayLabel')}</Text>
           <View style={s.calendarStrip}>
             {calendarDays.map((item) => {
               const active = activeCalendarDay === item.day;
@@ -188,7 +196,7 @@ export default function ReminderNewScreen() {
                   accessibilityState={{ checked: active }}
                   accessibilityLabel={`${item.label} ${item.number}`}
                   onPress={() => { setWeekday(item.day); if (frequency !== 'once') setFrequency('weekly'); }}
-                  style={[s.calendarDay, { backgroundColor: active ? colors.primary : 'transparent', borderColor: active ? colors.primary : colors.border }]}
+                  style={({ pressed }) => [s.calendarDay, { backgroundColor: active ? colors.primary : 'transparent', borderColor: active ? colors.primary : colors.border, opacity: pressed ? 0.72 : 1 }]}
                 >
                   <Text style={[s.calendarDayLabel, { color: active ? colors.background : colors.textSecondary }]}>{item.label}</Text>
                   <Text style={[s.calendarDayNumber, { color: active ? colors.background : colors.text }]}>{item.number}</Text>
@@ -197,31 +205,23 @@ export default function ReminderNewScreen() {
             })}
           </View>
 
-          <View style={[s.summaryStage, { backgroundColor: glassAvailable ? 'transparent' : colors.surfaceAlt, borderColor: colors.border, overflow: 'hidden' }]}>
-            {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-            <View style={[s.scoreRing, { borderColor: colors.primary + '36', borderTopColor: colors.primary, borderRightColor: colors.primary }]}>
-              <View style={s.scoreRingInner}>
-                <Text style={[s.scoreTime, { color: colors.text }]}>{String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}</Text>
-                <Text style={[s.scoreLabel, { color: colors.textSecondary }]}>{t('reminderNew.previewLabel')}</Text>
-              </View>
+          <View style={[s.summaryStage, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+            <View style={[s.summaryIcon, { backgroundColor: colors.primary + '18' }]}>
+              <Ionicons name={TYPE_ICONS[type]} size={21} color={colors.primary} />
             </View>
-            <Text style={[s.summaryTitle, { color: colors.text }]} numberOfLines={1}>
-              {title.trim() || t('reminderDefaultTitle.' + type)}
-            </Text>
-            <Text style={[s.summaryMeta, { color: colors.textSecondary }]} numberOfLines={1}>
-              {t('reminderFrequency.' + frequency)}{frequency === 'weekly' || frequency === 'once' ? ` · ${selectedCalendarDay?.label} ${selectedCalendarDay?.number}` : ''}
-            </Text>
-          </View>
-
-          <View style={[s.contextCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <View style={[s.contextIcon, { backgroundColor: colors.secondary + '24' }]}>
-              <Ionicons name="sunny-outline" size={20} color={colors.secondary} />
+            <View style={s.summaryCopy}>
+              <Text style={[s.previewLabel, { color: colors.textSecondary }]}>{t('reminderNew.previewLabel')}</Text>
+              <Text style={[s.summaryTitle, { color: colors.text }]} numberOfLines={1}>
+                {title.trim() || t('reminderDefaultTitle.' + type)}
+              </Text>
+              <Text style={[s.summaryMeta, { color: colors.textSecondary }]} numberOfLines={1}>
+                {t('reminderFrequency.' + frequency)}{frequency === 'weekly' || frequency === 'once' ? ` · ${selectedCalendarDay?.label} ${selectedCalendarDay?.number}` : ''}
+              </Text>
             </View>
-            <View style={s.contextCopy}>
-              <Text style={[s.contextTitle, { color: colors.text }]}>{t('reminderNew.subtitleDesc')}</Text>
-              <Text style={[s.contextMeta, { color: colors.textSecondary }]}>{t('reminderNew.timeHint')}</Text>
+            <View style={s.previewTimeBlock}>
+              <Text style={[s.scoreTime, { color: colors.text }]}>{String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}</Text>
+              <Ionicons name="notifications-outline" size={17} color={colors.primary} />
             </View>
-            <Ionicons name={TYPE_ICONS[type]} size={18} color={colors.primary} />
           </View>
 
           <Text style={[s.label, { color: colors.textSecondary }]}>{t('entryNew.plant')}</Text>
@@ -231,7 +231,7 @@ export default function ReminderNewScreen() {
                 accessibilityRole="radio"
                 accessibilityState={{ checked: !selectedPlantId }}
                 onPress={() => setSelectedPlantId(undefined)}
-                style={[s.plantChip, { backgroundColor: !selectedPlantId ? colors.primary + '18' : colors.surface, borderColor: !selectedPlantId ? colors.primary : colors.border }]}
+                    style={({ pressed }) => [s.plantChip, { backgroundColor: !selectedPlantId ? colors.primary + '18' : colors.surface, borderColor: !selectedPlantId ? colors.primary : colors.border, opacity: pressed ? 0.72 : 1 }]}
               >
                 <Ionicons name="leaf-outline" size={17} color={!selectedPlantId ? colors.primary : colors.textSecondary} />
                 <Text style={[s.plantChipLabel, { color: !selectedPlantId ? colors.primary : colors.textSecondary }]}>{t('entryNew.general')}</Text>
@@ -246,7 +246,7 @@ export default function ReminderNewScreen() {
                     onPress={() => setSelectedPlantId(p.id)}
                     style={[s.plantChip, { backgroundColor: selected ? colors.primary + '18' : colors.surface, borderColor: selected ? colors.primary : colors.border }]}
                   >
-                    <Text style={{ fontSize: 16 }}>{CROPS_BY_ID[p.cropId]?.emoji ?? '🌱'}</Text>
+                    <Ionicons name="leaf-outline" size={17} color={selected ? colors.primary : colors.textSecondary} />
                     <Text style={[s.plantChipLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>{p.name}</Text>
                   </Pressable>
                 );
@@ -281,13 +281,16 @@ export default function ReminderNewScreen() {
                 <Pressable
                   key={tp}
                   onPress={() => handleTypeChange(tp)}
-                  style={[
-                    s.typeCard,
-                    {
-                      backgroundColor: active ? colors.primary + '18' : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
-                    },
-                  ]}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: active }}
+                    style={({ pressed }) => [
+                      s.typeCard,
+                      {
+                        backgroundColor: active ? colors.primary + '18' : colors.surface,
+                        borderColor: active ? colors.primary : colors.border,
+                        opacity: pressed ? 0.76 : 1,
+                      },
+                    ]}
                 >
                   <View style={s.typeCardContent}>
                     <View style={[s.typeIcon, { backgroundColor: active ? colors.primary + '20' : colors.surfaceAlt }]}>
@@ -380,8 +383,8 @@ const makeStyles = (
     greeting: { fontSize: fontSize.sm },
     greetingTitle: { fontSize: 27, lineHeight: 32, fontWeight: fontWeight.bold },
     closeButton: {
-      width: 40,
-      height: 40,
+      width: 44,
+      height: 44,
       borderRadius: 20,
       borderWidth: 1,
       alignItems: 'center',
@@ -405,48 +408,28 @@ const makeStyles = (
     calendarDayLabel: { fontSize: 10, fontWeight: fontWeight.bold, textTransform: 'uppercase' },
     calendarDayNumber: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     summaryStage: {
-      alignItems: 'center',
-      paddingVertical: spacing.lg,
-      paddingHorizontal: spacing.md,
-      borderWidth: 1,
-      borderRadius: 24,
-      marginBottom: spacing.sm,
-    },
-    scoreRing: {
-      width: 154,
-      height: 154,
-      borderRadius: 77,
-      borderWidth: 10,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: spacing.md,
-      transform: [{ rotate: '-28deg' }],
-    },
-    scoreRingInner: {
-      width: 124,
-      height: 124,
-      borderRadius: 62,
-      alignItems: 'center',
-      justifyContent: 'center',
-      transform: [{ rotate: '28deg' }],
-    },
-    scoreTime: { fontSize: 30, lineHeight: 36, fontWeight: fontWeight.bold, letterSpacing: 0.5 },
-    scoreLabel: { fontSize: fontSize.xs, marginTop: 2 },
-    summaryTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
-    summaryMeta: { fontSize: fontSize.xs },
-    contextCard: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.md,
-      padding: spacing.md,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.md,
       borderWidth: 1,
-      borderRadius: 18,
+      borderRadius: radii.lg,
       marginBottom: spacing.sm,
     },
-    contextIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
-    contextCopy: { flex: 1, gap: 2 },
-    contextTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-    contextMeta: { fontSize: fontSize.xs, lineHeight: 16 },
+    summaryIcon: {
+      width: 44,
+      height: 44,
+      borderRadius: radii.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    summaryCopy: { flex: 1, gap: 2, minWidth: 0 },
+    previewLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    scoreTime: { fontSize: fontSize.xl, lineHeight: 28, fontWeight: fontWeight.bold, letterSpacing: 0.2 },
+    previewTimeBlock: { alignItems: 'flex-end', gap: 2 },
+    summaryTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    summaryMeta: { fontSize: fontSize.xs },
     savedFeedback: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderWidth: 1, borderRadius: radii.md, marginBottom: spacing.md },
     savedTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     savedDesc: { fontSize: fontSize.xs, marginTop: 2 },
@@ -499,7 +482,7 @@ const makeStyles = (
       paddingVertical: spacing.md,
     },
     segment: { flexDirection: 'row', padding: 4, borderRadius: 12, borderWidth: 1, gap: 4 },
-    segmentOption: { flex: 1, minHeight: 40, borderRadius: 9, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xs },
+    segmentOption: { flex: 1, minHeight: 44, borderRadius: 9, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xs },
     segmentText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, textAlign: 'center' },
     footer: {
       position: 'absolute',

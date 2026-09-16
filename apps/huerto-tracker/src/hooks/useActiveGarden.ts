@@ -11,10 +11,10 @@ export function useActiveGarden() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(ACTIVE_KEY).then((id) => {
+    void AsyncStorage.getItem(ACTIVE_KEY).then((id) => {
       setActiveId(id);
       setLoaded(true);
-    });
+    }).catch(() => setLoaded(true));
   }, []);
 
   const activeGarden =

@@ -111,6 +111,24 @@ export default function DiseaseGuideScreen() {
 
       {/* Chips + disease list share one outer scroll — eliminates flex-sibling gap */}
       <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.lg, paddingTop: 0, paddingBottom: 60 }}>
+        <View style={[s.guideHero, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={[s.guideHeroIcon, { backgroundColor: colors.error + '14' }]}>
+            <Ionicons name="medkit-outline" size={25} color={colors.error} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.guideHeroTitle, { color: colors.text }]}>{t('diseaseGuide.stitchHeading', { defaultValue: 'Botiquín y plagas' })}</Text>
+            <Text style={[s.guideHeroDesc, { color: colors.textSecondary }]}>{t('diseaseGuide.stitchDesc', { defaultValue: 'Reconoce síntomas y actúa con tratamientos adecuados para tu huerto urbano.' })}</Text>
+          </View>
+        </View>
+
+        <View style={[s.goldRule, { backgroundColor: colors.accent + '15', borderColor: colors.accent + '55' }]}>
+          <Ionicons name="finger-print-outline" size={20} color={colors.primaryDark} />
+          <View style={{ flex: 1 }}>
+            <Text style={[s.goldRuleTitle, { color: colors.text }]}>{t('diseaseGuide.stitchRuleTitle', { defaultValue: 'Diagnóstico táctil preventivo' })}</Text>
+            <Text style={[s.goldRuleText, { color: colors.textSecondary }]}>{t('diseaseGuide.stitchRule', { defaultValue: 'Comprueba siempre los 2 cm de sustrato antes de añadir agua. Si la tierra está fresca y compacta, no riegues.' })}</Text>
+          </View>
+        </View>
+
         {/* Type filters — negative margin negates content padding so chips span full width */}
         <View style={{ marginHorizontal: -spacing.lg, marginBottom: spacing.md }}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.sm }}>
@@ -251,6 +269,13 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
+    guideHero: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, marginBottom: spacing.md },
+    guideHeroIcon: { width: 48, height: 48, borderRadius: radii.lg, alignItems: 'center', justifyContent: 'center' },
+    guideHeroTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+    guideHeroDesc: { fontSize: fontSize.sm, lineHeight: 20, marginTop: spacing.xs },
+    goldRule: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1, marginBottom: spacing.md },
+    goldRuleTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    goldRuleText: { fontSize: fontSize.xs, lineHeight: 18, marginTop: 2 },
     searchBox: {
       flexDirection: 'row',
       alignItems: 'center',

@@ -15,6 +15,7 @@ import {
   Alert,
   FlatList,
   ImageBackground,
+  Image,
   Modal,
   Platform,
   PanResponder,
@@ -46,6 +47,7 @@ const withSpring = (v: any) => v;
 const runOnJS = (fn: any) => fn;
 const Animated = { View } as any;
 import { CROPS_BY_ID } from '../../src/data/crops';
+import { CROP_IMAGES } from '../../src/data/cropImages';
 import { getCompatibilityStatus } from '../../src/data/companions';
 import type { Plant } from '../../src/models/plant';
 import { PLANT_STATUS_CONFIG } from '../../src/models/plant';
@@ -64,11 +66,16 @@ import {
 } from '../../src/hooks/useGardenLayout';
 import { useGardenFreeLayout, type FreeMapPosition } from '../../src/hooks/useGardenFreeLayout';
 import type { CropInfo } from '../../src/data/crops';
+import type { WeatherData } from '../../src/utils/weather';
+import { recordCare } from '../../src/utils/careWrites';
+import { hasSoilCheckToday } from '../../src/utils/dailyCare';
+import { CROP_CONTAINER_MIN } from '../../src/data/crops';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 const PANEL_COLLAPSED_H = 48;
 const PANEL_EXPANDED_H = 152;
 type MapFilter = 'all' | 'attention' | 'light';
+type MapViewMode = 'visual' | 'list';
 const MAP_FILTERS: Array<{ key: MapFilter; translationKey: string }> = [
   { key: 'all', translationKey: 'gardenMap.filterAll' },
   { key: 'attention', translationKey: 'gardenMap.filterAttention' },
@@ -102,7 +109,7 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
 
   const plants = useCollection<Plant>('plants');
   const diaryEntries = useCollection<DiaryEntry>('diary_entries');
-  const { layout, loading, setCell, swapCells } = useGardenLayout(garden?.id, gridRows, gridCols);
+  const { layout, loading, error: layoutError, retry: retryLayout, setCell, swapCells } = useGardenLayout(garden?.id, gridRows, gridCols);
   const { positions: freePositions, setPosition: setFreePosition } = useGardenFreeLayout(garden?.id);
 
   // ── UI state ──────────────────────────────────────────────────────────────
@@ -118,9 +125,11 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
   const [notesText, setNotesText] = useState(garden?.notes ?? '');
   const [savingNotes, setSavingNotes] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
+  const [editingLayout, setEditingLayout] = useState(false);
   const [panelDragPlantId, setPanelDragPlantId] = useState<string | null>(null);
   const [mapFilter, setMapFilter] = useState<MapFilter>('all');
   const [mapLayer, setMapLayer] = useState<MapLayer>('plants');
+  const [viewMode, setViewMode] = useState<MapViewMode>('visual');
   const [editingLocations, setEditingLocations] = useState(false);
   const [selectedFreePlantId, setSelectedFreePlantId] = useState<string | null>(null);
 
@@ -156,7 +165,10 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
     ],
   }));
 
-  useFocusEffect(useCallback(() => { refreshActiveId(); plants.refresh(); }, []));
+  useFocusEffect(useCallback(() => {
+    void refreshActiveId().catch(() => {});
+    void plants.refresh().catch(() => {});
+  }, []));
 
   // ── Derived data ──────────────────────────────────────────────────────────
   const gardenPlants = useMemo(
@@ -416,6 +428,30 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
   const selectedFreeLocation = selectedFreePlant?.bedName ?? (
     selectedFreeIndex >= 0 ? t('gardenMap.potLabel', { number: selectedFreeIndex + 1 }) : t('gardenMap.potLabel', { number: 1 })
   );
+
+  const filterMatchCount = useMemo(
+    () => gardenPlants.filter((plant) => {
+      if (mapFilter === 'attention') return plant.pestStatus === 'active';
+      if (mapFilter === 'light') {
+        const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
+        return crop?.sunNeeds === 'full';
+      }
+      return true;
+    }).length,
+    [gardenPlants, mapFilter, customCropsById]
+  );
+  const activeFilterLabel = t(MAP_FILTERS.find((filter) => filter.key === mapFilter)?.translationKey ?? 'gardenMap.filterAll');
+  const listPlants = useMemo(
+    () => gardenPlants.filter((plant) => {
+      if (mapFilter === 'attention') return plant.pestStatus === 'active';
+      if (mapFilter === 'light') {
+        const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
+        return crop?.sunNeeds === 'full';
+      }
+      return true;
+    }),
+    [gardenPlants, mapFilter, customCropsById]
+  );
   const getLayerColor = useCallback((plant: Plant, crop: CropInfo | null | undefined) => {
     if (mapLayer === 'pests') {
       return plant.pestStatus === 'active'
@@ -587,7 +623,27 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
     })
   );
 
-  const panelH = panelCollapsed ? PANEL_COLLAPSED_H : PANEL_EXPANDED_H;
+  const panelH = embedded && !editingLayout
+    ? PANEL_COLLAPSED_H
+    : panelCollapsed
+    ? PANEL_COLLAPSED_H
+    : PANEL_EXPANDED_H;
+
+  // The official Mapa tab is a dedicated Stitch surface. Keep the detailed
+  // editor below for the pushed /garden/map route, but make the tab itself the
+  // light-zone map described in the native product specification.
+  if (embedded) {
+    return (
+      <StitchMapTab
+        garden={garden}
+        plants={gardenPlants}
+        entries={gardenEntries}
+        cropCatalog={cropCatalog}
+        weather={weather}
+        loading={loading || plants.loading}
+      />
+    );
+  }
 
   // Loading state: render a fallback rather than null so a slow/rejected
   // AsyncStorage read in useGardenLayout doesn't blank the map indefinitely.
@@ -595,8 +651,24 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
   if (loading) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={s.loadingState}>
           <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[s.loadingStateText, { color: colors.textSecondary }]}>{t('common.loading')}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (layoutError) {
+    return (
+      <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <View style={[s.emptyMapCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={[s.emptyMapIcon, { backgroundColor: colors.surfaceAlt }]}>
+            <Ionicons name="refresh-circle-outline" size={26} color={colors.primary} />
+          </View>
+          <Text style={[s.emptyMapTitle, { color: colors.text }]}>{t('errorScreen.title')}</Text>
+          <Text style={[s.emptyMapDesc, { color: colors.textSecondary }]}>{t('errorScreen.desc')}</Text>
+          <Button title={t('common.retry')} onPress={retryLayout} size="sm" style={s.emptyMapButton} />
         </View>
       </SafeAreaView>
     );
@@ -648,6 +720,40 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
           <View style={s.intro}>
             <Text style={[s.introTitle, { color: colors.text }]}>{t('tabs.map')}</Text>
             <Text style={[s.introLead, { color: colors.textSecondary }]}>{t('gardenMap.lead')}</Text>
+          </View>
+        )}
+
+        {embedded && (
+          <View
+            accessibilityRole="tablist"
+            style={[s.viewSwitcher, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}
+          >
+            {(['visual', 'list'] as const).map((mode) => {
+              const active = viewMode === mode;
+              return (
+                <Pressable
+                  key={mode}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: active }}
+                  accessibilityLabel={t(`gardenMap.view${mode === 'visual' ? 'Visual' : 'List'}`)}
+                  onPress={() => setViewMode(mode)}
+                  style={({ pressed }) => [
+                    s.viewSwitcherTab,
+                    active && { backgroundColor: colors.surface, borderColor: colors.border },
+                    { opacity: pressed ? 0.72 : 1 },
+                  ]}
+                >
+                  <Ionicons
+                    name={mode === 'visual' ? 'map-outline' : 'list-outline'}
+                    size={17}
+                    color={active ? colors.primary : colors.textSecondary}
+                  />
+                  <Text style={{ color: active ? colors.primaryDark : colors.textSecondary, fontSize: fontSize.sm, fontWeight: active ? fontWeight.bold : fontWeight.medium }}>
+                    {t(`gardenMap.view${mode === 'visual' ? 'Visual' : 'List'}`)}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
         )}
 
@@ -787,66 +893,6 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
           </Pressable>
         </View>}
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={s.filterRow}
-        >
-          {MAP_FILTERS.map(({ key, translationKey }) => {
-            const active = mapFilter === key;
-            return (
-              <Pressable
-                key={key}
-                onPress={() => setMapFilter(key)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
-                style={({ pressed }) => [
-                  s.filterChip,
-                  {
-                    backgroundColor: active ? colors.accent : colors.surface,
-                    borderColor: active ? colors.accent : colors.border,
-                    opacity: pressed ? 0.75 : 1,
-                  },
-                ]}
-              >
-                <Text style={[s.filterChipText, { color: active ? colors.primaryDark : colors.textSecondary }]}>
-                  {t(translationKey)}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-
-        <View style={s.layerBar}>
-          <Text style={[s.layerLabel, { color: colors.textSecondary }]}>{t('gardenMap.layerTitle')}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.layerScroll}>
-            {MAP_LAYERS.map(({ key, translationKey, icon }) => {
-              const active = mapLayer === key;
-              return (
-                <Pressable
-                  key={key}
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: active }}
-                  onPress={() => setMapLayer(key)}
-                  style={({ pressed }) => [
-                    s.layerChip,
-                    {
-                      backgroundColor: active ? colors.accent : colors.surface,
-                      borderColor: active ? colors.primary : colors.border,
-                      opacity: pressed ? 0.75 : 1,
-                    },
-                  ]}
-                >
-                  <Ionicons name={icon} size={14} color={active ? colors.primary : colors.textSecondary} />
-                  <Text style={[s.layerChipText, { color: active ? colors.primaryDark : colors.textSecondary }]}>
-                    {t(translationKey)}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        </View>
-
         {/* ── Pot mode banner ── */}
         {!embedded && isPotMode && moveSourceCell === null && (
           <View style={[s.potBanner, { backgroundColor: '#8B572A18', borderBottomColor: '#8B572A30' }]}>
@@ -893,6 +939,7 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
 
         {/* ── Grid ScrollView ── */}
         <ScrollView
+          style={{ display: viewMode === 'visual' ? 'flex' : 'none' }}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[s.scroll, { paddingBottom: panelH + spacing.xl + (embedded ? 86 : 0) }]}
           scrollEnabled={!isDragging}
@@ -1014,7 +1061,7 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
 
               <View style={s.fieldHeader}>
                 <View style={s.fieldHeaderTitle}>
-                  <Ionicons name="chevron-back" size={17} color="rgba(255,255,255,0.86)" />
+                  <Ionicons name="map-outline" size={17} color="rgba(255,255,255,0.86)" />
                   <View>
                     <Text style={s.fieldTitle}>{garden?.name ?? t('gardenMap.title')}</Text>
                     <Text style={s.fieldSubtitle}>{gridCols}×{gridRows} · {placedPlantIds.size} {t('gardenMap.plantsBadge')}</Text>
@@ -1071,6 +1118,10 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
                     const cellContent = (
                       <Pressable
                         onPress={() => handleCellPress(idx)}
+                        accessibilityRole="button"
+                        accessibilityLabel={plant && crop ? `${plant.name} · ${crop.name}` : t('gardenMap.legendEmpty')}
+                        accessibilityHint={editingLayout ? t('gardenMap.editingHint') : t('gardenMap.tapToExplore')}
+                        accessibilityState={{ selected: focused }}
                         style={({ pressed }) => [
                           s.cell,
                           {
@@ -1103,7 +1154,7 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
                           },
                         ]}
                       >
-                        {focused && <View pointerEvents="none" style={s.focusRing} />}
+                        {focused && <View style={[s.focusRing, { pointerEvents: 'none' }]} />}
                         {plant && crop ? (
                           <>
                             <Text style={s.cellEmoji}>{crop.emoji}</Text>
@@ -1177,6 +1228,10 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
                         runOnJS(handleDragFinalize)();
                       });
 
+                    if (!editingLayout) {
+                      return <React.Fragment key={idx}>{cellContent}</React.Fragment>;
+                    }
+
                     return (
                       <GestureDetector key={idx} gesture={gridPanGesture}>
                         {cellContent}
@@ -1217,7 +1272,7 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
             </View>
 
             <View style={s.fieldFooter}>
-              <Text style={s.fieldFooterText}>🌱 {t('gardenMap.tapToExplore')}</Text>
+              <Text style={s.fieldFooterText}><Ionicons name="leaf-outline" size={12} color="rgba(255,255,255,0.72)" /> {t('gardenMap.tapToExplore')}</Text>
             </View>
             </View>
           </ViewShot>
@@ -1260,7 +1315,128 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
             </Pressable>
           )}
 
+          <View style={[s.mapControls, { borderTopColor: colors.border }]}>
+            <Text style={[s.mapControlsTitle, { color: colors.text }]}>{t('gardenMap.filtersTitle')}</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.filterRow}
+            >
+              {MAP_FILTERS.map(({ key, translationKey }) => {
+                const active = mapFilter === key;
+                return (
+                  <Pressable
+                    key={key}
+                    onPress={() => setMapFilter(key)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                    style={({ pressed }) => [
+                      s.filterChip,
+                      {
+                        backgroundColor: active ? colors.accent : colors.surface,
+                        borderColor: active ? colors.accent : colors.border,
+                        opacity: pressed ? 0.75 : 1,
+                      },
+                    ]}
+                  >
+                    <Text style={[s.filterChipText, { color: active ? colors.primaryDark : colors.textSecondary }]}>
+                      {t(translationKey)}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+
+            <View style={s.layerBar}>
+              <Text style={[s.layerLabel, { color: colors.textSecondary }]}>{t('gardenMap.layerTitle')}</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.layerScroll}>
+                {MAP_LAYERS.map(({ key, translationKey, icon }) => {
+                  const active = mapLayer === key;
+                  return (
+                    <Pressable
+                      key={key}
+                      accessibilityRole="radio"
+                      accessibilityState={{ checked: active }}
+                      onPress={() => setMapLayer(key)}
+                      style={({ pressed }) => [
+                        s.layerChip,
+                        {
+                          backgroundColor: active ? colors.accent : colors.surface,
+                          borderColor: active ? colors.primary : colors.border,
+                          opacity: pressed ? 0.75 : 1,
+                        },
+                      ]}
+                    >
+                      <Ionicons name={icon} size={14} color={active ? colors.primary : colors.textSecondary} />
+                      <Text style={[s.layerChipText, { color: active ? colors.primaryDark : colors.textSecondary }]}>
+                        {t(translationKey)}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </View>
+
+            {mapFilter !== 'all' && filterMatchCount === 0 && (
+              <View style={[s.filterEmpty, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+                <Ionicons name="filter-outline" size={17} color={colors.textSecondary} />
+                <Text style={[s.filterEmptyText, { color: colors.textSecondary }]}>
+                  {t('gardenMap.filterEmpty')} · {activeFilterLabel}
+                </Text>
+                <Pressable onPress={() => setMapFilter('all')} accessibilityRole="button">
+                  <Text style={[s.filterEmptyAction, { color: colors.primary }]}>{t('gardenMap.filterAll')}</Text>
+                </Pressable>
+              </View>
+            )}
+          </View>
+
         </ScrollView>
+
+        {embedded && viewMode === 'list' && (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={s.listView}
+          >
+            <Text style={[s.listViewTitle, { color: colors.text }]}>
+              {listPlants.length} · {t('tabs.plants')}
+            </Text>
+            {listPlants.length === 0 ? (
+              <View style={[s.listEmpty, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <Ionicons name="leaf-outline" size={28} color={colors.primary} />
+                <Text style={[s.listEmptyTitle, { color: colors.text }]}>{t('gardenMap.emptyTitle')}</Text>
+                <Text style={[s.listEmptyDesc, { color: colors.textSecondary }]}>{t('gardenMap.emptyDesc')}</Text>
+                <Button title={t('gardenMap.addPlant')} onPress={() => router.push('/plant/new' as any)} size="sm" />
+              </View>
+            ) : (
+              listPlants.map((plant) => {
+                const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
+                const status = PLANT_STATUS_CONFIG[plant.status];
+                return (
+                  <Pressable
+                    key={plant.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${plant.name} · ${crop?.name ?? plant.cropId}`}
+                    onPress={() => router.push(`/plant/${plant.id}`)}
+                    style={({ pressed }) => [s.listItem, { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.72 : 1 }]}
+                  >
+                    <View style={[s.listItemIcon, { backgroundColor: colors.surfaceAlt }]}>
+                      <Text style={{ fontSize: 22 }}>{crop?.emoji ?? status.emoji}</Text>
+                    </View>
+                    <View style={{ flex: 1, gap: 3 }}>
+                      <Text style={[s.listItemName, { color: colors.text }]} numberOfLines={1}>{plant.name}</Text>
+                      <Text style={[s.listItemMeta, { color: colors.textSecondary }]} numberOfLines={1}>{crop?.name ?? plant.cropId}</Text>
+                      <View style={s.listItemStatus}>
+                        <View style={[s.listItemDot, { backgroundColor: status.color }]} />
+                        <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>{t(`plantStatus.${plant.status}`)}</Text>
+                      </View>
+                    </View>
+                    <Ionicons name="chevron-forward" size={19} color={colors.textSecondary} />
+                  </Pressable>
+                );
+              })
+            )}
+          </ScrollView>
+        )}
 
         {/* ── Plant panel ── */}
         {!isFreeLayout && <View
@@ -1274,42 +1450,67 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
               paddingBottom: insets.bottom,
               ...shadows.md,
             },
+            embedded && viewMode === 'list' && { display: 'none' },
           ]}
         >
           {/* Panel handle / header */}
-          <Pressable
-            onPress={() => setPanelCollapsed((v) => !v)}
-            style={s.panelHandle}
-            hitSlop={8}
-          >
-            <View style={s.panelTitleRow}>
-              <View style={[s.panelBadge, { backgroundColor: colors.primary + '18' }]}>
-                <Text style={[s.panelBadgeText, { color: colors.primary }]}>
-                  {availablePlants.length}
+          <View style={s.panelHandle}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={embedded && !editingLayout ? t('gardenMap.editLocations') : t('gardenMap.unplaced')}
+              onPress={() => {
+                if (embedded && !editingLayout) {
+                  setEditingLayout(true);
+                  setPanelCollapsed(false);
+                  return;
+                }
+                setPanelCollapsed((value) => !value);
+              }}
+              style={({ pressed }) => [s.panelTitleButton, { opacity: pressed ? 0.72 : 1 }]}
+              hitSlop={8}
+            >
+              <View style={s.panelTitleRow}>
+                <View style={[s.panelBadge, { backgroundColor: colors.primary + '18' }]}>
+                  <Text style={[s.panelBadgeText, { color: colors.primary }]}>
+                    {availablePlants.length}
+                  </Text>
+                </View>
+                <Text style={[s.panelTitle, { color: colors.text }]}>
+                  {embedded && !editingLayout ? t('gardenMap.editLocations') : t('gardenMap.unplaced')}
                 </Text>
+                {editingLayout && !panelCollapsed && (
+                  <Text style={[s.panelHint, { color: colors.textSecondary }]}>
+                    {t('gardenMap.dragHint')}
+                  </Text>
+                )}
               </View>
-              <Text style={[s.panelTitle, { color: colors.text }]}>
-                {t('gardenMap.unplaced')}
-              </Text>
-              {!panelCollapsed && (
-                <Text style={[s.panelHint, { color: colors.textSecondary }]}>
-                  {t('gardenMap.dragHint')}
-                </Text>
-              )}
-            </View>
-            <Ionicons
-              name={panelCollapsed ? 'chevron-up' : 'chevron-down'}
-              size={18}
-              color={colors.textSecondary}
-            />
-          </Pressable>
+              <Ionicons
+                name={panelCollapsed ? 'chevron-up' : 'chevron-down'}
+                size={18}
+                color={colors.textSecondary}
+              />
+            </Pressable>
+            {embedded && editingLayout && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('gardenMap.doneEditing')}
+                onPress={() => {
+                  setEditingLayout(false);
+                  setPanelCollapsed(true);
+                }}
+                style={({ pressed }) => [s.panelDoneButton, { borderColor: colors.border, opacity: pressed ? 0.72 : 1 }]}
+              >
+                <Text style={[s.panelDoneText, { color: colors.primary }]}>{t('gardenMap.doneEditing')}</Text>
+              </Pressable>
+            )}
+          </View>
 
           {/* Plant cards */}
-          {!panelCollapsed && (
+          {(!embedded || editingLayout) && !panelCollapsed && (
             availablePlants.length === 0 ? (
               <View style={s.panelEmpty}>
                 <Text style={[s.panelEmptyText, { color: colors.textSecondary }]}>
-                  🎉 {t('gardenMap.allPlaced')}
+                  <Ionicons name="checkmark-circle-outline" size={16} color={colors.success} /> {t('gardenMap.allPlaced')}
                 </Text>
               </View>
             ) : (
@@ -1531,7 +1732,7 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
 
       {/* ── Floating ghost ── */}
       {isDragging && (
-        <Animated.View pointerEvents="none" style={[s.ghost, ghostAnimStyle]}>
+        <Animated.View style={[s.ghost, ghostAnimStyle, { pointerEvents: 'none' }]}>
           <Text style={{ fontSize: 40 }}>{ghostEmoji}</Text>
         </Animated.View>
       )}
@@ -1541,6 +1742,279 @@ export function GardenMapContent({ embedded = false }: { embedded?: boolean } = 
 
 export default function GardenMapScreen() {
   return <GardenMapContent />;
+}
+
+type StitchMapTabProps = {
+  garden: Garden | undefined;
+  plants: Plant[];
+  entries: DiaryEntry[];
+  cropCatalog: Record<string, CropInfo | undefined>;
+  weather: WeatherData | null;
+  loading: boolean;
+};
+
+function StitchMapTab({ garden, plants, entries, cropCatalog, weather, loading }: StitchMapTabProps) {
+  const colors = useColors();
+  const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
+  const { t } = useTranslation();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const [viewMode, setViewMode] = useState<'space' | 'zones' | 'list'>('zones');
+  const [soilPlant, setSoilPlant] = useState<Plant | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const activePlants = useMemo(
+    () => plants.filter((plant) => plant.status !== 'finished'),
+    [plants]
+  );
+  const getCrop = (plant: Plant) => cropCatalog[plant.cropId];
+  const directSun = activePlants.filter((plant) => getCrop(plant)?.sunNeeds === 'full');
+  const partialSun = activePlants.filter((plant) => getCrop(plant)?.sunNeeds !== 'full');
+  const formattedWeather = weather
+    ? `${weather.today.tempMax}° · ${weather.today.rainProbability}%`
+    : null;
+
+  async function chooseSoilResult(kind: 'watering' | 'moist') {
+    if (!soilPlant || saving) return;
+    setSaving(true);
+    try {
+      await recordCare(
+        soilPlant.id,
+        kind,
+        t('dailyCare.moistNote'),
+        kind === 'watering' ? { liters: '0.4', method: 'hand' } : undefined,
+      );
+      setSoilPlant(null);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const renderPlant = (plant: Plant) => {
+    const crop = getCrop(plant);
+    return (
+      <StitchMapPlantCard
+        key={plant.id}
+        plant={plant}
+        crop={crop}
+        entries={entries}
+        colors={colors}
+        spacing={spacing}
+        fontSize={fontSize}
+        fontWeight={fontWeight}
+        radii={radii}
+        shadows={shadows}
+        t={t}
+        onOpen={() => router.push(`/plant/${plant.id}`)}
+        onCheck={() => setSoilPlant(plant)}
+      />
+    );
+  };
+
+  const zone = (title: string, subtitle: string, zonePlants: Plant[], accent: string) => (
+    <View style={{ gap: spacing.sm, marginBottom: spacing.lg }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+        <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: accent }} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: colors.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold }}>{title}</Text>
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, marginTop: 2 }}>{subtitle}</Text>
+        </View>
+        <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{zonePlants.length}</Text>
+      </View>
+      {zonePlants.length > 0 ? zonePlants.map(renderPlant) : (
+        <View style={{ padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface }}>
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('gardenMap.emptyZone', { defaultValue: 'Todavía no hay macetas en esta zona.' })}</Text>
+        </View>
+      )}
+    </View>
+  );
+
+  return (
+    <SafeAreaView
+      edges={['top', 'bottom', 'left', 'right']}
+      style={{ flex: 1, backgroundColor: colors.background }}
+    >
+      <View style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', minHeight: 56, paddingHorizontal: spacing.lg, gap: spacing.sm }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('gardens.title')}
+            onPress={() => router.push('/gardens' as any)}
+            hitSlop={12}
+            style={{ minWidth: 44, minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 3 }}
+          >
+            <Ionicons name="chevron-back" size={23} color={colors.primary} />
+            <Text style={{ color: colors.primary, fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>{t('gardens.title')}</Text>
+          </Pressable>
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Text style={{ color: colors.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold }} numberOfLines={1}>{garden?.name ?? t('gardenMap.title')}</Text>
+            <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }} numberOfLines={1}>
+              {garden?.province ? `${garden.province} · ${t('gardenMap.south')}` : t('gardenMap.lead')}
+            </Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('gardenMap.editLocations')}
+            onPress={() => router.push('/garden/edit' as any)}
+            hitSlop={12}
+            style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Ionicons name="options-outline" size={22} color={colors.primary} />
+          </Pressable>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + spacing.xl }}>
+          <View style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.sm, gap: spacing.sm }}>
+            <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>
+              {garden?.province ? `☀️ ${t('gardenMap.south')} · ${t('gardenMap.sunNeeds.full')} · ${formattedWeather ?? t('gardenMap.noData')}` : t('gardenMap.lead')}
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+              <Ionicons name="navigate-outline" size={17} color={colors.primary} />
+              <Text style={{ color: colors.text, fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>
+                {garden?.name ?? t('gardenMap.title')} · {activePlants.length} {t('gardenMap.plantsBadge')}
+              </Text>
+            </View>
+          </View>
+
+          <View accessibilityRole="tablist" style={{ flexDirection: 'row', marginHorizontal: spacing.lg, marginTop: spacing.md, padding: 3, borderWidth: 1, borderColor: colors.border, borderRadius: radii.lg, backgroundColor: colors.surfaceAlt }}>
+            {([
+              ['space', t('gardenMap.spaceSketch', { defaultValue: 'Croquis espacial' }), 'map-outline'],
+              ['zones', t('gardenMap.lightZones', { defaultValue: 'Por franjas de luz' }), 'sunny-outline'],
+              ['list', t('gardenMap.viewList'), 'list-outline'],
+            ] as const).map(([mode, label, icon]) => {
+              const active = viewMode === mode;
+              return (
+                <Pressable
+                  key={mode}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: active }}
+                  accessibilityLabel={label}
+                  onPress={() => setViewMode(mode)}
+                  style={({ pressed }) => [{ flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 4, borderRadius: radii.md, backgroundColor: active ? colors.surface : 'transparent', opacity: pressed ? 0.72 : 1 }]}
+                >
+                  <Ionicons name={icon} size={16} color={active ? colors.primary : colors.textSecondary} />
+                  <Text style={{ color: active ? colors.primaryDark : colors.textSecondary, fontSize: fontSize.xs, fontWeight: active ? fontWeight.bold : fontWeight.medium }} numberOfLines={1}>{label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          {loading ? (
+            <View style={{ minHeight: 260, alignItems: 'center', justifyContent: 'center', gap: spacing.sm }}>
+              <ActivityIndicator color={colors.primary} />
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('common.loading')}</Text>
+            </View>
+          ) : viewMode === 'list' ? (
+            <View style={{ padding: spacing.lg, gap: spacing.sm }}>
+              {activePlants.length > 0 ? activePlants.map(renderPlant) : (
+                <View style={{ alignItems: 'center', padding: spacing.xl, gap: spacing.sm, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface }}>
+                  <Ionicons name="leaf-outline" size={30} color={colors.primary} />
+                  <Text style={{ color: colors.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold, textAlign: 'center' }}>{t('gardenMap.emptyTitle')}</Text>
+                  <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, textAlign: 'center', lineHeight: 20 }}>{t('gardenMap.emptyDesc')}</Text>
+                  <Button title={t('gardenMap.addPlant')} onPress={() => router.push('/plant/new' as any)} size="sm" />
+                </View>
+              )}
+            </View>
+          ) : viewMode === 'space' ? (
+            <View style={{ margin: spacing.lg, padding: spacing.lg, borderRadius: radii.xl, backgroundColor: colors.primaryDark, gap: spacing.md, ...shadows.md }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                <Ionicons name="map-outline" size={19} color={colors.background} />
+                <Text style={{ color: colors.background, fontSize: fontSize.lg, fontWeight: fontWeight.bold }}>{garden?.name ?? t('gardenMap.title')}</Text>
+              </View>
+              <Text style={{ color: colors.background, opacity: 0.82, fontSize: fontSize.sm, lineHeight: 20 }}>{t('gardenMap.tapToExplore')}</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
+                {activePlants.length > 0 ? activePlants.map((plant) => {
+                  const crop = getCrop(plant);
+                  return (
+                    <Pressable key={plant.id} onPress={() => router.push(`/plant/${plant.id}`)} accessibilityRole="button" accessibilityLabel={plant.name} style={({ pressed }) => [{ minWidth: 118, flexGrow: 1, padding: spacing.md, borderRadius: radii.lg, backgroundColor: 'rgba(255,255,255,0.14)', opacity: pressed ? 0.72 : 1 }]}>
+                      <Text style={{ fontSize: 26 }}>{crop?.emoji ?? '🌱'}</Text>
+                      <Text style={{ color: colors.background, fontWeight: fontWeight.bold, marginTop: spacing.xs }} numberOfLines={1}>{plant.name}</Text>
+                      <Text style={{ color: colors.background, opacity: 0.76, fontSize: fontSize.xs, marginTop: 2 }}>{crop?.name ?? plant.cropId}</Text>
+                    </Pressable>
+                  );
+                }) : <Text style={{ color: colors.background }}>{t('gardenMap.emptyDesc')}</Text>}
+              </View>
+            </View>
+          ) : (
+            <View style={{ padding: spacing.lg, paddingBottom: 0 }}>
+              {zone(t('gardenMap.sunNeeds.full'), t('gardenMap.sunNeeds.full') + ' · 6h+', directSun, colors.secondary)}
+              {zone(t('gardenMap.sunNeeds.partial'), t('gardenMap.sunNeeds.partial'), partialSun, colors.primaryLight)}
+            </View>
+          )}
+
+          <View style={{ marginHorizontal: spacing.lg, marginTop: spacing.md, padding: spacing.md, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.secondary + '66', backgroundColor: colors.secondary + '14', flexDirection: 'row', gap: spacing.sm }}>
+            <Ionicons name="bulb-outline" size={20} color={colors.secondary} />
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: colors.text, fontSize: fontSize.sm, fontWeight: fontWeight.bold }}>{t('gardenMap.goldenRule', { defaultValue: 'Regla de oro' })}</Text>
+              <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, lineHeight: 18, marginTop: 2 }}>{t('dailyCare.checkBody')}</Text>
+            </View>
+          </View>
+
+          <Button title={t('gardenMap.addPlant')} onPress={() => router.push('/plant/new' as any)} size="lg" style={{ marginHorizontal: spacing.lg, marginTop: spacing.md }} />
+        </ScrollView>
+      </View>
+
+      <Modal visible={Boolean(soilPlant)} transparent animationType="slide" onRequestClose={() => setSoilPlant(null)}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(22,36,15,0.34)' }}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('common.cancel')} onPress={() => setSoilPlant(null)} style={StyleSheet.absoluteFill} />
+          <View accessibilityViewIsModal style={{ padding: spacing.xl, paddingBottom: spacing.xl + 12, gap: spacing.md, backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
+            <View style={{ width: 40, height: 4, borderRadius: 2, alignSelf: 'center', backgroundColor: colors.border }} />
+            <Text style={{ color: colors.text, fontSize: fontSize.xl, fontWeight: fontWeight.bold }}>{t('dailyCare.checkTitle', { name: soilPlant?.name ?? '' })}</Text>
+            <Text style={{ color: colors.textSecondary, fontSize: fontSize.md, lineHeight: 23 }}>{t('dailyCare.checkBody')}</Text>
+            <Button title={t('dailyCare.watered')} onPress={() => void chooseSoilResult('watering')} loading={saving} size="lg" />
+            <Button title={t('dailyCare.moist')} onPress={() => void chooseSoilResult('moist')} disabled={saving} variant="outline" size="lg" />
+          </View>
+        </View>
+      </Modal>
+    </SafeAreaView>
+  );
+}
+
+type StitchMapPlantCardProps = {
+  plant: Plant;
+  crop?: CropInfo;
+  entries: DiaryEntry[];
+  colors: ReturnType<typeof useColors>;
+  spacing: Record<string, number>;
+  fontSize: Record<string, number>;
+  fontWeight: Theme['fontWeight'];
+  radii: Record<string, number>;
+  shadows: Theme['shadows'];
+  t: any;
+  onOpen: () => void;
+  onCheck: () => void;
+};
+
+function StitchMapPlantCard({ plant, crop, entries, colors, spacing, fontSize, fontWeight, radii, shadows, t, onOpen, onCheck }: StitchMapPlantCardProps) {
+  const checked = hasSoilCheckToday(plant, entries);
+  const status = PLANT_STATUS_CONFIG[plant.status];
+  const imageUri = plant.photoUri ?? CROP_IMAGES[plant.cropId] ?? crop?.imageUrl;
+  const minLiters = CROP_CONTAINER_MIN[plant.cropId];
+
+  return (
+    <View style={{ padding: spacing.md, borderWidth: 1, borderColor: colors.border, borderRadius: radii.xl, backgroundColor: colors.surface, ...shadows.sm }}>
+      <Pressable onPress={onOpen} accessibilityRole="button" accessibilityLabel={`${plant.name} · ${crop?.name ?? plant.cropId}`} style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: spacing.md, opacity: pressed ? 0.72 : 1 }]}>
+        <View style={{ width: 64, height: 64, borderRadius: 18, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceAlt }}>
+          {imageUri ? <Image source={{ uri: imageUri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" /> : <Text style={{ fontSize: 28 }}>{crop?.emoji ?? status.emoji}</Text>}
+        </View>
+        <View style={{ flex: 1, gap: 3 }}>
+          <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold }} numberOfLines={1}>{plant.name}</Text>
+          <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }} numberOfLines={1}>{crop?.name ?? plant.cropId}{plant.variety ? ` · ${plant.variety}` : ''}</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm }}>
+            <Text style={{ color: status.color, fontSize: fontSize.xs, fontWeight: fontWeight.semibold }}>{status.emoji} {t(`plantStatus.${plant.status}`)}</Text>
+            {minLiters ? <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}><Ionicons name="flower-outline" size={12} color={colors.textSecondary} /> {minLiters} L</Text> : null}
+          </View>
+        </View>
+        <Ionicons name="chevron-forward" size={19} color={colors.textSecondary} />
+      </Pressable>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm, marginTop: spacing.md, paddingTop: spacing.sm, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }}>
+        <Text style={{ flex: 1, color: checked ? colors.success : colors.textSecondary, fontSize: fontSize.xs, lineHeight: 18 }}>
+          {checked ? <><Ionicons name="checkmark-circle-outline" size={13} color={colors.success} /> {t('dailyCare.recorded')}</> : <><Ionicons name="water-outline" size={13} color={colors.water} /> {t('gardenMap.waterNeeds.' + (crop?.waterNeeds ?? 'medium'))}</>}
+        </Text>
+        {!checked && <Button title={t('dailyCare.checkSoil')} onPress={onCheck} size="sm" variant="secondary" />}
+      </View>
+    </View>
+  );
 }
 
 type FreeGardenCanvasProps = {
@@ -1625,13 +2099,9 @@ function FreeGardenCanvas({
       onLayout={(event) => setCanvasWidth(event.nativeEvent.layout.width)}
       style={[styles.freeCanvas, { height: canvasHeight, backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}
     >
+      <View style={[styles.freeCanvasInner, { borderColor: colors.border, pointerEvents: 'none' }]} />
       <View
-        pointerEvents="none"
-        style={[styles.freeCanvasInner, { borderColor: colors.border }]}
-      />
-      <View
-        pointerEvents="none"
-        style={[styles.freeCanvasGuide, { backgroundColor: colors.border }]}
+        style={[styles.freeCanvasGuide, { backgroundColor: colors.border, pointerEvents: 'none' }]}
       />
 
       {plants.map((plant, index) => {
@@ -1756,6 +2226,8 @@ const makeStyles = (
 ) =>
   StyleSheet.create({
     container: { flex: 1 },
+    loadingState: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    loadingStateText: { fontSize: fontSize.sm },
     appHeader: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -1768,10 +2240,18 @@ const makeStyles = (
     brandMark: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
     brandName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, letterSpacing: -0.3 },
     topActions: { flexDirection: 'row', gap: 4 },
-    topAction: { width: 40, height: 40, borderRadius: radii.md, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+    topAction: { width: 44, height: 44, borderRadius: radii.md, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     intro: { paddingHorizontal: spacing.xl, paddingTop: spacing.sm, paddingBottom: spacing.md },
     introTitle: { fontSize: 31, lineHeight: 34, fontWeight: fontWeight.bold, letterSpacing: -0.9 },
     introLead: { fontSize: fontSize.sm, lineHeight: 21, marginTop: spacing.sm, maxWidth: 340 },
+    viewSwitcher: {
+      flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.xl, marginBottom: spacing.sm,
+      padding: 3, borderWidth: 1, borderRadius: radii.lg,
+    },
+    viewSwitcherTab: {
+      flex: 1, minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+      gap: spacing.xs, borderWidth: 1, borderColor: 'transparent', borderRadius: radii.md,
+    },
     todayCard: {
       marginHorizontal: spacing.xl, marginBottom: spacing.sm, padding: spacing.md,
       borderRadius: radii.md, borderWidth: 1, gap: spacing.sm,
@@ -1805,8 +2285,13 @@ const makeStyles = (
     headerSub: { fontSize: fontSize.xs, marginTop: 1 },
     typeBadge: { borderRadius: radii.full, paddingHorizontal: 6, paddingVertical: 2 },
     filterRow: { paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, gap: spacing.sm },
+    mapControls: { marginTop: spacing.lg, paddingTop: spacing.md, borderTopWidth: StyleSheet.hairlineWidth, gap: spacing.xs },
+    mapControlsTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, paddingHorizontal: spacing.xl },
+    filterEmpty: { marginHorizontal: spacing.xl, marginTop: spacing.xs, padding: spacing.sm, borderWidth: 1, borderRadius: radii.md, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    filterEmptyText: { flex: 1, fontSize: fontSize.xs },
+    filterEmptyAction: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
     filterChip: {
-      minHeight: 32,
+      minHeight: 44,
       flexDirection: 'row',
       alignItems: 'center',
       paddingHorizontal: spacing.md,
@@ -1818,7 +2303,7 @@ const makeStyles = (
     layerLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, marginRight: spacing.sm },
     layerScroll: { gap: spacing.sm, paddingRight: spacing.xl },
     layerChip: {
-      minHeight: 34, flexDirection: 'row', alignItems: 'center', gap: spacing.xs,
+      minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing.xs,
       paddingHorizontal: spacing.md, borderRadius: radii.sm, borderWidth: 1,
     },
     layerChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
@@ -1848,6 +2333,17 @@ const makeStyles = (
     proPill: { borderRadius: radii.full, paddingHorizontal: 6, paddingVertical: 2 },
     proPillText: { fontSize: 9, fontWeight: fontWeight.bold, letterSpacing: 0.4 },
     scroll: { paddingHorizontal: spacing.xl, paddingTop: spacing.md },
+    listView: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.xl, gap: spacing.sm },
+    listViewTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: spacing.xs },
+    listItem: { minHeight: 76, flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderWidth: 1, borderRadius: radii.xl },
+    listItemIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+    listItemName: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    listItemMeta: { fontSize: fontSize.xs },
+    listItemStatus: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    listItemDot: { width: 7, height: 7, borderRadius: 4 },
+    listEmpty: { alignItems: 'center', gap: spacing.sm, padding: spacing.xl, borderWidth: 1, borderRadius: radii.xl },
+    listEmptyTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, textAlign: 'center' },
+    listEmptyDesc: { fontSize: fontSize.sm, lineHeight: 20, textAlign: 'center' },
     compassRow: { alignItems: 'center', marginBottom: spacing.sm },
     compassBadge: { paddingHorizontal: spacing.md, paddingVertical: 3, borderRadius: radii.full, borderWidth: 1 },
     fieldStage: { position: 'relative', overflow: 'hidden', paddingBottom: spacing.md },
@@ -1869,12 +2365,12 @@ const makeStyles = (
     },
     fieldHeaderTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     fieldTitle: { color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold, letterSpacing: 0.1 },
-    fieldSubtitle: { color: 'rgba(255,255,255,0.68)', fontSize: 10, marginTop: 2 },
+    fieldSubtitle: { color: 'rgba(255,255,255,0.76)', fontSize: 11, marginTop: 2 },
     fieldSunPill: {
       borderRadius: radii.full, paddingHorizontal: spacing.sm, paddingVertical: 5,
       backgroundColor: 'rgba(12,40,17,0.4)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)',
     },
-    fieldSunText: { color: 'rgba(255,255,255,0.86)', fontSize: 10, fontWeight: fontWeight.semibold },
+    fieldSunText: { color: 'rgba(255,255,255,0.9)', fontSize: 11, fontWeight: fontWeight.semibold },
     focusSummary: {
       marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.md,
       borderRadius: radii.lg, flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
@@ -1903,20 +2399,23 @@ const makeStyles = (
     },
     fieldMetricHeader: { flexDirection: 'row', alignItems: 'center', gap: 5 },
     fieldMetricIcon: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
-    fieldMetricLabel: { color: 'rgba(255,255,255,0.74)', fontSize: 10, fontWeight: fontWeight.medium },
+    fieldMetricLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: fontWeight.medium },
     fieldMetricValue: { color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold, marginTop: 6 },
     fieldFooter: { alignItems: 'center', paddingTop: spacing.sm },
-    fieldFooterText: { color: 'rgba(255,255,255,0.62)', fontSize: 9, fontWeight: fontWeight.medium },
+    fieldFooterText: { color: 'rgba(255,255,255,0.72)', fontSize: 10, fontWeight: fontWeight.medium },
     grid: { borderWidth: 1, overflow: 'hidden', gap: 2, padding: 2 },
     gridRow: { flexDirection: 'row', gap: 2 },
     cell: {
       flex: 1, aspectRatio: 0.85, borderRadius: radii.sm, borderWidth: 1.5,
       alignItems: 'center', justifyContent: 'center', gap: 2, padding: 2, overflow: 'visible',
     },
-    cellEmoji: { fontSize: 25, textShadowColor: 'rgba(0,0,0,0.35)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 },
+    cellEmoji: Platform.select({
+      web: { fontSize: 25, textShadow: '0px 1px 2px rgba(0,0,0,0.35)' },
+      default: { fontSize: 25, textShadowColor: 'rgba(0,0,0,0.35)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 },
+    }),
     cellLabel: {
       maxWidth: '96%', paddingHorizontal: 5, paddingVertical: 2, borderRadius: radii.full,
-      backgroundColor: 'rgba(7,29,14,0.62)', color: '#fff', fontSize: 8, fontWeight: fontWeight.semibold, textAlign: 'center',
+      backgroundColor: 'rgba(7,29,14,0.72)', color: '#fff', fontSize: 10, fontWeight: fontWeight.semibold, textAlign: 'center',
     },
     cellDot: { width: 5, height: 5, borderRadius: 3 },
     badge: {
@@ -2053,9 +2552,12 @@ const makeStyles = (
       borderTopWidth: StyleSheet.hairlineWidth, overflow: 'hidden',
     },
     panelHandle: {
-      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
       paddingHorizontal: spacing.lg, height: PANEL_COLLAPSED_H,
     },
+    panelTitleButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 },
+    panelDoneButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.sm, borderWidth: 1, borderRadius: radii.sm },
+    panelDoneText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
     panelTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 },
     panelBadge: { borderRadius: radii.full, paddingHorizontal: 8, paddingVertical: 2, minWidth: 26, alignItems: 'center' },
     panelBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
@@ -2070,8 +2572,8 @@ const makeStyles = (
       gap: 2, position: 'relative',
     },
     panelCardEmoji: { fontSize: 28 },
-    panelCardName: { fontSize: 9, fontWeight: fontWeight.medium, textAlign: 'center' },
-    panelCardVariety: { fontSize: 8, textAlign: 'center' },
+    panelCardName: { fontSize: 10, fontWeight: fontWeight.medium, textAlign: 'center' },
+    panelCardVariety: { fontSize: 9, textAlign: 'center' },
     panelCardStatus: { borderRadius: radii.full, paddingHorizontal: 4, paddingVertical: 1 },
     panelCardStatusText: { fontSize: 10 },
     dragDots: { flexDirection: 'row', gap: 2, marginTop: 1 },

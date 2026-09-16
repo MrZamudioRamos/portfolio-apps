@@ -1,60 +1,45 @@
 import { useToday } from '../../src/hooks/useToday';
-import { useColors, useTheme, Card, type Theme } from '@portfolio/ui';
+import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { useSession } from '@portfolio/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { GardenWidget } from '../../src/widgets/GardenWidget';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
-  Image,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  useWindowDimensions,
   View,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FLOATING_TAB_BOTTOM_CLEARANCE, showTabBar, hideTabBar } from './_layout';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../src/data';
-import { CROP_IMAGES } from '../../src/data/cropImages';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import type { Garden } from '../../src/models/garden';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
-import { PLANT_STATUS_CONFIG, type Plant } from '../../src/models/plant';
+import { type Plant } from '../../src/models/plant';
 import type { GardenReminder } from '../../src/models/reminder';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
 import { getLunarDay } from '../../src/utils/lunar';
-import { QuickLogModal } from '../../src/components/QuickLogModal';
 import { Button } from '../../src/components/ActionButton';
-import { ScalePress } from '../../src/components/ScalePress';
 import { SowNowCard } from '../../src/components/SowNowCard';
 import type { DiagnosisFollowUpData, DiaryEntry } from '../../src/models/diary-entry';
 import { useWeather } from '../../src/hooks/useWeather';
 import { getWeatherLabel } from '../../src/utils/weather';
 import { buildGamificationData } from '../../src/utils/gamification';
-import { PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { getNeedsWater, getWateringNeedsCount } from '../../src/utils/wateringStatus';
 import { checkFrost } from '../../src/hooks/useFrostAlert';
-import { recordCare, recordQuickEntry } from '../../src/utils/careWrites';
+import { recordQuickEntry } from '../../src/utils/careWrites';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { Mascot } from '../../src/components/Mascot';
 import { SuccessBurst } from '../../src/components/SuccessBurst';
-import { CopilotStep } from 'react-native-copilot';
-import { SemillitaTourProvider, WalkView } from '../../src/components/SemillitaTourProvider';
-import { useTourAutoStart } from '../../src/hooks/useTourAutoStart';
 import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
 import { useActivationChecklist } from '../../src/hooks/useActivationChecklist';
 import { ActivationChecklist } from '../../src/components/ActivationChecklist';
@@ -67,15 +52,10 @@ import { track, EVENTS } from '../../src/analytics';
 import { buildCarePlan } from '../../src/utils/carePlan';
 import { usePro } from '../../src/hooks/usePro';
 
-const FROM_ONBOARDING_KEY = '@huerto/just_from_onboarding';
-const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
-
 function DashboardInner() {
   const currentDay = useToday();
   const colors = useColors();
-  const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
-  const insets = useSafeAreaInsets();
-  const { width: screenWidth } = useWindowDimensions();
+  const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { t, i18n } = useTranslation();
 
@@ -103,34 +83,21 @@ function DashboardInner() {
 
   useFocusEffect(
     useCallback(() => {
-      refreshActiveId();
-      allPlants.refresh();
-      reminders.refresh();
-      entries.refresh();
+      void refreshActiveId().catch(() => {});
+      void allPlants.refresh().catch(() => {});
+      void reminders.refresh().catch(() => {});
+      void entries.refresh().catch(() => {});
       if (garden?.province) checkFrost(garden.province);
-      AsyncStorage.getItem(FROM_ONBOARDING_KEY).then((v) => {
-        if (v === '1') {
-          setJustFromOnboarding(true);
-          AsyncStorage.removeItem(FROM_ONBOARDING_KEY);
-        } else {
-          setJustFromOnboarding(false);
-        }
-      });
     }, [garden?.id, garden?.province])
   );
 
-  const listRef = useRef<FlatList<Plant>>(null);
-  const lastScrollY = useRef(0);
   const { profile } = useUserProfile();
   const { isPro } = usePro();
-  // First visit: spotlight tour. Start at the named first step — the today/
-  // first-use card lives in the FlatList header, so copilot needs the list
-  // ref to measure and scroll to it.
+  // Guidance level only controls the optional beginner recommendation card;
+  // Stitch screens keep help inline and never launch an automatic overlay.
   const coachLevel = useCoachingLevel();
   const activation = useActivationChecklist();
   useWateringReminder();
-  const [showMoreHome, setShowMoreHome] = useState(false);
-  const [justFromOnboarding, setJustFromOnboarding] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState(false);
 
@@ -145,15 +112,6 @@ function DashboardInner() {
       setRefreshing(false);
     }
   }
-  useTourAutoStart('home', {
-    ready: !plants.loading && plants.items.some((plant) => !isSeedPlan(plant) && plant.status !== 'finished'),
-    firstStep: 'today',
-    scrollRef: listRef,
-    disabled: coachLevel !== 'full',
-  });
-
-  const [quickLogPlant, setQuickLogPlant] = useState<Plant | null>(null);
-  const [cardImgErr, setCardImgErr] = useState<Record<string, boolean>>({});
   const [showHarvestCelebration, setShowHarvestCelebration] = useState(false);
   const [harvestCelebKg, setHarvestCelebKg] = useState<number | null>(null);
   const [harvestCelebPlantId, setHarvestCelebPlantId] = useState<string | null>(null);
@@ -161,15 +119,6 @@ function DashboardInner() {
   const [harvestReflectionSaving, setHarvestReflectionSaving] = useState(false);
   const [harvestReflectionError, setHarvestReflectionError] = useState(false);
   const [showHarvestBurst, setShowHarvestBurst] = useState(false);
-  const [showWaterAllModal, setShowWaterAllModal] = useState(false);
-  const [waterAllLiters, setWaterAllLiters] = useState('');
-  const [waterAllMethod, setWaterAllMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>('hand');
-  const [waterAllSaving, setWaterAllSaving] = useState(false);
-  const [plantSearch, setPlantSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<import('../../src/models/plant').PlantStatus | null>(null);
-  const [hideFinished, setHideFinished] = useState(true);
-  const [sortBy, setSortBy] = useState<'default' | 'name' | 'newest'>('default');
-  const plantColumns = screenWidth < 360 ? 1 : 2;
 
   const entriesByPlant = useMemo(() => {
     const idx = new Map<string, DiaryEntry[]>();
@@ -190,19 +139,13 @@ function DashboardInner() {
     return { entry, data: entry.data as DiagnosisFollowUpData };
   }, [entries.items, garden?.id]);
 
-  const plantsById = useMemo(() => {
-    const map = new Map<string, Plant>();
-    for (const p of plants.items) map.set(p.id, p);
-    return map;
-  }, [plants.items]);
-
   const carePlanTasks = useMemo(
     () => buildCarePlan(plants.items, { ...CROPS_BY_ID, ...customCropsById }, entries.items).filter((task) => task.priority === 'today'),
     [plants.items, customCropsById, entries.items, currentDay],
   );
 
   const weeklyTasks = useMemo(() => {
-    const tasks: Array<{ emoji: string; label: string; plantId: string }> = [];
+    const tasks: Array<{ icon: keyof typeof Ionicons.glyphMap; label: string; plantId: string }> = [];
     const today = new Date();
     const todayDateStr = dateToStr(today);
     const in7DaysStr = dateToStr(new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000));
@@ -213,16 +156,20 @@ function DashboardInner() {
       const plantEntries = entriesByPlant.get(p.id) ?? [];
 
       if (getNeedsWater(p, crop, plantEntries)) {
-        tasks.push({ emoji: '💧', label: t('home.taskWater', { name: p.name }), plantId: p.id });
+        tasks.push({
+          icon: 'finger-print-outline',
+          label: t('home.taskCheckSoil', { defaultValue: 'Comprobar sustrato · {{name}}', name: p.name }),
+          plantId: p.id,
+        });
       }
       if (p.pestStatus === 'active') {
-        tasks.push({ emoji: '🐛', label: t('home.taskPest', { name: p.name }), plantId: p.id });
+        tasks.push({ icon: 'bug-outline', label: t('home.taskPest', { name: p.name }), plantId: p.id });
       }
       if (p.transplantDate && p.transplantDate >= todayDateStr && p.transplantDate <= in7DaysStr) {
-        tasks.push({ emoji: '🪴', label: t('home.taskTransplant', { name: p.name }), plantId: p.id });
+        tasks.push({ icon: 'leaf-outline', label: t('home.taskTransplant', { name: p.name }), plantId: p.id });
       }
       if (p.firstHarvestDate && p.firstHarvestDate >= todayDateStr && p.firstHarvestDate <= in7DaysStr) {
-        tasks.push({ emoji: '🧺', label: t('home.taskHarvest', { name: p.name }), plantId: p.id });
+        tasks.push({ icon: 'basket-outline', label: t('home.taskHarvest', { name: p.name }), plantId: p.id });
       } else if (p.sowingDate && !['harvesting', 'finished'].includes(p.status)) {
         const dth = (p.varietyId ? VARIETIES_BY_ID[p.varietyId]?.daysToHarvest : null) ?? crop?.daysToHarvest;
         if (dth) {
@@ -230,7 +177,7 @@ function DashboardInner() {
           const estDate = new Date(new Date(p.sowingDate + 'T12:00:00').getTime() + midDays * 86_400_000);
           const estStr = dateToStr(estDate);
           if (estStr >= todayDateStr && estStr <= in7DaysStr) {
-            tasks.push({ emoji: '🧺', label: t('home.taskEstHarvest', { name: p.name }), plantId: p.id });
+            tasks.push({ icon: 'basket-outline', label: t('home.taskEstHarvest', { name: p.name }), plantId: p.id });
           }
         }
       }
@@ -240,7 +187,7 @@ function DashboardInner() {
         if (ref) {
           const daysInactive = Math.floor((Date.now() - new Date(ref + 'T12:00:00').getTime()) / 86_400_000);
           if (daysInactive > 10) {
-            tasks.push({ emoji: '👁️', label: t('home.taskNeglected', { name: p.name, days: daysInactive }), plantId: p.id });
+            tasks.push({ icon: 'eye-outline', label: t('home.taskNeglected', { name: p.name, days: daysInactive }), plantId: p.id });
           }
         }
       }
@@ -253,7 +200,7 @@ function DashboardInner() {
         const safeDate = new Date(treatDate.getTime() + waitDays * 86_400_000);
         const daysLeft = Math.ceil((safeDate.getTime() - Date.now()) / 86_400_000);
         if (daysLeft > 0) {
-          tasks.push({ emoji: '🧴', label: t('home.taskCarencia', { name: p.name, days: daysLeft }), plantId: p.id });
+          tasks.push({ icon: 'flask-outline', label: t('home.taskCarencia', { name: p.name, days: daysLeft }), plantId: p.id });
         }
       }
     });
@@ -270,35 +217,6 @@ function DashboardInner() {
         return sum + (isNaN(n) ? 0 : n);
       }, 0);
   }, [entries.items, garden?.id]);
-
-  const lastWateredByPlant = useMemo(() => {
-    const idx = new Map<string, string>();
-    for (const e of entries.items) {
-      if (e.plantId && e.type === 'watering') {
-        const existing = idx.get(e.plantId);
-        if (!existing || e.date > existing) idx.set(e.plantId, e.date);
-      }
-    }
-    return idx;
-  }, [entries.items]);
-
-  const filteredPlants = useMemo(() => {
-    let result = plants.items;
-    if (hideFinished && !statusFilter) result = result.filter((p) => p.status !== 'finished');
-    if (plantSearch.trim()) {
-      const q = plantSearch.toLowerCase();
-      result = result.filter((p) => p.name.toLowerCase().includes(q) || p.variety?.toLowerCase().includes(q));
-    }
-    if (statusFilter) result = result.filter((p) => p.status === statusFilter);
-    if (sortBy === 'name') result = [...result].sort((a, b) => a.name.localeCompare(b.name));
-    else if (sortBy === 'newest') result = [...result].sort((a, b) => (b.sowingDate ?? '').localeCompare(a.sowingDate ?? ''));
-    return result;
-  }, [plants.items, plantSearch, statusFilter, hideFinished, sortBy]);
-
-  const finishedCount = useMemo(
-    () => plants.items.filter((p) => p.status === 'finished').length,
-    [plants.items]
-  );
 
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
   const harvestingCount = plants.items.filter((p) => p.status === 'harvesting').length;
@@ -323,7 +241,7 @@ function DashboardInner() {
   useEffect(() => {
     if (entries.loading || !garden?.id || gardenHarvestCount !== 1) return;
     const key = `@huerto/harvest_celebrated_${garden.id}`;
-    AsyncStorage.getItem(key).then((v) => {
+    void AsyncStorage.getItem(key).then((v) => {
       if (v) return;
       const harvestEntry = entries.items.find((e) => e.gardenId === garden.id && e.type === 'harvest');
       const d = harvestEntry?.data as any;
@@ -335,8 +253,8 @@ function DashboardInner() {
       setShowHarvestCelebration(true);
       setShowHarvestBurst(true);
       setTimeout(() => setShowHarvestBurst(false), 1200);
-      AsyncStorage.setItem(key, '1');
-    });
+      void AsyncStorage.setItem(key, '1').catch(() => {});
+    }).catch(() => {});
   }, [gardenHarvestCount, entries.loading, garden?.id]);
 
   async function saveHarvestReflection() {
@@ -378,256 +296,69 @@ function DashboardInner() {
     });
   }, [garden, plants.count, reminders.items]);
 
-  function handleWaterAll() {
-    if (!garden?.id || plants.count === 0) return;
-    setWaterAllLiters('');
-    setWaterAllMethod('hand');
-    setShowWaterAllModal(true);
-  }
-
-  async function confirmWaterAll() {
-    const gardenId = garden?.id;
-    if (!gardenId) return;
-    setWaterAllSaving(true);
-    const today = todayStr();
-    const activePlants = plants.items.filter((p) => p.status !== 'finished' && !isSeedPlan(p));
-    if (activePlants.length === 0) { setWaterAllSaving(false); setShowWaterAllModal(false); return; }
-    const litersNum = parseFloat(waterAllLiters);
-    const perPlantLiters = !isNaN(litersNum) && litersNum > 0 && activePlants.length > 0
-      ? (litersNum / activePlants.length).toFixed(1)
-      : undefined;
-    try {
-      await Promise.all(activePlants.map((p) => recordCare(
-        p.id,
-        'watering',
-        '',
-        perPlantLiters || waterAllMethod !== 'hand'
-          ? { ...(perPlantLiters ? { liters: perPlantLiters } : {}), method: waterAllMethod }
-          : undefined,
-      )));
-      setShowWaterAllModal(false);
-    } finally {
-      setWaterAllSaving(false);
-    }
-  }
-
   const s = useMemo(
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
-  function getHealthColor(plant: Plant, needsWater: boolean): string {
-    if (isSeedPlan(plant)) return colors.textSecondary;
-    if (plant.status === 'finished') return colors.textDisabled;
-    if (plant.pestStatus === 'active') return colors.error;
-    if (needsWater) return colors.warning;
-    const lastDate = lastWateredByPlant.get(plant.id) ?? plant.sowingDate;
-    if (lastDate) {
-      const daysAgo = Math.floor((Date.now() - new Date(lastDate + 'T12:00:00').getTime()) / 86_400_000);
-      if (daysAgo > 14) return colors.error;
-      if (daysAgo > 7) return colors.warning;
-    }
-    return colors.success;
-  }
-
-  function renderPlantCard({ item }: { item: Plant }) {
-    const crop = CROPS_BY_ID[item.cropId] ?? customCropsById[item.cropId];
-    const statusConfig = PLANT_STATUS_CONFIG[item.status];
-    const plantEntries = entriesByPlant.get(item.id) ?? [];
-    const needsWater = getNeedsWater(item, crop, plantEntries);
-    const healthColor = getHealthColor(item, needsWater);
-    return (
-      <View style={s.plantCard}>
-      <ScalePress
-        onPress={() => router.push(`/plant/${item.id}`)}
-      >
-        <Card padded={false} style={s.plantCardInner}>
-          <View style={[s.plantImageBox, { backgroundColor: colors.surfaceAlt }]}>
-            {item.photoUri ? (
-              <Image source={{ uri: item.photoUri }} style={s.plantPhoto} />
-            ) : CROP_IMAGES[item.cropId] && !cardImgErr[item.id] ? (
-              <Image
-                source={{ uri: CROP_IMAGES[item.cropId] }}
-                style={s.plantPhoto}
-                resizeMode="cover"
-                onError={() => setCardImgErr(p => ({ ...p, [item.id]: true }))}
-              />
-            ) : (
-              <Text style={s.plantEmoji}>{crop?.emoji ?? '🌱'}</Text>
-            )}
-            {item.pestStatus && item.pestStatus !== 'none' && (
-              <View style={[s.pestBadge, { backgroundColor: PEST_STATUS_CONFIG[item.pestStatus].color }]}>
-                <Text style={s.pestBadgeText}>{PEST_STATUS_CONFIG[item.pestStatus].emoji}</Text>
-              </View>
-            )}
-            {needsWater && (
-              <View style={[s.waterBadge, { backgroundColor: colors.water }]}>
-                <Text style={s.waterBadgeText}>💧</Text>
-              </View>
-            )}
-            {/* Rendered last so they appear above the image */}
-            <View style={[s.healthRibbon, { backgroundColor: healthColor }]} />
-            {item.sowingDate && item.status !== 'finished' && (() => {
-              const dth = crop?.daysToHarvest;
-              if (!dth) return null;
-              const elapsed = (Date.now() - new Date(item.sowingDate + 'T12:00:00').getTime()) / 86_400_000;
-              const total = Math.round((dth[0] + dth[1]) / 2);
-              const pct = Math.min(elapsed / total, 1);
-              if (pct <= 0) return null;
-              return (
-                <View style={s.growthBarTrack}>
-                  <View style={[s.growthBarFill, {
-                    width: `${Math.round(pct * 100)}%` as any,
-                    backgroundColor: pct >= 1 ? '#FF7043' : colors.primary,
-                  }]} />
-                </View>
-              );
-            })()}
-          </View>
-          <View style={s.plantInfo}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-              <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: healthColor }} />
-              <Text style={[s.plantName, { color: colors.text, flex: 1 }]} numberOfLines={1}>
-                {item.name}
-              </Text>
-            </View>
-            <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs, marginTop: 3 }}>{t(isSeedPlan(item) ? 'dailyCare.planStatus' : item.pestStatus === 'active' ? 'dailyCare.attention' : needsWater ? 'dailyCare.review' : 'dailyCare.recorded')}</Text>
-            {item.variety ? (
-              <Text style={[s.plantVariety, { color: colors.textSecondary }]} numberOfLines={1}>
-                {item.variety}
-              </Text>
-            ) : null}
-            {garden && crop && !item.sowingDate && (() => {
-              const months = crop.sowingMonths[garden.climateZone];
-              if (!months || months.length === 0) return null;
-              const monthLabels = (t('cropNew.months', { returnObjects: true }) as string[]) ?? [];
-              const labels = months.map((m) => monthLabels[m - 1]).filter(Boolean);
-              if (labels.length === 0) return null;
-              return (
-                <View style={[s.plantMonthChip, { backgroundColor: colors.primary + '22' }]}>
-                  <Text style={[s.sowChipText, { color: colors.primaryDark }]} numberOfLines={1}>
-                    🌱 {labels.join(', ')}
-                  </Text>
-                </View>
-              );
-            })()}
-            <View style={s.plantFooter}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: statusConfig.color }} />
-                <Text style={[s.statusText, { color: colors.textSecondary }]}>{t(isSeedPlan(item) ? 'dailyCare.planStatus' : 'plantStatus.' + item.status)}</Text>
-              </View>
-              {item.sowingDate && item.status !== 'finished' && (() => {
-                const days = Math.floor(
-                  (Date.now() - new Date(item.sowingDate + 'T12:00:00').getTime()) / 86_400_000
-                );
-                if (days < 1) return null;
-                return (
-                  <View style={[s.daysChip, { backgroundColor: colors.primary + '12' }]}>
-                    <Text style={[s.daysChipText, { color: colors.primary }]}>{t('home.dayN', { n: days })}</Text>
-                  </View>
-                );
-              })()}
-              {(() => {
-                const lastWateredDate = lastWateredByPlant.get(item.id);
-                if (!lastWateredDate) return null;
-                const days = Math.floor((Date.now() - new Date(lastWateredDate + 'T12:00:00').getTime()) / 86_400_000);
-                if (days < 1) return null;
-                return (
-                  <View style={[s.wateredChip, { backgroundColor: colors.water + '18' }]}>
-                    <Text style={[s.wateredChipText, { color: colors.water }]}>💧{days}d</Text>
-                  </View>
-                );
-              })()}
-            </View>
-          </View>
-        </Card>
-      </ScalePress>
-        <Pressable accessibilityRole="button" accessibilityLabel={t(isSeedPlan(item) ? 'dailyCare.viewPlan' : 'dailyCare.logFor', { name: item.name })} onPress={() => isSeedPlan(item) ? router.push({ pathname: '/plant/[id]', params: { id: item.id } }) : setQuickLogPlant(item)} style={[s.quickLogBtn, { top: 8, bottom: undefined, width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primary }]}>
-          <Ionicons name={isSeedPlan(item) ? 'open-outline' : 'add'} size={20} color={colors.background} />
-        </Pressable>
-      </View>
-    );
-  }
-
   const todayPlant = getTodayPlant(plants.items, { ...CROPS_BY_ID, ...customCropsById }, entries.items);
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
-      {/* Header — simplified: name + compact info strip */}
+      {/* Header — Stitch: identity, active space, weather and notifications */}
       <View style={s.header}>
         <View style={{ flex: 1, minWidth: 0 }}>
           <View style={s.brandRow}>
             <View style={[s.brandMark, { backgroundColor: colors.accent }]}>
               <Ionicons name="leaf" size={15} color={colors.primaryDark} />
             </View>
-            <Text style={[s.brandName, { color: colors.text }]}>semilla</Text>
+            <Text style={[s.brandName, { color: colors.text }]}>Semilla</Text>
           </View>
-          <Text style={[s.headerTitle, { color: colors.text }]} numberOfLines={1}>
-            {garden?.name ?? t('home.defaultGardenName')}
-          </Text>
+          <Pressable
+            onPress={() => router.push('/gardens' as any)}
+            accessibilityRole="button"
+            accessibilityLabel={t('gardens.title')}
+            style={({ pressed }) => [s.locationButton, { opacity: pressed ? 0.72 : 1 }]}
+            hitSlop={8}
+          >
+            <Ionicons name="location-outline" size={14} color={colors.primary} />
+            <Text style={[s.locationText, { color: colors.text }]} numberOfLines={1}>
+              {garden?.province ?? t('home.defaultGardenName')} · {garden?.name ?? t('home.defaultGardenName')}
+            </Text>
+            <Ionicons name="chevron-down" size={14} color={colors.textSecondary} />
+          </Pressable>
           <Text style={[s.headerSub, { color: colors.textSecondary }]} numberOfLines={1}>
             {[
               weather && !weatherLoading
                 ? `${getWeatherLabel(weather.today.weatherCode).emoji} ${weather.today.tempMax}°`
                 : null,
-              zoneConfig ? `${zoneConfig.emoji} ${t(`zone.${garden.climateZone}`)}` : null,
+              zoneConfig ? `${zoneConfig.emoji} ${t(`zone.${garden?.climateZone}`)}` : null,
             ].filter(Boolean).join(' · ')}
           </Text>
         </View>
 
-        {allGardens.length > 1 && (
-          <Pressable
-            onPress={() => router.push('/gardens' as any)}
-            accessibilityRole="button"
-            accessibilityLabel={t('gardens.title')}
-            style={({ pressed }) => [s.headerBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1, marginRight: spacing.sm }]}
-            hitSlop={8}
-          >
-            <Ionicons name="swap-horizontal-outline" size={18} color={colors.primary} />
-          </Pressable>
-        )}
         <Pressable
-          onPress={() => router.push(plants.count === 0 ? (profile ? '/first-crop' : '/onboarding') : '/plant/new')}
+          onPress={() => router.push('/settings/notifications' as any)}
           accessibilityRole="button"
-          accessibilityLabel={t('home.addPlant')}
-          style={({ pressed }) => [s.headerAddBtn, { backgroundColor: colors.primary, opacity: pressed ? 0.78 : 1 }]}
-        >
-          <Ionicons name="add" size={17} color={colors.background} />
-          <Text style={[s.headerAddText, { color: colors.background }]}>{t('home.addPlant')}</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => router.push('/(tabs)/settings' as any)}
-          accessibilityRole="button"
-          accessibilityLabel={t('tabs.settings')}
+          accessibilityLabel={t('notifications.title')}
           style={({ pressed }) => [s.headerBtn, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
           hitSlop={8}
         >
-          <Ionicons name="settings-outline" size={20} color={colors.textSecondary} />
+          <Ionicons name="notifications-outline" size={20} color={colors.textSecondary} />
         </Pressable>
+        <View style={[s.headerAvatar, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]} accessibilityLabel="Perfil">
+          <Ionicons name="person-outline" size={18} color={colors.primaryDark} />
+        </View>
       </View>
 
       <FlatList
-        ref={listRef}
-        data={filteredPlants}
-        keyExtractor={(item) => item.id}
-        key={`plants-${plantColumns}`}
-        numColumns={plantColumns}
-        columnWrapperStyle={plantColumns === 2 ? s.columnWrapper : undefined}
+        // Hoy is a care dashboard. Plant inventory belongs to the dedicated
+        // Plantas tab, so this list intentionally has no legacy plant-card rows.
+        data={[]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
-        onScroll={({ nativeEvent }) => {
-          const y = nativeEvent.contentOffset.y;
-          if (y <= 0) {
-            showTabBar();
-          } else if (y > lastScrollY.current + 12) {
-            hideTabBar();
-          } else if (y < lastScrollY.current - 12) {
-            showTabBar();
-          }
-          lastScrollY.current = y;
-        }}
         ListHeaderComponent={
           <>
             {refreshError && (
@@ -645,10 +376,9 @@ function DashboardInner() {
               </View>
             )}
 
-            {/* Empty state — hidden when user just finished onboarding (tour covers it) */}
+            {/* Empty state — the first useful action stays visible in the Stitch shell. */}
             {plants.count === 0 && !plants.loading && (
-              <CopilotStep text={t('coach.homeStart')} order={1} name="start">
-              <WalkView style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
+              <View style={[s.firstUseCard, { backgroundColor: colors.surface, borderColor: colors.primary + '55', borderWidth: 1.5 }]}>
                 <Mascot pose="wave" size={128} />
                 <Text style={[s.firstUseTitle, { color: colors.text }]}>{t('home.firstUseTitle', { name: garden?.name ?? t('home.defaultGardenName') })}</Text>
                 <Text style={[s.firstUseDesc, { color: colors.textSecondary }]}>{t('home.firstUseDesc')}</Text>
@@ -669,32 +399,98 @@ function DashboardInner() {
                   </Pressable>
 
                 </View>
-              </WalkView>
-              </CopilotStep>
+              </View>
             )}
 
             {/* Beginner's first question answered: what should I plant? */}
             {plants.count === 0 && !plants.loading && garden && coachLevel !== 'full' && (
-              <CopilotStep text={t('coach.homeSow')} order={2} name="sow">
-                <WalkView>
+              <View>
                   <SowNowCard climateZone={garden.climateZone} />
-                </WalkView>
-              </CopilotStep>
+              </View>
             )}
 
-            {todayPlant && !entries.loading && (
-              <CopilotStep text={t('coach.homeToday')} order={1} name="today">
-                <WalkView style={{ marginHorizontal: spacing.xl }}>
-                  <PlantCareCard plant={todayPlant} crop={CROPS_BY_ID[todayPlant.cropId] ?? customCropsById[todayPlant.cropId]} climateZone={garden?.climateZone} entries={entries.items} frost={Boolean(weather && weather.today.tempMin <= 2 && !isSeedPlan(todayPlant))} onOpen={() => router.push({ pathname: '/plant/[id]', params: { id: todayPlant.id } })} onUpdated={async () => { await Promise.all([allPlants.refresh(), entries.refresh()]); }} />
-                </WalkView>
-              </CopilotStep>
+            {/* Stitch's first viewport: a calm status snapshot before the action. */}
+            {!plants.loading && (
+              <View style={[s.stitchOverview, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <View style={s.stitchGreetingRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.stitchGreeting, { color: colors.text }]}>
+                      {t('home.todayHeading', { defaultValue: 'Hoy en tu huerto' })}
+                    </Text>
+                    <Text style={[s.stitchSubheading, { color: colors.textSecondary }]}>
+                      {t('home.todaySubheading', { defaultValue: 'Una revisión breve para cuidar mejor, sin adivinar.' })}
+                    </Text>
+                  </View>
+                  <View style={[s.stitchAvatar, { backgroundColor: colors.primaryLight }]}>
+                    <Ionicons name="leaf" size={19} color={colors.primaryDark} />
+                  </View>
+                </View>
+
+                <View style={s.stitchMetricsGrid}>
+                  <View style={[s.stitchMetric, { backgroundColor: colors.primaryLight + '55' }]}>
+                    <Text style={[s.stitchMetricValue, { color: colors.primaryDark }]}>{plants.items.filter((plant) => plant.status !== 'finished').length}</Text>
+                    <Text style={[s.stitchMetricLabel, { color: colors.textSecondary }]}>{t('home.stats.plants')}</Text>
+                  </View>
+                  <View style={[s.stitchMetric, { backgroundColor: colors.accent + '38' }]}>
+                    <Text style={[s.stitchMetricValue, { color: colors.text }]}>{carePlanTasks.length}</Text>
+                    <Text style={[s.stitchMetricLabel, { color: colors.textSecondary }]}>{t('home.todayPriority', { defaultValue: 'Tarea urgente' })}</Text>
+                  </View>
+                  <View style={[s.stitchMetric, { backgroundColor: colors.surfaceAlt }]}>
+                    <Text style={[s.stitchMetricValue, { color: colors.primaryDark }]}>{streak}</Text>
+                    <Text style={[s.stitchMetricLabel, { color: colors.textSecondary }]}>Días felices</Text>
+                  </View>
+                </View>
+
+                {todayPlant && !entries.loading && (
+                  <View style={s.priorityCare}>
+                    <PlantCareCard
+                      plant={todayPlant}
+                      crop={CROPS_BY_ID[todayPlant.cropId] ?? customCropsById[todayPlant.cropId]}
+                      climateZone={garden?.climateZone}
+                      entries={entries.items}
+                      frost={Boolean(weather && weather.today.tempMin <= 2 && !isSeedPlan(todayPlant))}
+                      onOpen={() => router.push({ pathname: '/plant/[id]', params: { id: todayPlant.id } })}
+                      onUpdated={async () => { await Promise.all([allPlants.refresh(), entries.refresh()]); }}
+                    />
+                  </View>
+                )}
+
+                <View style={[s.stitchTip, { backgroundColor: colors.surfaceAlt, borderColor: colors.accent + '66' }]}>
+                  <View style={[s.stitchTipIcon, { backgroundColor: colors.accent }]}>
+                    <Ionicons name="sunny-outline" size={18} color={colors.text} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.stitchTipTitle, { color: colors.text }]}>{t('home.semillaTipTitle', { defaultValue: 'Consejo de Semillita' })}</Text>
+                    <Text style={[s.stitchTipText, { color: colors.textSecondary }]}>{t('home.semillaTip', { defaultValue: 'Observa la tierra antes de regar: tocar 2 cm de profundidad evita cuidados innecesarios.' })}</Text>
+                  </View>
+                </View>
+
+                {weeklyTasks.length > 0 && (
+                  <View style={s.stitchUpcoming}>
+                    <View style={s.stitchUpcomingHeader}>
+                      <Text style={[s.stitchUpcomingTitle, { color: colors.text }]}>{t('home.upcomingTitle', { defaultValue: 'Próximas tareas' })}</Text>
+                      <Text style={[s.stitchUpcomingCount, { color: colors.textDisabled }]}>{weeklyTasks.length}</Text>
+                    </View>
+                    {weeklyTasks.slice(0, 3).map((task, index) => (
+                      <Pressable
+                        key={`stitch-task-${task.plantId}-${index}`}
+                        accessibilityRole="button"
+                        onPress={() => router.push({ pathname: '/plant/[id]', params: { id: task.plantId } })}
+                        style={({ pressed }) => [s.stitchTask, { borderTopColor: colors.border, opacity: pressed ? 0.68 : 1 }]}
+                      >
+                        <View style={[s.stitchTaskDot, { backgroundColor: colors.primaryLight }]}>
+                          <Ionicons name={task.icon} size={14} color={colors.primaryDark} />
+                        </View>
+                        <Text style={[s.stitchTaskText, { color: colors.text }]} numberOfLines={1}>{task.label}</Text>
+                        <Ionicons name="chevron-forward" size={17} color={colors.textDisabled} />
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
+              </View>
             )}
 
             {/* Seasonal discovery stays close to today's care, so the next plant is easy to find. */}
-            {plants.count > 0 && garden && (
-              <SowNowCard climateZone={garden.climateZone} />
-            )}
-
             {plants.count > 0 && garden && (
               <Pressable
                 accessibilityRole="button"
@@ -704,7 +500,7 @@ function DashboardInner() {
                 ]}
               >
                 <View style={{ width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary + '20' }}>
-                  <Text style={{ fontSize: 22 }}>✨</Text>
+                  <Ionicons name="sparkles-outline" size={22} color={colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
@@ -728,7 +524,7 @@ function DashboardInner() {
                 ]}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-                  <Text style={{ fontSize: 22 }}>🔎</Text>
+                  <Ionicons name="search-outline" size={22} color={colors.info} />
                   <Text style={{ color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.bold, flex: 1 }} numberOfLines={1}>
                     {t('home.diagnosisProgressTitle', { name: latestDiagnosisFollowUp.data.diagnosisName ?? t('identify.title') })}
                   </Text>
@@ -753,389 +549,11 @@ function DashboardInner() {
               </Pressable>
             )}
 
-            {/* My Plants section header + controls */}
-            {plants.count > 0 && (
-              <>
-                <View style={s.sectionRow}>
-                  <Text style={[s.sectionTitle, { color: colors.text }]}>{t('home.myPlants')}</Text>
-                  <View style={{ flexDirection: 'row', gap: spacing.sm, alignItems: 'center' }}>
-                    <Pressable
-                      onPress={() => setSortBy((cur) => cur === 'default' ? 'name' : cur === 'name' ? 'newest' : 'default')}
-                      style={[s.sortBtn, { backgroundColor: sortBy !== 'default' ? colors.primary + '18' : colors.surfaceAlt, borderColor: sortBy !== 'default' ? colors.primary : colors.border }]}
-                    >
-                      <Ionicons name="swap-vertical-outline" size={13} color={sortBy !== 'default' ? colors.primary : colors.textSecondary} />
-                      <Text style={[s.sortBtnText, { color: sortBy !== 'default' ? colors.primary : colors.textSecondary }]}>
-                        {sortBy === 'name' ? t('home.sortName') : sortBy === 'newest' ? t('home.sortNewest') : t('home.sortDefault')}
-                      </Text>
-                    </Pressable>
-                    {plants.items.some((plant) => plant.status !== 'finished' && !isSeedPlan(plant)) && <Pressable
-                      onPress={handleWaterAll}
-                      style={({ pressed }) => [s.waterAllBtn, { backgroundColor: colors.water + '22', borderColor: colors.water, opacity: pressed ? 0.7 : 1 }]}
-                    >
-                      <Text style={[s.waterAllText, { color: colors.water }]}>{t('home.waterAll')}</Text>
-                    </Pressable>}
-                  </View>
-                </View>
-                {hideFinished && finishedCount > 0 && !statusFilter && (
-                  <Pressable onPress={() => setHideFinished(false)} style={s.showFinishedLink}>
-                    <Text style={[s.showFinishedText, { color: colors.textSecondary }]}>{t('home.showFinished', { count: finishedCount })}</Text>
-                  </Pressable>
-                )}
-                {!hideFinished && finishedCount > 0 && (
-                  <Pressable onPress={() => setHideFinished(true)} style={s.showFinishedLink}>
-                    <Text style={[s.showFinishedText, { color: colors.textSecondary }]}>{t('home.hideFinished')}</Text>
-                  </Pressable>
-                )}
-                {plants.count > 0 && (
-                  <View style={[s.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    <Ionicons name="search-outline" size={14} color={colors.textSecondary} />
-                    <TextInput
-                      value={plantSearch}
-                      onChangeText={setPlantSearch}
-                      placeholder={t('home.searchPlants')}
-                      placeholderTextColor={colors.textDisabled}
-                      style={[{ flex: 1, color: colors.text, fontSize: fontSize.sm, marginLeft: 6 }]}
-                    />
-                    {plantSearch.length > 0 && (
-                      <Pressable onPress={() => setPlantSearch('')} hitSlop={8} accessibilityRole="button" accessibilityLabel={t('common.close')}>
-                        <Ionicons name="close-circle" size={14} color={colors.textDisabled} />
-                      </Pressable>
-                    )}
-                  </View>
-                )}
-                {plants.count > 2 && (() => {
-                  const statusCounts = new Map<string, number>();
-                  plants.items.forEach((p) => statusCounts.set(p.status, (statusCounts.get(p.status) ?? 0) + 1));
-                  const presentStatuses = (Object.keys(PLANT_STATUS_CONFIG) as import('../../src/models/plant').PlantStatus[])
-                    .filter((st) => statusCounts.has(st));
-                  if (presentStatuses.length < 2) return null;
-                  return (
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      style={{ marginBottom: spacing.sm }}
-                      contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm }}
-                    >
-                      <Pressable
-                        onPress={() => setStatusFilter(null)}
-                        style={[s.filterChip, { backgroundColor: !statusFilter ? colors.text : colors.surfaceAlt, borderColor: !statusFilter ? colors.text : colors.border }]}
-                      >
-                        <Text style={[s.filterChipText, { color: !statusFilter ? colors.background : colors.textSecondary }]}>
-                          {t('home.filterAll')} ({plants.items.length})
-                        </Text>
-                      </Pressable>
-                      {presentStatuses.map((st) => {
-                        const cfg = PLANT_STATUS_CONFIG[st];
-                        const active = statusFilter === st;
-                        const count = statusCounts.get(st) ?? 0;
-                        return (
-                          <Pressable
-                            key={st}
-                            onPress={() => setStatusFilter(active ? null : st)}
-                            style={[s.filterChip, { backgroundColor: active ? colors.text : colors.surfaceAlt, borderColor: active ? colors.text : colors.border }]}
-                          >
-                            <Text style={[s.filterChipText, { color: active ? colors.background : colors.textSecondary }]}>
-                              {cfg.emoji} {t('plantStatus.' + st)} ({count})
-                            </Text>
-                          </Pressable>
-                        );
-                      })}
-                    </ScrollView>
-                  );
-                })()}
-              </>
-            )}
           </>
         }
-        ListEmptyComponent={
-          plants.count > 0 && (plantSearch.trim() || statusFilter) ? (
-            <View style={{ alignItems: 'center', paddingVertical: spacing.xl, gap: spacing.sm }}>
-              <Text style={{ fontSize: 32 }}>🔍</Text>
-              <Text style={{ fontSize: fontSize.sm, color: colors.textSecondary }}>{t('home.noResults')}</Text>
-            </View>
-          ) : null
-        }
-        ListFooterComponent={plants.count > 0 ?
-          <>
-            {activation.visible && (
-              <ActivationChecklist
-                checklist={activation.checklist}
-                completedCount={activation.completedCount}
-                totalCount={activation.totalCount}
-                onSelect={(id) => {
-                  if (id === 'calendar') router.push('/(tabs)/calendar');
-                  else if (id === 'watering' && todayPlant) router.push({ pathname: '/plant/[id]', params: { id: todayPlant.id } });
-                  else router.push(profile ? '/first-crop' : '/onboarding');
-                }}
-              />
-            )}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityState={{ expanded: showMoreHome }}
-              onPress={() => setShowMoreHome((current) => !current)}
-              style={({ pressed }) => [s.moreHomeButton, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
-            >
-              <Text style={[s.moreHomeButtonText, { color: colors.text }]}>
-                {showMoreHome ? t('home.hideMore') : t('home.more')}
-              </Text>
-              <Ionicons name={showMoreHome ? 'chevron-up' : 'chevron-down'} size={18} color={colors.primary} />
-            </Pressable>
-            {showMoreHome && <View>
-            {weeklyTasks.length > 0 && (
-              <View style={{ marginHorizontal: spacing.xl, marginVertical: spacing.md, gap: spacing.sm }}>
-                <Text style={[s.sectionTitle, { color: colors.text }]}>{t('home.weeklyTasks')}</Text>
-                {weeklyTasks.map((task, index) => (
-                  <Pressable key={`${task.plantId}-${index}`} accessibilityRole="button"
-                    onPress={() => router.push({ pathname: '/plant/[id]', params: { id: task.plantId } })}
-                    style={{ minHeight: 48, padding: spacing.md, borderRadius: 12, backgroundColor: colors.surface }}>
-                    <Text style={{ color: colors.text }}>{task.emoji} {task.label}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            )}
-            {/* Próximas cosechas — hero card when harvest is near */}
-            {plants.count > 0 && (() => {
-              const in21 = dateToStr(new Date(Date.now() + 21 * 86_400_000));
-              const todayS = todayStr();
-              const hp = plants.items.find(p => {
-                if (p.status === 'harvesting') return true;
-                if (p.firstHarvestDate && p.firstHarvestDate >= todayS && p.firstHarvestDate <= in21) return true;
-                if (p.sowingDate && !['harvesting','finished'].includes(p.status)) {
-                  const crop2 = CROPS_BY_ID[p.cropId] ?? customCropsById[p.cropId];
-                  const dth = crop2?.daysToHarvest;
-                  if (!dth) return false;
-                  const estDate = new Date(new Date(p.sowingDate + 'T12:00:00').getTime() + Math.round((dth[0]+dth[1])/2) * 86_400_000);
-                  const estStr = dateToStr(estDate);
-                  return estStr >= todayS && estStr <= in21;
-                }
-                return false;
-              });
-              if (!hp) return null;
-              const hCrop = CROPS_BY_ID[hp.cropId] ?? customCropsById[hp.cropId];
-              const hImg = hp.photoUri ?? CROP_IMAGES[hp.cropId];
-              const daysUntil = (() => {
-                if (hp.firstHarvestDate) return Math.ceil((new Date(hp.firstHarvestDate + 'T12:00:00').getTime() - Date.now()) / 86_400_000);
-                if (hp.sowingDate && hCrop?.daysToHarvest) {
-                  const dth = hCrop.daysToHarvest;
-                  const est = new Date(new Date(hp.sowingDate + 'T12:00:00').getTime() + Math.round((dth[0]+dth[1])/2) * 86_400_000);
-                  return Math.ceil((est.getTime() - Date.now()) / 86_400_000);
-                }
-                return null;
-              })();
-              return (
-                <ScalePress
-                  onPress={() => router.push(`/plant/${hp.id}`)}
-                  style={[s.harvestHero, { borderColor: '#FF7043' }]}
-                >
-                  {hImg && <Image source={{ uri: hImg }} style={StyleSheet.absoluteFill} resizeMode="cover" />}
-                  <View style={s.harvestHeroOverlay}>
-                    <Text style={s.harvestHeroLabel}>🧺 {t('home.stats.harvesting').toUpperCase()}</Text>
-                    <Text style={s.harvestHeroName}>{hp.name}</Text>
-                    {daysUntil !== null && daysUntil > 0 && (
-                      <Text style={s.harvestHeroSub}>{t('home.harvestInDays', { days: daysUntil })} · {hCrop?.emoji ?? ''}</Text>
-                    )}
-                  </View>
-                </ScalePress>
-              );
-            })()}
-
-            {/* Quick stats strip */}
-            {plants.count > 0 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={{ marginBottom: spacing.md }}
-                contentContainerStyle={{ paddingHorizontal: spacing.xl, gap: spacing.sm }}
-              >
-                <View style={[s.statPill, { backgroundColor: colors.success + '18', borderColor: colors.success + '44' }]}>
-                  <Text style={[s.statPillNum, { color: colors.success }]}>{plants.items.filter(p => p.status !== 'finished').length}</Text>
-                  <Text style={[s.statPillLabel, { color: colors.success }]}>{t('home.stats.plants')}</Text>
-                </View>
-                {needsWaterCount > 0 && (
-                  <View style={[s.statPill, { backgroundColor: colors.water + '18', borderColor: colors.water + '44' }]}>
-                    <Text style={[s.statPillNum, { color: colors.water }]}>{needsWaterCount}</Text>
-                    <Text style={[s.statPillLabel, { color: colors.water }]}>{t('home.stats.needsWater')}</Text>
-                  </View>
-                )}
-                {harvestingCount > 0 && (
-                  <View style={[s.statPill, { backgroundColor: '#FF704318', borderColor: '#FF704344' }]}>
-                    <Text style={[s.statPillNum, { color: '#FF7043' }]}>{harvestingCount}</Text>
-                    <Text style={[s.statPillLabel, { color: '#FF7043' }]}>{t('home.stats.harvesting')}</Text>
-                  </View>
-                )}
-                {activePests > 0 && (
-                  <View style={[s.statPill, { backgroundColor: colors.error + '18', borderColor: colors.error + '44' }]}>
-                    <Text style={[s.statPillNum, { color: colors.error }]}>{activePests}</Text>
-                    <Text style={[s.statPillLabel, { color: colors.error }]}>{t('home.stats.pests')}</Text>
-                  </View>
-                )}
-                {yearHarvestKg > 0 && (
-                  <View style={[s.statPill, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '44' }]}>
-                    <Text style={[s.statPillNum, { color: colors.primary }]}>{(yearHarvestKg / 1000).toFixed(1)} kg</Text>
-                    <Text style={[s.statPillLabel, { color: colors.primary }]}>{t('home.stats.yearKg')}</Text>
-                  </View>
-                )}
-                {streak >= 2 && (
-                  <View style={[s.statPill, { backgroundColor: '#FF980018', borderColor: '#FF980044' }]}>
-                    <Text style={[s.statPillNum, { color: '#FF9800' }]}>🔥 {streak}</Text>
-                    <Text style={[s.statPillLabel, { color: '#FF9800' }]}>{t('home.streakLabel')}</Text>
-                  </View>
-                )}
-              </ScrollView>
-            )}
-
-            {/* AI quick actions — chat + plant scan, always one tap away */}
-            {!plants.loading && (
-              <View>
-                <WalkView style={s.aiQuickRow}>
-                  <ScalePress
-                    onPress={() => router.push('/chat' as any)}
-                    style={[s.aiQuickBtn, { backgroundColor: colors.primary + '16', borderColor: colors.primary + '44' }]}
-                  >
-                    <Ionicons name="chatbubble-ellipses-outline" size={20} color={colors.primary} />
-                    <Text style={[s.aiQuickText, { color: colors.primaryDark }]} numberOfLines={1}>{t('chat.title')}</Text>
-                  </ScalePress>
-                  <ScalePress
-                    onPress={() => router.push('/plant/scan' as any)}
-                    style={[s.aiQuickBtn, { backgroundColor: colors.info + '14', borderColor: colors.info + '44' }]}
-                  >
-                    <Ionicons name="camera-outline" size={20} color={colors.info} />
-                    <Text style={[s.aiQuickText, { color: colors.info }]} numberOfLines={1}>{t('plantScan.title')}</Text>
-                  </ScalePress>
-                </WalkView>
-              </View>
-            )}
-
-            {/* Garden map — moved below the fold to keep "Hoy" dominant */}
-            {garden && (
-              <ScalePress
-                onPress={() => router.push('/garden/map')}
-                style={[s.mapCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
-              >
-                <View style={[s.mapCardLeft, { backgroundColor: colors.primary + '18' }]}>
-                  <Ionicons name="map-outline" size={30} color={colors.primary} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={[s.mapCardTitle, { color: colors.text }]}>
-                    {garden.gardenType ? `${GARDEN_TYPE_CONFIG[garden.gardenType]?.emoji ?? '🪴'} ${t(`gardenType.${garden.gardenType}`)}` : garden.name}
-                    {garden.gridRows && garden.gridCols ? ` · ${garden.gridCols}×${garden.gridRows}` : ''}
-                  </Text>
-                  <Text style={[s.mapCardSub, { color: colors.textSecondary }]}>{t('home.mapCardSub', { count: plants.count })}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
-              </ScalePress>
-            )}
-
-            {/* Weather */}
-            {(weather || weatherLoading) && (
-              <View style={[s.weatherCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                {weatherLoading || !weather ? (
-                  <View style={s.weatherLoading}>
-                    <Text style={[s.weatherLoadingText, { color: colors.textSecondary }]}>{t('home.weatherLoading')}</Text>
-                  </View>
-                ) : (
-                  <>
-                    <View style={s.weatherTodayRow}>
-                      <Text style={s.weatherMainEmoji}>{getWeatherLabel(weather.today.weatherCode).emoji}</Text>
-                      <View style={{ flex: 1 }}>
-                        <Text style={[s.weatherProvince, { color: colors.textSecondary }]}>{weather.province}</Text>
-                        <Text style={[s.weatherLabel, { color: colors.text }]}>{t(getWeatherLabel(weather.today.weatherCode).key)}</Text>
-                      </View>
-                      <View style={s.weatherTemps}>
-                        <Text style={[s.weatherTempMax, { color: colors.text }]}>{weather.today.tempMax}°</Text>
-                        <Text style={[s.weatherTempMin, { color: colors.textSecondary }]}>{weather.today.tempMin}°</Text>
-                      </View>
-                    </View>
-                    <View style={[s.forecastRow, { borderTopColor: colors.border }]}>
-                      {weather.forecast.map((day) => {
-                        const lbl = getWeatherLabel(day.weatherCode);
-                        const date = new Date(day.date + 'T12:00:00');
-                        const intlLocale = i18n.language === 'val' ? 'ca-ES' : i18n.language;
-                        const dayName = new Intl.DateTimeFormat(intlLocale, { weekday: 'short' }).format(date);
-                        return (
-                          <View key={day.date} style={s.forecastDay}>
-                            <Text style={[s.forecastDayName, { color: colors.textSecondary }]}>{dayName.charAt(0).toUpperCase() + dayName.slice(1, 3)}</Text>
-                            <Text style={s.forecastEmoji}>{lbl.emoji}</Text>
-                            <Text style={[s.forecastTemp, { color: colors.text }]}>{day.tempMax}°</Text>
-                            {day.rainProbability > 0 && <Text style={s.forecastRain}>💧{day.rainProbability}%</Text>}
-                          </View>
-                        );
-                      })}
-                    </View>
-                    <View style={[s.wateringAdviceBanner, {
-                      backgroundColor: weather.wateringAdvice === 'skip' ? colors.water + '18' : weather.wateringAdvice === 'reduce' ? colors.warning + '18' : colors.surfaceAlt,
-                      borderColor: weather.wateringAdvice === 'skip' ? colors.water : weather.wateringAdvice === 'reduce' ? colors.warning : colors.border,
-                    }]}>
-                      <Text style={[s.wateringAdviceText, { color: colors.text }]}>
-                        {t(weather.wateringKey, weather.wateringParams)}
-                      </Text>
-                    </View>
-                  </>
-                )}
-              </View>
-            )}
-
-            {/* Lunar */}
-            <ScalePress
-              onPress={() => router.push('/(tabs)/calendar' as any)}
-              style={[s.lunarCard, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderColor: colors.border, overflow: 'hidden' }]}
-            >
-              {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-              <View style={s.lunarLeft}>
-                <Text style={s.lunarMoonEmoji}>{lunar.phaseEmoji}</Text>
-                <View style={[s.lunarIllumBar, { backgroundColor: colors.border }]}>
-                  <View style={[s.lunarIllumFill, { width: `${lunar.illumination}%` as any, backgroundColor: colors.primary }]} />
-                </View>
-                <Text style={[s.lunarIllumText, { color: colors.textSecondary }]}>{lunar.illumination}%</Text>
-              </View>
-              <View style={s.lunarCenter}>
-                <Text style={[s.lunarPhaseName, { color: colors.text }]}>{t(lunar.phaseKey)}</Text>
-                <Text style={[s.lunarGardening, { color: colors.primary }]}>{lunar.gardeningEmoji} {t(`lunar.gardeningLabel.${lunar.gardeningType}`)}</Text>
-                <Text style={[s.lunarRec, { color: colors.textSecondary }]} numberOfLines={2}>{t(`lunar.recommendation.${lunar.gardeningType}`)}</Text>
-              </View>
-              <View style={s.lunarRight}>
-                <Text style={[s.lunarDay, { color: colors.textDisabled }]}>{t('home.lunarDay')}</Text>
-                <Text style={[s.lunarDayNum, { color: colors.text }]}>{lunar.dayInCycle}</Text>
-              </View>
-            </ScalePress>
-
-            {/* Stats link */}
-            {plants.count > 0 && (
-              <Pressable
-                onPress={() => router.push('/stats')}
-                style={({ pressed }) => [s.statsLink, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
-              >
-                <Ionicons name="bar-chart-outline" size={16} color={colors.primary} />
-                <Text style={[s.statsLinkText, { color: colors.primary }]}>{t('home.viewStats')}</Text>
-                <Ionicons name="chevron-forward" size={14} color={colors.primary} />
-              </Pressable>
-            )}
-
-            <View style={{ height: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 80 }} />
-            </View>}
-          </> : null
-        }
-        renderItem={renderPlantCard}
-      />
-
-      {/* FAB */}
-      <CopilotStep text={t('coach.homeAdd')} order={2} name="add">
-        <WalkView style={[s.fab, { ...shadows.lg, backgroundColor: colors.primary, bottom: insets.bottom + FLOATING_TAB_BOTTOM_CLEARANCE + 10 }]}>
-          <ScalePress
-            onPress={() => router.push(plants.count === 0 ? (profile ? '/first-crop' : '/onboarding') : '/plant/new')}
-            pressedScale={0.9}
-            accessibilityLabel={t('home.addPlant')}
-            style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 28 }}
-          >
-            <Ionicons name="add" size={28} color={colors.background} />
-          </ScalePress>
-        </WalkView>
-      </CopilotStep>
-
-      <QuickLogModal
-        plant={quickLogPlant}
-        visible={quickLogPlant !== null}
-        onClose={() => { setQuickLogPlant(null); entries.refresh(); allPlants.refresh(); }}
+        ListEmptyComponent={null}
+        ListFooterComponent={null}
+        renderItem={() => null}
       />
 
       {/* First harvest celebration modal */}
@@ -1144,7 +562,7 @@ function DashboardInner() {
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center', padding: spacing.xl }} onPress={() => setShowHarvestCelebration(false)}>
           <Pressable onPress={() => {}} style={{ backgroundColor: colors.surface, borderRadius: radii.xl, padding: spacing.xl, alignItems: 'center', gap: spacing.lg, width: '100%' }}>
             <Mascot pose="celebrate" size={120} />
-            <Text style={{ fontSize: 36, textAlign: 'center' }}>🎉</Text>
+            <Ionicons name="trophy-outline" size={40} color={colors.secondary} />
             <Text style={{ fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text, textAlign: 'center' }}>
               {t('home.firstHarvestCelebTitle')}
             </Text>
@@ -1191,67 +609,12 @@ function DashboardInner() {
         </Pressable>
       </Modal>
 
-      {/* Bulk water modal */}
-      <Modal visible={showWaterAllModal} transparent animationType="slide" onRequestClose={() => setShowWaterAllModal(false)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => setShowWaterAllModal(false)} />
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ justifyContent: 'flex-end' }}>
-          <Pressable onPress={() => {}} style={[{ backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: spacing.xl, paddingBottom: 36, gap: spacing.lg, overflow: 'hidden' }]}>
-            {glassAvailable && <GlassView style={StyleSheet.absoluteFill} glassEffectStyle="regular" />}
-            <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: spacing.sm }} />
-            <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text }}>
-              {t('home.waterAllTitle')}
-            </Text>
-            <Text style={{ fontSize: fontSize.sm, color: colors.textSecondary }}>
-              {t('home.waterAllMessage', { count: plants.items.filter(p => p.status !== 'finished').length })}
-            </Text>
-            <View>
-              <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary, marginBottom: spacing.xs, fontWeight: fontWeight.semibold }}>
-                {t('entryNew.liters')} ({t('home.waterAllLitersHint')})
-              </Text>
-              <TextInput
-                value={waterAllLiters}
-                onChangeText={setWaterAllLiters}
-                placeholder="50"
-                placeholderTextColor={colors.textDisabled}
-                keyboardType="decimal-pad"
-                style={{ borderWidth: 1.5, borderRadius: radii.md, padding: spacing.lg, fontSize: fontSize.md, backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
-              />
-            </View>
-            <View>
-              <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary, marginBottom: spacing.xs, fontWeight: fontWeight.semibold }}>
-                {t('entryNew.waterMethod')}
-              </Text>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-                {(['hand','drip','sprinkler','flood'] as const).map((m) => (
-                  <Pressable key={m} onPress={() => setWaterAllMethod(m)}
-                    style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radii.md, borderWidth: 1.5, gap: 6, backgroundColor: waterAllMethod === m ? colors.primary + '22' : colors.surface, borderColor: waterAllMethod === m ? colors.primary : colors.border }}>
-                    <Text style={{ fontSize: 16 }}>{m === 'hand' ? '🪣' : m === 'drip' ? '💧' : m === 'sprinkler' ? '🌦️' : '🌊'}</Text>
-                    <Text style={{ fontSize: fontSize.sm, color: waterAllMethod === m ? colors.primary : colors.textSecondary, fontWeight: fontWeight.medium }}>{t('waterMethod.' + m)}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-            <Pressable
-              onPress={confirmWaterAll}
-              disabled={waterAllSaving}
-              style={[{ backgroundColor: colors.water, paddingVertical: spacing.lg, borderRadius: radii.lg, alignItems: 'center', opacity: waterAllSaving ? 0.6 : 1 }]}>
-              {waterAllSaving ? <ActivityIndicator color="#fff" /> : (
-                <Text style={{ color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{t('home.waterAllConfirm')}</Text>
-              )}
-            </Pressable>
-          </Pressable>
-        </KeyboardAvoidingView>
-      </Modal>
     </SafeAreaView>
   );
 }
 
 export default function DashboardScreen() {
-  return (
-    <SemillitaTourProvider>
-      <DashboardInner />
-    </SemillitaTourProvider>
-  );
+  return <DashboardInner />;
 }
 
 const makeStyles = (
@@ -1274,7 +637,15 @@ const makeStyles = (
     brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: 3 },
     brandMark: { width: 26, height: 26, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
     brandName: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, letterSpacing: -0.3 },
-    headerTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    locationButton: {
+      alignSelf: 'flex-start',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      minHeight: 44,
+      maxWidth: '100%',
+    },
+    locationText: { flexShrink: 1, fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     headerSub: { fontSize: fontSize.xs, marginTop: 1 },
     headerBtn: {
       width: 40,
@@ -1285,401 +656,43 @@ const makeStyles = (
       justifyContent: 'center',
       flexShrink: 0,
     },
-    headerAddBtn: {
-      minHeight: 40,
-      paddingHorizontal: spacing.md,
-      borderRadius: radii.full,
-      flexDirection: 'row',
+    headerAvatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      borderWidth: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 4,
       flexShrink: 0,
     },
-    headerAddText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
-    // Today card
-    todayCard: {
+    stitchOverview: {
       marginHorizontal: spacing.xl,
-      marginBottom: spacing.xl,
-      borderRadius: radii.xl,
-      borderWidth: 1,
-      borderLeftWidth: 5,
-      overflow: 'hidden',
-    },
-    todayTitle: {
-      fontSize: fontSize.lg,
-      fontWeight: fontWeight.bold,
-      paddingHorizontal: spacing.lg,
-      paddingTop: spacing.lg,
-      paddingBottom: spacing.md,
-    },
-    todayCount: { fontWeight: fontWeight.bold },
-    todayRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.md,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-      borderTopWidth: StyleSheet.hairlineWidth,
-    },
-    todayEmoji: { fontSize: 20, width: 26, textAlign: 'center' },
-    todayLabel: { flex: 1, fontSize: fontSize.md },
-    todayEmpty: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: 'transparent',
-    },
-    todayEmptyText: { fontSize: fontSize.sm },
-    todayMore: { fontSize: fontSize.xs, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
-    // AI quick actions
-    aiQuickRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.xl, marginHorizontal: spacing.xl },
-    taskThumb: {
-      width: 44,
-      height: 44,
-      borderRadius: 10,
-      overflow: 'hidden',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    taskEmojiDot: {
-      position: 'absolute',
-      bottom: -3,
-      right: -3,
-      width: 18,
-      height: 18,
-      borderRadius: 9,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 1.5,
-    },
-    harvestHero: {
-      marginHorizontal: spacing.xl,
-      marginBottom: spacing.md,
-      height: 110,
-      borderRadius: radii.xl,
-      borderWidth: 2,
-      overflow: 'hidden',
-      backgroundColor: '#FF704322',
-      justifyContent: 'flex-end',
-    },
-    harvestHeroOverlay: {
-      backgroundColor: 'rgba(0,0,0,0.48)',
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-    },
-    harvestHeroLabel: {
-      fontSize: 9,
-      color: 'rgba(255,255,255,0.8)',
-      fontWeight: '700' as any,
-      letterSpacing: 0.8,
-      marginBottom: 2,
-    },
-    harvestHeroName: { fontSize: 18, color: '#fff', fontWeight: '700' as any },
-    harvestHeroSub: { fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 1 },
-    statPill: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: radii.full,
-      borderWidth: 1.5,
-      alignItems: 'center',
-      minWidth: 68,
-    },
-    statPillNum: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
-    statPillLabel: { fontSize: 9, fontWeight: fontWeight.semibold, marginTop: 1 },
-    healthRibbon: { position: 'absolute', top: 0, left: 0, right: 0, height: 3, zIndex: 1 },
-    growthBarTrack: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, backgroundColor: 'rgba(0,0,0,0.12)' },
-    growthBarFill: { height: 3 },
-    aiQuickBtn: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: spacing.sm,
-      paddingVertical: spacing.md,
-      borderRadius: radii.xl,
-      borderWidth: 1,
-    },
-    aiQuickText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    moreHomeButton: {
-      marginHorizontal: spacing.xl,
-      marginVertical: spacing.md,
-      minHeight: 48,
-      paddingHorizontal: spacing.lg,
-      borderRadius: radii.lg,
-      borderWidth: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    moreHomeButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    // Stats
-    statsRow: {
-      flexDirection: 'row',
-      paddingHorizontal: spacing.xl,
-      gap: spacing.sm,
-      paddingVertical: spacing.xs,
-    },
-    sectionRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: spacing.xl,
-      marginBottom: spacing.md,
-    },
-    sectionTitle: {
-      flex: 1,
-      fontSize: fontSize.xl,
-      fontWeight: fontWeight.bold,
-    },
-    waterAllBtn: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: 5,
-      borderRadius: radii.full,
-      borderWidth: 1.5,
-    },
-    waterAllText: {
-      fontSize: fontSize.xs,
-      fontWeight: fontWeight.semibold,
-    },
-    listContent: { paddingBottom: 0 },
-    columnWrapper: {
-      paddingHorizontal: spacing.xl,
-      gap: spacing.sm,
-      marginBottom: spacing.md,
-    },
-    plantCard: { flex: 1 },
-    plantCardInner: { flex: 1, overflow: 'hidden' },
-    plantImageBox: {
-      width: '100%',
-      aspectRatio: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    pestBadge: {
-      position: 'absolute',
-      top: 6,
-      left: 6,
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    pestBadgeText: { fontSize: 12 },
-    waterBadge: {
-      position: 'absolute',
-      top: 6,
-      right: 34,
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    waterBadgeText: { fontSize: 12 },
-    quickLogBtn: {
-      position: 'absolute',
-      bottom: 6,
-      right: 6,
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    plantPhoto: { width: '100%', height: '100%' },
-    plantEmoji: { fontSize: 48 },
-    plantInfo: { padding: spacing.md },
-    plantName: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
-    plantVariety: { fontSize: fontSize.xs, marginTop: 1 },
-    statusBadge: {
-      marginTop: spacing.sm,
-      alignSelf: 'flex-start',
-      paddingHorizontal: spacing.sm,
-      paddingVertical: 2,
-      borderRadius: radii.full,
-    },
-    statusText: { fontSize: 10, fontWeight: fontWeight.semibold },
-    plantFooter: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: spacing.sm, flexWrap: 'wrap' },
-    daysChip: { paddingHorizontal: 5, paddingVertical: 1, borderRadius: radii.full },
-    daysChipText: { fontSize: 9, fontWeight: fontWeight.bold },
-    searchBar: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginHorizontal: spacing.xl,
-      marginBottom: spacing.sm,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: radii.md,
-      borderWidth: 1,
-    },
-    filterChip: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: 4,
-      borderRadius: radii.full,
-      borderWidth: 1.5,
-    },
-    filterChipText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
-    mapCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      borderRadius: radii.xl,
-      borderWidth: 1,
-      overflow: 'hidden',
-      marginHorizontal: spacing.xl,
-      marginBottom: spacing.md,
-      gap: spacing.md,
-      paddingRight: spacing.md,
-    },
-    mapCardLeft: {
-      width: 64,
-      height: 64,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    mapCardTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
-    mapCardSub: { fontSize: fontSize.xs, marginTop: 2 },
-    // Footer cards
-    weatherCard: {
-      marginHorizontal: spacing.xl,
-      marginBottom: spacing.md,
-      borderRadius: radii.lg,
-      borderWidth: 1,
-      overflow: 'hidden',
-    },
-    weatherLoading: { padding: spacing.lg, alignItems: 'center' },
-    weatherLoadingText: { fontSize: fontSize.sm },
-    weatherTodayRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.md,
+      marginBottom: spacing.lg,
       padding: spacing.lg,
-    },
-    weatherMainEmoji: { fontSize: 36 },
-    weatherProvince: { fontSize: fontSize.xs, marginBottom: 2 },
-    weatherLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    weatherTemps: { alignItems: 'flex-end' },
-    weatherTempMax: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
-    weatherTempMin: { fontSize: fontSize.sm },
-    forecastRow: {
-      flexDirection: 'row',
-      borderTopWidth: StyleSheet.hairlineWidth,
-      paddingVertical: spacing.sm,
-      paddingHorizontal: spacing.lg,
-      gap: spacing.md,
-    },
-    forecastDay: { flex: 1, alignItems: 'center', gap: 2 },
-    forecastDayName: { fontSize: 10, fontWeight: fontWeight.semibold },
-    forecastEmoji: { fontSize: 18 },
-    forecastTemp: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
-    forecastRain: { fontSize: 9, color: colors.water },
-    wateringAdviceBanner: {
-      margin: spacing.md,
-      marginTop: 0,
-      padding: spacing.md,
-      borderRadius: radii.md,
+      borderRadius: radii.xl,
       borderWidth: 1,
     },
-    wateringAdviceText: { fontSize: fontSize.xs, lineHeight: 18 },
-    lunarCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.md,
-      marginHorizontal: spacing.xl,
-      marginBottom: spacing.md,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-      borderRadius: radii.lg,
-      borderWidth: 1,
-    },
-    lunarLeft: { alignItems: 'center', gap: 4, width: 48 },
-    lunarMoonEmoji: { fontSize: 28 },
-    lunarIllumBar: { width: 40, height: 4, borderRadius: 2, overflow: 'hidden' },
-    lunarIllumFill: { height: 4, borderRadius: 2 },
-    lunarIllumText: { fontSize: 10 },
-    lunarCenter: { flex: 1, gap: 2 },
-    lunarPhaseName: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-    lunarGardening: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
-    lunarRec: { fontSize: 11, lineHeight: 15, marginTop: 2 },
-    lunarRight: { alignItems: 'center', minWidth: 32 },
-    lunarDay: { fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5 },
-    lunarDayNum: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
-    statsLink: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-      marginHorizontal: spacing.xl,
-      marginBottom: spacing.xl,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-      borderRadius: radii.lg,
-      borderWidth: 1,
-    },
-    statsLinkText: { flex: 1, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
-    sowCard: {
-      marginHorizontal: spacing.xl,
-      marginBottom: spacing.md,
-      borderRadius: radii.lg,
-      borderWidth: 1,
-      padding: spacing.md,
-    },
-    sowSectionLabel: {
-      fontSize: fontSize.xs,
-      fontWeight: fontWeight.semibold,
-      letterSpacing: 0.5,
-      marginBottom: spacing.sm,
-    },
-    sowScroll: { marginHorizontal: -spacing.xs },
-    sowRow: { flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.xs },
-    sowChip: {
-      alignItems: 'center',
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: radii.md,
-      borderWidth: 1.5,
-      minWidth: 72,
-      gap: 3,
-    },
-    sowChipEmoji: { fontSize: 22 },
-    sowChipName: { fontSize: 10, fontWeight: fontWeight.medium, textAlign: 'center' },
-    fab: {
-      position: 'absolute',
-      bottom: 24,
-      right: 24,
-      width: 56,
-      height: 56,
-      borderRadius: 28,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    wateredChip: { paddingHorizontal: 5, paddingVertical: 1, borderRadius: radii.full },
-    wateredChipText: { fontSize: 9, fontWeight: fontWeight.bold },
-    plantMonthChip: {
-      alignSelf: 'flex-start',
-      paddingHorizontal: 6,
-      paddingVertical: 2,
-      borderRadius: radii.full,
-      marginTop: 4,
-    },
-    sowChipText: { fontSize: 9, fontWeight: fontWeight.semibold },
-    sortBtn: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 3,
-      paddingHorizontal: spacing.sm,
-      paddingVertical: 4,
-      borderRadius: radii.full,
-      borderWidth: 1.5,
-    },
-    sortBtnText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
-    showFinishedLink: {
-      paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.xs,
-      marginBottom: spacing.sm,
-    },
-    showFinishedText: { fontSize: fontSize.xs, textDecorationLine: 'underline' },
+    stitchGreetingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    stitchGreeting: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, letterSpacing: -0.3 },
+    stitchSubheading: { fontSize: fontSize.sm, lineHeight: 20, marginTop: 3 },
+    stitchAvatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+    stitchMetricsGrid: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
+    stitchMetric: { flex: 1, minHeight: 76, borderRadius: radii.lg, padding: spacing.sm, justifyContent: 'center' },
+    stitchMetricValue: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+    stitchMetricLabel: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
+    priorityCare: { marginTop: spacing.lg },
+    stitchTip: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md, padding: spacing.md, borderRadius: radii.lg, borderWidth: 1 },
+    stitchTipIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+    stitchTipTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    stitchTipText: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
+    stitchUpcoming: { marginTop: spacing.lg },
+    stitchUpcomingHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xs },
+    stitchUpcomingTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    stitchUpcomingCount: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    stitchTask: { minHeight: 50, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, borderTopWidth: StyleSheet.hairlineWidth },
+    stitchTaskDot: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+    stitchTaskText: { flex: 1, fontSize: fontSize.sm },
+    listContent: { paddingBottom: 0 },
     firstUseCard: {
       marginHorizontal: spacing.xl,
       marginBottom: spacing.xl,
@@ -1711,14 +724,5 @@ const makeStyles = (
       color: '#fff',
       fontSize: fontSize.md,
       fontWeight: fontWeight.bold,
-    },
-    // Legacy alias kept for mapBtn usage → now headerBtn
-    mapBtn: {
-      width: 40,
-      height: 40,
-      borderRadius: radii.md,
-      borderWidth: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
     },
   });

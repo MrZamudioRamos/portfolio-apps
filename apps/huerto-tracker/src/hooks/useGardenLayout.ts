@@ -35,14 +35,18 @@ export function useGardenLayout(
   const gridSize = gridRows * gridCols;
   const [layout, setLayout] = useState<GridLayout>(() => Array(gridSize).fill(null));
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     if (!gardenId) {
       setLayout(Array(gridSize).fill(null));
+      setError(null);
       setLoading(false);
       return;
     }
     setLoading(true);
+    setError(null);
     AsyncStorage.getItem(layoutKey(gardenId))
       .then((raw) => {
         if (raw) {
@@ -61,10 +65,13 @@ export function useGardenLayout(
       // Defensive: a rejected AsyncStorage read used to leave `loading=true`
       // forever, leaving the entire map screen without a usable layout.
       // Degrade to an empty layout instead.
-      .catch(() => setLayout(Array(gridSize).fill(null)))
+      .catch((reason) => {
+        setLayout(Array(gridSize).fill(null));
+        setError(reason instanceof Error ? reason : new Error('Could not load garden layout'));
+      })
       .finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gardenId, gridRows, gridCols]);
+  }, [gardenId, gridRows, gridCols, reloadToken]);
 
   function writeLayout(gardenId: string, layout: GridLayout) {
     const now = new Date().toISOString();
@@ -112,5 +119,18 @@ export function useGardenLayout(
     return layout.indexOf(plantId);
   }
 
-  return { layout, loading, setCell, swapCells, removePlant, clearAll, plantIndexInGrid, gridRows, gridCols, gridSize };
+  return {
+    layout,
+    loading,
+    error,
+    retry: () => setReloadToken((value) => value + 1),
+    setCell,
+    swapCells,
+    removePlant,
+    clearAll,
+    plantIndexInGrid,
+    gridRows,
+    gridCols,
+    gridSize,
+  };
 }

@@ -111,6 +111,7 @@ export function useReminders<T extends SchedulableReminder>(key: string) {
   return {
     items: collection.items,
     loading: collection.loading,
+    error: collection.error,
     create,
     update,
     toggle,
