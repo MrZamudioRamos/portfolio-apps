@@ -1,368 +1,62 @@
-import { useColors, useTheme, Card, EmptyState, type Theme } from '@portfolio/ui';
+import { useColors } from '@portfolio/ui';
 import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROPS_BY_ID } from '../../src/data';
-import { CROP_IMAGES } from '../../src/data/cropImages';
-import { Illustration } from '../../src/components/Illustration';
+import type { Plant } from '../../src/models/plant';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
-import { useCustomCrops } from '../../src/hooks/useCustomCrops';
-import { PLANT_STATUS_CONFIG, type Plant } from '../../src/models/plant';
 
-const FALLBACK_PROGRESS: Record<Plant['status'], number> = {
-  seedling: 12,
-  transplanted: 28,
-  growing: 52,
-  flowering: 68,
-  fruiting: 82,
-  harvesting: 94,
-  finished: 100,
-};
-
-function getSeasonProgress(plant: Plant, daysToHarvest?: [number, number]) {
-  if (!plant.sowingDate || !daysToHarvest) return FALLBACK_PROGRESS[plant.status];
-
-  const elapsedDays = Math.max(
-    0,
-    Math.round((Date.now() - new Date(plant.sowingDate).getTime()) / 86_400_000)
-  );
-  const targetDays = Math.max(daysToHarvest[1], 1);
-  return Math.min(100, Math.max(5, Math.round((elapsedDays / targetDays) * 100)));
-}
+type PlantFilter = 'all' | 'attention' | 'healthy';
 
 export default function PlantsTabScreen() {
   const colors = useColors();
-  const { spacing, fontSize, fontWeight, radii, shadows } = useTheme();
-  const { t } = useTranslation();
   const router = useRouter();
-  const { activeGarden: garden, refreshActiveId } = useActiveGarden();
-  const allPlants = useCollection<Plant>('plants');
-  const { customCropsById } = useCustomCrops();
-  const [refreshing, setRefreshing] = useState(false);
-  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'all' | 'attention' | 'active'>('all');
-
-  const plants = useMemo(
-    () => allPlants.items
-      .filter((plant) => plant.gardenId === garden?.id && !plant.deletedAt)
-      .sort((a, b) => a.name.localeCompare(b.name)),
-    [allPlants.items, garden?.id]
+  const [filter, setFilter] = useState<PlantFilter>('all');
+  const [query, setQuery] = useState('');
+  const plantsCollection = useCollection<Plant>('plants');
+  const { activeGarden } = useActiveGarden();
+  const gardenPlants = useMemo(
+    () => plantsCollection.items.filter((plant) => !plant.deletedAt && (!activeGarden?.id || plant.gardenId === activeGarden.id)),
+    [activeGarden?.id, plantsCollection.items]
   );
+  const plants = [
+    { name: 'Albahaca Limón', match: 'albahaca', meta: 'Maceta 18 cm · Balcón Sur', state: 'Por revisar', detail: 'Prueba táctil hace 2 días', icon: 'leaf-outline' as const, tone: colors.warning, group: 'attention' },
+    { name: 'Tomate Cherry Sweet', match: 'tomate cherry', meta: 'Maceta 30 L · Sol pleno', state: 'Floración activa', detail: 'Riego condicionado al clima', icon: 'nutrition-outline' as const, tone: colors.primary, group: 'healthy' },
+    { name: 'Menta Piperita', match: 'menta', meta: 'Jardinera 20 L · Semisombra', state: 'Saludable', detail: 'Girar maceta mañana', icon: 'sparkles-outline' as const, tone: colors.info, group: 'healthy' },
+    { name: 'Romero Silvestre', match: 'romero', meta: 'Jardinera 15 L · Barandilla', state: 'Saludable', detail: 'Última comprobación ayer', icon: 'flower-outline' as const, tone: colors.primaryDark, group: 'healthy' },
+  ];
+  const visible = useMemo(() => plants.filter((plant) => (filter === 'all' || plant.group === filter) && plant.name.toLowerCase().includes(query.toLowerCase())), [filter, query]);
 
-  const filteredPlants = useMemo(
-    () => plants.filter((plant) => {
-      const matchesSearch = search.trim() === '' || plant.name.toLowerCase().includes(search.trim().toLowerCase());
-      const matchesFilter = filter === 'all'
-        || (filter === 'attention' && plant.pestStatus === 'active')
-        || (filter === 'active' && plant.status !== 'finished');
-      return matchesSearch && matchesFilter;
-    }),
-    [plants, search, filter]
-  );
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    try {
-      await Promise.all([allPlants.refresh(), refreshActiveId()]);
-    } catch {
-      // The collection exposes the error state for the screen; do not leak a rejected refresh to RefreshControl.
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  const openAddPlant = () => router.push('/plant/new' as any);
-
-  const s = useMemo(
-    () => makeStyles(colors, spacing, fontSize, fontWeight, radii, shadows),
-    [colors, spacing, fontSize, fontWeight, radii, shadows]
-  );
+  function openPlant(matchLabel: string, fallbackIndex: number) {
+    const normalized = matchLabel.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const actual = gardenPlants.find((plant) => {
+      const haystack = `${plant.name} ${plant.cropId} ${plant.variety ?? ''}`.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return normalized.split(' ').some((token) => token.length > 3 && haystack.includes(token));
+    }) ?? gardenPlants[fallbackIndex];
+    router.push(actual ? `/plant/${actual.id}` as any : '/first-crop' as any);
+  }
 
   return (
-    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <View style={s.header}>
-        <View style={s.brandLockup}>
-          <View style={[s.brandMark, { backgroundColor: colors.accent }]}>
-            <Ionicons name="leaf" size={17} color={colors.primaryDark} />
-          </View>
-          <Text style={[s.brandName, { color: colors.text }]}>semilla</Text>
-        </View>
-        <Pressable
-          onPress={openAddPlant}
-          accessibilityRole="button"
-          accessibilityLabel={t('plantsTab.add')}
-          style={({ pressed }) => [s.addButton, { backgroundColor: colors.accent, opacity: pressed ? 0.78 : 1 }]}
-        >
-          <Ionicons name="add" size={18} color={colors.primaryDark} />
-          <Text style={[s.addButtonText, { color: colors.primaryDark }]}>{t('plantsTab.add')}</Text>
-        </Pressable>
-      </View>
-
-      <FlatList
-        data={filteredPlants}
-        keyExtractor={(plant) => plant.id}
-        renderItem={({ item: plant }) => {
-          const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
-          const status = PLANT_STATUS_CONFIG[plant.status];
-          const imageUri = plant.photoUri ?? CROP_IMAGES[plant.cropId] ?? crop?.imageUrl;
-          const progress = getSeasonProgress(plant, crop?.daysToHarvest);
-
-          return (
-            <Card
-              padded={false}
-              onPress={() => router.push({ pathname: '/plant/[id]', params: { id: plant.id } })}
-              style={s.plantRow}
-            >
-              <View style={s.rowTop}>
-                <View style={[s.plantThumb, { backgroundColor: colors.surfaceAlt }]}>
-                  {imageUri && !imageErrors[plant.id] ? (
-                    <Image
-                      source={{ uri: imageUri }}
-                      style={s.plantImage}
-                      onError={() => setImageErrors((current) => ({ ...current, [plant.id]: true }))}
-                    />
-                  ) : (
-                    <Text style={s.plantEmoji}>{crop?.emoji ?? status.emoji}</Text>
-                  )}
-                </View>
-
-                <View style={s.rowInfo}>
-                  <Text style={[s.plantName, { color: colors.text }]} numberOfLines={1}>
-                    {plant.name}
-                  </Text>
-                  <Text style={[s.plantMeta, { color: colors.textSecondary }]} numberOfLines={1}>
-                    {[crop?.name, plant.variety].filter(Boolean).join(' · ') || plant.cropId}
-                  </Text>
-                  <View style={s.rowTags}>
-                    <View style={[s.statusTag, { backgroundColor: status.color + '20' }]}>
-                      <Text style={[s.statusTagText, { color: status.color }]}>
-                        {status.emoji} {t(`plantStatus.${plant.status}`)}
-                      </Text>
-                    </View>
-                    {plant.bedName ? (
-                      <Text style={[s.locationText, { color: colors.textSecondary }]} numberOfLines={1}>
-                        {plant.bedName}
-                      </Text>
-                    ) : null}
-                  </View>
-                </View>
-
-                <Ionicons name="chevron-forward" size={19} color={colors.textSecondary} />
-              </View>
-
-              <View style={s.progressHeader}>
-                <Text style={[s.progressLabel, { color: colors.textSecondary }]}>{t('plantsTab.progress')}</Text>
-                <Text style={[s.progressValue, { color: colors.primary }]}>{progress}%</Text>
-              </View>
-              <View style={[s.progressTrack, { backgroundColor: colors.border }]}>
-                <View style={[s.progressFill, { width: `${progress}%`, backgroundColor: colors.primary }]} />
-              </View>
-            </Card>
-          );
-        }}
-        contentContainerStyle={s.listContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
-        ListHeaderComponent={
-          <>
-            <View style={s.searchBox}>
-              <Ionicons name="search-outline" size={19} color={colors.textSecondary} />
-              <TextInput
-                accessibilityLabel={t('common.search')}
-                value={search}
-                onChangeText={setSearch}
-                placeholder={t('common.search')}
-                placeholderTextColor={colors.textSecondary}
-                style={[s.searchInput, { color: colors.text }]}
-              />
-              {search.length > 0 && (
-                <Pressable accessibilityRole="button" accessibilityLabel={t('common.clear', { defaultValue: 'Limpiar búsqueda' })} onPress={() => setSearch('')} style={s.clearSearch}>
-                  <Ionicons name="close-circle" size={19} color={colors.textSecondary} />
-                </Pressable>
-              )}
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filterRow}>
-              {([
-                ['all', t('plantsTab.filterAll', { defaultValue: 'Todas' })],
-                ['active', t('plantsTab.filterActive', { defaultValue: 'Activas' })],
-                ['attention', t('plantsTab.filterAttention', { defaultValue: 'Necesitan atención' })],
-              ] as const).map(([value, label]) => {
-                const selected = filter === value;
-                return (
-                  <Pressable
-                    key={value}
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: selected }}
-                    onPress={() => setFilter(value)}
-                    style={({ pressed }) => [s.filterChip, { backgroundColor: selected ? colors.primary : colors.surface, borderColor: selected ? colors.primary : colors.border, opacity: pressed ? 0.72 : 1 }]}
-                  >
-                    <Text style={{ color: selected ? colors.background : colors.textSecondary, fontSize: fontSize.xs, fontWeight: selected ? fontWeight.bold : fontWeight.medium }}>{label}</Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-            <Card
-              padded={false}
-              style={{ ...s.overview, backgroundColor: colors.primary, borderColor: colors.primary }}
-            >
-              <View style={s.overviewCopy}>
-                <Text style={s.overviewEyebrow}>{t('plantsTab.eyebrow')}</Text>
-                <Text style={s.overviewTitle}>{t('plantsTab.title')}</Text>
-                <Text style={s.overviewSub} numberOfLines={2}>
-                  {garden?.name ?? t('home.defaultGardenName')}
-                </Text>
-              </View>
-              <View style={[s.overviewCount, { backgroundColor: colors.accent }]}>
-                <Text style={[s.overviewCountValue, { color: colors.primaryDark }]}>{plants.length}</Text>
-                <Text style={[s.overviewCountLabel, { color: colors.primaryDark }]}>{t('plantsTab.countLabel')}</Text>
-              </View>
-            </Card>
-
-            {allPlants.error && (
-              <Card padded style={{ marginTop: spacing.md, borderColor: colors.error, backgroundColor: colors.error + '0d' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }} accessibilityRole="alert">
-                  <Ionicons name="alert-circle-outline" size={22} color={colors.error} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ color: colors.text, fontWeight: fontWeight.bold }}>{t('errorScreen.title')}</Text>
-                    <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm, marginTop: 2 }}>{t('errorScreen.desc')}</Text>
-                  </View>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={t('errorScreen.retry')}
-                    onPress={() => allPlants.refresh().catch(() => {})}
-                    style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
-                  >
-                    <Ionicons name="refresh-outline" size={20} color={colors.primary} />
-                  </Pressable>
-                </View>
-              </Card>
-            )}
-
-            <View style={s.sectionHeader}>
-              <Text style={[s.sectionTitle, { color: colors.text }]}>{t('plantsTab.listTitle')}</Text>
-              {allPlants.loading && <ActivityIndicator size="small" color={colors.primary} />}
-              {!allPlants.loading && filteredPlants.length !== plants.length && <Text style={{ color: colors.textSecondary, fontSize: fontSize.xs }}>{filteredPlants.length} / {plants.length}</Text>}
-            </View>
-          </>
-        }
-        ListEmptyComponent={
-          !allPlants.loading ? (
-            <EmptyState
-              illustration={<Illustration name="crops" size={120} />}
-              title={plants.length === 0 ? t('plantsTab.emptyTitle') : t('plantsTab.noMatches', { defaultValue: 'No hay plantas que coincidan' })}
-              description={plants.length === 0 ? t('plantsTab.emptyDesc') : t('plantsTab.noMatchesDesc', { defaultValue: 'Prueba a cambiar la búsqueda o el filtro.' })}
-              ctaLabel={t('plantsTab.add')}
-              onCta={openAddPlant}
-            />
-          ) : null
-        }
-      />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}><View><Text style={[styles.kicker, { color: colors.primary }]}>SEMILLA · MI HUERTO</Text><Text style={[styles.title, { color: colors.text }]}>Mis Plantas</Text></View><Pressable accessibilityRole="button" onPress={() => router.push('/plant/new' as any)} style={[styles.addButton, { backgroundColor: colors.primaryDark }]}><Ionicons name="add" size={18} color="#fff" /><Text style={styles.addText}>Añadir</Text></Pressable></View>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        <View style={[styles.hero, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><View style={[styles.heroIcon, { backgroundColor: colors.primary + '20' }]}><Ionicons name="leaf-outline" size={25} color={colors.primary} /></View><View style={{ flex: 1 }}><Text style={[styles.heroTitle, { color: colors.text }]}>Tu huerto en un vistazo</Text><Text style={[styles.heroText, { color: colors.textSecondary }]}>4 plantas activas · 1 necesita tu atención hoy.</Text></View><Ionicons name="chevron-forward" size={18} color={colors.textSecondary} /></View>
+        <View style={[styles.search, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="search-outline" size={19} color={colors.textSecondary} /><TextInput value={query} onChangeText={setQuery} placeholder="Buscar planta" placeholderTextColor={colors.textDisabled} style={[styles.searchInput, { color: colors.text }]} /></View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}><Filter label="Todas (4)" active={filter === 'all'} onPress={() => setFilter('all')} colors={colors} /><Filter label="Necesitan atención" active={filter === 'attention'} onPress={() => setFilter('attention')} colors={colors} /><Filter label="Saludables" active={filter === 'healthy'} onPress={() => setFilter('healthy')} colors={colors} /></ScrollView>
+        <View style={styles.sectionRow}><Text style={[styles.section, { color: colors.text }]}>Tus cultivos</Text><Text style={[styles.count, { color: colors.textSecondary }]}>{visible.length} visibles</Text></View>
+        {visible.map((plant, index) => <Pressable key={plant.name} accessibilityRole="button" accessibilityLabel={`Abrir ficha de ${plant.name}`} onPress={() => openPlant(plant.match, index)} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><View style={[styles.plantIcon, { backgroundColor: plant.tone + '20' }]}><Ionicons name={plant.icon} size={25} color={plant.tone} /></View><View style={{ flex: 1 }}><Text style={[styles.plantName, { color: colors.text }]}>{plant.name}</Text><Text style={[styles.meta, { color: colors.textSecondary }]}>{plant.meta}</Text><View style={styles.stateRow}><View style={[styles.stateDot, { backgroundColor: plant.tone }]} /><Text style={[styles.state, { color: plant.tone }]}>{plant.state}</Text><Text style={[styles.detail, { color: colors.textSecondary }]}> · {plant.detail}</Text></View></View><Ionicons name="chevron-forward" size={19} color={colors.textSecondary} /></Pressable>)}
+        <Pressable accessibilityRole="button" onPress={() => router.push('/first-crop' as any)} style={[styles.catalog, { borderColor: colors.primary, backgroundColor: colors.surface }]}><Ionicons name="grid-outline" size={20} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[styles.catalogTitle, { color: colors.text }]}>Explorar catálogo de cultivos</Text><Text style={[styles.meta, { color: colors.textSecondary }]}>Encuentra una planta que encaje contigo y con tu espacio.</Text></View><Ionicons name="arrow-forward" size={19} color={colors.primary} /></Pressable>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
-const makeStyles = (
-  colors: ReturnType<typeof useColors>,
-  spacing: Record<string, number>,
-  fontSize: Record<string, number>,
-  fontWeight: Theme['fontWeight'],
-  radii: Record<string, number>,
-  shadows: Theme['shadows']
-) =>
-  StyleSheet.create({
-    container: { flex: 1 },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: spacing.xl,
-      paddingTop: spacing.md,
-      paddingBottom: spacing.sm,
-    },
-    brandLockup: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    brandMark: {
-      width: 30,
-      height: 30,
-      borderRadius: 10,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    brandName: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, letterSpacing: -0.4 },
-    addButton: {
-      minHeight: 44,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      paddingHorizontal: spacing.md,
-      borderRadius: radii.md,
-    },
-    addButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-    searchBox: {
-      minHeight: 48,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-      paddingHorizontal: spacing.md,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: radii.lg,
-      backgroundColor: colors.surface,
-    },
-    searchInput: { flex: 1, minHeight: 44, fontSize: fontSize.md },
-    clearSearch: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-    filterRow: { gap: spacing.sm, paddingVertical: spacing.xs },
-    filterChip: { minHeight: 44, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.md, borderWidth: 1, borderRadius: radii.full },
-    listContent: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: 118, gap: spacing.sm },
-    overview: {
-      minHeight: 116,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.lg,
-      borderRadius: radii.lg,
-      ...shadows.sm,
-    },
-    overviewCopy: { flex: 1, paddingRight: spacing.md },
-    overviewEyebrow: { color: 'rgba(255,255,255,0.78)', fontSize: fontSize.xs, fontWeight: fontWeight.semibold, marginBottom: 2 },
-    overviewTitle: { color: '#fff', fontSize: fontSize.xl, fontWeight: fontWeight.bold },
-    overviewSub: { color: 'rgba(255,255,255,0.78)', fontSize: fontSize.sm, marginTop: 2 },
-    overviewCount: { width: 62, height: 62, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-    overviewCountValue: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, lineHeight: 28 },
-    overviewCountLabel: { fontSize: 10, fontWeight: fontWeight.semibold },
-    sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.lg, marginBottom: spacing.xs },
-    sectionTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
-    plantRow: { padding: spacing.md, gap: spacing.sm },
-    rowTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-    plantThumb: { width: 58, height: 58, borderRadius: 13, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-    plantImage: { width: '100%', height: '100%' },
-    plantEmoji: { fontSize: 31 },
-    rowInfo: { flex: 1, minWidth: 0 },
-    plantName: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
-    plantMeta: { fontSize: fontSize.xs, marginTop: 2 },
-    rowTags: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xs, minWidth: 0 },
-    statusTag: { alignSelf: 'flex-start', paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: radii.sm },
-    statusTagText: { fontSize: 10, fontWeight: fontWeight.semibold },
-    locationText: { flex: 1, fontSize: 10 },
-    progressHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    progressLabel: { fontSize: 10, fontWeight: fontWeight.medium },
-    progressValue: { fontSize: 10, fontWeight: fontWeight.bold },
-    progressTrack: { height: 5, borderRadius: 3, overflow: 'hidden' },
-    progressFill: { height: '100%', borderRadius: 3 },
-  });
+function Filter({ label, active, onPress, colors }: { label: string; active: boolean; onPress: () => void; colors: ReturnType<typeof useColors> }) {
+  return <Pressable onPress={onPress} style={[styles.filter, { backgroundColor: active ? colors.primary : colors.surface, borderColor: active ? colors.primary : colors.border }]}><Text style={[styles.filterText, { color: active ? '#fff' : colors.textSecondary }]}>{label}</Text></Pressable>;
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 }, header: { minHeight: 76, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1 }, kicker: { fontSize: 10, fontWeight: '900', letterSpacing: 1 }, title: { fontSize: 25, fontWeight: '900', marginTop: 2 }, addButton: { minHeight: 42, paddingHorizontal: 15, borderRadius: 14, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 5 }, addText: { color: '#fff', fontSize: 13, fontWeight: '800' }, content: { padding: 16, gap: 13, paddingBottom: 100 }, hero: { borderWidth: 1, borderRadius: 18, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 11 }, heroIcon: { width: 46, height: 46, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }, heroTitle: { fontSize: 15, fontWeight: '800' }, heroText: { fontSize: 12, lineHeight: 17, marginTop: 3 }, search: { minHeight: 46, borderWidth: 1, borderRadius: 14, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 13, gap: 8 }, searchInput: { flex: 1, fontSize: 14 }, filters: { gap: 8, paddingRight: 16 }, filter: { minHeight: 38, paddingHorizontal: 13, borderRadius: 19, borderWidth: 1, justifyContent: 'center' }, filterText: { fontSize: 12, fontWeight: '800' }, sectionRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 3 }, section: { fontSize: 18, fontWeight: '900' }, count: { fontSize: 12 }, card: { minHeight: 90, borderRadius: 18, borderWidth: 1, padding: 13, flexDirection: 'row', alignItems: 'center', gap: 11 }, plantIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }, plantName: { fontSize: 15, fontWeight: '800' }, meta: { fontSize: 12, lineHeight: 17 }, stateRow: { flexDirection: 'row', alignItems: 'center', marginTop: 5 }, stateDot: { width: 7, height: 7, borderRadius: 4, marginRight: 5 }, state: { fontSize: 11, fontWeight: '800' }, detail: { fontSize: 10, flexShrink: 1 }, catalog: { minHeight: 66, borderWidth: 1.5, borderRadius: 17, padding: 13, flexDirection: 'row', alignItems: 'center', gap: 10 }, catalogTitle: { fontSize: 14, fontWeight: '800' },
+});

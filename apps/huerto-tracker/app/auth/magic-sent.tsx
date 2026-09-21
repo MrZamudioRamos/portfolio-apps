@@ -1,12 +1,14 @@
 import { verifyOtp } from '@portfolio/supabase';
 import { useOnboarding } from '@portfolio/shared';
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   StyleSheet,
@@ -48,6 +50,10 @@ export default function MagicSentScreen() {
     } finally {
       setVerifying(false);
     }
+  }
+
+  if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
+    return <StitchMagicSentScreen colors={colors} router={router} email={email ?? 'laura.jardin@correo.es'} />;
   }
 
   return (
@@ -124,6 +130,15 @@ export default function MagicSentScreen() {
     </SafeAreaView>
   );
 }
+
+function StitchMagicSentScreen({ colors, router, email }: { colors: ReturnType<typeof useColors>; router: ReturnType<typeof useRouter>; email: string }) {
+  const openMail = () => {
+    void Linking.openURL('mailto:').catch(() => Alert.alert('Aplicación de correo', 'No se ha podido abrir una aplicación de correo en este dispositivo.'));
+  };
+  return <SafeAreaView style={[magicStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}><View style={magicStitch.content}><Pressable onPress={() => router.back()} style={magicStitch.back} accessibilityRole="button"><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={{ color: colors.text, fontWeight: '700' }}>Volver</Text></Pressable><View style={[magicStitch.illustration, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="mail-open-outline" size={62} color={colors.primary} /><Text style={{ fontSize: 30, position: 'absolute', right: 26, top: 12 }}>🌱</Text></View><Text style={[magicStitch.title, { color: colors.text }]}>Enlace mágico enviado</Text><Text style={[magicStitch.body, { color: colors.textSecondary }]}>Hemos enviado un acceso seguro a</Text><Text style={[magicStitch.email, { color: colors.text }]}>{email}</Text><Text style={[magicStitch.body, { color: colors.textSecondary }]}>Abre tu correo y toca el enlace para entrar en tu huerto. El enlace caduca en 43 segundos.</Text><Pressable onPress={openMail} style={[magicStitch.primary, { backgroundColor: colors.primary }]} accessibilityRole="button"><Ionicons name="mail-outline" size={19} color="#fff" /><Text style={magicStitch.primaryText}>Abrir aplicación de correo</Text></Pressable><Pressable onPress={() => router.replace('/auth' as any)} style={magicStitch.link} accessibilityRole="button"><Text style={{ color: colors.primary, fontWeight: '800' }}>¿No es tu correo? Corregir dirección</Text></Pressable><Text style={[magicStitch.note, { color: colors.textSecondary }]}>Si no lo encuentras, revisa la carpeta de spam o promociones.</Text></View></SafeAreaView>;
+}
+
+const magicStitch = StyleSheet.create({ container: { flex: 1 }, content: { flex: 1, paddingHorizontal: 24 }, back: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: 2 }, illustration: { width: 150, height: 150, borderRadius: 75, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', marginTop: 64, marginBottom: 28 }, title: { textAlign: 'center', fontSize: 25, fontWeight: '900' }, body: { textAlign: 'center', fontSize: 14, lineHeight: 21, marginTop: 13 }, email: { textAlign: 'center', fontSize: 16, fontWeight: '900', marginTop: 5 }, primary: { minHeight: 54, borderRadius: 14, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 9, marginTop: 26 }, primaryText: { color: '#fff', fontWeight: '900' }, link: { alignItems: 'center', paddingVertical: 18 }, note: { textAlign: 'center', fontSize: 12, lineHeight: 18, marginTop: 16 }, });
 
 const makeStyles = (
   colors: ReturnType<typeof useColors>,

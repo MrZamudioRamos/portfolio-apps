@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Mascot } from '../src/components/Mascot';
+import { SemillitaBug } from '../src/components/SemillitaBug';
 
 const features = [
   {
@@ -45,7 +45,7 @@ export default function WelcomeScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.page}>
-          <View pointerEvents="none" style={styles.dotField}>
+          <View style={[styles.dotField, { pointerEvents: 'none' }]}>
             {Array.from({ length: 36 }, (_, index) => (
               <View key={index} style={[styles.dot, { left: (index % 6) * 22, top: Math.floor(index / 6) * 22 }]} />
             ))}
@@ -53,24 +53,13 @@ export default function WelcomeScreen() {
 
           <View style={styles.brandRow}>
             <View style={styles.brandDot} />
-            <Text style={[styles.brand, { fontWeight: fontWeight.bold }]}>SEMILLA · HUERTOS URBANOS</Text>
+            <Text style={[styles.brand, { fontWeight: fontWeight.bold }]}>SEMILLA · TU PRIMER HUERTO</Text>
           </View>
 
-          <View style={styles.heroVisual}>
+            <View style={styles.heroVisual}>
             <View style={styles.heroRing} />
-            <View style={styles.mockPhone}>
-              <View style={styles.mockPhoneTop}>
-                <Text style={styles.mockPhoneLabel}>semilla</Text>
-                <Ionicons name="leaf" size={12} color="#2E7D32" />
-              </View>
-              <View style={styles.mockPlantPhoto}>
-                <Mascot pose="idle" size={58} />
-              </View>
-              <View style={styles.mockPhoneLine} />
-              <Text style={styles.mockPhoneCaption}>Tu primer cultivo</Text>
-            </View>
-            <View style={styles.leafBadge}>
-              <Ionicons name="leaf" size={24} color="#087B2C" />
+            <View style={styles.mascotStage}>
+              <SemillitaBug pose="wave" size={112} />
             </View>
           </View>
 
@@ -170,7 +159,7 @@ const styles = StyleSheet.create({
   brandDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#007A28' },
   brand: { color: '#006D25', fontSize: 13, letterSpacing: 0.7 },
   heroVisual: {
-    height: 212,
+    height: 228,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -185,46 +174,11 @@ const styles = StyleSheet.create({
     borderColor: '#86F27F',
     backgroundColor: 'rgba(185, 255, 115, 0.2)',
   },
-  mockPhone: {
-    width: 164,
-    height: 106,
-    padding: 9,
-    borderWidth: 1,
-    borderColor: '#E2E9E0',
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#1B4E24',
-    shadowOpacity: 0.13,
-    shadowRadius: 15,
-    shadowOffset: { width: 0, height: 7 },
-    elevation: 4,
-  },
-  mockPhoneTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  mockPhoneLabel: { color: '#203A22', fontSize: 9, fontWeight: '700' },
-  mockPlantPhoto: {
-    position: 'absolute',
-    left: 61,
-    top: 8,
-    width: 43,
-    height: 72,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    borderRadius: 3,
-    backgroundColor: '#EFF9D9',
-  },
-  mockPhoneLine: { width: 39, height: 3, borderRadius: 2, backgroundColor: '#D6EAD2', marginTop: 15 },
-  mockPhoneCaption: { color: '#587058', fontSize: 7, marginTop: 4 },
-  leafBadge: {
-    position: 'absolute',
-    right: 53,
-    bottom: 15,
-    width: 40,
-    height: 40,
+  mascotStage: {
+    width: 132,
+    height: 132,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#DCEBDD',
-    backgroundColor: '#FFFFFF',
   },
   copyBlock: { alignItems: 'center', marginBottom: 22 },
   headline: {

@@ -88,6 +88,10 @@ export default function NotificationsSettingsScreen() {
     [colors, spacing, fontSize, fontWeight, radii]
   );
 
+  if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
+    return <StitchNotificationsScreen colors={colors} onBack={() => router.back()} />;
+  }
+
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={[s.header, { borderBottomColor: colors.border }]}>
@@ -582,3 +586,43 @@ const makeStyles = (
     },
     warningText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20 },
   });
+
+function StitchNotificationsScreen({ colors, onBack }: { colors: ReturnType<typeof useColors>; onBack: () => void }) {
+  const [morning, setMorning] = useState(true);
+  const [heat, setHeat] = useState(true);
+  const [wind, setWind] = useState(false);
+  const [frost, setFrost] = useState(true);
+  const [weekly, setWeekly] = useState(true);
+  const [quiet, setQuiet] = useState(true);
+  const Row = ({ icon, title, description, value, onChange }: { icon: keyof typeof Ionicons.glyphMap; title: string; description: string; value: boolean; onChange: (value: boolean) => void }) => (
+    <View style={[notificationStitch.row, { borderBottomColor: colors.border }]}>
+      <View style={[notificationStitch.icon, { backgroundColor: colors.surfaceAlt }]}><Ionicons name={icon} size={19} color={colors.primary} /></View>
+      <View style={{ flex: 1 }}><Text style={[notificationStitch.rowTitle, { color: colors.text }]}>{title}</Text><Text style={[notificationStitch.rowDescription, { color: colors.textSecondary }]}>{description}</Text></View>
+      <Switch value={value} onValueChange={onChange} trackColor={{ false: colors.border, true: colors.primary + '88' }} thumbColor={value ? colors.primary : colors.surface} />
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={[notificationStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+      <View style={[notificationStitch.header, { borderBottomColor: colors.border }]}><Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel="Volver" style={notificationStitch.back}><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={[notificationStitch.backText, { color: colors.text }]}>Ajustes</Text></Pressable><Text style={[notificationStitch.title, { color: colors.text }]}>Notificaciones</Text><View style={{ width: 82 }} /></View>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={notificationStitch.content}>
+        <View style={[notificationStitch.hero, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><View style={[notificationStitch.heroIcon, { backgroundColor: colors.primary + '20' }]}><Ionicons name="notifications-outline" size={24} color={colors.primary} /></View><View style={{ flex: 1 }}><Text style={[notificationStitch.heroTitle, { color: colors.text }]}>Cuida sin estar pendiente</Text><Text style={[notificationStitch.heroText, { color: colors.textSecondary }]}>Semillita adapta los avisos al clima y silencia el riego si la tierra ya está húmeda.</Text></View></View>
+        <Text style={[notificationStitch.section, { color: colors.textSecondary }]}>CUIDADO PREVENTIVO</Text>
+        <View style={[notificationStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Row icon="finger-print-outline" title="Comprobación matutina" description="Recordatorio diario a las 09:00 · 2 cm de sustrato" value={morning} onChange={setMorning} />
+          <Row icon="sunny-outline" title="Olas de calor en terraza" description="Avisar cuando la previsión supere 32°C" value={heat} onChange={setHeat} />
+          <Row icon="speedometer-outline" title="Ráfagas de viento" description="Afianzar jardineras si aumenta el viento" value={wind} onChange={setWind} />
+          <Row icon="snow-outline" title="Heladas tardías" description="Avisar cuando la temperatura baje de 5°C" value={frost} onChange={setFrost} />
+        </View>
+        <View style={[notificationStitch.rule, { backgroundColor: colors.accent + '18', borderColor: colors.accent + '66' }]}><Ionicons name="water-outline" size={20} color={colors.primaryDark} /><Text style={[notificationStitch.ruleText, { color: colors.text }]}>Los avisos de riego se silencian automáticamente si llueve en tu zona o si ya registraste sustrato húmedo.</Text></View>
+        <Text style={[notificationStitch.section, { color: colors.textSecondary }]}>RITMO Y RESUMEN</Text>
+        <View style={[notificationStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><Row icon="calendar-outline" title="Resumen semanal · domingo" description="Salud de tus macetas, rachas y próximos cuidados" value={weekly} onChange={setWeekly} /><Row icon="moon-outline" title="Silencio nocturno · 22:00–08:00" description="No recibir avisos mientras descansas" value={quiet} onChange={setQuiet} /></View>
+        <Text style={[notificationStitch.footer, { color: colors.textSecondary }]}>Puedes cambiar los permisos del sistema desde Ajustes del iPhone. Las preferencias de Semillita se guardan en este dispositivo.</Text>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const notificationStitch = StyleSheet.create({
+  container: { flex: 1 }, header: { minHeight: 58, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1 }, back: { minHeight: 44, minWidth: 82, flexDirection: 'row', alignItems: 'center', gap: 2 }, backText: { fontSize: 15, fontWeight: '700' }, title: { fontSize: 17, fontWeight: '800' }, content: { padding: 16, gap: 13, paddingBottom: 28 }, hero: { borderRadius: 20, borderWidth: 1, padding: 16, flexDirection: 'row', gap: 12 }, heroIcon: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' }, heroTitle: { fontSize: 17, fontWeight: '800' }, heroText: { fontSize: 13, lineHeight: 19, marginTop: 5 }, section: { fontSize: 11, fontWeight: '800', letterSpacing: 1, marginTop: 4 }, card: { borderRadius: 18, borderWidth: 1, paddingHorizontal: 14 }, row: { minHeight: 82, flexDirection: 'row', alignItems: 'center', gap: 11, borderBottomWidth: 1 }, icon: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, rowTitle: { fontSize: 14, fontWeight: '800' }, rowDescription: { fontSize: 12, lineHeight: 17, marginTop: 2 }, rule: { borderWidth: 1, borderRadius: 14, padding: 12, flexDirection: 'row', gap: 9 }, ruleText: { flex: 1, fontSize: 12, lineHeight: 17 }, footer: { fontSize: 12, lineHeight: 18, textAlign: 'center', paddingHorizontal: 8, marginTop: 2 },
+});

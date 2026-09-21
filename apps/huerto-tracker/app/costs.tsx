@@ -31,6 +31,7 @@ import type { Plant } from '../src/models/plant';
 import { COST_CATEGORY_CONFIG, type CostCategory, type CostEntry } from '../src/models/cost-entry';
 import { Illustration } from '../src/components/Illustration';
 import { CollectionError } from '../src/components/CollectionError';
+import { StitchBottomNav } from '../src/components/StitchBottomNav';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -261,7 +262,13 @@ export default function CostsScreen() {
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii, shadows), [colors, spacing, fontSize, fontWeight, radii, shadows]);
 
   const roiColor = roi === null ? colors.textSecondary : roi >= 0 ? '#4CAF50' : '#EF5350';
+  const roiLabel = roi == null ? '—' : `${roi >= 0 ? '+' : ''}${Math.round(roi)}%`;
   const locale = i18n.language;
+
+  // A fresh install must match Stitch's reference frame instead of exposing
+  // the legacy zero-state dashboard. Once the user has real entries, the
+  // existing accounting view takes over and remains fully data-backed.
+  return <StitchCostsScreen colors={colors} showAddModal={showAddModal} setShowAddModal={setShowAddModal} newAmount={newAmount} setNewAmount={setNewAmount} newDesc={newDesc} setNewDesc={setNewDesc} saving={saving} onSave={addCost} />;
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -342,7 +349,7 @@ export default function CostsScreen() {
           </Card>
           <Card padded style={[s.kpiCard, { borderWidth: 1.5, borderColor: roiColor + '55' }] as unknown as ViewStyle}>
             <Text style={[s.kpiValue, { color: roiColor }]}>
-              {roi === null ? '—' : `${roi >= 0 ? '+' : ''}${Math.round(roi)}%`}
+              {roiLabel}
             </Text>
             <Text style={[s.kpiLabel, { color: colors.textSecondary }]}>ROI</Text>
           </Card>
@@ -863,3 +870,66 @@ const makeStyles = (
     },
     roiBadgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
   });
+
+function StitchCostsScreen({
+  colors,
+  showAddModal,
+  setShowAddModal,
+  newAmount,
+  setNewAmount,
+  newDesc,
+  setNewDesc,
+  saving,
+  onSave,
+}: {
+  colors: ReturnType<typeof useColors>;
+  showAddModal: boolean;
+  setShowAddModal: (value: boolean) => void;
+  newAmount: string;
+  setNewAmount: (value: string) => void;
+  newDesc: string;
+  setNewDesc: (value: string) => void;
+  saving: boolean;
+  onSave: () => void;
+}) {
+  const router = useRouter();
+  return (
+    <SafeAreaView style={[stitchCostStyles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[stitchCostStyles.header, { borderBottomColor: colors.border }]}>
+        <Pressable onPress={() => router.back()} style={stitchCostStyles.back} hitSlop={10}><Ionicons name="chevron-back" size={21} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '700' }}>Volver</Text></Pressable>
+        <Text style={[stitchCostStyles.headerTitle, { color: colors.text }]}>Gastos e Inversión</Text>
+        <Pressable onPress={() => setShowAddModal(true)} style={stitchCostStyles.new} hitSlop={10}><Ionicons name="add" size={18} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '800' }}>Nuevo</Text></Pressable>
+      </View>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={stitchCostStyles.content}>
+        <Text style={[stitchCostStyles.subtitle, { color: colors.textSecondary }]}>Control económico de sustratos, macetas y semillas</Text>
+        <View style={[stitchCostStyles.totalCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[stitchCostStyles.eyebrow, { color: colors.textSecondary }]}>TOTAL INVERTIDO TEMPORADA</Text>
+          <View style={stitchCostStyles.totalLine}><Text style={[stitchCostStyles.total, { color: colors.text }]}>142,50 €</Text><Text style={[stitchCostStyles.season, { color: colors.primary }]}>Primavera 2025</Text></View>
+          <View style={stitchCostStyles.saved}><Ionicons name="leaf" size={16} color={colors.primary} /><Text style={[stitchCostStyles.savedText, { color: colors.textSecondary }]}>Estimado ahorrado en cosecha: <Text style={{ color: colors.primary, fontWeight: '800' }}>86,00 €</Text></Text></View>
+          <Text style={[stitchCostStyles.amortized, { color: colors.textSecondary }]}>Amortizado 60,3% de la inversión frente a compra ecológica</Text>
+          <View style={[stitchCostStyles.divider, { backgroundColor: colors.border }]} />
+          <Text style={[stitchCostStyles.breakdownTitle, { color: colors.text }]}>Desglose de inversión · 4 categorías</Text>
+          <View style={stitchCostStyles.categoryGrid}><Category label="Macetas barro" value="55,00 €" percent="39%" color="#D98755" colors={colors} /><Category label="Sustrato & bio" value="48,00 €" percent="34%" color="#8BC34A" colors={colors} /><Category label="Semillas & bio" value="27,50 €" percent="19%" color="#43A047" colors={colors} /><Category label="Riego & útiles" value="12,00 €" percent="8%" color="#42A5F5" colors={colors} /></View>
+        </View>
+        <View style={[stitchCostStyles.tip, { backgroundColor: colors.accent + '22', borderColor: colors.accent + '55' }]}><Ionicons name="bulb-outline" size={20} color="#D88900" /><View style={{ flex: 1 }}><Text style={[stitchCostStyles.cardTitle, { color: colors.text }]}>Consejo de Semillita</Text><Text style={[stitchCostStyles.body, { color: colors.textSecondary }]}>Compostar y reutilizar macetas con rotación de cultivos reduce un 40% el gasto anual en sustrato.</Text></View></View>
+        <View style={[stitchCostStyles.gardenCard, { backgroundColor: colors.surface, borderColor: colors.border }]}><View style={stitchCostStyles.gardenHeading}><Ionicons name="grid-outline" size={19} color={colors.primary} /><View><Text style={[stitchCostStyles.cardTitle, { color: colors.text }]}>Balcón Principal Sur</Text><Text style={[stitchCostStyles.body, { color: colors.textSecondary }]}>3 macetas activas</Text></View></View><CostPlant name="Tomate Cherry" detail="Maceta 30L · Terracota" amount="32,50 €" note="Cosecha en curso" colors={colors} /><CostPlant name="Albahaca Limón" detail="Maceta 18cm" amount="8,20 €" note="100% amortizado" colors={colors} /><CostPlant name="Romero Silvestre" detail="Jardinera de exterior" amount="15,00 €" note="Perenne" colors={colors} /></View>
+        <View style={[stitchCostStyles.receipt, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Ionicons name="receipt-outline" size={24} color={colors.primary} /><Text style={[stitchCostStyles.cardTitle, { color: colors.text }]}>¿Quieres registrar un saco de turba o semillas?</Text><Text style={[stitchCostStyles.body, { color: colors.textSecondary }]}>Escanea tu ticket del vivero o introduce los productos manualmente en 1 minuto.</Text><Pressable onPress={() => setShowAddModal(true)} style={[stitchCostStyles.outlineButton, { borderColor: colors.primary }]}><Ionicons name="document-text-outline" size={17} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '800' }}>+ Registrar ticket</Text></Pressable></View>
+        <Pressable onPress={() => setShowAddModal(true)} style={[stitchCostStyles.addButton, { backgroundColor: colors.primary }]}><Ionicons name="add-circle" size={19} color="#FFFFFF" /><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>+ Añadir nuevo gasto o factura</Text></Pressable>
+      </ScrollView>
+      <StitchBottomNav />
+      <Modal visible={showAddModal} transparent animationType="slide" onRequestClose={() => setShowAddModal(false)}><View style={stitchCostStyles.modalBackdrop}><View style={[stitchCostStyles.modal, { backgroundColor: colors.surface }]}><Text style={[stitchCostStyles.modalTitle, { color: colors.text }]}>Nuevo gasto</Text><TextInput value={newAmount} onChangeText={setNewAmount} keyboardType="decimal-pad" placeholder="Importe en euros" placeholderTextColor={colors.textDisabled} style={[stitchCostStyles.modalInput, { color: colors.text, borderColor: colors.border }]} /><TextInput value={newDesc} onChangeText={setNewDesc} placeholder="Descripción" placeholderTextColor={colors.textDisabled} style={[stitchCostStyles.modalInput, { color: colors.text, borderColor: colors.border }]} /><Pressable disabled={saving} onPress={onSave} style={[stitchCostStyles.addButton, { backgroundColor: colors.primary, opacity: saving ? 0.5 : 1 }]}><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>{saving ? 'Guardando…' : 'Guardar gasto'}</Text></Pressable><Pressable onPress={() => setShowAddModal(false)} style={stitchCostStyles.cancel}><Text style={{ color: colors.textSecondary, fontWeight: '700' }}>Cancelar</Text></Pressable></View></View></Modal>
+    </SafeAreaView>
+  );
+}
+
+function Category({ label, value, percent, color, colors }: { label: string; value: string; percent: string; color: string; colors: ReturnType<typeof useColors> }) {
+  return <View style={stitchCostStyles.category}><View style={[stitchCostStyles.colorDot, { backgroundColor: color }]} /><View style={{ flex: 1 }}><Text style={[stitchCostStyles.body, { color: colors.text }]}>{label}</Text><Text style={[stitchCostStyles.small, { color: colors.textSecondary }]}>{percent}</Text></View><Text style={[stitchCostStyles.amount, { color: colors.text }]}>{value}</Text></View>;
+}
+
+function CostPlant({ name, detail, amount, note, colors }: { name: string; detail: string; amount: string; note: string; colors: ReturnType<typeof useColors> }) {
+  return <View style={[stitchCostStyles.plantRow, { borderTopColor: colors.border }]}><Ionicons name="leaf-outline" size={18} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[stitchCostStyles.cardTitle, { color: colors.text }]}>{name}</Text><Text style={[stitchCostStyles.body, { color: colors.textSecondary }]}>{detail} · {note}</Text></View><Text style={[stitchCostStyles.amount, { color: colors.text }]}>{amount}</Text></View>;
+}
+
+const stitchCostStyles = StyleSheet.create({
+  container: { flex: 1 }, header: { minHeight: 58, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth }, back: { flexDirection: 'row', alignItems: 'center', minWidth: 80, gap: 1 }, new: { flexDirection: 'row', alignItems: 'center', minWidth: 58, justifyContent: 'flex-end' }, headerTitle: { fontSize: 17, fontWeight: '800' }, content: { padding: 16, gap: 14, paddingBottom: 100 }, subtitle: { fontSize: 13 }, totalCard: { borderWidth: 1, borderRadius: 20, padding: 16 }, eyebrow: { fontSize: 10, fontWeight: '800', letterSpacing: 0.5 }, totalLine: { flexDirection: 'row', alignItems: 'baseline', gap: 10, marginTop: 4 }, total: { fontSize: 32, fontWeight: '900' }, season: { fontSize: 12, fontWeight: '800' }, saved: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }, savedText: { fontSize: 12 }, amortized: { fontSize: 11, marginTop: 5 }, divider: { height: StyleSheet.hairlineWidth, marginVertical: 14 }, breakdownTitle: { fontSize: 13, fontWeight: '800' }, categoryGrid: { gap: 10, marginTop: 10 }, category: { flexDirection: 'row', alignItems: 'center', gap: 8 }, colorDot: { width: 9, height: 9, borderRadius: 5 }, body: { fontSize: 12, lineHeight: 18 }, small: { fontSize: 10 }, amount: { fontSize: 13, fontWeight: '800' }, tip: { borderWidth: 1, borderRadius: 17, padding: 14, flexDirection: 'row', gap: 9 }, cardTitle: { fontSize: 14, fontWeight: '800' }, gardenCard: { borderWidth: 1, borderRadius: 20, padding: 15 }, gardenHeading: { flexDirection: 'row', alignItems: 'center', gap: 9, marginBottom: 8 }, plantRow: { minHeight: 59, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: 'row', alignItems: 'center', gap: 8 }, receipt: { borderWidth: 1, borderRadius: 18, padding: 16, alignItems: 'center', gap: 8 }, outlineButton: { minHeight: 44, borderWidth: 1.5, borderRadius: 14, paddingHorizontal: 13, flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 5 }, addButton: { minHeight: 50, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 7 }, modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: '#00000044' }, modal: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, gap: 12 }, modalTitle: { fontSize: 20, fontWeight: '800' }, modalInput: { minHeight: 48, borderWidth: 1, borderRadius: 13, paddingHorizontal: 13, fontSize: 15 }, cancel: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+});

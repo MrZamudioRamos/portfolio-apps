@@ -15,6 +15,7 @@ import type { Plant } from '../src/models/plant';
 import type { DiaryEntry } from '../src/models/diary-entry';
 import { recordCare } from '../src/utils/careWrites';
 import { buildCarePlan, type CareTask } from '../src/utils/carePlan';
+import { Mascot } from '../src/components/Mascot';
 
 type ReviewCard = {
   plant?: Plant;
@@ -22,14 +23,15 @@ type ReviewCard = {
   meta: string;
   rule: string;
   extra: string;
+  support?: string;
   action: string;
   icon: keyof typeof Ionicons.glyphMap;
 };
 
 const SAMPLE_REVIEWS: ReviewCard[] = [
-  { name: 'Albahaca Limón', meta: 'Maceta 18cm  ·  ☀️ 4h sol', rule: 'REGLA DE ORO PREVENTIVA', extra: 'Diagnóstico táctil (2 cm) cada 2 días. NUNCA regar con tierra húmeda.', action: 'Revisar hoy', icon: 'checkmark' },
-  { name: 'Tomate Cherry Sweet', meta: 'Maceta 30L  ·  ☀️ +6h sol pleno', rule: 'RIEGO CONDICIONADO AL CLIMA', extra: 'Chequeo matinal en días soleados (>25°C). Dosis 500–800 ml solo si la tierra cede.', action: 'Registrar riego', icon: 'water' },
-  { name: 'Menta Piperita', meta: 'Jardinera 20L  ·  ☁️ Semisombra', rule: 'PAUTA DE HUMEDAD RADICULAR', extra: 'Riego moderado constante. Mantener sustrato fresco sin agua estancada.', action: 'Ver ficha', icon: 'document-text-outline' },
+  { name: 'Albahaca Limón', meta: 'Maceta 18cm  ·  ☀️ 4h sol', rule: 'REGLA DE ORO PREVENTIVA', extra: 'Diagnóstico táctil (2 cm) cada 2 días. NUNCA regar con tierra húmeda.', support: 'Próxima revisión · Jueves mañana   ·   Poda floración · Despuntar cada 14d   ·   Sustrato testeado hace 24h', action: 'Revisar hoy', icon: 'checkmark' },
+  { name: 'Tomate Cherry Sweet', meta: 'Maceta 30L  ·  ☀️ +6h sol pleno', rule: 'RIEGO CONDICIONADO AL CLIMA', extra: 'Chequeo matinal en días soleados (>25°C). Dosis 500–800 ml solo si la tierra cede.', support: 'NUTRICIÓN Y FLORACIÓN · Dosis de potasio orgánico cada 15 días durante la etapa de floración activa · Abono: en 4 días', action: 'Registrar riego', icon: 'water' },
+  { name: 'Menta Piperita', meta: 'Jardinera 20L  ·  ☁️ Semisombra', rule: 'PAUTA DE HUMEDAD RADICULAR', extra: 'Riego moderado constante. Mantener sustrato fresco sin agua estancada.', support: 'Estado: Óptimo', action: 'Ver ficha', icon: 'document-text-outline' },
 ];
 
 export default function CarePlanScreen() {
@@ -44,6 +46,7 @@ export default function CarePlanScreen() {
   const { customCropsById } = useCustomCrops();
   const [soilTask, setSoilTask] = useState<CareTask | null>(null);
   const [saving, setSaving] = useState(false);
+  const [careError, setCareError] = useState<string | null>(null);
 
   const gardenPlants = useMemo(
     () => plants.items.filter((plant) => plant.gardenId === activeGarden?.id && plant.status !== 'finished'),
@@ -64,6 +67,7 @@ export default function CarePlanScreen() {
         meta: `${crop?.name ?? 'Cultivo'}  ·  ${index === 1 ? '☀️ +6h sol pleno' : index === 2 ? '☁️ Semisombra' : '☀️ 4h sol'}`,
         rule: index === 1 ? 'RIEGO CONDICIONADO AL CLIMA' : index === 2 ? 'PAUTA DE HUMEDAD RADICULAR' : 'REGLA DE ORO PREVENTIVA',
         extra: task?.howKey ? t(task.howKey) : 'Diagnóstico táctil (2 cm) antes de aplicar agua. NUNCA regar con tierra húmeda.',
+        support: index === 1 ? 'NUTRICIÓN Y FLORACIÓN · Dosis de potasio orgánico cada 15 días durante la etapa de floración activa · Abono: en 4 días' : index === 2 ? 'Estado: Óptimo' : 'Próxima revisión · Jueves mañana   ·   Poda floración · Despuntar cada 14d   ·   Sustrato testeado hace 24h',
         action: index === 2 ? 'Ver ficha' : index === 1 ? 'Registrar riego' : 'Revisar hoy',
         icon: index === 2 ? 'document-text-outline' : index === 1 ? 'water' : 'checkmark',
       };
@@ -73,9 +77,18 @@ export default function CarePlanScreen() {
   async function completeSoil(kind: 'watering' | 'moist') {
     if (!soilTask || saving) return;
     setSaving(true);
+    setCareError(null);
     try {
-      await recordCare(soilTask.plantId, kind, kind === 'moist' ? 'Sigue húmeda; no riego hoy.' : 'Suelo seco; riego registrado.', kind === 'watering' ? { liters: '0.4', method: 'hand' } : undefined);
+      const written = await recordCare(soilTask.plantId, kind, kind === 'moist' ? 'Sigue húmeda; no riego hoy.' : 'Suelo seco; riego registrado.', kind === 'watering' ? { liters: '0.4', method: 'hand' } : undefined);
+      if (!written) {
+        setCareError('Esta comprobación ya está registrada para hoy.');
+        return;
+      }
       setSoilTask(null);
+    } catch (error) {
+      setCareError(error instanceof Error && error.message === 'Confirm sowing first'
+        ? 'Confirma primero la siembra de esta planta para empezar el cuidado diario.'
+        : 'No se pudo guardar la comprobación. Inténtalo de nuevo.');
     } finally {
       setSaving(false);
     }
@@ -109,7 +122,7 @@ export default function CarePlanScreen() {
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
         <View style={s.contextCard}>
           <View style={s.contextTop}>
-            <View style={s.contextMascot}><Text style={s.mascot}>🌱</Text></View>
+            <View style={s.contextMascot}><Mascot pose="idle" size={42} /></View>
             <View style={{ flex: 1 }}>
               <Text style={s.contextName}>Semillita  ·  <Text style={s.contextLocation}>📍 Madrid · Primavera</Text></Text>
               <Text style={s.contextDescription}>Tu huerto en primavera en Madrid. Plan ajustado para evitar sobre-riego y optimizar horas de sol.</Text>
@@ -145,6 +158,7 @@ export default function CarePlanScreen() {
               <View style={s.ruleBlock}>
                 <Text style={s.ruleLabel}>{card.rule}</Text>
                 <Text style={s.ruleText}>{card.extra}</Text>
+                {card.support && <Text style={s.support}>{card.support}</Text>}
               </View>
               <Pressable accessibilityRole="button" onPress={() => openReview(card)} style={({ pressed }) => [s.reviewAction, pressed && s.pressed]}>
                 <Ionicons name={card.icon} size={17} color={colors.primary} />
@@ -197,6 +211,7 @@ export default function CarePlanScreen() {
               <Text style={[s.sheetOptionText, { color: '#fff' }]}>Está seca · registrar riego</Text>
             </Pressable>
             {saving && <ActivityIndicator color={colors.primary} />}
+            {careError && <Text accessibilityRole="alert" style={[s.sheetError, { color: colors.error }]}>{careError}</Text>}
           </View>
         </View>
       </Modal>
@@ -234,6 +249,7 @@ const makeStyles = (colors: ReturnType<typeof useColors>, spacing: Record<string
   ruleBlock: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg, gap: 5 },
   ruleLabel: { color: colors.primary, fontSize: fontSize.xs, fontWeight: fontWeight.bold, letterSpacing: 0.4 },
   ruleText: { color: colors.textSecondary, fontSize: fontSize.sm, lineHeight: 20 },
+  support: { color: colors.textSecondary, fontSize: fontSize.xs, lineHeight: 18, marginTop: 3 },
   reviewAction: { minHeight: 48, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg },
   reviewActionText: { color: colors.primary, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
   planActions: { gap: spacing.sm },
@@ -252,4 +268,5 @@ const makeStyles = (colors: ReturnType<typeof useColors>, spacing: Record<string
   sheetOption: { minHeight: 52, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg },
   sheetOptionPrimary: { backgroundColor: colors.primary, borderColor: colors.primary },
   sheetOptionText: { color: colors.text, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+  sheetError: { textAlign: 'center', fontSize: fontSize.sm, lineHeight: 19 },
 });

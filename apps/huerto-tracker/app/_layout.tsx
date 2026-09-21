@@ -6,6 +6,7 @@ import { initAnalytics, track, identifyUser, EVENTS, Sentry } from '../src/analy
 import { ThemeProvider, huertoColors, huertoPalette } from '@portfolio/ui';
 import { Stack, useRouter, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { Asset } from 'expo-asset';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
 import i18next from 'i18next';
@@ -25,6 +26,7 @@ import {
   Nunito_800ExtraBold,
 } from '@expo-google-fonts/nunito';
 import { applyNunito } from '../src/theme/applyNunito';
+import { loadThemePreference, useThemePreference } from '../src/hooks/useThemePreference';
 
 // Fast Refresh re-evaluates this route while the shared client module survives.
 // Reuse that exact client so auth subscribers never point at different clients.
@@ -37,6 +39,11 @@ initAnalytics();
 // Make Nunito the default font (patch must run before any Text renders).
 applyNunito();
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+const MASCOT_BOOT_ASSETS = [
+  require('../assets/semillin-golden-wave.png'),
+  require('../assets/semillin-golden-transparent.png'),
+];
 
 // Catches render errors anywhere in the route tree (expo-router convention).
 // Deliberately theme-free: the crash may have happened inside ThemeProvider.
@@ -124,6 +131,8 @@ function MobileViewport({ children }: { children: React.ReactNode }) {
 }
 
 function RootLayout() {
+  const { preference: themePreference } = useThemePreference();
+  const [mascotAssetsLoaded, setMascotAssetsLoaded] = React.useState(false);
   const [fontsLoaded] = useFonts({
     Nunito_400Regular,
     Nunito_500Medium,
@@ -134,8 +143,18 @@ function RootLayout() {
   });
 
   useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
-  }, [fontsLoaded]);
+    let cancelled = false;
+    Asset.loadAsync(MASCOT_BOOT_ASSETS)
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setMascotAssetsLoaded(true);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (fontsLoaded && mascotAssetsLoaded) SplashScreen.hideAsync().catch(() => {});
+  }, [fontsLoaded, mascotAssetsLoaded]);
 
   useEffect(() => {
     const webDocument = (globalThis as {
@@ -150,7 +169,11 @@ function RootLayout() {
     webDocument.body.style.fontFamily = prototypeFontStack;
   }, []);
 
-  if (!fontsLoaded) {
+  useEffect(() => {
+    void loadThemePreference();
+  }, []);
+
+  if (!fontsLoaded || !mascotAssetsLoaded) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, backgroundColor: huertoColors.background }}>
         <ActivityIndicator size="small" color={huertoColors.primary} />
@@ -164,7 +187,7 @@ function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
-      <ThemeProvider palette={huertoPalette}>
+      <ThemeProvider palette={huertoPalette} colorScheme={themePreference === 'system' ? undefined : themePreference}>
         <StatusBar style="auto" />
         <AppServices />
         <MobileViewport>
@@ -175,8 +198,15 @@ function RootLayout() {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="onboarding" />
             <Stack.Screen name="first-crop" />
+            <Stack.Screen name="coach-demo" />
+            <Stack.Screen name="mascot-picker" />
+            <Stack.Screen name="volume-calculator" />
             <Stack.Screen
               name="plant/new"
+              options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+            />
+            <Stack.Screen
+              name="modal/add-plant"
               options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
             />
             <Stack.Screen name="plant/[id]" />

@@ -5,7 +5,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { usePro } from '../src/hooks/usePro';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Animated, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Animated, Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../src/data/crops';
 import type { DiaryEntry, EntryType } from '../src/models/diary-entry';
@@ -56,6 +56,7 @@ export default function StatsScreen() {
   const { activeGarden, refreshActiveId } = useActiveGarden();
 
   const [refreshing, setRefreshing] = useState(false);
+  const [periodLabel, setPeriodLabel] = useState('Mis Datos (Mayo 2025)');
 
   async function onRefresh() {
     setRefreshing(true);
@@ -275,10 +276,10 @@ export default function StatsScreen() {
             <Text style={[s.statsBackText, { color: colors.primary }]}>Volver a Mi Huerto</Text>
           </Pressable>
           <View style={s.statsHeaderActions}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Compartir estadísticas" hitSlop={8}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Compartir estadísticas" onPress={() => void Share.share({ message: `Mis estadísticas de Semilla: ${stats.totalEntries} cuidados registrados y ${stats.totalHarvests} cosechas.` }).catch(() => Alert.alert('Compartir', 'No se ha podido abrir el menú de compartir.'))} hitSlop={8}>
               <Ionicons name="share-outline" size={19} color={colors.primary} />
             </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="Filtrar por período" hitSlop={8}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Filtrar por período" onPress={() => Alert.alert('Filtrar por período', 'Elige el intervalo de tus datos.', [{ text: 'Últimos 30 días', onPress: () => setPeriodLabel('Últimos 30 días') }, { text: 'Esta temporada', onPress: () => setPeriodLabel('Esta temporada') }, { text: 'Todo el historial', onPress: () => setPeriodLabel('Todo el historial') }, { text: 'Cancelar', style: 'cancel' }])} hitSlop={8}>
               <Ionicons name="options-outline" size={20} color={colors.primary} />
             </Pressable>
           </View>
@@ -307,7 +308,7 @@ export default function StatsScreen() {
         <View style={s.statsFilterRow}>
           <View style={[s.statsChip, { backgroundColor: colors.primary + '14', borderColor: colors.primary + '40' }]}>
             <Ionicons name="calendar-outline" size={14} color={colors.primary} />
-            <Text style={[s.statsChipText, { color: colors.primary }]}>Mis Datos (Mayo 2025)</Text>
+            <Text style={[s.statsChipText, { color: colors.primary }]}>{periodLabel}</Text>
           </View>
           <View style={[s.statsChip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Ionicons name="leaf-outline" size={14} color={colors.textSecondary} />

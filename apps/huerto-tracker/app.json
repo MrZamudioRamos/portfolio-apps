@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Semilla - Planificador de Huerto",
-    "slug": "semilla",
+    "slug": "huerto-tracker",
     "version": "1.0.0",
     "runtimeVersion": {
       "policy": "appVersion"
@@ -19,16 +19,12 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Usa la cámara para añadir fotos de tus plantas.",
         "NSPhotoLibraryUsageDescription": "Accede a la galería para añadir fotos de tus plantas.",
-        "NSLocationWhenInUseUsageDescription": "Usa tu ubicación para mostrar el mapa del huerto.",
-        "UIBackgroundModes": [
-          "remote-notification"
-        ]
+        "NSLocationWhenInUseUsageDescription": "Usa tu ubicación para mostrar el mapa del huerto."
       },
       "entitlements": {
         "com.apple.developer.applesignin": [
           "Default"
         ],
-        "aps-environment": "production",
         "com.apple.security.application-groups": [
           "group.com.portfolio.semilla"
         ]
@@ -43,11 +39,9 @@
       "versionCode": 1,
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE",
-        "android.permission.POST_NOTIFICATIONS",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.POST_NOTIFICATIONS"
       ]
     },
     "web": {
@@ -76,7 +70,8 @@
         "expo-image-picker",
         {
           "photosPermission": "Accede a la galería para añadir fotos de tus plantas.",
-          "cameraPermission": "Usa la cámara para tomar fotos de tus plantas."
+          "cameraPermission": "Usa la cámara para tomar fotos de tus plantas.",
+          "microphonePermission": false
         }
       ],
       [
@@ -147,6 +142,9 @@
       "privacyPolicyUrl": "https://semillaapp.app/privacy-policy.html",
       "supportEmail": "semillaapp.contacto@gmail.com"
     },
-    "owner": "rikki22zs-organization"
+    "owner": "rikki22zs-organization",
+    "updates": {
+      "url": "https://u.expo.dev/4ccd28f8-b6ea-4009-941c-4a769fcdd238"
+    }
   }
 }

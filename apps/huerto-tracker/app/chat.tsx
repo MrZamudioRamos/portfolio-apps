@@ -167,6 +167,8 @@ export default function ChatScreen() {
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.proDesc')}</Text>
           <Pressable
             onPress={() => router.push('/paywall?source=ai_chat' as any)}
+            accessibilityRole="button"
+            accessibilityLabel={t('chat.proBtn')}
             style={[s.gateBtn, { backgroundColor: colors.accent }]}
           >
             <Text style={[s.gateBtnText, { color: colors.primaryDark }]}>{t('chat.proBtn')}</Text>
@@ -180,6 +182,8 @@ export default function ChatScreen() {
           <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.authDesc')}</Text>
           <Pressable
             onPress={() => router.push('/auth' as any)}
+            accessibilityRole="button"
+            accessibilityLabel={t('chat.authBtn')}
             style={[s.gateBtn, { backgroundColor: colors.accent }]}
           >
             <Text style={[s.gateBtnText, { color: colors.primaryDark }]}>{t('chat.authBtn')}</Text>

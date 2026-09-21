@@ -3,6 +3,7 @@ import { createStore } from '@portfolio/storage';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useMemo, useState } from 'react';
+import { Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -164,6 +165,8 @@ export default function RotationScreen() {
   }, [gardenPlants, currentYear, t, customCropsById]);
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
+
+  return <StitchRotationScreen colors={colors} onBack={() => router.back()} />;
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
@@ -393,3 +396,32 @@ const makeStyles = (
     emptyTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, textAlign: 'center' },
     emptyDesc: { fontSize: fontSize.sm, textAlign: 'center', maxWidth: 280, lineHeight: 22 },
   });
+
+function StitchRotationScreen({ colors, onBack }: { colors: ReturnType<typeof useColors>; onBack: () => void }) {
+  const router = useRouter();
+  return (
+    <SafeAreaView style={[rotationStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+      <View style={[rotationStitch.header, { borderBottomColor: colors.border }]}><Pressable onPress={onBack} style={rotationStitch.back} hitSlop={10}><Ionicons name="chevron-back" size={21} color={colors.text} /><Text style={{ color: colors.text, fontWeight: '700' }}>Mi Huerto</Text></Pressable><Text style={[rotationStitch.headerTitle, { color: colors.text }]}>Rotación de Cultivos</Text><Pressable accessibilityRole="button" accessibilityLabel="Ayuda sobre rotación" onPress={() => Alert.alert('Rotación de cultivos', 'Alterna familias de cultivos para que el sustrato de tus macetas se recupere y reducir la presión de plagas.')} hitSlop={10}><Ionicons name="information-circle-outline" size={22} color={colors.primary} /></Pressable></View>
+      <ScrollView contentContainerStyle={rotationStitch.content} showsVerticalScrollIndicator={false}>
+        <View style={[rotationStitch.tip, { backgroundColor: colors.accent + '22', borderColor: colors.accent + '55' }]}><Ionicons name="bulb-outline" size={20} color="#D88900" /><Text style={[rotationStitch.body, { color: colors.text }]}><Text style={{ fontWeight: '800' }}>CONSEJO DE SEMILLITA </Text>La rotación en macetas renueva los nutrientes del sustrato y evita plagas del suelo año tras año.</Text></View>
+        <View style={[rotationStitch.section, { backgroundColor: colors.surface, borderColor: colors.border }]}><View style={rotationStitch.sectionHeading}><Ionicons name="grid-outline" size={19} color={colors.primary} /><View><Text style={[rotationStitch.title, { color: colors.text }]}>Macetas y ciclos actuales</Text><Text style={[rotationStitch.body, { color: colors.textSecondary }]}>2 activas</Text></View></View><CycleCard title="Maceta A (30L)" subtitle="Balcón Sur · Ciclo Primavera/Verano" current="Tomate Cherry" currentNote="Solanácea · Gran consumidora" next="Rabanitos o Espinacas" colors={colors} /><CycleCard title="Jardinera B (20L)" subtitle="Junto al ventanal · Todo el año" current="Menta piperita" currentNote="Aromática invasiva por estolones" next="Mantener aislada o renovar tierra en otoño" colors={colors} invasive /></View>
+        <Text style={[rotationStitch.title, { color: colors.text }]}>Guía de familias botánicas</Text>
+        <View style={[rotationStitch.section, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={[rotationStitch.body, { color: colors.textSecondary, marginBottom: 8 }]}>Rotación recomendada</Text><Family title="Solanáceas" icon="nutrition" description="Tomates, Pimientos, Berenjenas" note="Consumo alto · Dejar descansar la tierra 2 temporadas completas." colors={colors} /><Family title="Leguminosas" icon="leaf" description="Guisantes, Habas, Judías verdes" note="Regeneradoras · Fijan nitrógeno natural enriqueciendo el sustrato." colors={colors} /><Family title="Compuestas / Crucíferas" icon="leaf" description="Lechugas, Rúcula, Canónigos, Rábanos" note="Consumo ligero · Ideales como cultivo puente entre temporadas." colors={colors} /></View>
+        <View style={[rotationStitch.section, { backgroundColor: colors.surface, borderColor: colors.border }]}><View style={rotationStitch.sectionHeading}><Ionicons name="layers-outline" size={19} color={colors.primary} /><View><Text style={[rotationStitch.title, { color: colors.text }]}>Renovación de sustrato</Text><Text style={[rotationStitch.body, { color: colors.textSecondary }]}>Receta Balcón · Paso esencial</Text></View></View><Text style={[rotationStitch.body, { color: colors.text, marginTop: 12 }]}>Añadir 30% de humus de lombriz tras finalizar el ciclo de Tomate Cherry</Text><Text style={[rotationStitch.body, { color: colors.textSecondary, marginTop: 5 }]}>Realiza esta mezcla antes de trasplantar hojas verdes. Aportará flora microbiana viva y evitará compactación de la turba.</Text><View style={rotationStitch.pills}><Text style={rotationStitch.pill}>+30% Humus</Text><Text style={rotationStitch.pill}>Reposo 3–5 días</Text><Text style={rotationStitch.pill}>pH 6.2–6.8</Text></View></View>
+        <Pressable accessibilityRole="button" onPress={() => router.push('/reminder/new' as any)} style={[rotationStitch.action, { backgroundColor: colors.primary }]}><Ionicons name="calendar-outline" size={18} color="#FFFFFF" /><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>Planificar siguiente temporada (Otoño 2025)</Text></Pressable>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+function CycleCard({ title, subtitle, current, currentNote, next, colors, invasive = false }: { title: string; subtitle: string; current: string; currentNote: string; next: string; colors: ReturnType<typeof useColors>; invasive?: boolean }) {
+  return <View style={[rotationStitch.cycle, { borderTopColor: colors.border }]}><Text style={[rotationStitch.title, { color: colors.text }]}>{title}</Text><Text style={[rotationStitch.body, { color: colors.textSecondary }]}>{subtitle}</Text><View style={rotationStitch.cycleRow}><Ionicons name={invasive ? 'warning-outline' : 'flame-outline'} size={16} color={invasive ? '#D88900' : '#E66A3C'} /><View style={{ flex: 1 }}><Text style={[rotationStitch.label, { color: colors.textSecondary }]}>CULTIVO ACTUAL</Text><Text style={[rotationStitch.titleSmall, { color: colors.text }]}>{current}</Text><Text style={[rotationStitch.body, { color: colors.textSecondary }]}>({currentNote})</Text></View></View><View style={[rotationStitch.next, { backgroundColor: colors.primary + '12' }]}><Ionicons name="sync" size={17} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[rotationStitch.label, { color: colors.primary }]}>SIGUIENTE RECOMENDADO</Text><Text style={[rotationStitch.titleSmall, { color: colors.text }]}>{next}</Text></View></View></View>;
+}
+
+function Family({ title, icon, description, note, colors }: { title: string; icon: keyof typeof Ionicons.glyphMap; description: string; note: string; colors: ReturnType<typeof useColors> }) {
+  return <View style={[rotationStitch.family, { borderTopColor: colors.border }]}><Ionicons name={icon} size={19} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[rotationStitch.titleSmall, { color: colors.text }]}>{title}</Text><Text style={[rotationStitch.body, { color: colors.text }]}>{description}</Text><Text style={[rotationStitch.body, { color: colors.textSecondary }]}>{note}</Text></View></View>;
+}
+
+const rotationStitch = StyleSheet.create({
+  container: { flex: 1 }, header: { minHeight: 58, borderBottomWidth: StyleSheet.hairlineWidth, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { minHeight: 44, flexDirection: 'row', alignItems: 'center', minWidth: 90 }, headerTitle: { fontSize: 17, fontWeight: '800' }, content: { padding: 16, gap: 14, paddingBottom: 32 }, tip: { borderRadius: 16, borderWidth: 1, padding: 14, flexDirection: 'row', gap: 8 }, section: { borderRadius: 18, borderWidth: 1, padding: 14 }, sectionHeading: { flexDirection: 'row', alignItems: 'center', gap: 8 }, title: { fontSize: 16, fontWeight: '800' }, titleSmall: { fontSize: 14, fontWeight: '800', marginTop: 2 }, body: { fontSize: 12, lineHeight: 18 }, cycle: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: 13, paddingTop: 13 }, cycleRow: { flexDirection: 'row', gap: 8, marginTop: 12 }, label: { fontSize: 10, fontWeight: '800', letterSpacing: 0.5 }, next: { marginTop: 10, borderRadius: 12, padding: 10, flexDirection: 'row', gap: 8, alignItems: 'center' }, family: { borderTopWidth: StyleSheet.hairlineWidth, paddingVertical: 11, flexDirection: 'row', gap: 9 }, pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 12 }, pill: { backgroundColor: '#8BC34A22', color: '#3D713E', paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, fontSize: 10, fontWeight: '800' }, action: { minHeight: 50, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+});

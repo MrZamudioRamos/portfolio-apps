@@ -3,7 +3,7 @@ import { useSession } from '@portfolio/supabase';
 import { useTheme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { Redirect, Tabs } from 'expo-router';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +27,7 @@ function StitchTabBar({ state, descriptors, navigation }: TabBarProps) {
   );
 
   return (
-    <View style={[StyleSheet.absoluteFill, { pointerEvents: 'box-none' }]}>
+    <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
       <View
         style={[
           styles.bar,
@@ -131,24 +131,6 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.plants'),
           tabBarIcon: ({ color, size }) => <Ionicons name="flower-outline" size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="map"
-        options={{
-          title: t('tabs.map'),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="map-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="plants"
-        options={{
-          title: t('tabs.plants'),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="flower-outline" size={size} color={color} />
-          ),
         }}
       />
       <Tabs.Screen

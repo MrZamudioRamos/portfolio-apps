@@ -15,7 +15,7 @@
 //   { mode: 'scan-plant',    base64, mediaType, language, cropNames: {id:name} }
 // Response: the parsed JSON result, or { error, code } with a 4xx/5xx status.
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { CORS, clampText, enforceHourlyLimit, json, requireUser, validateImage } from '../_shared/security.ts';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-haiku-4-5-20251001';
@@ -23,19 +23,6 @@ const MODEL = 'claude-haiku-4-5-20251001';
 const LANG_NAMES: Record<string, string> = {
   es: 'Spanish', en: 'English', ca: 'Catalan', eu: 'Basque', gl: 'Galician', val: 'Valencian',
 };
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
-
-function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS, 'content-type': 'application/json' },
-  });
-}
 
 function buildPestPrompt(lang: string): string {
   return `You are a plant pathology expert. Analyze the plant image and respond ONLY with valid JSON (no other text):
@@ -88,16 +75,8 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return json({ error: 'Method not allowed', code: 'METHOD' }, 405);
 
-  // Require an authenticated Supabase user.
-  const authHeader = req.headers.get('Authorization') ?? '';
-  if (!authHeader) return json({ error: 'Missing auth', code: 'AUTH' }, 401);
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_ANON_KEY')!,
-    { global: { headers: { Authorization: authHeader } } },
-  );
-  const { data: { user }, error: authErr } = await supabase.auth.getUser();
-  if (authErr || !user) return json({ error: 'Unauthorized', code: 'AUTH' }, 401);
+  const user = await requireUser(req);
+  if (user instanceof Response) return user;
 
   const apiKey = Deno.env.get('ANTHROPIC_KEY');
   if (!apiKey) return json({ error: 'Server not configured', code: 'NO_KEY' }, 500);
@@ -126,6 +105,15 @@ Deno.serve(async (req: Request) => {
   if (isComparison
     ? !body.beforeBase64 || !body.beforeMediaType || !body.afterBase64 || !body.afterMediaType
     : !base64 || !mediaType) return json({ error: 'Missing image', code: 'BAD_REQUEST' }, 400);
+  const imageErrors = isComparison
+    ? [
+        validateImage(body.beforeBase64, body.beforeMediaType),
+        validateImage(body.afterBase64, body.afterMediaType),
+      ].filter(Boolean)
+    : [validateImage(base64, mediaType)].filter(Boolean);
+  if (imageErrors.length > 0) return json({ error: imageErrors[0], code: 'BAD_REQUEST' }, 400);
+  const rateLimitResponse = await enforceHourlyLimit(user.id, 10);
+  if (rateLimitResponse) return rateLimitResponse;
   const lang = LANG_NAMES[language ?? 'es'] ?? 'Spanish';
 
   let system: string;
@@ -134,7 +122,7 @@ Deno.serve(async (req: Request) => {
   let content: Array<Record<string, unknown>>;
   if (mode === 'identify-pest') {
     system = buildPestPrompt(lang);
-    userText = `Analyze this ${body.cropName ?? 'plant'} for pests, diseases, or deficiencies.`;
+    userText = `Analyze this ${clampText(body.cropName, 100) ?? 'plant'} for pests, diseases, or deficiencies.`;
     maxTokens = 1024;
     content = [
       { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
@@ -150,7 +138,7 @@ Deno.serve(async (req: Request) => {
     ];
   } else if (mode === 'compare-diagnosis') {
     system = buildComparisonPrompt(lang);
-    userText = `Compare these two photos of ${body.plantName ?? 'the plant'}. The first image is BEFORE treatment and the second is AFTER treatment.`;
+    userText = `Compare these two photos of ${clampText(body.plantName, 100) ?? 'the plant'}. The first image is BEFORE treatment and the second is AFTER treatment.`;
     maxTokens = 512;
     content = [
       { type: 'text', text: 'BEFORE photo:' },

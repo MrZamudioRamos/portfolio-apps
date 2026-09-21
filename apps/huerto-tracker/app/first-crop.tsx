@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { type CropCategory } from '../src/data/crops';
-import { Mascot } from '../src/components/Mascot';
+import { CROPS_BY_ID, type CropCategory } from '../src/data/crops';
+import { SemillitaBug } from '../src/components/SemillitaBug';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { useUserProfile } from '../src/hooks/useUserProfile';
 import { EVENTS, track, trackImpression } from '../src/analytics';
@@ -16,6 +16,12 @@ import type { SpaceType } from '../src/models/user-profile';
 import { CROP_IMAGES } from '../src/data/cropImages';
 
 const CARE_TIME_KEY = '@huerto/first_crop_care_time';
+
+const STITCH_FIRST_CROPS = [
+  { id: 'albahaca', name: 'Albahaca Limón', scientific: 'Ocimum citriodorum · Crecimiento rápido', level: 'Principiante', sun: 'Sol directo 4h', facts: [['RIEGO', 'Prueba del dedo'], ['MACETA REC.', 'Mínimo 18 cm'], ['COSECHA', 'Hojas en 18 días']] },
+  { id: 'tomate-cherry', name: 'Tomate Cherry Sweet', scientific: 'Solanum lycopersicum · Frutos en 60 días', level: 'Muy agradecida', sun: 'Pleno sol 6h', facts: [['RIEGO', 'Frecuente regular'], ['ESPACIO', 'Maceta 25-30L'], ['CUIDADO', 'Súper productiva en verano']] },
+  { id: 'menta', name: 'Menta Piperita', scientific: 'Mentha piperita · Riego moderado', level: 'Indestructible', sun: 'Semisombra', facts: [['RIEGO', 'Moderado constante'], ['CUIDADOS', 'Aislar en maceta'], ['VALOR', 'Repelente natural de plagas']] },
+] as const;
 
 function toRecommendationSpace(spaceTypes: SpaceType[] | undefined): FirstCropSpace {
   if (spaceTypes?.includes('indoor')) return 'indoor';
@@ -57,6 +63,15 @@ export default function FirstCropScreen() {
     });
   }, [activeGarden, profile, preferredCategories, recommendationSpace, careTime]);
 
+  // Stitch is the visual contract for this onboarding frame. Keep the
+  // recommendation engine for analytics and future ranking, but always show
+  // the three designed cards so a fresh install renders the same frame.
+  const displayRecommendations = useMemo(() => STITCH_FIRST_CROPS.map((item) => {
+    const crop = CROPS_BY_ID[item.id];
+    const ranked = recommendations.find((recommendation) => recommendation.crop.id === item.id);
+    return { crop, item, score: ranked?.score ?? 1, action: ranked?.action ?? 'add' };
+  }), [recommendations]);
+
   React.useEffect(() => {
     setSelectedIndex(0);
   }, [recommendations]);
@@ -76,7 +91,7 @@ export default function FirstCropScreen() {
   }, [recommendations, activeGarden, profile, preferredCategories, careTime]));
 
   const choose = (index: number) => {
-    const recommendation = recommendations[index];
+    const recommendation = displayRecommendations[index];
     if (!recommendation || choosing.current) return;
     choosing.current = true;
     track(EVENTS.firstCropPicked, {
@@ -87,6 +102,12 @@ export default function FirstCropScreen() {
       care_time: careTime,
     });
     router.push({ pathname: '/plant/new', params: { cropId: recommendation.crop.id, fromOnboarding: '1', recommendationAction: recommendation.action } });
+  };
+
+  const inspect = (index: number) => {
+    const recommendation = displayRecommendations[index];
+    if (!recommendation) return;
+    router.push({ pathname: '/catalog', params: { focus: recommendation.crop.id } });
   };
 
   return (
@@ -101,29 +122,28 @@ export default function FirstCropScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={[styles.welcomeCallout, { backgroundColor: colors.surfaceAlt, borderColor: colors.primary + '35' }]}>
-          <View style={[styles.calloutIcon, { backgroundColor: colors.surface }]}><Mascot pose="wave" size={42} /></View>
+          <View style={[styles.calloutIcon, { backgroundColor: colors.surface }]}><SemillitaBug size={42} /></View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.calloutEyebrow, { color: colors.primary }]}>Semillita · Consejo de bienvenida</Text>
-            <Text style={[styles.calloutTitle, { color: colors.text }]}>Te recomendamos empezar con 1 o 2 plantas resistentes</Text>
+            <Text style={[styles.calloutTitle, { color: colors.text }]}>Te recomendamos empezar con 1 o 2 plantas resistentes que den alegrías rápidas sin frustración.</Text>
           </View>
         </View>
 
         <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>FILTRAR POR ESPACIO · Primavera en terraza</Text>
         <View style={styles.filterRow}>
-          <FilterChip label={'Recomendadas para ti' + (recommendations.length ? ` (${recommendations.length})` : '')} selected={preferredCategories.length === 0} onPress={() => setPreferredCategories([])} colors={colors} />
+          <FilterChip label={`Recomendadas para ti (${displayRecommendations.length})`} selected={preferredCategories.length === 0} onPress={() => setPreferredCategories([])} colors={colors} />
           <FilterChip label="Aromáticas" selected={preferredCategories.includes('aromaticas')} onPress={() => setPreferredCategories(preferredCategories.includes('aromaticas') ? [] : ['aromaticas'])} colors={colors} />
           <FilterChip label="Hortalizas fáciles" selected={preferredCategories.includes('hojas')} onPress={() => setPreferredCategories(preferredCategories.includes('hojas') ? [] : ['hojas'])} colors={colors} />
           <FilterChip label="En maceta pequeña" selected={preferredCategories.includes('raices')} onPress={() => setPreferredCategories(preferredCategories.includes('raices') ? [] : ['raices'])} colors={colors} />
         </View>
 
         {loading && <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.xl }} />}
-        {!loading && recommendations.map((recommendation, index) => {
-          const { crop } = recommendation;
+        {!loading && displayRecommendations.map((recommendation, index) => {
+          const { crop, item } = recommendation;
           const selected = index === selectedIndex;
-          const cropName = t(`crops.${crop.id}.name`, { defaultValue: crop.name });
+          const cropName = item.name;
           const imageUri = CROP_IMAGES[crop.id];
-          const sunLabel = crop.sunNeeds === 'full' ? 'Pleno sol' : crop.sunNeeds === 'partial' ? 'Semisombra' : 'Sombra';
-          const waterLabel = crop.waterNeeds === 'high' ? 'Frecuente' : crop.waterNeeds === 'medium' ? 'Moderado' : 'Poco';
+          const sunLabel = item.sun;
           return (
             <View key={crop.id} style={[styles.cropCard, { backgroundColor: colors.surface, borderColor: selected ? colors.primary : colors.border, borderWidth: selected ? 2 : 1 }]}>
               <Pressable accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => setSelectedIndex(index)} style={({ pressed }) => ({ opacity: pressed ? 0.82 : 1 })}>
@@ -133,34 +153,32 @@ export default function FirstCropScreen() {
                 </View>
                 <View style={styles.cropBody}>
                   <View style={styles.cropMetaTop}>
-                    <Text style={[styles.cropMetaText, { color: colors.textSecondary }]}>Nivel: {index === 0 ? 'Principiante' : 'Fácil'}</Text>
+                    <Text style={[styles.cropMetaText, { color: colors.textSecondary }]}>Nivel: {item.level}</Text>
                     <Text style={[styles.cropMetaText, { color: colors.textSecondary }]}>☀ {sunLabel}</Text>
                   </View>
                   <Text style={[styles.cropName, { color: colors.text }]}>{cropName}</Text>
-                  <Text style={[styles.cropScientific, { color: colors.textSecondary }]}>{crop.id} · {t('firstCrop.harvestRange', { min: crop.daysToHarvest[0], max: crop.daysToHarvest[1] })}</Text>
+                  <Text style={[styles.cropScientific, { color: colors.textSecondary }]}>{item.scientific}</Text>
                   <View style={styles.cropFacts}>
-                    <Fact label="RIEGO" value={waterLabel} colors={colors} />
-                    <Fact label="MACETA REC." value={typeof recommendation.containerLiters === 'number' ? `${recommendation.containerLiters} L` : `${crop.spacing} cm`} colors={colors} />
-                    <Fact label="COSECHA" value={`${crop.daysToHarvest[0]} días`} colors={colors} />
+                    {item.facts.map(([label, value]) => <Fact key={label} label={label} value={value} colors={colors} />)}
                   </View>
                 </View>
               </Pressable>
-              <Pressable accessibilityRole="button" onPress={() => choose(index)} style={[styles.detailButton, { borderTopColor: colors.border }]}>
+              <Pressable accessibilityRole="button" accessibilityLabel={`Ver ficha completa de ${cropName}`} onPress={() => inspect(index)} style={[styles.detailButton, { borderTopColor: colors.border }]}>
                 <Text style={[styles.detailButtonText, { color: colors.primary }]}>Ver ficha completa</Text>
                 <Text style={{ color: colors.primary, fontSize: 20 }}>›</Text>
               </Pressable>
             </View>
           );
         })}
-        {!loading && !recommendations.length && <Card padded><Text style={{ color: colors.text, lineHeight: 22 }}>{t('firstCrop.empty')}</Text><Button title={t('firstCrop.adjust')} variant="secondary" size="lg" onPress={() => router.replace('/onboarding')} style={{ marginTop: spacing.md }} /></Card>}
+        {!loading && !displayRecommendations.length && <Card padded><Text style={{ color: colors.text, lineHeight: 22 }}>{t('firstCrop.empty')}</Text><Button title={t('firstCrop.adjust')} variant="secondary" size="lg" onPress={() => router.replace('/onboarding')} style={{ marginTop: spacing.md }} /></Card>}
         <Pressable accessibilityRole="button" style={styles.laterButton} onPress={() => router.replace('/(tabs)')}><Text style={{ color: colors.textSecondary, textAlign: 'center' }}>{t('firstCrop.later')}</Text></Pressable>
       </ScrollView>
 
-      {recommendations.length > 0 && !loading && (
+      {displayRecommendations.length > 0 && !loading && (
         <View style={[styles.selectionBar, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
           <View style={{ flex: 1 }}>
             <Text style={[styles.selectionLabel, { color: colors.text }]}>{selectedIndex + 1} cultivo seleccionado</Text>
-            <Text style={[styles.selectionSubtext, { color: colors.textSecondary }]}>{t(`crops.${recommendations[selectedIndex]?.crop.id}.name`, { defaultValue: recommendations[selectedIndex]?.crop.name })} · Paso 1 de 3</Text>
+            <Text style={[styles.selectionSubtext, { color: colors.textSecondary }]}>{displayRecommendations[selectedIndex]?.item.name} · Paso 1 de 3</Text>
           </View>
           <Button title="Configurar maceta y cuidados" onPress={() => choose(selectedIndex)} size="sm" style={{ paddingHorizontal: spacing.md }} />
         </View>

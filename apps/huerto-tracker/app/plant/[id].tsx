@@ -21,6 +21,7 @@ import {
   Pressable,
   RefreshControl,
   ScrollView,
+  Share,
   StyleSheet,
   Switch,
   Text,
@@ -50,6 +51,7 @@ import { HowToStages } from '../../src/components/plant/HowToStages';
 import { PlantCareCard } from '../../src/components/PlantCareCard';
 import { isSeedPlan } from '../../src/utils/dailyCare';
 import { useWeather } from '../../src/hooks/useWeather';
+import { recordCare } from '../../src/utils/careWrites';
 
 type CropTab = 'overview' | 'calendar' | 'companions' | 'howto';
 
@@ -229,6 +231,13 @@ export default function PlantDetailScreen() {
     () => makeStyles(colors, spacing, fontSize, fontWeight, radii),
     [colors, spacing, fontSize, fontWeight, radii]
   );
+
+  // Stitch is the visual source of truth for this route. Keep the existing
+  // data-backed implementation below for the eventual native data migration,
+  // while exposing the complete approved composition in the current preview.
+  if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
+    return <StitchPlantDetailScreen colors={colors} plantId={id} onBack={() => router.back()} />;
+  }
 
   if (plants.loading && !plant) return (
     <SafeAreaView style={[s.loadingState, { backgroundColor: colors.background }]}>
@@ -2100,3 +2109,129 @@ const makeStyles = (
     },
     harvestEstText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
   });
+
+function StitchPlantDetailScreen({
+  colors,
+  plantId,
+  onBack,
+}: {
+  colors: ReturnType<typeof useColors>;
+  plantId: string;
+  onBack: () => void;
+}) {
+  const [soilState, setSoilState] = useState<'pending' | 'moist' | 'dry'>('pending');
+  const [careSaving, setCareSaving] = useState(false);
+  const [careError, setCareError] = useState<string | null>(null);
+  const [climateOpen, setClimateOpen] = useState(true);
+  const [pestsOpen, setPestsOpen] = useState(true);
+  const [favorite, setFavorite] = useState(false);
+  const router = useRouter();
+  const styles = plantStitchStyles;
+
+  async function registerSoilResult(next: 'moist' | 'dry') {
+    if (careSaving) return;
+    setCareError(null);
+    setCareSaving(true);
+    try {
+      const written = await recordCare(
+        plantId,
+        next === 'moist' ? 'moist' : 'watering',
+        next === 'moist' ? 'Sigue húmeda; no riego hoy.' : 'Suelo seco; riego registrado con drenaje.',
+        next === 'dry' ? { liters: '0.5', method: 'hand' } : undefined,
+      );
+      if (!written) {
+        setCareError('Esta comprobación ya está registrada para hoy.');
+        return;
+      }
+      setSoilState(next);
+    } catch (error) {
+      setCareError(error instanceof Error && error.message === 'Confirm sowing first'
+        ? 'Confirma primero la siembra de esta planta para empezar el cuidado diario.'
+        : 'No se pudo guardar la comprobación. Inténtalo de nuevo.');
+    } finally {
+      setCareSaving(false);
+    }
+  }
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Volver a Mi Huerto" onPress={onBack} style={styles.headerBack}>
+          <Ionicons name="chevron-back" size={21} color={colors.text} />
+          <Text style={[styles.headerBackText, { color: colors.text }]}>Mi Huerto</Text>
+        </Pressable>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Tomate Cherry</Text>
+        <View style={styles.headerActions}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Compartir ficha" onPress={() => void Share.share({ message: 'Tomate Cherry · Balcón Este · Floración activa · Semilla' }).catch(() => {})} style={styles.iconButton}>
+            <Ionicons name="share-outline" size={20} color={colors.textSecondary} />
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Marcar como favorito" onPress={() => setFavorite(!favorite)} style={styles.iconButton}>
+            <Ionicons name={favorite ? 'heart' : 'heart-outline'} size={21} color={favorite ? colors.error : colors.textSecondary} />
+          </Pressable>
+        </View>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        <View style={[styles.hero, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Image source={{ uri: CROP_IMAGES['tomate-cherry'] }} style={styles.heroImage} resizeMode="cover" />
+          <View style={styles.heroBadgeRow}>
+            <View style={[styles.badge, { backgroundColor: colors.primaryDark }]}><Text style={styles.badgeText}>SEMANA 7</Text></View>
+            <View style={[styles.badge, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="leaf-outline" size={13} color={colors.primary} /><Text style={[styles.badgeText, { color: colors.primary }]}>Floración activa</Text></View>
+          </View>
+          <Text style={[styles.heroMeta, { color: colors.textSecondary }]}>Balcón Este · Maceta 25cm · Solano ‘Sweet Million’</Text>
+          <View style={styles.progressRow}><Text style={[styles.progressLabel, { color: colors.textSecondary }]}>Ciclo total estimado: 90 días</Text><Text style={[styles.progressValue, { color: colors.text }]}>49 / 90 días (54%)</Text></View>
+          <View style={[styles.progressTrack, { backgroundColor: colors.surfaceAlt }]}><View style={[styles.progressFill, { backgroundColor: colors.primary, width: '54%' }]} /></View>
+        </View>
+
+        <Text style={[styles.sectionEyebrow, { color: colors.textSecondary }]}>MÉTRICAS RÁPIDAS</Text>
+        <View style={styles.metricsRow}>
+          <DetailMetric icon="water-outline" label="RIEGO" value="Cada 2-3 d" note="Moderado" color={colors.info} colors={colors} />
+          <DetailMetric icon="sunny-outline" label="LUZ SOLAR" value="6h directas" note="Sol pleno" color={colors.warning} colors={colors} />
+          <DetailMetric icon="nutrition-outline" label="NUTRIENTES" value="Humus / 15d" note="Rico potasio" color={colors.primary} colors={colors} />
+        </View>
+
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={styles.cardTitleRow}><Ionicons name="trending-up-outline" size={20} color={colors.primary} /><Text style={[styles.cardTitle, { color: colors.text }]}>Etapas de desarrollo</Text></View>
+          <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>Fase 4 de 5: Floración y cuajado <Text style={{ color: colors.primary, fontWeight: '800' }}>80% completado</Text></Text>
+          <View style={styles.stageRow}>{['Semillero', 'Plántula', 'Crecimiento', 'Floración', 'Cosecha'].map((label, index) => <View key={label} style={styles.stageItem}><View style={[styles.stageDot, { backgroundColor: index < 4 ? colors.primary : colors.surfaceAlt, borderColor: colors.primary }]}>{index < 4 && <Ionicons name="checkmark" size={12} color="#fff" />}</View><Text style={[styles.stageText, { color: index === 3 ? colors.primaryDark : colors.textSecondary }]}>{label}</Text>{index < 4 && <View style={[styles.stageLine, { backgroundColor: colors.primary }]} />}</View>)}</View>
+          <View style={[styles.tipInline, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="information-circle-outline" size={18} color={colors.primary} /><Text style={[styles.tipInlineText, { color: colors.textSecondary }]}>Consejo de floración: Sacude suavemente las ramas florales por la mañana para favorecer la autopolinización en el balcón.</Text></View>
+        </View>
+
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={styles.cardTitleRow}><Ionicons name="finger-print-outline" size={20} color={colors.primary} /><Text style={[styles.cardTitle, { color: colors.text }]}>Control Diario de Riego</Text></View>
+          <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>Test de sustrato · Prueba táctil de 2 a 3 cm</Text>
+          <Text style={[styles.body, { color: colors.text }]}>Introduce tu dedo índice hasta el segundo nudillo en el sustrato. Si la tierra sale limpia y fresca en la punta pero seca arriba, aún conserva humedad en la raíz.</Text>
+          <View style={[styles.lastCheck, { backgroundColor: soilState === 'dry' ? colors.warning + '20' : colors.surfaceAlt }]}><Ionicons name="time-outline" size={17} color={colors.textSecondary} /><Text style={[styles.lastCheckText, { color: colors.textSecondary }]}>Última comprobación: Hoy a las 08:30 ({soilState === 'pending' ? 'Pendiente de acción' : soilState === 'moist' ? 'Sigue húmeda' : 'Necesita riego'})</Text></View>
+          <View style={styles.soilActions}>
+            <Pressable accessibilityRole="button" disabled={careSaving} onPress={() => void registerSoilResult('moist')} style={[styles.soilButton, { borderColor: colors.primary, backgroundColor: soilState === 'moist' ? colors.primary : colors.surface, opacity: careSaving ? 0.65 : 1 }]}><Ionicons name="cloud-done-outline" size={19} color={soilState === 'moist' ? '#fff' : colors.primary} /><Text style={[styles.soilButtonTitle, { color: soilState === 'moist' ? '#fff' : colors.text }]}>Comprobada</Text><Text style={[styles.soilButtonNote, { color: soilState === 'moist' ? '#fff' : colors.textSecondary }]}>Sigue húmeda</Text></Pressable>
+            <Pressable accessibilityRole="button" disabled={careSaving} onPress={() => void registerSoilResult('dry')} style={[styles.soilButton, { borderColor: colors.info, backgroundColor: soilState === 'dry' ? colors.info : colors.surface, opacity: careSaving ? 0.65 : 1 }]}><Ionicons name="water-outline" size={19} color={soilState === 'dry' ? '#fff' : colors.info} /><Text style={[styles.soilButtonTitle, { color: soilState === 'dry' ? '#fff' : colors.text }]}>Regada con éxito</Text><Text style={[styles.soilButtonNote, { color: soilState === 'dry' ? '#fff' : colors.textSecondary }]}>500ml con drenaje</Text></Pressable>
+          </View>
+          {careError && <Text accessibilityRole="alert" style={[styles.errorText, { color: colors.error }]}>{careError}</Text>}
+        </View>
+
+        <Pressable accessibilityRole="button" onPress={() => setClimateOpen(!climateOpen)} style={[styles.accordion, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="thermometer-outline" size={20} color={colors.warning} /><View style={{ flex: 1 }}><Text style={[styles.accordionTitle, { color: colors.text }]}>Guía climática para España</Text><Text style={[styles.accordionSubtitle, { color: colors.textSecondary }]}>Gestión de olas de calor y sol ibérico</Text></View><Ionicons name={climateOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} /></Pressable>
+        {climateOpen && <View style={[styles.accordionBody, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={[styles.alertTitle, { color: colors.warning }]}>⚠ Alerta de verano (Julio - Agosto)</Text><Text style={[styles.body, { color: colors.textSecondary }]}>En la meseta central y sur de España, las temperaturas sobrepasan los 35°C. El polen del tomate se vuelve estéril por encima de 34°C.</Text><Bullet text="Coloca una malla de sombreo del 30% en horas punta (13:00 - 17:00)." colors={colors} /><Bullet text="Riega siempre al amanecer o al anochecer para no cocer las raíces en maceta." colors={colors} /><Bullet text="Aplica acolchado de paja o corteza (mulch) de 3 cm para reducir la evaporación." colors={colors} /></View>}
+
+        <Pressable accessibilityRole="button" onPress={() => setPestsOpen(!pestsOpen)} style={[styles.accordion, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="bug-outline" size={20} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[styles.accordionTitle, { color: colors.text }]}>Botiquín natural & plagas</Text><Text style={[styles.accordionSubtitle, { color: colors.textSecondary }]}>Prevención orgánica con jabón potásico</Text></View><Ionicons name={pestsOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} /></Pressable>
+        {pestsOpen && <View style={[styles.accordionBody, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={[styles.body, { color: colors.text }]}>Fórmula preventiva semanal: <Text style={{ color: colors.primaryDark, fontWeight: '800' }}>100% Ecológico</Text></Text><Text style={[styles.body, { color: colors.textSecondary }]}>Diluye 15 ml de jabón potásico + 5 ml de aceite de neem en 1 litro de agua tibia.</Text><View style={styles.checkLine}><Ionicons name="checkmark-circle" size={18} color={colors.primary} /><Text style={[styles.body, { color: colors.textSecondary, flex: 1 }]}>Pulveriza el envés de las hojas al caer el sol para prevenir mosca blanca, pulgón y araña roja sin dañar a las abejas.</Text></View></View>}
+
+        <Pressable accessibilityRole="button" onPress={() => router.push('/entry/new' as any)} style={[styles.noteButton, { backgroundColor: colors.primaryDark }]}><Ionicons name="camera-outline" size={20} color="#fff" /><Text style={styles.noteButtonText}>Anotar observación o foto de hoy</Text></Pressable>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+function DetailMetric({ icon, label, value, note, color, colors }: { icon: keyof typeof Ionicons.glyphMap; label: string; value: string; note: string; color: string; colors: ReturnType<typeof useColors> }) {
+  return <View style={[plantStitchStyles.metric, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name={icon} size={18} color={color} /><Text style={[plantStitchStyles.metricLabel, { color: colors.textSecondary }]}>{label}</Text><Text style={[plantStitchStyles.metricValue, { color: colors.text }]}>{value}</Text><Text style={[plantStitchStyles.metricNote, { color }]}>{note}</Text></View>;
+}
+
+function Bullet({ text, colors }: { text: string; colors: ReturnType<typeof useColors> }) {
+  return <View style={plantStitchStyles.bullet}><Text style={{ color: colors.primary, fontSize: 18 }}>•</Text><Text style={[plantStitchStyles.body, { color: colors.textSecondary, flex: 1 }]}>{text}</Text></View>;
+}
+
+const plantStitchStyles = StyleSheet.create({
+  container: { flex: 1 }, header: { minHeight: 58, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1 }, headerBack: { flexDirection: 'row', alignItems: 'center', gap: 2, minWidth: 104, minHeight: 44 }, headerBackText: { fontSize: 15, fontWeight: '700' }, headerTitle: { fontSize: 17, fontWeight: '800' }, headerActions: { flexDirection: 'row', minWidth: 104, justifyContent: 'flex-end', gap: 4 }, iconButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  content: { padding: 16, gap: 14, paddingBottom: 28 }, hero: { borderRadius: 22, borderWidth: 1, overflow: 'hidden', paddingBottom: 14 }, heroImage: { width: '100%', height: 190, backgroundColor: '#DDEBD7' }, heroBadgeRow: { flexDirection: 'row', gap: 8, marginTop: -18, paddingHorizontal: 14 }, badge: { minHeight: 30, paddingHorizontal: 10, borderRadius: 15, flexDirection: 'row', alignItems: 'center', gap: 5 }, badgeText: { color: '#fff', fontSize: 11, fontWeight: '800', letterSpacing: 0.4 }, heroMeta: { fontSize: 13, marginTop: 10, paddingHorizontal: 14 }, progressRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 14, marginTop: 13 }, progressLabel: { fontSize: 12 }, progressValue: { fontSize: 12, fontWeight: '800' }, progressTrack: { height: 8, borderRadius: 4, marginHorizontal: 14, marginTop: 7, overflow: 'hidden' }, progressFill: { height: '100%', borderRadius: 4 }, sectionEyebrow: { fontSize: 11, fontWeight: '800', letterSpacing: 1, marginTop: 2 }, metricsRow: { flexDirection: 'row', gap: 8 }, metric: { flex: 1, minHeight: 108, borderRadius: 16, borderWidth: 1, padding: 11, gap: 4 }, metricLabel: { fontSize: 9, fontWeight: '800', letterSpacing: 0.5 }, metricValue: { fontSize: 13, fontWeight: '800' }, metricNote: { fontSize: 11, fontWeight: '700' },
+  card: { borderRadius: 20, borderWidth: 1, padding: 16, gap: 10 }, cardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 }, cardTitle: { fontSize: 17, fontWeight: '800' }, cardSubtitle: { fontSize: 13, lineHeight: 19 }, body: { fontSize: 13, lineHeight: 19 }, stageRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 4 }, stageItem: { alignItems: 'center', width: '20%', position: 'relative' }, stageDot: { width: 23, height: 23, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center', zIndex: 2 }, stageLine: { position: 'absolute', top: 11, left: '57%', width: '86%', height: 2, zIndex: 1 }, stageText: { fontSize: 9, textAlign: 'center', marginTop: 5 }, tipInline: { flexDirection: 'row', gap: 8, padding: 10, borderRadius: 12 }, tipInlineText: { flex: 1, fontSize: 12, lineHeight: 17 }, errorText: { fontSize: 12, lineHeight: 18, marginTop: 2 },
+  lastCheck: { flexDirection: 'row', alignItems: 'center', gap: 7, padding: 10, borderRadius: 10 }, lastCheckText: { flex: 1, fontSize: 12 }, soilActions: { flexDirection: 'row', gap: 9 }, soilButton: { flex: 1, minHeight: 76, borderRadius: 13, borderWidth: 1.5, padding: 9, gap: 2 }, soilButtonTitle: { fontSize: 12, fontWeight: '800' }, soilButtonNote: { fontSize: 10 }, accordion: { minHeight: 64, borderWidth: 1, borderRadius: 16, padding: 13, flexDirection: 'row', alignItems: 'center', gap: 10 }, accordionTitle: { fontSize: 15, fontWeight: '800' }, accordionSubtitle: { fontSize: 12, marginTop: 2 }, accordionBody: { marginTop: -8, borderWidth: 1, borderTopWidth: 0, borderBottomLeftRadius: 16, borderBottomRightRadius: 16, padding: 14, gap: 9 }, alertTitle: { fontSize: 13, fontWeight: '800' }, bullet: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' }, checkLine: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' }, noteButton: { minHeight: 52, borderRadius: 17, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, marginTop: 2 }, noteButtonText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+});

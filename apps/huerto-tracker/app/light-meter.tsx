@@ -2,7 +2,7 @@ import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 /**
@@ -15,6 +15,7 @@ export default function LightMeterScreen() {
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const [calibrated, setCalibrated] = useState(true);
+  const [saved, setSaved] = useState(false);
   const s = useMemo(() => makeStyles(spacing, fontSize, fontWeight, radii), [spacing, fontSize, fontWeight, radii]);
 
   return (
@@ -102,22 +103,22 @@ export default function LightMeterScreen() {
         <View style={[s.zenith, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <Text style={[s.zenithLabel, { color: colors.textSecondary }]}>Cénit solar previsto:</Text>
           <Text style={[s.zenithTime, { color: colors.text }]}>14:15h</Text>
-          <Pressable accessibilityRole="button" style={s.trajectoryButton} onPress={() => {}}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Ver trayectoria solar" style={s.trajectoryButton} onPress={() => Alert.alert('Trayectoria solar', 'El sol alcanza su punto más alto a las 14:15. Mantén las plantas de fruto en la barandilla frontal y revisa las sombras a las 16:00.')}>
             <Text style={[s.trajectoryText, { color: colors.primary }]}>Ver trayectoria</Text>
             <Ionicons name="chevron-forward" size={16} color={colors.primary} />
           </Pressable>
         </View>
 
         <View style={s.actions}>
-          <Pressable accessibilityRole="button" style={[s.primaryButton, { backgroundColor: colors.primary }]} onPress={() => {}}>
+          <Pressable accessibilityRole="button" accessibilityState={{ checked: saved }} style={[s.primaryButton, { backgroundColor: colors.primary }]} onPress={() => setSaved(true)}>
             <Ionicons name="bookmark-outline" size={18} color={colors.background} />
-            <Text style={[s.primaryButtonText, { color: colors.background }]}>Guardar medición en Balcón Sur</Text>
+            <Text style={[s.primaryButtonText, { color: colors.background }]}>{saved ? 'Medición guardada en Balcón Sur' : 'Guardar medición en Balcón Sur'}</Text>
           </Pressable>
           <Pressable accessibilityRole="button" style={[s.outlineButton, { borderColor: colors.border }]} onPress={() => setCalibrated(true)}>
             <Ionicons name="refresh-outline" size={18} color={colors.primary} />
             <Text style={[s.outlineButtonText, { color: colors.primary }]}>Recalibrar sensor</Text>
           </Pressable>
-          <Pressable accessibilityRole="button" style={[s.outlineButton, { borderColor: colors.border }]} onPress={() => {}}>
+          <Pressable accessibilityRole="button" style={[s.outlineButton, { borderColor: colors.border }]} onPress={() => Alert.alert('Historial solar', saved ? 'Has guardado una medición hoy: 42.500 Lux · 6,5 horas estimadas.' : 'Todavía no hay mediciones guardadas. Guarda la lectura actual para empezar el historial.') }>
             <Ionicons name="time-outline" size={18} color={colors.primary} />
             <Text style={[s.outlineButtonText, { color: colors.primary }]}>Historial solar</Text>
           </Pressable>

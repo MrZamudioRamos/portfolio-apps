@@ -1,11 +1,13 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
+import { useCollection } from '@portfolio/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { TAB_BAR_BOTTOM_CLEARANCE } from './_layout';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScalePress } from '../../src/components/ScalePress';
+import type { Plant } from '../../src/models/plant';
+import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 
 type Tint = 'primary' | 'info' | 'water' | 'warning' | 'success' | 'secondary' | 'error';
 
@@ -23,6 +25,12 @@ function ToolsInner() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
+  const plantCollection = useCollection<Plant>('plants');
+  const { activeGarden } = useActiveGarden();
+  const firstPlantId = useMemo(
+    () => plantCollection.items.find((plant) => !plant.deletedAt && (!activeGarden?.id || plant.gardenId === activeGarden.id))?.id,
+    [activeGarden?.id, plantCollection.items]
+  );
 
   // Content and order match Stitch's "Herramientas de Semilla" frame.
   const tools: ToolItem[] = [
@@ -30,18 +38,23 @@ function ToolsInner() {
     { icon: 'scan-outline', title: 'Identificador de Plantas y Plagas', eyebrow: 'IA Botánica', route: '/plant/scan', tint: 'primary', description: 'Reconoce especies o detecta hongos como oídio fotografiando las hojas.', action: 'Escanear ahora' },
     { icon: 'finger-print-outline', title: 'Diagnóstico Táctil de Sustrato', eyebrow: 'Prueba 2 cm', route: '/modal/check-soil-sheet', tint: 'water', description: 'Guía interactiva paso a paso para la prueba del dedo a 2 cm antes de aplicar agua.', action: 'Iniciar prueba' },
     { icon: 'partly-sunny-outline', title: 'Simulador de Sombras y Sol', eyebrow: 'Orientación Sur/Este', route: '/garden/map', tint: 'secondary', description: 'Descubre en qué horas tu pared hace sombra según la estación.', action: 'Simular fachada' },
-    { icon: 'calculator-outline', title: 'Calculadora de Volumen de Maceta y Sustrato', eyebrow: 'Litros & Drenaje', route: '/crop/new', tint: 'success', description: 'Calcula cuántos litros de tierra y drenaje de perlita necesita cada hortaliza.', action: 'Calcular mezcla' },
+    { icon: 'calculator-outline', title: 'Calculadora de Volumen de Maceta y Sustrato', eyebrow: 'Litros & Drenaje', route: '/volume-calculator', tint: 'success', description: 'Calcula cuántos litros de tierra y drenaje de perlita necesita cada hortaliza.', action: 'Calcular mezcla' },
     { icon: 'water-outline', title: 'Modo Vacaciones y Ausencia', eyebrow: 'Autorriego', route: '/absence', tint: 'info', description: 'Prepara sistemas de autorriego con mecha casera para cuando viajes.', action: 'Planificar viaje' },
   ];
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
 
-  const renderTile = (tool: ToolItem) => (
-    <ScalePress
-      key={tool.route}
-      onPress={() => router.push(tool.route as any)}
-      style={[s.tile, { backgroundColor: colors.surface }]}
-    >
+  const renderTile = (tool: ToolItem) => {
+    const openTool = () => {
+      if (tool.route === '/modal/check-soil-sheet') {
+        router.push(firstPlantId ? { pathname: tool.route, params: { plantId: firstPlantId } } as any : '/first-crop' as any);
+        return;
+      }
+      router.push(tool.route as any);
+    };
+
+    return (
+    <View key={tool.route} style={[s.tile, { backgroundColor: colors.surface }]}>
         <View style={s.tileTop}>
           <View style={[s.iconCircle, { backgroundColor: colors[tool.tint] + '20' }]}>
             <Ionicons name={tool.icon} size={25} color={colors[tool.tint]} />
@@ -52,12 +65,18 @@ function ToolsInner() {
           <Text style={[s.tileDescription, { color: colors.textSecondary }]}>{tool.description}</Text>
         </View>
       </View>
-      <View style={[s.tileAction, { borderTopColor: colors.border }]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={tool.action}
+        onPress={openTool}
+        style={[s.tileAction, { borderTopColor: colors.border }]}
+      >
         <Text style={[s.tileActionText, { color: colors.primary }]}>{tool.action}</Text>
         <Ionicons name="arrow-forward" size={16} color={colors.primary} />
-      </View>
-    </ScalePress>
-  );
+      </Pressable>
+    </View>
+    );
+  };
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>

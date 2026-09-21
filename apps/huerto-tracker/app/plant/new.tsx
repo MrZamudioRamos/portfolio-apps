@@ -125,6 +125,21 @@ export default function NewPlantScreen() {
     const staticCrop = CROPS_BY_ID[paramCropId];
     return staticCrop ? t('crops.' + paramCropId + '.name', { defaultValue: staticCrop.name }) : '';
   });
+
+function StitchNewPlantScreen({ colors, router, onSave }: { colors: ReturnType<typeof useColors>; router: ReturnType<typeof useRouter>; onSave: () => void }) {
+  const [species, setSpecies] = useState('Albahaca Limón (Ocimum citriodorum)');
+  const [material, setMaterial] = useState('Barro Cocido');
+  const [place, setPlace] = useState('Balcón Sur');
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const { pickFromCamera, pickFromGallery, picking } = usePickPhoto({ aspect: [4, 3], quality: 0.8 });
+  async function choosePhoto(fromCamera: boolean) {
+    const result = await (fromCamera ? pickFromCamera() : pickFromGallery());
+    if (result.kind === 'success') setPhotoUri(result.uri);
+  }
+  return <SafeAreaView style={[newPlantStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}><ScrollView contentContainerStyle={newPlantStitch.content} showsVerticalScrollIndicator={false}><View style={[newPlantStitch.header, { borderBottomColor: colors.border }]}><Pressable onPress={() => router.back()} style={newPlantStitch.headerButton}><Text style={{ color: colors.text, fontWeight: '700' }}>Cancelar</Text></Pressable><Text style={[newPlantStitch.headerTitle, { color: colors.text }]}>Nueva Planta</Text><Pressable onPress={onSave} style={newPlantStitch.headerButton}><Text style={{ color: colors.primary, fontWeight: '900' }}>Guardar</Text></Pressable></View><View style={[newPlantStitch.photo, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>{photoUri ? <Image source={{ uri: photoUri }} resizeMode="cover" style={newPlantStitch.photoImage} /> : <Ionicons name="camera-outline" size={34} color={colors.primary} />}<Pressable disabled={picking} onPress={() => void choosePhoto(true)} accessibilityRole="button" accessibilityLabel="Añadir foto de planta" style={[newPlantStitch.photoAdd, { backgroundColor: colors.primary, opacity: picking ? 0.5 : 1 }]}><Ionicons name="add" size={18} color="#fff" /></Pressable></View><Text style={[newPlantStitch.photoTitle, { color: colors.text }]}>Fotografía de la maceta</Text><Text style={[newPlantStitch.body, { color: colors.textSecondary }]}>Sube una foto clara para seguir su crecimiento diario</Text><View style={newPlantStitch.photoActions}><Pressable disabled={picking} onPress={() => void choosePhoto(false)} style={[newPlantStitch.outline, { borderColor: colors.border, opacity: picking ? 0.5 : 1 }]}><Ionicons name="images-outline" size={18} color={colors.primary} /><Text style={{ color: colors.text, fontWeight: '800' }}>Galería</Text></Pressable><Pressable disabled={picking} onPress={() => void choosePhoto(true)} style={[newPlantStitch.outline, { borderColor: colors.border, opacity: picking ? 0.5 : 1 }]}><Ionicons name="camera-outline" size={18} color={colors.primary} /><Text style={{ color: colors.text, fontWeight: '800' }}>Hacer foto</Text></Pressable></View><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>ESPECIE Y VARIEDAD</Text><Pressable style={[newPlantStitch.identify, { borderColor: colors.primary, backgroundColor: colors.primary + '12' }]} onPress={() => router.push('/plant/scan' as any)}><Ionicons name="scan-outline" size={20} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '900', flex: 1 }}>Identificar con cámara</Text><Ionicons name="chevron-forward" size={18} color={colors.primary} /></Pressable><View style={[newPlantStitch.input, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="search-outline" size={18} color={colors.textSecondary} /><TextInput value={species} onChangeText={setSpecies} style={{ flex: 1, color: colors.text, fontSize: 14 }} /></View><Text style={[newPlantStitch.suggestions, { color: colors.textSecondary }]}>Comunes en balcones españoles: ✓ Albahaca Limón · Tomate Cherry · Menta Piperita · Romero</Text><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>CONTENEDOR Y ESPACIO</Text><Text style={[newPlantStitch.label, { color: colors.textSecondary }]}>Material de la maceta</Text><View style={newPlantStitch.choiceRow}>{['Barro Cocido', 'Plástico reciclado', 'Geotextil'].map((item) => <Pressable key={item} onPress={() => setMaterial(item)} style={[newPlantStitch.choice, { borderColor: material === item ? colors.primary : colors.border, backgroundColor: material === item ? colors.primary + '14' : colors.surface }]}><Text style={{ color: material === item ? colors.primary : colors.text, fontWeight: '800', fontSize: 12 }}>{item}</Text></Pressable>)}</View><Text style={[newPlantStitch.label, { color: colors.textSecondary }]}>Volumen estimado de sustrato</Text><View style={[newPlantStitch.input, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={{ color: colors.text, fontWeight: '800' }}>Maceta 18 cm</Text><Text style={{ color: colors.textSecondary, marginLeft: 'auto' }}>5 L</Text></View><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>UBICACIÓN Y HORAS DE SOL</Text><View style={newPlantStitch.choiceRow}>{['Balcón Sur', 'Terraza Este', 'Repisa Ventana'].map((item) => <Pressable key={item} onPress={() => setPlace(item)} style={[newPlantStitch.choice, { borderColor: place === item ? colors.primary : colors.border, backgroundColor: place === item ? colors.primary + '14' : colors.surface }]}><Text style={{ color: place === item ? colors.primary : colors.text, fontWeight: '800', fontSize: 12 }}>{item}</Text></Pressable>)}</View><View style={[newPlantStitch.sunCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Ionicons name="sunny-outline" size={22} color={colors.warning} /><View style={{ flex: 1 }}><Text style={[newPlantStitch.cardTitle, { color: colors.text }]}>+6h Sol directo (Pleno sol)</Text><Text style={[newPlantStitch.body, { color: colors.textSecondary }]}>Ideal para albahaca, tomates y pimientos</Text></View><Ionicons name="checkmark-circle" size={20} color={colors.primary} /></View><View style={[newPlantStitch.sunCard, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="partly-sunny-outline" size={22} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[newPlantStitch.cardTitle, { color: colors.text }]}>3–5h Sol suave / Mañana</Text><Text style={[newPlantStitch.body, { color: colors.textSecondary }]}>Adecuado para mentas y aromáticas tiernas</Text></View></View><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>FECHA DE TRASPLANTE</Text><View style={[newPlantStitch.input, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="calendar-outline" size={18} color={colors.primary} /><Text style={{ color: colors.text, fontWeight: '700' }}>Hoy, 15 de Mayo</Text></View><View style={[newPlantStitch.tip, { backgroundColor: colors.accent + '20' }]}><Ionicons name="leaf-outline" size={18} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[newPlantStitch.cardTitle, { color: colors.text }]}>Consejo de Semillita · Vital para novatos</Text><Text style={[newPlantStitch.body, { color: colors.text }]}>No riegues inmediatamente por costumbre. Las plantas trasplantadas necesitan 24h para aclimatarse al balcón.</Text></View></View><Pressable onPress={onSave} style={[newPlantStitch.primary, { backgroundColor: colors.primary }]}><Ionicons name="add-circle-outline" size={18} color="#fff" /><Text style={newPlantStitch.primaryText}>Guardar planta en Mi Huerto</Text></Pressable></ScrollView></SafeAreaView>;
+}
+
+const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { paddingHorizontal: 18, paddingBottom: 34 }, header: { minHeight: 54, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth }, headerButton: { minWidth: 74, minHeight: 44, justifyContent: 'center' }, headerTitle: { fontSize: 18, fontWeight: '900' }, photo: { height: 150, borderRadius: 16, borderWidth: 1, marginTop: 18, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, photoImage: { width: '100%', height: '100%' }, photoAdd: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', position: 'absolute', right: 12, bottom: 12 }, photoTitle: { fontSize: 16, fontWeight: '900', marginTop: 14 }, body: { fontSize: 13, lineHeight: 19, marginTop: 4 }, photoActions: { flexDirection: 'row', gap: 8, marginTop: 13 }, outline: { flex: 1, minHeight: 46, borderWidth: 1, borderRadius: 11, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 }, section: { fontSize: 11, fontWeight: '900', letterSpacing: 0.7, marginTop: 23, marginBottom: 9 }, identify: { minHeight: 50, borderWidth: 1, borderRadius: 12, paddingHorizontal: 13, flexDirection: 'row', alignItems: 'center', gap: 9 }, input: { minHeight: 50, borderWidth: 1, borderRadius: 11, paddingHorizontal: 13, flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 9 }, suggestions: { fontSize: 11, lineHeight: 17, marginTop: 7 }, label: { fontSize: 12, fontWeight: '800', marginTop: 10 }, choiceRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 9 }, choice: { minHeight: 44, borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' }, sunCard: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 13, borderRadius: 12, borderWidth: 1, marginTop: 9 }, cardTitle: { fontSize: 13, fontWeight: '800' }, tip: { flexDirection: 'row', gap: 10, padding: 13, borderRadius: 12, marginTop: 18 }, primary: { minHeight: 54, borderRadius: 14, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, marginTop: 20 }, primaryText: { color: '#fff', fontWeight: '900' }, });
   const [variety, setVariety] = useState('');
   const [varietyId, setVarietyId] = useState<string | null>(null);
   const [sowingDate, setSowingDate] = useState(todayStr());
@@ -264,6 +279,44 @@ export default function NewPlantScreen() {
   const cropName = selectedCrop
     ? (selectedCrop.isCustom ? selectedCrop.name : t('crops.' + selectedCrop.id + '.name', { defaultValue: selectedCrop.name }))
     : '';
+
+  if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
+    async function handleStitchSave() {
+      if (submitting.current) return;
+      if (atLimit) {
+        router.push('/paywall?source=plant_limit' as any);
+        return;
+      }
+      const gardenId = activeGarden?.id;
+      if (!gardenId) return;
+      submitting.current = true;
+      setSaving(true);
+      setSaveError(false);
+      try {
+        const cropId = selectedCropId ?? 'albahaca';
+        const name = plantName.trim() || 'Albahaca Limón';
+        await createPlantWithSowing({
+          gardenId,
+          cropId,
+          name,
+          sowingDate: todayStr(),
+          status: 'transplanted',
+          propagationMethod: 'bought',
+        });
+        track(EVENTS.plantAdded, { cropId, fromScan: false, source: 'stitch_new_plant' });
+        successHaptic();
+        if (fromOnboarding === '1') router.replace('/(tabs)');
+        else if (router.canGoBack()) router.back();
+        else router.replace('/(tabs)');
+      } catch {
+        setSaveError(true);
+      } finally {
+        submitting.current = false;
+        setSaving(false);
+      }
+    }
+    return <StitchNewPlantScreen colors={colors} router={router} onSave={() => { void handleStitchSave(); }} />;
+  }
 
   if (createdPlant) return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>

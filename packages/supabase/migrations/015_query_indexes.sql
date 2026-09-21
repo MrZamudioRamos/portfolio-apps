@@ -1,0 +1,20 @@
+-- Cover ownership and relationship lookups used by RLS, sync and cascades.
+create index if not exists gardens_user_id_idx on public.gardens (user_id);
+create index if not exists gardens_climate_zone_idx on public.gardens (climate_zone);
+create index if not exists plants_user_id_idx on public.plants (user_id);
+create index if not exists plants_garden_id_idx on public.plants (garden_id);
+create index if not exists plants_crop_id_idx on public.plants (crop_id);
+create index if not exists diary_entries_user_id_idx on public.diary_entries (user_id);
+create index if not exists diary_entries_plant_id_idx on public.diary_entries (plant_id);
+create index if not exists diary_entries_garden_id_idx on public.diary_entries (garden_id);
+create index if not exists reminders_user_id_idx on public.reminders (user_id);
+create index if not exists reminders_garden_id_idx on public.reminders (garden_id);
+create index if not exists reminders_plant_id_idx on public.reminders (plant_id);
+create index if not exists user_profiles_user_id_idx on public.user_profiles (user_id);
+create index if not exists custom_crops_user_id_idx on public.custom_crops (user_id);
+create index if not exists garden_layouts_user_id_idx on public.garden_layouts (user_id);
+create index if not exists garden_layouts_garden_id_idx on public.garden_layouts (garden_id);
+create index if not exists cost_entries_user_id_idx on public.cost_entries (user_id);
+create index if not exists cost_entries_garden_id_idx on public.cost_entries (garden_id);
+create index if not exists cost_entries_plant_id_idx on public.cost_entries (plant_id);
+create index if not exists province_zones_zone_idx on public.province_zones (zone);

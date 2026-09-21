@@ -13,6 +13,7 @@ export type PickPhotoResult =
 export type UsePickPhotoOptions = {
   aspect?: [number, number];
   quality?: number;
+  cameraType?: ImagePicker.CameraType;
   /** i18n key prefix for permission-denied alerts. Defaults to 'common'. */
   i18nNamespace?: 'common' | 'plantScan' | 'identify';
 };
@@ -27,7 +28,7 @@ export type UsePickPhotoOptions = {
  * Returns the persisted file:// uri (or https URL if the source was remote).
  */
 export function usePickPhoto(opts: UsePickPhotoOptions = {}) {
-  const { aspect = [4, 3], quality = 0.7, i18nNamespace = 'common' } = opts;
+  const { aspect = [4, 3], quality = 0.7, cameraType = ImagePicker.CameraType.back, i18nNamespace = 'common' } = opts;
   const { t } = useTranslation();
   const [picking, setPicking] = useState(false);
 
@@ -90,6 +91,7 @@ export function usePickPhoto(opts: UsePickPhotoOptions = {}) {
           allowsEditing: true,
           aspect,
           quality,
+          cameraType,
         });
         if (result.canceled) return { kind: 'canceled' };
         const uri = await persistPickedImage(result.assets[0].uri);
@@ -101,7 +103,7 @@ export function usePickPhoto(opts: UsePickPhotoOptions = {}) {
     } finally {
       setPicking(false);
     }
-  }, [picking, aspect, quality, showPermissionAlert, t]);
+  }, [picking, aspect, quality, cameraType, showPermissionAlert, t]);
 
   return { pickFromGallery, pickFromCamera, picking };
 }

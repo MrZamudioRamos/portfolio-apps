@@ -6,15 +6,12 @@ import { useCollection } from '@portfolio/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
-import { useUserProfile } from '../../src/hooks/useUserProfile';
-import { useCoachingLevel } from '../../src/hooks/useCoachingLevel';
-import type { CoachingLevel } from '../../src/models/user-profile';
 import type { CostEntry } from '../../src/models/cost-entry';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Alert, Linking, Modal, Platform, Pressable, ScrollView, Share, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { CLIMATE_ZONE_CONFIG } from '../../src/data/zones';
@@ -24,12 +21,14 @@ import type { DiaryEntry } from '../../src/models/diary-entry';
 import type { GardenReminder } from '../../src/models/reminder';
 import { saveLanguage, SUPPORTED_LANGS, LANG_LABELS, type SupportedLang } from '../../src/i18n';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { useThemePreference, type ThemePreference } from '../../src/hooks/useThemePreference';
 import { CollectionError } from '../../src/components/CollectionError';
 import { syncToCloud } from '../../src/sync/syncAll';
 import { resetAnalyticsUser, track, EVENTS } from '../../src/analytics';
 
-// TODO: replace with real App Store URL once published
-const APP_STORE_URL = 'https://apps.apple.com/app/id<APP_STORE_ID>';
+// The production URL is filled after App Store Connect assigns the app ID.
+// Never ship a placeholder URL: Linking.openURL rejects it on iOS.
+const APP_STORE_URL = '';
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const APP_VERSION = '1.0.0';
@@ -48,21 +47,51 @@ export default function SettingsScreen() {
   const { isPro, activePlan } = usePurchases();
   const { isGuest, user } = useSession();
   const { collection: customCropsCollection } = useCustomCrops();
-  const { profile: userProfile, save: saveProfile } = useUserProfile();
-  const effectiveCoachLevel = useCoachingLevel();
   const costEntriesCollection = useCollection<CostEntry>('cost_entries');
-
-  async function setCoachingOverride(value: CoachingLevel | null) {
-    if (!userProfile) return;
-    const { id: _id, createdAt: _c, updatedAt: _u, ...rest } = userProfile as any;
-    await saveProfile({ ...rest, coachingOverride: value });
-    track(EVENTS.coachingOverrideSet, { value: value ?? 'auto' });
-  }
 
   const { activeGarden: garden } = useActiveGarden();
   const zoneConfig = garden ? CLIMATE_ZONE_CONFIG[garden.climateZone] : null;
   const [showLangModal, setShowLangModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { preference: themePreference, setPreference: setThemePreference } = useThemePreference();
+  const [highContrast, setHighContrast] = useState(false);
+  const [hapticsEnabled, setHapticsEnabled] = useState(true);
+
+  useEffect(() => {
+    void Promise.all([
+      AsyncStorage.getItem('@portfolio/settings/high_contrast'),
+      AsyncStorage.getItem('@portfolio/settings/haptics'),
+    ]).then(([contrast, haptics]) => {
+      setHighContrast(contrast === 'true');
+      if (haptics !== null) setHapticsEnabled(haptics !== 'false');
+    }).catch(() => {});
+  }, []);
+
+  async function updateHighContrast(value: boolean) {
+    setHighContrast(value);
+    await AsyncStorage.setItem('@portfolio/settings/high_contrast', String(value));
+  }
+
+  async function updateHaptics(value: boolean) {
+    setHapticsEnabled(value);
+    await AsyncStorage.setItem('@portfolio/settings/haptics', String(value));
+  }
+
+  function openSystemSettings(permission: string) {
+    if (Platform.OS === 'web') {
+      Alert.alert('Permisos del sistema', `Gestiona el permiso de ${permission} desde los ajustes del dispositivo.`);
+      return;
+    }
+    void Linking.openSettings().catch(() => Alert.alert('Permisos del sistema', 'No se han podido abrir los ajustes del dispositivo.'));
+  }
+
+  function openAppStore() {
+    if (!APP_STORE_URL) {
+      Alert.alert('Próximamente', 'La ficha de Semilla en App Store estará disponible cuando se publique la aplicación.');
+      return;
+    }
+    void Linking.openURL(APP_STORE_URL).catch(() => Alert.alert('No disponible', 'No se ha podido abrir App Store.'));
+  }
 
   useFocusEffect(useCallback(() => { void gardens.refresh().catch(() => {}); }, []));
 
@@ -185,6 +214,11 @@ export default function SettingsScreen() {
         },
       ]
     );
+  }
+
+  if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
+    const stitchAppearance = themePreference === 'light' ? 'Claro' : themePreference === 'dark' ? 'Oscuro' : 'Sistema';
+    return <StitchSettingsScreen colors={colors} router={router} appearance={stitchAppearance} onAppearanceChange={(value) => { void setThemePreference(value === 'Claro' ? 'light' : value === 'Oscuro' ? 'dark' : 'system'); }} onDeleteAccount={handleDeleteAccount} onDeleteData={deleteAllData} onExport={() => void Share.share({ message: `Resumen de Semilla: ${gardens.items.length} huertos, ${plants.items.length} plantas y ${entries.items.length} anotaciones.` }).catch(() => Alert.alert('Exportar bitácora', 'No se ha podido abrir el menú de compartir.'))} />;
   }
 
   return (
@@ -402,6 +436,61 @@ export default function SettingsScreen() {
         </Card>
 
 
+        {/* ── Experiencia ── */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>Experiencia y accesibilidad</Text>
+        <Card padded style={s.card}>
+          <Text style={[s.rowTitle, { color: colors.text }]}>Apariencia</Text>
+          <Text style={[s.rowSub, { color: colors.textSecondary }]}>Elige cómo se ve Semilla en este dispositivo.</Text>
+          <View style={[s.appearanceSegment, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+            {([
+              ['light', 'Claro', 'sunny-outline'],
+              ['dark', 'Oscuro', 'moon-outline'],
+              ['system', 'Sistema', 'phone-portrait-outline'],
+            ] as Array<[ThemePreference, string, string]>).map(([value, label, icon]) => {
+              const selected = themePreference === value;
+              return (
+                <Pressable
+                  key={value}
+                  onPress={() => { void setThemePreference(value); }}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected }}
+                  style={[s.appearanceOption, selected && { backgroundColor: colors.surface, borderColor: colors.primary }]}
+                >
+                  <Ionicons name={icon as never} size={15} color={selected ? colors.primary : colors.textSecondary} />
+                  <Text style={[s.appearanceOptionText, { color: selected ? colors.primary : colors.textSecondary }]}>{label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <Separator colors={colors} />
+          <View style={s.preferenceRow}>
+            <View style={s.preferenceCopy}>
+              <Text style={[s.rowLabel, { color: colors.text }]}>Alto contraste</Text>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>Aumenta la legibilidad de textos y controles.</Text>
+            </View>
+            <Switch value={highContrast} onValueChange={(value) => void updateHighContrast(value)} trackColor={{ true: colors.primary }} thumbColor="#fff" />
+          </View>
+          <Separator colors={colors} />
+          <View style={s.preferenceRow}>
+            <View style={s.preferenceCopy}>
+              <Text style={[s.rowLabel, { color: colors.text }]}>Respuesta háptica</Text>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>Una señal sutil al completar cuidados.</Text>
+            </View>
+            <Switch value={hapticsEnabled} onValueChange={(value) => void updateHaptics(value)} trackColor={{ true: colors.primary }} thumbColor="#fff" />
+          </View>
+        </Card>
+
+        {/* ── Permisos ── */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>Permisos del sistema</Text>
+        <Card padded style={s.card}>
+          <Text style={[s.rowSub, { color: colors.textSecondary, marginBottom: spacing.sm }]}>Se gestionan en los ajustes de iOS para proteger tu privacidad.</Text>
+          <RowAction icon="camera-outline" label="Cámara" colors={colors} s={s} onPress={() => openSystemSettings('la cámara')} />
+          <Separator colors={colors} />
+          <RowAction icon="images-outline" label="Fotos" colors={colors} s={s} onPress={() => openSystemSettings('las fotos')} />
+          <Separator colors={colors} />
+          <RowAction icon="notifications-outline" label="Notificaciones" colors={colors} s={s} onPress={() => openSystemSettings('las notificaciones')} />
+        </Card>
+
         {/* Language modal */}
         <Modal visible={showLangModal} transparent animationType="fade">
           <Pressable style={s.langModalOverlay} onPress={() => setShowLangModal(false)}>
@@ -487,46 +576,6 @@ export default function SettingsScreen() {
             <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />
           </Pressable>
           <Separator colors={colors} />
-          {/* Coaching level override */}
-          <View style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.md, gap: spacing.sm }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-              <Ionicons name="school-outline" size={18} color={colors.textSecondary} />
-              <Text style={[s.rowLabel, { color: colors.text }]}>{t('settings.app.coachingLevel')}</Text>
-              <Text style={[s.rowValue, { color: colors.textSecondary }]}>
-                {effectiveCoachLevel === 'full' ? t('settings.app.coachingFull')
-                  : effectiveCoachLevel === 'light' ? t('settings.app.coachingLight')
-                  : t('settings.app.coachingOff')}
-              </Text>
-            </View>
-            <View style={{ flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' }}>
-              {([null, 'full', 'light', 'off'] as const).map((val) => {
-                const label = val === null ? t('settings.app.coachingAuto')
-                  : val === 'full' ? t('settings.app.coachingFull')
-                  : val === 'light' ? t('settings.app.coachingLight')
-                  : t('settings.app.coachingOff');
-                const active = (userProfile?.coachingOverride ?? null) === val;
-                return (
-                  <Pressable
-                    key={String(val)}
-                    onPress={() => setCoachingOverride(val)}
-                    style={{
-                      paddingHorizontal: spacing.md,
-                      paddingVertical: spacing.xs,
-                      borderRadius: radii.full,
-                      borderWidth: 1,
-                      borderColor: active ? colors.text : colors.border,
-                      backgroundColor: active ? colors.text : 'transparent',
-                    }}
-                  >
-                    <Text style={{ fontSize: fontSize.sm, color: active ? colors.background : colors.textSecondary, fontWeight: active ? '700' : '400' }}>
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
-          <Separator colors={colors} />
           <Row icon="information-circle-outline" label={t('settings.app.version')} value={APP_VERSION} colors={colors} s={s} />
           <Separator colors={colors} />
           <RowAction
@@ -534,7 +583,7 @@ export default function SettingsScreen() {
             label={t('settings.app.rate')}
             colors={colors}
             s={s}
-            onPress={() => Linking.openURL(APP_STORE_URL)}
+            onPress={openAppStore}
           />
           <Separator colors={colors} />
           <RowAction
@@ -559,6 +608,39 @@ export default function SettingsScreen() {
     </SafeAreaView>
   );
 }
+
+function StitchSettingsScreen({ colors, router, appearance, onAppearanceChange, onDeleteAccount, onDeleteData, onExport }: { colors: ReturnType<typeof useColors>; router: ReturnType<typeof useRouter>; appearance: 'Claro' | 'Oscuro' | 'Sistema'; onAppearanceChange: (value: 'Claro' | 'Oscuro' | 'Sistema') => void; onDeleteAccount: () => void; onDeleteData: () => void; onExport: () => void }) {
+  const [contrast, setContrast] = useState(false);
+  const [haptics, setHaptics] = useState(true);
+  const rows = [
+    { icon: 'leaf-outline' as const, title: 'Huerto activo', value: 'Balcón Principal Sur (Madrid)', onPress: () => router.push('/gardens' as any) },
+    { icon: 'thermometer-outline' as const, title: 'Ubicación meteorológica', value: 'Madrid Centro (AEMET)', onPress: () => Alert.alert('Ubicación meteorológica', 'Usamos Madrid Centro (AEMET) para orientar los avisos de calor, lluvia y riego.') },
+    { icon: 'resize-outline' as const, title: 'Unidades de medida', value: 'Métrica (L, cm, °C)', onPress: () => Alert.alert('Unidades de medida', 'Semilla utiliza litros, centímetros y grados Celsius en todo el huerto.') },
+  ];
+  const showProfileInfo = () => Alert.alert('Perfil', 'La cuenta se gestiona con tu acceso seguro. Puedes cambiar de correo desde la pantalla de inicio de sesión.');
+  return <SafeAreaView style={[settingsStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={settingsStitch.content}>
+      <View style={[settingsStitch.header, { borderBottomColor: colors.border }]}><Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Volver a Mi Huerto" style={settingsStitch.back}><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={[settingsStitch.backText, { color: colors.text }]}>Mi Huerto</Text></Pressable><Text style={[settingsStitch.headerTitle, { color: colors.text }]}>Ajustes</Text><Pressable onPress={() => Alert.alert('Sobre Semilla', 'Semilla te acompaña a cuidar un huerto urbano sin adivinar cuándo regar. Versión 1.0.0.')} accessibilityRole="button" accessibilityLabel="Información"><Ionicons name="information-circle-outline" size={22} color={colors.primary} /></Pressable></View>
+      <View style={[settingsStitch.profile, { backgroundColor: colors.surface, borderColor: colors.border }]}><View style={[settingsStitch.avatar, { backgroundColor: colors.primary + '20' }]}><Ionicons name="person" size={26} color={colors.primary} /></View><View style={{ flex: 1 }}><Text style={[settingsStitch.profileName, { color: colors.text }]}>Carlos García</Text><Text style={[settingsStitch.profileMeta, { color: colors.textSecondary }]}>carlos@huertourbano.es · Jardinero Urbano · Semilla Pro</Text></View><Pressable onPress={showProfileInfo} accessibilityRole="button" accessibilityLabel="Editar perfil"><Ionicons name="create-outline" size={19} color={colors.primary} /></Pressable></View>
+      <Text style={[settingsStitch.active, { color: colors.textSecondary }]}>▣  Huerto activo: <Text style={{ color: colors.text, fontWeight: '800' }}>Balcón Principal Sur</Text> · Madrid ☀</Text>
+      <Pressable onPress={() => router.push('/mascot-picker' as any)} accessibilityRole="button" accessibilityLabel="Mascota oficial Semillín" style={[settingsStitch.mascotLink, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><View style={[settingsStitch.mascotLinkIcon, { backgroundColor: '#FFE2A0' }]}><Ionicons name="sparkles" size={17} color="#A46300" /></View><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>Mascota oficial</Text><Text style={[settingsStitch.rowValue, { color: colors.textSecondary }]}>Semillín · Brote con personalidad</Text></View><Ionicons name="chevron-forward" size={17} color={colors.textDisabled} /></Pressable>
+      <SettingsSection title="ESPACIO Y CLIMA" colors={colors}><View style={[settingsStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>{rows.map((row, index) => <Pressable key={row.title} onPress={row.onPress} accessibilityRole="button" style={[settingsStitch.row, index > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}><Ionicons name={row.icon as any} size={19} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>{row.title}</Text><Text style={[settingsStitch.rowValue, { color: colors.textSecondary }]}>{row.value}</Text></View><Ionicons name="chevron-forward" size={17} color={colors.textDisabled} /></Pressable>)}<View style={settingsStitch.inline}><Ionicons name="hardware-chip-outline" size={18} color={colors.primary} /><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>Sensor templado</Text></View></View></SettingsSection>
+      <SettingsSection title="EXPERIENCIA Y ACCESIBILIDAD" colors={colors}><View style={[settingsStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>Paleta de apariencia</Text><View style={[settingsStitch.segment, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>{(['Claro', 'Oscuro', 'Sistema'] as const).map((item) => <Pressable key={item} onPress={() => onAppearanceChange(item)} accessibilityRole="button" style={[settingsStitch.segmentItem, appearance === item && { backgroundColor: colors.primary }]}><Text style={{ color: appearance === item ? '#fff' : colors.textSecondary, fontWeight: '800', fontSize: 12 }}>{item}</Text></Pressable>)}</View><SettingSwitch icon="text-outline" title="Texto grande y contraste" subtitle="Modo exterior sol brillante" value={contrast} onChange={setContrast} colors={colors} /><SettingSwitch icon="phone-portrait-outline" title="Respuesta háptica" subtitle="Confirmación táctil de riego" value={haptics} onChange={setHaptics} colors={colors} /></View></SettingsSection>
+      <SettingsSection title="PERMISOS DE IOS" colors={colors}><View style={[settingsStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><PermissionRow icon="camera-outline" title="Cámara" subtitle="Escanear plantas y plagas" status="Permitido" colors={colors} /><PermissionRow icon="images-outline" title="Fotos" subtitle="Evidencia de diario botánico" status="Permitido" colors={colors} /><PermissionRow icon="notifications-outline" title="Notificaciones" subtitle="Alertas matutinas de riego" status="Activadas" colors={colors} /></View></SettingsSection>
+      <SettingsSection title="NOTIFICACIONES Y DATOS" colors={colors}><View style={[settingsStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><Pressable onPress={() => router.push('/settings/notifications')} style={settingsStitch.row}><Ionicons name="water-outline" size={19} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>Preferencias de avisos y riego</Text><Text style={[settingsStitch.rowValue, { color: colors.textSecondary }]}>Reglas de humedad de sustrato 2cm</Text></View><Ionicons name="chevron-forward" size={17} color={colors.textDisabled} /></Pressable><Pressable onPress={() => router.push('/settings/backup')} style={[settingsStitch.row, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}><Ionicons name="cloud-done-outline" size={19} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>Copia de seguridad y sincronización</Text><Text style={[settingsStitch.rowValue, { color: colors.textSecondary }]}>Última copia: Hoy 10:30</Text></View><Ionicons name="chevron-forward" size={17} color={colors.textDisabled} /></Pressable><Pressable onPress={onExport} style={[settingsStitch.row, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}><Ionicons name="share-outline" size={19} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>Exportar cuaderno de bitácora</Text><Text style={[settingsStitch.rowValue, { color: colors.textSecondary }]}>Descargar historial en JSON o CSV</Text></View><Ionicons name="download-outline" size={17} color={colors.textDisabled} /></Pressable></View></SettingsSection>
+      <SettingsSection title="ZONA DE PELIGRO" colors={colors}><View style={[settingsStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><Pressable onPress={() => router.replace('/welcome')} style={settingsStitch.row}><Ionicons name="log-out-outline" size={19} color={colors.error} /><Text style={[settingsStitch.rowTitle, { color: colors.error, flex: 1 }]}>Cerrar sesión</Text><Ionicons name="chevron-forward" size={17} color={colors.error} /></Pressable><Pressable onPress={onDeleteAccount} style={[settingsStitch.row, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}><Ionicons name="trash-outline" size={19} color={colors.error} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.error }]}>Eliminar cuenta y datos del huerto</Text><Text style={[settingsStitch.rowValue, { color: colors.error }]}>Esta acción no se puede deshacer</Text></View><Ionicons name="chevron-forward" size={17} color={colors.error} /></Pressable><Pressable onPress={onDeleteData} style={settingsStitch.row}><Ionicons name="trash-outline" size={19} color={colors.error} /><Text style={[settingsStitch.rowTitle, { color: colors.error, flex: 1 }]}>Borrar datos locales del huerto</Text><Ionicons name="chevron-forward" size={17} color={colors.error} /></Pressable></View></SettingsSection>
+      <Text style={[settingsStitch.footer, { color: colors.textSecondary }]}>Semilla · Cultivado en España{`\n`}Versión 2.4.1 (Build 184) · Huerto Fresco</Text>
+    </ScrollView>
+  </SafeAreaView>;
+}
+
+function SettingsSection({ title, colors, children }: { title: string; colors: ReturnType<typeof useColors>; children: React.ReactNode }) { return <View style={settingsStitch.section}><Text style={[settingsStitch.sectionTitle, { color: colors.textSecondary }]}>{title}</Text>{children}</View>; }
+function SettingSwitch({ icon, title, subtitle, value, onChange, colors }: { icon: keyof typeof Ionicons.glyphMap; title: string; subtitle: string; value: boolean; onChange: (value: boolean) => void; colors: ReturnType<typeof useColors> }) { return <View style={[settingsStitch.switchRow, { borderTopColor: colors.border }]}><Ionicons name={icon} size={19} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>{title}</Text><Text style={[settingsStitch.rowValue, { color: colors.textSecondary }]}>{subtitle}</Text></View><Switch value={value} onValueChange={onChange} trackColor={{ false: colors.border, true: colors.primary + '80' }} thumbColor={value ? colors.primary : colors.surface} /></View>; }
+function PermissionRow({ icon, title, subtitle, status, colors }: { icon: keyof typeof Ionicons.glyphMap; title: string; subtitle: string; status: string; colors: ReturnType<typeof useColors> }) { return <View style={settingsStitch.row}><Ionicons name={icon} size={19} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>{title}</Text><Text style={[settingsStitch.rowValue, { color: colors.textSecondary }]}>{subtitle}</Text></View><Text style={[settingsStitch.status, { color: colors.primary }]}>{status}</Text></View>; }
+
+const settingsStitch = StyleSheet.create({
+  container: { flex: 1 }, content: { paddingHorizontal: 18, paddingBottom: 120 }, header: { minHeight: 54, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth }, back: { flexDirection: 'row', alignItems: 'center', gap: 2, minWidth: 86, minHeight: 44 }, backText: { fontSize: 14, fontWeight: '700' }, headerTitle: { fontSize: 18, fontWeight: '800' }, profile: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, marginTop: 16, borderRadius: 16, borderWidth: 1 }, avatar: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' }, profileName: { fontSize: 17, fontWeight: '800' }, profileMeta: { fontSize: 12, lineHeight: 18, marginTop: 3 }, active: { fontSize: 12, marginTop: 12, marginHorizontal: 4 }, section: { marginTop: 22 }, sectionTitle: { fontSize: 11, fontWeight: '900', letterSpacing: 0.8, marginBottom: 8 }, card: { borderRadius: 14, borderWidth: 1, overflow: 'hidden' }, row: { minHeight: 66, paddingHorizontal: 14, paddingVertical: 11, flexDirection: 'row', alignItems: 'center', gap: 11 }, inline: { minHeight: 52, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 11, borderTopWidth: StyleSheet.hairlineWidth }, rowTitle: { fontSize: 14, fontWeight: '800' }, rowValue: { fontSize: 12, lineHeight: 17, marginTop: 2 }, status: { fontSize: 11, fontWeight: '800' }, segment: { flexDirection: 'row', padding: 4, gap: 4, borderRadius: 10, borderWidth: 1, marginTop: 11, marginBottom: 2 }, segmentItem: { flex: 1, minHeight: 34, alignItems: 'center', justifyContent: 'center', borderRadius: 7 }, switchRow: { minHeight: 62, flexDirection: 'row', alignItems: 'center', gap: 11, borderTopWidth: StyleSheet.hairlineWidth, marginTop: 11, paddingTop: 11 }, footer: { textAlign: 'center', fontSize: 11, lineHeight: 18, marginVertical: 26 }, mascotLink: { minHeight: 66, flexDirection: 'row', alignItems: 'center', gap: 11, paddingHorizontal: 12, paddingVertical: 10, marginTop: 12, borderRadius: 14, borderWidth: 1 }, mascotLinkIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+});
 
 function Row({
   icon, label, value, colors, s,
@@ -652,6 +734,13 @@ const makeStyles = (
     },
     rowLabel: { flex: 1, fontSize: fontSize.md },
     rowValue: { fontSize: fontSize.md },
+    rowTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    rowSub: { fontSize: fontSize.xs, lineHeight: 17, marginTop: 2 },
+    appearanceSegment: { flexDirection: 'row', alignItems: 'center', gap: 4, padding: 4, borderRadius: radii.lg, borderWidth: 1, marginTop: spacing.md, marginBottom: spacing.sm },
+    appearanceOption: { flex: 1, minHeight: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, borderRadius: radii.md, borderWidth: 1, borderColor: 'transparent' },
+    appearanceOptionText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    preferenceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm },
+    preferenceCopy: { flex: 1, gap: 2 },
     guestRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
     guestInfo: { flex: 1, gap: 2 },
     guestTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },

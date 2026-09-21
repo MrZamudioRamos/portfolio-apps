@@ -13,40 +13,42 @@
 // (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are injected automatically.)
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
-
-function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS, 'content-type': 'application/json' },
-  });
-}
+import { CORS, json, requireUser } from '../_shared/security.ts';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return json({ error: 'Method not allowed', code: 'METHOD' }, 405);
 
-  const authHeader = req.headers.get('Authorization') ?? '';
-  if (!authHeader) return json({ error: 'Missing auth', code: 'AUTH' }, 401);
+  const user = await requireUser(req);
+  if (user instanceof Response) return user;
 
-  const url = Deno.env.get('SUPABASE_URL')!;
+  const url = Deno.env.get('SUPABASE_URL');
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if (!serviceKey) return json({ error: 'Server not configured', code: 'NO_KEY' }, 500);
+  if (!url || !serviceKey) return json({ error: 'Server not configured', code: 'NO_KEY' }, 500);
 
-  // Identify the caller from their JWT (anon client scoped to their token).
-  const asUser = createClient(url, Deno.env.get('SUPABASE_ANON_KEY')!, {
-    global: { headers: { Authorization: authHeader } },
-  });
-  const { data: { user }, error: authErr } = await asUser.auth.getUser();
-  if (authErr || !user) return json({ error: 'Unauthorized', code: 'AUTH' }, 401);
-
-  // Delete the auth user with the service role; cascade removes all their data.
+  // Storage objects are not removed by the auth.users cascade. Clean them up
+  // first so account deletion really removes all user data.
   const admin = createClient(url, serviceKey);
+  const bucket = admin.storage.from('photos');
+  const paths: string[] = [];
+  for (let offset = 0; offset < 10_000; offset += 1_000) {
+    const { data, error } = await bucket.list(user.id, { limit: 1_000, offset });
+    if (error) {
+      console.error('[delete-account] storage list failed', error.message);
+      return json({ error: 'Delete failed', code: 'DELETE_FAILED' }, 500);
+    }
+    paths.push(...(data ?? []).filter((item) => item.name && !item.id?.startsWith('folder-')).map((item) => `${user.id}/${item.name}`));
+    if (!data || data.length < 1_000) break;
+  }
+  for (let index = 0; index < paths.length; index += 100) {
+    const { error } = await bucket.remove(paths.slice(index, index + 100));
+    if (error) {
+      console.error('[delete-account] storage remove failed', error.message);
+      return json({ error: 'Delete failed', code: 'DELETE_FAILED' }, 500);
+    }
+  }
+
+  // Delete the auth user with the service role; cascade removes all DB data.
   const { error: delErr } = await admin.auth.admin.deleteUser(user.id);
   if (delErr) {
     console.error('[delete-account] deleteUser failed', delErr);

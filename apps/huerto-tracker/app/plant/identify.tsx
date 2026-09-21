@@ -2,7 +2,7 @@ import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROP_IMAGES } from '../../src/data/cropImages';
 
@@ -23,7 +23,7 @@ export default function IdentifyPlantScreen() {
           <Text style={[s.headerBackText, { color: colors.text }]}>Repetir foto</Text>
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>Resultado</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Ayuda y consejos botánicos" style={s.headerAction} onPress={() => {}}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Ayuda y consejos botánicos" style={s.headerAction} onPress={() => Alert.alert('Consejos para identificar', 'Fotografía hojas completas con luz natural, evita reflejos y centra la planta. Semillita usa esta imagen como orientación: confirma siempre el diagnóstico antes de tratarla.')}>
           <Ionicons name="help-circle-outline" size={22} color={colors.primary} />
         </Pressable>
       </View>

@@ -73,7 +73,7 @@ export function PlantCareCard({ plant, crop, climateZone, entries, onOpen, frost
         </View>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, marginTop: spacing.md, borderRadius: spacing.md, backgroundColor: tone + '0d' }}>
-        <Mascot pose={checked ? 'celebrate' : 'point'} size={42} />
+        <Mascot pose={error ? 'worried' : checked ? 'celebrate' : 'point'} size={42} />
         <Text accessibilityLiveRegion="polite" style={{ flex: 1, color: colors.textSecondary, fontSize: fontSize.md, lineHeight: 23 }}>{t('dailyCare.' + state + 'Body')}</Text>
       </View>
       {error && <Text accessibilityRole="alert" style={{ color: colors.error, marginBottom: spacing.sm }}>{t('dailyCare.saveError')}</Text>}

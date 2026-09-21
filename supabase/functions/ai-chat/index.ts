@@ -21,7 +21,7 @@
 //   }
 // Response: { reply: string } or { error, code } with 4xx/5xx status.
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { CORS, clampText, enforceHourlyLimit, json, requireUser } from '../_shared/security.ts';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-haiku-4-5-20251001';
@@ -30,19 +30,6 @@ const HOURLY_LIMIT = 20;
 const LANG_NAMES: Record<string, string> = {
   es: 'Spanish', en: 'English', ca: 'Catalan', eu: 'Basque', gl: 'Galician', val: 'Valencian',
 };
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
-
-function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS, 'content-type': 'application/json' },
-  });
-}
 
 interface GardenContext {
   climateZone?: string;
@@ -100,39 +87,12 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return json({ error: 'Method not allowed', code: 'METHOD' }, 405);
 
-  const authHeader = req.headers.get('Authorization') ?? '';
-  if (!authHeader) return json({ error: 'Missing auth', code: 'AUTH' }, 401);
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_ANON_KEY')!,
-    { global: { headers: { Authorization: authHeader } } },
-  );
-  const { data: { user }, error: authErr } = await supabase.auth.getUser();
-  if (authErr || !user) return json({ error: 'Unauthorized', code: 'AUTH' }, 401);
+  const user = await requireUser(req);
+  if (user instanceof Response) return user;
 
-  // ── 2. Rate limiting: max HOURLY_LIMIT calls per user per hour ────────────
+  // ── 2. Parse and validate before spending one rate-limit unit. ─────────────
   const apiKey = Deno.env.get('ANTHROPIC_KEY');
   if (!apiKey) return json({ error: 'Server not configured', code: 'NO_KEY' }, 500);
-
-  const serviceClient = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-  );
-
-  const hourBucket = new Date();
-  hourBucket.setMinutes(0, 0, 0);
-
-  const { data: callCount, error: rateErr } = await serviceClient.rpc('increment_ai_usage', {
-    p_user_id: user.id,
-    p_hour_bucket: hourBucket.toISOString(),
-    p_limit: HOURLY_LIMIT,
-  });
-
-  if (rateErr) {
-    console.error('[ai-chat] rate limit check failed', rateErr.message);
-  } else if (callCount > HOURLY_LIMIT) {
-    return json({ error: 'Rate limit exceeded', code: 'RATE_LIMIT' }, 429);
-  }
 
   let body: {
     messages?: Array<{ role: string; content: string }>;
@@ -146,14 +106,47 @@ Deno.serve(async (req: Request) => {
   }
 
   const { messages, gardenContext = {}, language = 'es' } = body;
-  if (!messages?.length) return json({ error: 'No messages', code: 'BAD_REQUEST' }, 400);
-
-  const lang = LANG_NAMES[language] ?? 'Spanish';
-  const system = buildSystemPrompt(lang, gardenContext);
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+    return json({ error: 'Invalid messages', code: 'BAD_REQUEST' }, 400);
+  }
 
   const validMessages = messages
-    .filter((m) => m.role === 'user' || m.role === 'assistant')
+    .filter((m) =>
+      m && (m.role === 'user' || m.role === 'assistant')
+      && typeof m.content === 'string'
+      && m.content.trim().length > 0
+      && m.content.length <= 4000
+    )
+    .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content.trim() }))
     .slice(-10);
+  if (!validMessages.length) return json({ error: 'No valid messages', code: 'BAD_REQUEST' }, 400);
+
+  const rateLimitResponse = await enforceHourlyLimit(user.id, HOURLY_LIMIT);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const safeContext: GardenContext = {
+    climateZone: clampText(gardenContext?.climateZone, 80) ?? undefined,
+    province: clampText(gardenContext?.province, 80) ?? undefined,
+    hemisphere: clampText(gardenContext?.hemisphere, 20) ?? undefined,
+    gardenType: clampText(gardenContext?.gardenType, 80) ?? undefined,
+    currentMonth: Number.isInteger(gardenContext?.currentMonth) && gardenContext.currentMonth >= 1 && gardenContext.currentMonth <= 12
+      ? gardenContext.currentMonth : undefined,
+    plantNames: Array.isArray(gardenContext?.plantNames)
+      ? gardenContext.plantNames.filter((name): name is string => typeof name === 'string').map((name) => name.trim()).filter(Boolean).slice(0, 50)
+      : [],
+    diagnosisFollowUps: Array.isArray(gardenContext?.diagnosisFollowUps)
+      ? gardenContext.diagnosisFollowUps.slice(0, 20).map((item) => ({
+          plantName: clampText(item?.plantName, 100) ?? 'Planta',
+          status: clampText(item?.status, 60) ?? 'incierto',
+          summary: clampText(item?.summary, 500) ?? '',
+          nextStep: clampText(item?.nextStep, 300) ?? '',
+          date: clampText(item?.date, 40) ?? '',
+        }))
+      : [],
+  };
+
+  const lang = LANG_NAMES[language] ?? 'Spanish';
+  const system = buildSystemPrompt(lang, safeContext);
 
   let anthropicRes: Response;
   try {

@@ -9,8 +9,8 @@ const HUERTO_THEME: Omit<ShareCardTheme, 'tagline'> = {
   primaryColor: '#66BB6A',
   textColor: '#F1F8E9',
   logoComponent: <Text style={{ fontSize: 28 }}>🌱</Text>,
-  appName: 'HuertoTracker',
-  handle: 'huertotracker.app',
+  appName: 'Semilla',
+  handle: 'semillaapp.app',
 };
 
 export interface ShareModalProps {
@@ -41,7 +41,7 @@ export function ShareModal({
   const { t } = useTranslation();
 
   const { cardRef, share } = useShareCard({
-    app: 'huerto-tracker',
+    app: 'semilla',
     eventType,
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL ?? '',
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',

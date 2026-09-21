@@ -13,24 +13,44 @@ export interface ScalePressProps extends Omit<PressableProps, 'style'> {
  * Pressable with spring scale feedback. Drop-in for Pressable when the
  * style is a plain StyleProp (no ({pressed}) function styles).
  */
-export function ScalePress({ style, pressedScale = 0.96, onPressIn, onPressOut, children, ...rest }: ScalePressProps) {
+export function ScalePress({ style, pressedScale = 0.96, onPress, onPressIn, onPressOut, children, ...rest }: ScalePressProps) {
   const scale = useRef(new Animated.Value(1)).current;
 
   const springTo = (toValue: number) =>
     Animated.spring(scale, { toValue, useNativeDriver: Platform.OS !== 'web', speed: 40, bounciness: 6 }).start();
 
+  const handlePressIn: NonNullable<PressableProps['onPressIn']> = (e) => {
+    springTo(pressedScale);
+    onPressIn?.(e);
+  };
+
+  const handlePressOut: NonNullable<PressableProps['onPressOut']> = (e) => {
+    springTo(1);
+    onPressOut?.(e);
+  };
+
+  // Animated.createAnimatedComponent(Pressable) can swallow native pointer
+  // clicks in the web renderer. Keep the interaction reliable in the browser;
+  // native builds retain the spring feedback.
+  if (Platform.OS === 'web') {
+    return (
+      <Pressable
+        accessibilityRole="button"
+        {...rest}
+        onPress={onPress}
+        style={style}
+      >
+        {children}
+      </Pressable>
+    );
+  }
+
   return (
     <AnimatedPressable
       accessibilityRole="button"
       {...rest}
-      onPressIn={(e) => {
-        springTo(pressedScale);
-        onPressIn?.(e);
-      }}
-      onPressOut={(e) => {
-        springTo(1);
-        onPressOut?.(e);
-      }}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       style={[style, { transform: [{ scale }] }]}
     >
       {children}

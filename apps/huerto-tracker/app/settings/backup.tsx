@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBackup } from '../../src/hooks/useBackup';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { CollectionError } from '../../src/components/CollectionError';
+import { StitchBottomNav } from '../../src/components/StitchBottomNav';
 import { usePdfReport } from '../../src/hooks/usePdfReport';
 import { useCsvExport } from '../../src/hooks/useCsvExport';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
@@ -131,6 +132,14 @@ export default function BackupScreen() {
     await exportEntries(gardenEntries, gardenPlants, customCropsById);
   }
 
+  function handleClearCache() {
+    Alert.alert(
+      'Caché de imágenes',
+      'La limpieza de caché estará disponible cuando el almacenamiento de fotos local esté habilitado. Tus registros y plantas no se borrarán.',
+      [{ text: t('common.ok') }],
+    );
+  }
+
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
@@ -138,8 +147,10 @@ export default function BackupScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>{t('backup.title')}</Text>
-        <View style={{ width: 24 }} />
+        <Text style={[s.headerTitle, { color: colors.text }]}>{t('backup.stitchTitle', { defaultValue: 'Copia y Datos' })}</Text>
+        <Pressable onPress={() => Alert.alert('Copia y datos', 'Aquí puedes proteger, restaurar y exportar la información de tu huerto.')} hitSlop={12} accessibilityLabel="Ayuda">
+          <Ionicons name="help-circle-outline" size={22} color={colors.textSecondary} />
+        </Pressable>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
@@ -255,8 +266,27 @@ export default function BackupScreen() {
           </View>
         )}
 
+        {/* Recovery points */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>Restauración y puntos de recuperación</Text>
+        <Card padded style={s.card}>
+          <Text style={[s.sectionHeading, { color: colors.text }]}>Recupera una versión anterior</Text>
+          <Text style={[s.sectionDescription, { color: colors.textSecondary }]}>Las copias incluyen tus huertos, plantas, registros y recordatorios.</Text>
+          <View style={[s.recoveryRow, { borderColor: colors.border, backgroundColor: colors.surfaceAlt }]}>
+            <View style={{ flex: 1 }}>
+              <View style={s.rowTitleRow}>
+                <Text style={[s.rowTitle, { color: colors.text }]}>{lastBackupAt ? 'Última copia guardada' : 'Aún no hay puntos guardados'}</Text>
+                {lastBackupAt && <View style={[s.recommendedBadge, { backgroundColor: colors.primary + '18', borderColor: colors.primary + '44' }]}><Text style={[s.recommendedText, { color: colors.primary }]}>ACTUAL</Text></View>}
+              </View>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>{lastBackupAt ? lastBackupLabel : 'Crea una copia para poder restaurar tus datos.'}</Text>
+              {lastBackupAt && <Text style={[s.rowSub, { color: colors.textSecondary }]}>{backupStats.plants} plantas · {backupStats.entries} entradas</Text>}
+            </View>
+            <Button title={importing ? '…' : 'Restaurar'} variant="outline" size="sm" onPress={handleImport} disabled={!lastBackupAt || importing || exporting} />
+          </View>
+          <Text style={[s.warningText, { color: colors.textSecondary }]}>Restaurar reemplaza los datos locales actuales. Exporta una copia antes de continuar.</Text>
+        </Card>
+
         {/* Manual backup */}
-        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('backup.manualLabel')}</Text>
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>Exportación de datos abiertos</Text>
         <Card padded style={s.card}>
           <View style={s.actionRow}>
             <View style={s.rowIcon}>
@@ -327,6 +357,32 @@ export default function BackupScreen() {
           </View>
         </Card>
 
+        {/* Storage and privacy */}
+        <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>Privacidad y almacenamiento</Text>
+        <Card padded style={s.card}>
+          <View style={s.storageRow}>
+            <Ionicons name="images-outline" size={20} color={colors.primary} />
+            <Text style={[s.rowTitle, { color: colors.text, flex: 1 }]}>Fotos de evolución</Text>
+            <Text style={[s.storageValue, { color: colors.textSecondary }]}>{backupStats.photos} tomas</Text>
+          </View>
+          <View style={[s.divider, { backgroundColor: colors.border }]} />
+          <View style={s.storageRow}>
+            <Ionicons name="water-outline" size={20} color={colors.secondary} />
+            <Text style={[s.rowTitle, { color: colors.text, flex: 1 }]}>Historial de riegos y sustrato</Text>
+            <Text style={[s.storageValue, { color: colors.textSecondary }]}>{backupStats.entries} registros</Text>
+          </View>
+          <View style={[s.divider, { backgroundColor: colors.border }]} />
+          <Button title="Vaciar caché de imágenes locales" variant="outline" size="sm" onPress={handleClearCache} />
+        </Card>
+
+        {/* Destructive action lives in Settings so the full account/data guardrails remain in one place. */}
+        <Text style={[s.sectionLabel, { color: colors.error }]}>Zona de reinicio botánico</Text>
+        <Card padded style={StyleSheet.flatten([s.card, { borderColor: colors.error + '55' }])}>
+          <Text style={[s.sectionHeading, { color: colors.text }]}>Borrar historial local y reiniciar huerto</Text>
+          <Text style={[s.sectionDescription, { color: colors.textSecondary }]}>Esta acción es irreversible. Te llevaremos a Ajustes para confirmar el borrado de todos tus datos.</Text>
+          <Button title="Abrir opciones de borrado" variant="outline" size="sm" onPress={() => router.push('/(tabs)/settings' as any)} />
+        </Card>
+
         {/* PDF seasonal report */}
         <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>{t('backup.pdfLabel')}</Text>
         <Card padded style={s.card}>
@@ -391,6 +447,7 @@ export default function BackupScreen() {
           {t('backup.footerNote')}
         </Text>
       </ScrollView>
+      <StitchBottomNav />
     </SafeAreaView>
   );
 }
@@ -413,7 +470,7 @@ const makeStyles = (
       borderBottomWidth: 1,
     },
     headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
-    scroll: { paddingHorizontal: spacing.xl, paddingBottom: 40 },
+    scroll: { paddingHorizontal: spacing.xl, paddingBottom: 128 },
     heroCard: { borderRadius: radii.xl, borderWidth: 1, overflow: 'hidden', marginTop: spacing.lg },
     heroTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, padding: spacing.lg },
     heroIcon: { width: 50, height: 50, borderRadius: radii.lg, alignItems: 'center', justifyContent: 'center' },
@@ -434,6 +491,14 @@ const makeStyles = (
       marginBottom: spacing.sm,
     },
     card: { gap: 0 },
+    sectionHeading: { fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: spacing.xs },
+    sectionDescription: { fontSize: fontSize.sm, lineHeight: 19, marginBottom: spacing.md },
+    recoveryRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, borderWidth: 1, borderRadius: radii.lg, padding: spacing.md },
+    recommendedBadge: { paddingHorizontal: spacing.xs, paddingVertical: 2, borderRadius: radii.full, borderWidth: 1 },
+    recommendedText: { fontSize: 9, fontWeight: fontWeight.bold },
+    warningText: { fontSize: fontSize.xs, lineHeight: 17, marginTop: spacing.md },
+    storageRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm },
+    storageValue: { fontSize: fontSize.xs },
     row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm },
     actionRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm },
     rowIcon: {

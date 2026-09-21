@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -13,9 +14,11 @@ export default function PlantScanScreen() {
   const router = useRouter();
   const [diagnosisMode, setDiagnosisMode] = useState(false);
   const [flashEnabled, setFlashEnabled] = useState(false);
+  const [cameraType, setCameraType] = useState<ImagePicker.CameraType>(ImagePicker.CameraType.back);
   const { pickFromCamera, pickFromGallery, picking } = usePickPhoto({
     aspect: [4, 3],
     quality: 0.8,
+    cameraType,
     i18nNamespace: 'plantScan',
   });
 
@@ -131,7 +134,7 @@ export default function PlantScanScreen() {
               accessibilityRole="button"
               accessibilityLabel="Cambiar cámara"
               hitSlop={12}
-              onPress={() => undefined}
+              onPress={() => setCameraType((value) => value === ImagePicker.CameraType.back ? ImagePicker.CameraType.front : ImagePicker.CameraType.back)}
               style={({ pressed }) => [s.switchButton, pressed && s.pressed]}
             >
               <Ionicons name="camera-reverse-outline" size={29} color="#fff" />
