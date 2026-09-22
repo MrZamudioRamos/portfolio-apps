@@ -13,7 +13,8 @@ El mapa debe permitir dos trabajos complementarios sobre el mismo plano: organiz
 - `app/garden/map.tsx` ofrece croquis/lista, cuadrícula para cultivos y un lienzo libre usado en balcones y macetas.
 - `app/garden/map-tools.tsx` ya permite colocar estructuras y zonas, guardar temporadas, preparar una temporada futura, estimar materiales y compartir.
 - `src/models/garden-map-plan.ts` contiene estructuras, zonas, siembras previstas y snapshots de temporada. Las posiciones de objetos son relativas al lienzo y sus dimensiones físicas se guardan en centímetros.
-- `src/hooks/useGardenMapPlan.ts` guarda ese plan en `AsyncStorage`. El estado actual del plan no se sincroniza por sí mismo con Supabase.
+- `src/hooks/useGardenMapPlan.ts` guarda ese plan en `AsyncStorage`; `src/sync/syncAll.ts` ya sube y descarga cuadrícula, posiciones libres y `mapPlan` juntos en la fila JSONB `garden_layouts`. La sincronización compara timestamps, pero no detecta de forma atómica dos ediciones concurrentes.
+- `garden_layouts` permite escritura al propietario. Los colaboradores tienen rol `viewer` y reciben datos mediante `get_shared_garden_snapshot`, que elimina notas y fotos privadas; no se debe ampliar esa capacidad a escritura ni exponer la fila cruda.
 - Ya hay modelos distintos para cuadrícula, posiciones libres y el plan de herramientas. La unificación debe adaptarlos sin descartar ni reinterpretar silenciosamente datos anteriores.
 
 ## Objetivos
@@ -69,8 +70,9 @@ La lista actual seguirá disponible como vista alternativa para seleccionar, fil
 ## Persistencia, sincronización y acceso
 
 - Mantener caché local y edición offline. Las operaciones pendientes se sincronizan cuando vuelve la conexión.
-- Persistir el plan de mapa asociado al `gardenId`, con versión de esquema, revisión y fecha de actualización. Evaluar un documento JSONB versionado para las entidades que hoy componen el plan, evitando duplicar la fuente de verdad entre cuadrícula, lienzo y temporadas.
-- Aplicar en Supabase Row Level Security y las reglas ya existentes de membresía/compartición del huerto. La autorización no se basa solo en ocultar botones en la app.
+- Reutilizar la fila `garden_layouts` asociada al `gardenId`, añadiendo columnas JSONB/revisión para la escena canónica v2. Mantener `layout` como puente de compatibilidad para clientes anteriores, de modo que un cliente viejo no pueda borrar campos v2 al reemplazar su JSONB; no crear otra tabla.
+- Mantener edición exclusiva del propietario. Los miembros `viewer` solo reciben el snapshot saneado por RPC; actualizar esa proyección para que refleje la nueva geometría sin exponer notas, fotos ni campos privados.
+- Aplicar Supabase Row Level Security y autorización del lado servidor. La app no concede acceso solo por ocultar botones.
 - Evitar sobrescrituras silenciosas si dos dispositivos editan el mismo plano. Detectar revisiones concurrentes y permitir recargar o conservar una copia en conflicto; no usar “última escritura gana” sin aviso.
 - No borrar la copia local antigua hasta que la conversión esté validada y sincronizada. Un fallo de red no debe perder cambios locales.
 
