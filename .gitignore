@@ -5,6 +5,7 @@ ios/
 android/
 *.tsbuildinfo
 .turbo/
+.worktrees/
 *.log
 .DS_Store
 .env
