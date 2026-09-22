@@ -64,6 +64,17 @@ export interface RemoteGarden {
   updated_at: string;
 }
 
+export interface RemoteGardenLayout {
+  id: string;
+  user_id: string;
+  garden_id: string;
+  layout: unknown;
+  map_scene: unknown | null;
+  map_scene_revision: number;
+  map_scene_updated_at: string | null;
+  updated_at: string;
+}
+
 export interface RemotePlant {
   id: string;
   user_id: string;
@@ -141,6 +152,7 @@ export interface Database {
       climate_zones: { Row: RemoteClimateZone; Insert: never; Update: never };
       province_zones: { Row: RemoteProvinceZone; Insert: never; Update: never };
       gardens: { Row: RemoteGarden; Insert: Omit<RemoteGarden, 'created_at' | 'updated_at'>; Update: Partial<RemoteGarden> };
+      garden_layouts: { Row: RemoteGardenLayout; Insert: Omit<RemoteGardenLayout, 'updated_at' | 'map_scene_revision'> & Partial<Pick<RemoteGardenLayout, 'updated_at' | 'map_scene_revision'>>; Update: Partial<RemoteGardenLayout> };
       plants: { Row: RemotePlant; Insert: Omit<RemotePlant, 'created_at' | 'updated_at'>; Update: Partial<RemotePlant> };
       diary_entries: { Row: RemoteDiaryEntry; Insert: Omit<RemoteDiaryEntry, 'created_at'>; Update: Partial<RemoteDiaryEntry> };
       reminders: { Row: RemoteReminder; Insert: Omit<RemoteReminder, 'created_at' | 'updated_at'>; Update: Partial<RemoteReminder> };

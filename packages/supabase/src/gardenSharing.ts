@@ -20,7 +20,7 @@ export interface GardenInvite {
 export interface SharedGardenSnapshot {
   garden: { id: string; name: string; province: string | null; climate_zone: string; grid_rows: number | null; grid_cols: number | null };
   plants: Array<{ id: string; crop_id: string; name: string; variety: string | null; status: string; bed_name: string | null }>;
-  layout: unknown;
+  layout: { grid: unknown; free: unknown; mapPlan: unknown };
 }
 
 export function normalizeGardenInviteEmail(value: string): string | null {
