@@ -29,7 +29,7 @@ import { DEFAULT_GRID_COLS, DEFAULT_GRID_ROWS, useGardenLayout } from '../../src
 import { useGardenMapPlan } from '../../src/hooks/useGardenMapPlan';
 import { usePro } from '../../src/hooks/usePro';
 import { useWeather } from '../../src/hooks/useWeather';
-import type { GardenMapPlan, GardenSeasonSnapshot, LightLevel, IrrigationKind, MapStructure, MapStructureKind, MapZone } from '../../src/models/garden-map-plan';
+import type { GardenMapPlan, GardenMapPlanV2, GardenSeasonSnapshot, LightLevel, IrrigationKind, MapStructure, MapStructureKind, MapZone } from '../../src/models/garden-map-plan';
 import type { Plant } from '../../src/models/plant';
 import { createSeasonPlanFromSnapshot, findMapCropAssociations, findSpacingWarnings, generateSuccessionDates, getOccupancyWindow, getSeasonRotationWarnings, soilVolumeLiters, dateFallsInMonths } from '../../src/utils/gardenMapPlanner';
 import { expoWeekdayForDate, getForecastCareNotes } from '../../src/utils/weatherPlanner';
@@ -104,7 +104,7 @@ export default function GardenMapToolsScreen() {
   const gridCols = activeGarden?.gridCols ?? DEFAULT_GRID_COLS;
   const { layout, placePlant, swapCells } = useGardenLayout(activeGarden?.id, gridRows, gridCols);
   const { positions: freePositions, setPosition } = useGardenFreeLayout(activeGarden?.id);
-  const { plan, setPlan, loading: planLoading, error: planError } = useGardenMapPlan(activeGarden?.id);
+  const { plan, setPlan, loading: planLoading, error: planError } = useGardenMapPlan(activeGarden?.id, activeGarden?.gardenType, gridRows, gridCols);
   const isFreeSpace = activeGarden?.gardenType === 'balcon' || activeGarden?.gardenType === 'maceta';
   const gardenPlants = useMemo(() => plants.items.filter((plant) => !plant.deletedAt && plant.gardenId === activeGarden?.id), [activeGarden?.id, plants.items]);
   const plantById = useMemo(() => new Map(gardenPlants.map((plant) => [plant.id, plant])), [gardenPlants]);
@@ -184,7 +184,7 @@ export default function GardenMapToolsScreen() {
     setCropQuery(crop.name);
   }, [cropIdParam]);
 
-  function updatePlan(update: (current: GardenMapPlan) => GardenMapPlan) {
+  function updatePlan(update: (current: GardenMapPlanV2) => GardenMapPlanV2) {
     if (planLoading || !activeGarden?.id) return;
     setPlan((current) => update(current));
   }

@@ -17,7 +17,7 @@ export const GRID_PRESETS = [
   { rows: 10, cols: 8 },
 ] as const;
 
-const layoutKey = (gardenId: string) => `@portfolio/huerto/garden_layout/${gardenId}`;
+export const gardenLayoutKey = (gardenId: string) => `@portfolio/huerto/garden_layout/${gardenId}`;
 export const layoutTsKey = (gardenId: string) => `@portfolio/huerto/garden_layout/${gardenId}/ts`;
 
 // null = empty cell, string = plantId
@@ -47,7 +47,7 @@ export function useGardenLayout(
     }
     setLoading(true);
     setError(null);
-    AsyncStorage.getItem(layoutKey(gardenId))
+    AsyncStorage.getItem(gardenLayoutKey(gardenId))
       .then((raw) => {
         if (raw) {
           try {
@@ -75,7 +75,7 @@ export function useGardenLayout(
 
   function writeLayout(gardenId: string, layout: GridLayout) {
     const now = new Date().toISOString();
-    AsyncStorage.setItem(layoutKey(gardenId), JSON.stringify(layout));
+    AsyncStorage.setItem(gardenLayoutKey(gardenId), JSON.stringify(layout));
     AsyncStorage.setItem(layoutTsKey(gardenId), now);
   }
 

@@ -1,12 +1,25 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useRef, useState } from 'react';
-import { EMPTY_GARDEN_MAP_PLAN, normalizeGardenMapPlan, type GardenMapPlan } from '../models/garden-map-plan';
+import type { GardenType } from '../models/garden';
+import { DEFAULT_GRID_COLS, DEFAULT_GRID_ROWS } from './useGardenLayout';
+import { gardenMapSceneKey, gardenMapSceneTimestampKey, loadOrMigrateGardenMapScene } from '../utils/gardenMapSceneStorage';
+import { EMPTY_GARDEN_MAP_PLAN, type GardenMapPlanV2 } from '../models/garden-map-plan';
 
-export const gardenMapPlanKey = (gardenId: string) => `@portfolio/huerto/garden_map_plan/${gardenId}`;
-export const gardenMapPlanTsKey = (gardenId: string) => `${gardenMapPlanKey(gardenId)}/ts`;
+export { gardenMapPlanKey, gardenMapPlanTsKey } from '../utils/gardenMapStorageKeys';
 
-export function useGardenMapPlan(gardenId: string | undefined) {
-  const [plan, setPlan] = useState<GardenMapPlan>(EMPTY_GARDEN_MAP_PLAN);
+const EMPTY_SCENE: GardenMapPlanV2 = {
+  ...EMPTY_GARDEN_MAP_PLAN,
+  version: 2,
+  plantPlacements: [],
+};
+
+export function useGardenMapPlan(
+  gardenId: string | undefined,
+  gardenType?: GardenType,
+  gridRows: number = DEFAULT_GRID_ROWS,
+  gridCols: number = DEFAULT_GRID_COLS,
+) {
+  const [plan, setPlan] = useState<GardenMapPlanV2>(EMPTY_SCENE);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [loadedGardenId, setLoadedGardenId] = useState<string | undefined>();
@@ -16,30 +29,29 @@ export function useGardenMapPlan(gardenId: string | undefined) {
     let current = true;
     setLoading(true);
     setError(null);
+    setLoadedGardenId(undefined);
     if (!gardenId) {
       skipNextWriteRef.current = true;
-      setPlan(EMPTY_GARDEN_MAP_PLAN);
-      setLoadedGardenId(undefined);
+      setPlan(EMPTY_SCENE);
       setLoading(false);
       return () => { current = false; };
     }
     skipNextWriteRef.current = true;
-    AsyncStorage.getItem(gardenMapPlanKey(gardenId))
-      .then((raw) => {
+    setPlan(EMPTY_SCENE);
+    loadOrMigrateGardenMapScene(gardenId, gardenType, AsyncStorage, { rows: gridRows, cols: gridCols })
+      .then((scene) => {
         if (!current) return;
-        try { setPlan(raw ? normalizeGardenMapPlan(JSON.parse(raw)) : EMPTY_GARDEN_MAP_PLAN); }
-        catch { setPlan(EMPTY_GARDEN_MAP_PLAN); }
+        setPlan(scene);
         setLoadedGardenId(gardenId);
       })
       .catch((reason) => {
         if (!current) return;
-        setPlan(EMPTY_GARDEN_MAP_PLAN);
-        setError(reason instanceof Error ? reason : new Error('No se pudo leer el plano guardado.'));
+        setError(reason instanceof Error ? reason : new Error('No se pudo recuperar el plano guardado.'));
         setLoadedGardenId(gardenId);
       })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
-  }, [gardenId]);
+  }, [gardenId, gardenType, gridCols, gridRows]);
 
   useEffect(() => {
     if (!gardenId || loadedGardenId !== gardenId || loading || error) return;
@@ -49,8 +61,8 @@ export function useGardenMapPlan(gardenId: string | undefined) {
     }
     const timestamp = new Date().toISOString();
     AsyncStorage.multiSet([
-      [gardenMapPlanKey(gardenId), JSON.stringify(plan)],
-      [gardenMapPlanTsKey(gardenId), timestamp],
+      [gardenMapSceneKey(gardenId), JSON.stringify(plan)],
+      [gardenMapSceneTimestampKey(gardenId), timestamp],
     ]).catch((reason) => setError(reason instanceof Error ? reason : new Error('No se pudo guardar el plano.')));
   }, [error, gardenId, loadedGardenId, loading, plan]);
 
