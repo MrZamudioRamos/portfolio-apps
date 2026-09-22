@@ -86,4 +86,26 @@ describe('garden map plan persistence adapter', () => {
     });
     expect(normalized.seasonPlans).toEqual([valid]);
   });
+
+  it('preserves the supported plan version and rejects unknown versions instead of normalizing them as v2', () => {
+    expect(normalizeGardenMapPlan(plan).version).toBe(1);
+    expect(() => normalizeGardenMapPlan({ ...plan, version: 99 })).toThrow(/version/i);
+  });
+
+  it('validates row geometry and rotations without dropping valid v2 placements', () => {
+    const normalized = normalizeGardenMapPlan({
+      ...plan,
+      version: 2,
+      plantPlacements: [{ plantId: 'plant-1', x: 0.25, y: 0.75, structureId: 'row-1' }],
+      structures: [
+        { id: 'row-1', name: 'Fila', kind: 'row', x: 0, y: 0, widthCm: 100, lengthCm: 20, rotationDegrees: 90, rowSpacingCm: 30 },
+        { id: 'bad-row', name: 'Fila inválida', kind: 'row', x: 0, y: 0, widthCm: 100, lengthCm: 20, rowSpacingCm: 0 },
+        { id: 'bad-rotation', name: 'Giro inválido', kind: 'bed', x: 0, y: 0, widthCm: 100, lengthCm: 20, rotationDegrees: 360 },
+      ],
+    });
+
+    expect(normalized.version).toBe(2);
+    expect(normalized.plantPlacements).toEqual([{ plantId: 'plant-1', x: 0.25, y: 0.75, structureId: 'row-1' }]);
+    expect(normalized.structures.map(({ id }) => id)).toEqual(['row-1']);
+  });
 });

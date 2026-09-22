@@ -1,7 +1,7 @@
 import type { FreeMapPositions } from '../hooks/useGardenFreeLayout';
 import type { GridLayout } from '../hooks/useGardenLayout';
 
-export type MapStructureKind = 'bed' | 'planter' | 'pot' | 'path' | 'wall' | 'trellis' | 'greenhouse';
+export type MapStructureKind = 'bed' | 'planter' | 'pot' | 'path' | 'wall' | 'trellis' | 'greenhouse' | 'row';
 export type MapZoneKind = 'light' | 'irrigation';
 export type LightLevel = 'full' | 'partial' | 'shade';
 export type IrrigationKind = 'drip' | 'manual' | 'none';
@@ -20,6 +20,8 @@ export interface MapStructure {
   widthCm: number;
   lengthCm: number;
   depthCm?: number;
+  rotationDegrees?: number;
+  rowSpacingCm?: number;
   note?: string;
   photoUri?: string;
 }
@@ -98,8 +100,14 @@ export interface GardenSeasonPlan {
   plants: GardenSeasonPlanPlant[];
 }
 
-export interface GardenMapPlan {
-  version: 1;
+export interface MapPlantPlacement {
+  plantId: string;
+  x: number;
+  y: number;
+  structureId?: string;
+}
+
+interface GardenMapPlanBase {
   dimensions?: MapDimensions;
   structures: MapStructure[];
   zones: MapZone[];
@@ -107,6 +115,18 @@ export interface GardenMapPlan {
   seasons: GardenSeasonSnapshot[];
   seasonPlans?: GardenSeasonPlan[];
 }
+
+export interface GardenMapPlanV1 extends GardenMapPlanBase {
+  version: 1;
+  plantPlacements?: never;
+}
+
+export interface GardenMapPlanV2 extends GardenMapPlanBase {
+  version: 2;
+  plantPlacements: MapPlantPlacement[];
+}
+
+export type GardenMapPlan = GardenMapPlanV1 | GardenMapPlanV2;
 
 export const EMPTY_GARDEN_MAP_PLAN: GardenMapPlan = {
   version: 1,
@@ -118,16 +138,16 @@ export const EMPTY_GARDEN_MAP_PLAN: GardenMapPlan = {
 };
 
 export function normalizeGardenMapPlan(value: unknown): GardenMapPlan {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return EMPTY_GARDEN_MAP_PLAN;
-  const input = value as Partial<GardenMapPlan>;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new TypeError('Invalid garden map plan');
+  const input = value as Partial<GardenMapPlan> & { version?: unknown };
+  if (input.version !== 1 && input.version !== 2) throw new TypeError('Unsupported garden map plan version');
   const dimensions = input.dimensions;
   const safeDimensions = dimensions
     && Number.isFinite(dimensions.widthCm) && dimensions.widthCm > 0
     && Number.isFinite(dimensions.lengthCm) && dimensions.lengthCm > 0
     ? { widthCm: dimensions.widthCm, lengthCm: dimensions.lengthCm }
     : undefined;
-  return {
-    version: 1,
+  const common = {
     dimensions: safeDimensions,
     structures: Array.isArray(input.structures) ? input.structures.filter(isStructure) : [],
     zones: Array.isArray(input.zones) ? input.zones.filter(isZone) : [],
@@ -135,17 +155,40 @@ export function normalizeGardenMapPlan(value: unknown): GardenMapPlan {
     seasons: Array.isArray(input.seasons) ? input.seasons.filter(isSeasonSnapshot).slice(0, 12) : [],
     seasonPlans: Array.isArray(input.seasonPlans) ? input.seasonPlans.filter(isSeasonPlan).slice(0, 12) : [],
   };
+  if (input.version === 1) return { ...common, version: 1 };
+
+  const placements = Array.isArray(input.plantPlacements) ? input.plantPlacements.filter(isPlantPlacement) : [];
+  const seenPlantIds = new Set<string>();
+  const uniquePlacements = placements.filter((placement) => {
+    if (seenPlantIds.has(placement.plantId)) return false;
+    seenPlantIds.add(placement.plantId);
+    return true;
+  });
+  return { ...common, version: 2, plantPlacements: uniquePlacements };
 }
 
 function isStructure(value: unknown): value is MapStructure {
   if (!value || typeof value !== 'object') return false;
   const item = value as MapStructure;
   return typeof item.id === 'string' && typeof item.name === 'string'
-    && ['bed', 'planter', 'pot', 'path', 'wall', 'trellis', 'greenhouse'].includes(item.kind)
+    && ['bed', 'planter', 'pot', 'path', 'wall', 'trellis', 'greenhouse', 'row'].includes(item.kind)
     && [item.x, item.y, item.widthCm, item.lengthCm].every(Number.isFinite)
     && item.x >= 0 && item.x <= 1 && item.y >= 0 && item.y <= 1
     && item.widthCm > 0 && item.lengthCm > 0
+    && (item.rotationDegrees === undefined || (Number.isInteger(item.rotationDegrees) && item.rotationDegrees >= 0 && item.rotationDegrees <= 359))
+    && (item.kind === 'row'
+      ? item.rowSpacingCm === undefined || (Number.isFinite(item.rowSpacingCm) && item.rowSpacingCm > 0)
+      : item.rowSpacingCm === undefined)
     && (item.photoUri === undefined || isSafePhotoUri(item.photoUri));
+}
+
+function isPlantPlacement(value: unknown): value is MapPlantPlacement {
+  if (!value || typeof value !== 'object') return false;
+  const item = value as MapPlantPlacement;
+  return typeof item.plantId === 'string' && item.plantId.length > 0
+    && Number.isFinite(item.x) && item.x >= 0 && item.x <= 1
+    && Number.isFinite(item.y) && item.y >= 0 && item.y <= 1
+    && (item.structureId === undefined || (typeof item.structureId === 'string' && item.structureId.length > 0));
 }
 
 function isZone(value: unknown): value is MapZone {

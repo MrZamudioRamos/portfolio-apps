@@ -826,7 +826,7 @@ function Legend({ color, label, styles, colors }: { color: string; label: string
 function iconForStructure(kind: MapStructureKind): keyof typeof Ionicons.glyphMap {
   const icons: Record<MapStructureKind, keyof typeof Ionicons.glyphMap> = {
     bed: 'grid-outline', planter: 'albums-outline', pot: 'flower-outline', path: 'remove-outline',
-    wall: 'square-outline', trellis: 'git-branch-outline', greenhouse: 'home-outline',
+    wall: 'square-outline', trellis: 'git-branch-outline', greenhouse: 'home-outline', row: 'git-branch-outline',
   };
   return icons[kind];
 }
