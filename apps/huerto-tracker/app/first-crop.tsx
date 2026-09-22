@@ -14,6 +14,7 @@ import { EVENTS, track, trackImpression } from '../src/analytics';
 import { getFirstCropRecommendations, type CareTimeBudget, type FirstCropSpace } from '../src/utils/firstCropRecommendation';
 import type { SpaceType } from '../src/models/user-profile';
 import { CROP_IMAGES } from '../src/data/cropImages';
+import { goBackOr } from '../src/utils/navigation';
 
 const CARE_TIME_KEY = '@huerto/first_crop_care_time';
 
@@ -113,7 +114,7 @@ export default function FirstCropScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       <View style={styles.stitchHeader}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Atrás" onPress={() => router.back()} style={styles.backButton}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Atrás" onPress={() => goBackOr(router, '/onboarding' as any)} style={styles.backButton}>
           <Text style={{ color: colors.primary, fontSize: 25 }}>‹</Text>
         </Pressable>
         <Text style={[styles.screenTitle, { color: colors.text }]}>Tu Primer Cultivo</Text>

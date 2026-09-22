@@ -20,6 +20,7 @@ import { track, EVENTS } from '../../src/analytics';
 import type { DiagnosisData, DiagnosisFollowUpData, DiaryEntry } from '../../src/models/diary-entry';
 import { compareDiagnosis, type DiagnosisComparison } from '../../src/utils/pestIdentify';
 import { todayStr } from '../../src/utils/dateStr';
+import { goBackOr } from '../../src/utils/navigation';
 
 export default function DiagnosisFollowUpScreen() {
   const colors = useColors();
@@ -50,7 +51,7 @@ export default function DiagnosisFollowUpScreen() {
   if (!isPro) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <Header title={t('identify.followUpTitle')} onBack={() => router.back()} styles={s} colors={colors} />
+        <Header title={t('identify.followUpTitle')} onBack={() => goBackOr(router, '/plant/scan' as any)} styles={s} colors={colors} />
         <View style={s.emptyState}>
           <Ionicons name="lock-closed-outline" size={44} color={colors.primary} />
           <Text style={[s.emptyTitle, { color: colors.text }]}>{t('identify.proTitle')}</Text>
@@ -64,7 +65,7 @@ export default function DiagnosisFollowUpScreen() {
   if (entries.loading) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <Header title={t('identify.followUpTitle')} onBack={() => router.back()} styles={s} colors={colors} />
+        <Header title={t('identify.followUpTitle')} onBack={() => goBackOr(router, '/plant/scan' as any)} styles={s} colors={colors} />
         <View style={s.loadingState}><ActivityIndicator size="large" color={colors.primary} /></View>
       </SafeAreaView>
     );
@@ -73,11 +74,11 @@ export default function DiagnosisFollowUpScreen() {
   if (!source) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <Header title={t('identify.followUpTitle')} onBack={() => router.back()} styles={s} colors={colors} />
+        <Header title={t('identify.followUpTitle')} onBack={() => goBackOr(router, '/plant/scan' as any)} styles={s} colors={colors} />
         <View style={s.emptyState}>
           <Ionicons name="leaf-outline" size={44} color={colors.primary} />
           <Text style={[s.emptyTitle, { color: colors.text }]}>{t('identify.followUpNoSource')}</Text>
-          <Button title={t('common.back')} onPress={() => router.back()} variant="secondary" size="lg" style={{ marginTop: spacing.xl, alignSelf: 'stretch' }} />
+          <Button title={t('common.back')} onPress={() => goBackOr(router, '/plant/scan' as any)} variant="secondary" size="lg" style={{ marginTop: spacing.xl, alignSelf: 'stretch' }} />
         </View>
       </SafeAreaView>
     );
@@ -147,7 +148,7 @@ export default function DiagnosisFollowUpScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      <Header title={t('identify.followUpTitle')} onBack={() => router.back()} styles={s} colors={colors} />
+      <Header title={t('identify.followUpTitle')} onBack={() => goBackOr(router, '/plant/scan' as any)} styles={s} colors={colors} />
       <ScrollView contentContainerStyle={s.body} showsVerticalScrollIndicator={false}>
         <View style={{ gap: spacing.xs }}>
           <Ionicons name="refresh-outline" size={34} color={colors.primary} style={s.heroEmoji} />

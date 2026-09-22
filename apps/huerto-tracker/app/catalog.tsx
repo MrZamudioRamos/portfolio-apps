@@ -18,6 +18,7 @@ import { CROPS, CATEGORY_CONFIG, CROP_DIFFICULTY, CROP_CONTAINER_MIN, type CropC
 import { CROP_IMAGES } from '../src/data/cropImages';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import type { ClimateZone } from '../src/models/garden';
+import { goBackOr } from '../src/utils/navigation';
 
 const MONTHS = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 const CATEGORY_COLORS: Record<string, string> = {
@@ -136,7 +137,7 @@ export default function CatalogScreen() {
       <ScreenHeader
         title={t('catalog.title')}
         subtitle={t('catalog.subtitle', { count: CROPS.length })}
-        onBack={() => router.back()}
+        onBack={() => goBackOr(router)}
         variant="left"
       />
 

@@ -17,6 +17,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { goBackOr } from '../../src/utils/navigation';
 
 export default function MagicSentScreen() {
   const colors = useColors();
@@ -53,7 +54,7 @@ export default function MagicSentScreen() {
   }
 
   if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
-    return <StitchMagicSentScreen colors={colors} router={router} email={email ?? 'laura.jardin@correo.es'} />;
+    return <StitchMagicSentScreen colors={colors} router={{ ...router, back: () => goBackOr(router, '/auth' as any) }} email={email ?? 'laura.jardin@correo.es'} />;
   }
 
   return (

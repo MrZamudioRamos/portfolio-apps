@@ -1,6 +1,6 @@
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { Button } from '../../src/components/ActionButton';
-import { useReminders, NotificationPermissionDeniedError, type ReminderFrequency } from '@portfolio/notifications';
+import { useReminders, NotificationPermissionDeniedError, localReminderDate, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -25,6 +25,7 @@ import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { usePro } from '../../src/hooks/usePro';
 import { track, EVENTS } from '../../src/analytics';
 import { TimePicker } from '../../src/components/TimePicker';
+import { goBackOr } from '../../src/utils/navigation';
 
 const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'custom'];
 // every_2_days/every_3_days removed: expo can't fire them at a fixed time, so
@@ -41,7 +42,14 @@ export default function ReminderNewScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
-  const { plantId } = useLocalSearchParams<{ plantId?: string }>();
+  const { plantId, title: titleParam, type: typeParam, frequency: frequencyParam, weekday: weekdayParam, date: dateParam } = useLocalSearchParams<{
+    plantId?: string;
+    title?: string;
+    type?: string;
+    frequency?: string;
+    weekday?: string;
+    date?: string;
+  }>();
 
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
@@ -49,12 +57,28 @@ export default function ReminderNewScreen() {
   const { isPro } = usePro();
 
   const { t, i18n } = useTranslation();
+  const initialType: ReminderType = TYPES.includes(typeParam as ReminderType) ? typeParam as ReminderType : 'watering';
+  const initialFrequency: ReminderFrequency = FREQUENCIES.includes(frequencyParam as ReminderFrequency) ? frequencyParam as ReminderFrequency : 'daily';
+  const parsedDate = parseLocalDate(dateParam);
+  const parsedWeekday = Number(weekdayParam);
+  const initialWeekday = parsedDate
+    ? (parsedDate.getDay() === 0 ? 1 : parsedDate.getDay() + 1)
+    : Number.isInteger(parsedWeekday) && parsedWeekday >= 1 && parsedWeekday <= 7 ? parsedWeekday : 2;
   const [selectedPlantId, setSelectedPlantId] = useState<string | undefined>(plantId);
-  const [type, setType] = useState<ReminderType>('watering');
-  const [title, setTitle] = useState(() => t('reminderDefaultTitle.watering'));
-  const [frequency, setFrequency] = useState<ReminderFrequency>('daily');
-  const [weekday, setWeekday] = useState<number>(2);
-  const [hour, setHour] = useState(8);
+  const [type, setType] = useState<ReminderType>(initialType);
+  const [title, setTitle] = useState(() => typeof titleParam === 'string' && titleParam.trim()
+    ? titleParam.trim().slice(0, 80)
+    : t('reminderDefaultTitle.' + initialType));
+  const [frequency, setFrequency] = useState<ReminderFrequency>(initialFrequency);
+  const [weekday, setWeekday] = useState<number>(initialWeekday);
+  const [suggestedDate, setSuggestedDate] = useState<string | undefined>(parsedDate ? localIsoDate(parsedDate) : undefined);
+  const [hour, setHour] = useState(() => {
+    const todayKey = localIsoDate(new Date());
+    const now = new Date();
+    return parsedDate && localIsoDate(parsedDate) === todayKey && now.getHours() >= 8
+      ? Math.min(now.getHours() + 1, 23)
+      : 8;
+  });
   const [minute, setMinute] = useState(0);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -66,8 +90,7 @@ export default function ReminderNewScreen() {
   useEffect(() => {
     if (!saved) return;
     const timeout = setTimeout(() => {
-      if (router.canGoBack()) router.back();
-      else router.replace('/(tabs)');
+      goBackOr(router);
     }, 1200);
     return () => clearTimeout(timeout);
   }, [router, saved]);
@@ -78,10 +101,10 @@ export default function ReminderNewScreen() {
   );
 
   const calendarDays = useMemo(() => {
-    const today = new Date();
-    const mondayOffset = (today.getDay() + 6) % 7;
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - mondayOffset);
+    const anchor = frequency === 'once' && suggestedDate ? parseLocalDate(suggestedDate) ?? new Date() : new Date();
+    const mondayOffset = (anchor.getDay() + 6) % 7;
+    const monday = new Date(anchor);
+    monday.setDate(anchor.getDate() - mondayOffset);
     const formatter = new Intl.DateTimeFormat(i18n.language, { weekday: 'short' });
 
     return Array.from({ length: 7 }, (_, index) => {
@@ -90,18 +113,25 @@ export default function ReminderNewScreen() {
       // Expo notifications use 1 = Sunday, 2 = Monday ... 7 = Saturday.
       const day = date.getDay() === 0 ? 1 : date.getDay() + 1;
       const label = formatter.format(date).replace('.', '').slice(0, 1).toUpperCase();
-      return { key: date.toISOString().slice(0, 10), day, label, number: date.getDate() };
+      return { key: localIsoDate(date), day, label, number: date.getDate() };
     });
-  }, [i18n.language]);
+  }, [frequency, i18n.language, suggestedDate]);
 
   const today = new Date().getDay();
   const todayWeekday = today === 0 ? 1 : today + 1;
   const activeCalendarDay = frequency === 'weekly' || frequency === 'once' ? weekday : todayWeekday;
-  const selectedCalendarDay = calendarDays.find((item) => item.day === activeCalendarDay) ?? calendarDays[0];
+  const selectedCalendarDay = frequency === 'once' && suggestedDate
+    ? {
+      day: activeCalendarDay,
+      label: new Intl.DateTimeFormat(i18n.language, { weekday: 'short' }).format(parseLocalDate(suggestedDate) ?? new Date()).replace('.', '').slice(0, 1).toUpperCase(),
+      number: Number(suggestedDate.slice(8, 10)),
+    }
+    : calendarDays.find((item) => item.day === activeCalendarDay) ?? calendarDays[0];
 
   function handleFrequencyChange(next: ReminderFrequency) {
     setFrequency(next);
     if (next === 'once' && frequency !== 'weekly') setWeekday(todayWeekday);
+    if (next !== 'once') setSuggestedDate(undefined);
   }
 
   function weekdayLabel(day: number) {
@@ -127,6 +157,10 @@ export default function ReminderNewScreen() {
       Alert.alert(t('reminderNew.noGardenTitle'), t('reminderNew.noGardenDesc'));
       return;
     }
+    if (frequency === 'once' && suggestedDate && !localReminderDate(suggestedDate, { hour, minute })) {
+      Alert.alert('Elige una hora futura', 'La fecha o la hora seleccionada ya ha pasado. Cambia el día o la hora para poder programar el aviso.');
+      return;
+    }
     const gardenReminderCount = reminders.items.filter((r) => r.gardenId === gardenId).length;
     if (!isPro && gardenReminderCount >= 3) {
       router.push('/paywall?source=reminders' as any);
@@ -144,6 +178,7 @@ export default function ReminderNewScreen() {
         title: title.trim() || t('reminderDefaultTitle.' + type),
         frequency,
         weekday: frequency === 'weekly' || frequency === 'once' ? weekday : undefined,
+        dueDate: frequency === 'once' ? suggestedDate : undefined,
         time: { hour, minute },
         enabled: true,
       });
@@ -171,7 +206,7 @@ export default function ReminderNewScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t('common.close')}
-              onPress={() => router.back()}
+              onPress={() => goBackOr(router)}
               style={({ pressed }) => [s.closeButton, { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.65 : 1 }]}
             >
               <Ionicons name="close" size={20} color={colors.textSecondary} />
@@ -195,7 +230,11 @@ export default function ReminderNewScreen() {
                   accessibilityRole="radio"
                   accessibilityState={{ checked: active }}
                   accessibilityLabel={`${item.label} ${item.number}`}
-                  onPress={() => { setWeekday(item.day); if (frequency !== 'once') setFrequency('weekly'); }}
+                  onPress={() => {
+                    setWeekday(item.day);
+                    if (frequency === 'once') setSuggestedDate(item.key);
+                    else { setSuggestedDate(undefined); setFrequency('weekly'); }
+                  }}
                   style={({ pressed }) => [s.calendarDay, { backgroundColor: active ? colors.primary : 'transparent', borderColor: active ? colors.primary : colors.border, opacity: pressed ? 0.72 : 1 }]}
                 >
                   <Text style={[s.calendarDayLabel, { color: active ? colors.background : colors.textSecondary }]}>{item.label}</Text>
@@ -310,7 +349,8 @@ export default function ReminderNewScreen() {
             <Ionicons name="create-outline" size={19} color={colors.textSecondary} />
             <TextInput
               value={title}
-              onChangeText={setTitle}
+              onChangeText={(value) => setTitle(value.slice(0, 80))}
+              maxLength={80}
               style={[s.input, { color: colors.text, fontSize: fontSize.md }]}
               placeholderTextColor={colors.textDisabled}
               returnKeyType="done"
@@ -362,6 +402,21 @@ export default function ReminderNewScreen() {
       </View>
     </SafeAreaView>
   );
+}
+
+function parseLocalDate(value?: string): Date | null {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const [year, month, day] = value.split('-').map(Number);
+  const parsed = new Date(year, month - 1, day, 12);
+  if (parsed.getFullYear() !== year || parsed.getMonth() !== month - 1 || parsed.getDate() !== day) return null;
+  return parsed;
+}
+
+function localIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 const makeStyles = (

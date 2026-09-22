@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS, CROPS_BY_ID, CATEGORY_CONFIG } from '../src/data/crops';
 import { getCompatibilityStatus } from '../src/data/companions';
 import type { CropInfo } from '../src/data/crops';
+import { goBackOr } from '../src/utils/navigation';
 
 type Mode = 'browse' | 'check';
 
@@ -184,7 +185,7 @@ export default function CompanionsScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={s.header}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
+        <Pressable onPress={() => goBackOr(router)} hitSlop={12}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         <View style={{ flex: 1 }}>

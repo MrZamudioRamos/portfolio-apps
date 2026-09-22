@@ -1,7 +1,7 @@
 // Supabase Edge Function: ai-vision
 //
 // Proxies plant-vision calls to Anthropic so the API key never ships in the
-// client bundle. Requires an authenticated Supabase user (rate-limit foundation)
+// client bundle. Requires an authenticated user and the shared daily beta quota.
 // and keeps the prompt logic server-side so it can be tuned without an app
 // release.
 //
@@ -15,7 +15,7 @@
 //   { mode: 'scan-plant',    base64, mediaType, language, cropNames: {id:name} }
 // Response: the parsed JSON result, or { error, code } with a 4xx/5xx status.
 
-import { CORS, clampText, enforceHourlyLimit, json, requireUser, validateImage } from '../_shared/security.ts';
+import { CORS, clampText, enforceDailyAIQuota, json, requireUser, validateImage } from '../_shared/security.ts';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-haiku-4-5-20251001';
@@ -101,6 +101,18 @@ Deno.serve(async (req: Request) => {
   }
 
   const { mode, base64, mediaType, language } = body;
+  if (mode !== 'identify-pest' && mode !== 'compare-diagnosis' && mode !== 'scan-plant') {
+    return json({ error: 'Unknown mode', code: 'BAD_REQUEST' }, 400);
+  }
+  if (mode === 'scan-plant' && body.cropNames !== undefined) {
+    if (!body.cropNames || typeof body.cropNames !== 'object' || Array.isArray(body.cropNames)) {
+      return json({ error: 'Invalid crop catalogue', code: 'BAD_REQUEST' }, 400);
+    }
+    const cropEntries = Object.entries(body.cropNames);
+    if (cropEntries.length > 150 || cropEntries.some(([id, name]) => id.length > 80 || typeof name !== 'string' || name.length > 100)) {
+      return json({ error: 'Invalid crop catalogue', code: 'BAD_REQUEST' }, 400);
+    }
+  }
   const isComparison = mode === 'compare-diagnosis';
   if (isComparison
     ? !body.beforeBase64 || !body.beforeMediaType || !body.afterBase64 || !body.afterMediaType
@@ -112,8 +124,8 @@ Deno.serve(async (req: Request) => {
       ].filter(Boolean)
     : [validateImage(base64, mediaType)].filter(Boolean);
   if (imageErrors.length > 0) return json({ error: imageErrors[0], code: 'BAD_REQUEST' }, 400);
-  const rateLimitResponse = await enforceHourlyLimit(user.id, 10);
-  if (rateLimitResponse) return rateLimitResponse;
+  const quotaResponse = await enforceDailyAIQuota(user.id);
+  if (quotaResponse) return quotaResponse;
   const lang = LANG_NAMES[language ?? 'es'] ?? 'Spanish';
 
   let system: string;
@@ -147,8 +159,6 @@ Deno.serve(async (req: Request) => {
       { type: 'image', source: { type: 'base64', media_type: body.afterMediaType, data: body.afterBase64 } },
       { type: 'text', text: userText },
     ];
-  } else {
-    return json({ error: 'Unknown mode', code: 'BAD_REQUEST' }, 400);
   }
 
   let anthropicRes: Response;

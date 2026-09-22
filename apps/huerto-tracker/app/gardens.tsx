@@ -14,11 +14,15 @@ import { PROVINCE_ZONES, CLIMATE_ZONE_CONFIG } from '../src/data/zones';
 import type { ClimateZone, Garden, GardenType } from '../src/models/garden';
 import { GARDEN_TYPE_CONFIG } from '../src/models/garden';
 import { DEFAULT_GRID_COLS, DEFAULT_GRID_ROWS } from '../src/hooks/useGardenLayout';
+import { layoutTsKey } from '../src/hooks/useGardenLayout';
+import { freeLayoutKey, freeLayoutTsKey } from '../src/hooks/useGardenFreeLayout';
+import { gardenMapPlanKey, gardenMapPlanTsKey } from '../src/hooks/useGardenMapPlan';
 import { usePro } from '../src/hooks/usePro';
 import type { Plant } from '../src/models/plant';
 import type { DiaryEntry } from '../src/models/diary-entry';
 import type { GardenReminder } from '../src/models/reminder';
 import { StitchBottomNav } from '../src/components/StitchBottomNav';
+import { goBackOr } from '../src/utils/navigation';
 
 const ACTIVE_KEY = '@portfolio/active_garden_id';
 const LAYOUT_KEY = (id: string) => `@portfolio/huerto/garden_layout/${id}`;
@@ -49,7 +53,6 @@ export default function GardensScreen() {
   React.useEffect(() => { void AsyncStorage.getItem(ACTIVE_KEY).then(setActiveId).catch(() => {}); }, []);
   const effectiveActiveId = activeId ?? gardens.items[0]?.id ?? null;
   const activeGarden = gardens.items.find((garden) => garden.id === effectiveActiveId) ?? gardens.items[0];
-  const secondaryGarden = gardens.items.find((garden) => garden.id !== activeGarden?.id);
   const filteredProvinces = useMemo(() => ALL_PROVINCES.filter((p) => p.toLowerCase().includes(provinceSearch.toLowerCase())), [provinceSearch]);
   const climateZone: ClimateZone | null = province ? (PROVINCE_ZONES[province] ?? null) : null;
 
@@ -73,7 +76,11 @@ export default function GardensScreen() {
           plants.softRemoveMany(plants.items.filter((item) => item.gardenId === garden.id).map((item) => item.id)),
           entries.softRemoveMany(entries.items.filter((item) => item.gardenId === garden.id).map((item) => item.id)),
           reminders.softRemoveMany(reminders.items.filter((item) => item.gardenId === garden.id).map((item) => item.id)),
-          AsyncStorage.removeItem(LAYOUT_KEY(garden.id)),
+          AsyncStorage.multiRemove([
+            LAYOUT_KEY(garden.id), layoutTsKey(garden.id),
+            freeLayoutKey(garden.id), freeLayoutTsKey(garden.id),
+            gardenMapPlanKey(garden.id), gardenMapPlanTsKey(garden.id),
+          ]),
         ]);
         const next = gardens.items.find((item) => item.id !== garden.id);
         if (next) { await AsyncStorage.setItem(ACTIVE_KEY, next.id); setActiveId(next.id); }
@@ -105,7 +112,7 @@ export default function GardensScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={10} style={styles.headerBack}>
+        <Pressable onPress={() => goBackOr(router)} hitSlop={10} style={styles.headerBack}>
           <Ionicons name="chevron-back" size={22} color={colors.text} />
           <Text style={[styles.headerBackText, { color: colors.text }]}>Mi Huerto</Text>
         </Pressable>
@@ -125,11 +132,10 @@ export default function GardensScreen() {
 
         <View style={styles.sectionHeader}>
           <View><Text style={[styles.sectionTitle, { color: colors.text }]}>Espacios Activos</Text><Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>Gestiona la orientación, superficie y horas de sol</Text></View>
-          <Text style={[styles.savedCount, { color: colors.textSecondary }]}>{Math.max(2, gardens.items.length)} guardados</Text>
+          <Text style={[styles.savedCount, { color: colors.textSecondary }]}>{gardens.items.length} guardados</Text>
         </View>
 
-        <SpaceCard colors={colors} active title="Balcón Principal Sur" badge="En uso hoy  Activo" area="12 m²" detail="4 macetas activas" sun="Sureste (6.5h sol directas)" location="Madrid · Terraza exterior" footer="Seleccionado para riego y alertas" onPress={() => activeGarden && router.push('/garden/map' as any)} onMap={() => router.push('/garden/map' as any)} onOptions={() => deleteGarden(activeGarden)} />
-        <SpaceCard colors={colors} title="Jardín de Ventana Cocina" badge="Secundario  Piso 3º" area="1.8 m²" detail="2 jardineras de aromáticas" sun="Sol suave 3h · Madrid" location="Perejil rizado, Romero silvestre" footer="Último riego hace 1 día" onPress={() => switchGarden(secondaryGarden)} onOptions={() => deleteGarden(secondaryGarden)} />
+        {gardens.items.length === 0 ? <View style={[styles.createPanel, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="leaf-outline" size={28} color={colors.primary} /><Text style={[styles.createTitle, { color: colors.text }]}>Aún no tienes huertos</Text><Text style={[styles.createDesc, { color: colors.textSecondary }]}>Crea tu primer espacio para guardar plantas, clima y recordatorios reales.</Text></View> : gardens.items.map((garden) => { const gardenPlantCount = plants.items.filter((plant) => !plant.deletedAt && plant.gardenId === garden.id).length; const active = garden.id === effectiveActiveId; return <SpaceCard key={garden.id} colors={colors} active={active} title={garden.name} badge={active ? 'En uso · Activo' : 'Disponible'} area="Superficie no configurada" detail={`${gardenPlantCount} plantas registradas`} sun="Orientación no configurada" location={garden.province} footer={active ? 'Seleccionado para riego y alertas' : 'Pulsa para cambiar de huerto'} onPress={() => switchGarden(garden)} onMap={() => { void switchGarden(garden); router.push('/garden/map' as any); }} onOptions={() => deleteGarden(garden)} />; })}
 
         <View style={[styles.createPanel, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <Ionicons name="home" size={24} color={colors.primary} />

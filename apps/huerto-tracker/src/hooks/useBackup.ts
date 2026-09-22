@@ -8,8 +8,10 @@ import { AppState } from 'react-native';
 const BACKUP_FILE = FileSystem.documentDirectory + 'huerto-backup.json';
 const AUTO_BACKUP_KEY = '@portfolio/backup/auto';
 const LAST_BACKUP_KEY = '@portfolio/backup/last';
-const BACKUP_VERSION = 2;
+const BACKUP_VERSION = 3;
 const LAYOUT_KEY_PREFIX = '@portfolio/huerto/garden_layout/';
+const FREE_LAYOUT_KEY_PREFIX = '@portfolio/huerto/garden_free_layout/';
+const MAP_PLAN_KEY_PREFIX = '@portfolio/huerto/garden_map_plan/';
 
 const DATA_KEYS = [
   '@portfolio/gardens',
@@ -34,12 +36,17 @@ interface BackupData {
   customCrops: unknown[];
   costEntries: unknown[];
   onboardingCompleted: boolean;
-  gardenLayouts: Record<string, unknown[]>;
+  gardenLayouts: Record<string, unknown>;
 }
 
 function safeParseArray(raw: string | null): unknown[] {
   if (!raw) return [];
   try { return JSON.parse(raw) as unknown[]; } catch { return []; }
+}
+
+function safeParseValue(raw: string | null): unknown {
+  if (!raw) return [];
+  try { return JSON.parse(raw) as unknown; } catch { return []; }
 }
 
 export function useBackup() {
@@ -61,7 +68,11 @@ export function useBackup() {
 
   const writeBackupFile = useCallback(async (): Promise<string> => {
     const allKeys = await AsyncStorage.getAllKeys();
-    const layoutKeys = allKeys.filter((k) => k.startsWith(LAYOUT_KEY_PREFIX) && !k.endsWith('/ts'));
+    const layoutKeys = allKeys.filter((key) => (
+      key.startsWith(LAYOUT_KEY_PREFIX)
+      || key.startsWith(FREE_LAYOUT_KEY_PREFIX)
+      || key.startsWith(MAP_PLAN_KEY_PREFIX)
+    ) && !key.endsWith('/ts'));
 
     const [staticResults, layoutResults] = await Promise.all([
       AsyncStorage.multiGet([...DATA_KEYS]),
@@ -69,10 +80,17 @@ export function useBackup() {
     ]);
     const map = Object.fromEntries(staticResults.map(([k, v]) => [k, v]));
 
-    const gardenLayouts: Record<string, unknown[]> = {};
+    const gardenLayouts: Record<string, { grid?: unknown; free?: unknown; mapPlan?: unknown }> = {};
     for (const [key, raw] of layoutResults) {
-      const gardenId = key.slice(LAYOUT_KEY_PREFIX.length);
-      gardenLayouts[gardenId] = safeParseArray(raw);
+      const prefix = key.startsWith(LAYOUT_KEY_PREFIX) ? LAYOUT_KEY_PREFIX
+        : key.startsWith(FREE_LAYOUT_KEY_PREFIX) ? FREE_LAYOUT_KEY_PREFIX : MAP_PLAN_KEY_PREFIX;
+      const gardenId = key.slice(prefix.length);
+      const entry = gardenLayouts[gardenId] ?? {};
+      const value = safeParseValue(raw);
+      if (prefix === LAYOUT_KEY_PREFIX) entry.grid = value;
+      else if (prefix === FREE_LAYOUT_KEY_PREFIX) entry.free = value;
+      else entry.mapPlan = value;
+      gardenLayouts[gardenId] = entry;
     }
 
     const data: BackupData = {
@@ -165,12 +183,20 @@ export function useBackup() {
       ];
 
       const restoredAt = new Date().toISOString();
-      const layoutPairs: [string, string][] = Object.entries(data.gardenLayouts ?? {}).flatMap(
-        ([gardenId, layout]) => [
-          [LAYOUT_KEY_PREFIX + gardenId, JSON.stringify(layout)] as [string, string],
-          [LAYOUT_KEY_PREFIX + gardenId + '/ts', restoredAt] as [string, string],
-        ]
-      );
+      const layoutPairs: [string, string][] = Object.entries(data.gardenLayouts ?? {}).flatMap(([gardenId, value]) => {
+        // Version 1/2 backups stored just the grid array. Keep restoring those.
+        if (Array.isArray(value)) return [
+          [LAYOUT_KEY_PREFIX + gardenId, JSON.stringify(value)],
+          [LAYOUT_KEY_PREFIX + gardenId + '/ts', restoredAt],
+        ];
+        if (!value || typeof value !== 'object') return [];
+        const saved = value as { grid?: unknown; free?: unknown; mapPlan?: unknown };
+        const pairs: [string, string][] = [];
+        if (saved.grid !== undefined) pairs.push([LAYOUT_KEY_PREFIX + gardenId, JSON.stringify(saved.grid)], [LAYOUT_KEY_PREFIX + gardenId + '/ts', restoredAt]);
+        if (saved.free !== undefined) pairs.push([FREE_LAYOUT_KEY_PREFIX + gardenId, JSON.stringify(saved.free)], [FREE_LAYOUT_KEY_PREFIX + gardenId + '/ts', restoredAt]);
+        if (saved.mapPlan !== undefined) pairs.push([MAP_PLAN_KEY_PREFIX + gardenId, JSON.stringify(saved.mapPlan)], [MAP_PLAN_KEY_PREFIX + gardenId + '/ts', restoredAt]);
+        return pairs;
+      });
 
       await AsyncStorage.multiSet([...staticPairs, ...layoutPairs]);
 

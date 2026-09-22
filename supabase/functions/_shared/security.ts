@@ -53,6 +53,29 @@ export async function enforceHourlyLimit(userId: string, limit: number): Promise
   return null;
 }
 
+export async function enforceDailyAIQuota(userId: string): Promise<Response | null> {
+  const url = Deno.env.get('SUPABASE_URL');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!url || !serviceRoleKey) return json({ error: 'Quota unavailable', code: 'QUOTA_UNAVAILABLE' }, 503);
+
+  const serviceClient = createClient(url, serviceRoleKey);
+  const dayBucket = new Date().toISOString().slice(0, 10);
+  const { data: quota, error } = await serviceClient.rpc('consume_ai_daily_quota', {
+    p_user_id: userId,
+    p_day_bucket: dayBucket,
+  });
+
+  // Fail closed: a database or quota error must never turn the paid proxy into
+  // an unmetered endpoint.
+  if (error || (quota !== 'allowed' && quota !== 'user_limit' && quota !== 'global_limit')) {
+    console.error('[security] daily AI quota check failed', error?.message ?? 'invalid quota result');
+    return json({ error: 'Quota unavailable', code: 'QUOTA_UNAVAILABLE' }, 503);
+  }
+  if (quota === 'user_limit') return json({ error: 'Daily analysis limit reached', code: 'RATE_LIMIT' }, 429);
+  if (quota === 'global_limit') return json({ error: 'Daily beta allowance reached', code: 'DAILY_BUDGET' }, 429);
+  return null;
+}
+
 export const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 export const MAX_IMAGE_BASE64_CHARS = 8_000_000;
 

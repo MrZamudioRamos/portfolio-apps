@@ -16,6 +16,7 @@ import type { DiaryEntry } from '../src/models/diary-entry';
 import { recordCare } from '../src/utils/careWrites';
 import { buildCarePlan, type CareTask } from '../src/utils/carePlan';
 import { Mascot } from '../src/components/Mascot';
+import { goBackOr } from '../src/utils/navigation';
 
 type ReviewCard = {
   plant?: Plant;
@@ -27,12 +28,6 @@ type ReviewCard = {
   action: string;
   icon: keyof typeof Ionicons.glyphMap;
 };
-
-const SAMPLE_REVIEWS: ReviewCard[] = [
-  { name: 'Albahaca Limón', meta: 'Maceta 18cm  ·  ☀️ 4h sol', rule: 'REGLA DE ORO PREVENTIVA', extra: 'Diagnóstico táctil (2 cm) cada 2 días. NUNCA regar con tierra húmeda.', support: 'Próxima revisión · Jueves mañana   ·   Poda floración · Despuntar cada 14d   ·   Sustrato testeado hace 24h', action: 'Revisar hoy', icon: 'checkmark' },
-  { name: 'Tomate Cherry Sweet', meta: 'Maceta 30L  ·  ☀️ +6h sol pleno', rule: 'RIEGO CONDICIONADO AL CLIMA', extra: 'Chequeo matinal en días soleados (>25°C). Dosis 500–800 ml solo si la tierra cede.', support: 'NUTRICIÓN Y FLORACIÓN · Dosis de potasio orgánico cada 15 días durante la etapa de floración activa · Abono: en 4 días', action: 'Registrar riego', icon: 'water' },
-  { name: 'Menta Piperita', meta: 'Jardinera 20L  ·  ☁️ Semisombra', rule: 'PAUTA DE HUMEDAD RADICULAR', extra: 'Riego moderado constante. Mantener sustrato fresco sin agua estancada.', support: 'Estado: Óptimo', action: 'Ver ficha', icon: 'document-text-outline' },
-];
 
 export default function CarePlanScreen() {
   const colors = useColors();
@@ -57,19 +52,19 @@ export default function CarePlanScreen() {
     [gardenPlants, customCropsById, entries.items]
   );
   const reviews = useMemo<ReviewCard[]>(() => {
-    if (!gardenPlants.length) return SAMPLE_REVIEWS;
-    return gardenPlants.slice(0, 3).map((plant, index) => {
+    if (!gardenPlants.length) return [];
+    return gardenPlants.slice(0, 3).map((plant) => {
       const crop = CROPS_BY_ID[plant.cropId] ?? customCropsById[plant.cropId];
       const task = tasks.find((item) => item.plantId === plant.id);
       return {
         plant,
         name: plant.name,
-        meta: `${crop?.name ?? 'Cultivo'}  ·  ${index === 1 ? '☀️ +6h sol pleno' : index === 2 ? '☁️ Semisombra' : '☀️ 4h sol'}`,
-        rule: index === 1 ? 'RIEGO CONDICIONADO AL CLIMA' : index === 2 ? 'PAUTA DE HUMEDAD RADICULAR' : 'REGLA DE ORO PREVENTIVA',
-        extra: task?.howKey ? t(task.howKey) : 'Diagnóstico táctil (2 cm) antes de aplicar agua. NUNCA regar con tierra húmeda.',
-        support: index === 1 ? 'NUTRICIÓN Y FLORACIÓN · Dosis de potasio orgánico cada 15 días durante la etapa de floración activa · Abono: en 4 días' : index === 2 ? 'Estado: Óptimo' : 'Próxima revisión · Jueves mañana   ·   Poda floración · Despuntar cada 14d   ·   Sustrato testeado hace 24h',
-        action: index === 2 ? 'Ver ficha' : index === 1 ? 'Registrar riego' : 'Revisar hoy',
-        icon: index === 2 ? 'document-text-outline' : index === 1 ? 'water' : 'checkmark',
+        meta: `${crop?.name ?? 'Cultivo'}  ·  ${plant.bedName ?? 'Ubicación no configurada'}`,
+        rule: task?.kind === 'water' ? 'COMPROBAR ANTES DE REGAR' : task ? 'TAREA DE CUIDADO' : 'SIN TAREA PENDIENTE',
+        extra: task?.howKey ? t(task.howKey) : 'No hay una recomendación calculada todavía. Registra observaciones en la ficha para afinar el plan.',
+        support: task ? `Próxima tarea · ${task.dueDate}` : 'Sin cuidados pendientes calculados',
+        action: task?.kind === 'water' ? 'Revisar hoy' : 'Ver ficha',
+        icon: task?.kind === 'water' ? 'water' : 'document-text-outline',
       };
     });
   }, [gardenPlants, customCropsById, tasks, t]);
@@ -109,7 +104,7 @@ export default function CarePlanScreen() {
   return (
     <SafeAreaView style={s.container} edges={['top', 'bottom']}>
       <View style={s.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Volver a Mi Huerto" onPress={() => router.back()} hitSlop={12} style={s.headerButton}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Volver a Mi Huerto" onPress={() => goBackOr(router)} hitSlop={12} style={s.headerButton}>
           <Ionicons name="chevron-back" size={24} color={colors.primary} />
           <Text style={s.headerBack}>Mi Huerto</Text>
         </Pressable>
@@ -124,13 +119,13 @@ export default function CarePlanScreen() {
           <View style={s.contextTop}>
             <View style={s.contextMascot}><Mascot pose="idle" size={42} /></View>
             <View style={{ flex: 1 }}>
-              <Text style={s.contextName}>Semillita  ·  <Text style={s.contextLocation}>📍 Madrid · Primavera</Text></Text>
-              <Text style={s.contextDescription}>Tu huerto en primavera en Madrid. Plan ajustado para evitar sobre-riego y optimizar horas de sol.</Text>
+              <Text style={s.contextName}>Semillita  ·  <Text style={s.contextLocation}>📍 {activeGarden?.name ?? 'Sin huerto seleccionado'}</Text></Text>
+              <Text style={s.contextDescription}>{activeGarden ? `Plan basado en las plantas y registros de ${activeGarden.province}.` : 'Selecciona un huerto para calcular cuidados con tus propios datos.'}</Text>
             </View>
           </View>
           <View style={s.contextMeta}>
-            <Text style={s.metaText}>☀️ 23°C · Brisa seca</Text>
-            <Text style={s.metaText}>✓ Riesgo hídrico: Bajo</Text>
+            <Text style={s.metaText}>✓ {gardenPlants.length} plantas registradas</Text>
+            <Text style={s.metaText}>✓ {tasks.length} tareas calculadas</Text>
           </View>
         </View>
 
@@ -142,6 +137,8 @@ export default function CarePlanScreen() {
         {plants.loading && !gardenPlants.length && (
           <View style={s.loading}><ActivityIndicator color={colors.primary} /><Text style={s.muted}>Cargando cuidados…</Text></View>
         )}
+
+        {!plants.loading && reviews.length === 0 && <View style={[s.contextCard, { alignItems: 'center' }]}><Ionicons name="leaf-outline" size={30} color={colors.primary} /><Text style={[s.contextName, { textAlign: 'center' }]}>Aún no hay cuidados que mostrar</Text><Text style={[s.contextDescription, { textAlign: 'center' }]}>Añade una planta o registra una observación para construir tu plan real.</Text></View>}
 
         {reviews.map((card, index) => {
           const crop = card.plant ? (CROPS_BY_ID[card.plant.cropId] ?? customCropsById[card.plant.cropId]) : undefined;

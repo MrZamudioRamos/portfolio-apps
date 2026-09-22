@@ -6,6 +6,7 @@ import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View, type Image
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColors } from '@portfolio/ui';
 import { SemillitaBug, type SemillitaPose } from '../src/components/SemillitaBug';
+import { goBackOr } from '../src/utils/navigation';
 
 type MascotId = 'hojita' | 'semillin' | 'mariquita' | 'lombri';
 
@@ -50,7 +51,7 @@ export default function MascotPickerScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Volver a Ajustes" style={styles.back}>
+        <Pressable onPress={() => goBackOr(router, '/settings' as any)} accessibilityRole="button" accessibilityLabel="Volver a Ajustes" style={styles.back}>
           <Ionicons name="chevron-back" size={22} color={colors.text} />
           <Text style={[styles.backText, { color: colors.text }]}>Ajustes</Text>
         </Pressable>

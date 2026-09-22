@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { recordCare } from '../../src/utils/careWrites';
 import { useCollection } from '@portfolio/storage';
 import type { Plant } from '../../src/models/plant';
+import { goBackOr } from '../../src/utils/navigation';
 
 /** Standalone Stitch action-sheet route; Hoy also reuses this care ritual inline. */
 export default function CheckSoilSheet() {
@@ -38,7 +39,7 @@ export default function CheckSoilSheet() {
         kind === 'moist' ? 'Sigue húmeda; no riego hoy.' : 'Suelo seco; riego registrado.',
         kind === 'watering' ? { liters: '0.4', method: 'hand' } : undefined,
       );
-      router.back();
+      goBackOr(router);
     } catch (cause) {
       setError(cause instanceof Error && cause.message === 'Confirm sowing first'
         ? 'Confirma primero la siembra de esta planta para empezar el cuidado diario.'
@@ -57,7 +58,7 @@ export default function CheckSoilSheet() {
           <Text style={[s.title, { color: colors.text }]}>Comprobar sustrato</Text>
           <Text style={[s.subtitle, { color: colors.textSecondary }]}>{plant?.name ?? 'Tu planta seleccionada'} · Comprobación de hoy</Text>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => router.back()} style={s.close}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => goBackOr(router)} style={s.close}>
           <Ionicons name="close" size={21} color={colors.textSecondary} />
         </Pressable>
       </View>
@@ -88,7 +89,7 @@ export default function CheckSoilSheet() {
       {saving && <ActivityIndicator color={colors.primary} accessibilityLabel="Guardando comprobación" />}
       {error && <Text accessibilityRole="alert" style={[s.error, { color: colors.error }]}>{error}</Text>}
       {!plantId && <Text style={[s.error, { color: colors.textSecondary }]}>Abre esta prueba desde una planta para guardar el resultado.</Text>}
-      <Pressable accessibilityRole="button" onPress={() => router.back()} style={s.cancel}><Text style={[s.cancelText, { color: colors.textSecondary }]}>Cancelar</Text></Pressable>
+      <Pressable accessibilityRole="button" onPress={() => goBackOr(router)} style={s.cancel}><Text style={[s.cancelText, { color: colors.textSecondary }]}>Cancelar</Text></Pressable>
     </SafeAreaView>
   );
 }

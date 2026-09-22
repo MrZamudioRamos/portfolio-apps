@@ -6,9 +6,10 @@ export interface FreeMapPosition {
   y: number;
 }
 
-type FreeMapPositions = Record<string, FreeMapPosition>;
+export type FreeMapPositions = Record<string, FreeMapPosition>;
 
-const positionsKey = (gardenId: string) => `@portfolio/huerto/garden_free_layout/${gardenId}`;
+export const freeLayoutKey = (gardenId: string) => `@portfolio/huerto/garden_free_layout/${gardenId}`;
+export const freeLayoutTsKey = (gardenId: string) => `@portfolio/huerto/garden_free_layout/${gardenId}/ts`;
 
 /** Persists hand-placed plant positions for balcony and indoor gardens. */
 export function useGardenFreeLayout(gardenId: string | undefined) {
@@ -23,7 +24,7 @@ export function useGardenFreeLayout(gardenId: string | undefined) {
     }
 
     setLoading(true);
-    AsyncStorage.getItem(positionsKey(gardenId))
+    AsyncStorage.getItem(freeLayoutKey(gardenId))
       .then((raw) => {
         if (!raw) {
           setPositions({});
@@ -43,10 +44,33 @@ export function useGardenFreeLayout(gardenId: string | undefined) {
     if (!gardenId) return;
     setPositions((current) => {
       const next = { ...current, [plantId]: position };
-      void AsyncStorage.setItem(positionsKey(gardenId), JSON.stringify(next));
+      const now = new Date().toISOString();
+      void AsyncStorage.setItem(freeLayoutKey(gardenId), JSON.stringify(next));
+      void AsyncStorage.setItem(freeLayoutTsKey(gardenId), now);
       return next;
     });
   }
 
-  return { positions, loading, setPosition };
+  function removePosition(plantId: string) {
+    if (!gardenId) return;
+    setPositions((current) => {
+      if (!(plantId in current)) return current;
+      const next = { ...current };
+      delete next[plantId];
+      const now = new Date().toISOString();
+      void AsyncStorage.setItem(freeLayoutKey(gardenId), JSON.stringify(next));
+      void AsyncStorage.setItem(freeLayoutTsKey(gardenId), now);
+      return next;
+    });
+  }
+
+  function clearAll() {
+    if (!gardenId) return;
+    const now = new Date().toISOString();
+    setPositions({});
+    void AsyncStorage.setItem(freeLayoutKey(gardenId), JSON.stringify({}));
+    void AsyncStorage.setItem(freeLayoutTsKey(gardenId), now);
+  }
+
+  return { positions, loading, setPosition, removePosition, clearAll };
 }

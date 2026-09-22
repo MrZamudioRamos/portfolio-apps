@@ -27,6 +27,7 @@ import { useCsvExport } from '../../src/hooks/useCsvExport';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { usePro } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { goBackOr } from '../../src/utils/navigation';
 
 const ALL_TYPES: Array<EntryType | 'all'> = [
   'all', 'watering', 'sowing', 'harvest', 'fertilizing', 'transplant',
@@ -268,7 +269,7 @@ function DiaryInner() {
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
             {plantId && (
-              <Pressable onPress={() => router.back()} hitSlop={8} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={t('common.back')}>
+              <Pressable onPress={() => goBackOr(router)} hitSlop={8} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={t('common.back')}>
                 <Ionicons name="arrow-back" size={22} color={colors.primary} />
               </Pressable>
             )}

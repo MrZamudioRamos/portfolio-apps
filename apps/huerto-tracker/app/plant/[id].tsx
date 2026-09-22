@@ -4,6 +4,7 @@ import { useCollection } from '@portfolio/storage';
 import { useReminders } from '@portfolio/notifications';
 import { ShareModal, type ShareModalProps } from '../../src/components/ShareModal';
 import { formatDate, formatRelative } from '@portfolio/shared';
+import { goBackOr } from '../../src/utils/navigation';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassView, isLiquidGlassAvailable } from '../../src/utils/glassEffect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -236,7 +237,7 @@ export default function PlantDetailScreen() {
   // data-backed implementation below for the eventual native data migration,
   // while exposing the complete approved composition in the current preview.
   if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
-    return <StitchPlantDetailScreen colors={colors} plantId={id} onBack={() => router.back()} />;
+    return <StitchPlantDetailScreen colors={colors} plantId={id} onBack={() => goBackOr(router, '/(tabs)' as any)} />;
   }
 
   if (plants.loading && !plant) return (
@@ -2122,11 +2123,27 @@ function StitchPlantDetailScreen({
   const [soilState, setSoilState] = useState<'pending' | 'moist' | 'dry'>('pending');
   const [careSaving, setCareSaving] = useState(false);
   const [careError, setCareError] = useState<string | null>(null);
-  const [climateOpen, setClimateOpen] = useState(true);
-  const [pestsOpen, setPestsOpen] = useState(true);
+  const [climateOpen, setClimateOpen] = useState(false);
+  const [pestsOpen, setPestsOpen] = useState(false);
   const [favorite, setFavorite] = useState(false);
   const router = useRouter();
   const styles = plantStitchStyles;
+  const plants = useCollection<Plant>('plants');
+  const plant = plants.getById(plantId);
+  const crop = plant ? CROPS_BY_ID[plant.cropId] : undefined;
+  const plantImage = plant?.photoUri ?? (plant ? CROP_IMAGES[plant.cropId] : undefined);
+  const statusLabel = plant ? PLANT_STATUS_CONFIG[plant.status].label : 'Sin estado';
+  const stageLabels = ['Semillero', 'Plántula', 'Crecimiento', 'Floración', 'Cosecha'];
+  const stageByStatus: Record<PlantStatus, number> = {
+    seedling: 0,
+    transplanted: 1,
+    growing: 2,
+    flowering: 3,
+    fruiting: 3,
+    harvesting: 4,
+    finished: 4,
+  };
+  const currentStage = plant ? stageByStatus[plant.status] : -1;
 
   async function registerSoilResult(next: 'moist' | 'dry') {
     if (careSaving) return;
@@ -2160,9 +2177,9 @@ function StitchPlantDetailScreen({
           <Ionicons name="chevron-back" size={21} color={colors.text} />
           <Text style={[styles.headerBackText, { color: colors.text }]}>Mi Huerto</Text>
         </Pressable>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Tomate Cherry</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{plant?.name ?? 'Planta no encontrada'}</Text>
         <View style={styles.headerActions}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Compartir ficha" onPress={() => void Share.share({ message: 'Tomate Cherry · Balcón Este · Floración activa · Semilla' }).catch(() => {})} style={styles.iconButton}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Compartir ficha" onPress={() => void Share.share({ message: `${plant?.name ?? 'Planta'} · ${plant?.bedName ?? 'Ubicación no configurada'} · ${plant ? PLANT_STATUS_CONFIG[plant.status].label : 'Sin estado'}` }).catch(() => {})} style={styles.iconButton}>
             <Ionicons name="share-outline" size={20} color={colors.textSecondary} />
           </Pressable>
           <Pressable accessibilityRole="button" accessibilityLabel="Marcar como favorito" onPress={() => setFavorite(!favorite)} style={styles.iconButton}>
@@ -2173,44 +2190,43 @@ function StitchPlantDetailScreen({
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <View style={[styles.hero, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Image source={{ uri: CROP_IMAGES['tomate-cherry'] }} style={styles.heroImage} resizeMode="cover" />
+          {plantImage ? <Image source={{ uri: plantImage }} style={styles.heroImage} resizeMode="cover" /> : <View style={[styles.heroImage, { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceAlt }]}><Ionicons name="leaf-outline" size={42} color={colors.primary} /></View>}
           <View style={styles.heroBadgeRow}>
-            <View style={[styles.badge, { backgroundColor: colors.primaryDark }]}><Text style={styles.badgeText}>SEMANA 7</Text></View>
-            <View style={[styles.badge, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="leaf-outline" size={13} color={colors.primary} /><Text style={[styles.badgeText, { color: colors.primary }]}>Floración activa</Text></View>
+            <View style={[styles.badge, { backgroundColor: colors.primaryDark }]}><Text style={styles.badgeText}>REGISTRO</Text></View>
+            <View style={[styles.badge, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="leaf-outline" size={13} color={colors.primary} /><Text style={[styles.badgeText, { color: colors.primary }]}>{plant ? PLANT_STATUS_CONFIG[plant.status].label : 'Sin estado'}</Text></View>
           </View>
-          <Text style={[styles.heroMeta, { color: colors.textSecondary }]}>Balcón Este · Maceta 25cm · Solano ‘Sweet Million’</Text>
-          <View style={styles.progressRow}><Text style={[styles.progressLabel, { color: colors.textSecondary }]}>Ciclo total estimado: 90 días</Text><Text style={[styles.progressValue, { color: colors.text }]}>49 / 90 días (54%)</Text></View>
-          <View style={[styles.progressTrack, { backgroundColor: colors.surfaceAlt }]}><View style={[styles.progressFill, { backgroundColor: colors.primary, width: '54%' }]} /></View>
+          <Text style={[styles.heroMeta, { color: colors.textSecondary }]}>{plant?.bedName ?? 'Ubicación no configurada'} · {plant?.variety ?? crop?.name ?? 'Cultivo registrado'}</Text>
+          <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>{plant?.sowingDate ? `Siembra registrada: ${plant.sowingDate}` : 'Aún no hay fecha de siembra registrada'}</Text>
         </View>
 
         <Text style={[styles.sectionEyebrow, { color: colors.textSecondary }]}>MÉTRICAS RÁPIDAS</Text>
         <View style={styles.metricsRow}>
-          <DetailMetric icon="water-outline" label="RIEGO" value="Cada 2-3 d" note="Moderado" color={colors.info} colors={colors} />
-          <DetailMetric icon="sunny-outline" label="LUZ SOLAR" value="6h directas" note="Sol pleno" color={colors.warning} colors={colors} />
-          <DetailMetric icon="nutrition-outline" label="NUTRIENTES" value="Humus / 15d" note="Rico potasio" color={colors.primary} colors={colors} />
+          <DetailMetric icon="water-outline" label="RIEGO" value={crop?.waterNeeds ?? '—'} note="Catálogo de cultivo" color={colors.info} colors={colors} />
+          <DetailMetric icon="sunny-outline" label="LUZ SOLAR" value="—" note="Sin medición" color={colors.warning} colors={colors} />
+          <DetailMetric icon="nutrition-outline" label="NUTRIENTES" value="—" note="Sin registro" color={colors.primary} colors={colors} />
         </View>
 
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.cardTitleRow}><Ionicons name="trending-up-outline" size={20} color={colors.primary} /><Text style={[styles.cardTitle, { color: colors.text }]}>Etapas de desarrollo</Text></View>
-          <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>Fase 4 de 5: Floración y cuajado <Text style={{ color: colors.primary, fontWeight: '800' }}>80% completado</Text></Text>
-          <View style={styles.stageRow}>{['Semillero', 'Plántula', 'Crecimiento', 'Floración', 'Cosecha'].map((label, index) => <View key={label} style={styles.stageItem}><View style={[styles.stageDot, { backgroundColor: index < 4 ? colors.primary : colors.surfaceAlt, borderColor: colors.primary }]}>{index < 4 && <Ionicons name="checkmark" size={12} color="#fff" />}</View><Text style={[styles.stageText, { color: index === 3 ? colors.primaryDark : colors.textSecondary }]}>{label}</Text>{index < 4 && <View style={[styles.stageLine, { backgroundColor: colors.primary }]} />}</View>)}</View>
-          <View style={[styles.tipInline, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="information-circle-outline" size={18} color={colors.primary} /><Text style={[styles.tipInlineText, { color: colors.textSecondary }]}>Consejo de floración: Sacude suavemente las ramas florales por la mañana para favorecer la autopolinización en el balcón.</Text></View>
+          <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>{plant ? `Fase registrada: ${statusLabel}` : 'Fase no registrada'}</Text>
+          <View style={styles.stageRow}>{stageLabels.map((label, index) => { const complete = currentStage >= index; const active = currentStage === index; return <View key={label} style={styles.stageItem}><View style={[styles.stageDot, { backgroundColor: complete ? colors.primary : colors.surfaceAlt, borderColor: colors.primary }]}>{complete && <Ionicons name="checkmark" size={12} color="#fff" />}</View><Text style={[styles.stageText, { color: active ? colors.primaryDark : colors.textSecondary }]}>{label}</Text>{index < stageLabels.length - 1 && <View style={[styles.stageLine, { backgroundColor: currentStage > index ? colors.primary : colors.border }]} />}</View>; })}</View>
+          <View style={[styles.tipInline, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="information-circle-outline" size={18} color={colors.primary} /><Text style={[styles.tipInlineText, { color: colors.textSecondary }]}>{crop?.tips ?? 'Registra observaciones para recibir consejos relacionados con este cultivo.'}</Text></View>
         </View>
 
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.cardTitleRow}><Ionicons name="finger-print-outline" size={20} color={colors.primary} /><Text style={[styles.cardTitle, { color: colors.text }]}>Control Diario de Riego</Text></View>
           <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>Test de sustrato · Prueba táctil de 2 a 3 cm</Text>
           <Text style={[styles.body, { color: colors.text }]}>Introduce tu dedo índice hasta el segundo nudillo en el sustrato. Si la tierra sale limpia y fresca en la punta pero seca arriba, aún conserva humedad en la raíz.</Text>
-          <View style={[styles.lastCheck, { backgroundColor: soilState === 'dry' ? colors.warning + '20' : colors.surfaceAlt }]}><Ionicons name="time-outline" size={17} color={colors.textSecondary} /><Text style={[styles.lastCheckText, { color: colors.textSecondary }]}>Última comprobación: Hoy a las 08:30 ({soilState === 'pending' ? 'Pendiente de acción' : soilState === 'moist' ? 'Sigue húmeda' : 'Necesita riego'})</Text></View>
+          <View style={[styles.lastCheck, { backgroundColor: soilState === 'dry' ? colors.warning + '20' : colors.surfaceAlt }]}><Ionicons name="time-outline" size={17} color={colors.textSecondary} /><Text style={[styles.lastCheckText, { color: colors.textSecondary }]}>{soilState === 'pending' ? 'Aún no hay una comprobación en esta sesión' : soilState === 'moist' ? 'Resultado guardado: sigue húmeda' : 'Resultado guardado: necesita riego'}</Text></View>
           <View style={styles.soilActions}>
             <Pressable accessibilityRole="button" disabled={careSaving} onPress={() => void registerSoilResult('moist')} style={[styles.soilButton, { borderColor: colors.primary, backgroundColor: soilState === 'moist' ? colors.primary : colors.surface, opacity: careSaving ? 0.65 : 1 }]}><Ionicons name="cloud-done-outline" size={19} color={soilState === 'moist' ? '#fff' : colors.primary} /><Text style={[styles.soilButtonTitle, { color: soilState === 'moist' ? '#fff' : colors.text }]}>Comprobada</Text><Text style={[styles.soilButtonNote, { color: soilState === 'moist' ? '#fff' : colors.textSecondary }]}>Sigue húmeda</Text></Pressable>
-            <Pressable accessibilityRole="button" disabled={careSaving} onPress={() => void registerSoilResult('dry')} style={[styles.soilButton, { borderColor: colors.info, backgroundColor: soilState === 'dry' ? colors.info : colors.surface, opacity: careSaving ? 0.65 : 1 }]}><Ionicons name="water-outline" size={19} color={soilState === 'dry' ? '#fff' : colors.info} /><Text style={[styles.soilButtonTitle, { color: soilState === 'dry' ? '#fff' : colors.text }]}>Regada con éxito</Text><Text style={[styles.soilButtonNote, { color: soilState === 'dry' ? '#fff' : colors.textSecondary }]}>500ml con drenaje</Text></Pressable>
+            <Pressable accessibilityRole="button" disabled={careSaving} onPress={() => void registerSoilResult('dry')} style={[styles.soilButton, { borderColor: colors.info, backgroundColor: soilState === 'dry' ? colors.info : colors.surface, opacity: careSaving ? 0.65 : 1 }]}><Ionicons name="water-outline" size={19} color={soilState === 'dry' ? '#fff' : colors.info} /><Text style={[styles.soilButtonTitle, { color: soilState === 'dry' ? '#fff' : colors.text }]}>Registrar riego</Text><Text style={[styles.soilButtonNote, { color: soilState === 'dry' ? '#fff' : colors.textSecondary }]}>Con la cantidad que hayas usado</Text></Pressable>
           </View>
           {careError && <Text accessibilityRole="alert" style={[styles.errorText, { color: colors.error }]}>{careError}</Text>}
         </View>
 
-        <Pressable accessibilityRole="button" onPress={() => setClimateOpen(!climateOpen)} style={[styles.accordion, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="thermometer-outline" size={20} color={colors.warning} /><View style={{ flex: 1 }}><Text style={[styles.accordionTitle, { color: colors.text }]}>Guía climática para España</Text><Text style={[styles.accordionSubtitle, { color: colors.textSecondary }]}>Gestión de olas de calor y sol ibérico</Text></View><Ionicons name={climateOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} /></Pressable>
-        {climateOpen && <View style={[styles.accordionBody, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={[styles.alertTitle, { color: colors.warning }]}>⚠ Alerta de verano (Julio - Agosto)</Text><Text style={[styles.body, { color: colors.textSecondary }]}>En la meseta central y sur de España, las temperaturas sobrepasan los 35°C. El polen del tomate se vuelve estéril por encima de 34°C.</Text><Bullet text="Coloca una malla de sombreo del 30% en horas punta (13:00 - 17:00)." colors={colors} /><Bullet text="Riega siempre al amanecer o al anochecer para no cocer las raíces en maceta." colors={colors} /><Bullet text="Aplica acolchado de paja o corteza (mulch) de 3 cm para reducir la evaporación." colors={colors} /></View>}
+        <Pressable accessibilityRole="button" onPress={() => setClimateOpen(!climateOpen)} style={[styles.accordion, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="thermometer-outline" size={20} color={colors.warning} /><View style={{ flex: 1 }}><Text style={[styles.accordionTitle, { color: colors.text }]}>Guía climática</Text><Text style={[styles.accordionSubtitle, { color: colors.textSecondary }]}>{plant?.bedName ? `Referencia para ${plant.bedName}` : 'Registra una ubicación para personalizarla'}</Text></View><Ionicons name={climateOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} /></Pressable>
+        {climateOpen && <View style={[styles.accordionBody, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={[styles.alertTitle, { color: colors.warning }]}>Recomendaciones generales</Text><Text style={[styles.body, { color: colors.textSecondary }]}>Todavía no hay una previsión meteorológica asociada a esta planta. Consulta la previsión local antes de ajustar el riego o la exposición.</Text><Bullet text="Observa la humedad del sustrato antes de regar." colors={colors} /><Bullet text="Protege la planta de cambios bruscos de temperatura." colors={colors} /></View>}
 
         <Pressable accessibilityRole="button" onPress={() => setPestsOpen(!pestsOpen)} style={[styles.accordion, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="bug-outline" size={20} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[styles.accordionTitle, { color: colors.text }]}>Botiquín natural & plagas</Text><Text style={[styles.accordionSubtitle, { color: colors.textSecondary }]}>Prevención orgánica con jabón potásico</Text></View><Ionicons name={pestsOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} /></Pressable>
         {pestsOpen && <View style={[styles.accordionBody, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={[styles.body, { color: colors.text }]}>Fórmula preventiva semanal: <Text style={{ color: colors.primaryDark, fontWeight: '800' }}>100% Ecológico</Text></Text><Text style={[styles.body, { color: colors.textSecondary }]}>Diluye 15 ml de jabón potásico + 5 ml de aceite de neem en 1 litro de agua tibia.</Text><View style={styles.checkLine}><Ionicons name="checkmark-circle" size={18} color={colors.primary} /><Text style={[styles.body, { color: colors.textSecondary, flex: 1 }]}>Pulveriza el envés de las hojas al caer el sol para prevenir mosca blanca, pulgón y araña roja sin dañar a las abejas.</Text></View></View>}

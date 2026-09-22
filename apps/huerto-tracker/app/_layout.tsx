@@ -27,6 +27,7 @@ import {
 } from '@expo-google-fonts/nunito';
 import { applyNunito } from '../src/theme/applyNunito';
 import { loadThemePreference, useThemePreference } from '../src/hooks/useThemePreference';
+import { hydrateCropCatalog } from '../src/data/cropCatalog';
 
 // Fast Refresh re-evaluates this route while the shared client module survives.
 // Reuse that exact client so auth subscribers never point at different clients.
@@ -83,9 +84,18 @@ function AppServices() {
   useEffect(() => {
     track(EVENTS.appOpen);
     loadSavedLanguage();
+    void hydrateCropCatalog();
   }, []);
   useEffect(() => {
     const sub = Linking.addEventListener('url', ({ url }) => {
+      const parsed = Linking.parse(url);
+      const route = [parsed.hostname, parsed.path].filter(Boolean).join('/').replace(/^\/+/, '');
+      if (route === 'garden/invite' || route.endsWith('/garden/invite')) {
+        const rawToken = parsed.queryParams?.token;
+        const token = Array.isArray(rawToken) ? rawToken[0] : rawToken;
+        router.push({ pathname: '/garden/invite', params: typeof token === 'string' ? { token } : {} } as any);
+        return;
+      }
       // Only navigate on successful exchange — a rejected handleDeepLink
       // means the user is NOT authenticated, so we stay put rather than
       // landing on /(tabs) with an empty logged-in state.

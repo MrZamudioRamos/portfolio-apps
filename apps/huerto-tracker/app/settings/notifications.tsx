@@ -15,6 +15,7 @@ import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { usePlantNotifications } from '../../src/hooks/usePlantNotifications';
 import type { GardenReminder } from '../../src/models/reminder';
 import { REMINDER_TYPE_CONFIG } from '../../src/models/reminder';
+import { goBackOr } from '../../src/utils/navigation';
 
 type SmartNotificationPreference = 'morningCheck' | 'heatWave' | 'wind' | 'weeklySummary' | 'quietHours';
 
@@ -89,13 +90,13 @@ export default function NotificationsSettingsScreen() {
   );
 
   if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
-    return <StitchNotificationsScreen colors={colors} onBack={() => router.back()} />;
+    return <StitchNotificationsScreen colors={colors} onBack={() => goBackOr(router, '/settings' as any)} />;
   }
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={{ minWidth: 44, minHeight: 44, alignItems: 'flex-start', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={t('common.back')}>
+        <Pressable onPress={() => goBackOr(router, '/settings' as any)} hitSlop={12} style={{ minWidth: 44, minHeight: 44, alignItems: 'flex-start', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={t('common.back')}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('notifications.title')}</Text>

@@ -12,6 +12,7 @@ import { CROPS_BY_ID } from '../src/data/crops';
 import type { Plant } from '../src/models/plant';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../src/hooks/useCustomCrops';
+import { goBackOr } from '../src/utils/navigation';
 
 // Crop family groupings for rotation recommendations
 const CROP_FAMILIES: Record<string, { emoji: string; color: string; crops: string[] }> = {
@@ -166,11 +167,9 @@ export default function RotationScreen() {
 
   const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
 
-  return <StitchRotationScreen colors={colors} onBack={() => router.back()} />;
-
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      <ScreenHeader title={t('rotation.title')} onBack={() => router.back()} />
+      <ScreenHeader title={t('rotation.title')} onBack={() => goBackOr(router)} />
 
       <ScrollView
         contentContainerStyle={s.scroll}

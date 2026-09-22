@@ -1,6 +1,7 @@
 import { useColors, useTheme, Button, type Theme } from '@portfolio/ui';
-import { useReminders, NotificationPermissionDeniedError, type ReminderFrequency } from '@portfolio/notifications';
+import { useReminders, NotificationPermissionDeniedError, localReminderDate, type ReminderFrequency } from '@portfolio/notifications';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +21,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { REMINDER_TYPE_CONFIG, type GardenReminder, type ReminderType } from '../../src/models/reminder';
 import { TimePicker } from '../../src/components/TimePicker';
+import { goBackOr } from '../../src/utils/navigation';
 import { CollectionError } from '../../src/components/CollectionError';
 
 const TYPES: ReminderType[] = ['watering', 'fertilizing', 'harvest_check', 'custom'];
@@ -52,6 +54,8 @@ export default function ReminderEditScreen() {
     reminder && FREQUENCIES.includes(reminder.frequency) ? reminder.frequency : 'daily';
   const [frequency, setFrequency] = useState<ReminderFrequency>(initialFrequency);
   const [weekday, setWeekday] = useState<number>(reminder?.weekday ?? 2);
+  const [dueDate, setDueDate] = useState<string | undefined>(reminder?.dueDate);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [hour, setHour] = useState(reminder?.time?.hour ?? 8);
   const [minute, setMinute] = useState(reminder?.time?.minute ?? 0);
   const [enabled, setEnabled] = useState(reminder?.enabled ?? true);
@@ -68,7 +72,7 @@ export default function ReminderEditScreen() {
 
   useEffect(() => {
     if (!saved) return;
-    const timeout = setTimeout(() => router.back(), 1200);
+    const timeout = setTimeout(() => goBackOr(router), 1200);
     return () => clearTimeout(timeout);
   }, [router, saved]);
 
@@ -78,6 +82,7 @@ export default function ReminderEditScreen() {
     setTitle(reminder.title);
     setFrequency(FREQUENCIES.includes(reminder.frequency) ? reminder.frequency : 'daily');
     setWeekday(reminder.weekday ?? 2);
+    setDueDate(reminder.dueDate);
     setHour(reminder.time?.hour ?? 8);
     setMinute(reminder.time?.minute ?? 0);
     setEnabled(reminder.enabled);
@@ -89,10 +94,26 @@ export default function ReminderEditScreen() {
     return label.charAt(0).toUpperCase() + label.slice(1, 3);
   }
 
+  function parseLocalDate(value: string): Date | null {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+    const [year, month, day] = value.split('-').map(Number);
+    const parsed = new Date(year, month - 1, day, 12);
+    return parsed.getFullYear() === year && parsed.getMonth() === month - 1 && parsed.getDate() === day ? parsed : null;
+  }
+
+  function localDateKey(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  function formatLocalDate(value: string, language: string): string {
+    const date = parseLocalDate(value);
+    return date ? new Intl.DateTimeFormat(language, { dateStyle: 'long' }).format(date) : value;
+  }
+
   if (reminders.loading) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+        <Pressable onPress={() => goBackOr(router)} style={{ padding: spacing.lg }} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
@@ -106,7 +127,7 @@ export default function ReminderEditScreen() {
   if (reminders.error) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+        <Pressable onPress={() => goBackOr(router)} style={{ padding: spacing.lg }} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <View style={{ flex: 1, justifyContent: 'center', padding: spacing.xl }}>
@@ -119,7 +140,7 @@ export default function ReminderEditScreen() {
   if (!reminder) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }}>
+        <Pressable onPress={() => goBackOr(router)} style={{ padding: spacing.lg }}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         <Text style={[s.notFound, { color: colors.textSecondary }]}>
@@ -142,6 +163,10 @@ export default function ReminderEditScreen() {
   }
 
   async function handleSave() {
+    if (enabled && frequency === 'once' && dueDate && !localReminderDate(dueDate, { hour, minute })) {
+      Alert.alert('Elige una hora futura', 'La fecha o la hora seleccionada ya ha pasado. Cambia el día o la hora para poder programar el aviso.');
+      return;
+    }
     setSaving(true);
     setSaveError(false);
     setPermissionError(false);
@@ -151,6 +176,7 @@ export default function ReminderEditScreen() {
         title: title.trim() || REMINDER_TYPE_CONFIG[type].defaultTitle,
         frequency,
         weekday: frequency === 'weekly' || frequency === 'once' ? weekday : undefined,
+        dueDate: frequency === 'once' ? dueDate : undefined,
         time: { hour, minute },
         enabled,
       });
@@ -180,7 +206,7 @@ export default function ReminderEditScreen() {
           onPress: async () => {
             // Soft-delete syncs the tombstone to other devices on next push.
             await reminders.softRemove(id);
-            router.back();
+            goBackOr(router);
           },
         },
       ]
@@ -193,7 +219,7 @@ export default function ReminderEditScreen() {
         {/* Header */}
         <View style={[s.header, { borderBottomColor: colors.border }]}>
           <Text style={[s.headerTitle, { color: colors.text }]}>{t('reminderEdit.title')}</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel={t('common.close')} onPress={() => router.back()} hitSlop={12} style={({ pressed }) => ({ opacity: pressed ? 0.55 : 1 })}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('common.close')} onPress={() => goBackOr(router)} hitSlop={12} style={({ pressed }) => ({ opacity: pressed ? 0.55 : 1 })}>
             <Ionicons name="close" size={24} color={colors.textSecondary} />
           </Pressable>
         </View>
@@ -286,7 +312,7 @@ export default function ReminderEditScreen() {
                 return (
                   <Pressable
                     key={f}
-                    onPress={() => setFrequency(f)}
+                    onPress={() => { setFrequency(f); if (f !== 'once') setDueDate(undefined); }}
                     style={({ pressed }) => [
                       s.chip,
                       {
@@ -306,7 +332,7 @@ export default function ReminderEditScreen() {
           </ScrollView>
 
           {/* Hour picker */}
-          {(frequency === 'weekly' || frequency === 'once') && (
+          {frequency === 'weekly' && (
             <>
               <Text style={[s.label, { color: colors.textSecondary }]}>{t('reminderNew.weekdayLabel')}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.lg }}>
@@ -328,6 +354,16 @@ export default function ReminderEditScreen() {
                   })}
                 </View>
               </ScrollView>
+            </>
+          )}
+
+          {frequency === 'once' && (
+            <>
+              <Text style={[s.label, { color: colors.textSecondary }]}>Fecha del aviso</Text>
+              <Pressable accessibilityRole="button" onPress={() => setShowDatePicker(true)} style={[s.input, { minHeight: 48, justifyContent: 'center', backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <Text style={{ color: colors.text }}>{dueDate ? formatLocalDate(dueDate, i18n.language) : 'Elegir una fecha exacta (opcional)'}</Text>
+              </Pressable>
+              {showDatePicker && <DateTimePicker value={dueDate ? parseLocalDate(dueDate) ?? new Date() : new Date()} mode="date" display={Platform.OS === 'ios' ? 'compact' : 'default'} onChange={(_, date) => { if (date) setDueDate(localDateKey(date)); if (Platform.OS !== 'ios') setShowDatePicker(false); }} />}
             </>
           )}
 

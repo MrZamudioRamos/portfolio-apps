@@ -15,6 +15,7 @@ import { buildGamificationData, evaluateBadges, sortBadges, getUnlockedCount, TI
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../src/hooks/useCustomCrops';
 import { CollectionError } from '../src/components/CollectionError';
+import { goBackOr } from '../src/utils/navigation';
 
 const BAR_MAX_H = 72;
 
@@ -271,7 +272,7 @@ export default function StatsScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={[s.statsHeader, { borderBottomColor: colors.border }]}>
         <View style={s.statsHeaderRow}>
-          <Pressable onPress={() => router.back()} hitSlop={12} style={s.statsBackButton}>
+          <Pressable onPress={() => goBackOr(router)} hitSlop={12} style={s.statsBackButton}>
             <Ionicons name="arrow-back" size={20} color={colors.primary} />
             <Text style={[s.statsBackText, { color: colors.primary }]}>Volver a Mi Huerto</Text>
           </Pressable>

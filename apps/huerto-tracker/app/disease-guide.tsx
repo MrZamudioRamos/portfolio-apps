@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DISEASES, type DiseaseInfo, type DiseaseType } from '../src/data/diseases';
 import { CROPS_BY_ID } from '../src/data/crops';
+import { goBackOr } from '../src/utils/navigation';
 
 const TYPE_COLOR: Record<DiseaseType, string> = {
   plaga: '#EF5350',
@@ -64,7 +65,7 @@ export default function DiseaseGuideScreen() {
     { key: 'deficiencia', label: t('diseaseGuide.filterDeficiency') },
   ];
 
-  return <StitchDiseaseScreen colors={colors} onBack={() => router.back()} onScan={() => router.push('/plant/scan' as any)} />;
+  return <StitchDiseaseScreen colors={colors} onBack={() => goBackOr(router)} onScan={() => router.push('/plant/scan' as any)} />;
 
   const getDiseaseContent = (disease: DiseaseInfo) => {
     const rawSigns = t(`diseases.${disease.id}.visualSigns`, { returnObjects: true, defaultValue: disease.visualSigns });
@@ -91,7 +92,7 @@ export default function DiseaseGuideScreen() {
       <ScreenHeader
         title={t('diseaseGuide.title')}
         subtitle={t('diseaseGuide.subtitle')}
-        onBack={() => router.back()}
+        onBack={() => goBackOr(router)}
         variant="left"
       />
 

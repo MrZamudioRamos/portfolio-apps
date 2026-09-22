@@ -21,11 +21,10 @@
 //   }
 // Response: { reply: string } or { error, code } with 4xx/5xx status.
 
-import { CORS, clampText, enforceHourlyLimit, json, requireUser } from '../_shared/security.ts';
+import { CORS, clampText, enforceDailyAIQuota, json, requireUser } from '../_shared/security.ts';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-haiku-4-5-20251001';
-const HOURLY_LIMIT = 20;
 
 const LANG_NAMES: Record<string, string> = {
   es: 'Spanish', en: 'English', ca: 'Catalan', eu: 'Basque', gl: 'Galician', val: 'Valencian',
@@ -90,7 +89,7 @@ Deno.serve(async (req: Request) => {
   const user = await requireUser(req);
   if (user instanceof Response) return user;
 
-  // ── 2. Parse and validate before spending one rate-limit unit. ─────────────
+  // ── 2. Parse and validate before reserving one daily beta slot. ────────────
   const apiKey = Deno.env.get('ANTHROPIC_KEY');
   if (!apiKey) return json({ error: 'Server not configured', code: 'NO_KEY' }, 500);
 
@@ -121,8 +120,8 @@ Deno.serve(async (req: Request) => {
     .slice(-10);
   if (!validMessages.length) return json({ error: 'No valid messages', code: 'BAD_REQUEST' }, 400);
 
-  const rateLimitResponse = await enforceHourlyLimit(user.id, HOURLY_LIMIT);
-  if (rateLimitResponse) return rateLimitResponse;
+  const quotaResponse = await enforceDailyAIQuota(user.id);
+  if (quotaResponse) return quotaResponse;
 
   const safeContext: GardenContext = {
     climateZone: clampText(gardenContext?.climateZone, 80) ?? undefined,

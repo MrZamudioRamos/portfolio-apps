@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { goBackOr } from '../src/utils/navigation';
 
 type CropPreset = { id: string; name: string; icon: keyof typeof Ionicons.glyphMap; volume: number; hint: string };
 
@@ -36,7 +37,7 @@ export default function VolumeCalculatorScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Volver a Herramientas" onPress={() => router.back()} style={styles.headerAction}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Volver a Herramientas" onPress={() => goBackOr(router)} style={styles.headerAction}>
           <Ionicons name="chevron-back" size={22} color={colors.text} />
           <Text style={[styles.headerBack, { color: colors.text }]}>Herramientas</Text>
         </Pressable>

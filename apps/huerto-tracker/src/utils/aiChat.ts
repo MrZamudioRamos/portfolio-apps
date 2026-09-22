@@ -1,4 +1,5 @@
 import { getSupabase } from '@portfolio/supabase';
+import { getEdgeFunctionErrorCode } from './edgeFunctionErrors';
 import type { Garden } from '../models/garden';
 import type { Plant } from '../models/plant';
 import { CROPS_BY_ID } from '../data/crops';
@@ -46,19 +47,12 @@ export async function sendChatMessage(
     body: { messages, gardenContext, language },
   });
 
-  if (error || !data) {
-    // FunctionsHttpError carries the Response in .context — surface the
-    // function's error code (AUTH, NO_KEY, …) so the UI can react to it.
-    let code = 'API_ERROR';
-    const ctx = (error as { context?: Response } | null)?.context;
-    if (ctx && typeof ctx.json === 'function') {
-      try {
-        code = ((await ctx.json()) as { code?: string }).code ?? code;
-      } catch { /* body not JSON — keep generic code */ }
-    }
+  if (error) {
+    const code = await getEdgeFunctionErrorCode(error);
     console.error('[aiChat] edge function error', code, error);
     throw new Error(code);
   }
+  if (!data) throw new Error('API_ERROR');
   if ((data as { code?: string }).code) throw new Error((data as { code: string }).code);
   const reply = (data as { reply?: string }).reply;
   if (!reply) throw new Error('EMPTY_REPLY');

@@ -5,6 +5,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColors } from '@portfolio/ui';
 import { StitchBottomNav } from './StitchBottomNav';
+import { goBackOr } from '../utils/navigation';
 
 export type StitchReferenceSection = {
   heading: string;
@@ -35,7 +36,7 @@ export function StitchReferenceScreen({
 }) {
   const colors = useColors();
   const router = useRouter();
-  const goBack = onBack ?? (() => router.back());
+  const goBack = onBack ?? (() => goBackOr(router));
   return <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
     <View style={[s.header, { borderBottomColor: colors.border }]}><Pressable onPress={goBack} accessibilityRole="button" style={s.back}><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={[s.backText, { color: colors.text }]}>{backLabel}</Text></Pressable><Text style={[s.headerTitle, { color: colors.text }]}>{title}</Text><View style={{ width: 82 }} /></View>
     <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>

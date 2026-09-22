@@ -1,4 +1,6 @@
 import { getSupabase } from '@portfolio/supabase';
+import { parsePlantScanResult } from './visionResults';
+import { getEdgeFunctionErrorCode } from './edgeFunctionErrors';
 
 export interface PlantScanResult {
   identified: boolean;
@@ -66,11 +68,12 @@ export async function scanPlant(
     body: { mode: 'scan-plant', base64, mediaType, language, cropNames },
   });
 
-  if (error || !data) {
+  if (error) {
     console.error('[plantScan] edge function error', error);
-    throw fail('API_ERROR');
+    throw fail(await getEdgeFunctionErrorCode(error));
   }
+  if (!data) throw fail('API_ERROR');
   if ((data as { code?: string }).code) throw fail((data as { code: string }).code);
 
-  return data as PlantScanResult;
+  return parsePlantScanResult(data, new Set(Object.keys(cropNames)));
 }

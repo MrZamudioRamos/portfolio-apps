@@ -1,4 +1,6 @@
 import { getSupabase } from '@portfolio/supabase';
+import { parsePestDiagnosis } from './visionResults';
+import { getEdgeFunctionErrorCode } from './edgeFunctionErrors';
 
 export interface PestDiagnosis {
   detected: boolean;
@@ -84,13 +86,14 @@ export async function identifyPest(
     body: { mode: 'identify-pest', base64, mediaType, language, cropName },
   });
 
-  if (error || !data) {
+  if (error) {
     console.error('[pestIdentify] edge function error', error);
-    throw fail('API_ERROR');
+    throw fail(await getEdgeFunctionErrorCode(error));
   }
+  if (!data) throw fail('API_ERROR');
   if ((data as { code?: string }).code) throw fail((data as { code: string }).code);
 
-  return data as PestDiagnosis;
+  return parsePestDiagnosis(data);
 }
 
 export async function compareDiagnosis(
@@ -111,10 +114,11 @@ export async function compareDiagnosis(
       plantName,
     },
   });
-  if (error || !data) {
+  if (error) {
     console.error('[pestIdentify] comparison edge function error', error);
-    throw fail('API_ERROR');
+    throw fail(await getEdgeFunctionErrorCode(error));
   }
+  if (!data) throw fail('API_ERROR');
   if ((data as { code?: string }).code) throw fail((data as { code: string }).code);
   return data as DiagnosisComparison;
 }

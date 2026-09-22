@@ -4,9 +4,14 @@ import { isUUID } from '@portfolio/storage';
 import type { Garden } from '../models/garden';
 import type { Plant } from '../models/plant';
 import type { DiaryEntry } from '../models/diary-entry';
+import type { SeedLot } from '../models/seed-lot';
 import type { GardenReminder } from '../models/reminder';
 import type { GridLayout } from '../hooks/useGardenLayout';
 import { layoutTsKey } from '../hooks/useGardenLayout';
+import type { FreeMapPositions } from '../hooks/useGardenFreeLayout';
+import { freeLayoutKey, freeLayoutTsKey } from '../hooks/useGardenFreeLayout';
+import type { GardenMapPlan } from '../models/garden-map-plan';
+import { gardenMapPlanKey, gardenMapPlanTsKey } from '../hooks/useGardenMapPlan';
 import { uploadLocalPhotos } from './photoSync';
 import {
   gardenToRow, rowToGarden,
@@ -16,6 +21,7 @@ import {
   userProfileToRow, rowToUserProfile,
   customCropToRow, rowToCustomCrop,
   costEntryToRow, rowToCostEntry,
+  seedLotToRow, rowToSeedLot,
   gardenLayoutToRow, rowToGardenLayout,
 } from './adapters';
 
@@ -28,6 +34,7 @@ const KEYS = {
   userProfile:  '@portfolio/user-profile',
   customCrops:  '@portfolio/custom_crops',
   costEntries:  '@portfolio/cost_entries',
+  seedLots:     '@portfolio/seed_lots',
 };
 
 async function readLocal<T>(key: string): Promise<T[]> {
@@ -42,25 +49,47 @@ async function writeLocal<T>(key: string, items: T[]): Promise<void> {
 
 const LAYOUT_KEY = (gardenId: string) => `@portfolio/huerto/garden_layout/${gardenId}`;
 
-async function readLayouts(gardenIds: string[]): Promise<{ gardenId: string; layout: GridLayout; updatedAt: string }[]> {
+type LocalLayout = {
+  gardenId: string;
+  layout: GridLayout;
+  freeLayout: FreeMapPositions;
+  mapPlan?: GardenMapPlan;
+  updatedAt: string;
+};
+
+async function readLayouts(gardenIds: string[]): Promise<LocalLayout[]> {
   return Promise.all(
     gardenIds.map(async (id) => {
-      const [rawLayout, rawTs] = await Promise.all([
+      const [rawLayout, rawFreeLayout, rawMapPlan, rawTs, rawFreeTs, rawMapTs] = await Promise.all([
         AsyncStorage.getItem(LAYOUT_KEY(id)),
+        AsyncStorage.getItem(freeLayoutKey(id)),
+        AsyncStorage.getItem(gardenMapPlanKey(id)),
         AsyncStorage.getItem(layoutTsKey(id)),
+        AsyncStorage.getItem(freeLayoutTsKey(id)),
+        AsyncStorage.getItem(gardenMapPlanTsKey(id)),
       ]);
       const layout: GridLayout = rawLayout ? JSON.parse(rawLayout) : [];
-      const updatedAt = rawTs ?? new Date(0).toISOString();
-      return { gardenId: id, layout, updatedAt };
+      const freeLayout: FreeMapPositions = rawFreeLayout ? JSON.parse(rawFreeLayout) : {};
+      const mapPlan: GardenMapPlan | undefined = rawMapPlan ? JSON.parse(rawMapPlan) : undefined;
+      const timestamps = [rawTs, rawFreeTs, rawMapTs].filter((value): value is string => Boolean(value));
+      const updatedAt = timestamps.sort().at(-1) ?? new Date(0).toISOString();
+      return { gardenId: id, layout, freeLayout, mapPlan, updatedAt };
     })
   );
 }
 
-async function writeLayouts(layouts: { gardenId: string; layout: GridLayout; updatedAt?: string }[]): Promise<void> {
+async function writeLayouts(layouts: Array<Partial<LocalLayout> & Pick<LocalLayout, 'gardenId'>>): Promise<void> {
   await Promise.all(
-    layouts.map(async ({ gardenId, layout, updatedAt }) => {
+    layouts.map(async ({ gardenId, layout = [], freeLayout = {}, mapPlan, updatedAt }) => {
       await AsyncStorage.setItem(LAYOUT_KEY(gardenId), JSON.stringify(layout));
+      await AsyncStorage.setItem(freeLayoutKey(gardenId), JSON.stringify(freeLayout));
       if (updatedAt) await AsyncStorage.setItem(layoutTsKey(gardenId), updatedAt);
+      if (updatedAt) await AsyncStorage.setItem(freeLayoutTsKey(gardenId), updatedAt);
+      // A legacy cloud row has no map plan; don't erase newer local planner data.
+      if (mapPlan !== undefined) {
+        await AsyncStorage.setItem(gardenMapPlanKey(gardenId), JSON.stringify(mapPlan));
+        if (updatedAt) await AsyncStorage.setItem(gardenMapPlanTsKey(gardenId), updatedAt);
+      }
     })
   );
 }
@@ -77,7 +106,7 @@ export async function syncToCloud(userId: string): Promise<boolean> {
     // Soft-deleted rows are kept locally with deleted_at set, so upsertAll
     // carries the tombstone to the cloud like any other field — no special
     // delete pass needed.
-    const [gardens, plants, entries, reminders, userProfiles, customCrops, costEntries] = await Promise.all([
+    const [gardens, plants, entries, reminders, userProfiles, customCrops, costEntries, seedLots] = await Promise.all([
       readLocal<Garden>(KEYS.gardens),
       readLocal<Plant>(KEYS.plants),
       readLocal<DiaryEntry>(KEYS.entries),
@@ -85,6 +114,7 @@ export async function syncToCloud(userId: string): Promise<boolean> {
       readLocal<import('../models/user-profile').UserProfile>(KEYS.userProfile),
       readLocal<import('../models/custom-crop').CustomCrop>(KEYS.customCrops),
       readLocal<import('../models/cost-entry').CostEntry>(KEYS.costEntries),
+      readLocal<SeedLot>(KEYS.seedLots),
     ]);
 
     // Upload any local file:// photos to Storage and rewrite their photoUri to
@@ -103,6 +133,20 @@ export async function syncToCloud(userId: string): Promise<boolean> {
 
     const validGardenIds = gardens.filter((g) => isUUID(g.id)).map((g) => g.id);
     const layouts = await readLayouts(validGardenIds);
+    for (const item of layouts) {
+      if (!item.mapPlan) continue;
+      const mapPhotos = [...item.mapPlan.structures, ...item.mapPlan.zones];
+      if (!mapPhotos.some((record) => record.photoUri && /^(file:\/\/|content:\/\/|blob:|data:image\/)/i.test(record.photoUri))) continue;
+      const changed = await uploadLocalPhotos(mapPhotos, userId);
+      if (changed) {
+        const timestamp = new Date().toISOString();
+        item.updatedAt = timestamp;
+        await AsyncStorage.multiSet([
+          [gardenMapPlanKey(item.gardenId), JSON.stringify(item.mapPlan)],
+          [gardenMapPlanTsKey(item.gardenId), timestamp],
+        ]);
+      }
+    }
 
     // Use allSettled per table so a single RLS blip / network glitch on one
     // table doesn't abort the whole push — pushed what can be pushed, and
@@ -134,10 +178,12 @@ export async function syncToCloud(userId: string): Promise<boolean> {
     const secondaryFailures = await runPushWave([
       { table: 'custom_crops', run: () => upsertAll('custom_crops', customCrops.filter((c) => isUUID(c.id)).map((c) => customCropToRow(c, userId))) },
       { table: 'cost_entries', run: () => upsertAll('cost_entries', costEntries.filter((c) => isUUID(c.id)).map((c) => costEntryToRow(c, userId))) },
-      ...(!gardensFailed ? [{ table: 'garden_layouts', run: () => upsertAll('garden_layouts', layouts.map((l) => gardenLayoutToRow(l.gardenId, l.layout, userId, l.updatedAt))) }] : []),
+      ...(!gardensFailed ? [{ table: 'seed_lots', run: () => upsertAll('seed_lots', seedLots.filter((seed) => isUUID(seed.id)).map((seed) => seedLotToRow(seed, userId))) }] : []),
+      ...(!gardensFailed ? [{ table: 'garden_layouts', run: () => upsertAll('garden_layouts', layouts.map((l) => gardenLayoutToRow(l.gardenId, l.layout, userId, l.updatedAt, l.freeLayout, l.mapPlan))) }] : []),
     ]);
     failures.push(...secondaryFailures);
     if (gardensFailed && layouts.length > 0) failures.push(dependencyFailure('garden_layouts', 'gardens'));
+    if (gardensFailed && seedLots.some((seed) => isUUID(seed.id))) failures.push(dependencyFailure('seed_lots', 'gardens'));
 
     const plantFailures = gardensFailed
       ? [dependencyFailure('plants', 'gardens')]
@@ -174,7 +220,7 @@ export async function syncFromCloud(userId: string): Promise<boolean> {
   try {
     // allSettled per table: one table's network failure doesn't keep the
     // others from refreshing local state.
-    const pullTableNames = ['gardens', 'plants', 'diary_entries', 'reminders', 'user_profiles', 'custom_crops', 'cost_entries', 'garden_layouts'];
+    const pullTableNames = ['gardens', 'plants', 'diary_entries', 'reminders', 'user_profiles', 'custom_crops', 'cost_entries', 'garden_layouts', 'seed_lots'];
     const results = await Promise.allSettled([
       pullAll<ReturnType<typeof gardenToRow>>('gardens', userId),
       pullAll<ReturnType<typeof plantToRow>>('plants', userId),
@@ -184,6 +230,7 @@ export async function syncFromCloud(userId: string): Promise<boolean> {
       pullAll<ReturnType<typeof customCropToRow>>('custom_crops', userId),
       pullAll<ReturnType<typeof costEntryToRow>>('cost_entries', userId),
       pullAll<ReturnType<typeof gardenLayoutToRow>>('garden_layouts', userId),
+      pullAll<ReturnType<typeof seedLotToRow>>('seed_lots', userId),
     ]);
     const failures = results.flatMap((result, index) =>
       result.status === 'rejected' ? [{ table: pullTableNames[index], reason: result.reason }] : []
@@ -202,6 +249,7 @@ export async function syncFromCloud(userId: string): Promise<boolean> {
     const remoteCrops = ok(results[5], []);
     const remoteCosts = ok(results[6], []);
     const remoteLayouts = ok(results[7], []);
+    const remoteSeedLots = ok(results[8], []);
 
     // For layouts: only overwrite local if remote is strictly newer (preserves offline edits)
     const remoteMapped = remoteLayouts.map(rowToGardenLayout);
@@ -223,6 +271,7 @@ export async function syncFromCloud(userId: string): Promise<boolean> {
       mergeLocal(KEYS.userProfile, remoteProfiles.map(rowToUserProfile)  as any[]),
       mergeLocal(KEYS.customCrops, remoteCrops.map(rowToCustomCrop)      as any[]),
       mergeLocal(KEYS.costEntries, remoteCosts.map(rowToCostEntry)       as any[]),
+      mergeLocal(KEYS.seedLots, remoteSeedLots.map(rowToSeedLot) as any[]),
       writeLayouts(layoutsToWrite),
     ]);
     return failures.length === 0;

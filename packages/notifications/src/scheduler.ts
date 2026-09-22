@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import type { ReminderFrequency } from './types';
+import { localReminderDate } from './date';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -31,9 +32,10 @@ interface ScheduleInput {
   time: { hour: number; minute: number };
   /** Expo weekday: 1 = Sunday, 2 = Monday ... 7 = Saturday. */
   weekday?: number;
+  dueDate?: string;
 }
 
-function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute: number }, weekday?: number) {
+function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute: number }, weekday?: number, dueDate?: string) {
   const { hour, minute } = time;
   const T = Notifications.SchedulableTriggerInputTypes;
   switch (frequency) {
@@ -47,6 +49,11 @@ function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute
     case 'weekly':
       return { type: T.WEEKLY, weekday: weekday ?? 2, hour, minute };
     case 'once': {
+      if (dueDate) {
+        const date = localReminderDate(dueDate, time);
+        if (!date) throw new Error('One-time reminder date/time must be valid and in the future.');
+        return { type: T.DATE, date };
+      }
       const d = new Date();
       d.setHours(hour, minute, 0, 0);
       if (weekday == null) {
@@ -67,7 +74,7 @@ function buildTrigger(frequency: ReminderFrequency, time: { hour: number; minute
 }
 
 export async function scheduleReminder(input: ScheduleInput): Promise<string> {
-  const trigger = buildTrigger(input.frequency, input.time, input.weekday);
+  const trigger = buildTrigger(input.frequency, input.time, input.weekday, input.dueDate);
   return Notifications.scheduleNotificationAsync({
     content: {
       title: input.title,

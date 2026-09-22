@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { track, EVENTS } from '../src/analytics';
+import { goBackOr } from '../src/utils/navigation';
 
 const TRIAL_REMINDER_KEY = '@portfolio/huerto/trial_reminder_enabled';
 const TRIAL_REMINDER_NOTIF_ID = '@portfolio/huerto/trial_reminder_notif_id';
@@ -82,7 +83,7 @@ export default function PaywallScreen() {
 
   async function handlePurchase() {
     if (isPro) {
-      router.back();
+      goBackOr(router);
       return;
     }
     const result = await purchase(selectedPlan);
@@ -103,7 +104,7 @@ export default function PaywallScreen() {
       Alert.alert(
         t('paywall.successTitle'),
         t('paywall.successDesc'),
-        [{ text: t('paywall.successBtn'), onPress: () => router.back() }]
+        [{ text: t('paywall.successBtn'), onPress: () => goBackOr(router) }]
       );
     } else {
       Alert.alert(t('common.error'), result.error ?? t('paywall.errorPurchase'));
@@ -118,7 +119,7 @@ export default function PaywallScreen() {
     }
     if (result.found) {
       Alert.alert(t('paywall.restoreSuccessTitle'), t('paywall.restoreSuccessDesc'), [
-        { text: t('common.ok'), onPress: () => router.back() },
+        { text: t('common.ok'), onPress: () => goBackOr(router) },
       ]);
     } else {
       Alert.alert(t('paywall.restoreNoneTitle'), t('paywall.restoreNoneDesc'));
@@ -132,7 +133,7 @@ export default function PaywallScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      <Pressable onPress={() => router.back()} style={s.closeBtn} hitSlop={16}>
+      <Pressable onPress={() => goBackOr(router)} style={s.closeBtn} hitSlop={16}>
         <Ionicons name="close" size={24} color={colors.textSecondary} />
       </Pressable>
 

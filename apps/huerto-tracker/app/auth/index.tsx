@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Mascot } from '../../src/components/Mascot';
+import { goBackOr } from '../../src/utils/navigation';
 
 type EmailMode = 'none' | 'password' | 'otp';
 
@@ -99,7 +100,7 @@ export default function AuthScreen() {
   }
 
   if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
-    return <StitchAuthScreen colors={colors} router={router} email={email} setEmail={setEmail} loading={loadingEmail} onSubmit={handleMagicLink} onApple={handleApple} onGoogle={handleGoogle} />;
+    return <StitchAuthScreen colors={colors} router={{ ...router, back: () => goBackOr(router, '/welcome' as any) }} email={email} setEmail={setEmail} loading={loadingEmail} onSubmit={handleMagicLink} onApple={handleApple} onGoogle={handleGoogle} />;
   }
 
   return (
@@ -107,7 +108,7 @@ export default function AuthScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
           {/* Header */}
-          <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={12}>
+          <Pressable onPress={() => goBackOr(router, '/welcome' as any)} style={s.backBtn} hitSlop={12}>
             <Text style={[s.backText, { color: colors.primaryDark }]}>{t('common.back')}</Text>
           </Pressable>
 

@@ -32,6 +32,7 @@ import type { Plant } from '../../src/models/plant';
 import { GARDEN_TYPE_CONFIG } from '../../src/models/garden';
 import { GRID_PRESETS, DEFAULT_GRID_ROWS, DEFAULT_GRID_COLS } from '../../src/hooks/useGardenLayout';
 import { getNearestProvince } from '../../src/utils/weather';
+import { goBackOr } from '../../src/utils/navigation';
 
 const ALL_PROVINCES = Object.keys(PROVINCE_ZONES).sort();
 
@@ -157,7 +158,7 @@ export default function GardenEditScreen() {
         notes: notes.trim(),
       });
       if (openMap) router.push('/garden/map' as any);
-      else router.back();
+      else goBackOr(router, '/gardens' as any);
     } finally {
       setSaving(false);
     }
@@ -166,7 +167,7 @@ export default function GardenEditScreen() {
   if (gardens.loading && gardens.items.length === 0) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+        <ScreenHeader title={t('gardenEdit.title')} onBack={() => goBackOr(router, '/gardens' as any)} />
         <View style={s.collectionState} accessibilityRole="progressbar">
           <ActivityIndicator size="small" color={colors.primary} />
           <Text style={[s.collectionStateText, { color: colors.textSecondary }]}>{t('common.loading')}</Text>
@@ -178,7 +179,7 @@ export default function GardenEditScreen() {
   if (gardens.error) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+        <ScreenHeader title={t('gardenEdit.title')} onBack={() => goBackOr(router, '/gardens' as any)} />
         <View style={{ padding: spacing.xl }}>
           <CollectionError onRetry={() => gardens.refresh().catch(() => {})} />
         </View>
@@ -189,7 +190,7 @@ export default function GardenEditScreen() {
   if (!garden) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+        <ScreenHeader title={t('gardenEdit.title')} onBack={() => goBackOr(router, '/gardens' as any)} />
         <View style={s.collectionState}>
           <Text style={[s.collectionStateTitle, { color: colors.text }]}>{t('gardens.emptyTitle')}</Text>
           <Text style={[s.collectionStateText, { color: colors.textSecondary }]}>{t('gardenEdit.noGarden')}</Text>
@@ -202,7 +203,7 @@ export default function GardenEditScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Header */}
-      <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+      <ScreenHeader title={t('gardenEdit.title')} onBack={() => goBackOr(router, '/gardens' as any)} />
 
       {/* Garden selector — only show when multiple gardens exist */}
       {gardens.items.length > 1 && (

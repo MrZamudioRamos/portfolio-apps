@@ -21,6 +21,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CATEGORY_CONFIG, type CropCategory } from '../../src/data/crops';
 import { type CustomCrop } from '../../src/models/custom-crop';
 import { usePickPhoto } from '../../src/hooks/usePickPhoto';
+import { goBackOr } from '../../src/utils/navigation';
 
 const CATEGORIES = Object.keys(CATEGORY_CONFIG) as CropCategory[];
 const FAMILY_OPTIONS: Array<{ value: CropCategory; label: string }> = [
@@ -105,7 +106,7 @@ export default function NewCustomCropScreen() {
       } else {
         await collection.create(data);
       }
-      router.back();
+      goBackOr(router, '/crop' as any);
     } finally {
       setSaving(false);
     }
@@ -124,7 +125,7 @@ export default function NewCustomCropScreen() {
           onPress: async () => {
             // Soft-delete syncs the tombstone to other devices on next push.
             await collection.softRemove(editId);
-            router.back();
+            goBackOr(router, '/crop' as any);
           },
         },
       ]
@@ -137,7 +138,7 @@ export default function NewCustomCropScreen() {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
         <View style={s.header}>
-          <Pressable onPress={() => router.back()} hitSlop={12} style={s.backBtn}>
+          <Pressable onPress={() => goBackOr(router, '/crop' as any)} hitSlop={12} style={s.backBtn}>
             <Ionicons name="chevron-back" size={24} color={colors.text} />
           </Pressable>
           <Text style={[s.title, { color: colors.text }]}>{t('customCrop.edit')}</Text>
@@ -153,7 +154,7 @@ export default function NewCustomCropScreen() {
   if (editId && !existing) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={s.backBtn}>
+        <Pressable onPress={() => goBackOr(router, '/crop' as any)} hitSlop={12} style={s.backBtn}>
           <Ionicons name="arrow-back" size={18} color={colors.text} />
           <Text style={{ color: colors.text, fontSize: 13 }}>Cancelar</Text>
         </Pressable>
@@ -165,7 +166,7 @@ export default function NewCustomCropScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
       <View style={s.header}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={s.backBtn}>
+        <Pressable onPress={() => goBackOr(router, '/crop' as any)} hitSlop={12} style={s.backBtn}>
           <Ionicons name="arrow-back" size={18} color={colors.text} />
           <Text style={{ color: colors.text, fontSize: 13 }}>Cancelar</Text>
         </Pressable>

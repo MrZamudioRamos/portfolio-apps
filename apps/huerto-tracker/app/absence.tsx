@@ -18,6 +18,7 @@ import type { Plant } from '../src/models/plant';
 import { buildAbsencePlan } from '../src/utils/absencePlan';
 import { track, EVENTS } from '../src/analytics';
 import { StitchBottomNav } from '../src/components/StitchBottomNav';
+import { goBackOr } from '../src/utils/navigation';
 
 const ABSENCE_KEY = '@huerto/absence_plan/';
 const ABSENCE_NOTIF_KEY = '@huerto/absence_plan_notifications/';
@@ -97,13 +98,13 @@ export default function AbsenceScreen() {
   }
 
   if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
-    return <StitchAbsenceScreen colors={colors} router={router} daysAway={daysAway} setDaysAway={setDaysAway} hasHelper={hasHelper} setHasHelper={setHasHelper} saved={saved} onSave={() => { void savePlan(); }} />;
+    return <StitchAbsenceScreen colors={colors} router={{ ...router, back: () => goBackOr(router) }} daysAway={daysAway} setDaysAway={setDaysAway} hasHelper={hasHelper} setHasHelper={setHasHelper} saved={saved} onSave={() => { void savePlan(); }} />;
   }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top', 'bottom']}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.border }}>
-        <Pressable accessibilityRole="button" accessibilityLabel={t('common.back')} onPress={() => router.back()} hitSlop={12} style={{ minWidth: 44, minHeight: 44, justifyContent: 'center' }}>
+        <Pressable accessibilityRole="button" accessibilityLabel={t('common.back')} onPress={() => goBackOr(router)} hitSlop={12} style={{ minWidth: 44, minHeight: 44, justifyContent: 'center' }}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         <Text style={{ color: colors.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold }}>{t('absence.title')}</Text>

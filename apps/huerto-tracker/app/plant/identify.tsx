@@ -1,154 +1,251 @@
-import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { Ionicons } from '@expo/vector-icons';
+import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CROP_IMAGES } from '../../src/data/cropImages';
+import { useSession } from '@portfolio/supabase';
+import { CROPS, CROPS_BY_ID } from '../../src/data/crops';
+import type { PestDiagnosis } from '../../src/utils/pestIdentify';
+import { identifyPest } from '../../src/utils/pestIdentify';
+import type { PlantScanResult } from '../../src/utils/plantScan';
+import { scanPlant } from '../../src/utils/plantScan';
+import { goBackOr } from '../../src/utils/navigation';
 
-/** Stitch's completed plant-identification result frame. */
+type ScanMode = 'identify' | 'diagnosis';
+
+/** Real plant identification and visual diagnosis through the authenticated ai-vision edge function. */
 export default function IdentifyPlantScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
-  const { cropId } = useLocalSearchParams<{ cropId?: string }>();
-  const s = useMemo(() => makeStyles(spacing, fontSize, fontWeight, radii), [spacing, fontSize, fontWeight, radii]);
-  const imageUri = CROP_IMAGES.albahaca;
+  const { t, i18n } = useTranslation();
+  const { photo, mode: modeParam } = useLocalSearchParams<{ photo?: string; mode?: string }>();
+  const { isAuthenticated, loading: sessionLoading } = useSession();
+  const photoUri = typeof photo === 'string' ? photo : undefined;
+  const mode = (typeof modeParam === 'string' && modeParam === 'diagnosis' ? 'diagnosis' : 'identify') as ScanMode;
+  const isDiagnosis = mode === 'diagnosis';
+  const [analyzing, setAnalyzing] = useState(false);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
+  const [plantResult, setPlantResult] = useState<PlantScanResult | null>(null);
+  const [diagnosisResult, setDiagnosisResult] = useState<PestDiagnosis | null>(null);
+  const s = useMemo(() => makeStyles(colors, spacing, fontSize, fontWeight, radii), [colors, spacing, fontSize, fontWeight, radii]);
+  const cropNames = useMemo(() => Object.fromEntries(CROPS.map((crop) => [crop.id, crop.name])), []);
+  const matchedCrop = plantResult?.cropId ? CROPS_BY_ID[plantResult.cropId] : undefined;
+
+  async function analyzePhoto() {
+    if (!photoUri || analyzing || !isAuthenticated) return;
+    setAnalyzing(true);
+    setErrorCode(null);
+    setPlantResult(null);
+    setDiagnosisResult(null);
+    try {
+      if (isDiagnosis) {
+        setDiagnosisResult(await identifyPest(photoUri, '', i18n.language));
+      } else {
+        setPlantResult(await scanPlant(photoUri, i18n.language, cropNames));
+      }
+    } catch (error) {
+      const code = error && typeof error === 'object' && 'code' in error ? error.code : undefined;
+      setErrorCode(typeof code === 'string' ? code : 'API_ERROR');
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  function errorMessage() {
+    if (errorCode === 'AUTH') return t('plantScan.errors.auth');
+    if (errorCode === 'RATE_LIMIT') return t('plantScan.errors.rateLimit');
+    if (errorCode === 'DAILY_BUDGET') return t('plantScan.errors.dailyBudget');
+    if (errorCode === 'NO_KEY' || errorCode === 'RATE_LIMIT_UNAVAILABLE' || errorCode === 'QUOTA_UNAVAILABLE') return t('plantScan.noKeyDesc');
+    if (errorCode === 'BAD_REQUEST') return t('plantScan.errors.invalidImage');
+    return t('plantScan.errorDesc');
+  }
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <View style={s.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Repetir foto" onPress={() => router.back()} style={s.headerBack}>
+      <View style={[s.header, { borderBottomColor: colors.border }]}>
+        <Pressable accessibilityRole="button" accessibilityLabel={t('common.back')} onPress={() => goBackOr(router, '/plant/scan' as any)} style={s.headerBack}>
           <Ionicons name="chevron-back" size={22} color={colors.text} />
-          <Text style={[s.headerBackText, { color: colors.text }]}>Repetir foto</Text>
+          <Text style={[s.headerBackText, { color: colors.text }]}>{t('plantScan.retake')}</Text>
         </Pressable>
-        <Text style={[s.headerTitle, { color: colors.text }]}>Resultado</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Ayuda y consejos botánicos" style={s.headerAction} onPress={() => Alert.alert('Consejos para identificar', 'Fotografía hojas completas con luz natural, evita reflejos y centra la planta. Semillita usa esta imagen como orientación: confirma siempre el diagnóstico antes de tratarla.')}>
-          <Ionicons name="help-circle-outline" size={22} color={colors.primary} />
-        </Pressable>
+        <Text style={[s.headerTitle, { color: colors.text }]}>{isDiagnosis ? t('plantScan.diagnosisTitle') : t('plantScan.title')}</Text>
+        <View style={s.headerAction}>
+          <Ionicons name={isDiagnosis ? 'medical-outline' : 'scan-outline'} size={21} color={colors.primary} />
+        </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
-        <View style={[s.resultImageFrame, { backgroundColor: colors.surfaceAlt }]}>
-          <Image source={{ uri: imageUri }} resizeMode="cover" style={s.resultImage} />
-          <View style={[s.confidenceBadge, { backgroundColor: colors.surface }]}>
-            <Ionicons name="checkmark-circle" size={16} color={colors.primary} />
-            <Text style={[s.confidenceText, { color: colors.primary }]}>Coincidencia 98% de fiabilidad</Text>
-          </View>
-        </View>
-
-        <View style={[s.identityCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[s.identityKicker, { color: colors.primary }]}>Huerto Fresco</Text>
-          <Text style={[s.category, { color: colors.textSecondary }]}>HIERBA AROMÁTICA MEDITERRÁNEA</Text>
-          <Text style={[s.plantName, { color: colors.text }]}>Albahaca Limón</Text>
-          <Text style={[s.botanical, { color: colors.textSecondary }]}>Ocimum citriodorum · Lamiáceas · Planta anual</Text>
-          <View style={[s.levelPill, { backgroundColor: colors.primaryLight + '55' }]}>
-            <Ionicons name="happy-outline" size={15} color={colors.primary} />
-            <Text style={[s.levelText, { color: colors.primary }]}>Nivel: Principiante (Apta para balcón)</Text>
-          </View>
-        </View>
-
-        <View style={[s.diagnosisCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <View style={s.sectionHeading}>
-            <Ionicons name="sparkles-outline" size={21} color={colors.primary} />
-            <Text style={[s.sectionTitle, { color: colors.text }]}>Diagnóstico visual preliminar</Text>
-          </View>
-          <View style={s.diagnosisRow}>
-            <Ionicons name="checkmark-circle" size={20} color={colors.success} />
-            <View style={{ flex: 1 }}>
-              <Text style={[s.diagnosisLabel, { color: colors.text }]}>Estado foliar excelente</Text>
-              <Text style={[s.diagnosisText, { color: colors.textSecondary }]}>Hojas sanas y vigorosas, sin signos de araña roja ni pulgón. Tono verde homogéneo con aroma cítrico activo.</Text>
+        {photoUri ? (
+          <View style={[s.resultImageFrame, { backgroundColor: colors.surfaceAlt }]}>
+            <Image source={{ uri: photoUri }} resizeMode="cover" style={s.resultImage} />
+            <View style={[s.modeBadge, { backgroundColor: colors.surface }]}>
+              <Ionicons name={isDiagnosis ? 'medical-outline' : 'leaf-outline'} size={15} color={colors.primary} />
+              <Text style={[s.modeText, { color: colors.primary }]}>{isDiagnosis ? t('plantScan.diagnosisTitle') : t('plantScan.title')}</Text>
             </View>
           </View>
-          <View style={s.diagnosisRow}>
-            <Ionicons name="water-outline" size={20} color={colors.warning} />
-            <View style={{ flex: 1 }}>
-              <Text style={[s.diagnosisLabel, { color: colors.text }]}>Sustrato superficial</Text>
-              <Text style={[s.diagnosisText, { color: colors.textSecondary }]}>Requiere comprobación táctil a 2 cm antes de aplicar agua. Evita regar si notas tierra húmeda al tacto.</Text>
+        ) : (
+          <View style={[s.emptyPhoto, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="image-outline" size={34} color={colors.primary} />
+            <Text style={[s.cardTitle, { color: colors.text }]}>{t('plantScan.noPhoto')}</Text>
+            <Text style={[s.body, { color: colors.textSecondary }]}>{t('plantScan.subtitle')}</Text>
+            <Pressable accessibilityRole="button" onPress={() => router.replace('/plant/scan' as any)} style={[s.primaryButton, { backgroundColor: colors.primary }]}>
+              <Text style={[s.primaryButtonText, { color: colors.background }]}>{t('plantScan.takePhoto')}</Text>
+            </Pressable>
+          </View>
+        )}
+
+        {photoUri && sessionLoading ? (
+          <View style={s.loadingState}><ActivityIndicator size="large" color={colors.primary} /></View>
+        ) : null}
+
+        {photoUri && !sessionLoading && !isAuthenticated ? (
+          <View style={[s.infoCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="lock-closed-outline" size={23} color={colors.primary} />
+            <Text style={[s.cardTitle, { color: colors.text }]}>{t('plantScan.signInTitle')}</Text>
+            <Text style={[s.body, { color: colors.textSecondary }]}>{t('plantScan.signInDesc')}</Text>
+            <Pressable accessibilityRole="button" onPress={() => router.push('/auth' as any)} style={[s.primaryButton, { backgroundColor: colors.primary }]}>
+              <Text style={[s.primaryButtonText, { color: colors.background }]}>{t('plantScan.signIn')}</Text>
+            </Pressable>
+          </View>
+        ) : null}
+
+        {photoUri && !sessionLoading && isAuthenticated ? (
+          <>
+            <View style={[s.privacyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <View style={s.sectionHeading}>
+                <Ionicons name="shield-checkmark-outline" size={21} color={colors.primary} />
+                <Text style={[s.cardTitle, { color: colors.text }]}>{t('plantScan.privacyTitle')}</Text>
+              </View>
+              <Text style={[s.body, { color: colors.textSecondary }]}>{t('plantScan.privacyBody')}</Text>
+              <Text style={[s.body, { color: colors.textSecondary }]}>{t('plantScan.betaLimit')}</Text>
             </View>
-          </View>
-          <View style={[s.semillaQuote, { backgroundColor: colors.surfaceAlt }]}>
-            <Text style={[s.quoteText, { color: colors.textSecondary }]}>🌱 Semillita dice: <Text style={{ color: colors.text, fontWeight: fontWeight.semibold }}>«¡Tu albahaca va de maravilla! Huele a limón fresco y está lista para alegrar tus platos veraniegos.»</Text></Text>
-          </View>
-        </View>
 
-        <View style={[s.requirementsCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[s.requirementsTitle, { color: colors.text }]}>Requisitos clave para balcones en España</Text>
-          <Requirement icon="partly-sunny-outline" title="Clima mediterráneo" text="Exposición Solar · Sol directo 4-6 horas de sol directo o semisombra luminosa en horas pico de calor estival." colors={colors} styles={s} />
-          <Requirement icon="water-outline" title="Pauta de Riego Moderado" text="Regla preventiva de los 2 cm: introduce el dedo y riega solo si sale seco; nunca encharcar la maceta." colors={colors} styles={s} />
-          <Requirement icon="flower-outline" title="Maceta recomendada 18 - 22 cm" text="Recipiente de barro o terracota con orificios de drenaje inferior para evitar la pudrición radicular." colors={colors} styles={s} />
-        </View>
+            {!plantResult && !diagnosisResult && !analyzing && !errorCode ? (
+              <Pressable accessibilityRole="button" onPress={() => void analyzePhoto()} style={[s.primaryButton, s.analyzeButton, { backgroundColor: colors.primary }]}>
+                <Ionicons name="sparkles-outline" size={19} color={colors.background} />
+                <Text style={[s.primaryButtonText, { color: colors.background }]}>{isDiagnosis ? t('plantScan.analyzeDiagnosis') : t('plantScan.analyze')}</Text>
+              </Pressable>
+            ) : null}
 
-        <View style={[s.culinary, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-          <Ionicons name="restaurant-outline" size={21} color={colors.primary} />
-          <View style={{ flex: 1 }}>
-            <Text style={[s.culinaryTitle, { color: colors.text }]}>Uso culinario idóneo</Text>
-            <Text style={[s.culinaryText, { color: colors.textSecondary }]}>Ideal para ensaladas de tomate ibérico, pescados y pesto ligero.</Text>
-          </View>
-        </View>
+            {analyzing ? (
+              <View style={[s.loadingCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={[s.body, { color: colors.text }]}>{isDiagnosis ? t('plantScan.analyzingDiagnosis') : t('plantScan.analyzing')}</Text>
+              </View>
+            ) : null}
 
-        <View style={s.actions}>
-          <Pressable accessibilityRole="button" style={[s.primaryButton, { backgroundColor: colors.primary }]} onPress={() => router.push({ pathname: '/plant/new', params: { cropId: cropId ?? 'albahaca' } })}>
-            <Ionicons name="add-circle-outline" size={20} color={colors.background} />
-            <Text style={[s.primaryButtonText, { color: colors.background }]}>Añadir a Mi Huerto como nueva maceta</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" style={[s.secondaryButton, { borderColor: colors.border }]} onPress={() => router.back()}>
-            <Ionicons name="search-outline" size={19} color={colors.primary} />
-            <Text style={[s.secondaryButtonText, { color: colors.primary }]}>No es mi planta · Ver otras sugerencias</Text>
-          </Pressable>
-        </View>
+            {errorCode ? (
+              <View style={[s.infoCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <Ionicons name="warning-outline" size={23} color={colors.warning} />
+                <Text style={[s.cardTitle, { color: colors.text }]}>{t('plantScan.error')}</Text>
+                <Text style={[s.body, { color: colors.textSecondary }]}>{errorMessage()}</Text>
+                <Pressable accessibilityRole="button" onPress={() => void analyzePhoto()} style={[s.primaryButton, { backgroundColor: colors.primary }]}>
+                  <Text style={[s.primaryButtonText, { color: colors.background }]}>{t('plantScan.retry')}</Text>
+                </Pressable>
+              </View>
+            ) : null}
+
+            {plantResult ? (
+              <View style={[s.resultCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <View style={s.sectionHeading}>
+                  <Ionicons name={plantResult.identified ? 'checkmark-circle-outline' : 'help-circle-outline'} size={22} color={colors.primary} />
+                  <Text style={[s.cardTitle, { color: colors.text }]}>{plantResult.identified ? t('plantScan.identified') : t('plantScan.notIdentified')}</Text>
+                </View>
+                <Text style={[s.plantName, { color: colors.text }]}>{plantResult.cropName || t('plantScan.notIdentified')}</Text>
+                <Text style={[s.confidence, { color: colors.primary }]}>{t(`plantScan.confidence.${plantResult.confidence}`)}</Text>
+                {plantResult.identified ? <Text style={[s.stageLabel, { color: colors.textSecondary }]}>{t('plantScan.stage')}: {t(`plantScan.growthStage.${plantResult.growthStage}`)}</Text> : null}
+                {plantResult.notes ? <Text style={[s.body, { color: colors.textSecondary }]}>{plantResult.notes}</Text> : null}
+                {plantResult.identified && !matchedCrop ? <Text style={[s.body, { color: colors.textSecondary }]}>{t('plantScan.noCatalogMatch')}</Text> : null}
+                <Pressable accessibilityRole="button" onPress={() => router.push(matchedCrop ? { pathname: '/plant/new', params: { cropId: matchedCrop.id, scan: '1' } } : '/plant/new' as any)} style={[s.primaryButton, { backgroundColor: colors.primary }]}>
+                  <Text style={[s.primaryButtonText, { color: colors.background }]}>{matchedCrop ? t('plantScan.useThis') : t('plantScan.tryManual')}</Text>
+                </Pressable>
+              </View>
+            ) : null}
+
+            {diagnosisResult ? <DiagnosisResultCard result={diagnosisResult} t={t} colors={colors} styles={s} /> : null}
+
+            {(plantResult || diagnosisResult) ? (
+              <Pressable accessibilityRole="button" onPress={() => void analyzePhoto()} disabled={analyzing} style={[s.secondaryButton, { borderColor: colors.border }]}>
+                <Ionicons name="refresh-outline" size={18} color={colors.primary} />
+                <Text style={[s.secondaryButtonText, { color: colors.primary }]}>{t('plantScan.retry')}</Text>
+              </Pressable>
+            ) : null}
+          </>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-function Requirement({ icon, title, text, colors, styles: s }: { icon: React.ComponentProps<typeof Ionicons>['name']; title: string; text: string; colors: ReturnType<typeof useColors>; styles: ReturnType<typeof makeStyles> }) {
+function DiagnosisResultCard({ result, t, colors, styles: s }: {
+  result: PestDiagnosis;
+  t: (key: string) => string;
+  colors: ReturnType<typeof useColors>;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   return (
-    <View style={s.requirementRow}>
-      <Ionicons name={icon} size={20} color={colors.primary} />
-      <View style={{ flex: 1 }}><Text style={[s.requirementTitle, { color: colors.text }]}>{title}</Text><Text style={[s.requirementText, { color: colors.textSecondary }]}>{text}</Text></View>
+    <View style={[s.resultCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View style={s.sectionHeading}>
+        <Ionicons name={result.detected ? 'alert-circle-outline' : 'checkmark-circle-outline'} size={22} color={result.detected ? colors.warning : colors.success} />
+        <Text style={[s.cardTitle, { color: colors.text }]}>{result.detected ? result.name : t('plantScan.diagnosisHealthy')}</Text>
+      </View>
+      <Text style={[s.confidence, { color: colors.primary }]}>{t(`plantScan.confidence.${result.confidence}`)} · {t(`plantScan.diagnosisTypes.${result.type}`)}</Text>
+      {result.description ? <Text style={[s.body, { color: colors.textSecondary }]}>{result.description}</Text> : null}
+      {result.symptoms ? <View style={s.detailBlock}><Text style={[s.detailTitle, { color: colors.text }]}>{t('plantScan.symptoms')}</Text><Text style={[s.body, { color: colors.textSecondary }]}>{result.symptoms}</Text></View> : null}
+      {result.treatments.length ? (
+        <View style={s.detailBlock}>
+          <Text style={[s.detailTitle, { color: colors.text }]}>{t('plantScan.treatments')}</Text>
+          {result.treatments.map((treatment, index) => (
+            <View key={`${index}-${treatment.type}`} style={[s.treatment, { backgroundColor: colors.surfaceAlt }]}>
+              <Text style={[s.treatmentName, { color: colors.text }]}>{treatment.name} · {t(`plantScan.treatmentTypes.${treatment.type}`)}</Text>
+              <Text style={[s.body, { color: colors.textSecondary }]}>{treatment.instructions}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+      <View style={[s.caveat, { backgroundColor: colors.surfaceAlt }]}>
+        <Ionicons name="information-circle-outline" size={18} color={colors.warning} />
+        <Text style={[s.caveatText, { color: colors.textSecondary }]}>{t('plantScan.diagnosisCaveat')}</Text>
+      </View>
     </View>
   );
 }
 
-const makeStyles = (spacing: Record<string, number>, fontSize: Record<string, number>, fontWeight: Theme['fontWeight'], radii: Record<string, number>) => StyleSheet.create({
+const makeStyles = (colors: ReturnType<typeof useColors>, spacing: Record<string, number>, fontSize: Record<string, number>, fontWeight: Theme['fontWeight'], radii: Record<string, number>) => StyleSheet.create({
   container: { flex: 1 },
-  header: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#E0EAD8' },
-  headerBack: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 3 },
+  header: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, borderBottomWidth: StyleSheet.hairlineWidth },
+  headerBack: { minHeight: 44, minWidth: 76, flexDirection: 'row', alignItems: 'center', gap: 3 },
   headerBackText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
-  headerTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
+  headerTitle: { flex: 1, fontSize: fontSize.md, fontWeight: fontWeight.bold, textAlign: 'center' },
   headerAction: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  scroll: { padding: spacing.lg, paddingBottom: 40 },
-  resultImageFrame: { height: 200, borderRadius: radii.xl, overflow: 'hidden', position: 'relative' },
+  scroll: { padding: spacing.lg, paddingBottom: 40, gap: spacing.md },
+  resultImageFrame: { height: 220, borderRadius: radii.xl, overflow: 'hidden', position: 'relative' },
   resultImage: { width: '100%', height: '100%' },
-  confidenceBadge: { position: 'absolute', left: spacing.md, bottom: spacing.md, flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: spacing.sm, paddingVertical: 7, borderRadius: radii.full },
-  confidenceText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
-  identityCard: { borderWidth: 1, borderRadius: radii.xl, padding: spacing.lg, marginTop: spacing.md },
-  identityKicker: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
-  category: { fontSize: 10, fontWeight: fontWeight.bold, letterSpacing: 0.5, marginTop: spacing.md },
-  plantName: { fontSize: 26, fontWeight: fontWeight.bold, marginTop: 4 },
-  botanical: { fontSize: fontSize.sm, marginTop: 3 },
-  levelPill: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: 5, paddingHorizontal: spacing.sm, minHeight: 32, borderRadius: radii.full, marginTop: spacing.md },
-  levelText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
-  diagnosisCard: { borderWidth: 1, borderRadius: radii.xl, padding: spacing.lg, marginTop: spacing.md },
-  sectionHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
-  sectionTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
-  diagnosisRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginTop: spacing.sm },
-  diagnosisLabel: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-  diagnosisText: { fontSize: fontSize.xs, lineHeight: 18, marginTop: 2 },
-  semillaQuote: { padding: spacing.md, borderRadius: radii.md, marginTop: spacing.md },
-  quoteText: { fontSize: fontSize.xs, lineHeight: 18 },
-  requirementsCard: { borderWidth: 1, borderRadius: radii.xl, padding: spacing.lg, marginTop: spacing.md },
-  requirementsTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
-  requirementRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, paddingVertical: spacing.sm },
-  requirementTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-  requirementText: { fontSize: fontSize.xs, lineHeight: 18, marginTop: 2 },
-  culinary: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, borderWidth: 1, borderRadius: radii.lg, padding: spacing.md, marginTop: spacing.md },
-  culinaryTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-  culinaryText: { fontSize: fontSize.xs, lineHeight: 18, marginTop: 2 },
-  actions: { gap: spacing.sm, marginTop: spacing.lg },
-  primaryButton: { minHeight: 52, borderRadius: radii.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingHorizontal: spacing.md },
+  modeBadge: { position: 'absolute', left: spacing.md, bottom: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radii.full },
+  modeText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+  emptyPhoto: { minHeight: 220, borderWidth: 1, borderRadius: radii.xl, padding: spacing.lg, alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+  infoCard: { borderWidth: 1, borderRadius: radii.xl, padding: spacing.lg, alignItems: 'flex-start', gap: spacing.sm },
+  privacyCard: { borderWidth: 1, borderRadius: radii.xl, padding: spacing.lg },
+  resultCard: { borderWidth: 1, borderRadius: radii.xl, padding: spacing.lg, gap: spacing.sm },
+  sectionHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  cardTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold, flexShrink: 1 },
+  body: { fontSize: fontSize.sm, lineHeight: 21 },
+  plantName: { fontSize: 24, lineHeight: 30, fontWeight: fontWeight.bold, marginTop: spacing.xs },
+  confidence: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+  stageLabel: { fontSize: fontSize.sm, marginTop: spacing.xs },
+  detailBlock: { gap: spacing.xs, marginTop: spacing.md },
+  detailTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+  treatment: { borderRadius: radii.md, padding: spacing.md, gap: spacing.xs, marginTop: spacing.xs },
+  treatmentName: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+  caveat: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, borderRadius: radii.md, padding: spacing.md, marginTop: spacing.sm },
+  caveatText: { flex: 1, fontSize: fontSize.xs, lineHeight: 18 },
+  primaryButton: { width: '100%', minHeight: 50, borderRadius: radii.md, paddingHorizontal: spacing.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+  analyzeButton: { marginTop: spacing.xs },
   primaryButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, textAlign: 'center' },
-  secondaryButton: { minHeight: 48, borderRadius: radii.md, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingHorizontal: spacing.md },
-  secondaryButtonText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, textAlign: 'center' },
+  secondaryButton: { minHeight: 48, borderWidth: 1, borderRadius: radii.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+  secondaryButtonText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+  loadingState: { minHeight: 110, alignItems: 'center', justifyContent: 'center' },
+  loadingCard: { minHeight: 64, borderWidth: 1, borderRadius: radii.lg, padding: spacing.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.md },
 });

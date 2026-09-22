@@ -1,5 +1,5 @@
 export type ClimateZone = 'atlantica' | 'continental' | 'mediterranea' | 'subtropical';
-export type CropCategory = 'frutas' | 'hojas' | 'raices' | 'legumbres' | 'cruciferas' | 'cucurbitaceas' | 'aromaticas' | 'bulbos';
+export type CropCategory = 'frutas' | 'hojas' | 'raices' | 'legumbres' | 'cruciferas' | 'cucurbitaceas' | 'aromaticas' | 'bulbos' | 'medicinales';
 export type UserTier = 'guest' | 'free' | 'pro';
 export type PlantStatus = 'seedling' | 'growing' | 'flowering' | 'harvesting' | 'dormant' | 'dead';
 
@@ -30,6 +30,7 @@ export interface RemoteCrop {
   sun_needs: 'full' | 'partial' | 'shade';
   water_needs: 'high' | 'medium' | 'low';
   spacing_cm: number;
+  rotation_group?: string | null;
   companions: string[];
   incompatible: string[];
   tips: string;
@@ -105,12 +106,31 @@ export interface RemoteReminder {
   type: string;
   title: string;
   frequency: string;
+  weekday: number | null;
+  due_date: string | null;
   time_hour: number;
   time_minute: number;
   enabled: boolean;
   notification_id: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface RemoteSeedLot {
+  id: string;
+  user_id: string;
+  garden_id: string;
+  crop_id: string;
+  crop_name: string;
+  variety: string | null;
+  brand: string | null;
+  packet_count: number;
+  low_stock_at: number | null;
+  expires_on: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
 }
 
 export interface Database {
@@ -124,6 +144,7 @@ export interface Database {
       plants: { Row: RemotePlant; Insert: Omit<RemotePlant, 'created_at' | 'updated_at'>; Update: Partial<RemotePlant> };
       diary_entries: { Row: RemoteDiaryEntry; Insert: Omit<RemoteDiaryEntry, 'created_at'>; Update: Partial<RemoteDiaryEntry> };
       reminders: { Row: RemoteReminder; Insert: Omit<RemoteReminder, 'created_at' | 'updated_at'>; Update: Partial<RemoteReminder> };
+      seed_lots: { Row: RemoteSeedLot; Insert: Omit<RemoteSeedLot, 'created_at' | 'updated_at'>; Update: Partial<RemoteSeedLot> };
     };
   };
 }

@@ -25,6 +25,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType, type WateringData, type HarvestData, type FertilizingData, type TreatmentData } from '../../src/models/diary-entry';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { tapHaptic } from '../../src/utils/haptics';
+import { goBackOr } from '../../src/utils/navigation';
 
 const ALL_TYPES: EntryType[] = [
   'watering', 'sowing', 'transplant', 'fertilizing', 'harvest',
@@ -111,7 +112,7 @@ export default function EditEntryScreen() {
   if (entries.loading) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+        <Pressable onPress={() => goBackOr(router)} style={{ padding: spacing.lg }} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
@@ -125,7 +126,7 @@ export default function EditEntryScreen() {
   if (entries.error) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+        <Pressable onPress={() => goBackOr(router)} style={{ padding: spacing.lg }} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <View style={{ flex: 1, justifyContent: 'center', padding: spacing.xl }}>
@@ -138,7 +139,7 @@ export default function EditEntryScreen() {
   if (!entry || (activeGarden && entry.gardenId !== activeGarden.id)) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }}>
+        <Pressable onPress={() => goBackOr(router)} style={{ padding: spacing.lg }}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         <Text style={[s.notFound, { color: colors.textSecondary }]}>{t('entryEdit.notFound')}</Text>
@@ -187,7 +188,7 @@ export default function EditEntryScreen() {
         photoUri: photoUri ?? undefined,
         data: entryData,
       });
-      router.back();
+      goBackOr(router);
     } finally {
       setSaving(false);
     }
@@ -201,7 +202,7 @@ export default function EditEntryScreen() {
         style: 'destructive',
         onPress: async () => {
           await entries.softRemove(id);
-          router.back();
+          goBackOr(router);
         },
       },
     ]);
@@ -232,7 +233,7 @@ export default function EditEntryScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Header — tinted with selected type color */}
       <View style={[s.header, { borderBottomColor: colors.border, backgroundColor: selectedCfg.color + '10' }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
+        <Pressable onPress={() => goBackOr(router)} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>

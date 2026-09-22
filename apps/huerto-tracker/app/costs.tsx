@@ -32,6 +32,7 @@ import { COST_CATEGORY_CONFIG, type CostCategory, type CostEntry } from '../src/
 import { Illustration } from '../src/components/Illustration';
 import { CollectionError } from '../src/components/CollectionError';
 import { StitchBottomNav } from '../src/components/StitchBottomNav';
+import { goBackOr } from '../src/utils/navigation';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -265,16 +266,11 @@ export default function CostsScreen() {
   const roiLabel = roi == null ? '—' : `${roi >= 0 ? '+' : ''}${Math.round(roi)}%`;
   const locale = i18n.language;
 
-  // A fresh install must match Stitch's reference frame instead of exposing
-  // the legacy zero-state dashboard. Once the user has real entries, the
-  // existing accounting view takes over and remains fully data-backed.
-  return <StitchCostsScreen colors={colors} showAddModal={showAddModal} setShowAddModal={setShowAddModal} newAmount={newAmount} setNewAmount={setNewAmount} newDesc={newDesc} setNewDesc={setNewDesc} saving={saving} onSave={addCost} />;
-
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={s.headerBackButton}>
+        <Pressable onPress={() => goBackOr(router)} hitSlop={12} style={s.headerBackButton}>
           <Ionicons name="arrow-back" size={21} color={colors.primary} />
           <Text style={[s.headerBackText, { color: colors.primary }]}>Volver a Mi Huerto</Text>
         </Pressable>
@@ -896,7 +892,7 @@ function StitchCostsScreen({
   return (
     <SafeAreaView style={[stitchCostStyles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={[stitchCostStyles.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} style={stitchCostStyles.back} hitSlop={10}><Ionicons name="chevron-back" size={21} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '700' }}>Volver</Text></Pressable>
+        <Pressable onPress={() => goBackOr(router)} style={stitchCostStyles.back} hitSlop={10}><Ionicons name="chevron-back" size={21} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '700' }}>Volver</Text></Pressable>
         <Text style={[stitchCostStyles.headerTitle, { color: colors.text }]}>Gastos e Inversión</Text>
         <Pressable onPress={() => setShowAddModal(true)} style={stitchCostStyles.new} hitSlop={10}><Ionicons name="add" size={18} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '800' }}>Nuevo</Text></Pressable>
       </View>

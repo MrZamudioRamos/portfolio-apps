@@ -8,6 +8,7 @@ import { TAB_BAR_BOTTOM_CLEARANCE } from './_layout';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Plant } from '../../src/models/plant';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { goBackOr } from '../../src/utils/navigation';
 
 type Tint = 'primary' | 'info' | 'water' | 'warning' | 'success' | 'secondary' | 'error';
 
@@ -34,11 +35,12 @@ function ToolsInner() {
 
   // Content and order match Stitch's "Herramientas de Semilla" frame.
   const tools: ToolItem[] = [
-    { icon: 'sunny-outline', title: 'Medidor de Luz Solar', eyebrow: 'Sensor AR activo', route: '/light-meter', tint: 'warning', description: 'Mide con la cámara los luxes exactos de tu barandilla y calcula horas de sol directo.', action: 'Abrir sensor' },
-    { icon: 'scan-outline', title: 'Identificador de Plantas y Plagas', eyebrow: 'IA Botánica', route: '/plant/scan', tint: 'primary', description: 'Reconoce especies o detecta hongos como oídio fotografiando las hojas.', action: 'Escanear ahora' },
+    { icon: 'sunny-outline', title: 'Medidor de Luz Solar', eyebrow: 'Sin sensor conectado', route: '/light-meter', tint: 'warning', description: 'Consulta el estado de las lecturas y registra luz solo cuando exista una medición real.', action: 'Abrir medidor' },
+    { icon: 'scan-outline', title: 'Identificador de Plantas y Plagas', eyebrow: 'Análisis visual con IA', route: '/plant/scan', tint: 'primary', description: 'Identifica la especie o revisa señales visibles de plagas y enfermedades desde una foto.', action: 'Capturar foto' },
     { icon: 'finger-print-outline', title: 'Diagnóstico Táctil de Sustrato', eyebrow: 'Prueba 2 cm', route: '/modal/check-soil-sheet', tint: 'water', description: 'Guía interactiva paso a paso para la prueba del dedo a 2 cm antes de aplicar agua.', action: 'Iniciar prueba' },
     { icon: 'partly-sunny-outline', title: 'Simulador de Sombras y Sol', eyebrow: 'Orientación Sur/Este', route: '/garden/map', tint: 'secondary', description: 'Descubre en qué horas tu pared hace sombra según la estación.', action: 'Simular fachada' },
     { icon: 'calculator-outline', title: 'Calculadora de Volumen de Maceta y Sustrato', eyebrow: 'Litros & Drenaje', route: '/volume-calculator', tint: 'success', description: 'Calcula cuántos litros de tierra y drenaje de perlita necesita cada hortaliza.', action: 'Calcular mezcla' },
+    { icon: 'basket-outline', title: 'Banco de semillas', eyebrow: 'Tus sobres, tus datos', route: '/seeds', tint: 'success', description: 'Registra variedades, sobres cerrados, umbrales y fechas impresas para cada huerto.', action: 'Abrir inventario' },
     { icon: 'water-outline', title: 'Modo Vacaciones y Ausencia', eyebrow: 'Autorriego', route: '/absence', tint: 'info', description: 'Prepara sistemas de autorriego con mecha casera para cuando viajes.', action: 'Planificar viaje' },
   ];
 
@@ -81,7 +83,7 @@ function ToolsInner() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={s.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Mi Huerto" onPress={() => router.back()} style={s.backButton}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Mi Huerto" onPress={() => goBackOr(router)} style={s.backButton}>
           <Ionicons name="chevron-back" size={22} color={colors.text} />
         </Pressable>
         <Text style={[s.backTitle, { color: colors.text }]}>Mi Huerto</Text>
@@ -92,14 +94,14 @@ function ToolsInner() {
           <Ionicons name="build-outline" size={18} color={colors.primary} />
           <Text style={[s.introKicker, { color: colors.primary }]}>Utilidades Semilla</Text>
           <Text style={[s.pageTitle, { color: colors.text }]}>Herramientas de Semilla</Text>
-          <Text style={[s.pageSubtitle, { color: colors.textSecondary }]}>Sensores, asistentes y guías inteligentes para cuidar tu huerto urbano sin errores de principiante.</Text>
+          <Text style={[s.pageSubtitle, { color: colors.textSecondary }]}>Guías y utilidades para cuidar tu huerto urbano sin rellenar los huecos con datos inventados.</Text>
         </View>
         <View style={s.grid}>{tools.map(renderTile)}</View>
         <View style={[s.tipCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
           <Ionicons name="bulb-outline" size={20} color={colors.primary} />
           <Text style={[s.tipText, { color: colors.textSecondary }]}>
             <Text style={{ color: colors.text, fontWeight: fontWeight.bold }}>Consejo de Semilla: </Text>
-            Recuerda medir la luz en diferentes franjas horarias (11:00 y 16:00) para un mapa solar certero.
+            Si quieres documentar la luz, anota observaciones en distintas franjas horarias y conserva solo mediciones que hayas podido comprobar.
           </Text>
         </View>
       </ScrollView>

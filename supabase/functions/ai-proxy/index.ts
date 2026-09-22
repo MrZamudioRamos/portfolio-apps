@@ -1,7 +1,7 @@
 // Supabase Edge Function: ai-proxy
 //
 // Generic server-side proxy for Anthropic API calls. The key never ships in
-// the client bundle. Enforces 20 calls per authenticated user per hour.
+// the client bundle. Shares the 3-per-user / 25-total daily beta quota.
 //
 // Deploy:   supabase functions deploy ai-proxy
 // Secret:   supabase secrets set ANTHROPIC_KEY=sk-ant-...
@@ -22,11 +22,10 @@
 //   }
 // Response: { reply: string } or { error: string, code: string } with status.
 
-import { CORS, clampText, enforceHourlyLimit, json, requireUser } from '../_shared/security.ts';
+import { CORS, clampText, enforceDailyAIQuota, json, requireUser } from '../_shared/security.ts';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-haiku-4-5-20251001';
-const HOURLY_LIMIT = 20;
 const MAX_TOKENS_CAP = 2048;
 const DEFAULT_MAX_TOKENS = 512;
 
@@ -38,7 +37,7 @@ Deno.serve(async (req: Request) => {
   const user = await requireUser(req);
   if (user instanceof Response) return user;
 
-  // ── 2. Rate limiting: max HOURLY_LIMIT calls per user per hour ────────────
+  // ── 2. Require provider configuration before reading the request ──────────
   const apiKey = Deno.env.get('ANTHROPIC_KEY');
   if (!apiKey) return json({ error: 'Server not configured', code: 'NO_KEY' }, 500);
 
@@ -70,8 +69,8 @@ Deno.serve(async (req: Request) => {
     .slice(-20);
   if (!validMessages.length) return json({ error: 'No valid messages', code: 'BAD_REQUEST' }, 400);
 
-  const rateLimitResponse = await enforceHourlyLimit(user.id, HOURLY_LIMIT);
-  if (rateLimitResponse) return rateLimitResponse;
+  const quotaResponse = await enforceDailyAIQuota(user.id);
+  if (quotaResponse) return quotaResponse;
 
   const maxTokens = Math.min(
     typeof max_tokens === 'number' && max_tokens > 0 ? max_tokens : DEFAULT_MAX_TOKENS,

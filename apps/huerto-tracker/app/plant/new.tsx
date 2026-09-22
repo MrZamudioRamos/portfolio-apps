@@ -33,6 +33,7 @@ import { useUserProfile } from '../../src/hooks/useUserProfile';
 import { createPlantWithSowing } from '../../src/utils/careWrites';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
+import { goBackOr } from '../../src/utils/navigation';
 import { getCompanions } from '../../src/data/companions';
 import { PLANT_STATUS_CONFIG, type Plant, type PropagationMethod } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
@@ -126,12 +127,13 @@ export default function NewPlantScreen() {
     return staticCrop ? t('crops.' + paramCropId + '.name', { defaultValue: staticCrop.name }) : '';
   });
 
-function StitchNewPlantScreen({ colors, router, onSave }: { colors: ReturnType<typeof useColors>; router: ReturnType<typeof useRouter>; onSave: () => void }) {
-  const [species, setSpecies] = useState('Albahaca Limón (Ocimum citriodorum)');
-  const [material, setMaterial] = useState('Barro Cocido');
-  const [place, setPlace] = useState('Balcón Sur');
+function StitchNewPlantScreen({ colors, router, onSave, species: initialSpecies, onSpeciesChange }: { colors: ReturnType<typeof useColors>; router: ReturnType<typeof useRouter>; onSave: () => void; species: string; onSpeciesChange: (value: string) => void }) {
+  const [species, setSpecies] = useState(initialSpecies);
+  const [material, setMaterial] = useState('');
+  const [place, setPlace] = useState('');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const { pickFromCamera, pickFromGallery, picking } = usePickPhoto({ aspect: [4, 3], quality: 0.8 });
+  useEffect(() => { onSpeciesChange(species); }, [onSpeciesChange, species]);
   async function choosePhoto(fromCamera: boolean) {
     const result = await (fromCamera ? pickFromCamera() : pickFromGallery());
     if (result.kind === 'success') setPhotoUri(result.uri);
@@ -283,6 +285,12 @@ const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { pa
   if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
     async function handleStitchSave() {
       if (submitting.current) return;
+      const typedName = plantName.trim();
+      const typedCrop = selectedCropId ?? Object.values(CROPS_BY_ID).find((crop) => crop.name.toLocaleLowerCase() === typedName.toLocaleLowerCase() || crop.id === typedName.toLocaleLowerCase())?.id;
+      if (!typedCrop || !typedName) {
+        setSaveError(true);
+        return;
+      }
       if (atLimit) {
         router.push('/paywall?source=plant_limit' as any);
         return;
@@ -293,17 +301,15 @@ const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { pa
       setSaving(true);
       setSaveError(false);
       try {
-        const cropId = selectedCropId ?? 'albahaca';
-        const name = plantName.trim() || 'Albahaca Limón';
         await createPlantWithSowing({
           gardenId,
-          cropId,
-          name,
+          cropId: typedCrop,
+          name: typedName,
           sowingDate: todayStr(),
           status: 'transplanted',
           propagationMethod: 'bought',
         });
-        track(EVENTS.plantAdded, { cropId, fromScan: false, source: 'stitch_new_plant' });
+        track(EVENTS.plantAdded, { cropId: typedCrop, fromScan: false, source: 'stitch_new_plant' });
         successHaptic();
         if (fromOnboarding === '1') router.replace('/(tabs)');
         else if (router.canGoBack()) router.back();
@@ -315,7 +321,7 @@ const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { pa
         setSaving(false);
       }
     }
-    return <StitchNewPlantScreen colors={colors} router={router} onSave={() => { void handleStitchSave(); }} />;
+    return <StitchNewPlantScreen colors={colors} router={{ ...router, back: () => goBackOr(router) }} species={plantName} onSpeciesChange={setPlantName} onSave={() => { void handleStitchSave(); }} />;
   }
 
   if (createdPlant) return (

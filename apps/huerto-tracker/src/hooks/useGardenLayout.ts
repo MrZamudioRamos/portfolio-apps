@@ -89,6 +89,17 @@ export function useGardenLayout(
     });
   }
 
+  /** Place a plant in one cell, removing any previous occurrence first. */
+  async function placePlant(plantId: string, index: number): Promise<void> {
+    if (!gardenId) return;
+    setLayout((prev) => {
+      const next = prev.map((cell) => (cell === plantId ? null : cell));
+      next[index] = plantId;
+      writeLayout(gardenId, next);
+      return next;
+    });
+  }
+
   async function removePlant(plantId: string): Promise<void> {
     if (!gardenId) return;
     setLayout((prev) => {
@@ -125,6 +136,7 @@ export function useGardenLayout(
     error,
     retry: () => setReloadToken((value) => value + 1),
     setCell,
+    placePlant,
     swapCells,
     removePlant,
     clearAll,

@@ -22,5 +22,7 @@ export interface SchedulableReminder extends BaseItem {
   time: { hour: number; minute: number };
   /** Expo weekday: 1 = Sunday, 2 = Monday ... 7 = Saturday. */
   weekday?: number;
+  /** Device-local ISO date for an exact one-time reminder. */
+  dueDate?: string;
   title: string;
 }

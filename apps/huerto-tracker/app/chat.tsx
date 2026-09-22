@@ -20,11 +20,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
-import { usePro } from '../src/hooks/usePro';
 import { track, EVENTS } from '../src/analytics';
 import type { Plant } from '../src/models/plant';
 import type { DiagnosisFollowUpData, DiaryEntry } from '../src/models/diary-entry';
 import { type ChatMessage, sendChatMessage } from '../src/utils/aiChat';
+import { goBackOr } from '../src/utils/navigation';
 import { useMemo } from 'react';
 
 interface UIMessage extends ChatMessage {
@@ -44,7 +44,6 @@ export default function ChatScreen() {
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { t, i18n } = useTranslation();
-  const { isPro } = usePro();
   const { user } = useSession();
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
@@ -136,7 +135,7 @@ export default function ChatScreen() {
       const code = e instanceof Error ? e.message : '';
       setMessages((prev) => [
         ...prev,
-        { id: uid(), role: 'assistant', content: code === 'AUTH' ? t('chat.errorAuth') : code === 'RATE_LIMIT' ? t('chat.rateLimitError') : t('chat.error'), error: true },
+        { id: uid(), role: 'assistant', content: code === 'AUTH' ? t('chat.errorAuth') : code === 'RATE_LIMIT' ? t('chat.rateLimitError') : code === 'DAILY_BUDGET' ? t('chat.dailyBudgetError') : t('chat.error'), error: true },
       ]);
     } finally {
       setLoading(false);
@@ -150,7 +149,7 @@ export default function ChatScreen() {
       <ScreenHeader
         title={t('chat.title')}
         subtitle={activeGarden ? t('chat.contextInfo', { province: activeGarden.province || t(`zone.${activeGarden.climateZone}`) }) : undefined}
-        onBack={() => router.back()}
+        onBack={() => goBackOr(router)}
         right={messages.length > 0 ? (
           <Pressable onPress={clearChat} hitSlop={12} accessibilityRole="button" accessibilityLabel={t('chat.clearTitle')}>
             <Ionicons name="trash-outline" size={20} color={colors.textSecondary} />
@@ -159,22 +158,7 @@ export default function ChatScreen() {
         variant="left"
       />
 
-      {/* PRO gate */}
-      {!isPro ? (
-        <View style={s.gate}>
-          <Ionicons name="chatbubble-ellipses-outline" size={56} color={colors.primary} />
-          <Text style={[s.gateTitle, { color: colors.text }]}>{t('chat.proTitle')}</Text>
-          <Text style={[s.gateDesc, { color: colors.textSecondary }]}>{t('chat.proDesc')}</Text>
-          <Pressable
-            onPress={() => router.push('/paywall?source=ai_chat' as any)}
-            accessibilityRole="button"
-            accessibilityLabel={t('chat.proBtn')}
-            style={[s.gateBtn, { backgroundColor: colors.accent }]}
-          >
-            <Text style={[s.gateBtnText, { color: colors.primaryDark }]}>{t('chat.proBtn')}</Text>
-          </Pressable>
-        </View>
-      ) : !user ? (
+      {!user ? (
         /* Auth gate — the Edge Function requires a signed-in user */
         <View style={s.gate}>
           <Ionicons name="lock-closed-outline" size={56} color={colors.primary} />
@@ -269,6 +253,11 @@ export default function ChatScreen() {
             </View>
           )}
 
+          <View style={s.betaNote}>
+            <Ionicons name="information-circle-outline" size={15} color={colors.textSecondary} />
+            <Text style={[s.betaNoteText, { color: colors.textSecondary }]}>{t('chat.betaLimit')}</Text>
+          </View>
+
           {/* Input bar */}
           <View style={[s.inputBar, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
             <TextInput
@@ -333,7 +322,6 @@ const makeStyles = (
       paddingVertical: 3,
       borderRadius: radii.full,
     },
-    aiBadgeText: { fontSize: 11, fontWeight: fontWeight.bold },
     gate: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.lg },
     gateTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, textAlign: 'center' },
     gateDesc: { fontSize: fontSize.sm, textAlign: 'center', lineHeight: 22, maxWidth: 280 },
@@ -344,6 +332,7 @@ const makeStyles = (
       marginTop: spacing.sm,
     },
     gateBtnText: { color: '#fff', fontWeight: fontWeight.bold, fontSize: fontSize.md },
+    aiBadgeText: { fontSize: 11, fontWeight: fontWeight.bold },
     messageList: { padding: spacing.xl, gap: spacing.md, paddingBottom: spacing.lg },
     emptyWrap: { alignItems: 'center', paddingTop: 40, gap: spacing.sm },
     emptyTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, textAlign: 'center' },
@@ -380,6 +369,8 @@ const makeStyles = (
       borderWidth: 1,
     },
     loadingText: { fontSize: fontSize.xs },
+    betaNote: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.xs, paddingHorizontal: spacing.lg, paddingBottom: spacing.xs },
+    betaNoteText: { flex: 1, fontSize: fontSize.xs, lineHeight: 16 },
     inputBar: {
       flexDirection: 'row',
       alignItems: 'flex-end',

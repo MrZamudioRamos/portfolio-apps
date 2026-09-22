@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { type CustomCrop } from '../../src/models/custom-crop';
 import { CATEGORY_CONFIG } from '../../src/data/crops';
 import { CollectionError } from '../../src/components/CollectionError';
+import { goBackOr } from '../../src/utils/navigation';
 
 export default function ManageCustomCropsScreen() {
   const colors = useColors();
@@ -31,7 +32,7 @@ export default function ManageCustomCropsScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
       <View style={s.header}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={s.backBtn}>
+        <Pressable onPress={() => goBackOr(router, '/settings' as any)} hitSlop={12} style={s.backBtn}>
           <Ionicons name="chevron-back" size={24} color={colors.text} />
         </Pressable>
         <Text style={[s.title, { color: colors.text }]}>{t('customCrop.manage')}</Text>

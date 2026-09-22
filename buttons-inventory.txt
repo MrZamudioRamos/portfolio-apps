@@ -1,0 +1,662 @@
+app\absence.tsx:106:        <Pressable accessibilityRole="button" accessibilityLabel={t('common.back')} onPress={() => router.back()} hitSlop={12} style={{ minWidth: 44, minHeight: 44, justifyContent: 'center' }}>
+app\absence.tsx:131:                  onPress={() => { setDaysAway(duration); setSaved(false); }}
+app\absence.tsx:163:            <Button title={t('absence.addPlant')} variant="secondary" onPress={() => router.push('/plant/new')} style={{ marginTop: spacing.md }} />
+app\absence.tsx:210:          {!isPro && <Button title={t('absence.proCta')} variant="secondary" size="sm" onPress={() => router.push('/paywall?source=absence_automation' as any)} style={{ marginTop: spacing.md }} />}
+app\absence.tsx:213:        <Button title={saved ? t('absence.saved') : t(isPro ? 'absence.savePro' : 'absence.save')} onPress={savePlan} disabled={!activeGarden?.id} size="lg" />
+app\absence.tsx:220:  return <SafeAreaView style={[absenceStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}><ScrollView contentContainerStyle={absenceStitch.content} showsVerticalScrollIndicator={false}><View style={[absenceStitch.header, { borderBottomColor: colors.border }]}><Pressable onPress={() => router.back()} style={absenceStitch.back}><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={{ color: colors.text, fontWeight: '700' }}>Mi Huerto</Text></Pressable><Text style={[absenceStitch.headerTitle, { color: colors.text }]}>Modo Ausencia</Text><View style={{ width: 78 }} /></View><View style={[absenceStitch.hero, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Ionicons name="airplane-outline" size={26} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[absenceStitch.title, { color: colors.text }]}>Tu huerto sigue cuidado</Text><Text style={[absenceStitch.body, { color: colors.textSecondary }]}>Prepara un plan de autorriego con mecha casera y deja claras las tareas antes de viajar.</Text></View></View><Text style={[absenceStitch.section, { color: colors.textSecondary }]}>DURACIÓN DEL VIAJE</Text><View style={[absenceStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={[absenceStitch.cardTitle, { color: colors.text }]}>¿Cuántos días estarás fuera?</Text><View style={absenceStitch.options}>{[2, 4, 7, 14].map((item) => <Pressable key={item} onPress={() => setDaysAway(item)} accessibilityRole="radio" accessibilityState={{ checked: daysAway === item }} style={[absenceStitch.option, { borderColor: daysAway === item ? colors.primary : colors.border, backgroundColor: daysAway === item ? colors.primary + '16' : colors.surface }]}><Text style={{ color: daysAway === item ? colors.primary : colors.text, fontWeight: '800' }}>{item} días</Text></Pressable>)}</View></View><Text style={[absenceStitch.section, { color: colors.textSecondary }]}>PERSONA DE APOYO</Text><View style={[absenceStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}><Ionicons name="people-outline" size={23} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[absenceStitch.cardTitle, { color: colors.text }]}>¿Alguien puede revisar tus macetas?</Text><Text style={[absenceStitch.body, { color: colors.textSecondary }]}>Le mostraremos qué plantas necesitan una visita.</Text></View><Switch value={hasHelper} onValueChange={setHasHelper} trackColor={{ true: colors.primary }} /></View></View><View style={[absenceStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={[absenceStitch.cardTitle, { color: colors.text }]}>Checklist antes de salir</Text>{['Prueba el riego por mecha durante 24 horas', 'Agrupa las macetas evitando sol directo extremo', 'Deja la regla de 2 cm visible junto al huerto', 'Activa las notificaciones de Semillita'].map((item, index) => <View key={item} style={absenceStitch.check}><View style={[absenceStitch.number, { backgroundColor: colors.primary }]}><Text style={{ color: '#fff', fontWeight: '900' }}>{index + 1}</Text></View><Text style={[absenceStitch.body, { color: colors.text }]}>{item}</Text></View>)}</View><Pressable onPress={onSave} style={[absenceStitch.primary, { backgroundColor: colors.primary }]} accessibilityRole="button"><Ionicons name={saved ? 'checkmark-circle-outline' : 'calendar-outline'} size={19} color="#fff" /><Text style={absenceStitch.primaryText}>{saved ? 'Plan guardado' : 'Guardar plan de ausencia'}</Text></Pressable></ScrollView><StitchBottomNav /></SafeAreaView>;
+app\auth\magic-sent.tsx:40:      Alert.alert(t('magicSent.errorCodeTitle'), t('magicSent.errorCodeDesc'));
+app\auth\magic-sent.tsx:46:      router.replace(onboardingDone ? '/(tabs)' : '/onboarding');
+app\auth\magic-sent.tsx:48:      Alert.alert(t('magicSent.errorVerifyTitle'), t('magicSent.errorVerifyDesc'));
+app\auth\magic-sent.tsx:72:          <Pressable onPress={() => inputRef.current?.focus()} style={s.otpRow}>
+app\auth\magic-sent.tsx:91:            onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
+app\auth\magic-sent.tsx:99:            onPress={handleVerify}
+app\auth\magic-sent.tsx:114:            onPress={() => router.replace('/auth' as any)}
+app\auth\magic-sent.tsx:120:            onPress={() => router.replace('/onboarding')}
+app\auth\magic-sent.tsx:134:  return <SafeAreaView style={[magicStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}><View style={magicStitch.content}><Pressable onPress={() => router.back()} style={magicStitch.back} accessibilityRole="button"><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={{ color: colors.text, fontWeight: '700' }}>Volver</Text></Pressable><View style={[magicStitch.illustration, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="mail-open-outline" size={62} color={colors.primary} /><Text style={{ fontSize: 30, position: 'absolute', right: 26, top: 12 }}>🌱</Text></View><Text style={[magicStitch.title, { color: colors.text }]}>Enlace mágico enviado</Text><Text style={[magicStitch.body, { color: colors.textSecondary }]}>Hemos enviado un acceso seguro a</Text><Text style={[magicStitch.email, { color: colors.text }]}>{email}</Text><Text style={[magicStitch.body, { color: colors.textSecondary }]}>Abre tu correo y toca el enlace para entrar en tu huerto. El enlace caduca en 43 segundos.</Text><Pressable style={[magicStitch.primary, { backgroundColor: colors.primary }]} accessibilityRole="button"><Ionicons name="mail-outline" size={19} color="#fff" /><Text style={magicStitch.primaryText}>Abrir aplicación de correo</Text></Pressable><Pressable onPress={() => router.replace('/auth' as any)} style={magicStitch.link} accessibilityRole="button"><Text style={{ color: colors.primary, fontWeight: '800' }}>¿No es tu correo? Corregir dirección</Text></Pressable><Text style={[magicStitch.note, { color: colors.textSecondary }]}>Si no lo encuentras, revisa la carpeta de spam o promociones.</Text></View></SafeAreaView>;
+app\auth\index.tsx:50:      router.replace(postAuthRoute);
+app\auth\index.tsx:53:        Alert.alert(t('common.error'), t('auth.errorGoogle'));
+app\auth\index.tsx:64:      router.replace(postAuthRoute);
+app\auth\index.tsx:67:        Alert.alert(t('common.error'), t('auth.errorApple'));
+app\auth\index.tsx:79:      router.replace(postAuthRoute);
+app\auth\index.tsx:81:      Alert.alert(t('common.error'), e?.message ?? t('auth.errorMagicLink'));
+app\auth\index.tsx:93:      router.push({ pathname: '/auth/magic-sent', params: { email: normalizedEmail } });
+app\auth\index.tsx:95:      Alert.alert(t('common.error'), e?.message ?? t('auth.errorMagicLink'));
+app\auth\index.tsx:110:          <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={12}>
+app\auth\index.tsx:124:            onPress={handleGoogle}
+app\auth\index.tsx:144:              onPress={handleApple}
+app\auth\index.tsx:159:                onPress={() => setEmailMode('password')}
+app\auth\index.tsx:168:                onPress={() => setEmailMode('otp')}
+app\auth\index.tsx:186:                onChangeText={setEmail}
+app\auth\index.tsx:196:                  onChangeText={setPassword}
+app\auth\index.tsx:200:                onPress={emailMode === 'password' ? handlePassword : handleMagicLink}
+app\auth\index.tsx:215:              <Pressable onPress={() => setEmailMode('none')} style={{ alignItems: 'center' }}>
+app\auth\index.tsx:223:            onPress={() => router.replace(onboardingDone ? '/(tabs)' : '/onboarding')}
+app\auth\index.tsx:237:  return <SafeAreaView style={[authStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}><ScrollView contentContainerStyle={authStitch.content} keyboardShouldPersistTaps="handled"><Pressable onPress={() => router.back()} style={authStitch.back} accessibilityRole="button" accessibilityLabel="Volver"><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={[authStitch.backText, { color: colors.text }]}>Volver</Text></Pressable><View style={authStitch.brand}><Ionicons name="leaf" size={23} color={colors.primary} /><Text style={[authStitch.brandText, { color: colors.primary }]}>SEMILLA</Text></View><Text style={[authStitch.kicker, { color: colors.primary }]}>Tu huerto en casa</Text><Text style={[authStitch.title, { color: colors.text }]}>Entra a tu Huerto</Text><Text style={[authStitch.subtitle, { color: colors.textSecondary }]}>Introduce tu correo electrónico para recibir un enlace mágico instantáneo sin necesidad de contraseña.</Text><Text style={[authStitch.label, { color: colors.text }]}>Correo electrónico</Text><View style={[authStitch.input, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="mail-outline" size={19} color={colors.textSecondary} /><TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="tu@email.com" placeholderTextColor={colors.textDisabled} style={{ flex: 1, color: colors.text, fontSize: 15 }} /><Pressable onPress={() => setEmail('')} accessibilityRole="button" accessibilityLabel="Borrar texto"><Ionicons name="close-circle" size={18} color={colors.textDisabled} /></Pressable></View><View style={authStitch.secure}><Ionicons name="shield-checkmark-outline" size={17} color={colors.primary} /><Text style={{ color: colors.textSecondary, fontSize: 12 }}>Te enviaremos un acceso seguro</Text></View><Pressable onPress={onSubmit} disabled={loading || !email.trim()} style={[authStitch.primary, { backgroundColor: colors.primary, opacity: loading || !email.trim() ? 0.5 : 1 }]} accessibilityRole="button"><Text style={authStitch.primaryText}>{loading ? 'Enviando…' : 'Enviar enlace mágico'}</Text><Ionicons name="sparkles-outline" size={18} color="#fff" /></Pressable><Text style={[authStitch.divider, { color: colors.textSecondary }]}>O ACCEDE CON</Text><Pressable onPress={onApple} style={[authStitch.social, { backgroundColor: '#111', borderColor: '#111' }]} accessibilityRole="button"><Ionicons name="logo-apple" size={20} color="#fff" /><Text style={{ color: '#fff', fontWeight: '800' }}>Continuar con Apple</Text></Pressable><Pressable onPress={onGoogle} style={[authStitch.social, { backgroundColor: colors.surface, borderColor: colors.border }]} accessibilityRole="button"><Ionicons name="logo-google" size={18} color="#4285F4" /><Text style={[{ fontWeight: '800' }, { color: colors.text }]}>Continuar con Google</Text></Pressable><Text style={[authStitch.legal, { color: colors.textSecondary }]}>Conexión segura garantizada · Al continuar aceptas nuestras políticas de cultivo y privacidad para comunidades botánicas.</Text></ScrollView></SafeAreaView>;
+app\_layout.tsx:59:        onPress={retry}
+app\_layout.tsx:87:        .then(() => router.replace(onboardingDone ? '/(tabs)' : '/onboarding'))
+app\_layout.tsx:96:      if (typeof url === 'string' && url.startsWith('/')) router.push(url as any);
+app\(tabs)\map.tsx:20:      <Pressable accessibilityRole="button" onPress={() => router.push('/modal/check-soil-sheet' as any)} style={[styles.checkButton, { borderColor: colors.primary }]}><Ionicons name="finger-print-outline" size={17} color={colors.primary} /><Text style={[styles.checkButtonText, { color: colors.primary }]}>{action}</Text></Pressable>
+app\(tabs)\map.tsx:26:      <View style={[styles.header, { borderBottomColor: colors.border }]}><Pressable accessibilityRole="button" onPress={() => router.push('/gardens' as any)} style={styles.back}><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={[styles.backText, { color: colors.text }]}>Mi Huerto</Text></Pressable><View><Text style={[styles.title, { color: colors.text }]}>Mapa visual</Text><Text style={[styles.subtitle, { color: colors.textSecondary }]}>Balcón Principal Sur · Madrid</Text></View><Pressable accessibilityRole="button" style={styles.headerButton}><Ionicons name="options-outline" size={22} color={colors.text} /></Pressable></View>
+app\(tabs)\map.tsx:27:      <View style={[styles.segmented, { backgroundColor: colors.surfaceAlt }]}><Pressable onPress={() => setMode('map')} style={[styles.segment, mode === 'map' && { backgroundColor: colors.surface }]}><Ionicons name="map-outline" size={17} color={mode === 'map' ? colors.primary : colors.textSecondary} /><Text style={[styles.segmentText, { color: mode === 'map' ? colors.primaryDark : colors.textSecondary }]}>Mapa visual</Text></Pressable><Pressable onPress={() => setMode('list')} style={[styles.segment, mode === 'list' && { backgroundColor: colors.surface }]}><Ionicons name="list-outline" size={17} color={mode === 'list' ? colors.primary : colors.textSecondary} /><Text style={[styles.segmentText, { color: mode === 'list' ? colors.primaryDark : colors.textSecondary }]}>Vista lista (4)</Text></Pressable></View>
+app\(tabs)\map.tsx:37:        </> : <View style={[styles.listCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>{['Tomate Cherry · Maceta 30L · Sol directo +6h', 'Romero Silvestre · Jardinera 15L · Sol directo +6h', 'Albahaca Limón · Maceta 18cm · Semisombra', 'Menta Piperita · Jardinera 20L · Semisombra'].map((item) => <Pressable key={item} onPress={() => router.push('/plant/tomate-cherry' as any)} style={[styles.listRow, { borderBottomColor: colors.border }]}><Ionicons name="flower-outline" size={21} color={colors.primary} /><Text style={[styles.listText, { color: colors.text }]}>{item}</Text><Ionicons name="chevron-forward" size={18} color={colors.textSecondary} /></Pressable>)}</View>}
+app\(tabs)\settings.tsx:81:      Alert.alert('Permisos del sistema', `Gestiona el permiso de ${permission} desde los ajustes del dispositivo.`);
+app\(tabs)\settings.tsx:84:    void Linking.openSettings().catch(() => Alert.alert('Permisos del sistema', 'No se han podido abrir los ajustes del dispositivo.'));
+app\(tabs)\settings.tsx:117:    Alert.alert(
+app\(tabs)\settings.tsx:153:              router.replace('/onboarding');
+app\(tabs)\settings.tsx:155:              Alert.alert(t('common.error'), t('settings.data.deleteError'));
+app\(tabs)\settings.tsx:165:    Alert.alert(
+app\(tabs)\settings.tsx:174:            Alert.alert(
+app\(tabs)\settings.tsx:189:                        Alert.alert(t('settings.account.deleteAccountError'));
+app\(tabs)\settings.tsx:196:                      router.replace('/welcome');
+app\(tabs)\settings.tsx:279:                onPress={() => router.push('/auth' as any)}
+app\(tabs)\settings.tsx:297:                onPress={() => {
+app\(tabs)\settings.tsx:298:                  Alert.alert(t('settings.account.signOutTitle'), t('settings.account.signOutDesc'), [
+app\(tabs)\settings.tsx:310:                            Alert.alert(
+app\(tabs)\settings.tsx:322:                        router.replace('/welcome');
+app\(tabs)\settings.tsx:335:                onPress={handleDeleteAccount}
+app\(tabs)\settings.tsx:375:            onPress={() => router.push('/garden/map')}
+app\(tabs)\settings.tsx:383:            onPress={() => router.push('/garden/edit')}
+app\(tabs)\settings.tsx:391:            onPress={() => router.push('/gardens' as any)}
+app\(tabs)\settings.tsx:423:                onPress={() => router.push('/paywall?source=settings' as any)}
+app\(tabs)\settings.tsx:445:                  onPress={() => { void setThemePreference(value); }}
+app\(tabs)\settings.tsx:478:          <RowAction icon="camera-outline" label="Cámara" colors={colors} s={s} onPress={() => openSystemSettings('la cámara')} />
+app\(tabs)\settings.tsx:480:          <RowAction icon="images-outline" label="Fotos" colors={colors} s={s} onPress={() => openSystemSettings('las fotos')} />
+app\(tabs)\settings.tsx:482:          <RowAction icon="notifications-outline" label="Notificaciones" colors={colors} s={s} onPress={() => openSystemSettings('las notificaciones')} />
+app\(tabs)\settings.tsx:487:          <Pressable style={s.langModalOverlay} onPress={() => setShowLangModal(false)}>
+app\(tabs)\settings.tsx:488:            <Pressable style={[s.langModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, borderColor: glassAvailable ? 'transparent' : colors.border }]} onPress={() => {}}>
+app\(tabs)\settings.tsx:496:                    onPress={() => { saveLanguage(lang as SupportedLang); setShowLangModal(false); }}
+app\(tabs)\settings.tsx:530:            onPress={() => router.push('/settings/notifications')}
+app\(tabs)\settings.tsx:542:            onPress={() => router.push('/settings/backup')}
+app\(tabs)\settings.tsx:550:            onPress={deleteAllData}
+app\(tabs)\settings.tsx:560:            onPress={() => setShowLangModal(true)}
+app\(tabs)\settings.tsx:577:            onPress={() => Linking.openURL(APP_STORE_URL)}
+app\(tabs)\settings.tsx:585:            onPress={() => Linking.openURL('https://semillaapp.app/privacy-policy.html')}
+app\(tabs)\settings.tsx:593:            onPress={() => Linking.openURL('mailto:rikkardo22@gmail.com')}
+app\(tabs)\settings.tsx:607:    { icon: 'leaf-outline' as const, title: 'Huerto activo', value: 'Balcón Principal Sur (Madrid)', onPress: () => router.push('/gardens' as any) },
+app\(tabs)\settings.tsx:613:      <View style={[settingsStitch.header, { borderBottomColor: colors.border }]}><Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Volver a Mi Huerto" style={settingsStitch.back}><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={[settingsStitch.backText, { color: colors.text }]}>Mi Huerto</Text></Pressable><Text style={[settingsStitch.headerTitle, { color: colors.text }]}>Ajustes</Text><Pressable accessibilityRole="button" accessibilityLabel="Información"><Ionicons name="information-circle-outline" size={22} color={colors.primary} /></Pressable></View>
+app\(tabs)\settings.tsx:616:      <SettingsSection title="ESPACIO Y CLIMA" colors={colors}><View style={[settingsStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>{rows.map((row, index) => <Pressable key={row.title} onPress={row.onPress} accessibilityRole={row.onPress ? 'button' : undefined} style={[settingsStitch.row, index > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}><Ionicons name={row.icon as any} size={19} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>{row.title}</Text><Text style={[settingsStitch.rowValue, { color: colors.textSecondary }]}>{row.value}</Text></View><Ionicons name="chevron-forward" size={17} color={colors.textDisabled} /></Pressable>)}<View style={settingsStitch.inline}><Ionicons name="hardware-chip-outline" size={18} color={colors.primary} /><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>Sensor templado</Text></View></View></SettingsSection>
+app\(tabs)\settings.tsx:617:      <SettingsSection title="EXPERIENCIA Y ACCESIBILIDAD" colors={colors}><View style={[settingsStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>Paleta de apariencia</Text><View style={[settingsStitch.segment, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>{(['Claro', 'Oscuro', 'Sistema'] as const).map((item) => <Pressable key={item} onPress={() => onAppearanceChange(item)} accessibilityRole="button" style={[settingsStitch.segmentItem, appearance === item && { backgroundColor: colors.primary }]}><Text style={{ color: appearance === item ? '#fff' : colors.textSecondary, fontWeight: '800', fontSize: 12 }}>{item}</Text></Pressable>)}</View><SettingSwitch icon="text-outline" title="Texto grande y contraste" subtitle="Modo exterior sol brillante" value={contrast} onChange={setContrast} colors={colors} /><SettingSwitch icon="phone-portrait-outline" title="Respuesta háptica" subtitle="Confirmación táctil de riego" value={haptics} onChange={setHaptics} colors={colors} /></View></SettingsSection>
+app\(tabs)\settings.tsx:619:      <SettingsSection title="NOTIFICACIONES Y DATOS" colors={colors}><View style={[settingsStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><Pressable onPress={() => router.push('/settings/notifications')} style={settingsStitch.row}><Ionicons name="water-outline" size={19} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>Preferencias de avisos y riego</Text><Text style={[settingsStitch.rowValue, { color: colors.textSecondary }]}>Reglas de humedad de sustrato 2cm</Text></View><Ionicons name="chevron-forward" size={17} color={colors.textDisabled} /></Pressable><Pressable onPress={() => router.push('/settings/backup')} style={[settingsStitch.row, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}><Ionicons name="cloud-done-outline" size={19} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>Copia de seguridad y sincronización</Text><Text style={[settingsStitch.rowValue, { color: colors.textSecondary }]}>Última copia: Hoy 10:30</Text></View><Ionicons name="chevron-forward" size={17} color={colors.textDisabled} /></Pressable><Pressable style={[settingsStitch.row, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}><Ionicons name="share-outline" size={19} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.text }]}>Exportar cuaderno de bitácora</Text><Text style={[settingsStitch.rowValue, { color: colors.textSecondary }]}>Descargar historial en JSON o CSV</Text></View><Ionicons name="download-outline" size={17} color={colors.textDisabled} /></Pressable></View></SettingsSection>
+app\(tabs)\settings.tsx:620:      <SettingsSection title="ZONA DE PELIGRO" colors={colors}><View style={[settingsStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><Pressable onPress={() => router.replace('/welcome')} style={settingsStitch.row}><Ionicons name="log-out-outline" size={19} color={colors.error} /><Text style={[settingsStitch.rowTitle, { color: colors.error, flex: 1 }]}>Cerrar sesión</Text><Ionicons name="chevron-forward" size={17} color={colors.error} /></Pressable><Pressable style={[settingsStitch.row, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}><Ionicons name="trash-outline" size={19} color={colors.error} /><View style={{ flex: 1 }}><Text style={[settingsStitch.rowTitle, { color: colors.error }]}>Eliminar cuenta y datos del huerto</Text><Text style={[settingsStitch.rowValue, { color: colors.error }]}>Esta acción no se puede deshacer</Text></View><Ionicons name="chevron-forward" size={17} color={colors.error} /></Pressable></View></SettingsSection>
+app\(tabs)\settings.tsx:668:      onPress={loading ? undefined : onPress}
+app\(tabs)\diary.tsx:173:        onPress={() => router.push(`/entry/edit?id=${item.id}` as any)}
+app\(tabs)\diary.tsx:199:              onPress={(e) => { e.stopPropagation(); router.push(`/plant/${plant.id}` as any); }}
+app\(tabs)\diary.tsx:271:              <Pressable onPress={() => router.back()} hitSlop={8} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={t('common.back')}>
+app\(tabs)\diary.tsx:281:              onPress={() => {
+app\(tabs)\diary.tsx:283:                  router.push('/paywall?source=csv_export' as any);
+app\(tabs)\diary.tsx:305:            <Pressable onPress={() => router.setParams({ plantId: undefined } as any)} hitSlop={8} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={t('common.close')}>
+app\(tabs)\diary.tsx:328:            onPress={() => router.push(plantId ? `/entry/new?plantId=${plantId}` : '/entry/new' as any)}
+app\(tabs)\diary.tsx:373:              onPress={() => setActiveFilter(type)}
+app\(tabs)\diary.tsx:404:            onChangeText={setSearchQuery}
+app\(tabs)\diary.tsx:411:            <Pressable accessibilityRole="button" accessibilityLabel={t('common.close')} onPress={() => setSearchQuery('')} hitSlop={8} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
+app\(tabs)\diary.tsx:423:          <Pressable accessibilityRole="button" accessibilityLabel={t('errorScreen.retry')} onPress={onRefresh} style={{ minHeight: 44, justifyContent: 'center' }}>
+app\(tabs)\diary.tsx:451:              onCta={hasFilters ? clearFilters : () => router.push('/entry/new')}
+app\(tabs)\plants.tsx:25:      <View style={[styles.header, { borderBottomColor: colors.border }]}><View><Text style={[styles.kicker, { color: colors.primary }]}>SEMILLA · MI HUERTO</Text><Text style={[styles.title, { color: colors.text }]}>Mis Plantas</Text></View><Pressable accessibilityRole="button" onPress={() => router.push('/plant/new' as any)} style={[styles.addButton, { backgroundColor: colors.primaryDark }]}><Ionicons name="add" size={18} color="#fff" /><Text style={styles.addText}>Añadir</Text></Pressable></View>
+app\(tabs)\plants.tsx:28:        <View style={[styles.search, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="search-outline" size={19} color={colors.textSecondary} /><TextInput value={query} onChangeText={setQuery} placeholder="Buscar planta" placeholderTextColor={colors.textDisabled} style={[styles.searchInput, { color: colors.text }]} /></View>
+app\(tabs)\plants.tsx:29:        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}><Filter label="Todas (4)" active={filter === 'all'} onPress={() => setFilter('all')} colors={colors} /><Filter label="Necesitan atención" active={filter === 'attention'} onPress={() => setFilter('attention')} colors={colors} /><Filter label="Saludables" active={filter === 'healthy'} onPress={() => setFilter('healthy')} colors={colors} /></ScrollView>
+app\(tabs)\plants.tsx:31:        {visible.map((plant) => <Pressable key={plant.name} accessibilityRole="button" onPress={() => router.push('/plant/tomate-cherry' as any)} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><View style={[styles.plantIcon, { backgroundColor: plant.tone + '20' }]}><Ionicons name={plant.icon} size={25} color={plant.tone} /></View><View style={{ flex: 1 }}><Text style={[styles.plantName, { color: colors.text }]}>{plant.name}</Text><Text style={[styles.meta, { color: colors.textSecondary }]}>{plant.meta}</Text><View style={styles.stateRow}><View style={[styles.stateDot, { backgroundColor: plant.tone }]} /><Text style={[styles.state, { color: plant.tone }]}>{plant.state}</Text><Text style={[styles.detail, { color: colors.textSecondary }]}> · {plant.detail}</Text></View></View><Ionicons name="chevron-forward" size={19} color={colors.textSecondary} /></Pressable>)}
+app\(tabs)\plants.tsx:32:        <Pressable accessibilityRole="button" onPress={() => router.push('/first-crop' as any)} style={[styles.catalog, { borderColor: colors.primary, backgroundColor: colors.surface }]}><Ionicons name="grid-outline" size={20} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[styles.catalogTitle, { color: colors.text }]}>Explorar catálogo de cultivos</Text><Text style={[styles.meta, { color: colors.textSecondary }]}>Encuentra una planta que encaje contigo y con tu espacio.</Text></View><Ionicons name="arrow-forward" size={19} color={colors.primary} /></Pressable>
+app\(tabs)\plants.tsx:39:  return <Pressable onPress={onPress} style={[styles.filter, { backgroundColor: active ? colors.primary : colors.surface, borderColor: active ? colors.primary : colors.border }]}><Text style={[styles.filterText, { color: active ? '#fff' : colors.textSecondary }]}>{label}</Text></Pressable>;
+app\(tabs)\tools.tsx:42:      onPress={() => router.push(tool.route as any)}
+app\(tabs)\tools.tsx:65:        <Pressable accessibilityRole="button" accessibilityLabel="Mi Huerto" onPress={() => router.back()} style={s.backButton}>
+src\components\ActionButton.tsx:14:    <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ disabled: inactive, busy: Boolean(loading) }} disabled={inactive} onPress={onPress}
+app\(tabs)\calendar.tsx:13:  const Task = ({ icon, color, title, meta, action }: { icon: keyof typeof Ionicons.glyphMap; color: string; title: string; meta: string; action?: string }) => <Pressable accessibilityRole="button" onPress={() => action === 'soil' ? router.push('/modal/check-soil-sheet' as any) : router.push('/plant/tomate-cherry' as any)} style={[styles.task, { backgroundColor: colors.surface, borderColor: colors.border }]}><View style={[styles.taskIcon, { backgroundColor: color + '20' }]}><Ionicons name={icon} size={20} color={color} /></View><View style={{ flex: 1 }}><Text style={[styles.taskTitle, { color: colors.text }]}>{title}</Text><Text style={[styles.taskMeta, { color: colors.textSecondary }]}>{meta}</Text></View><Ionicons name="chevron-forward" size={18} color={colors.textSecondary} /></Pressable>;
+app\(tabs)\calendar.tsx:17:      <View style={[styles.header, { borderBottomColor: colors.border }]}><View><Text style={[styles.kicker, { color: colors.primary }]}>SEMILLA · ORGANIZA TUS CUIDADOS</Text><Text style={[styles.title, { color: colors.text }]}>Calendario</Text></View><Pressable accessibilityRole="button" onPress={() => router.push('/reminder/new' as any)} style={[styles.addButton, { backgroundColor: colors.primaryDark }]}><Ionicons name="add" size={18} color="#fff" /><Text style={styles.addText}>Nuevo</Text></Pressable></View>
+app\(tabs)\calendar.tsx:20:        <View style={[styles.week, { backgroundColor: colors.surface, borderColor: colors.border }]}>{days.map((item) => <Pressable key={item.date} onPress={() => setSelected(item.date)} style={[styles.day, selected === item.date && { backgroundColor: colors.primary }]}><Text style={[styles.dayName, { color: selected === item.date ? '#fff' : colors.textSecondary }]}>{item.day}</Text><Text style={[styles.dayNumber, { color: selected === item.date ? '#fff' : colors.text }]}>{item.date}</Text>{[16, 18, 20].includes(item.date) && <View style={[styles.dayDot, { backgroundColor: selected === item.date ? '#fff' : colors.warning }]} />}</Pressable>)}</View>
+app\(tabs)\_layout.tsx:53:              onPress={() => {
+app\rotation.tsx:168:  return <StitchRotationScreen colors={colors} onBack={() => router.back()} />;
+app\rotation.tsx:172:      <ScreenHeader title={t('rotation.title')} onBack={() => router.back()} />
+app\rotation.tsx:238:                          onPress={() => !plant.deletedAt && router.push(`/plant/${plant.id}`)}
+app\rotation.tsx:402:      <View style={[rotationStitch.header, { borderBottomColor: colors.border }]}><Pressable onPress={onBack} style={rotationStitch.back} hitSlop={10}><Ionicons name="chevron-back" size={21} color={colors.text} /><Text style={{ color: colors.text, fontWeight: '700' }}>Mi Huerto</Text></Pressable><Text style={[rotationStitch.headerTitle, { color: colors.text }]}>Rotación de Cultivos</Text><Pressable hitSlop={10}><Ionicons name="information-circle-outline" size={22} color={colors.primary} /></Pressable></View>
+src\components\ActivationChecklist.tsx:46:          <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ disabled: item.completed || !onSelect }} disabled={item.completed || !onSelect} onPress={() => onSelect?.(item.id)} style={[s.row, { minHeight: 44 }]}>
+app\welcome.tsx:106:              onPress={() => router.replace(completed ? '/(tabs)' : '/onboarding')}
+app\welcome.tsx:117:              onPress={() => router.push('/auth')}
+app\paywall.tsx:86:      router.back();
+app\paywall.tsx:104:      Alert.alert(
+app\paywall.tsx:107:        [{ text: t('paywall.successBtn'), onPress: () => router.back() }]
+app\paywall.tsx:110:      Alert.alert(t('common.error'), result.error ?? t('paywall.errorPurchase'));
+app\paywall.tsx:117:      Alert.alert(t('common.error'), t('paywall.restoreError'));
+app\paywall.tsx:121:      Alert.alert(t('paywall.restoreSuccessTitle'), t('paywall.restoreSuccessDesc'), [
+app\paywall.tsx:122:        { text: t('common.ok'), onPress: () => router.back() },
+app\paywall.tsx:125:      Alert.alert(t('paywall.restoreNoneTitle'), t('paywall.restoreNoneDesc'));
+app\paywall.tsx:140:      <Pressable onPress={() => router.back()} style={s.closeBtn} hitSlop={16}>
+app\paywall.tsx:230:            onPress={() => setShowAll((v) => !v)}
+app\paywall.tsx:282:                    onPress={() => setSelectedPlan(plan.id)}
+app\paywall.tsx:366:            onPress={handlePurchase}
+app\paywall.tsx:380:          <Pressable onPress={handleRestore} style={s.restoreBtn} disabled={purchasing || billingLoading || !isBillingAvailable}>
+app\(tabs)\index.tsx:28:    if (firstPlantId) router.push(`/plant/${firstPlantId}` as any);
+app\(tabs)\index.tsx:29:    else router.push('/first-crop' as any);
+app\(tabs)\index.tsx:33:    router.push({ pathname: '/modal/check-soil-sheet', params: firstPlantId ? { plantId: firstPlantId } : {} } as any);
+app\(tabs)\index.tsx:53:              <Pressable onPress={() => router.push('/gardens' as any)} hitSlop={8} style={styles.location}>
+app\(tabs)\index.tsx:62:            <Pressable onPress={() => router.push('/settings/notifications' as any)} accessibilityRole="button" accessibilityLabel="Notificaciones" style={[styles.iconButton, { borderColor: colors.border, backgroundColor: colors.surface }]}>
+app\(tabs)\index.tsx:100:          <Pressable onPress={checkSoil} accessibilityRole="button" accessibilityLabel="1. Comprobar sustrato a 2 cm" style={({ pressed }) => [styles.primaryButton, { backgroundColor: colors.primary, opacity: pressed ? 0.82 : 1 }]}>
+app\(tabs)\index.tsx:122:          <Pressable onPress={() => router.push('/(tabs)/plants' as any)} hitSlop={8}><Text style={[styles.link, { color: colors.primary }]}>Ver huerto completo  ›</Text></Pressable>
+app\(tabs)\index.tsx:124:        <TaskRow title="Tomate Cherry" detail="En 2 días · Abono suave de guano orgánico" icon="nutrition-outline" onPress={goToPlant} colors={colors} />
+app\(tabs)\index.tsx:125:        <TaskRow title="Menta piperita" detail="Mañana · Girar maceta 180° para follaje simétrico" icon="sync-outline" onPress={goToPlant} colors={colors} />
+app\(tabs)\index.tsx:136:  return <Pressable onPress={onPress} style={({ pressed }) => [styles.taskRow, { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.76 : 1 }]}><View style={[styles.taskIcon, { backgroundColor: colors.primary + '16' }]}><Ionicons name={icon} size={18} color={colors.primary} /></View><View style={{ flex: 1 }}><Text style={[styles.taskTitle, { color: colors.text }]}>{title}</Text><Text style={[styles.body, { color: colors.textSecondary }]}>{detail}</Text></View><Ionicons name="chevron-forward" size={18} color={colors.textSecondary} /></Pressable>;
+src\components\PlantCareCard.tsx:82:        <Button title={t('dailyCare.sown')} onPress={() => record('sowing')} loading={saving} size="lg" />
+src\components\PlantCareCard.tsx:87:          onPress={() => setShowSoilSheet(true)}
+src\components\PlantCareCard.tsx:92:      {onOpen && <Button title={t('dailyCare.viewPlant')} size="lg" variant="outline" onPress={onOpen} style={{ marginTop: spacing.sm }} />}
+src\components\PlantCareCard.tsx:104:            onPress={() => setShowSoilSheet(false)}
+src\components\PlantCareCard.tsx:127:              onPress={() => {
+src\components\PlantCareCard.tsx:136:              onPress={() => {
+src\components\DatePickerModal.tsx:49:                onPress={() => onChange(dateStr)}
+src\components\DatePickerModal.tsx:77:          onPress={() => setShowPicker(true)}
+src\components\DatePickerModal.tsx:96:            onPress={onClear}
+src\components\DatePickerModal.tsx:111:          onChange={(_, d) => {
+src\components\DatePickerModal.tsx:123:            onPress={() => setShowPicker(false)}
+src\components\DatePickerModal.tsx:134:              onPress={() => {}}
+src\components\DatePickerModal.tsx:142:                onChange={(_, d) => { if (d) onChange(dateToStr(d)); }}
+src\components\DatePickerModal.tsx:147:                onPress={() => setShowPicker(false)}
+app\companions.tsx:122:            onPress={() => router.push('/paywall?source=companions' as any)}
+app\companions.tsx:152:        onPress={() => setPickingSlot(isPickingThis ? null : slot)}
+app\companions.tsx:165:            <Pressable onPress={() => slot === 'A' ? setSelectedA(null) : setSelectedB(null)} hitSlop={8}>
+app\companions.tsx:187:        <Pressable onPress={() => router.back()} hitSlop={12}>
+app\companions.tsx:200:            onPress={() => router.push('/paywall?source=companions' as any)}
+app\companions.tsx:213:            onPress={() => { setMode(m); setSearch(''); setPickingSlot(null); }}
+app\companions.tsx:252:              onChangeText={setSearch}
+app\companions.tsx:258:              <Pressable onPress={() => setSearch('')} hitSlop={8}>
+app\companions.tsx:272:                onPress={() => router.push('/paywall?source=companions' as any)}
+app\companions.tsx:337:                  onChangeText={setSearch}
+app\companions.tsx:354:                      onPress={() => {
+src\components\StitchBottomNav.tsx:40:            onPress={() => router.push(item.href as never)}
+src\components\StitchReferenceScreen.tsx:38:  const goBack = onBack ?? (() => router.back());
+src\components\StitchReferenceScreen.tsx:40:    <View style={[s.header, { borderBottomColor: colors.border }]}><Pressable onPress={goBack} accessibilityRole="button" style={s.back}><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={[s.backText, { color: colors.text }]}>{backLabel}</Text></Pressable><Text style={[s.headerTitle, { color: colors.text }]}>{title}</Text><View style={{ width: 82 }} /></View>
+src\components\StitchReferenceScreen.tsx:45:      {primary && <Pressable onPress={onPrimary} style={[s.primary, { backgroundColor: colors.primary }]} accessibilityRole="button"><Text style={s.primaryText}>{primary}</Text><Ionicons name="arrow-forward" size={18} color="#fff" /></Pressable>}
+app\onboarding.tsx:113:      router.replace('/first-crop');
+app\onboarding.tsx:118:    <Pressable key={id} accessibilityRole="radio" accessibilityState={{ checked: selected }} accessibilityLabel={description ? label + '. ' + description : label} onPress={select}
+app\onboarding.tsx:135:          <Pressable accessibilityRole="button" accessibilityLabel={t('onboarding.back')} onPress={() => { setError(null); if (step === 1) router.replace('/welcome'); else setStep((step - 1) as Step); }} disabled={saving || locating} style={({ pressed }) => ({ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radii.full, opacity: pressed ? 0.65 : 1 })}>
+app\onboarding.tsx:152:            <Button title={locating ? t('onboarding.detecting') : t('onboarding.detectLocation')} onPress={locate} disabled={locating || saving} variant="secondary" size="lg" />
+app\onboarding.tsx:154:            <TextInput accessibilityLabel={t('onboarding.searchProvince')} value={search} onChangeText={setSearch} placeholder={t('onboarding.searchProvince')} placeholderTextColor={colors.textSecondary} style={{ minHeight: 48, padding: spacing.md, color: colors.text, backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: radii.md }} />
+app\onboarding.tsx:162:          <Button title={t(step === 4 ? 'onboarding.viewRecommendations' : 'onboarding.continue')} onPress={step === 4 ? finish : next} loading={saving} disabled={locating || profileLoading || gardens.loading || (step === 1 && !space) || (step === 2 && !sunlight) || (step === 3 && !experience) || (step === 4 && (!province || !method))} size="lg" />
+app\coach-demo.tsx:22:  return <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}><View style={[styles.body, { padding: spacing.xl }]}><View style={styles.mascot}><Mascot pose={current.pose} size={150} /></View><View style={[styles.bubble, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={[styles.text, { color: colors.text }]}>{current.text}</Text><View style={styles.dots}>{SCRIPT.map((_, index) => <View key={index} style={[styles.dot, { backgroundColor: index === step ? colors.primary : colors.border }]} />)}</View><View style={styles.actions}><Pressable onPress={() => router.back()}><Text style={{ color: colors.textSecondary, fontWeight: '700' }}>Saltar</Text></Pressable><Pressable onPress={() => last ? router.back() : setStep((value) => value + 1)} style={[styles.next, { backgroundColor: colors.primary }]}><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>{last ? 'Empezar' : 'Siguiente'}</Text></Pressable></View></View></View></SafeAreaView>;
+app\stats.tsx:273:          <Pressable onPress={() => router.back()} hitSlop={12} style={s.statsBackButton}>
+app\stats.tsx:662:            onPress={() => router.push('/paywall?source=achievements' as any)}
+src\components\CollectionError.tsx:37:        onPress={() => { void onRetry(); }}
+src\components\SowNowCard.tsx:70:          onPress={() => router.push('/catalog' as any)}
+src\components\SowNowCard.tsx:91:              onPress={() =>
+src\components\SowNowCard.tsx:92:                router.push({ pathname: '/plant/new', params: { cropId: crop.id } } as any)
+src\components\TimePicker.web.tsx:32:        onChange={updateTime}
+app\light-meter.tsx:23:        <Pressable accessibilityRole="button" accessibilityLabel="Mi Huerto" onPress={() => router.back()} style={s.headerButton}>
+app\light-meter.tsx:39:            onPress={() => setCalibrated(false)}
+app\light-meter.tsx:105:          <Pressable accessibilityRole="button" style={s.trajectoryButton} onPress={() => {}}>
+app\light-meter.tsx:112:          <Pressable accessibilityRole="button" style={[s.primaryButton, { backgroundColor: colors.primary }]} onPress={() => {}}>
+app\light-meter.tsx:116:          <Pressable accessibilityRole="button" style={[s.outlineButton, { borderColor: colors.border }]} onPress={() => setCalibrated(true)}>
+app\light-meter.tsx:120:          <Pressable accessibilityRole="button" style={[s.outlineButton, { borderColor: colors.border }]} onPress={() => {}}>
+app\reminder\new.tsx:70:      if (router.canGoBack()) router.back();
+app\reminder\new.tsx:71:      else router.replace('/(tabs)');
+app\reminder\new.tsx:128:      Alert.alert(t('reminderNew.noGardenTitle'), t('reminderNew.noGardenDesc'));
+app\reminder\new.tsx:133:      router.push('/paywall?source=reminders' as any);
+app\reminder\new.tsx:179:              onPress={() => router.back()}
+app\reminder\new.tsx:203:                  onPress={() => { setWeekday(item.day); if (frequency !== 'once') setFrequency('weekly'); }}
+app\reminder\new.tsx:238:                onPress={() => setSelectedPlantId(undefined)}
+app\reminder\new.tsx:251:                    onPress={() => setSelectedPlantId(p.id)}
+app\reminder\new.tsx:265:              <Pressable accessibilityRole="button" onPress={openSystemSettings} style={{ minHeight: 44, justifyContent: 'center' }}>
+app\reminder\new.tsx:288:                  onPress={() => handleTypeChange(tp)}
+app\reminder\new.tsx:318:              onChangeText={setTitle}
+app\reminder\new.tsx:335:                  onPress={() => handleFrequencyChange(f)}
+app\reminder\new.tsx:351:            onChange={(nextHour, nextMinute) => { setHour(nextHour); setMinute(nextMinute); }}
+app\reminder\new.tsx:363:          onPress={handleSave}
+app\chat.tsx:87:    Alert.alert(t('chat.clearTitle'), t('chat.clearConfirm'), [
+app\chat.tsx:149:    return <StitchReferenceScreen title="Ayuda de Semillita" backLabel="Mi Huerto" eyebrow="ASISTENTE BOTÁNICO" intro="Pregunta cualquier cosa sobre tus plantas, la luz de tu balcón o la regla de los 2 cm." sections={[{ heading: 'Semillita está aquí', body: 'Hola, soy Semillita. Puedo ayudarte a interpretar una hoja, planificar un riego o elegir tu próximo cultivo.', rows: [{ title: '¿Puedo regar hoy?', detail: 'Comprobar sustrato a 2 cm antes de decidir.', icon: 'water-outline', tone: 'success' }, { title: '¿Dónde pongo el tomate?', detail: 'Busca 6 horas de sol directo y ventilación.', icon: 'sunny-outline' }, { title: 'Tengo manchas en las hojas', detail: 'Escanea el síntoma con luz natural.', icon: 'scan-outline' }] }, { heading: 'Conversaciones recientes', rows: [{ title: 'Riego y clima de Madrid', detail: 'Ayer · Balcón Principal Sur', icon: 'chatbubble-outline' }, { title: 'Identificación de albahaca', detail: 'Hace 3 días · Coincidencia 98%', icon: 'leaf-outline' }] }]} primary="Escanear una planta" onPrimary={() => router.push('/plant/scan' as any)} />;
+app\chat.tsx:158:        onBack={() => router.back()}
+app\chat.tsx:160:          <Pressable onPress={clearChat} hitSlop={12} accessibilityRole="button" accessibilityLabel={t('chat.clearTitle')}>
+app\chat.tsx:174:            onPress={() => router.push('/paywall?source=ai_chat' as any)}
+app\chat.tsx:187:            onPress={() => router.push('/auth' as any)}
+app\chat.tsx:226:                      onPress={() => setInput(s)}
+app\chat.tsx:280:              onChangeText={setInput}
+app\chat.tsx:288:              onPress={handleSend}
+app\gardens.tsx:67:    if (gardens.items.length <= 1) { Alert.alert(t('gardens.cantDeleteLast')); return; }
+app\gardens.tsx:68:    Alert.alert(t('gardens.deleteTitle', { name: garden.name }), t('gardens.deleteDesc'), [
+app\gardens.tsx:108:        <Pressable onPress={() => router.back()} hitSlop={10} style={styles.headerBack}>
+app\gardens.tsx:113:        <Pressable onPress={() => canCreateMore ? setShowCreate(true) : router.push('/paywall?source=garden_limit' as any)} hitSlop={10} style={styles.newHeaderButton}>
+app\gardens.tsx:131:        <SpaceCard colors={colors} active title="Balcón Principal Sur" badge="En uso hoy  Activo" area="12 m²" detail="4 macetas activas" sun="Sureste (6.5h sol directas)" location="Madrid · Terraza exterior" footer="Seleccionado para riego y alertas" onPress={() => activeGarden && router.push('/garden/map' as any)} onMap={() => router.push('/garden/map' as any)} onOptions={() => deleteGarden(activeGarden)} />
+app\gardens.tsx:132:        <SpaceCard colors={colors} title="Jardín de Ventana Cocina" badge="Secundario  Piso 3º" area="1.8 m²" detail="2 jardineras de aromáticas" sun="Sol suave 3h · Madrid" location="Perejil rizado, Romero silvestre" footer="Último riego hace 1 día" onPress={() => switchGarden(secondaryGarden)} onOptions={() => deleteGarden(secondaryGarden)} />
+app\gardens.tsx:139:          <Pressable onPress={() => canCreateMore ? setShowCreate(true) : router.push('/paywall?source=garden_limit' as any)} style={({ pressed }) => [styles.createButton, { borderColor: colors.primary, opacity: pressed ? 0.76 : 1 }]}>
+app\gardens.tsx:148:          <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}><Pressable onPress={() => setShowCreate(false)} hitSlop={10}><Ionicons name="close" size={24} color={colors.textSecondary} /></Pressable><Text style={[styles.modalTitle, { color: colors.text }]}>{t('gardens.createTitle')}</Text><Pressable onPress={createGarden} disabled={!name.trim() || !climateZone || saving}><Text style={[styles.modalSave, { color: !name.trim() || !climateZone || saving ? colors.textDisabled : colors.primary }]}>Guardar</Text></Pressable></View>
+app\gardens.tsx:151:            <TextInput value={name} onChangeText={setName} placeholder="Balcón principal" placeholderTextColor={colors.textDisabled} style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]} />
+app\gardens.tsx:153:            <View style={styles.typeRow}>{(Object.keys(GARDEN_TYPE_CONFIG) as GardenType[]).map((type) => { const selected = gardenType === type; return <Pressable key={type} onPress={() => setGardenType(type)} style={[styles.typeChip, { backgroundColor: selected ? colors.accent : colors.surface, borderColor: selected ? colors.accent : colors.border }]}><Text style={{ fontSize: 19 }}>{GARDEN_TYPE_CONFIG[type].emoji}</Text><Text style={{ color: selected ? colors.primaryDark : colors.textSecondary, fontSize: 12, fontWeight: fontWeight.bold }}>{t('gardenType.' + type)}</Text></Pressable>; })}</View>
+app\gardens.tsx:154:            <View style={styles.provinceLabelRow}><Text style={[styles.formLabel, { color: colors.textSecondary }]}>Provincia y clima</Text><Pressable onPress={detectLocation} disabled={locating}><Text style={{ color: colors.primary, fontSize: 12 }}>{locating ? 'Detectando…' : 'Usar ubicación'}</Text></Pressable></View>
+app\gardens.tsx:155:            <Pressable onPress={() => setShowProvinceModal(true)} style={[styles.input, styles.provinceInput, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={{ color: province ? colors.text : colors.textDisabled, fontSize: 15 }}>{province || 'Selecciona una provincia'}</Text><Ionicons name="chevron-down" size={17} color={colors.textSecondary} /></Pressable>
+app\gardens.tsx:159:          <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}><View style={[styles.modalHeader, { borderBottomColor: colors.border }]}><Text style={[styles.modalTitle, { color: colors.text }]}>Selecciona provincia</Text><Pressable onPress={() => setShowProvinceModal(false)} hitSlop={10}><Ionicons name="close" size={24} color={colors.textSecondary} /></Pressable></View><View style={[styles.search, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="search" size={17} color={colors.textSecondary} /><TextInput value={provinceSearch} onChangeText={setProvinceSearch} placeholder="Buscar" placeholderTextColor={colors.textDisabled} style={{ flex: 1, color: colors.text, marginLeft: 8 }} autoFocus /></View><ScrollView>{filteredProvinces.map((item) => <Pressable key={item} onPress={() => { setProvince(item); setShowProvinceModal(false); }} style={[styles.provinceRow, { borderBottomColor: colors.border }]}><Text style={[styles.provinceName, { color: colors.text }]}>{item}</Text><Text style={[styles.provinceZone, { color: colors.textSecondary }]}>{CLIMATE_ZONE_CONFIG[PROVINCE_ZONES[item]]?.label ?? ''}</Text></Pressable>)}</ScrollView></SafeAreaView>
+app\gardens.tsx:167:  return <View style={[styles.spaceCard, { backgroundColor: colors.surface, borderColor: active ? colors.primary : colors.border }]}><Pressable onPress={onPress} style={({ pressed }) => ({ opacity: pressed ? 0.78 : 1 })}><View style={styles.cardTop}><View style={[styles.badge, { backgroundColor: active ? colors.primary + '18' : colors.surfaceAlt }]}><Text style={{ color: active ? colors.primary : colors.textSecondary, fontSize: 11, fontWeight: '800' }}>{badge}</Text></View><Pressable onPress={onOptions} hitSlop={10}><Ionicons name="ellipsis-horizontal" size={19} color={colors.textSecondary} /></Pressable></View><View style={styles.cardTitleRow}><Text style={[styles.spaceTitle, { color: colors.text }]}>{title}</Text>{active && <Ionicons name="checkmark-circle" size={20} color={colors.primary} />}</View><Text style={[styles.area, { color: colors.text }]}>{area}</Text><View style={styles.infoLine}><Ionicons name="leaf-outline" size={15} color={colors.primary} /><Text style={[styles.infoText, { color: colors.textSecondary }]}>{detail}</Text></View><View style={styles.infoLine}><Ionicons name="sunny-outline" size={15} color="#D88900" /><Text style={[styles.infoText, { color: colors.textSecondary }]}>{sun}</Text></View><View style={styles.infoLine}><Ionicons name="location-outline" size={15} color={colors.textSecondary} /><Text style={[styles.infoText, { color: colors.textSecondary }]}>{location}</Text></View><Text style={[styles.footer, { color: colors.textSecondary }]}>{footer}</Text></Pressable>{onMap ? <Pressable onPress={onMap} style={[styles.mapButton, { borderTopColor: colors.border }]}><Text style={{ color: colors.primary, fontWeight: '800', fontSize: 13 }}>Ver mapa de sol</Text><Ionicons name="arrow-forward" size={16} color={colors.primary} /></Pressable> : <Pressable onPress={onPress} style={[styles.switchButton, { borderTopColor: colors.border }]}><Text style={{ color: colors.primary, fontWeight: '800', fontSize: 13 }}>Cambiar a este huerto</Text></Pressable>}</View>;
+app\reminder\edit.tsx:72:    const timeout = setTimeout(() => router.back(), 1200);
+app\reminder\edit.tsx:96:        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+app\reminder\edit.tsx:110:        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+app\reminder\edit.tsx:123:        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }}>
+app\reminder\edit.tsx:165:        Alert.alert(t('common.error'), t('reminderEdit.saveError'));
+app\reminder\edit.tsx:173:    Alert.alert(
+app\reminder\edit.tsx:184:            router.back();
+app\reminder\edit.tsx:201:          <Pressable accessibilityRole="button" accessibilityLabel={t('common.close')} onPress={() => router.back()} hitSlop={12} style={({ pressed }) => ({ opacity: pressed ? 0.55 : 1 })}>
+app\reminder\edit.tsx:210:              <Pressable accessibilityRole="button" onPress={openSystemSettings} style={{ minHeight: 44, justifyContent: 'center' }}>
+app\reminder\edit.tsx:248:                  onPress={() => handleTypeChange(tp)}
+app\reminder\edit.tsx:276:            onChangeText={setTitle}
+app\reminder\edit.tsx:294:                    onPress={() => setFrequency(f)}
+app\reminder\edit.tsx:327:                        onPress={() => setWeekday(day)}
+app\reminder\edit.tsx:346:            onChange={(nextHour, nextMinute) => { setHour(nextHour); setMinute(nextMinute); }}
+app\reminder\edit.tsx:363:          <Pressable onPress={handleDelete} style={s.deleteBtn}>
+app\reminder\edit.tsx:376:          onPress={handleSave}
+src\components\WebDatePicker.web.tsx:13:  return <input type="date" aria-label={label} value={value} onInput={updateDate} onChange={updateDate} style={{ boxSizing: 'border-box', minHeight: 48, width: '100%', borderRadius: radii.md, padding: 12, backgroundColor: colors.surface, color: colors.text, border: '1px solid ' + colors.border, font: 'inherit', colorScheme: isDark ? 'dark' : 'light' }} />;
+src\components\TimePicker.tsx:40:        onPress={() => setVisible(true)}
+src\components\TimePicker.tsx:63:          onChange={handleChange}
+src\components\TimePicker.tsx:69:          <Pressable style={s.overlay} onPress={() => setVisible(false)}>
+src\components\TimePicker.tsx:72:              onPress={() => {}}
+src\components\TimePicker.tsx:89:                onChange={handleChange}
+src\components\TimePicker.tsx:94:                onPress={() => setVisible(false)}
+src\components\ShareModal.tsx:75:              onPress={async () => { await share(); onClose(); }}
+src\components\ShareModal.tsx:82:            <Pressable onPress={onClose} hitSlop={12}>
+src\components\plant\HowToStages.tsx:61:              onPress={() => setActive(s)}
+app\care-plan.tsx:86:      router.push(`/plant/${card.plant.id}` as any);
+app\care-plan.tsx:91:    else router.push('/modal/check-soil-sheet' as any);
+app\care-plan.tsx:99:        <Pressable accessibilityRole="button" accessibilityLabel="Volver a Mi Huerto" onPress={() => router.back()} hitSlop={12} style={s.headerButton}>
+app\care-plan.tsx:104:        <Pressable accessibilityRole="button" accessibilityLabel="Opciones del plan" onPress={() => router.push(isPro ? '/absence' : '/paywall?source=care_plan' as any)} hitSlop={12} style={s.headerButton}>
+app\care-plan.tsx:149:              <Pressable accessibilityRole="button" onPress={() => openReview(card)} style={({ pressed }) => [s.reviewAction, pressed && s.pressed]}>
+app\care-plan.tsx:158:          <Pressable accessibilityRole="button" onPress={() => router.push('/absence' as any)} style={s.secondaryAction}>
+app\care-plan.tsx:162:          <Pressable accessibilityRole="button" onPress={() => router.push('/plant/new' as any)} style={s.secondaryAction}>
+app\care-plan.tsx:176:          <Pressable key={label} accessibilityRole="button" onPress={() => router.push(route as any)} style={s.tabItem}>
+app\care-plan.tsx:185:          <Pressable accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => setSoilTask(null)} style={StyleSheet.absoluteFill} />
+app\care-plan.tsx:191:            <Pressable accessibilityRole="button" onPress={() => void completeSoil('moist')} style={s.sheetOption}>
+app\care-plan.tsx:195:            <Pressable accessibilityRole="button" onPress={() => void completeSoil('watering')} style={[s.sheetOption, s.sheetOptionPrimary]}>
+app\catalog.tsx:126:          onPress={() => goToCrop(id)}
+app\catalog.tsx:135:    return <StitchReferenceScreen title="Catálogo de Cultivos" backLabel="Volver" eyebrow="RECOMENDACIONES PARA TU HUERTO" intro="Cultivos resistentes para empezar sin frustraciones, filtrados por clima, espacio y horas de sol en España." sections={[{ heading: 'Para empezar hoy', body: 'Una selección amable para balcones y terrazas.', rows: [{ title: 'Albahaca Limón', detail: 'Principiante · 4h sol · Prueba del dedo · Maceta 18 cm', icon: 'leaf-outline', tone: 'success' }, { title: 'Tomate Cherry Sweet', detail: 'Fácil · 6h sol · Frutos en 60 días · Maceta 25–30 L', icon: 'nutrition-outline' }, { title: 'Menta Piperita', detail: 'Semisombra · Riego moderado · Aislar en maceta', icon: 'leaf-outline' }] }, { heading: 'Filtrar catálogo', rows: [{ title: 'Aromáticas', detail: 'Albahaca, romero, menta y perejil', icon: 'flower-outline' }, { title: 'Hortalizas fáciles', detail: 'Tomate cherry, rabanito y lechuga', icon: 'basket-outline' }, { title: 'Maceta pequeña', detail: 'Cultivos desde 5 litros de sustrato', icon: 'cube-outline' }] }]} primary="Añadir una planta" onPrimary={() => router.push('/plant/new' as any)} />;
+app\catalog.tsx:144:        onBack={() => router.back()}
+app\catalog.tsx:158:          onChangeText={setSearch}
+app\catalog.tsx:165:          <Pressable onPress={() => setSearch('')} hitSlop={8}>
+app\catalog.tsx:191:                    onPress={() => setCatFilter(f.key)}
+app\catalog.tsx:226:                    onPress={() => setDiffFilter(d)}
+app\catalog.tsx:245:                onPress={() => setContainerOnly(v => !v)}
+app\catalog.tsx:265:            onPress={() => goToCrop(recommendedCrop.id)}
+app\catalog.tsx:334:              onPress={() => {
+app\catalog.tsx:373:              onPress={() => setExpanded(isOpen ? null : crop.id)}
+app\catalog.tsx:526:                      onPress={() => router.push(`/plant/new?cropId=${crop.id}` as any)}
+app\modal\check-soil-sheet.tsx:35:      router.back();
+app\modal\check-soil-sheet.tsx:54:        <Pressable accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => router.back()} style={s.close}>
+app\modal\check-soil-sheet.tsx:69:        <Pressable accessibilityRole="button" disabled={!plantId || saving} style={[s.option, { backgroundColor: colors.primaryLight + '55', borderColor: colors.primary + '66', opacity: !plantId || saving ? 0.55 : 1 }]} onPress={() => void chooseResult('moist')}>
+app\modal\check-soil-sheet.tsx:74:        <Pressable accessibilityRole="button" disabled={!plantId || saving} style={[s.option, { backgroundColor: colors.warning + '18', borderColor: colors.warning + '66', opacity: !plantId || saving ? 0.55 : 1 }]} onPress={() => void chooseResult('watering')}>
+app\modal\check-soil-sheet.tsx:83:      <Pressable accessibilityRole="button" onPress={() => router.back()} style={s.cancel}><Text style={[s.cancelText, { color: colors.textSecondary }]}>Cancelar</Text></Pressable>
+app\disease-guide.tsx:66:  return <StitchDiseaseScreen colors={colors} onBack={() => router.back()} onScan={() => router.push('/plant/scan' as any)} />;
+app\disease-guide.tsx:93:        onBack={() => router.back()}
+app\disease-guide.tsx:102:          onChangeText={setSearch}
+app\disease-guide.tsx:108:          <Pressable onPress={() => setSearch('')} hitSlop={8}>
+app\disease-guide.tsx:144:                    onPress={() => setTypeFilter(f.key)}
+app\disease-guide.tsx:173:              onPress={() => setExpanded(isOpen ? null : disease.id)}
+app\disease-guide.tsx:350:    <View style={[diseaseStitch.header, { borderBottomColor: colors.border }]}><Pressable onPress={onBack} style={diseaseStitch.back} hitSlop={10}><Ionicons name="chevron-back" size={21} color={colors.text} /><Text style={{ color: colors.text, fontWeight: '700' }}>Volver</Text></Pressable><Text style={[diseaseStitch.headerTitle, { color: colors.text }]}>Botiquín y Plagas</Text><Pressable hitSlop={10}><Ionicons name="search" size={21} color={colors.text} /></Pressable></View>
+app\disease-guide.tsx:352:      <View style={[diseaseStitch.search, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="search" size={17} color={colors.textSecondary} /><TextInput value={query} onChangeText={setQuery} placeholder="Buscar síntoma, plaga o cultivo" placeholderTextColor={colors.textDisabled} style={{ flex: 1, color: colors.text, marginLeft: 8 }} /><Ionicons name="mic-outline" size={17} color={colors.textSecondary} /></View>
+app\disease-guide.tsx:353:      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}><>{filters.map((filter) => { const active = selectedFilter === filter; return <Pressable key={filter} onPress={() => setSelectedFilter(filter)} style={[diseaseStitch.filter, { backgroundColor: active ? colors.primary + '18' : colors.surface, borderColor: active ? colors.primary : colors.border }]}><Text style={{ color: active ? colors.primary : colors.textSecondary, fontSize: 11, fontWeight: '800' }}>{filter}</Text></Pressable>; })}</></ScrollView>
+app\disease-guide.tsx:356:      {visible.slice(1).map((name) => <Pressable key={name} onPress={() => setOpen(open === name ? '' : name)} style={[diseaseStitch.otherRow, { backgroundColor: colors.surface, borderColor: colors.border }]}><View style={[diseaseStitch.smallBug, { backgroundColor: name.startsWith('Araña') ? '#EF535018' : '#8BC34A22' }]}><Ionicons name={name.startsWith('Araña') ? 'bug-outline' : 'leaf-outline'} size={17} color={name.startsWith('Araña') ? '#EF5350' : colors.primary} /></View><View style={{ flex: 1 }}><Text style={[diseaseStitch.cardTitle, { color: colors.text }]}>{name}</Text><Text style={[diseaseStitch.body, { color: colors.textSecondary }]}>{name.startsWith('Pulgón') ? 'Brotes tiernos arrugados y melaza pegajosa.' : name.startsWith('Araña') ? 'Microtelarañas en envés en olas de calor seco.' : 'Vuelan al agitar la maceta; jabón potásico.'}</Text></View><Text style={{ color: name.startsWith('Araña') ? '#EF5350' : colors.primary, fontSize: 10, fontWeight: '800' }}>{name.startsWith('Araña') ? 'Urgente' : 'Leve'}</Text><Ionicons name={open === name ? 'chevron-up' : 'chevron-down'} size={17} color={colors.textSecondary} /></Pressable>)}
+app\disease-guide.tsx:357:      <Pressable onPress={onScan} style={[diseaseStitch.scan, { backgroundColor: colors.primary }]}><Ionicons name="camera-outline" size={19} color="#FFFFFF" /><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>Escanear síntoma con la cámara</Text></Pressable>
+app\costs.tsx:239:      Alert.alert(t('common.error'), t('costs.saveError'));
+app\costs.tsx:246:    Alert.alert(
+app\costs.tsx:277:        <Pressable onPress={() => router.back()} hitSlop={12} style={s.headerBackButton}>
+app\costs.tsx:281:        <Pressable onPress={() => setShowAddModal(true)} hitSlop={10} style={s.newButton}>
+app\costs.tsx:446:          onPress={() => setShowAddModal(true)}
+app\costs.tsx:467:                onChangeText={saveHarvestPrice}
+app\costs.tsx:495:                onChangeText={saveWaterPrice}
+app\costs.tsx:567:                <Pressable onPress={() => setShowAll((v) => !v)} hitSlop={8}>
+app\costs.tsx:595:                        <Pressable onPress={() => deleteCost(e)} hitSlop={10} style={{ marginLeft: spacing.sm }}>
+app\costs.tsx:611:        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => { setShowAddModal(false); }} />
+app\costs.tsx:614:            onPress={() => {}}
+app\costs.tsx:631:                      onPress={() => setNewCategory(cat)}
+app\costs.tsx:649:            <DatePickerModal value={newDate} onChange={setNewDate} quickChips={[0, 1, 2]} i18nPrefix="entryNew" inputStyle={[s.descInput, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]} />
+app\costs.tsx:658:                      onPress={() => setNewPlantId(undefined)}
+app\costs.tsx:669:                          onPress={() => setNewPlantId(active ? undefined : p.id)}
+app\costs.tsx:687:                onChangeText={setNewAmount}
+app\costs.tsx:701:              onChangeText={setNewDesc}
+app\costs.tsx:709:              onPress={addCost}
+app\costs.tsx:899:        <Pressable onPress={() => router.back()} style={stitchCostStyles.back} hitSlop={10}><Ionicons name="chevron-back" size={21} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '700' }}>Volver</Text></Pressable>
+app\costs.tsx:901:        <Pressable onPress={() => setShowAddModal(true)} style={stitchCostStyles.new} hitSlop={10}><Ionicons name="add" size={18} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '800' }}>Nuevo</Text></Pressable>
+app\costs.tsx:916:        <View style={[stitchCostStyles.receipt, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Ionicons name="receipt-outline" size={24} color={colors.primary} /><Text style={[stitchCostStyles.cardTitle, { color: colors.text }]}>¿Quieres registrar un saco de turba o semillas?</Text><Text style={[stitchCostStyles.body, { color: colors.textSecondary }]}>Escanea tu ticket del vivero o introduce los productos manualmente en 1 minuto.</Text><Pressable onPress={() => setShowAddModal(true)} style={[stitchCostStyles.outlineButton, { borderColor: colors.primary }]}><Ionicons name="document-text-outline" size={17} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '800' }}>+ Registrar ticket</Text></Pressable></View>
+app\costs.tsx:917:        <Pressable onPress={() => setShowAddModal(true)} style={[stitchCostStyles.addButton, { backgroundColor: colors.primary }]}><Ionicons name="add-circle" size={19} color="#FFFFFF" /><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>+ Añadir nuevo gasto o factura</Text></Pressable>
+app\costs.tsx:920:      <Modal visible={showAddModal} transparent animationType="slide" onRequestClose={() => setShowAddModal(false)}><View style={stitchCostStyles.modalBackdrop}><View style={[stitchCostStyles.modal, { backgroundColor: colors.surface }]}><Text style={[stitchCostStyles.modalTitle, { color: colors.text }]}>Nuevo gasto</Text><TextInput value={newAmount} onChangeText={setNewAmount} keyboardType="decimal-pad" placeholder="Importe en euros" placeholderTextColor={colors.textDisabled} style={[stitchCostStyles.modalInput, { color: colors.text, borderColor: colors.border }]} /><TextInput value={newDesc} onChangeText={setNewDesc} placeholder="Descripción" placeholderTextColor={colors.textDisabled} style={[stitchCostStyles.modalInput, { color: colors.text, borderColor: colors.border }]} /><Pressable disabled={saving} onPress={onSave} style={[stitchCostStyles.addButton, { backgroundColor: colors.primary, opacity: saving ? 0.5 : 1 }]}><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>{saving ? 'Guardando…' : 'Guardar gasto'}</Text></Pressable><Pressable onPress={() => setShowAddModal(false)} style={stitchCostStyles.cancel}><Text style={{ color: colors.textSecondary, fontWeight: '700' }}>Cancelar</Text></Pressable></View></View></Modal>
+app\settings\notifications.tsx:92:    return <StitchNotificationsScreen colors={colors} onBack={() => router.back()} />;
+app\settings\notifications.tsx:98:        <Pressable onPress={() => router.back()} hitSlop={12} style={{ minWidth: 44, minHeight: 44, alignItems: 'flex-start', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={t('common.back')}>
+app\settings\notifications.tsx:116:            <Pressable accessibilityRole="button" accessibilityLabel={t('absence.openCta')} onPress={() => router.push('/absence' as any)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.xs }}>
+app\settings\notifications.tsx:407:                onPress={() => router.push('/reminder/new' as any)}
+app\settings\notifications.tsx:424:                      onPress={() => router.push(`/reminder/edit?id=${reminder.id}` as any)}
+app\settings\notifications.tsx:444:                onPress={() => router.push('/reminder/new' as any)}
+app\settings\notifications.tsx:607:      <View style={[notificationStitch.header, { borderBottomColor: colors.border }]}><Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel="Volver" style={notificationStitch.back}><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={[notificationStitch.backText, { color: colors.text }]}>Ajustes</Text></Pressable><Text style={[notificationStitch.title, { color: colors.text }]}>Notificaciones</Text><View style={{ width: 82 }} /></View>
+app\settings\notifications.tsx:612:          <Row icon="finger-print-outline" title="Comprobación matutina" description="Recordatorio diario a las 09:00 · 2 cm de sustrato" value={morning} onChange={setMorning} />
+app\settings\notifications.tsx:613:          <Row icon="sunny-outline" title="Olas de calor en terraza" description="Avisar cuando la previsión supere 32°C" value={heat} onChange={setHeat} />
+app\settings\notifications.tsx:614:          <Row icon="speedometer-outline" title="Ráfagas de viento" description="Afianzar jardineras si aumenta el viento" value={wind} onChange={setWind} />
+app\settings\notifications.tsx:615:          <Row icon="snow-outline" title="Heladas tardías" description="Avisar cuando la temperatura baje de 5°C" value={frost} onChange={setFrost} />
+app\settings\notifications.tsx:619:        <View style={[notificationStitch.card, { backgroundColor: colors.surface, borderColor: colors.border }]}><Row icon="calendar-outline" title="Resumen semanal · domingo" description="Salud de tus macetas, rachas y próximos cuidados" value={weekly} onChange={setWeekly} /><Row icon="moon-outline" title="Silencio nocturno · 22:00–08:00" description="No recibir avisos mientras descansas" value={quiet} onChange={setQuiet} /></View>
+app\settings\backup.tsx:55:      Alert.alert(
+app\settings\backup.tsx:59:          { text: t('backup.viewPlans'), onPress: () => router.push('/paywall?source=backup_export' as any) },
+app\settings\backup.tsx:72:      Alert.alert(t('common.error'), t('backup.exportError'));
+app\settings\backup.tsx:77:    Alert.alert(
+app\settings\backup.tsx:88:              if (result.error) Alert.alert(t('common.error'), result.error);
+app\settings\backup.tsx:91:            Alert.alert(
+app\settings\backup.tsx:123:      router.push('/paywall?source=backup_export' as any);
+app\settings\backup.tsx:136:    Alert.alert(
+app\settings\backup.tsx:147:        <Pressable onPress={() => router.back()} hitSlop={12}>
+app\settings\backup.tsx:151:        <Pressable onPress={() => Alert.alert('Copia y datos', 'Aquí puedes proteger, restaurar y exportar la información de tu huerto.')} hitSlop={12} accessibilityLabel="Ayuda">
+app\settings\backup.tsx:283:            <Button title={importing ? '…' : 'Restaurar'} variant="outline" size="sm" onPress={handleImport} disabled={!lastBackupAt || importing || exporting} />
+app\settings\backup.tsx:305:              onPress={handleExport}
+app\settings\backup.tsx:326:              onPress={handleImport}
+app\settings\backup.tsx:354:              onPress={() => void handleCsvExport()}
+app\settings\backup.tsx:375:          <Button title="Vaciar caché de imágenes locales" variant="outline" size="sm" onPress={handleClearCache} />
+app\settings\backup.tsx:383:          <Button title="Abrir opciones de borrado" variant="outline" size="sm" onPress={() => router.push('/(tabs)/settings' as any)} />
+app\settings\backup.tsx:410:              onPress={() => {
+app\settings\backup.tsx:411:                if (!isPro) { router.push('/paywall?source=backup_export' as any); return; }
+app\garden\map.tsx:395:      Alert.alert(t('gardenMap.shareNotAvailable'));
+app\garden\map.tsx:399:    if (!canShare) { Alert.alert(t('gardenMap.shareNotAvailable')); return; }
+app\garden\map.tsx:405:      Alert.alert(t('common.error'), t('gardenMap.shareError'));
+app\garden\map.tsx:412:    router.push(`/paywall?source=${source}` as any);
+app\garden\map.tsx:671:          <Button title={t('common.retry')} onPress={retryLayout} size="sm" style={s.emptyMapButton} />
+app\garden\map.tsx:694:                onPress={() => router.push('/(tabs)/tools' as any)}
+app\garden\map.tsx:702:                onPress={() => router.push('/settings/notifications' as any)}
+app\garden\map.tsx:710:                onPress={() => router.push('/(tabs)/settings' as any)}
+app\garden\map.tsx:739:                  onPress={() => setViewMode(mode)}
+app\garden\map.tsx:785:              onPress={() => todayAction === 'inspect'
+app\garden\map.tsx:786:                ? router.push(`/plant/${actionPlant.id}`)
+app\garden\map.tsx:787:                : router.push(`/entry/new?plantId=${actionPlant.id}`)}
+app\garden\map.tsx:826:            <Pressable onPress={() => router.back()} hitSlop={12}>
+app\garden\map.tsx:848:              onPress={() => router.push('/gardens' as any)}
+app\garden\map.tsx:856:            onPress={() => router.push('/garden/edit')}
+app\garden\map.tsx:863:            onPress={() => isPro ? setShowNotes(true) : openMapPro('map_notes')}
+app\garden\map.tsx:876:            onPress={() => router.push('/plant/new' as any)}
+app\garden\map.tsx:885:            onPress={() => isPro ? void handleShare() : openMapPro('map_share')}
+app\garden\map.tsx:906:                onPress={() => setMapFilter(key)}
+app\garden\map.tsx:939:            onPress={() => setMoveSourceCell(null)}
+app\garden\map.tsx:950:            onPress={() => openMapPro()}
+app\garden\map.tsx:992:                onPress={() => router.push('/plant/new' as any)}
+app\garden\map.tsx:1022:                   onPositionChange={setFreePosition}
+app\garden\map.tsx:1047:                      onPress={() => router.push(`/plant/${selectedFreePlant.id}`)}
+app\garden\map.tsx:1064:                    onPress={() => setEditingLocations((value) => !value)}
+app\garden\map.tsx:1107:                onPress={() => focusPlant && router.push(`/plant/${focusPlant.id}`)}
+app\garden\map.tsx:1150:                        onPress={() => handleCellPress(idx)}
+app\garden\map.tsx:1284:                  onPress={() => {
+app\garden\map.tsx:1285:                    if (focusPlant) router.push(`/plant/${focusPlant.id}`);
+app\garden\map.tsx:1286:                    else router.push('/care-plan' as any);
+app\garden\map.tsx:1325:              onPress={() => router.push('/rotation' as any)}
+app\garden\map.tsx:1339:              onPress={() => openMapPro()}
+app\garden\map.tsx:1360:                    onPress={() => setMapFilter(key)}
+app\garden\map.tsx:1390:                      onPress={() => setMapLayer(key)}
+app\garden\map.tsx:1416:                <Pressable onPress={() => setMapFilter('all')} accessibilityRole="button">
+app\garden\map.tsx:1438:                <Button title={t('gardenMap.addPlant')} onPress={() => router.push('/plant/new' as any)} size="sm" />
+app\garden\map.tsx:1449:                    onPress={() => router.push(`/plant/${plant.id}`)}
+app\garden\map.tsx:1491:              onPress={() => {
+app\garden\map.tsx:1527:                onPress={() => {
+app\garden\map.tsx:1607:              <Pressable onPress={() => setPickingCell(null)} hitSlop={12}>
+app\garden\map.tsx:1615:                onChangeText={setSearch}
+app\garden\map.tsx:1638:                      onPress={() => handleAssign(item)}
+app\garden\map.tsx:1671:          <Pressable style={s.overlay} onPress={() => setSelectedCell(null)}>
+app\garden\map.tsx:1689:                      onPress={() => { setSelectedCell(null); router.push(`/plant/${selectedPlant.id}`); }}
+app\garden\map.tsx:1696:                      onPress={handleStartMove}
+app\garden\map.tsx:1703:                      onPress={() => {
+app\garden\map.tsx:1704:                        Alert.alert(
+app\garden\map.tsx:1732:          <Pressable style={s.overlay} onPress={() => {}}>
+app\garden\map.tsx:1733:            <Pressable style={[s.notesCard, { backgroundColor: colors.surface, ...shadows.lg }]} onPress={() => {}}>
+app\garden\map.tsx:1736:                <Pressable onPress={() => setShowNotes(false)} hitSlop={12}>
+app\garden\map.tsx:1742:                onChangeText={setNotesText}
+app\garden\map.tsx:1751:                onPress={handleSaveNotes}
+app\garden\map.tsx:1838:        onOpen={() => router.push(`/plant/${plant.id}`)}
+app\garden\map.tsx:1872:            onPress={() => router.push('/gardens' as any)}
+app\garden\map.tsx:1888:            onPress={() => router.push('/garden/edit' as any)}
+app\garden\map.tsx:1922:                  onPress={() => setViewMode(mode)}
+app\garden\map.tsx:1944:                  <Button title={t('gardenMap.addPlant')} onPress={() => router.push('/plant/new' as any)} size="sm" />
+app\garden\map.tsx:1959:                    <Pressable key={plant.id} onPress={() => router.push(`/plant/${plant.id}`)} accessibilityRole="button" accessibilityLabel={plant.name} style={({ pressed }) => [{ minWidth: 118, flexGrow: 1, padding: spacing.md, borderRadius: radii.lg, backgroundColor: 'rgba(255,255,255,0.14)', opacity: pressed ? 0.72 : 1 }]}>
+app\garden\map.tsx:1983:          <Button title={t('gardenMap.addPlant')} onPress={() => router.push('/plant/new' as any)} size="lg" style={{ marginHorizontal: spacing.lg, marginTop: spacing.md }} />
+app\garden\map.tsx:1989:          <Pressable accessibilityRole="button" accessibilityLabel={t('common.cancel')} onPress={() => setSoilPlant(null)} style={StyleSheet.absoluteFill} />
+app\garden\map.tsx:1994:            <Button title={t('dailyCare.watered')} onPress={() => void chooseSoilResult('watering')} loading={saving} size="lg" />
+app\garden\map.tsx:1995:            <Button title={t('dailyCare.moist')} onPress={() => void chooseSoilResult('moist')} disabled={saving} variant="outline" size="lg" />
+app\garden\map.tsx:2026:      <Pressable onPress={onOpen} accessibilityRole="button" accessibilityLabel={`${plant.name} · ${crop?.name ?? plant.cropId}`} style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: spacing.md, opacity: pressed ? 0.72 : 1 }]}>
+app\garden\map.tsx:2044:        {!checked && <Button title={t('dailyCare.checkSoil')} onPress={onCheck} size="sm" variant="secondary" />}
+app\garden\map.tsx:2223:              onPress={() => onSelect(plant.id)}
+app\first-crop.tsx:104:    router.push({ pathname: '/plant/new', params: { cropId: recommendation.crop.id, fromOnboarding: '1', recommendationAction: recommendation.action } });
+app\first-crop.tsx:110:    router.push({ pathname: '/catalog', params: { focus: recommendation.crop.id } });
+app\first-crop.tsx:116:        <Pressable accessibilityRole="button" accessibilityLabel="Atrás" onPress={() => router.back()} style={styles.backButton}>
+app\first-crop.tsx:134:          <FilterChip label={`Recomendadas para ti (${displayRecommendations.length})`} selected={preferredCategories.length === 0} onPress={() => setPreferredCategories([])} colors={colors} />
+app\first-crop.tsx:135:          <FilterChip label="Aromáticas" selected={preferredCategories.includes('aromaticas')} onPress={() => setPreferredCategories(preferredCategories.includes('aromaticas') ? [] : ['aromaticas'])} colors={colors} />
+app\first-crop.tsx:136:          <FilterChip label="Hortalizas fáciles" selected={preferredCategories.includes('hojas')} onPress={() => setPreferredCategories(preferredCategories.includes('hojas') ? [] : ['hojas'])} colors={colors} />
+app\first-crop.tsx:137:          <FilterChip label="En maceta pequeña" selected={preferredCategories.includes('raices')} onPress={() => setPreferredCategories(preferredCategories.includes('raices') ? [] : ['raices'])} colors={colors} />
+app\first-crop.tsx:150:              <Pressable accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => setSelectedIndex(index)} style={({ pressed }) => ({ opacity: pressed ? 0.82 : 1 })}>
+app\first-crop.tsx:169:              <Pressable accessibilityRole="button" accessibilityLabel={`Ver ficha completa de ${cropName}`} onPress={() => inspect(index)} style={[styles.detailButton, { borderTopColor: colors.border }]}>
+app\first-crop.tsx:176:        {!loading && !displayRecommendations.length && <Card padded><Text style={{ color: colors.text, lineHeight: 22 }}>{t('firstCrop.empty')}</Text><Button title={t('firstCrop.adjust')} variant="secondary" size="lg" onPress={() => router.replace('/onboarding')} style={{ marginTop: spacing.md }} /></Card>}
+app\first-crop.tsx:177:        <Pressable accessibilityRole="button" style={styles.laterButton} onPress={() => router.replace('/(tabs)')}><Text style={{ color: colors.textSecondary, textAlign: 'center' }}>{t('firstCrop.later')}</Text></Pressable>
+app\first-crop.tsx:186:          <Button title="Configurar maceta y cuidados" onPress={() => choose(selectedIndex)} size="sm" style={{ paddingHorizontal: spacing.md }} />
+app\first-crop.tsx:227:  return <Pressable accessibilityRole="button" accessibilityState={{ selected }} onPress={onPress} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 13, borderRadius: 999, borderWidth: selected ? 1.5 : 1, borderColor: selected ? colors.primary : colors.border, backgroundColor: selected ? colors.primary : colors.surface }}><Text style={{ color: selected ? '#fff' : colors.textSecondary, fontSize: 12, fontWeight: '700' }}>{label}</Text></Pressable>;
+app\entry\new.tsx:101:    const timer = setTimeout(() => router.back(), 1200);
+app\entry\new.tsx:219:          onPress={() => router.back()}
+app\entry\new.tsx:268:                    onPress={() => { setSelectedType(type); tapHaptic(); }}
+app\entry\new.tsx:299:                  onPress={() => setSelectedPlantId(undefined)}
+app\entry\new.tsx:312:                    onPress={() => setSelectedPlantId(p.id)}
+app\entry\new.tsx:328:              onChange={(nextDate) => { setDate(nextDate); setDateError(false); }}
+app\entry\new.tsx:346:              onChangeText={setNotes}
+app\entry\new.tsx:363:                    onChangeText={setWaterLiters}
+app\entry\new.tsx:373:                    <Pressable key={m} onPress={() => setWaterMethod(m)}
+app\entry\new.tsx:392:                      onChangeText={setHarvestWeight}
+app\entry\new.tsx:403:                      onChangeText={setHarvestUnits}
+app\entry\new.tsx:414:                    <Pressable key={star} onPress={() => setHarvestQuality(star === harvestQuality ? 0 : star)} hitSlop={8}>
+app\entry\new.tsx:429:                  onChangeText={setFertProduct}
+app\entry\new.tsx:439:                      onChangeText={setFertAmount}
+app\entry\new.tsx:450:                        <Pressable key={u} onPress={() => setFertUnit(u)}
+app\entry\new.tsx:468:                  onChangeText={setTreatProduct}
+app\entry\new.tsx:478:                      onChangeText={setTreatDose}
+app\entry\new.tsx:488:                      onChangeText={setTreatWaitDays}
+app\entry\new.tsx:506:              onPress={pickPhoto}
+app\entry\new.tsx:533:          onPress={handleSave}
+app\entry\new.tsx:544:          onClose={() => { setShareModal(null); router.back(); }}
+app\entry\edit.tsx:115:        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+app\entry\edit.tsx:129:        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }} hitSlop={12}>
+app\entry\edit.tsx:142:        <Pressable onPress={() => router.back()} style={{ padding: spacing.lg }}>
+app\entry\edit.tsx:191:      router.back();
+app\entry\edit.tsx:198:    Alert.alert(t('entryEdit.deleteTitle'), t('entryEdit.deleteDesc'), [
+app\entry\edit.tsx:205:          router.back();
+app\entry\edit.tsx:221:        onPress={() => { setSelectedType(type); tapHaptic(); }}
+app\entry\edit.tsx:240:        <Pressable onPress={() => router.back()} hitSlop={12}>
+app\entry\edit.tsx:247:        <Pressable onPress={handleSave} disabled={saving} hitSlop={12}>
+app\entry\edit.tsx:273:            <DatePickerModal value={date} onChange={setDate} quickChips={[0, 1, 2]} i18nPrefix="entryNew" inputStyle={s.input} />
+app\entry\edit.tsx:279:              onChangeText={setNotes}
+app\entry\edit.tsx:295:                  onChangeText={setWaterLiters}
+app\entry\edit.tsx:304:                    <Pressable key={m} onPress={() => setWaterMethod(m)}
+app\entry\edit.tsx:323:                      onChangeText={setHarvestWeight}
+app\entry\edit.tsx:334:                      onChangeText={setHarvestUnits}
+app\entry\edit.tsx:345:                    <Pressable key={star} onPress={() => setHarvestQuality(star === harvestQuality ? 0 : star)} hitSlop={8}>
+app\entry\edit.tsx:360:                  onChangeText={setFertProduct}
+app\entry\edit.tsx:370:                      onChangeText={setFertAmount}
+app\entry\edit.tsx:381:                        <Pressable key={u} onPress={() => setFertUnit(u)}
+app\entry\edit.tsx:399:                  onChangeText={setTreatProduct}
+app\entry\edit.tsx:409:                      onChangeText={setTreatDose}
+app\entry\edit.tsx:419:                      onChangeText={setTreatWaitDays}
+app\entry\edit.tsx:435:              onPress={pickPhoto}
+app\entry\edit.tsx:450:              <Pressable onPress={() => setPhotoUri(null)} style={{ alignSelf: 'center', marginTop: spacing.xs }}>
+app\entry\edit.tsx:456:            <Pressable onPress={handleDelete} style={s.deleteBtn}>
+app\garden\edit.tsx:138:      Alert.alert(t('gardenEdit.nameRequired'), t('gardenEdit.nameRequiredDesc'));
+app\garden\edit.tsx:142:      Alert.alert(t('gardenEdit.provinceRequired'), t('gardenEdit.provinceRequiredDesc'));
+app\garden\edit.tsx:160:      if (openMap) router.push('/garden/map' as any);
+app\garden\edit.tsx:161:      else router.back();
+app\garden\edit.tsx:174:        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+app\garden\edit.tsx:186:        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+app\garden\edit.tsx:197:        <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+app\garden\edit.tsx:201:          <Button title={t('common.back')} variant="secondary" size="lg" onPress={() => router.push('/gardens')} style={s.collectionStateButton} />
+app\garden\edit.tsx:210:      <ScreenHeader title={t('gardenEdit.title')} onBack={() => router.back()} />
+app\garden\edit.tsx:215:          onPress={() => setShowGardenPicker(true)}
+app\garden\edit.tsx:242:                onChangeText={setName}
+app\garden\edit.tsx:258:            onPress={() => void handleSave(true)}
+app\garden\edit.tsx:287:                  onPress={() => setGardenType(key)}
+app\garden\edit.tsx:319:                onPress={() => { setProvinceSearch(''); setShowProvinceModal(true); }}
+app\garden\edit.tsx:334:              onPress={detectLocation}
+app\garden\edit.tsx:402:                  onPress={() => {
+app\garden\edit.tsx:404:                      Alert.alert(t('gardenEdit.gridProTitle'), t('gardenEdit.gridProDesc'));
+app\garden\edit.tsx:430:            onPress={() => void handleSave(true)}
+app\garden\edit.tsx:441:          <Pressable onPress={() => setShowDetails((value) => !value)} style={s.detailsToggle}>
+app\garden\edit.tsx:455:                    onPress={() => setColor(color === c ? undefined : c)}
+app\garden\edit.tsx:462:                  onPress={() => setColor(undefined)}
+app\garden\edit.tsx:471:                onChangeText={setNotes}
+app\garden\edit.tsx:486:          onPress={handleSave}
+app\garden\edit.tsx:503:            <Pressable onPress={() => setShowGardenPicker(false)} hitSlop={12}>
+app\garden\edit.tsx:515:                  onPress={() => { setSelectedGardenId(g.id); setShowGardenPicker(false); }}
+app\garden\edit.tsx:544:            <Pressable onPress={() => setShowProvinceModal(false)} hitSlop={12}>
+app\garden\edit.tsx:553:              onChangeText={setProvinceSearch}
+app\garden\edit.tsx:569:                  onPress={() => { setProvince(p); setHemisphere('norte'); setShowProvinceModal(false); }}
+app\plant\edit.tsx:106:        <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={12}>
+app\plant\edit.tsx:120:        <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={12}>
+app\plant\edit.tsx:133:        <Pressable onPress={() => router.back()} style={s.backBtn}>
+app\plant\edit.tsx:178:      router.back();
+app\plant\edit.tsx:185:    Alert.alert(
+app\plant\edit.tsx:195:            router.back();
+app\plant\edit.tsx:205:        <Pressable onPress={() => router.back()} hitSlop={12}>
+app\plant\edit.tsx:210:          onPress={handleSave}
+app\plant\edit.tsx:264:            onChangeText={setPlantName}
+app\plant\edit.tsx:289:                onPress={() => handleSelectVariety(null)}
+app\plant\edit.tsx:307:                    onPress={() => handleSelectVariety(v)}
+app\plant\edit.tsx:329:            onChangeText={(text) => { setVariety(text); setVarietyId(null); }}
+app\plant\edit.tsx:347:            onPress={() => setShowDatePicker(true)}
+app\plant\edit.tsx:355:              <Pressable onPress={() => setSowingDate('')} hitSlop={8}>
+app\plant\edit.tsx:367:              onChange={(_, date) => {
+app\plant\edit.tsx:375:              <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
+app\plant\edit.tsx:376:                <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
+app\plant\edit.tsx:383:                    onChange={(_, date) => {
+app\plant\edit.tsx:390:                    onPress={() => setShowDatePicker(false)}
+app\plant\edit.tsx:405:            onChangeText={setHarvestGoalKg}
+app\plant\edit.tsx:421:            onChangeText={setNotes}
+app\plant\edit.tsx:443:                onChangeText={setSoilPh}
+app\plant\edit.tsx:454:                onChangeText={setBedName}
+app\plant\edit.tsx:464:              <Pressable key={tx} onPress={() => setSoilTexture(soilTexture === tx ? undefined : tx)}
+app\plant\edit.tsx:477:            onChangeText={setSoilNotes}
+app\plant\edit.tsx:491:            onPress={pickPhoto}
+app\plant\edit.tsx:506:            <Pressable onPress={() => setPhotoUri(null)} style={{ alignSelf: 'center', marginTop: spacing.xs }}>
+app\plant\edit.tsx:513:            onPress={handleSave}
+app\plant\edit.tsx:519:          <Pressable onPress={handleDelete} style={s.archiveButton} hitSlop={8}>
+app\plant\follow-up.tsx:58:        <Header title={t('identify.followUpTitle')} onBack={() => router.back()} styles={s} colors={colors} />
+app\plant\follow-up.tsx:63:          <Button title={t('identify.upgradePro')} onPress={() => router.push('/paywall?source=ai_identify' as any)} size="lg" style={{ marginTop: spacing.xl, alignSelf: 'stretch' }} />
+app\plant\follow-up.tsx:72:        <Header title={t('identify.followUpTitle')} onBack={() => router.back()} styles={s} colors={colors} />
+app\plant\follow-up.tsx:81:        <Header title={t('identify.followUpTitle')} onBack={() => router.back()} styles={s} colors={colors} />
+app\plant\follow-up.tsx:85:          <Button title={t('common.back')} onPress={() => router.back()} variant="secondary" size="lg" style={{ marginTop: spacing.xl, alignSelf: 'stretch' }} />
+app\plant\follow-up.tsx:155:      <Header title={t('identify.followUpTitle')} onBack={() => router.back()} styles={s} colors={colors} />
+app\plant\follow-up.tsx:191:              onPress={runComparison}
+app\plant\follow-up.tsx:216:          <Pressable onPress={() => pickPhoto(true)} disabled={picking} style={[s.pickButton, { borderColor: colors.primary, backgroundColor: colors.primary + '12', opacity: picking ? 0.5 : 1 }]}>
+app\plant\follow-up.tsx:220:          <Pressable onPress={() => pickPhoto(false)} disabled={picking} style={[s.pickButton, { borderColor: colors.border, backgroundColor: colors.surfaceAlt, opacity: picking ? 0.5 : 1 }]}>
+app\plant\follow-up.tsx:233:          <Button title={t('identify.followUpSave')} onPress={saveFollowUp} loading={saving} disabled={!photo} size="lg" style={{ marginTop: spacing.lg }} />
+app\plant\follow-up.tsx:250:      <Pressable onPress={onBack} hitSlop={12} style={styles.backButton} accessibilityRole="button" accessibilityLabel="Back">
+app\crop\new.tsx:93:      router.back();
+app\crop\new.tsx:101:    Alert.alert(
+app\crop\new.tsx:112:            router.back();
+app\crop\new.tsx:125:          <Pressable onPress={() => router.back()} hitSlop={12} style={s.backBtn}>
+app\crop\new.tsx:141:        <Pressable onPress={() => router.back()} hitSlop={12} style={s.backBtn}>
+app\crop\new.tsx:153:        <Pressable onPress={() => router.back()} hitSlop={12} style={s.backBtn}>
+app\crop\new.tsx:160:        <Pressable onPress={editId ? handleSave : handleSave} hitSlop={12} style={s.saveHeaderBtn} disabled={saving || !name.trim()}>
+app\crop\new.tsx:182:            <TextInput style={[s.inlineInput, { color: colors.text }]} placeholder={t('customCrop.namePlaceholder')} placeholderTextColor={colors.textSecondary} value={name} onChangeText={setName} maxLength={40} />
+app\crop\new.tsx:189:          <Pressable onPress={() => setCategory(category === 'frutas' ? 'hojas' : 'frutas')} style={[s.selectField, { borderColor: colors.border, backgroundColor: colors.surface }]}><Text style={{ color: colors.text, fontSize: 14 }}>{category === 'frutas' ? 'Rosáceas (Fresa, Zarzamora…)' : 'Solanáceas (Tomate, Pimiento, Berenjena)'}</Text><Ionicons name="chevron-down" size={17} color={colors.textSecondary} /></Pressable>
+app\crop\new.tsx:194:          <View style={s.volumeRow}>{[['5 L', 'Aromáticas'], ['12 L', 'Fresas'], ['25 L', 'Pimientos'], ['40+ L', 'Tomates']].map(([value, label]) => <Pressable key={value} onPress={() => setVolume(value)} style={[s.volumeChip, { backgroundColor: volume === value ? colors.primary : colors.surface, borderColor: volume === value ? colors.primary : colors.border }]}><Text style={{ color: volume === value ? '#FFFFFF' : colors.text, fontSize: 12, fontWeight: '800' }}>{value}</Text><Text style={{ color: volume === value ? '#FFFFFF' : colors.textSecondary, fontSize: 10 }}>{label}</Text></Pressable>)}</View>
+app\crop\new.tsx:196:          <View style={s.sunRow}>{[['2-4h', 'Semisombra', 'partly-sunny-outline'], ['4-6h', 'Sol suave', 'sunny-outline'], ['6+h', 'Sol pleno', 'sunny']].map(([value, label, icon]) => <Pressable key={value} onPress={() => setSunNeeds(value === '6+h' ? 'full' : value === '4-6h' ? 'partial' : 'shade')} style={[s.sunChip, { backgroundColor: ((sunNeeds === 'full' && value === '6+h') || (sunNeeds === 'partial' && value === '4-6h') || (sunNeeds === 'shade' && value === '2-4h')) ? colors.primary : colors.surface, borderColor: colors.border }]}><Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={16} color={((sunNeeds === 'full' && value === '6+h') || (sunNeeds === 'partial' && value === '4-6h') || (sunNeeds === 'shade' && value === '2-4h')) ? '#FFFFFF' : colors.primary} /><Text style={{ color: ((sunNeeds === 'full' && value === '6+h') || (sunNeeds === 'partial' && value === '4-6h') || (sunNeeds === 'shade' && value === '2-4h')) ? '#FFFFFF' : colors.text, fontSize: 11, fontWeight: '700' }}>{value} {label}</Text></Pressable>)}</View>
+app\crop\new.tsx:206:                onChangeText={setDaysMin}
+app\crop\new.tsx:216:                onChangeText={setDaysMax}
+app\crop\new.tsx:230:                onPress={() => toggleMonth(sowingMonths, setSowingMonths, m)}
+app\crop\new.tsx:252:                onPress={() => toggleMonth(harvestMonths, setHarvestMonths, m)}
+app\crop\new.tsx:281:                onPress={() => setWaterNeeds(v)}
+app\crop\new.tsx:307:            onChangeText={setSpacingCm}
+app\crop\new.tsx:322:            onChangeText={setNotes}
+app\crop\new.tsx:328:            onPress={handleSave}
+app\crop\index.tsx:34:        <Pressable onPress={() => router.back()} hitSlop={12} style={s.backBtn}>
+app\crop\index.tsx:39:          onPress={() => router.push('/crop/new' as any)}
+app\crop\index.tsx:65:              onCta={() => router.push('/crop/new' as any)}
+app\crop\index.tsx:71:            onPress={() => router.push(`/crop/new?id=${item.id}` as any)}
+app\plant\new.tsx:133:  return <SafeAreaView style={[newPlantStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}><ScrollView contentContainerStyle={newPlantStitch.content} showsVerticalScrollIndicator={false}><View style={[newPlantStitch.header, { borderBottomColor: colors.border }]}><Pressable onPress={() => router.back()} style={newPlantStitch.headerButton}><Text style={{ color: colors.text, fontWeight: '700' }}>Cancelar</Text></Pressable><Text style={[newPlantStitch.headerTitle, { color: colors.text }]}>Nueva Planta</Text><Pressable onPress={onSave} style={newPlantStitch.headerButton}><Text style={{ color: colors.primary, fontWeight: '900' }}>Guardar</Text></Pressable></View><View style={[newPlantStitch.photo, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Ionicons name="camera-outline" size={34} color={colors.primary} /><Pressable style={[newPlantStitch.photoAdd, { backgroundColor: colors.primary }]}><Ionicons name="add" size={18} color="#fff" /></Pressable></View><Text style={[newPlantStitch.photoTitle, { color: colors.text }]}>Fotografía de la maceta</Text><Text style={[newPlantStitch.body, { color: colors.textSecondary }]}>Sube una foto clara para seguir su crecimiento diario</Text><View style={newPlantStitch.photoActions}><Pressable style={[newPlantStitch.outline, { borderColor: colors.border }]}><Ionicons name="images-outline" size={18} color={colors.primary} /><Text style={{ color: colors.text, fontWeight: '800' }}>Galería</Text></Pressable><Pressable style={[newPlantStitch.outline, { borderColor: colors.border }]}><Ionicons name="camera-outline" size={18} color={colors.primary} /><Text style={{ color: colors.text, fontWeight: '800' }}>Hacer foto</Text></Pressable></View><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>ESPECIE Y VARIEDAD</Text><Pressable style={[newPlantStitch.identify, { borderColor: colors.primary, backgroundColor: colors.primary + '12' }]} onPress={() => router.push('/plant/scan' as any)}><Ionicons name="scan-outline" size={20} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '900', flex: 1 }}>Identificar con cámara</Text><Ionicons name="chevron-forward" size={18} color={colors.primary} /></Pressable><View style={[newPlantStitch.input, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="search-outline" size={18} color={colors.textSecondary} /><TextInput value={species} onChangeText={setSpecies} style={{ flex: 1, color: colors.text, fontSize: 14 }} /></View><Text style={[newPlantStitch.suggestions, { color: colors.textSecondary }]}>Comunes en balcones españoles: ✓ Albahaca Limón · Tomate Cherry · Menta Piperita · Romero</Text><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>CONTENEDOR Y ESPACIO</Text><Text style={[newPlantStitch.label, { color: colors.textSecondary }]}>Material de la maceta</Text><View style={newPlantStitch.choiceRow}>{['Barro Cocido', 'Plástico reciclado', 'Geotextil'].map((item) => <Pressable key={item} onPress={() => setMaterial(item)} style={[newPlantStitch.choice, { borderColor: material === item ? colors.primary : colors.border, backgroundColor: material === item ? colors.primary + '14' : colors.surface }]}><Text style={{ color: material === item ? colors.primary : colors.text, fontWeight: '800', fontSize: 12 }}>{item}</Text></Pressable>)}</View><Text style={[newPlantStitch.label, { color: colors.textSecondary }]}>Volumen estimado de sustrato</Text><View style={[newPlantStitch.input, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={{ color: colors.text, fontWeight: '800' }}>Maceta 18 cm</Text><Text style={{ color: colors.textSecondary, marginLeft: 'auto' }}>5 L</Text></View><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>UBICACIÓN Y HORAS DE SOL</Text><View style={newPlantStitch.choiceRow}>{['Balcón Sur', 'Terraza Este', 'Repisa Ventana'].map((item) => <Pressable key={item} onPress={() => setPlace(item)} style={[newPlantStitch.choice, { borderColor: place === item ? colors.primary : colors.border, backgroundColor: place === item ? colors.primary + '14' : colors.surface }]}><Text style={{ color: place === item ? colors.primary : colors.text, fontWeight: '800', fontSize: 12 }}>{item}</Text></Pressable>)}</View><View style={[newPlantStitch.sunCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Ionicons name="sunny-outline" size={22} color={colors.warning} /><View style={{ flex: 1 }}><Text style={[newPlantStitch.cardTitle, { color: colors.text }]}>+6h Sol directo (Pleno sol)</Text><Text style={[newPlantStitch.body, { color: colors.textSecondary }]}>Ideal para albahaca, tomates y pimientos</Text></View><Ionicons name="checkmark-circle" size={20} color={colors.primary} /></View><View style={[newPlantStitch.sunCard, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="partly-sunny-outline" size={22} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[newPlantStitch.cardTitle, { color: colors.text }]}>3–5h Sol suave / Mañana</Text><Text style={[newPlantStitch.body, { color: colors.textSecondary }]}>Adecuado para mentas y aromáticas tiernas</Text></View></View><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>FECHA DE TRASPLANTE</Text><View style={[newPlantStitch.input, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="calendar-outline" size={18} color={colors.primary} /><Text style={{ color: colors.text, fontWeight: '700' }}>Hoy, 15 de Mayo</Text></View><View style={[newPlantStitch.tip, { backgroundColor: colors.accent + '20' }]}><Ionicons name="leaf-outline" size={18} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[newPlantStitch.cardTitle, { color: colors.text }]}>Consejo de Semillita · Vital para novatos</Text><Text style={[newPlantStitch.body, { color: colors.text }]}>No riegues inmediatamente por costumbre. Las plantas trasplantadas necesitan 24h para aclimatarse al balcón.</Text></View></View><Pressable onPress={onSave} style={[newPlantStitch.primary, { backgroundColor: colors.primary }]}><Ionicons name="add-circle-outline" size={18} color="#fff" /><Text style={newPlantStitch.primaryText}>Guardar planta en Mi Huerto</Text></Pressable></ScrollView></SafeAreaView>;
+app\plant\new.tsx:213:      router.push('/paywall?source=plant_limit' as any);
+app\plant\new.tsx:246:      else if (fromOnboarding === '1') router.replace('/(tabs)');
+app\plant\new.tsx:248:      else if (router.canGoBack()) router.back();
+app\plant\new.tsx:249:      else router.replace('/(tabs)');
+app\plant\new.tsx:267:      router.back();
+app\plant\new.tsx:269:      router.replace('/(tabs)');
+app\plant\new.tsx:281:        router.push('/paywall?source=plant_limit' as any);
+app\plant\new.tsx:302:        if (fromOnboarding === '1') router.replace('/(tabs)');
+app\plant\new.tsx:303:        else if (router.canGoBack()) router.back();
+app\plant\new.tsx:304:        else router.replace('/(tabs)');
+app\plant\new.tsx:355:                  onPress={() => toggleFirstWeekCheck(index)}
+app\plant\new.tsx:372:          <Button title={t('guidedPlant.today')} size="lg" onPress={() => router.replace('/(tabs)')} style={{ width: '100%' }} />
+app\plant\new.tsx:384:        <Pressable accessibilityRole="button" accessibilityLabel={t('onboarding.back')} onPress={goBack} hitSlop={12} style={{ minWidth: 44, minHeight: 44, justifyContent: 'center' }}>
+app\plant\new.tsx:410:              onPress={() => router.push('/plant/scan' as any)}
+app\plant\new.tsx:425:            onPress={() => setShowCropPicker(true)}
+app\plant\new.tsx:462:                onPress={pickPhoto}
+app\plant\new.tsx:513:                  <Pressable accessibilityRole="button" onPress={() => guided ? goBack() : setShowCropPicker(true)} hitSlop={8}>
+app\plant\new.tsx:524:                  <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: started }} onPress={() => setStarted(!started)} style={{ minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: spacing.md, borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, padding: spacing.md }}>
+app\plant\new.tsx:549:                  onChangeText={setPlantName}
+app\plant\new.tsx:555:                {guided && <Button title={t(showAllDetails ? 'guidedPlant.less' : 'guidedPlant.more')} variant="ghost" onPress={() => setShowAllDetails(!showAllDetails)} style={{ marginTop: spacing.md, minHeight: 48 }} />}
+app\plant\new.tsx:569:                      onPress={() => handleSelectVariety(null)}
+app\plant\new.tsx:581:                          onPress={() => handleSelectVariety(v)}
+app\plant\new.tsx:597:                  onChangeText={(text) => { setVariety(text); setVarietyId(null); }}
+app\plant\new.tsx:613:                        onPress={() => { setSelectedStatus(stage); tapHaptic(); }}
+app\plant\new.tsx:638:                        onPress={() => { setPropagationMethod(opt.value); tapHaptic(); }}
+app\plant\new.tsx:664:                        onPress={() => setSowingDate(dateStr)}
+app\plant\new.tsx:680:                        onPress={() => setShowDatePicker(true)}
+app\plant\new.tsx:691:                {showDatePicker && Platform.OS === 'web' && <WebDatePicker label={t('plantNew.sowingDate')} value={sowingDate} onChange={setSowingDate} />}
+app\plant\new.tsx:697:                    onChange={(_, date) => { setShowDatePicker(false); if (date) setSowingDate(dateToStr(date)); }}
+app\plant\new.tsx:702:                    <Pressable style={s.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
+app\plant\new.tsx:703:                      <Pressable style={[s.dateModalSheet, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={() => {}}>
+app\plant\new.tsx:710:                          onChange={(_, date) => { if (date) setSowingDate(dateToStr(date)); }}
+app\plant\new.tsx:715:                          onPress={() => setShowDatePicker(false)}
+app\plant\new.tsx:729:                  onPress={handleSave}
+app\plant\new.tsx:746:            <Pressable onPress={() => { setShowCropPicker(false); setCropSearch(''); setPickerImgErr({}); }}>
+app\plant\new.tsx:757:              onChangeText={setCropSearch}
+app\plant\new.tsx:783:                onPress={() => handleSelectCrop(item)}
+app\plant\new.tsx:824:                onPress={() => router.push('/crop/new' as any)}
+app\plant\identify.tsx:21:        <Pressable accessibilityRole="button" accessibilityLabel="Repetir foto" onPress={() => router.back()} style={s.headerBack}>
+app\plant\identify.tsx:26:        <Pressable accessibilityRole="button" accessibilityLabel="Ayuda y consejos botánicos" style={s.headerAction} onPress={() => {}}>
+app\plant\identify.tsx:91:          <Pressable accessibilityRole="button" style={[s.primaryButton, { backgroundColor: colors.primary }]} onPress={() => router.push({ pathname: '/plant/new', params: { cropId: cropId ?? 'albahaca' } })}>
+app\plant\identify.tsx:95:          <Pressable accessibilityRole="button" style={[s.secondaryButton, { borderColor: colors.border }]} onPress={() => router.back()}>
+app\plant\[id].tsx:237:    return <StitchPlantDetailScreen colors={colors} onBack={() => router.back()} />;
+app\plant\[id].tsx:255:          onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')}
+app\plant\[id].tsx:328:    router.replace(`/plant/${newPlant.id}` as any);
+app\plant\[id].tsx:357:    router.push(`/plant/${newPlant.id}` as any);
+app\plant\[id].tsx:361:    Alert.alert(
+app\plant\[id].tsx:378:            if (router.canGoBack()) router.back();
+app\plant\[id].tsx:379:            else router.replace('/(tabs)');
+app\plant\[id].tsx:395:          <Pressable accessibilityRole="button" accessibilityLabel={t('onboarding.back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')} style={({ pressed }) => [s.backBtn, { opacity: pressed ? 0.72 : 1, transform: [{ scale: pressed ? 0.96 : 1 }] }]}>
+app\plant\[id].tsx:425:              onPress={() => setIsFavorite((value) => !value)}
+app\plant\[id].tsx:433:              onPress={openPlantShare}
+app\plant\[id].tsx:441:              onPress={() => router.push(`/plant/edit?id=${id}`)}
+app\plant\[id].tsx:482:              onPress={() => router.push(`/(tabs)/diary?plantId=${id}` as any)}
+app\plant\[id].tsx:499:              onPress={() => router.push(`/plant/identify?plantId=${id}&cropId=${crop.id}` as any)}
+app\plant\[id].tsx:674:                  onPress={() => setShowStatusModal(true)}
+app\plant\[id].tsx:692:                onPress={() => setShowTransplantModal(true)}
+app\plant\[id].tsx:783:                onPress={async () => {
+app\plant\[id].tsx:819:                <Pressable onPress={() => router.push('/rotation' as any)}
+app\plant\[id].tsx:835:                onPress={() => router.push(`/catalog?focus=${plant.cropId}` as any)}
+app\plant\[id].tsx:852:                  onPress={() => setCropTab(tab)}
+app\plant\[id].tsx:930:                        onPress={() => router.push(`/catalog?focus=${c.id}` as any)}
+app\plant\[id].tsx:958:                        onPress={() => router.push(`/catalog?focus=${c.id}` as any)}
+app\plant\[id].tsx:1024:                        onPress={() => router.push(`/reminder/edit?id=${r.id}`)}
+app\plant\[id].tsx:1146:              <Pressable onPress={() => router.push(`/(tabs)/diary?plantId=${id}` as any)}>
+app\plant\[id].tsx:1158:                  onPress={() => router.push(`/entry/edit?id=${entry.id}` as any)}
+app\plant\[id].tsx:1201:                <Button title={t('plantDetail.newEntry')} size="sm" onPress={() => router.push(`/entry/new?plantId=${id}`)} />
+app\plant\[id].tsx:1210:              onPress={() => router.push('/disease-guide' as any)}
+app\plant\[id].tsx:1221:            onPress={() =>
+app\plant\[id].tsx:1223:                ? router.push(`/plant/identify?plantId=${id}&cropId=${crop.id}` as any)
+app\plant\[id].tsx:1224:                : router.push('/paywall?source=ai_identify_detail' as any)
+app\plant\[id].tsx:1252:                    onPress={() => plants.update(id, { pestStatus: status })}
+app\plant\[id].tsx:1289:                      onPress={() => plants.update(id, { pestStatus: 'none' })}
+app\plant\[id].tsx:1362:                    onPress={() => setShowAllTreatments((value) => !value)}
+app\plant\[id].tsx:1381:              onPress={() => router.push(`/entry/new?plantId=${id}`)}
+app\plant\[id].tsx:1388:              onPress={() => router.push(`/reminder/new?plantId=${id}`)}
+app\plant\[id].tsx:1394:          <Pressable onPress={handleSuccessionSow} style={[s.duplicateBtn, { backgroundColor: colors.success + '12', borderColor: colors.success + '44', borderWidth: 1, borderRadius: radii.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md }]}>
+app\plant\[id].tsx:1404:          <Pressable onPress={handleDuplicate} style={s.duplicateBtn}>
+app\plant\[id].tsx:1410:          <Pressable onPress={handleDelete} style={s.deleteBtn}>
+app\plant\[id].tsx:1421:          onPress={() => router.push(`/entry/new?plantId=${id}`)}
+app\plant\[id].tsx:1428:        <Pressable style={s.modalOverlay} onPress={() => setShowStatusModal(false)}>
+app\plant\[id].tsx:1429:          <Pressable style={[s.statusModal, { backgroundColor: colors.surface }]} onPress={(e) => e.stopPropagation()}>
+app\plant\[id].tsx:1441:                    onPress={() => handleStatusChange(status)}
+app\plant\[id].tsx:1453:            <Pressable onPress={() => setShowStatusModal(false)} style={[s.modalCancelBtn, { backgroundColor: colors.surfaceAlt, marginTop: spacing.md }]}>
+app\plant\[id].tsx:1462:        <Pressable style={s.modalOverlay} onPress={() => setShowTransplantModal(false)}>
+app\plant\[id].tsx:1463:          <Pressable style={[s.transplantModal, { backgroundColor: glassAvailable ? 'transparent' : colors.surface, overflow: 'hidden' }]} onPress={(e) => e.stopPropagation()}>
+app\plant\[id].tsx:1481:                    onPress={() => setTransplantDateInput(dateStr)}
+app\plant\[id].tsx:1498:              onPress={() => setShowTransplantDatePicker(true)}
+app\plant\[id].tsx:1509:                onChange={(_, date) => {
+app\plant\[id].tsx:1518:                onPress={() => setShowTransplantModal(false)}
+app\plant\[id].tsx:1526:                onPress={async () => {
+app\plant\[id].tsx:2128:        <Pressable accessibilityRole="button" accessibilityLabel="Volver a Mi Huerto" onPress={onBack} style={styles.headerBack}>
+app\plant\[id].tsx:2137:          <Pressable accessibilityRole="button" accessibilityLabel="Marcar como favorito" onPress={() => setFavorite(!favorite)} style={styles.iconButton}>
+app\plant\[id].tsx:2175:            <Pressable accessibilityRole="button" onPress={() => setSoilState('moist')} style={[styles.soilButton, { borderColor: colors.primary, backgroundColor: soilState === 'moist' ? colors.primary : colors.surface }]}><Ionicons name="cloud-done-outline" size={19} color={soilState === 'moist' ? '#fff' : colors.primary} /><Text style={[styles.soilButtonTitle, { color: soilState === 'moist' ? '#fff' : colors.text }]}>Comprobada</Text><Text style={[styles.soilButtonNote, { color: soilState === 'moist' ? '#fff' : colors.textSecondary }]}>Sigue húmeda</Text></Pressable>
+app\plant\[id].tsx:2176:            <Pressable accessibilityRole="button" onPress={() => setSoilState('dry')} style={[styles.soilButton, { borderColor: colors.info, backgroundColor: soilState === 'dry' ? colors.info : colors.surface }]}><Ionicons name="water-outline" size={19} color={soilState === 'dry' ? '#fff' : colors.info} /><Text style={[styles.soilButtonTitle, { color: soilState === 'dry' ? '#fff' : colors.text }]}>Regada con éxito</Text><Text style={[styles.soilButtonNote, { color: soilState === 'dry' ? '#fff' : colors.textSecondary }]}>500ml con drenaje</Text></Pressable>
+app\plant\[id].tsx:2180:        <Pressable accessibilityRole="button" onPress={() => setClimateOpen(!climateOpen)} style={[styles.accordion, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="thermometer-outline" size={20} color={colors.warning} /><View style={{ flex: 1 }}><Text style={[styles.accordionTitle, { color: colors.text }]}>Guía climática para España</Text><Text style={[styles.accordionSubtitle, { color: colors.textSecondary }]}>Gestión de olas de calor y sol ibérico</Text></View><Ionicons name={climateOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} /></Pressable>
+app\plant\[id].tsx:2183:        <Pressable accessibilityRole="button" onPress={() => setPestsOpen(!pestsOpen)} style={[styles.accordion, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="bug-outline" size={20} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[styles.accordionTitle, { color: colors.text }]}>Botiquín natural & plagas</Text><Text style={[styles.accordionSubtitle, { color: colors.textSecondary }]}>Prevención orgánica con jabón potásico</Text></View><Ionicons name={pestsOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} /></Pressable>
+app\plant\[id].tsx:2186:        <Pressable accessibilityRole="button" onPress={() => router.push('/entry/new' as any)} style={[styles.noteButton, { backgroundColor: colors.primaryDark }]}><Ionicons name="camera-outline" size={20} color="#fff" /><Text style={styles.noteButtonText}>Anotar observación o foto de hoy</Text></Pressable>
+app\plant\scan.tsx:30:      router.push({ pathname: '/plant/identify', params: { photo: result.uri } });
+app\plant\scan.tsx:43:              onPress={() => router.back()}
+app\plant\scan.tsx:52:                onPress={() => setDiagnosisMode(false)}
+app\plant\scan.tsx:60:                onPress={() => setDiagnosisMode(true)}
+app\plant\scan.tsx:71:              onPress={() => setFlashEnabled((value) => !value)}
+app\plant\scan.tsx:114:              onPress={() => capture(false)}
+app\plant\scan.tsx:124:              onPress={() => capture(true)}
+app\plant\scan.tsx:134:              onPress={() => undefined}

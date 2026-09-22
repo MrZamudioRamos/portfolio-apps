@@ -30,6 +30,7 @@ import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
 import type { Plant } from '../../src/models/plant';
 import type { CustomCrop } from '../../src/models/custom-crop';
 import { dateToStr } from '../../src/utils/dateStr';
+import { goBackOr } from '../../src/utils/navigation';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -103,7 +104,7 @@ export default function EditPlantScreen() {
   if ((plants.loading && !plant) || cropLoading) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={12}>
+        <Pressable onPress={() => goBackOr(router)} style={s.backBtn} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm }} accessibilityRole="progressbar" accessibilityLabel={t('common.loading')}>
@@ -117,7 +118,7 @@ export default function EditPlantScreen() {
   if (plants.error) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={12}>
+        <Pressable onPress={() => goBackOr(router)} style={s.backBtn} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <View style={{ flex: 1, justifyContent: 'center', padding: spacing.xl }}>
@@ -130,7 +131,7 @@ export default function EditPlantScreen() {
   if (!plant || !crop || (activeGarden && plant.gardenId !== activeGarden.id)) {
     return (
       <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-        <Pressable onPress={() => router.back()} style={s.backBtn}>
+        <Pressable onPress={() => goBackOr(router)} style={s.backBtn}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         <Text style={[s.notFound, { color: colors.textSecondary }]}>
@@ -175,7 +176,7 @@ export default function EditPlantScreen() {
         soilNotes: soilNotes.trim() || undefined,
         bedName: bedName.trim() || undefined,
       });
-      router.back();
+      goBackOr(router);
     } finally {
       setSaving(false);
     }
@@ -192,7 +193,7 @@ export default function EditPlantScreen() {
           style: 'destructive',
           onPress: async () => {
             await plants.softRemove(id);
-            router.back();
+            goBackOr(router);
           },
         },
       ]
@@ -202,7 +203,7 @@ export default function EditPlantScreen() {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
+        <Pressable onPress={() => goBackOr(router)} hitSlop={12}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('plantEdit.title')}</Text>

@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBackup } from '../../src/hooks/useBackup';
+import { goBackOr } from '../../src/utils/navigation';
 import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { CollectionError } from '../../src/components/CollectionError';
 import { StitchBottomNav } from '../../src/components/StitchBottomNav';
@@ -144,7 +145,7 @@ export default function BackupScreen() {
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
+        <Pressable onPress={() => goBackOr(router, '/settings' as any)} hitSlop={12}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         <Text style={[s.headerTitle, { color: colors.text }]}>{t('backup.stitchTitle', { defaultValue: 'Copia y Datos' })}</Text>

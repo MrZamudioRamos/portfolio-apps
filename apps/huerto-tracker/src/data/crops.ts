@@ -23,6 +23,8 @@ export interface CropInfo {
   sunNeeds: 'full' | 'partial' | 'shade';
   waterNeeds: 'high' | 'medium' | 'low';
   spacing: number;
+  /** Curated botanical group used for cautious, history-based rotation hints. */
+  rotationGroup?: string;
   companions: string[];
   incompatible: string[];
   tips: string;
@@ -3837,6 +3839,22 @@ export const CROPS_BY_CATEGORY: Record<CropCategory, CropInfo[]> = {
   bulbos: [],
   medicinales: [],
 };
+
+/** Replace the bundled reference snapshot with the verified Supabase catalog.
+ * The arrays/objects keep their identity so existing consumers update without
+ * changing every screen to an async data source at once. */
+export function replaceCropCatalog(next: CropInfo[]): void {
+  if (next.length === 0) return;
+  CROPS.splice(0, CROPS.length, ...next);
+  for (const key of Object.keys(CROPS_BY_ID)) delete CROPS_BY_ID[key];
+  for (const crop of next) CROPS_BY_ID[crop.id] = crop;
+  for (const category of Object.keys(CROPS_BY_CATEGORY) as CropCategory[]) {
+    CROPS_BY_CATEGORY[category].splice(0, CROPS_BY_CATEGORY[category].length);
+  }
+  for (const crop of next) {
+    (CROPS_BY_CATEGORY[crop.category] ??= []).push(crop);
+  }
+}
 
 for (const crop of CROPS) {
   CROPS_BY_CATEGORY[crop.category].push(crop);

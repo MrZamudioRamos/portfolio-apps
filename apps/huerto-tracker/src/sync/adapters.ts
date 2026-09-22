@@ -5,7 +5,10 @@ import type { GardenReminder } from '../models/reminder';
 import type { UserProfile } from '../models/user-profile';
 import type { CustomCrop } from '../models/custom-crop';
 import type { CostEntry } from '../models/cost-entry';
+import type { SeedLot } from '../models/seed-lot';
 import type { GridLayout } from '../hooks/useGardenLayout';
+import type { FreeMapPositions } from '../hooks/useGardenFreeLayout';
+import { normalizeGardenMapPlan, type GardenMapPlan } from '../models/garden-map-plan';
 
 // Skip local-only file:// URIs when syncing to cloud — syncAll uploads them to
 // Supabase Storage first, then this adapter carries the resulting https URL.
@@ -242,6 +245,8 @@ export function reminderToRow(r: GardenReminder, userId: string) {
     type: r.type,
     title: r.title,
     frequency: r.frequency,
+    weekday: r.weekday ?? null,
+    due_date: r.dueDate ?? null,
     time_hour: r.time.hour,
     time_minute: r.time.minute,
     enabled: r.enabled,
@@ -260,6 +265,8 @@ export function rowToReminder(r: ReturnType<typeof reminderToRow>): GardenRemind
     type: r.type as GardenReminder['type'],
     title: r.title,
     frequency: r.frequency as GardenReminder['frequency'],
+    weekday: r.weekday ?? undefined,
+    dueDate: r.due_date ?? undefined,
     time: { hour: r.time_hour, minute: r.time_minute },
     enabled: r.enabled,
     notificationId: r.notification_id ?? undefined,
@@ -304,20 +311,80 @@ export function rowToCostEntry(r: ReturnType<typeof costEntryToRow>): CostEntry 
 
 // ── GardenLayout ──────────────────────────────────────────────────────────────
 
-export function gardenLayoutToRow(gardenId: string, layout: GridLayout, userId: string, updatedAt?: string) {
+export function gardenLayoutToRow(
+  gardenId: string,
+  layout: GridLayout,
+  userId: string,
+  updatedAt?: string,
+  freeLayout: FreeMapPositions = {},
+  mapPlan?: GardenMapPlan,
+) {
+  const hasFreeLayout = Object.keys(freeLayout).length > 0;
+  const hasMapPlan = mapPlan !== undefined;
   return {
     id: gardenId,
     user_id: userId,
     garden_id: gardenId,
-    layout,
+    // Keep the legacy array shape when there is no free-form data. This makes
+    // the migration backwards-compatible with rows created by older builds.
+    layout: hasFreeLayout || hasMapPlan ? { grid: layout, free: freeLayout, ...(mapPlan ? { mapPlan } : {}) } : layout,
     updated_at: updatedAt ?? new Date().toISOString(),
   };
 }
 
-export function rowToGardenLayout(r: ReturnType<typeof gardenLayoutToRow>): { gardenId: string; layout: GridLayout; updatedAt: string } {
+export function seedLotToRow(seed: SeedLot, userId: string) {
+  return {
+    id: seed.id,
+    user_id: userId,
+    garden_id: seed.gardenId,
+    crop_id: seed.cropId,
+    crop_name: seed.cropName,
+    variety: seed.variety ?? null,
+    brand: seed.brand ?? null,
+    packet_count: seed.packetCount,
+    low_stock_at: seed.lowStockAt ?? null,
+    expires_on: seed.expiresOn ?? null,
+    notes: seed.notes ?? null,
+    created_at: seed.createdAt,
+    updated_at: seed.updatedAt,
+    deleted_at: seed.deletedAt ?? null,
+  };
+}
+
+export function rowToSeedLot(r: ReturnType<typeof seedLotToRow>): SeedLot {
+  return {
+    id: r.id,
+    gardenId: r.garden_id,
+    cropId: r.crop_id,
+    cropName: r.crop_name,
+    variety: r.variety ?? undefined,
+    brand: r.brand ?? undefined,
+    packetCount: r.packet_count,
+    lowStockAt: r.low_stock_at ?? undefined,
+    expiresOn: r.expires_on ?? undefined,
+    notes: r.notes ?? undefined,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+    deletedAt: r.deleted_at ?? undefined,
+  };
+}
+
+export function rowToGardenLayout(r: ReturnType<typeof gardenLayoutToRow>): {
+  gardenId: string;
+  layout: GridLayout;
+  freeLayout: FreeMapPositions;
+  mapPlan?: GardenMapPlan;
+  updatedAt: string;
+} {
+  const payload = r.layout as unknown;
+  const isPayload = payload !== null && typeof payload === 'object' && !Array.isArray(payload);
   return {
     gardenId: r.garden_id,
-    layout: (r.layout ?? []) as GridLayout,
+    layout: (isPayload ? (payload as { grid?: GridLayout }).grid : payload ?? []) as GridLayout,
+    freeLayout: isPayload ? ((payload as { free?: FreeMapPositions }).free ?? {}) : {},
+    mapPlan: isPayload && (payload as { mapPlan?: unknown }).mapPlan !== undefined
+      ? normalizeGardenMapPlan((payload as { mapPlan?: unknown }).mapPlan)
+      : undefined,
     updatedAt: r.updated_at,
   };
 }

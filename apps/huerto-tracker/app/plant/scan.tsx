@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColors, useTheme, type Theme } from '@portfolio/ui';
 import { usePickPhoto } from '../../src/hooks/usePickPhoto';
+import { goBackOr } from '../../src/utils/navigation';
 
 /** Stitch's native camera frame. Capture is still delegated to Expo Go's picker. */
 export default function PlantScanScreen() {
@@ -30,7 +31,7 @@ export default function PlantScanScreen() {
   async function capture(fromCamera: boolean) {
     const result = fromCamera ? await pickFromCamera() : await pickFromGallery();
     if (result.kind === 'success') {
-      router.push({ pathname: '/plant/identify', params: { photo: result.uri } });
+      router.push({ pathname: '/plant/identify', params: { photo: result.uri, mode: diagnosisMode ? 'diagnosis' : 'identify' } });
     }
   }
 
@@ -43,7 +44,7 @@ export default function PlantScanScreen() {
               accessibilityRole="button"
               accessibilityLabel="Cerrar escáner"
               hitSlop={12}
-              onPress={() => router.back()}
+              onPress={() => goBackOr(router, '/plant/new' as any)}
               style={s.iconButton}
             >
               <Ionicons name="close" size={26} color="#fff" />
@@ -80,8 +81,8 @@ export default function PlantScanScreen() {
 
           <View style={s.cameraContent}>
             <View style={s.lightNotice}>
-              <Ionicons name="sunny" size={17} color="#FBC02D" />
-              <Text style={s.lightNoticeText}>Buena luz solar detectada · Enfocando hojas</Text>
+              <Ionicons name="sunny-outline" size={17} color="#FBC02D" />
+              <Text style={s.lightNoticeText}>Comprueba que haya buena luz · Enfoca las hojas</Text>
             </View>
 
             <View style={s.focusFrame} accessibilityLabel="Encuadre de cámara">
@@ -94,8 +95,8 @@ export default function PlantScanScreen() {
             </View>
 
             <View style={s.permissionBadge} accessibilityRole="text">
-              <Ionicons name="checkmark-circle" size={17} color="#B8E986" />
-              <Text style={s.permissionText}>Permiso de cámara concedido</Text>
+              <Ionicons name="information-circle-outline" size={17} color="#B8E986" />
+              <Text style={s.permissionText}>El permiso se solicitará al capturar</Text>
             </View>
 
             <View style={s.tipCard}>
@@ -104,7 +105,9 @@ export default function PlantScanScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={s.tipTitle}>Consejo de Semillita</Text>
-                <Text style={s.tipText}>Fotografía las hojas de cerca y con luz natural para un diagnóstico exacto.</Text>
+                <Text style={s.tipText}>{diagnosisMode
+                  ? 'Enfoca las zonas afectadas con buena luz y sin reflejos. El resultado será orientativo y solo aparecerá tras analizar la imagen.'
+                  : 'Haz una foto nítida, con luz natural y sin reflejos. La identificación se mostrará solo si hay un resultado real.'}</Text>
               </View>
             </View>
           </View>

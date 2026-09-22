@@ -28,6 +28,7 @@ import type { Plant } from '../../src/models/plant';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
+import { goBackOr } from '../../src/utils/navigation';
 
 const ENTRY_TYPE_ICONS: Record<EntryType, keyof typeof Ionicons.glyphMap> = {
   watering: 'water-outline',
@@ -59,14 +60,15 @@ export default function NewEntryScreen() {
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
-  const { plantId: paramPlantId } = useLocalSearchParams<{ plantId?: string }>();
+  const { plantId: paramPlantId, type: paramType } = useLocalSearchParams<{ plantId?: string; type?: string }>();
 
   const { activeGarden } = useActiveGarden();
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
   const gardenId = activeGarden?.id ?? '';
 
-  const [selectedType, setSelectedType] = useState<EntryType>('watering');
+  const initialEntryType = ALL_TYPES.includes(paramType as EntryType) ? paramType as EntryType : 'watering';
+  const [selectedType, setSelectedType] = useState<EntryType>(initialEntryType);
   const [selectedPlantId, setSelectedPlantId] = useState<string | undefined>(paramPlantId);
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(todayStr());
@@ -97,7 +99,7 @@ export default function NewEntryScreen() {
 
   useEffect(() => {
     if (!saved) return;
-    const timer = setTimeout(() => router.back(), 1200);
+    const timer = setTimeout(() => goBackOr(router), 1200);
     return () => clearTimeout(timer);
   }, [router, saved]);
 
@@ -211,7 +213,7 @@ export default function NewEntryScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('common.back')}
-          onPress={() => router.back()}
+          onPress={() => goBackOr(router)}
           hitSlop={12}
           style={({ pressed }) => [s.headerButton, { opacity: pressed ? 0.55 : 1 }]}
         >
@@ -536,7 +538,7 @@ export default function NewEntryScreen() {
         <ShareModal
           {...shareModal}
           visible
-          onClose={() => { setShareModal(null); router.back(); }}
+          onClose={() => { setShareModal(null); goBackOr(router); }}
         />
       )}
     </SafeAreaView>
