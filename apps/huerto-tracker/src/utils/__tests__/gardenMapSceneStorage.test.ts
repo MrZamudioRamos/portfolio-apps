@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+vi.mock('@react-native-async-storage/async-storage', () => ({ default: {} }));
 import { freeLayoutKey } from '../../hooks/useGardenFreeLayout';
 import { gardenLayoutKey } from '../../hooks/useGardenLayout';
-import { gardenMapPlanKey } from '../../hooks/useGardenMapPlan';
+import { gardenMapPlanKey } from '../gardenMapStorageKeys';
 import { gardenMapSceneBackupKey, gardenMapSceneKey, loadOrMigrateGardenMapScene } from '../gardenMapSceneStorage';
 
 const gardenId = 'garden-1';

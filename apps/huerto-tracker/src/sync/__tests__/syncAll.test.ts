@@ -66,6 +66,7 @@ const fixtures = {
 const harness = vi.hoisted(() => ({
   storage: new Map<string, string>(),
   upsertCalls: [] as { table: string; rows: unknown[] }[],
+  sceneSaves: [] as { gardenId: string; expectedRevision: number; scene: unknown }[],
   failPlants: false,
   failGardens: false,
 }));
@@ -74,6 +75,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
   default: {
     getItem: async (key: string) => harness.storage.get(key) ?? null,
     setItem: async (key: string, value: string) => { harness.storage.set(key, value); },
+    multiSet: async (entries: [string, string][]) => { for (const [key, value] of entries) harness.storage.set(key, value); },
   },
 }));
 
@@ -84,6 +86,10 @@ vi.mock('@portfolio/supabase', () => ({
     if (table === 'gardens' && harness.failGardens) throw new Error('23503: garden FK');
   },
   pullAll: async () => [],
+  saveGardenMapScene: async (gardenId: string, expectedRevision: number, scene: unknown) => {
+    harness.sceneSaves.push({ gardenId, expectedRevision, scene });
+    return { status: 'saved', revision: expectedRevision + 1, updatedAt: '2026-01-01T00:00:01.000Z', scene };
+  },
 }));
 
 vi.mock('../photoSync', () => ({
@@ -111,6 +117,7 @@ function seedLocalData() {
 beforeEach(() => {
   harness.storage.clear();
   harness.upsertCalls.length = 0;
+  harness.sceneSaves.length = 0;
   harness.failPlants = false;
   harness.failGardens = false;
   seedLocalData();
@@ -156,5 +163,16 @@ describe('syncToCloud dependency waves', () => {
     expect(pushedTables).not.toContain('seed_lots');
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('seed_lots (skipped: dependency gardens push failed)'));
     warn.mockRestore();
+  });
+
+  it('does not include the canonical map scene in the generic garden_layouts upsert', async () => {
+    harness.storage.set('@portfolio/huerto/garden_map_scene/' + UUIDS.garden, JSON.stringify({ version: 2, structures: [], zones: [], plantPlacements: [], plannedPlantings: [], seasons: [] }));
+    harness.storage.set('@portfolio/huerto/garden_map_scene/' + UUIDS.garden + '/dirty', '1');
+    harness.storage.set('@portfolio/huerto/garden_map_scene/' + UUIDS.garden + '/revision', '0');
+
+    await expect(syncToCloud(UUIDS.user)).resolves.toBe(true);
+
+    expect(harness.sceneSaves).toHaveLength(1);
+    expect(harness.upsertCalls.find(({ table }) => table === 'garden_layouts')?.rows[0]).not.toHaveProperty('map_scene');
   });
 });

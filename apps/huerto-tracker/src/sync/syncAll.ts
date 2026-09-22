@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { pullAll, upsertAll } from '@portfolio/supabase';
+import { pullAll, saveGardenMapScene, upsertAll } from '@portfolio/supabase';
 import { isUUID } from '@portfolio/storage';
 import type { Garden } from '../models/garden';
 import type { Plant } from '../models/plant';
@@ -12,6 +12,7 @@ import type { FreeMapPositions } from '../hooks/useGardenFreeLayout';
 import { freeLayoutKey, freeLayoutTsKey } from '../hooks/useGardenFreeLayout';
 import type { GardenMapPlan } from '../models/garden-map-plan';
 import { gardenMapPlanKey, gardenMapPlanTsKey } from '../hooks/useGardenMapPlan';
+import { pushMapSceneToCloud, reconcileRemoteMapScene } from './gardenMapSceneSync';
 import { uploadLocalPhotos } from './photoSync';
 import {
   gardenToRow, rowToGarden,
@@ -48,6 +49,7 @@ async function writeLocal<T>(key: string, items: T[]): Promise<void> {
 }
 
 const LAYOUT_KEY = (gardenId: string) => `@portfolio/huerto/garden_layout/${gardenId}`;
+type SyncFailure = { table: string; reason: unknown };
 
 type LocalLayout = {
   gardenId: string;
@@ -92,6 +94,15 @@ async function writeLayouts(layouts: Array<Partial<LocalLayout> & Pick<LocalLayo
       }
     })
   );
+}
+
+async function pushMapScenes(layouts: LocalLayout[]): Promise<SyncFailure[]> {
+  const results = await Promise.allSettled(layouts.map((layout) => pushMapSceneToCloud(layout.gardenId, AsyncStorage, saveGardenMapScene)));
+  return results.flatMap((result, index) => {
+    if (result.status === 'rejected') return [{ table: 'garden_map_scene', reason: result.reason }];
+    if (result.value === 'conflict') return [{ table: 'garden_map_scene', reason: new Error(`conflict: ${layouts[index].gardenId}`) }];
+    return [];
+  });
 }
 
 /**
@@ -152,7 +163,6 @@ export async function syncToCloud(userId: string): Promise<boolean> {
     // table doesn't abort the whole push — pushed what can be pushed, and
     // surface the partial failure to the caller via the boolean return.
     type PushJob = { table: string; run: () => Promise<void> };
-    type SyncFailure = { table: string; reason: unknown };
     const runPushWave = async (jobs: PushJob[]) => {
       const results = await Promise.allSettled(jobs.map(({ run }) => run()));
       return results.flatMap((result, index) =>
@@ -184,6 +194,8 @@ export async function syncToCloud(userId: string): Promise<boolean> {
     failures.push(...secondaryFailures);
     if (gardensFailed && layouts.length > 0) failures.push(dependencyFailure('garden_layouts', 'gardens'));
     if (gardensFailed && seedLots.some((seed) => isUUID(seed.id))) failures.push(dependencyFailure('seed_lots', 'gardens'));
+    if (!gardensFailed) failures.push(...await pushMapScenes(layouts));
+    else if (layouts.length > 0) failures.push(dependencyFailure('garden_map_scene', 'gardens'));
 
     const plantFailures = gardensFailed
       ? [dependencyFailure('plants', 'gardens')]
@@ -229,7 +241,7 @@ export async function syncFromCloud(userId: string): Promise<boolean> {
       pullAll<ReturnType<typeof userProfileToRow>>('user_profiles', userId),
       pullAll<ReturnType<typeof customCropToRow>>('custom_crops', userId),
       pullAll<ReturnType<typeof costEntryToRow>>('cost_entries', userId),
-      pullAll<ReturnType<typeof gardenLayoutToRow>>('garden_layouts', userId),
+      pullAll<ReturnType<typeof gardenLayoutToRow> & { map_scene?: unknown; map_scene_revision?: number | string | null; map_scene_updated_at?: string | null }>('garden_layouts', userId),
       pullAll<ReturnType<typeof seedLotToRow>>('seed_lots', userId),
     ]);
     const failures = results.flatMap((result, index) =>
@@ -253,6 +265,22 @@ export async function syncFromCloud(userId: string): Promise<boolean> {
 
     // For layouts: only overwrite local if remote is strictly newer (preserves offline edits)
     const remoteMapped = remoteLayouts.map(rowToGardenLayout);
+    const sceneResults = await Promise.allSettled(remoteMapped.flatMap((layout) => (
+      layout.mapScene !== undefined && layout.mapSceneRevision !== undefined
+        ? [reconcileRemoteMapScene({
+          gardenId: layout.gardenId,
+          scene: layout.mapScene,
+          revision: layout.mapSceneRevision,
+          updatedAt: layout.mapSceneUpdatedAt ?? layout.updatedAt,
+        })]
+        : []
+    )));
+    const sceneFailures = sceneResults.flatMap((result) => result.status === 'rejected'
+      ? [{ table: 'garden_map_scene', reason: result.reason }]
+      : result.value === 'conflict'
+        ? [{ table: 'garden_map_scene', reason: new Error('conflict: local map edit preserved') }]
+        : []);
+    failures.push(...sceneFailures);
     const localTsList = await Promise.all(
       remoteMapped.map(({ gardenId }) => AsyncStorage.getItem(layoutTsKey(gardenId)))
     );

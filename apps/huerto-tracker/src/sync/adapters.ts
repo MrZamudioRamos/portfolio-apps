@@ -332,6 +332,12 @@ export function gardenLayoutToRow(
   };
 }
 
+export type GardenLayoutRemoteRow = ReturnType<typeof gardenLayoutToRow> & {
+  map_scene?: unknown | null;
+  map_scene_revision?: number | string | null;
+  map_scene_updated_at?: string | null;
+};
+
 export function seedLotToRow(seed: SeedLot, userId: string) {
   return {
     id: seed.id,
@@ -369,16 +375,28 @@ export function rowToSeedLot(r: ReturnType<typeof seedLotToRow>): SeedLot {
   };
 }
 
-export function rowToGardenLayout(r: ReturnType<typeof gardenLayoutToRow>): {
+export function rowToGardenLayout(r: GardenLayoutRemoteRow): {
   gardenId: string;
   layout: GridLayout;
   freeLayout: FreeMapPositions;
   mapPlan?: GardenMapPlan;
   updatedAt: string;
+  mapScene?: unknown;
+  mapSceneRevision?: number;
+  mapSceneUpdatedAt?: string;
 } {
   const payload = r.layout as unknown;
   const isPayload = payload !== null && typeof payload === 'object' && !Array.isArray(payload);
-  return {
+  const result: {
+    gardenId: string;
+    layout: GridLayout;
+    freeLayout: FreeMapPositions;
+    mapPlan?: GardenMapPlan;
+    updatedAt: string;
+    mapScene?: unknown;
+    mapSceneRevision?: number;
+    mapSceneUpdatedAt?: string;
+  } = {
     gardenId: r.garden_id,
     layout: (isPayload ? (payload as { grid?: GridLayout }).grid : payload ?? []) as GridLayout,
     freeLayout: isPayload ? ((payload as { free?: FreeMapPositions }).free ?? {}) : {},
@@ -387,4 +405,11 @@ export function rowToGardenLayout(r: ReturnType<typeof gardenLayoutToRow>): {
       : undefined,
     updatedAt: r.updated_at,
   };
+  if (r.map_scene !== undefined && r.map_scene !== null) result.mapScene = r.map_scene;
+  if (r.map_scene_revision !== undefined && r.map_scene_revision !== null) {
+    const revision = Number(r.map_scene_revision);
+    if (Number.isSafeInteger(revision) && revision >= 0) result.mapSceneRevision = revision;
+  }
+  if (r.map_scene_updated_at) result.mapSceneUpdatedAt = r.map_scene_updated_at;
+  return result;
 }

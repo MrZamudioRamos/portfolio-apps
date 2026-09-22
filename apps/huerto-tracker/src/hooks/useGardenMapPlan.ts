@@ -4,6 +4,7 @@ import type { GardenType } from '../models/garden';
 import { DEFAULT_GRID_COLS, DEFAULT_GRID_ROWS } from './useGardenLayout';
 import { gardenMapSceneKey, gardenMapSceneTimestampKey, loadOrMigrateGardenMapScene } from '../utils/gardenMapSceneStorage';
 import { EMPTY_GARDEN_MAP_PLAN, type GardenMapPlanV2 } from '../models/garden-map-plan';
+import { gardenMapSceneDirtyKey } from '../sync/gardenMapSceneSync';
 
 export { gardenMapPlanKey, gardenMapPlanTsKey } from '../utils/gardenMapStorageKeys';
 
@@ -63,6 +64,7 @@ export function useGardenMapPlan(
     AsyncStorage.multiSet([
       [gardenMapSceneKey(gardenId), JSON.stringify(plan)],
       [gardenMapSceneTimestampKey(gardenId), timestamp],
+      [gardenMapSceneDirtyKey(gardenId), '1'],
     ]).catch((reason) => setError(reason instanceof Error ? reason : new Error('No se pudo guardar el plano.')));
   }, [error, gardenId, loadedGardenId, loading, plan]);
 
