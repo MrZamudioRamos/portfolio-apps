@@ -1,4 +1,4 @@
-import type { GardenSeasonPlan, GardenSeasonPlanPlant, GardenSeasonSnapshot, MapDimensions, SeasonPlantSnapshot } from '../models/garden-map-plan';
+import type { GardenMapPlan, GardenMapPlanV2, GardenSeasonPlan, GardenSeasonPlanPlant, GardenSeasonSnapshot, MapDimensions, SeasonPlantSnapshot } from '../models/garden-map-plan';
 
 export interface SpacingPlant {
   id: string;
@@ -14,6 +14,49 @@ export interface SpacingWarning {
   second: string;
   distanceCm: number;
   requiredCm: number;
+}
+
+export type MapSpacingStatus =
+  | { status: 'known'; warnings: SpacingWarning[] }
+  | { status: 'unknown'; reason: 'dimensions' | 'crop-spacing' };
+
+export function getMapSpacingStatus(
+  plants: Array<Pick<SpacingPlant, 'id' | 'x' | 'y' | 'spacingCm'> & Partial<Pick<SpacingPlant, 'name' | 'groupKey'>>>,
+  dimensions?: MapDimensions,
+): MapSpacingStatus {
+  if (!dimensions || dimensions.widthCm <= 0 || dimensions.lengthCm <= 0) return { status: 'unknown', reason: 'dimensions' };
+  if (plants.some((plant) => !Number.isFinite(plant.spacingCm) || Number(plant.spacingCm) <= 0)) return { status: 'unknown', reason: 'crop-spacing' };
+  const warnings = findSpacingWarnings(plants.map((plant) => ({
+    ...plant,
+    name: plant.name ?? plant.id,
+    spacingCm: Number(plant.spacingCm),
+  })), dimensions);
+  return { status: 'known', warnings };
+}
+
+export function placePlantOnMap(
+  scene: GardenMapPlan,
+  plantId: string,
+  point: { x: number; y: number },
+  structureId?: string,
+): GardenMapPlanV2 {
+  const base: GardenMapPlanV2 = scene.version === 2
+    ? { ...scene, plantPlacements: [...scene.plantPlacements] }
+    : { ...scene, version: 2, plantPlacements: [] };
+  const placement = {
+    plantId,
+    x: clampNormalized(point.x),
+    y: clampNormalized(point.y),
+    ...(structureId ? { structureId } : {}),
+  };
+  return {
+    ...base,
+    plantPlacements: [...base.plantPlacements.filter((item) => item.plantId !== plantId), placement],
+  };
+}
+
+function clampNormalized(value: number): number {
+  return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
 }
 
 export function soilVolumeLiters(widthCm: number, lengthCm: number, depthCm: number): number | null {

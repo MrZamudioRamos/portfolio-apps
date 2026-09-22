@@ -30,7 +30,7 @@ import { usePro } from '../../src/hooks/usePro';
 import { useWeather } from '../../src/hooks/useWeather';
 import type { GardenMapPlan, GardenMapPlanV2, GardenSeasonSnapshot, LightLevel, IrrigationKind, MapStructure, MapStructureKind, MapZone } from '../../src/models/garden-map-plan';
 import type { Plant } from '../../src/models/plant';
-import { createSeasonPlanFromSnapshot, findMapCropAssociations, findSpacingWarnings, generateSuccessionDates, getOccupancyWindow, getSeasonRotationWarnings, soilVolumeLiters, dateFallsInMonths } from '../../src/utils/gardenMapPlanner';
+import { createSeasonPlanFromSnapshot, findMapCropAssociations, getMapSpacingStatus, generateSuccessionDates, getOccupancyWindow, getSeasonRotationWarnings, placePlantOnMap, soilVolumeLiters, dateFallsInMonths } from '../../src/utils/gardenMapPlanner';
 import { moveMapStructure } from '../../src/utils/gardenMapGeometry';
 import { expoWeekdayForDate, getForecastCareNotes } from '../../src/utils/weatherPlanner';
 
@@ -130,13 +130,14 @@ export default function GardenMapToolsScreen() {
       return plant ? [{ plant, x: placement.x, y: placement.y, index }] : [];
     });
   }, [plan, plantById]);
-  const spacingWarnings = useMemo(() => findSpacingWarnings(
+  const spacingStatus = useMemo(() => getMapSpacingStatus(
     mappedPlants.map(({ plant, x, y }) => ({
       id: plant.id, name: plant.name, x, y,
       spacingCm: CROPS_BY_ID[plant.cropId]?.spacing,
       groupKey: plant.bedName ?? (isFreeSpace ? plant.id : 'huerto-general'),
     })), plan.dimensions,
   ), [isFreeSpace, mappedPlants, plan.dimensions]);
+  const spacingWarnings = spacingStatus.status === 'known' ? spacingStatus.warnings : [];
   const currentSeasonPlants = useMemo(() => mappedPlants.map(({ plant, x, y, index }) => ({
     plantId: plant.id,
     cropId: plant.cropId,
@@ -253,10 +254,7 @@ export default function GardenMapToolsScreen() {
   }
 
   function movePlant(placement: { plantId: string }, point: { x: number; y: number }) {
-    updatePlan((current) => current.version === 2 ? {
-      ...current,
-      plantPlacements: current.plantPlacements.map((item) => item.plantId === placement.plantId ? { ...item, x: point.x, y: point.y } : item),
-    } : current);
+    updatePlan((current) => placePlantOnMap(current, placement.plantId, point, current.version === 2 ? current.plantPlacements.find((item) => item.plantId === placement.plantId)?.structureId : undefined));
     setSelectedPlantId(placement.plantId);
   }
 
@@ -284,10 +282,7 @@ export default function GardenMapToolsScreen() {
     if (!selectedPlantId) return;
     const existing = plan.version === 2 ? plan.plantPlacements.find((placement) => placement.plantId === selectedPlantId) : undefined;
     if (existing) movePlant(existing, point);
-    else updatePlan((current) => current.version === 2 ? {
-      ...current,
-      plantPlacements: [...current.plantPlacements, { plantId: selectedPlantId, x: point.x, y: point.y }],
-    } : current);
+    else updatePlan((current) => placePlantOnMap(current, selectedPlantId, point));
     setSelectedPlantId(null);
   }
 
@@ -606,6 +601,12 @@ export default function GardenMapToolsScreen() {
             showOverlays
             aspectRatio={canvasAspect}
           />
+          {mapMode === 'plan' && <View style={[styles.section, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+            <View style={styles.listMain}><Ionicons name="analytics-outline" size={18} color={colors.primary} /><Text style={[styles.sectionTitle, { color: colors.text }]}>{t('gardenMap.canvas.checks')}</Text></View>
+            {spacingStatus.status === 'unknown' ? <View style={styles.listMain}><Ionicons name="help-circle-outline" size={17} color={colors.textSecondary} /><Text style={[styles.helper, { color: colors.textSecondary, flex: 1 }]}>{spacingStatus.reason === 'dimensions' ? t('gardenMap.canvas.missingDimensions') : t('gardenMap.canvas.missingSpacing')}</Text></View> : <View style={styles.listMain}><Ionicons name={spacingWarnings.length ? 'warning-outline' : 'checkmark-circle-outline'} size={17} color={spacingWarnings.length ? colors.warning : colors.success} /><Text style={[styles.helper, { color: spacingWarnings.length ? colors.warning : colors.textSecondary, flex: 1 }]}>{spacingWarnings.length ? t('gardenMap.canvas.spacingWarnings', { count: spacingWarnings.length }) : t('gardenMap.canvas.spacingOk')}</Text></View>}
+            <View style={styles.listMain}><Ionicons name="git-compare-outline" size={17} color={mapAssociations.length ? colors.warning : colors.textSecondary} /><Text style={[styles.helper, { color: colors.textSecondary, flex: 1 }]}>{t('gardenMap.canvas.relations', { count: mapAssociations.length })}</Text></View>
+            <View style={styles.listMain}><Ionicons name="sunny-outline" size={17} color={lightMismatches.length ? colors.warning : colors.textSecondary} /><Text style={[styles.helper, { color: colors.textSecondary, flex: 1 }]}>{lightMismatches.length ? t('gardenMap.canvas.lightWarnings', { count: lightMismatches.length }) : t('gardenMap.canvas.lightUnknown')}</Text></View>
+          </View>}
           <View style={styles.legendRow}><Legend color={lightColor} label="Luz marcada por ti" styles={styles} colors={colors} /><Legend color={waterColor} label="Riego marcado por ti" styles={styles} colors={colors} /><Legend color={colors.primary} label="Cultivo registrado" styles={styles} colors={colors} /></View>
 
           <View style={styles.sectionHeading}><Text style={[styles.sectionTitle, { color: colors.text }]}>Bancales, macetas y estructuras</Text><Text style={[styles.helper, { color: colors.textSecondary }]}>Cada elemento puede tener dimensiones, fondo, notas y foto.</Text></View>
@@ -654,7 +655,7 @@ export default function GardenMapToolsScreen() {
 
           <View style={[styles.section, { backgroundColor: colors.surfaceAlt }]}>
             <View style={styles.listMain}><Ionicons name={spacingWarnings.length ? 'warning-outline' : 'checkmark-circle-outline'} size={20} color={spacingWarnings.length ? colors.warning : colors.success} /><Text style={[styles.sectionTitle, { color: colors.text }]}>Separación entre cultivos</Text></View>
-            {!plan.dimensions ? <Text style={[styles.helper, { color: colors.textSecondary }]}>Añade las medidas del huerto para comparar distancias con el espaciamiento del catálogo.</Text> : spacingWarnings.length ? <View style={styles.list}>{spacingWarnings.map((warning, index) => <Text key={`${warning.first}-${warning.second}-${index}`} style={[styles.helper, { color: colors.text }]}>• {warning.first} y {warning.second}: {Math.round(warning.distanceCm)} cm entre centros; el catálogo indica al menos {warning.requiredCm} cm.</Text>)}</View> : <Text style={[styles.helper, { color: colors.textSecondary }]}>{mappedPlants.length < 2 ? 'Coloca al menos dos cultivos para revisar sus distancias.' : 'No aparecen separaciones inferiores a las indicadas por el catálogo para este plano.'}</Text>}
+            {spacingStatus.status === 'unknown' ? <Text style={[styles.helper, { color: colors.textSecondary }]}>{spacingStatus.reason === 'dimensions' ? 'Añade las medidas del huerto para comparar distancias con el espaciamiento del catálogo.' : 'Faltan datos de espaciamiento en el catálogo; no se puede afirmar compatibilidad.'}</Text> : spacingWarnings.length ? <View style={styles.list}>{spacingWarnings.map((warning, index) => <Text key={`${warning.first}-${warning.second}-${index}`} style={[styles.helper, { color: colors.text }]}>• {warning.first} y {warning.second}: {Math.round(warning.distanceCm)} cm entre centros; el catálogo indica al menos {warning.requiredCm} cm.</Text>)}</View> : <Text style={[styles.helper, { color: colors.textSecondary }]}>{mappedPlants.length < 2 ? 'Coloca al menos dos cultivos para revisar sus distancias.' : 'No aparecen separaciones inferiores a las indicadas por el catálogo para este plano.'}</Text>}
           </View>
         </>}
 

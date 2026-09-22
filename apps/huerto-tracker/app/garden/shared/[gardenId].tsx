@@ -3,11 +3,15 @@ import { fetchSharedGarden, useSession, type SharedGardenSnapshot } from '@portf
 import { useColors, useTheme } from '@portfolio/ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../../../src/data/crops';
 import { CLIMATE_ZONE_CONFIG } from '../../../src/data/zones';
 import { normalizeGardenMapPlan } from '../../../src/models/garden-map-plan';
+import type { GardenMapPlanV2 } from '../../../src/models/garden-map-plan';
+import { GardenMapCanvas } from '../../../src/components/garden-map/GardenMapCanvas';
+import { migrateLegacyMapScene } from '../../../src/utils/gardenMapScene';
 import { PLANT_STATUS_CONFIG } from '../../../src/models/plant';
 
 export default function SharedGardenScreen() {
@@ -15,6 +19,7 @@ export default function SharedGardenScreen() {
   const theme = useTheme();
   const styles = makeStyles(theme);
   const router = useRouter();
+  const { t } = useTranslation();
   const { gardenId: rawId } = useLocalSearchParams<{ gardenId?: string }>();
   const gardenId = Array.isArray(rawId) ? rawId[0] : rawId;
   const { user } = useSession();
@@ -36,16 +41,20 @@ export default function SharedGardenScreen() {
   const mapState = useMemo(() => {
     if (!snapshot) return null;
     const stored = snapshot.layout && typeof snapshot.layout === 'object' ? snapshot.layout as Record<string, unknown> : {};
-    const plan = normalizeGardenMapPlan(stored.mapPlan);
     const grid = Array.isArray(stored.grid) ? stored.grid.filter((id): id is string | null => id === null || typeof id === 'string') : [];
-    return { plan, grid };
+    const free = stored.free && typeof stored.free === 'object' && !Array.isArray(stored.free) ? stored.free as Record<string, { x: number; y: number }> : {};
+    try {
+      const normalized = normalizeGardenMapPlan(stored.mapPlan);
+      const plan: GardenMapPlanV2 = normalized.version === 2
+        ? normalized
+        : migrateLegacyMapScene({ plan: normalized, grid, rows: Math.max(1, Math.floor(snapshot.garden.grid_rows ?? 3)), cols: Math.max(1, Math.floor(snapshot.garden.grid_cols ?? 3)), free, preferFree: false });
+      return { plan };
+    } catch {
+      return null;
+    }
   }, [snapshot]);
 
   const plantById = useMemo(() => new Map((snapshot?.plants ?? []).map((plant) => [plant.id, plant])), [snapshot?.plants]);
-  const gridRows = Math.max(1, Math.min(12, Math.floor(snapshot?.garden.grid_rows ?? 3)));
-  const gridCols = Math.max(1, Math.min(12, Math.floor(snapshot?.garden.grid_cols ?? 3)));
-  const cellCount = Math.min(144, gridRows * gridCols);
-
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
@@ -64,11 +73,18 @@ export default function SharedGardenScreen() {
 
           <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Distribución</Text>
-            {mapState.grid.length > 0 ? <View style={[styles.grid, { gap: 5 }]}>{Array.from({ length: cellCount }, (_, index) => {
-              const plantId = mapState.grid[index];
-              const plant = plantId ? plantById.get(plantId) : undefined;
-              return <View key={index} style={[styles.cell, { width: `${100 / gridCols - 2}%`, backgroundColor: plant ? colors.primary + '18' : colors.surfaceAlt, borderColor: colors.border }]}><Text numberOfLines={2} style={[styles.cellText, { color: colors.text }]}>{plant?.name ?? '·'}</Text></View>;
-            })}</View> : <Text style={[styles.body, { color: colors.textSecondary }]}>Todavía no hay celdas de mapa compartidas.</Text>}
+            <GardenMapCanvas
+              scene={mapState.plan}
+              mode="plan"
+              readOnly
+              plants={snapshot.plants.map((plant) => ({ id: plant.id, name: plant.name }))}
+              colors={colors}
+              labels={{ north: 'N ↑', empty: t('gardenMap.emptyTitle'), showList: t('gardenMap.canvas.showList'), hideList: t('gardenMap.canvas.hideList'), listTitle: t('gardenMap.canvas.listTitle'), structures: t('gardenMap.canvas.structures'), plants: t('gardenMap.canvas.plants'), unknownScale: t('gardenMap.canvas.unknownScale'), mapHint: t('gardenMap.canvas.readOnlyHint') }}
+              gridRows={snapshot.garden.grid_rows ?? 3}
+              gridCols={snapshot.garden.grid_cols ?? 3}
+              showOverlays
+              aspectRatio={mapState.plan.dimensions ? Math.min(2.2, Math.max(0.55, mapState.plan.dimensions.widthCm / mapState.plan.dimensions.lengthCm)) : 1.25}
+            />
             {mapState.plan.structures.length > 0 && <View style={styles.list}>{mapState.plan.structures.map((item) => <View key={item.id} style={styles.row}><Ionicons name="grid-outline" size={17} color={colors.primary} /><Text style={[styles.body, { color: colors.text, flex: 1 }]}>{item.name} · {item.widthCm} × {item.lengthCm} cm</Text></View>)}</View>}
           </View>
 

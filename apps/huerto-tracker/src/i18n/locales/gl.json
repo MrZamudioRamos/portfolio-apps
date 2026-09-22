@@ -409,7 +409,16 @@
       "hint": "Arrastra un elemento para movelo. Toca o plano para colocar o elemento seleccionado.",
       "empty": "Selecciona unha planta e toca o plano para colocala",
       "rowSpacing": "Separación entre filas",
-      "rotate": "Xirar"
+      "rotate": "Xirar",
+      "checks": "Comprobacións con datos coñecidos",
+      "missingDimensions": "Faltan as medidas do espazo; non se pode calcular a separación.",
+      "missingSpacing": "Faltan datos de separación do catálogo; non se pode afirmar compatibilidade.",
+      "spacingOk": "Non hai conflitos de separación cos datos dispoñibles.",
+      "spacingWarnings": "Detectáronse {{count}} conflitos de separación.",
+      "relations": "{{count}} relacións de acompañamento ou incompatibilidade do catálogo.",
+      "lightWarnings": "{{count}} posibles conflitos coas observacións de luz.",
+      "lightUnknown": "A luz só se compara cando rexistraches unha zona observada.",
+      "readOnlyHint": "Vista compartida en modo só lectura."
     },
     "south": "Sur",
     "assignPlant": "Asignar planta",

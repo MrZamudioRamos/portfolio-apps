@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createSeasonPlanFromSnapshot, dateFallsInMonths, findMapCropAssociations, findSpacingWarnings, generateSuccessionDates, getOccupancyWindow, getSeasonRotationWarnings, soilVolumeLiters } from '../gardenMapPlanner';
+import { createSeasonPlanFromSnapshot, dateFallsInMonths, findMapCropAssociations, findSpacingWarnings, generateSuccessionDates, getMapSpacingStatus, getOccupancyWindow, getSeasonRotationWarnings, placePlantOnMap, soilVolumeLiters } from '../gardenMapPlanner';
+import type { GardenMapPlanV2 } from '../../models/garden-map-plan';
 
 describe('garden map planning calculations', () => {
   it('calculates geometric substrate volume and rejects missing dimensions', () => {
@@ -85,5 +86,23 @@ describe('garden map planning calculations', () => {
       { firstPlantId: 'a', firstName: 'Tomate', secondPlantId: 'b', secondName: 'Albahaca', kind: 'companion', sameLocation: true },
       { firstPlantId: 'a', firstName: 'Tomate', secondPlantId: 'c', secondName: 'Hinojo', kind: 'incompatible', sameLocation: false },
     ]);
+  });
+
+  it('does not report spacing as compatible when dimensions are unknown', () => {
+    expect(getMapSpacingStatus([{ id: 'plant-1', spacingCm: 30, x: 0.5, y: 0.5 }], undefined))
+      .toEqual({ status: 'unknown', reason: 'dimensions' });
+  });
+
+  it('does not report spacing as compatible when a crop has no known spacing', () => {
+    expect(getMapSpacingStatus([{ id: 'plant-1', name: 'Personalizada', x: 0.5, y: 0.5 }], { widthCm: 100, lengthCm: 100 }))
+      .toEqual({ status: 'unknown', reason: 'crop-spacing' });
+  });
+
+  it('reports a placement on the selected structure without changing the live plant record', () => {
+    const scene: GardenMapPlanV2 = { version: 2, structures: [{ id: 'bed-1', name: 'Bancal', kind: 'bed', x: 0, y: 0, widthCm: 100, lengthCm: 80 }], zones: [], plantPlacements: [], plannedPlantings: [], seasons: [], seasonPlans: [] };
+    const next = placePlantOnMap(scene, 'plant-1', { x: 0.3, y: 0.4 }, 'bed-1');
+    expect(next.plantPlacements).toContainEqual({ plantId: 'plant-1', x: 0.3, y: 0.4, structureId: 'bed-1' });
+    expect(next.seasons).toEqual(scene.seasons);
+    expect(next).not.toBe(scene);
   });
 });

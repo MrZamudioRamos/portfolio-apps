@@ -27,6 +27,7 @@ import { useGardenMapPlan } from '../../src/hooks/useGardenMapPlan';
 import { StitchBottomNav } from '../../src/components/StitchBottomNav';
 import { GardenMapCanvas } from '../../src/components/garden-map/GardenMapCanvas';
 import { moveMapStructure as moveMapStructureGeometry } from '../../src/utils/gardenMapGeometry';
+import { placePlantOnMap } from '../../src/utils/gardenMapPlanner';
 import type { MapStructure } from '../../src/models/garden-map-plan';
 
 type LayoutMode = 'sketch' | 'list';
@@ -122,10 +123,7 @@ export default function GardenMapScreen() {
   }
 
   function moveMapPlant(placement: { plantId: string }, point: { x: number; y: number }) {
-    setPlan((current) => current.version === 2 ? {
-      ...current,
-      plantPlacements: current.plantPlacements.map((item) => item.plantId === placement.plantId ? { ...item, x: point.x, y: point.y } : item),
-    } : current);
+    setPlan((current) => placePlantOnMap(current, placement.plantId, point, current.version === 2 ? current.plantPlacements.find((item) => item.plantId === placement.plantId)?.structureId : undefined));
     setSelectedPlantId(placement.plantId);
     setFocusedPlantId(placement.plantId);
   }
@@ -135,16 +133,7 @@ export default function GardenMapScreen() {
       setFocusedPlantId(null);
       return;
     }
-    setPlan((current) => {
-      if (current.version !== 2) return current;
-      const exists = current.plantPlacements.some((placement) => placement.plantId === selectedPlantId);
-      return {
-        ...current,
-        plantPlacements: exists
-          ? current.plantPlacements.map((placement) => placement.plantId === selectedPlantId ? { ...placement, x: point.x, y: point.y } : placement)
-          : [...current.plantPlacements, { plantId: selectedPlantId, x: point.x, y: point.y }],
-      };
-    });
+    setPlan((current) => placePlantOnMap(current, selectedPlantId, point));
     setSelectedPlantId(null);
     setFocusedPlantId(null);
   }

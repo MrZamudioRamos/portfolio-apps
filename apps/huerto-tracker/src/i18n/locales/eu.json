@@ -409,7 +409,16 @@
       "hint": "Arrastatu elementu bat mugitzeko. Sakatu planoa hautatutako elementua kokatzeko.",
       "empty": "Hautatu landare bat eta sakatu planoa kokatzeko",
       "rowSpacing": "Lerroen arteko tartea",
-      "rotate": "Biratu"
+      "rotate": "Biratu",
+      "checks": "Datu ezagunetan oinarritutako egiaztapenak",
+      "missingDimensions": "Espazioaren neurriak falta dira; ezin da tartea kalkulatu.",
+      "missingSpacing": "Katalogoko tarte-datuak falta dira; ezin da bateragarritasuna baieztatu.",
+      "spacingOk": "Ez dago tarte-gatazkarik eskuragarri dauden datuekin.",
+      "spacingWarnings": "Tarte-gatazka {{count}} detektatu dira.",
+      "relations": "Katalogoko laguntasun edo bateraezintasun erlazio {{count}}.",
+      "lightWarnings": "Behatu duzun argiarekin izan daitezkeen gatazka {{count}}.",
+      "lightUnknown": "Argia behatutako eremu bat erregistratu duzunean bakarrik konparatzen da.",
+      "readOnlyHint": "Partekatutako irakurketa hutseko ikuspegia."
     },
     "south": "Hegoa",
     "assignPlant": "Landarea esleitu",

@@ -473,7 +473,16 @@
       "hint": "Arrastra un elemento para moverlo. Toca el plano para colocar el elemento seleccionado.",
       "empty": "Selecciona una planta y toca el plano para colocarla",
       "rowSpacing": "Separación entre filas",
-      "rotate": "Girar"
+      "rotate": "Girar",
+      "checks": "Comprobaciones con datos conocidos",
+      "missingDimensions": "Faltan medidas del espacio; no se puede calcular la separación.",
+      "missingSpacing": "Faltan datos de espaciamiento del catálogo; no se puede afirmar compatibilidad.",
+      "spacingOk": "No hay conflictos de separación con los datos disponibles.",
+      "spacingWarnings": "{{count}} conflictos de separación detectados.",
+      "relations": "{{count}} relaciones de acompañamiento o incompatibilidad del catálogo.",
+      "lightWarnings": "{{count}} posibles conflictos con las observaciones de luz.",
+      "lightUnknown": "La luz solo se compara cuando has registrado una zona observada.",
+      "readOnlyHint": "Vista compartida en solo lectura."
     },
     "freeSummary": "{{total}} plantas en este espacio",
     "south": "Sur",

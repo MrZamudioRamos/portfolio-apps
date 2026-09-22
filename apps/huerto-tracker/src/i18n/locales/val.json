@@ -409,7 +409,16 @@
       "hint": "Arrossega un element per moure'l. Toca el plànol per col·locar l'element seleccionat.",
       "empty": "Selecciona una planta i toca el plànol per col·locar-la",
       "rowSpacing": "Separació entre files",
-      "rotate": "Girar"
+      "rotate": "Girar",
+      "checks": "Comprovacions amb dades conegudes",
+      "missingDimensions": "Falten mesures de l'espai; no es pot calcular la separació.",
+      "missingSpacing": "Falten dades d'espaiat del catàleg; no es pot afirmar compatibilitat.",
+      "spacingOk": "No hi ha conflictes de separació amb les dades disponibles.",
+      "spacingWarnings": "{{count}} conflictes de separació detectats.",
+      "relations": "{{count}} relacions d'acompanyament o incompatibilitat del catàleg.",
+      "lightWarnings": "{{count}} possibles conflictes amb les observacions de llum.",
+      "lightUnknown": "La llum només es compara quan has registrat una zona observada.",
+      "readOnlyHint": "Vista compartida només de lectura."
     },
     "south": "Sud",
     "assignPlant": "Assignar planta",

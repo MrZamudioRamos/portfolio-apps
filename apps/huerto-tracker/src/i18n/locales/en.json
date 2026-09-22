@@ -437,7 +437,16 @@
       "hint": "Drag an element to move it. Tap the map to place the selected element.",
       "empty": "Select a plant and tap the map to place it",
       "rowSpacing": "Row spacing",
-      "rotate": "Rotate"
+      "rotate": "Rotate",
+      "checks": "Checks based on known data",
+      "missingDimensions": "Space measurements are missing; spacing cannot be calculated.",
+      "missingSpacing": "Catalog spacing data is missing; compatibility cannot be claimed.",
+      "spacingOk": "No spacing conflicts with the available data.",
+      "spacingWarnings": "{{count}} spacing conflicts detected.",
+      "relations": "{{count}} companion or incompatibility relationships from the catalog.",
+      "lightWarnings": "{{count}} possible conflicts with observed light.",
+      "lightUnknown": "Light is compared only when you have recorded an observed zone.",
+      "readOnlyHint": "Shared read-only view."
     },
     "south": "South",
     "assignPlant": "Assign plant",

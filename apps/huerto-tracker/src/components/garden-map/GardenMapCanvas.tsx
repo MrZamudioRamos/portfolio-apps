@@ -52,6 +52,7 @@ export interface GardenMapCanvasProps {
   gridCols?: number;
   showOverlays?: boolean;
   aspectRatio?: number;
+  readOnly?: boolean;
 }
 
 export function GardenMapCanvas({
@@ -72,6 +73,7 @@ export function GardenMapCanvas({
   gridCols = 5,
   showOverlays = true,
   aspectRatio = 1.35,
+  readOnly = false,
 }: GardenMapCanvasProps) {
   const [showList, setShowList] = useState(false);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -97,7 +99,7 @@ export function GardenMapCanvas({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={labels.mapHint}
-          onPress={(event) => onPressEmpty?.(normalizePoint(event.nativeEvent.locationX, event.nativeEvent.locationY))}
+          onPress={readOnly ? undefined : (event) => onPressEmpty?.(normalizePoint(event.nativeEvent.locationX, event.nativeEvent.locationY))}
           style={StyleSheet.absoluteFill}
         >
           <View pointerEvents="none" style={styles.gridGuides}>
@@ -125,6 +127,7 @@ export function GardenMapCanvas({
               }}
               markerColor={colors.primary}
               canvasSize={size}
+              disabled={readOnly}
             >
               <Text numberOfLines={2} style={[styles.structureLabel, { color: colors.text }]}>{structure.name}</Text>
               {!scene.dimensions && <Text style={[styles.scaleHint, { color: colors.textSecondary }]}>{labels.unknownScale}</Text>}
@@ -141,6 +144,7 @@ export function GardenMapCanvas({
               marker
               markerColor={plant.pestStatus === 'active' ? colors.warning : colors.primary}
               canvasSize={size}
+              disabled={readOnly}
             >
               <View style={[styles.plantMarker, { backgroundColor: colors.surface, borderColor: plant.pestStatus === 'active' ? colors.warning : colors.primary }]}>
                 <Ionicons name={plant.pestStatus === 'active' ? 'warning-outline' : 'leaf-outline'} size={15} color={plant.pestStatus === 'active' ? colors.warning : colors.primary} />
