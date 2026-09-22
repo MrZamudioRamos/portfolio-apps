@@ -4,8 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
-  GestureResponderEvent,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -25,7 +23,11 @@ import {
   useGardenLayout,
 } from '../../src/hooks/useGardenLayout';
 import { useGardenFreeLayout } from '../../src/hooks/useGardenFreeLayout';
+import { useGardenMapPlan } from '../../src/hooks/useGardenMapPlan';
 import { StitchBottomNav } from '../../src/components/StitchBottomNav';
+import { GardenMapCanvas } from '../../src/components/garden-map/GardenMapCanvas';
+import { moveMapStructure as moveMapStructureGeometry } from '../../src/utils/gardenMapGeometry';
+import type { MapStructure } from '../../src/models/garden-map-plan';
 
 type LayoutMode = 'sketch' | 'list';
 type PlantFilter = 'all' | 'unplaced' | 'pests';
@@ -41,27 +43,19 @@ export default function GardenMapScreen() {
   const [selectedPlantId, setSelectedPlantId] = useState<string | null>(null);
   const [focusedPlantId, setFocusedPlantId] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
-  const [freeCanvasSize, setFreeCanvasSize] = useState({ width: 0, height: 0 });
   const [plantQuery, setPlantQuery] = useState('');
   const [plantFilter, setPlantFilter] = useState<PlantFilter>('all');
 
   const gridRows = activeGarden?.gridRows ?? DEFAULT_GRID_ROWS;
   const gridCols = activeGarden?.gridCols ?? DEFAULT_GRID_COLS;
   const {
-    layout,
-    loading: layoutLoading,
-    placePlant,
-    swapCells,
-    removePlant,
     clearAll,
   } = useGardenLayout(activeGarden?.id, gridRows, gridCols);
   const {
-    positions: freePositions,
-    loading: freeLayoutLoading,
-    setPosition,
     removePosition,
     clearAll: clearFreeLayout,
   } = useGardenFreeLayout(activeGarden?.id);
+  const { plan, setPlan, loading: mapLoading, error: mapError } = useGardenMapPlan(activeGarden?.id, activeGarden?.gardenType, gridRows, gridCols);
 
   const gardenPlants = useMemo(
     () => plants.items.filter((plant) => !plant.deletedAt && (!activeGarden?.id || plant.gardenId === activeGarden.id)),
@@ -69,11 +63,8 @@ export default function GardenMapScreen() {
   );
   const plantById = useMemo(() => new Map(gardenPlants.map((plant) => [plant.id, plant])), [gardenPlants]);
   const isFreeSpace = activeGarden?.gardenType === 'balcon' || activeGarden?.gardenType === 'maceta';
-  const placedIds = useMemo(() => new Set(layout.filter(Boolean) as string[]), [layout]);
-  const assignedIds = useMemo(() => new Set(isFreeSpace ? Object.keys(freePositions) : Array.from(placedIds)), [freePositions, isFreeSpace, placedIds]);
-  const placedCount = layout.filter((cell) => cell && plantById.has(cell)).length;
-  const freePlacedCount = Object.keys(freePositions).filter((plantId) => plantById.has(plantId)).length;
-  const activePlacedCount = isFreeSpace ? freePlacedCount : placedCount;
+  const assignedIds = useMemo(() => new Set(plan.version === 2 ? plan.plantPlacements.map((placement) => placement.plantId) : []), [plan]);
+  const activePlacedCount = plan.version === 2 ? plan.plantPlacements.filter((placement) => plantById.has(placement.plantId)).length : 0;
   const unplacedPlants = useMemo(() => gardenPlants.filter((plant) => !assignedIds.has(plant.id)), [assignedIds, gardenPlants]);
   const pestPlants = useMemo(() => gardenPlants.filter((plant) => plant.pestStatus === 'active'), [gardenPlants]);
   const selectedPlant = selectedPlantId ? plantById.get(selectedPlantId) : undefined;
@@ -125,56 +116,53 @@ export default function GardenMapScreen() {
     router.push({ pathname: '/modal/check-soil-sheet', params: { plantId: plant.id } } as any);
   }
 
-  async function handleCellPress(index: number) {
-    const occupiedId = layout[index];
-
-    if (selectedPlantId) {
-      if (occupiedId === selectedPlantId) {
-        setSelectedPlantId(null);
-        return;
-      }
-      if (occupiedId) {
-        const sourceIndex = layout.indexOf(selectedPlantId);
-        if (sourceIndex >= 0) {
-          await swapCells(sourceIndex, index);
-          setSelectedPlantId(null);
-          setFocusedPlantId(null);
-          return;
-        }
-        return;
-      }
-      await placePlant(selectedPlantId, index);
-      setSelectedPlantId(null);
-      setFocusedPlantId(null);
-      return;
-    }
-
-    if (occupiedId) {
-      const plant = plantById.get(occupiedId);
-      if (!plant) {
-        await removePlant(occupiedId);
-        return;
-      }
-      setFocusedPlantId(plant.id);
-    }
+  function askClearLayout() {
+    if (activePlacedCount === 0) return;
+    setConfirmClear(true);
   }
 
-  function handleFreeCanvasPress(event: GestureResponderEvent) {
-    if (!selectedPlantId || freeCanvasSize.width <= 0 || freeCanvasSize.height <= 0) {
+  function moveMapPlant(placement: { plantId: string }, point: { x: number; y: number }) {
+    setPlan((current) => current.version === 2 ? {
+      ...current,
+      plantPlacements: current.plantPlacements.map((item) => item.plantId === placement.plantId ? { ...item, x: point.x, y: point.y } : item),
+    } : current);
+    setSelectedPlantId(placement.plantId);
+    setFocusedPlantId(placement.plantId);
+  }
+
+  function placeMapPoint(point: { x: number; y: number }) {
+    if (!selectedPlantId) {
       setFocusedPlantId(null);
       return;
     }
-    const { locationX, locationY } = event.nativeEvent;
-    const x = Math.min(0.84, Math.max(0.16, locationX / freeCanvasSize.width));
-    const y = Math.min(0.84, Math.max(0.16, locationY / freeCanvasSize.height));
-    setPosition(selectedPlantId, { x, y });
+    setPlan((current) => {
+      if (current.version !== 2) return current;
+      const exists = current.plantPlacements.some((placement) => placement.plantId === selectedPlantId);
+      return {
+        ...current,
+        plantPlacements: exists
+          ? current.plantPlacements.map((placement) => placement.plantId === selectedPlantId ? { ...placement, x: point.x, y: point.y } : placement)
+          : [...current.plantPlacements, { plantId: selectedPlantId, x: point.x, y: point.y }],
+      };
+    });
     setSelectedPlantId(null);
     setFocusedPlantId(null);
   }
 
-  function askClearLayout() {
-    if (activePlacedCount === 0) return;
-    setConfirmClear(true);
+  function removeMapPlant(plantId: string) {
+    setPlan((current) => current.version === 2
+      ? { ...current, plantPlacements: current.plantPlacements.filter((placement) => placement.plantId !== plantId) }
+      : current);
+    void removePosition(plantId);
+    setSelectedPlantId(null);
+    setFocusedPlantId(null);
+  }
+
+  function moveMapStructure(structure: MapStructure, point: { x: number; y: number }) {
+    setPlan((current) => ({
+      ...current,
+      structures: current.structures.map((item) => item.id === structure.id ? moveMapStructureGeometry(item, point, current.dimensions) : item),
+    }));
   }
 
   const s = makeStyles(colors, spacing, fontSize, fontWeight, radii);
@@ -224,7 +212,7 @@ export default function GardenMapScreen() {
                 <Text style={[s.mapIntroTitle, { color: colors.text }]}>{t('gardenMap.title')}</Text>
                 <Text style={[s.mapIntroText, { color: colors.textSecondary }]}>{t('gardenMap.lead')}</Text>
               </View>
-              <Text style={[s.mapCount, { color: colors.primary }]}>{activePlacedCount}/{isFreeSpace ? gardenPlants.length : gridRows * gridCols}</Text>
+              <Text style={[s.mapCount, { color: colors.primary }]}>{activePlacedCount}/{gardenPlants.length}</Text>
             </View>
 
             <Pressable accessibilityRole="button" accessibilityLabel="Abrir herramientas completas del plano" onPress={() => router.push('/garden/map-tools' as any)} style={[s.plannerShortcut, { backgroundColor: colors.primary + '12', borderColor: colors.primary + '50' }]}>
@@ -259,109 +247,39 @@ export default function GardenMapScreen() {
               </View>
             </View>
 
-            {isFreeSpace ? (
-              <View style={[s.gridCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                <View style={s.gridHeader}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[s.gridTitle, { color: colors.text }]}>Plano libre del espacio</Text>
-                    <Text style={[s.gridSubtitle, { color: colors.textSecondary }]}>{selectedPlant ? `Toca el plano para colocar ${selectedPlant.name}` : 'Distribuye tus macetas, estanterías y ventanas como están en casa'}</Text>
-                  </View>
-                  <View style={[s.northBadge, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="move-outline" size={13} color={colors.primary} /><Text style={[s.northText, { color: colors.textSecondary }]}>Libre</Text></View>
-                </View>
-
-                {freeLayoutLoading ? <View style={s.gridLoading}><ActivityIndicator color={colors.primary} /><Text style={[s.gridLoadingText, { color: colors.textSecondary }]}>Cargando plano…</Text></View> : (
-                  <Pressable
-                    accessibilityLabel="Plano libre del espacio"
-                    onLayout={(event) => setFreeCanvasSize({ width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height })}
-                    onPress={handleFreeCanvasPress}
-                    style={[s.freeCanvas, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}
-                  >
-                    <View pointerEvents="none" style={s.freeCanvasGrid}>
-                      {Array.from({ length: 12 }, (_, index) => <View key={index} style={[s.freeCanvasDot, { backgroundColor: colors.border }]} />)}
-                    </View>
-                    <Text pointerEvents="none" style={[s.freeCanvasHint, { color: colors.textSecondary }]}>{selectedPlant ? 'Toca cualquier zona para colocarla' : 'Tu espacio · pulsa una planta y después una zona'}</Text>
-                    {Object.entries(freePositions).map(([plantId, position], positionIndex) => {
-                      const plant = plantById.get(plantId);
-                      if (!plant) return null;
-                      const markerPosition = normalizeFreePosition(position, positionIndex);
-                      const selected = selectedPlantId === plantId;
-                      const focused = focusedPlantId === plantId;
-                      return (
-                        <Pressable
-                          key={plantId}
-                          accessibilityRole="button"
-                          accessibilityLabel={`${plant.name}, posición libre`}
-                          onPress={() => setFocusedPlantId(plant.id)}
-                          style={[s.freeMarker, { left: `${markerPosition.x * 100}%`, top: `${markerPosition.y * 100}%`, backgroundColor: colors.surface, borderColor: focused || selected ? colors.primary : colors.border }, focused && s.freeMarkerFocused]}
-                        >
-                          <View style={[s.freeMarkerIcon, { backgroundColor: (plant.pestStatus === 'active' ? colors.warning : colors.primary) + '18' }]}><Ionicons name={plant.pestStatus === 'active' ? 'warning-outline' : 'leaf-outline'} size={18} color={plant.pestStatus === 'active' ? colors.warning : colors.primary} /></View>
-                          <Text numberOfLines={1} style={[s.freeMarkerText, { color: colors.text }]}>{plant.name}</Text>
-                        </Pressable>
-                      );
-                    })}
-                  </Pressable>
-                )}
-
-                {focusedPlant && <View style={[s.cellActions, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-                  <View style={{ flex: 1 }}><Text style={[s.cellActionsTitle, { color: colors.text }]}>{focusedPlant.name}</Text><Text style={[s.cellActionsText, { color: colors.textSecondary }]}>Puedes volver a tocar el plano para recolocarla</Text></View>
-                  <Pressable accessibilityRole="button" onPress={() => openPlant(focusedPlant)} style={[s.cellAction, { borderColor: colors.border }]}><Ionicons name="arrow-forward-outline" size={15} color={colors.primary} /><Text style={[s.cellActionText, { color: colors.primary }]}>{t('gardenMap.viewPlant')}</Text></Pressable>
-                  <Pressable accessibilityRole="button" onPress={() => { setSelectedPlantId(focusedPlant.id); setFocusedPlantId(null); }} style={[s.cellAction, { borderColor: colors.primary }]}><Ionicons name="move-outline" size={15} color={colors.primary} /><Text style={[s.cellActionText, { color: colors.primary }]}>{t('gardenMap.movePlant')}</Text></Pressable>
-                  {focusedPlant.status !== 'finished' && <Pressable accessibilityRole="button" onPress={() => openSoil(focusedPlant)} style={[s.cellAction, { borderColor: colors.info }]}><Ionicons name="water-outline" size={15} color={colors.info} /><Text style={[s.cellActionText, { color: colors.info }]}>Revisar sustrato</Text></Pressable>}
-                  <Pressable accessibilityRole="button" onPress={() => { removePosition(focusedPlant.id); setFocusedPlantId(null); }} style={[s.cellAction, { borderColor: colors.border }]}><Ionicons name="remove-outline" size={15} color={colors.textSecondary} /><Text style={[s.cellActionText, { color: colors.textSecondary }]}>{t('gardenMap.remove')}</Text></Pressable>
-                </View>}
-                {relationshipCard}
-              </View>
-            ) : (
             <View style={[s.gridCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <View style={s.gridHeader}>
-                <View>
-                  <Text style={[s.gridTitle, { color: colors.text }]}>{activeGarden?.gardenType === 'maceta' || activeGarden?.gardenType === 'balcon' ? t('gardenMap.potModeHint') : 'Croquis del espacio'}</Text>
-                  <Text style={[s.gridSubtitle, { color: colors.textSecondary }]}>{selectedPlant ? `Coloca ${selectedPlant.name} en una parcela` : t('gardenMap.focusEmptyHint')}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.gridTitle, { color: colors.text }]}>{mapLoading ? 'Cargando plano…' : (plan.dimensions ? 'Plano a escala' : 'Croquis del espacio · sin escala')}</Text>
+                  <Text style={[s.gridSubtitle, { color: colors.textSecondary }]}>{selectedPlant ? `Toca el plano para colocar ${selectedPlant.name}` : 'Arrastra los cultivos para reubicarlos y usa la lista accesible si lo necesitas.'}</Text>
                 </View>
-                <View style={[s.northBadge, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="arrow-up" size={13} color={colors.primary} /><Text style={[s.northText, { color: colors.textSecondary }]}>{t('gardenMap.south')}</Text></View>
+                <View style={[s.northBadge, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="compass-outline" size={13} color={colors.primary} /><Text style={[s.northText, { color: colors.textSecondary }]}>{t('gardenMap.south')}</Text></View>
               </View>
-
-              {layoutLoading ? <View style={s.gridLoading}><ActivityIndicator color={colors.primary} /><Text style={[s.gridLoadingText, { color: colors.textSecondary }]}>Cargando plano…</Text></View> : (
-                <View style={[s.grid, { aspectRatio: gridCols / gridRows, borderColor: colors.border }]}>
-                  {Array.from({ length: gridRows }, (_, row) => (
-                    <View key={row} style={s.gridRow}>
-                      {Array.from({ length: gridCols }, (_, col) => {
-                        const index = row * gridCols + col;
-                        const plantId = layout[index];
-                        const plant = plantId ? plantById.get(plantId) : undefined;
-                        const selected = plantId === selectedPlantId;
-                        return (
-                          <Pressable
-                            key={index}
-                            accessibilityRole="button"
-                            accessibilityLabel={plant ? `${plant.name}, parcela ${index + 1}` : `Parcela vacía ${index + 1}`}
-                            accessibilityState={{ selected }}
-                            onPress={() => void handleCellPress(index)}
-                            style={[s.gridCell, { backgroundColor: plant ? colors.primary + '15' : colors.surfaceAlt, borderColor: selected ? colors.primary : colors.border }, selected && s.gridCellSelected]}
-                          >
-                            {plant ? <><Ionicons name={plant.pestStatus === 'active' ? 'warning-outline' : 'leaf-outline'} size={15} color={plant.pestStatus === 'active' ? colors.warning : (selected ? colors.primaryDark : colors.primary)} /><Text numberOfLines={1} style={[s.cellPlantName, { color: colors.text }]}>{plant.name}</Text></> : <Ionicons name="add" size={15} color={colors.textDisabled} />}
-                          </Pressable>
-                        );
-                      })}
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              <View style={s.legendRow}>
-                <View style={s.legendItem}><View style={[s.legendDot, { backgroundColor: colors.primary + '30', borderColor: colors.primary }]} /><Text style={[s.legendText, { color: colors.textSecondary }]}>{t('gardenMap.legendOccupied')}</Text></View>
-                <View style={s.legendItem}><View style={[s.legendDot, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]} /><Text style={[s.legendText, { color: colors.textSecondary }]}>{t('gardenMap.legendEmpty')}</Text></View>
-              </View>
+              {mapError ? <Text style={[s.gridSubtitle, { color: colors.error }]}>No se pudo recuperar el plano guardado en este dispositivo.</Text> : null}
+              <GardenMapCanvas
+                scene={plan}
+                mode="organize"
+                plants={gardenPlants.map((plant) => ({ id: plant.id, name: plant.name, pestStatus: plant.pestStatus }))}
+                colors={colors}
+                labels={{ north: 'N ↑', empty: t('gardenMap.canvas.empty'), showList: t('gardenMap.canvas.showList'), hideList: t('gardenMap.canvas.hideList'), listTitle: t('gardenMap.canvas.listTitle'), structures: t('gardenMap.canvas.structures'), plants: t('gardenMap.canvas.plants'), unknownScale: t('gardenMap.canvas.unknownScale'), mapHint: t('gardenMap.canvas.hint') }}
+                onMovePlant={moveMapPlant}
+                onSelectPlant={(plant) => { setSelectedPlantId(plant.id); setFocusedPlantId(plant.id); }}
+                onPressEmpty={placeMapPoint}
+                selectedPlantId={selectedPlantId}
+                gridRows={gridRows}
+                gridCols={gridCols}
+                showOverlays
+                aspectRatio={plan.dimensions ? Math.min(2.2, Math.max(0.55, plan.dimensions.widthCm / plan.dimensions.lengthCm)) : 1.25}
+              />
               {focusedPlant && <View style={[s.cellActions, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-                <View style={{ flex: 1 }}><Text style={[s.cellActionsTitle, { color: colors.text }]}>{focusedPlant.name}</Text><Text style={[s.cellActionsText, { color: colors.textSecondary }]}>{t('gardenMap.focusHint')}</Text></View>
+                <View style={{ flex: 1 }}><Text style={[s.cellActionsTitle, { color: colors.text }]}>{focusedPlant.name}</Text><Text style={[s.cellActionsText, { color: colors.textSecondary }]}>Puedes volver a tocar el plano para recolocarla</Text></View>
                 <Pressable accessibilityRole="button" onPress={() => openPlant(focusedPlant)} style={[s.cellAction, { borderColor: colors.border }]}><Ionicons name="arrow-forward-outline" size={15} color={colors.primary} /><Text style={[s.cellActionText, { color: colors.primary }]}>{t('gardenMap.viewPlant')}</Text></Pressable>
-                <Pressable accessibilityRole="button" onPress={() => { setSelectedPlantId(focusedPlant.id); setFocusedPlantId(null); }} style={[s.cellAction, { borderColor: colors.primary }]}><Ionicons name="move-outline" size={15} color={colors.primary} /><Text style={[s.cellActionText, { color: colors.primary }]}>{t('gardenMap.movePlant')}</Text></Pressable>
+                <Pressable accessibilityRole="button" onPress={() => setSelectedPlantId(focusedPlant.id)} style={[s.cellAction, { borderColor: colors.primary }]}><Ionicons name="move-outline" size={15} color={colors.primary} /><Text style={[s.cellActionText, { color: colors.primary }]}>{t('gardenMap.movePlant')}</Text></Pressable>
                 {focusedPlant.status !== 'finished' && <Pressable accessibilityRole="button" onPress={() => openSoil(focusedPlant)} style={[s.cellAction, { borderColor: colors.info }]}><Ionicons name="water-outline" size={15} color={colors.info} /><Text style={[s.cellActionText, { color: colors.info }]}>Revisar sustrato</Text></Pressable>}
-                <Pressable accessibilityRole="button" onPress={() => { void removePlant(focusedPlant.id); setFocusedPlantId(null); }} style={[s.cellAction, { borderColor: colors.border }]}><Ionicons name="remove-outline" size={15} color={colors.textSecondary} /><Text style={[s.cellActionText, { color: colors.textSecondary }]}>{t('gardenMap.remove')}</Text></Pressable>
+                <Pressable accessibilityRole="button" onPress={() => removeMapPlant(focusedPlant.id)} style={[s.cellAction, { borderColor: colors.border }]}><Ionicons name="remove-outline" size={15} color={colors.textSecondary} /><Text style={[s.cellActionText, { color: colors.textSecondary }]}>{t('gardenMap.remove')}</Text></Pressable>
               </View>}
               {relationshipCard}
             </View>
-            )}
 
             <View style={[s.plantPicker, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <View style={s.pickerHeader}><Text style={[s.pickerTitle, { color: colors.text }]}>{t('gardenMap.assignPlant')}</Text><Text style={[s.pickerMeta, { color: colors.textSecondary }]}>{gardenPlants.length} {t('gardenMap.plantsBadge')}</Text></View>
@@ -382,7 +300,7 @@ export default function GardenMapScreen() {
             <View style={s.mapActions}>
               <Pressable accessibilityRole="button" onPress={() => router.push('/plant/new' as any)} style={[s.primaryAction, { backgroundColor: colors.primaryDark }]}><Ionicons name="add-circle-outline" size={20} color="#fff" /><Text style={s.primaryActionText}>{t('gardenMap.addPlant')}</Text></Pressable>
               <Pressable accessibilityRole="button" onPress={askClearLayout} disabled={activePlacedCount === 0} style={[s.secondaryAction, { borderColor: colors.border, backgroundColor: colors.surface, opacity: activePlacedCount === 0 ? 0.5 : 1 }]}><Ionicons name="trash-outline" size={18} color={colors.primary} /><Text style={[s.secondaryActionText, { color: colors.primary }]}>{t('gardenMap.removeFromMap')}</Text></Pressable>
-              {confirmClear && <View style={[s.confirmCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Text style={[s.confirmText, { color: colors.text }]}>{t('gardenMap.removeDesc', { name: activeGarden?.name ?? t('gardenMap.title') })}</Text><View style={s.confirmActions}><Pressable accessibilityRole="button" onPress={() => setConfirmClear(false)} style={[s.confirmButton, { borderColor: colors.border }]}><Text style={[s.confirmButtonText, { color: colors.textSecondary }]}>{t('common.cancel')}</Text></Pressable><Pressable accessibilityRole="button" onPress={() => { if (isFreeSpace) clearFreeLayout(); else void clearAll(); setConfirmClear(false); }} style={[s.confirmButton, { backgroundColor: colors.primary, borderColor: colors.primary }]}><Text style={[s.confirmButtonText, { color: '#fff' }]}>{t('gardenMap.remove')}</Text></Pressable></View></View>}
+              {confirmClear && <View style={[s.confirmCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Text style={[s.confirmText, { color: colors.text }]}>{t('gardenMap.removeDesc', { name: activeGarden?.name ?? t('gardenMap.title') })}</Text><View style={s.confirmActions}><Pressable accessibilityRole="button" onPress={() => setConfirmClear(false)} style={[s.confirmButton, { borderColor: colors.border }]}><Text style={[s.confirmButtonText, { color: colors.textSecondary }]}>{t('common.cancel')}</Text></Pressable><Pressable accessibilityRole="button" onPress={() => { setPlan((current) => current.version === 2 ? { ...current, plantPlacements: [] } : current); clearFreeLayout(); void clearAll(); setConfirmClear(false); setSelectedPlantId(null); setFocusedPlantId(null); }} style={[s.confirmButton, { backgroundColor: colors.primary, borderColor: colors.primary }]}><Text style={[s.confirmButtonText, { color: '#fff' }]}>{t('gardenMap.remove')}</Text></Pressable></View></View>}
             </View>
           </>
         ) : (

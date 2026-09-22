@@ -5,10 +5,10 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import * as Print from 'expo-print';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Image,
-  PanResponder,
   Platform,
   Pressable,
   ScrollView,
@@ -17,11 +17,10 @@ import {
   Text,
   TextInput,
   View,
-  type StyleProp,
-  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StitchBottomNav } from '../../src/components/StitchBottomNav';
+import { GardenMapCanvas } from '../../src/components/garden-map/GardenMapCanvas';
 import { CROPS_BY_ID } from '../../src/data/crops';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { useGardenFreeLayout } from '../../src/hooks/useGardenFreeLayout';
@@ -32,6 +31,7 @@ import { useWeather } from '../../src/hooks/useWeather';
 import type { GardenMapPlan, GardenMapPlanV2, GardenSeasonSnapshot, LightLevel, IrrigationKind, MapStructure, MapStructureKind, MapZone } from '../../src/models/garden-map-plan';
 import type { Plant } from '../../src/models/plant';
 import { createSeasonPlanFromSnapshot, findMapCropAssociations, findSpacingWarnings, generateSuccessionDates, getOccupancyWindow, getSeasonRotationWarnings, soilVolumeLiters, dateFallsInMonths } from '../../src/utils/gardenMapPlanner';
+import { moveMapStructure } from '../../src/utils/gardenMapGeometry';
 import { expoWeekdayForDate, getForecastCareNotes } from '../../src/utils/weatherPlanner';
 
 type PlannerTab = 'space' | 'season' | 'materials' | 'share';
@@ -46,7 +46,7 @@ const TABS: Array<{ id: PlannerTab; label: string; icon: keyof typeof Ionicons.g
 ];
 const STRUCTURE_KINDS: Array<{ id: MapStructureKind; label: string }> = [
   { id: 'bed', label: 'Bancal' }, { id: 'planter', label: 'Jardinera' }, { id: 'pot', label: 'Maceta' },
-  { id: 'path', label: 'Pasillo' }, { id: 'wall', label: 'Pared' }, { id: 'trellis', label: 'Tutor' }, { id: 'greenhouse', label: 'Invernadero' },
+  { id: 'path', label: 'Pasillo' }, { id: 'wall', label: 'Pared' }, { id: 'trellis', label: 'Tutor' }, { id: 'greenhouse', label: 'Invernadero' }, { id: 'row', label: 'Fila' },
 ];
 const LIGHT_LEVELS: Array<{ id: LightLevel; label: string }> = [
   { id: 'full', label: 'Sol directo' }, { id: 'partial', label: 'Semisombra' }, { id: 'shade', label: 'Sombra' },
@@ -60,6 +60,7 @@ export default function GardenMapToolsScreen() {
   const colors = useColors();
   const theme = useTheme();
   const router = useRouter();
+  const { t } = useTranslation();
   const { tab: tabParam, cropId: cropIdParam } = useLocalSearchParams<{ tab?: string; cropId?: string }>();
   const { activeGarden } = useActiveGarden();
   const { isPro } = usePro();
@@ -69,8 +70,10 @@ export default function GardenMapToolsScreen() {
   const [message, setMessage] = useState('');
   const [formError, setFormError] = useState('');
   const [pendingPlace, setPendingPlace] = useState<PendingPlace>(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0, x: 0, y: 0 });
-  const canvasRef = useRef<View>(null);
+  const [mapMode, setMapMode] = useState<'organize' | 'plan'>('organize');
+  const [snapToGrid, setSnapToGrid] = useState(false);
+  const [selectedStructureId, setSelectedStructureId] = useState<string | null>(null);
+  const [selectedPlantId, setSelectedPlantId] = useState<string | null>(null);
   const [widthInput, setWidthInput] = useState('');
   const [lengthInput, setLengthInput] = useState('');
   const [editingStructureId, setEditingStructureId] = useState<string | null>(null);
@@ -80,6 +83,8 @@ export default function GardenMapToolsScreen() {
   const [structureWidth, setStructureWidth] = useState('');
   const [structureLength, setStructureLength] = useState('');
   const [structureDepth, setStructureDepth] = useState('');
+  const [structureRotation, setStructureRotation] = useState('0');
+  const [rowSpacing, setRowSpacing] = useState('');
   const [structureNote, setStructureNote] = useState('');
   const [zoneName, setZoneName] = useState('Zona nueva');
   const [zoneKind, setZoneKind] = useState<'light' | 'irrigation'>('light');
@@ -118,16 +123,13 @@ export default function GardenMapToolsScreen() {
   const canvasAspect = Math.min(2.2, Math.max(0.55, dimensionRatio));
   const currentYear = new Date().getFullYear();
 
-  const mappedPlants = useMemo<MappedPlant[]>(() => gardenPlants.flatMap((plant) => {
-    if (isFreeSpace) {
-      const position = freePositions[plant.id];
-      if (!position) return [];
-      return [{ plant, x: Math.max(0, Math.min(1, position.x > 1 ? position.x / 100 : position.x)), y: Math.max(0, Math.min(1, position.y > 1 ? position.y / 100 : position.y)), index: -1 }];
-    }
-    const index = layout.indexOf(plant.id);
-    if (index < 0) return [];
-    return [{ plant, x: ((index % gridCols) + 0.5) / gridCols, y: (Math.floor(index / gridCols) + 0.5) / gridRows, index }];
-  }), [freePositions, gardenPlants, gridCols, gridRows, isFreeSpace, layout]);
+  const mappedPlants = useMemo<MappedPlant[]>(() => {
+    if (plan.version !== 2) return [];
+    return plan.plantPlacements.flatMap((placement, index) => {
+      const plant = plantById.get(placement.plantId);
+      return plant ? [{ plant, x: placement.x, y: placement.y, index }] : [];
+    });
+  }, [plan, plantById]);
   const spacingWarnings = useMemo(() => findSpacingWarnings(
     mappedPlants.map(({ plant, x, y }) => ({
       id: plant.id, name: plant.name, x, y,
@@ -223,56 +225,70 @@ export default function GardenMapToolsScreen() {
     notice('Medidas guardadas. Las comprobaciones espaciales ya pueden calcularse.');
   }
 
-  function setStructurePosition(id: string, pageX: number, pageY: number) {
-    if (!canvasSize.width || !canvasSize.height) return;
-    const item = plan.structures.find((structure) => structure.id === id);
-    if (!item) return;
-    const width = plan.dimensions ? item.widthCm / plan.dimensions.widthCm : 0.28;
-    const height = plan.dimensions ? item.lengthCm / plan.dimensions.lengthCm : 0.22;
-    const x = Math.max(0, Math.min(1 - width, (pageX - canvasSize.x) / canvasSize.width - width / 2));
-    const y = Math.max(0, Math.min(1 - height, (pageY - canvasSize.y) / canvasSize.height - height / 2));
-    updatePlan((current) => ({ ...current, structures: current.structures.map((entry) => entry.id === id ? { ...entry, x, y } : entry) }));
+  function moveStructure(structure: MapStructure, point: { x: number; y: number }) {
+    updatePlan((current) => ({
+      ...current,
+      structures: current.structures.map((entry) => entry.id === structure.id
+        ? moveMapStructure(entry, point, current.dimensions)
+        : entry),
+    }));
+    setSelectedStructureId(structure.id);
   }
 
-  function setZonePosition(id: string, pageX: number, pageY: number) {
-    if (!canvasSize.width || !canvasSize.height) return;
-    const selected = plan.zones.find((zone) => zone.id === id);
-    if (!selected || !plan.dimensions) return;
-    const width = selected.widthCm / plan.dimensions.widthCm;
-    const height = selected.lengthCm / plan.dimensions.lengthCm;
-    updatePlan((current) => ({ ...current, zones: current.zones.map((zone) => zone.id === id ? {
-      ...zone,
-      x: Math.max(0, Math.min(1 - width, (pageX - canvasSize.x) / canvasSize.width - width / 2)),
-      y: Math.max(0, Math.min(1 - height, (pageY - canvasSize.y) / canvasSize.height - height / 2)),
-    } : zone) }));
+  function moveZone(id: string, point: { x: number; y: number }) {
+    updatePlan((current) => {
+      const zone = current.zones.find((item) => item.id === id);
+      if (!zone || !current.dimensions) return current;
+      const width = zone.widthCm / current.dimensions.widthCm;
+      const height = zone.lengthCm / current.dimensions.lengthCm;
+      return {
+        ...current,
+        zones: current.zones.map((item) => item.id === id ? {
+          ...item,
+          x: Math.max(0, Math.min(1 - width, point.x - width / 2)),
+          y: Math.max(0, Math.min(1 - height, point.y - height / 2)),
+        } : item),
+      };
+    });
   }
 
-  function placePending(event: { nativeEvent: { locationX: number; locationY: number } }) {
-    if (!pendingPlace || !canvasSize.width || !canvasSize.height) return;
-    const pageX = canvasSize.x + event.nativeEvent.locationX;
-    const pageY = canvasSize.y + event.nativeEvent.locationY;
-    if (pendingPlace.type === 'structure') setStructurePosition(pendingPlace.id, pageX, pageY);
-    else setZonePosition(pendingPlace.id, pageX, pageY);
-    setPendingPlace(null);
-    notice('Ubicación actualizada en el plano.');
+  function movePlant(placement: { plantId: string }, point: { x: number; y: number }) {
+    updatePlan((current) => current.version === 2 ? {
+      ...current,
+      plantPlacements: current.plantPlacements.map((item) => item.plantId === placement.plantId ? { ...item, x: point.x, y: point.y } : item),
+    } : current);
+    setSelectedPlantId(placement.plantId);
   }
 
-  function setPlantPosition(plantId: string, pageX: number, pageY: number) {
-    if (!canvasSize.width || !canvasSize.height) return;
-    const x = Math.max(isFreeSpace ? 0.16 : 0.02, Math.min(isFreeSpace ? 0.84 : 0.98, (pageX - canvasSize.x) / canvasSize.width));
-    const y = Math.max(isFreeSpace ? 0.16 : 0.02, Math.min(isFreeSpace ? 0.84 : 0.98, (pageY - canvasSize.y) / canvasSize.height));
-    if (isFreeSpace) {
-      setPosition(plantId, { x, y });
+  function rotateStructure(id: string) {
+    updatePlan((current) => ({
+      ...current,
+      structures: current.structures.map((item) => item.id === id
+        ? { ...item, rotationDegrees: ((item.rotationDegrees ?? 0) + 90) % 360 }
+        : item),
+    }));
+    setSelectedStructureId(id);
+  }
+
+  function placeAtPoint(point: { x: number; y: number }) {
+    if (pendingPlace?.type === 'structure') {
+      const structure = plan.structures.find((item) => item.id === pendingPlace.id);
+      if (structure) moveStructure(structure, point);
+    }
+    if (pendingPlace?.type === 'zone') moveZone(pendingPlace.id, point);
+    if (pendingPlace) {
+      setPendingPlace(null);
+      notice('Ubicación actualizada en el plano.');
       return;
     }
-    const col = Math.max(0, Math.min(gridCols - 1, Math.floor(x * gridCols)));
-    const row = Math.max(0, Math.min(gridRows - 1, Math.floor(y * gridRows)));
-    const target = row * gridCols + col;
-    const source = layout.indexOf(plantId);
-    const occupied = layout[target];
-    if (source < 0 || source === target) return;
-    if (occupied && occupied !== plantId) void swapCells(source, target);
-    else void placePlant(plantId, target);
+    if (!selectedPlantId) return;
+    const existing = plan.version === 2 ? plan.plantPlacements.find((placement) => placement.plantId === selectedPlantId) : undefined;
+    if (existing) movePlant(existing, point);
+    else updatePlan((current) => current.version === 2 ? {
+      ...current,
+      plantPlacements: [...current.plantPlacements, { plantId: selectedPlantId, x: point.x, y: point.y }],
+    } : current);
+    setSelectedPlantId(null);
   }
 
   function editStructure(item: MapStructure) {
@@ -282,6 +298,8 @@ export default function GardenMapToolsScreen() {
     setStructureWidth(String(item.widthCm));
     setStructureLength(String(item.lengthCm));
     setStructureDepth(item.depthCm ? String(item.depthCm) : '');
+    setStructureRotation(String(item.rotationDegrees ?? 0));
+    setRowSpacing(item.rowSpacingCm ? String(item.rowSpacingCm) : '');
     setStructureNote(item.note ?? '');
   }
 
@@ -289,7 +307,9 @@ export default function GardenMapToolsScreen() {
     const widthCm = Number(structureWidth);
     const lengthCm = Number(structureLength);
     const depthCm = structureDepth.trim() ? Number(structureDepth) : undefined;
-    if (!structureName.trim() || !Number.isFinite(widthCm) || !Number.isFinite(lengthCm) || widthCm <= 0 || lengthCm <= 0 || (depthCm !== undefined && (!Number.isFinite(depthCm) || depthCm <= 0))) {
+    const rotationDegrees = Number(structureRotation);
+    const rowSpacingCm = structureKind === 'row' && rowSpacing.trim() ? Number(rowSpacing) : undefined;
+    if (!structureName.trim() || !Number.isFinite(widthCm) || !Number.isFinite(lengthCm) || widthCm <= 0 || lengthCm <= 0 || (depthCm !== undefined && (!Number.isFinite(depthCm) || depthCm <= 0)) || !Number.isInteger(rotationDegrees) || rotationDegrees < 0 || rotationDegrees > 359 || (rowSpacingCm !== undefined && (!Number.isFinite(rowSpacingCm) || rowSpacingCm <= 0))) {
       setFormError('Revisa el nombre y las medidas del elemento. Las medidas deben ser mayores que cero.');
       return;
     }
@@ -298,13 +318,13 @@ export default function GardenMapToolsScreen() {
       return;
     }
     if (editingStructureId) {
-      updatePlan((current) => ({ ...current, structures: current.structures.map((item) => item.id === editingStructureId ? { ...item, name: structureName.trim(), kind: structureKind, widthCm, lengthCm, depthCm, note: structureNote.trim() || undefined } : item) }));
+      updatePlan((current) => ({ ...current, structures: current.structures.map((item) => item.id === editingStructureId ? { ...item, name: structureName.trim(), kind: structureKind, widthCm, lengthCm, depthCm, rotationDegrees, rowSpacingCm, note: structureNote.trim() || undefined } : item) }));
       setPendingPlace({ type: 'structure', id: editingStructureId });
       notice('Cambios guardados. Toca el plano para recolocar el elemento.');
       return;
     }
     const id = generateId();
-    const item: MapStructure = { id, name: structureName.trim(), kind: structureKind, widthCm, lengthCm, depthCm, x: 0.04, y: 0.04, note: structureNote.trim() || undefined };
+    const item: MapStructure = { id, name: structureName.trim(), kind: structureKind, widthCm, lengthCm, depthCm, rotationDegrees, rowSpacingCm, x: 0.04, y: 0.04, note: structureNote.trim() || undefined };
     updatePlan((current) => ({ ...current, structures: [...current.structures, item] }));
     setEditingStructureId(id);
     setPendingPlace({ type: 'structure', id });
@@ -511,13 +531,13 @@ export default function GardenMapToolsScreen() {
   }
 
   function removeStructure(id: string) {
+    if (plan.version === 2 && plan.plantPlacements.some((placement) => placement.structureId === id)) {
+      setFormError('Reasigna o desubica primero los cultivos vinculados a esta estructura.');
+      return;
+    }
     updatePlan((current) => ({ ...current, structures: current.structures.filter((item) => item.id !== id) }));
     if (editingStructureId === id) setEditingStructureId(null);
     setPendingPlace((current) => current?.type === 'structure' && current.id === id ? null : current);
-  }
-
-  function captureCanvasOrigin() {
-    canvasRef.current?.measureInWindow((x, y, width, height) => setCanvasSize({ x, y, width, height }));
   }
 
   const styles = makeStyles(colors, theme);
@@ -561,37 +581,31 @@ export default function GardenMapToolsScreen() {
             <Text style={[styles.helper, { color: colors.textSecondary }]}>Área útil: {plan.dimensions ? `${(plan.dimensions.widthCm * plan.dimensions.lengthCm / 10000).toFixed(2)} m²` : 'aún no calculada'}.</Text>
           </View>
 
-          <View style={styles.sectionHeading}><Text style={[styles.sectionTitle, { color: colors.text }]}>{plan.dimensions ? 'Tu plano a escala' : 'Croquis del espacio · sin escala'}</Text><Text style={[styles.helper, { color: colors.textSecondary }]}>{pendingPlace ? 'Toca el mapa para colocar el elemento seleccionado; también puedes arrastrar los cultivos.' : 'Arrastra los cultivos para reubicarlos. En huerto, soltar sobre otra planta intercambia sus posiciones.'}</Text></View>
-          <View
-            ref={canvasRef}
-            onLayout={(event) => {
-              const { width, height } = event.nativeEvent.layout;
-              setCanvasSize((current) => ({ ...current, width, height }));
-              requestAnimationFrame(captureCanvasOrigin);
-            }}
-            style={[styles.mapCanvas, { aspectRatio: canvasAspect, borderColor: colors.border, backgroundColor: colors.surfaceAlt }]}
-          >
-            <Pressable accessibilityRole="button" accessibilityLabel="Ubicar elemento en el mapa" onPress={(event) => placePending(event)} style={StyleSheet.absoluteFill}>
-              <View pointerEvents="none" style={styles.mapGuides}>{Array.from({ length: 25 }, (_, index) => <View key={index} style={[styles.mapDot, { backgroundColor: colors.border }]} />)}</View>
-              <Text pointerEvents="none" style={[styles.mapNorth, { color: colors.textSecondary }]}>N ↑</Text>
-              {plan.zones.map((zone) => <DraggableMarker key={`zone-${zone.id}`} onDrop={(x, y) => setZonePosition(zone.id, x, y)} style={{ left: `${zone.x * 100}%`, top: `${zone.y * 100}%`, width: `${Math.min(1, zone.widthCm / (plan.dimensions?.widthCm ?? zone.widthCm)) * 100}%`, height: `${Math.min(1, zone.lengthCm / (plan.dimensions?.lengthCm ?? zone.lengthCm)) * 100}%`, backgroundColor: (zone.kind === 'light' ? lightColor : waterColor) + '24', borderColor: (zone.kind === 'light' ? lightColor : waterColor) + '99' }}>
-                <Text numberOfLines={1} style={[styles.zoneLabel, { color: colors.text }]}>{zone.name}</Text>
-              </DraggableMarker>)}
-              {plan.structures.map((item) => {
-                const width = plan.dimensions ? Math.min(1, item.widthCm / plan.dimensions.widthCm) : 0.28;
-                const height = plan.dimensions ? Math.min(1, item.lengthCm / plan.dimensions.lengthCm) : 0.22;
-                return <DraggableMarker key={`structure-${item.id}`} onDrop={(x, y) => setStructurePosition(item.id, x, y)} style={{ left: `${item.x * 100}%`, top: `${item.y * 100}%`, width: `${width * 100}%`, height: `${height * 100}%`, borderColor: item.kind === 'path' ? colors.textDisabled : colors.primary, backgroundColor: item.kind === 'path' ? colors.textDisabled + '24' : colors.primary + '16' }}>
-                  <Text numberOfLines={2} style={[styles.structureLabel, { color: colors.text }]}>{item.name}</Text>
-                </DraggableMarker>;
-              })}
-              {mappedPlants.map(({ plant, x, y }) => <DraggableMarker key={`plant-${plant.id}`} onDrop={(pageX, pageY) => setPlantPosition(plant.id, pageX, pageY)} style={{ left: `${x * 100}%`, top: `${y * 100}%` }} marker>
-                <View style={[styles.plantMarker, { backgroundColor: colors.surface, borderColor: plant.pestStatus === 'active' ? colors.warning : colors.primary }]}>
-                  <Ionicons name={plant.pestStatus === 'active' ? 'warning-outline' : 'leaf-outline'} size={15} color={plant.pestStatus === 'active' ? colors.warning : colors.primary} /><Text numberOfLines={1} style={[styles.plantMarkerText, { color: colors.text }]}>{plant.name}</Text>
-                </View>
-              </DraggableMarker>)}
-              {mappedPlants.length === 0 && plan.structures.length === 0 && <View pointerEvents="none" style={styles.canvasEmpty}><Ionicons name="map-outline" size={26} color={colors.textDisabled} /><Text style={[styles.helper, { color: colors.textSecondary }]}>Coloca plantas desde el editor y añade aquí bancales, macetas y zonas.</Text></View>}
-            </Pressable>
+          <View style={styles.sectionHeading}><Text style={[styles.sectionTitle, { color: colors.text }]}>{plan.dimensions ? 'Tu plano a escala' : 'Croquis del espacio · sin escala'}</Text><Text style={[styles.helper, { color: colors.textSecondary }]}>{pendingPlace ? 'Toca el mapa para colocar el elemento seleccionado; también puedes arrastrar los cultivos.' : 'Arrastra los elementos para reubicarlos. La posición se guarda en el plano común.'}</Text></View>
+          <View style={styles.mapModeRow}>
+            <Pressable accessibilityRole="button" accessibilityState={{ selected: mapMode === 'organize' }} onPress={() => setMapMode('organize')} style={[styles.mapModeButton, { backgroundColor: mapMode === 'organize' ? colors.primary : colors.surface, borderColor: mapMode === 'organize' ? colors.primary : colors.border }]}><Ionicons name="move-outline" size={16} color={mapMode === 'organize' ? '#fff' : colors.textSecondary} /><Text style={[styles.mapModeText, { color: mapMode === 'organize' ? '#fff' : colors.textSecondary }]}>{t('gardenMap.canvas.organize')}</Text></Pressable>
+            <Pressable accessibilityRole="button" accessibilityState={{ selected: mapMode === 'plan' }} onPress={() => setMapMode('plan')} style={[styles.mapModeButton, { backgroundColor: mapMode === 'plan' ? colors.primary : colors.surface, borderColor: mapMode === 'plan' ? colors.primary : colors.border }]}><Ionicons name="options-outline" size={16} color={mapMode === 'plan' ? '#fff' : colors.textSecondary} /><Text style={[styles.mapModeText, { color: mapMode === 'plan' ? '#fff' : colors.textSecondary }]}>{t('gardenMap.canvas.plan')}</Text></Pressable>
+            <Pressable accessibilityRole="button" accessibilityState={{ checked: snapToGrid }} onPress={() => setSnapToGrid((value) => !value)} style={[styles.mapModeButton, { backgroundColor: snapToGrid ? colors.primary + '18' : colors.surface, borderColor: snapToGrid ? colors.primary : colors.border }]}><Ionicons name="grid-outline" size={16} color={snapToGrid ? colors.primary : colors.textSecondary} /><Text style={[styles.mapModeText, { color: snapToGrid ? colors.primary : colors.textSecondary }]}>{t('gardenMap.canvas.snap')}</Text></Pressable>
           </View>
+          <GardenMapCanvas
+            scene={plan}
+            mode={mapMode}
+            plants={gardenPlants.map((plant) => ({ id: plant.id, name: plant.name, pestStatus: plant.pestStatus }))}
+            colors={colors}
+            labels={{ north: 'N ↑', empty: t('gardenMap.canvas.empty'), showList: t('gardenMap.canvas.showList'), hideList: t('gardenMap.canvas.hideList'), listTitle: t('gardenMap.canvas.listTitle'), structures: t('gardenMap.canvas.structures'), plants: t('gardenMap.canvas.plants'), unknownScale: t('gardenMap.canvas.unknownScale'), mapHint: t('gardenMap.canvas.hint') }}
+            onMoveStructure={moveStructure}
+            onMovePlant={movePlant}
+            onSelectStructure={(structure) => setSelectedStructureId(structure.id)}
+            onSelectPlant={(plant) => setSelectedPlantId(plant.id)}
+            onPressEmpty={placeAtPoint}
+            selectedPlantId={selectedPlantId}
+            selectedStructureId={selectedStructureId}
+            snapToGrid={snapToGrid}
+            gridRows={gridRows}
+            gridCols={gridCols}
+            showOverlays
+            aspectRatio={canvasAspect}
+          />
           <View style={styles.legendRow}><Legend color={lightColor} label="Luz marcada por ti" styles={styles} colors={colors} /><Legend color={waterColor} label="Riego marcado por ti" styles={styles} colors={colors} /><Legend color={colors.primary} label="Cultivo registrado" styles={styles} colors={colors} /></View>
 
           <View style={styles.sectionHeading}><Text style={[styles.sectionTitle, { color: colors.text }]}>Bancales, macetas y estructuras</Text><Text style={[styles.helper, { color: colors.textSecondary }]}>Cada elemento puede tener dimensiones, fondo, notas y foto.</Text></View>
@@ -599,17 +613,21 @@ export default function GardenMapToolsScreen() {
             <Text style={[styles.label, { color: colors.text }]}>{editingStructureId ? 'Editar elemento' : 'Añadir elemento'}</Text>
             <TextInput accessibilityLabel="Nombre del espacio" value={structureName} onChangeText={setStructureName} placeholder="Nombre del espacio" placeholderTextColor={colors.textDisabled} style={[styles.input, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.choiceRow}>{STRUCTURE_KINDS.map((item) => <ChoiceChip key={item.id} selected={structureKind === item.id} label={item.label} onPress={() => setStructureKind(item.id)} styles={styles} colors={colors} />)}</ScrollView>
-            <View style={styles.inputRow}>
-              <NumberInput label="Ancho cm" value={structureWidth} onChangeText={setStructureWidth} styles={styles} colors={colors} />
-              <NumberInput label="Largo cm" value={structureLength} onChangeText={setStructureLength} styles={styles} colors={colors} />
-              {['bed', 'planter', 'pot'].includes(structureKind) && <NumberInput label="Fondo cm" value={structureDepth} onChangeText={setStructureDepth} styles={styles} colors={colors} />}
-            </View>
+             <View style={styles.inputRow}>
+               <NumberInput label="Ancho cm" value={structureWidth} onChangeText={setStructureWidth} styles={styles} colors={colors} />
+               <NumberInput label="Largo cm" value={structureLength} onChangeText={setStructureLength} styles={styles} colors={colors} />
+               {['bed', 'planter', 'pot'].includes(structureKind) && <NumberInput label="Fondo cm" value={structureDepth} onChangeText={setStructureDepth} styles={styles} colors={colors} />}
+             </View>
+             <View style={styles.inputRow}>
+               <NumberInput label="Giro °" value={structureRotation} onChangeText={setStructureRotation} styles={styles} colors={colors} />
+               {structureKind === 'row' && <NumberInput label={t('gardenMap.canvas.rowSpacing')} value={rowSpacing} onChangeText={setRowSpacing} styles={styles} colors={colors} />}
+             </View>
             <TextInput accessibilityLabel="Notas del espacio" value={structureNote} onChangeText={setStructureNote} placeholder="Notas: material, ubicación, observaciones…" placeholderTextColor={colors.textDisabled} style={[styles.input, styles.multiline, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]} multiline />
             <View style={styles.buttonRow}><ActionButton label={editingStructureId ? 'Guardar cambios' : 'Añadir al plano'} icon={editingStructureId ? 'save-outline' : 'add-outline'} onPress={saveStructure} primary styles={styles} colors={colors} />{editingStructureId && <ActionButton label="Foto" icon="image-outline" onPress={() => void addStructurePhoto(editingStructureId)} styles={styles} colors={colors} />}{editingStructureId && <ActionButton label="Cancelar" icon="close-outline" onPress={() => setEditingStructureId(null)} styles={styles} colors={colors} />}</View>
             {editingStructureId && plan.structures.find((item) => item.id === editingStructureId)?.photoUri ? <Image source={{ uri: plan.structures.find((item) => item.id === editingStructureId)?.photoUri }} style={styles.structurePhoto} accessibilityLabel="Foto del espacio" /> : null}
             {plan.structures.length > 0 && <View style={styles.list}>{plan.structures.map((item) => <View key={item.id} style={[styles.listRow, { borderColor: colors.border }]}>
               <View style={styles.listMain}><Ionicons name={iconForStructure(item.kind)} size={18} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[styles.rowTitle, { color: colors.text }]}>{item.name}</Text><Text style={[styles.helper, { color: colors.textSecondary }]}>{item.widthCm} × {item.lengthCm} cm{item.depthCm ? ` · fondo ${item.depthCm} cm` : ''}</Text></View></View>
-              <View style={styles.buttonRow}><SmallButton label="Editar" icon="create-outline" onPress={() => editStructure(item)} styles={styles} colors={colors} /><SmallButton label="Ubicar" icon="move-outline" onPress={() => { setPendingPlace({ type: 'structure', id: item.id }); notice(`Toca el plano para ubicar ${item.name}.`); }} styles={styles} colors={colors} /><SmallButton label="Quitar" icon="trash-outline" onPress={() => removeStructure(item.id)} styles={styles} colors={colors} /></View>
+               <View style={styles.buttonRow}><SmallButton label="Editar" icon="create-outline" onPress={() => editStructure(item)} styles={styles} colors={colors} /><SmallButton label="Ubicar" icon="move-outline" onPress={() => { setPendingPlace({ type: 'structure', id: item.id }); setSelectedStructureId(item.id); notice(`Toca el plano para ubicar ${item.name}.`); }} styles={styles} colors={colors} /><SmallButton label={t('gardenMap.canvas.rotate')} icon="refresh-outline" onPress={() => rotateStructure(item.id)} styles={styles} colors={colors} /><SmallButton label="Quitar" icon="trash-outline" onPress={() => removeStructure(item.id)} styles={styles} colors={colors} /></View>
             </View>)}</View>}
           </View>
 
@@ -793,16 +811,6 @@ export default function GardenMapToolsScreen() {
   );
 }
 
-function DraggableMarker({ children, style, onDrop, marker = false }: { children: React.ReactNode; style: StyleProp<ViewStyle>; onDrop: (pageX: number, pageY: number) => void; marker?: boolean }) {
-  const responder = useMemo(() => PanResponder.create({
-    onStartShouldSetPanResponder: () => false,
-    onMoveShouldSetPanResponder: (_, gesture) => Math.hypot(gesture.dx, gesture.dy) > 5,
-    onPanResponderTerminationRequest: () => false,
-    onPanResponderRelease: (_, gesture) => onDrop(gesture.moveX, gesture.moveY),
-  }), [onDrop]);
-  return <View {...responder.panHandlers} style={[{ position: 'absolute', alignItems: 'center', justifyContent: 'center' }, marker && { marginLeft: -48, marginTop: -15 }, style]}>{children}</View>;
-}
-
 function NumberInput({ label, value, onChangeText, styles, colors }: { label: string; value: string; onChangeText: (value: string) => void; styles: ReturnType<typeof makeStyles>; colors: ReturnType<typeof useColors> }) {
   return <View style={styles.numberWrap}><Text style={[styles.inputLabel, { color: colors.textSecondary }]}>{label}</Text><TextInput accessibilityLabel={label} value={value} onChangeText={(text) => onChangeText(text.replace(/[^0-9]/g, ''))} keyboardType="number-pad" style={[styles.input, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]} /></View>;
 }
@@ -912,7 +920,7 @@ function makeStyles(colors: ReturnType<typeof useColors>, theme: ReturnType<type
     inputRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-end' }, numberWrap: { flex: 1, minWidth: 0, gap: 4 }, inputLabel: { fontSize: 10, fontWeight: fontWeight.bold }, input: { minHeight: 44, borderWidth: 1, borderRadius: radii.md, paddingHorizontal: spacing.sm, fontSize: fontSize.sm }, inputText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold }, multiline: { minHeight: 68, paddingTop: 10, textAlignVertical: 'top' }, dateButton: { minHeight: 44, borderWidth: 1, borderRadius: radii.md, paddingHorizontal: spacing.sm, flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
     actionButton: { minHeight: 46, borderWidth: 1, borderRadius: radii.md, paddingHorizontal: spacing.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs }, actionText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold, textAlign: 'center', flexShrink: 1 }, buttonRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }, smallButton: { minHeight: 38, borderWidth: 1, borderRadius: radii.md, paddingHorizontal: spacing.sm, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 }, smallButtonText: { fontSize: 10, fontWeight: fontWeight.bold },
     choiceRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }, cropChoices: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }, choiceChip: { minHeight: 38, borderWidth: 1, borderRadius: radii.full, paddingHorizontal: spacing.sm, alignItems: 'center', justifyContent: 'center' }, choiceText: { fontSize: 11, fontWeight: fontWeight.bold },
-    mapCanvas: { width: '100%', minHeight: 220, maxHeight: 470, borderWidth: 1, borderRadius: radii.lg, overflow: 'hidden', position: 'relative' }, mapGuides: { ...StyleSheet.absoluteFill, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', alignContent: 'space-around', padding: 12 }, mapDot: { width: 3, height: 3, borderRadius: 2, opacity: 0.7 }, mapNorth: { position: 'absolute', top: 8, right: 10, zIndex: 3, fontSize: 10, fontWeight: fontWeight.bold }, zoneLabel: { fontSize: 9, fontWeight: fontWeight.bold, textAlign: 'center' }, structureLabel: { fontSize: 10, fontWeight: fontWeight.bold, textAlign: 'center', paddingHorizontal: 2 }, plantMarker: { minHeight: 30, maxWidth: 100, borderWidth: 1.5, borderRadius: radii.full, paddingHorizontal: 6, flexDirection: 'row', alignItems: 'center', gap: 3 }, plantMarkerText: { fontSize: 9, fontWeight: fontWeight.bold, maxWidth: 68 }, canvasEmpty: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 36, gap: 8 }, legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }, legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 }, legendText: { fontSize: 9 }, colorDot: { width: 12, height: 12, borderRadius: 4 },
+    mapModeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, marginBottom: spacing.sm }, mapModeButton: { minHeight: 44, borderWidth: 1, borderRadius: radii.md, paddingHorizontal: spacing.sm, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }, mapModeText: { fontSize: 11, fontWeight: fontWeight.bold }, mapCanvas: { width: '100%', minHeight: 220, maxHeight: 470, borderWidth: 1, borderRadius: radii.lg, overflow: 'hidden', position: 'relative' }, mapGuides: { ...StyleSheet.absoluteFill, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', alignContent: 'space-around', padding: 12 }, mapDot: { width: 3, height: 3, borderRadius: 2, opacity: 0.7 }, mapNorth: { position: 'absolute', top: 8, right: 10, zIndex: 3, fontSize: 10, fontWeight: fontWeight.bold }, zoneLabel: { fontSize: 9, fontWeight: fontWeight.bold, textAlign: 'center' }, structureLabel: { fontSize: 10, fontWeight: fontWeight.bold, textAlign: 'center', paddingHorizontal: 2 }, plantMarker: { minHeight: 30, maxWidth: 100, borderWidth: 1.5, borderRadius: radii.full, paddingHorizontal: 6, flexDirection: 'row', alignItems: 'center', gap: 3 }, plantMarkerText: { fontSize: 9, fontWeight: fontWeight.bold, maxWidth: 68 }, canvasEmpty: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 36, gap: 8 }, legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }, legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 }, legendText: { fontSize: 9 }, colorDot: { width: 12, height: 12, borderRadius: 4 },
     list: { gap: spacing.xs }, listRow: { borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: spacing.sm, gap: spacing.xs }, listMain: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs }, rowTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.bold }, structurePhoto: { width: 94, height: 72, borderRadius: radii.md, resizeMode: 'cover' }, quantity: { fontSize: fontSize.md, fontWeight: fontWeight.bold }, volume: { fontSize: 30, fontWeight: fontWeight.bold }, previewSummary: { gap: 5 },
     timelineContent: { minWidth: 490, paddingVertical: spacing.xs }, timelineHeader: { minHeight: 38, flexDirection: 'row', alignItems: 'center', gap: spacing.xs }, timelineName: { width: 125 }, timelineMonths: { flexDirection: 'row', gap: 2 }, timelineMonth: { width: 27, textAlign: 'center', fontSize: 9, textTransform: 'lowercase' }, timelineCell: { width: 27, height: 14, borderWidth: 1, borderRadius: 3 }, timelineMeta: { fontSize: 9 },
   });
