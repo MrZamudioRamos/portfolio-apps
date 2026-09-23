@@ -10,6 +10,34 @@
     "settings": "Ezarpenak",
     "tools": "Tresnak"
   },
+  "volumeCalculator": {
+    "title": "Kalkulagailua",
+    "back": "Tresnak",
+    "eyebrow": "ONTZIETARAKO NAHASKETA",
+    "heroTitle": "Erreferentziazko nahasketa prestatu",
+    "intro": "Kalkulatu substratuaren eta perlitaren abiapuntuko kantitateak ontziaren bolumenaren arabera.",
+    "presetLabel": "Zer landatuko duzu?",
+    "volumeLabel": "Loreontziaren bolumen osoa",
+    "liters": "litro",
+    "mixTitle": "Erreferentziazko nahasketa · 80/20",
+    "substrate": "Oinarrizko substratua",
+    "perlite": "Perlita aireztatzeko",
+    "mixNote": "Gutxi gorabeherako proportzioa; beharrak laborearen eta substratuaren arabera aldatzen dira.",
+    "airNote": "Nahastu perlita substratu osoan; ez jarri beheko geruza batean. Loreontziak drainatze-zuloak izan behar ditu.",
+    "save": "Nahasketa hau gorde",
+    "saved": "Nahasketa gordeta",
+    "deviceOnly": "Gailu honetan bakarrik gordetzen da, unean hautatutako baratzerako.",
+    "noGarden": "Aukeratu baratze bat errezeta gailu honetan gordetzeko. Kalkulatzen jarrai dezakezu.",
+    "loading": "Gordetako errezeta kargatzen…",
+    "loadError": "Ezin izan dugu gordetako errezeta irakurri. Beste bat kalkulatu eta berriro gorde dezakezu.",
+    "saveError": "Nahasketa ez da gorde. Saiatu berriro.",
+    "invalidVolume": "Sartu zero baino bolumen handiagoa nahasketa kalkulatzeko.",
+    "presets": {
+      "aromatic": { "name": "Usain-belarrak", "hint": "Albaka, perrexila" },
+      "leafy": { "name": "Hostoak eta entsaladak", "hint": "Letxuga, errukula" },
+      "fruiting": { "name": "Tomateak eta fruituak", "hint": "Tomatea, piperra" }
+    }
+  },
   "common": {
     "cancel": "Utzi",
     "delete": "Ezabatu",

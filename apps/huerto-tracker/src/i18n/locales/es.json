@@ -21,6 +21,34 @@
     "emptyTitle": "Todavía no tienes plantas",
     "emptyDesc": "Añade tu primera planta y Semilla te acompañará con los siguientes cuidados."
   },
+  "volumeCalculator": {
+    "title": "Calculadora",
+    "back": "Herramientas",
+    "eyebrow": "MEZCLA PARA MACETAS",
+    "heroTitle": "Prepara una mezcla de referencia",
+    "intro": "Calcula un punto de partida para el sustrato y la perlita según el volumen de tu recipiente.",
+    "presetLabel": "¿Qué vas a plantar?",
+    "volumeLabel": "Volumen total de la maceta",
+    "liters": "litros",
+    "mixTitle": "Mezcla de referencia · 80/20",
+    "substrate": "Sustrato base",
+    "perlite": "Perlita para aireación",
+    "mixNote": "Proporción orientativa; las necesidades varían según el cultivo y el sustrato que uses.",
+    "airNote": "Mezcla la perlita por todo el sustrato; no la pongas en una capa al fondo. La maceta debe tener orificios de drenaje.",
+    "save": "Guardar esta mezcla",
+    "saved": "Mezcla guardada",
+    "deviceOnly": "Se guarda solo en este dispositivo para el huerto activo.",
+    "noGarden": "Elige un huerto para guardar una receta en este dispositivo. Puedes seguir calculando.",
+    "loading": "Cargando receta guardada…",
+    "loadError": "No pudimos leer la receta guardada. Puedes calcular otra y guardarla de nuevo.",
+    "saveError": "No se guardó la mezcla. Inténtalo de nuevo.",
+    "invalidVolume": "Introduce un volumen mayor que cero para calcular la mezcla.",
+    "presets": {
+      "aromatic": { "name": "Aromáticas", "hint": "Albahaca, perejil" },
+      "leafy": { "name": "Hojas y ensaladas", "hint": "Lechuga, rúcula" },
+      "fruiting": { "name": "Tomates y frutos", "hint": "Tomate, pimiento" }
+    }
+  },
   "common": {
     "cancel": "Cancelar",
     "delete": "Eliminar",

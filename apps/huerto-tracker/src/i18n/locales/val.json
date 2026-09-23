@@ -10,6 +10,34 @@
     "settings": "Ajustos",
     "tools": "Eines"
   },
+  "volumeCalculator": {
+    "title": "Calculadora",
+    "back": "Ferramentes",
+    "eyebrow": "BARREJA PER A TESTOS",
+    "heroTitle": "Prepara una barreja de referència",
+    "intro": "Calcula un punt de partida per al substrat i la perlita segons el volum del recipient.",
+    "presetLabel": "Què plantaràs?",
+    "volumeLabel": "Volum total del test",
+    "liters": "litres",
+    "mixTitle": "Barreja de referència · 80/20",
+    "substrate": "Substrat base",
+    "perlite": "Perlita per a l'aireig",
+    "mixNote": "Proporció orientativa; les necessitats varien segons el cultiu i el substrat que utilitzes.",
+    "airNote": "Barreja la perlita amb tot el substrat; no la poses en una capa al fons. El test ha de tindre forats de drenatge.",
+    "save": "Guardar aquesta barreja",
+    "saved": "Barreja guardada",
+    "deviceOnly": "Es guarda només en este dispositiu per a l'hort actiu.",
+    "noGarden": "Tria un hort per a guardar-hi una recepta en este dispositiu. Pots continuar calculant.",
+    "loading": "Carregant la recepta guardada…",
+    "loadError": "No hem pogut llegir la recepta guardada. Pots calcular-ne una altra i guardar-la de nou.",
+    "saveError": "No s'ha guardat la barreja. Torna-ho a provar.",
+    "invalidVolume": "Introdueix un volum superior a zero per a calcular la barreja.",
+    "presets": {
+      "aromatic": { "name": "Aromàtiques", "hint": "Alfàbega, julivert" },
+      "leafy": { "name": "Fulles i amanides", "hint": "Enciam, ruca" },
+      "fruiting": { "name": "Tomàquets i fruits", "hint": "Tomàquet, pebrera" }
+    }
+  },
   "common": {
     "cancel": "Cancel·lar",
     "delete": "Eliminar",

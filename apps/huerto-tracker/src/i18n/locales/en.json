@@ -10,6 +10,34 @@
     "settings": "Settings",
     "tools": "Tools"
   },
+  "volumeCalculator": {
+    "title": "Calculator",
+    "back": "Tools",
+    "eyebrow": "POTTING MIX",
+    "heroTitle": "Prepare a reference mix",
+    "intro": "Calculate a starting point for potting mix and perlite based on your container's volume.",
+    "presetLabel": "What are you planting?",
+    "volumeLabel": "Total pot volume",
+    "liters": "litres",
+    "mixTitle": "Reference mix · 80/20",
+    "substrate": "Base potting mix",
+    "perlite": "Perlite for aeration",
+    "mixNote": "An indicative ratio; needs vary by crop and the mix you use.",
+    "airNote": "Mix perlite throughout the potting medium; don't add it as a bottom layer. The pot should have drainage holes.",
+    "save": "Save this mix",
+    "saved": "Mix saved",
+    "deviceOnly": "Saved only on this device for the active garden.",
+    "noGarden": "Choose a garden to save a recipe on this device. You can still calculate a mix.",
+    "loading": "Loading saved recipe…",
+    "loadError": "We couldn't read the saved recipe. You can calculate another and save it again.",
+    "saveError": "The mix wasn't saved. Please try again.",
+    "invalidVolume": "Enter a volume greater than zero to calculate the mix.",
+    "presets": {
+      "aromatic": { "name": "Herbs", "hint": "Basil, parsley" },
+      "leafy": { "name": "Leafy greens", "hint": "Lettuce, rocket" },
+      "fruiting": { "name": "Tomatoes and fruiting crops", "hint": "Tomato, pepper" }
+    }
+  },
   "common": {
     "cancel": "Cancel",
     "delete": "Delete",

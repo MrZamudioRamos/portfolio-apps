@@ -10,6 +10,34 @@
     "settings": "Axustes",
     "tools": "Ferramentas"
   },
+  "volumeCalculator": {
+    "title": "Calculadora",
+    "back": "Ferramentas",
+    "eyebrow": "MESTURA PARA TESTOS",
+    "heroTitle": "Prepara unha mestura de referencia",
+    "intro": "Calcula un punto de partida para o substrato e a perlita segundo o volume do recipiente.",
+    "presetLabel": "Que vas plantar?",
+    "volumeLabel": "Volume total do testo",
+    "liters": "litros",
+    "mixTitle": "Mestura de referencia · 80/20",
+    "substrate": "Substrato base",
+    "perlite": "Perlita para aireación",
+    "mixNote": "Proporción orientativa; as necesidades varían segundo o cultivo e o substrato que uses.",
+    "airNote": "Mestura a perlita por todo o substrato; non a poñas nunha capa no fondo. O testo debe ter buratos de drenaxe.",
+    "save": "Gardar esta mestura",
+    "saved": "Mestura gardada",
+    "deviceOnly": "Gárdase só neste dispositivo para a horta activa.",
+    "noGarden": "Escolle unha horta para gardar unha receita neste dispositivo. Podes seguir calculando.",
+    "loading": "Cargando a receita gardada…",
+    "loadError": "Non puidemos ler a receita gardada. Podes calcular outra e gardala de novo.",
+    "saveError": "Non se gardou a mestura. Téntao de novo.",
+    "invalidVolume": "Introduce un volume maior que cero para calcular a mestura.",
+    "presets": {
+      "aromatic": { "name": "Aromáticas", "hint": "Alfábega, perexil" },
+      "leafy": { "name": "Follas e ensaladas", "hint": "Leituga, rúcula" },
+      "fruiting": { "name": "Tomates e froitos", "hint": "Tomate, pemento" }
+    }
+  },
   "common": {
     "cancel": "Cancelar",
     "delete": "Eliminar",
