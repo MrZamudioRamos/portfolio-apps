@@ -9,6 +9,7 @@ import type { SeedLot } from '../models/seed-lot';
 import type { GridLayout } from '../hooks/useGardenLayout';
 import type { FreeMapPositions } from '../hooks/useGardenFreeLayout';
 import { normalizeGardenMapPlan, type GardenMapPlan } from '../models/garden-map-plan';
+import { harvestWeightToGrams } from '../utils/harvestWeight';
 
 // Skip local-only file:// URIs when syncing to cloud — syncAll uploads them to
 // Supabase Storage first, then this adapter carries the resulting https URL.
@@ -201,7 +202,7 @@ export function entryToRow(e: DiaryEntry, userId: string) {
     type: e.type,
     notes: e.notes ?? null,
     photo_uri: syncablePhotoUri(e.photoUri),
-    harvest_weight_g: (e.type === 'harvest' ? (e.data as HarvestData | undefined)?.weightGrams : null) ?? null,
+    harvest_weight_g: e.type === 'harvest' ? harvestWeightToGrams(e.data as HarvestData | undefined) : null,
     harvest_unit: (e.type === 'harvest' ? (e.data as HarvestData | undefined)?.unit : null) ?? null,
     entry_data: (e.data as Record<string, unknown> | undefined) ?? null,
     recorded_at: e.date,
@@ -215,6 +216,8 @@ export function rowToEntry(r: ReturnType<typeof entryToRow>): DiaryEntry {
   const data: EntryDataMap['harvest'] | undefined =
     r.entry_data
       ? (r.entry_data as EntryDataMap['harvest'])
+      // Rows without entry_data predate unit metadata; preserve the kg value
+      // the app historically displayed instead of guessing at a conversion.
       : r.harvest_weight_g != null
         ? { weightGrams: r.harvest_weight_g, unit: r.harvest_unit ?? 'kg' }
         : undefined;

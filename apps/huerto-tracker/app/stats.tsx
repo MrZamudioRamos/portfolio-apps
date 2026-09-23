@@ -5,10 +5,10 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { usePro } from '../src/hooks/usePro';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Animated, Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { ActionSheetIOS, ActivityIndicator, Alert, Animated, Platform, Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../src/data/crops';
-import type { DiaryEntry, EntryType } from '../src/models/diary-entry';
+import type { DiaryEntry, EntryType, HarvestData } from '../src/models/diary-entry';
 import { ENTRY_TYPE_CONFIG } from '../src/models/diary-entry';
 import type { Plant } from '../src/models/plant';
 import { buildGamificationData, evaluateBadges, sortBadges, getUnlockedCount, TIER_COLORS } from '../src/utils/gamification';
@@ -16,6 +16,8 @@ import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../src/hooks/useCustomCrops';
 import { CollectionError } from '../src/components/CollectionError';
 import { goBackOr } from '../src/utils/navigation';
+import { getHarvestWeightKg } from '../src/utils/harvestWeight';
+import { filterEntriesByPeriod, getEntryCalendarYear, type StatsPeriod } from '../src/utils/statsPeriod';
 
 const BAR_MAX_H = 72;
 
@@ -49,7 +51,7 @@ export default function StatsScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii, isDark } = useTheme();
   const router = useRouter();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const plants = useCollection<Plant>('plants');
   const entries = useCollection<DiaryEntry>('diary_entries');
@@ -57,7 +59,7 @@ export default function StatsScreen() {
   const { activeGarden, refreshActiveId } = useActiveGarden();
 
   const [refreshing, setRefreshing] = useState(false);
-  const [periodLabel, setPeriodLabel] = useState('Mis Datos (Mayo 2025)');
+  const [period, setPeriod] = useState<StatsPeriod>('all');
 
   async function onRefresh() {
     setRefreshing(true);
@@ -76,6 +78,34 @@ export default function StatsScreen() {
   const { customCropsById } = useCustomCrops();
 
   const gardenId = activeGarden?.id;
+  const periodLabel = t(`stats.periods.${period}`);
+  const gardenLabel = activeGarden?.name || t('stats.allGardens');
+
+  function choosePeriod() {
+    const options = [
+      t('stats.periods.last30Days'),
+      t('stats.periods.thisYear'),
+      t('stats.periods.all'),
+    ];
+    const choose = (index: number) => {
+      const selected: StatsPeriod | undefined = ['last30Days', 'thisYear', 'all'][index] as StatsPeriod | undefined;
+      if (selected) setPeriod(selected);
+    };
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        { options: [...options, t('common.cancel')], cancelButtonIndex: options.length, title: t('stats.periodFilterTitle') },
+        choose,
+      );
+      return;
+    }
+    Alert.alert(
+      t('stats.periodFilterTitle'),
+      t('stats.periodFilterPrompt'),
+      options.map((label, index) => ({ text: label, onPress: () => choose(index) })),
+    );
+  }
+
   const gamData = useMemo(
     () => {
       const filteredPlants = gardenId ? plants.items.filter((p) => p.gardenId === gardenId) : [];
@@ -88,9 +118,10 @@ export default function StatsScreen() {
   const unlockedCount = useMemo(() => getUnlockedCount(badges), [badges]);
 
   const stats = useMemo(() => {
-    const allEntries = gardenId
+    const gardenEntries = gardenId
       ? entries.items.filter((e) => e.gardenId === gardenId)
       : entries.items;
+    const allEntries = filterEntriesByPeriod(gardenEntries, period);
     const allPlants = gardenId
       ? plants.items.filter((p) => p.gardenId === gardenId)
       : plants.items;
@@ -131,12 +162,10 @@ export default function StatsScreen() {
       });
 
     // Harvest weight total (stored as kg, may be string or number)
-    const totalWeight = harvestEntries.reduce((sum, e) => {
-      const d = e.data as any;
-      const w = d?.weightGrams ?? d?.weight;
-      const parsed = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
-      return sum + (isNaN(parsed) ? 0 : parsed);
-    }, 0);
+    const totalWeight = harvestEntries.reduce(
+      (sum, e) => sum + (getHarvestWeightKg(e.data as HarvestData) ?? 0),
+      0,
+    );
 
     // Top crops by harvest (count + kg + avg quality)
     const cropHarvestData = new Map<string, { count: number; kg: number; qualitySum: number; qualityCount: number }>();
@@ -145,12 +174,7 @@ export default function StatsScreen() {
         const plant = allPlants.find((p) => p.id === e.plantId);
         if (plant) {
           const prev = cropHarvestData.get(plant.cropId) ?? { count: 0, kg: 0, qualitySum: 0, qualityCount: 0 };
-          const d = e.data as any;
-          const w = d?.weightGrams ?? d?.weight;
-          const unit = d?.unit;
-          const parsed = unit !== 'units' && typeof w !== 'undefined'
-            ? (typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0)
-            : 0;
+          const parsed = getHarvestWeightKg(e.data as HarvestData) ?? 0;
           const q = Number((e.data as any)?.quality ?? 0);
           cropHarvestData.set(plant.cropId, {
             count: prev.count + 1,
@@ -175,11 +199,10 @@ export default function StatsScreen() {
     // Harvest by year
     const harvestByYear = new Map<number, { count: number; kg: number }>();
     harvestEntries.forEach((e) => {
-      const year = new Date(e.date).getFullYear();
+      const year = getEntryCalendarYear(e.date);
+      if (year === null) return;
       const prev = harvestByYear.get(year) ?? { count: 0, kg: 0 };
-      const dt = e.data as any;
-      const w = dt?.weightGrams ?? dt?.weight;
-      const parsed = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
+      const parsed = getHarvestWeightKg(e.data as HarvestData) ?? 0;
       harvestByYear.set(year, { count: prev.count + 1, kg: prev.kg + (isNaN(parsed) ? 0 : parsed) });
     });
     const currentYear = new Date().getFullYear();
@@ -239,9 +262,7 @@ export default function StatsScreen() {
       healthyPlants: allPlants.filter((plant) => plant.pestStatus !== 'active').length,
       activePlants: allPlants.filter((plant) => plant.status !== 'finished').length,
     };
-  }, [entries.items, plants.items, i18n.language, activeGarden?.id, customCropsById]);
-
-  const { t } = useTranslation();
+  }, [entries.items, plants.items, i18n.language, activeGarden?.id, customCropsById, period]);
 
   const barAnims = useRef(
     Array.from({ length: 6 }, () => new Animated.Value(0))
@@ -280,7 +301,7 @@ export default function StatsScreen() {
             <Pressable accessibilityRole="button" accessibilityLabel="Compartir estadísticas" onPress={() => void Share.share({ message: `Mis estadísticas de Semilla: ${stats.totalEntries} cuidados registrados y ${stats.totalHarvests} cosechas.` }).catch(() => Alert.alert('Compartir', 'No se ha podido abrir el menú de compartir.'))} hitSlop={8}>
               <Ionicons name="share-outline" size={19} color={colors.primary} />
             </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="Filtrar por período" onPress={() => Alert.alert('Filtrar por período', 'Elige el intervalo de tus datos.', [{ text: 'Últimos 30 días', onPress: () => setPeriodLabel('Últimos 30 días') }, { text: 'Esta temporada', onPress: () => setPeriodLabel('Esta temporada') }, { text: 'Todo el historial', onPress: () => setPeriodLabel('Todo el historial') }, { text: 'Cancelar', style: 'cancel' }])} hitSlop={8}>
+            <Pressable accessibilityRole="button" accessibilityLabel={t('stats.periodFilterTitle')} onPress={choosePeriod} hitSlop={8}>
               <Ionicons name="options-outline" size={20} color={colors.primary} />
             </Pressable>
           </View>
@@ -307,13 +328,13 @@ export default function StatsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
       >
         <View style={s.statsFilterRow}>
-          <View style={[s.statsChip, { backgroundColor: colors.primary + '14', borderColor: colors.primary + '40' }]}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('stats.periodFilterTitle')} onPress={choosePeriod} style={[s.statsChip, { backgroundColor: colors.primary + '14', borderColor: colors.primary + '40' }]}>
             <Ionicons name="calendar-outline" size={14} color={colors.primary} />
             <Text style={[s.statsChipText, { color: colors.primary }]}>{periodLabel}</Text>
-          </View>
+          </Pressable>
           <View style={[s.statsChip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Ionicons name="leaf-outline" size={14} color={colors.textSecondary} />
-            <Text style={[s.statsChipText, { color: colors.textSecondary }]}>Huerto Nuevo</Text>
+            <Text style={[s.statsChipText, { color: colors.textSecondary }]}>{gardenLabel}</Text>
           </View>
         </View>
         <View style={[s.companionCallout, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>

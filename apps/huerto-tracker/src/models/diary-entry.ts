@@ -18,6 +18,9 @@ export interface WateringData {
 }
 
 export interface HarvestData {
+  /** Explicit mass in kilograms. */
+  weightKg?: number;
+  /** @deprecated Historical name; this app stored this value in kilograms, not grams. */
   weightGrams?: number;
   weight?: string;
   units?: string;

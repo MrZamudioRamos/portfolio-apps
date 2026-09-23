@@ -121,7 +121,7 @@ export default function NewEntryScreen() {
     let entryData: Record<string, unknown> | undefined;
     if (selectedType === 'harvest' && (harvestWeight || harvestUnits || harvestQuality)) {
       entryData = {
-        ...(harvestWeight ? { weightGrams: parseFloat(harvestWeight) || undefined } : {}),
+        ...(harvestWeight ? { weightKg: parseFloat(harvestWeight.replace(',', '.')) || undefined } : {}),
         ...(harvestUnits ? { units: harvestUnits } : {}),
         ...(harvestQuality ? { quality: harvestQuality } : {}),
       };

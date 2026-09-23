@@ -41,11 +41,12 @@ import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_ID } from '../../src/data/varieties';
 import { getCompanions, getIncompatible } from '../../src/data/companions';
 import { PLANT_STATUS_CONFIG, type Plant, type PlantStatus } from '../../src/models/plant';
-import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
+import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType, type HarvestData } from '../../src/models/diary-entry';
 import { REMINDER_TYPE_CONFIG, type GardenReminder } from '../../src/models/reminder';
 import { getPestsForCrop, PEST_STATUS_CONFIG } from '../../src/data/pests';
 import { usePro as usePurchases } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
+import { getHarvestWeightKg } from '../../src/utils/harvestWeight';
 import { CalendarGantt } from '../../src/components/plant/CalendarGantt';
 import { DifficultyGauge } from '../../src/components/plant/DifficultyGauge';
 import { HowToStages } from '../../src/components/plant/HowToStages';
@@ -165,21 +166,13 @@ export default function PlantDetailScreen() {
   const harvestSummary = useMemo(() => {
     const harvests = entries.items.filter((e) => e.plantId === id && e.type === 'harvest');
     if (harvests.length === 0) return null;
-    // new format: weightGrams (kg value, misnamed) | old format: weight + unit !== 'units'
-    const kgEntries = harvests.filter((e) => {
-      const d = e.data as any;
-      return d?.weightGrams != null || (d?.weight != null && d?.unit !== 'units');
-    });
+    const kgEntries = harvests.filter((e) => getHarvestWeightKg(e.data as HarvestData) !== null);
     // new format: data.units (count) | old format: data.unit === 'units' + data.weight
     const unitEntries = harvests.filter((e) => {
       const d = e.data as any;
       return d?.units != null || (d?.unit === 'units' && d?.weight != null);
     });
-    const totalKg = kgEntries.reduce((s, e) => {
-      const d = e.data as any;
-      const w = d?.weightGrams ?? d?.weight;
-      return s + (typeof w === 'number' ? w : parseFloat(String(w)) || 0);
-    }, 0);
+    const totalKg = kgEntries.reduce((sum, e) => sum + (getHarvestWeightKg(e.data as HarvestData) ?? 0), 0);
     const totalUnits = unitEntries.reduce((s, e) => {
       const d = e.data as any;
       const u = d?.units ?? (d?.unit === 'units' ? d?.weight : null);
@@ -292,16 +285,13 @@ export default function PlantDetailScreen() {
         if (activeCount === 0) {
           const harvestKg = entries.items
             .filter((e) => e.gardenId === plant.gardenId && e.type === 'harvest')
-            .reduce((sum, e) => {
-              const w = (e.data as any)?.weightGrams ?? 0;
-              return sum + (typeof w === 'number' ? w : parseFloat(w) || 0);
-            }, 0);
+            .reduce((sum, e) => sum + (getHarvestWeightKg(e.data as HarvestData) ?? 0), 0);
           setShareModal({
             eventType: 'season_summary',
             title: t('share.seasonTitle', { garden: activeGarden.name }),
             primaryStat: `${gardenPlants.length}`,
             primaryStatLabel: t('share.seasonStatLabel'),
-            secondaryStat: harvestKg > 0 ? `${(harvestKg / 1000).toFixed(1)} kg` : undefined,
+            secondaryStat: harvestKg > 0 ? `${harvestKg.toFixed(1)} kg` : undefined,
             secondaryStatLabel: harvestKg > 0 ? t('share.harvestedLabel') : undefined,
             badgeIcon: '🏆',
           });

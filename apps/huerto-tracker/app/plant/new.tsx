@@ -33,7 +33,6 @@ import { useUserProfile } from '../../src/hooks/useUserProfile';
 import { createPlantWithSowing } from '../../src/utils/careWrites';
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { VARIETIES_BY_CROP, type VarietyInfo } from '../../src/data/varieties';
-import { goBackOr } from '../../src/utils/navigation';
 import { getCompanions } from '../../src/data/companions';
 import { PLANT_STATUS_CONFIG, type Plant, type PropagationMethod } from '../../src/models/plant';
 import type { DiaryEntry } from '../../src/models/diary-entry';
@@ -43,6 +42,7 @@ import { ScalePress } from '../../src/components/ScalePress';
 import { Mascot } from '../../src/components/Mascot';
 import { SuccessBurst } from '../../src/components/SuccessBurst';
 import { WebDatePicker } from '../../src/components/WebDatePicker';
+import { buildNewPlantDraft, getPlantNameAfterCropChange } from '../../src/utils/plantDraft';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -54,6 +54,475 @@ const STATIC_SECTIONS = (Object.keys(CATEGORY_CONFIG) as Array<keyof typeof CATE
 // 4 key milestones for the visual stage picker (matching GrowIt's Inicio/Plántula/Floración/Cosecha)
 const QUICK_STAGES: Plant['status'][] = ['seedling', 'growing', 'flowering', 'harvesting'];
 const FIRST_WEEK_CHECKS_KEY = '@huerto/first_week_checks/';
+
+type CropSelectionSection = { title: string; data: CropInfo[] };
+type StitchNewPlantScreenProps = {
+  colors: ReturnType<typeof useColors>;
+  router: ReturnType<typeof useRouter>;
+  sections: CropSelectionSection[];
+  selectedCropId: string | null;
+  selectedCropLabel: string;
+  cropSearch: string;
+  showCropPicker: boolean;
+  onCropSearchChange: (value: string) => void;
+  onOpenCropPicker: () => void;
+  onCloseCropPicker: () => void;
+  onSelectCrop: (crop: CropInfo) => void;
+  plantName: string;
+  onPlantNameChange: (value: string) => void;
+  variety: string;
+  varietyId: string | null;
+  varieties: VarietyInfo[];
+  onVarietyChange: (value: string) => void;
+  onSelectVariety: (variety: VarietyInfo | null) => void;
+  photoUri: string | null;
+  onPickPhoto: (fromCamera: boolean) => void;
+  onRemovePhoto: () => void;
+  pickingPhoto: boolean;
+  sowingDate: string;
+  onSowingDateChange: (value: string) => void;
+  showDatePicker: boolean;
+  onShowDatePicker: (visible: boolean) => void;
+  propagationMethod: PropagationMethod;
+  onPropagationMethodChange: (value: PropagationMethod) => void;
+  selectedStatus: Plant['status'];
+  onStatusChange: (value: Plant['status']) => void;
+  guided: boolean;
+  started: boolean;
+  onStartedChange: (value: boolean) => void;
+  showAllDetails: boolean;
+  onShowAllDetailsChange: (value: boolean) => void;
+  recommendationAction?: string;
+  gardenLabel?: string;
+  canScan: boolean;
+  canSave: boolean;
+  saving: boolean;
+  saveError: boolean;
+  onSave: () => void;
+  onBack: () => void;
+};
+
+function StitchNewPlantScreen(props: StitchNewPlantScreenProps) {
+  const { t } = useTranslation();
+  const { spacing, fontSize, fontWeight } = useTheme();
+  const { colors } = props;
+  const selectedVariety = props.varietyId;
+  const today = dateToStr(new Date());
+  const yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterday = dateToStr(yesterdayDate);
+  const dateChoices = [
+    { value: today, label: t('entryNew.today') },
+    { value: yesterday, label: t('entryNew.yesterday') },
+  ];
+  const methods: Array<{ value: PropagationMethod; emoji: string; label: string }> = [
+    { value: 'seed', emoji: '🌱', label: t('plantNew.propSeed') },
+    { value: 'cutting', emoji: '✂️', label: t('plantNew.propCutting') },
+    { value: 'division', emoji: '🌿', label: t('plantNew.propDivision') },
+    { value: 'bought', emoji: '🛒', label: t('plantNew.propBought') },
+  ];
+  const saveDisabled = !props.canSave || props.saving;
+  const cropButtonLabel = props.selectedCropLabel || t('plantNew.selectCrop');
+
+  const photoPicker = (
+    <View style={stitchPlant.photoActions}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('plantNew.photoGallery')}
+        accessibilityState={{ disabled: props.pickingPhoto }}
+        disabled={props.pickingPhoto}
+        onPress={() => props.onPickPhoto(false)}
+        style={[stitchPlant.outlineButton, { borderColor: colors.border, opacity: props.pickingPhoto ? 0.55 : 1 }]}
+      >
+        <Ionicons name="images-outline" size={18} color={colors.primary} />
+        <Text style={[stitchPlant.buttonText, { color: colors.text }]}>{t('plantNew.photoGallery')}</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('plantNew.photoCamera')}
+        accessibilityState={{ disabled: props.pickingPhoto }}
+        disabled={props.pickingPhoto}
+        onPress={() => props.onPickPhoto(true)}
+        style={[stitchPlant.outlineButton, { borderColor: colors.border, opacity: props.pickingPhoto ? 0.55 : 1 }]}
+      >
+        <Ionicons name="camera-outline" size={18} color={colors.primary} />
+        <Text style={[stitchPlant.buttonText, { color: colors.text }]}>{t('plantNew.photoCamera')}</Text>
+      </Pressable>
+    </View>
+  );
+
+  function openScan() {
+    props.router.push('/plant/scan' as any);
+  }
+
+  function renderDatePicker() {
+    if (!props.showDatePicker) return null;
+    if (Platform.OS === 'web') {
+      return <WebDatePicker label={t('plantNew.startDate')} value={props.sowingDate} onChange={props.onSowingDateChange} />;
+    }
+    if (Platform.OS === 'android') {
+      return (
+        <DateTimePicker
+          value={new Date(`${props.sowingDate}T12:00:00`)}
+          mode="date"
+          display="default"
+          onChange={(_, date) => {
+            props.onShowDatePicker(false);
+            if (date) props.onSowingDateChange(dateToStr(date));
+          }}
+        />
+      );
+    }
+    return (
+      <Modal transparent animationType="slide" visible onRequestClose={() => props.onShowDatePicker(false)}>
+        <Pressable style={stitchPlant.dateOverlay} onPress={() => props.onShowDatePicker(false)}>
+          <Pressable style={[stitchPlant.dateSheet, { backgroundColor: colors.surface }]} onPress={() => {}}>
+            <View style={[stitchPlant.modalHandle, { backgroundColor: colors.border }]} />
+            <DateTimePicker
+              value={new Date(`${props.sowingDate}T12:00:00`)}
+              mode="date"
+              display="spinner"
+              onChange={(_, date) => { if (date) props.onSowingDateChange(dateToStr(date)); }}
+              style={{ width: '100%' }}
+            />
+            <Button title={t('common.save')} onPress={() => props.onShowDatePicker(false)} size="lg" style={{ margin: spacing.lg }} />
+          </Pressable>
+        </Pressable>
+      </Modal>
+    );
+  }
+
+  return (
+    <SafeAreaView style={[stitchPlant.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={[stitchPlant.header, { borderBottomColor: colors.border }]}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('common.cancel')} onPress={props.onBack} hitSlop={8} style={stitchPlant.headerButton}>
+            <Text style={{ color: colors.textSecondary, fontWeight: '700' }}>{t('common.cancel')}</Text>
+          </Pressable>
+          <Text accessibilityRole="header" style={[stitchPlant.headerTitle, { color: colors.text }]}>{t('plantNew.title')}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('common.save')}
+            accessibilityState={{ disabled: saveDisabled, busy: props.saving }}
+            disabled={saveDisabled}
+            onPress={props.onSave}
+            style={[stitchPlant.headerButton, { opacity: saveDisabled ? 0.5 : 1 }]}
+          >
+            <Text style={{ color: colors.primary, fontWeight: '900' }}>{t('common.save')}</Text>
+          </Pressable>
+        </View>
+
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={stitchPlant.content} showsVerticalScrollIndicator={false}>
+          <View style={[stitchPlant.photo, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+            {props.photoUri ? (
+              <Image source={{ uri: props.photoUri }} resizeMode="cover" style={stitchPlant.photoImage} />
+            ) : (
+              <View style={stitchPlant.photoEmpty}>
+                <Ionicons name="leaf-outline" size={30} color={colors.primary} />
+                <Text style={{ color: colors.textSecondary, fontSize: fontSize.sm }}>{t('plantNew.addPhoto')}</Text>
+              </View>
+            )}
+            {props.photoUri && (
+              <Pressable accessibilityRole="button" accessibilityLabel={t('plantNew.photoRemove')} onPress={props.onRemovePhoto} style={[stitchPlant.removePhoto, { backgroundColor: colors.surface }]}>
+                <Ionicons name="close" size={18} color={colors.text} />
+              </Pressable>
+            )}
+          </View>
+          <Text style={[stitchPlant.photoTitle, { color: colors.text }]}>{t('plantNew.photoTitle')}</Text>
+          <Text style={[stitchPlant.body, { color: colors.textSecondary }]}>{t('plantNew.photoHint')}</Text>
+          {photoPicker}
+
+          <Text style={[stitchPlant.section, { color: colors.textSecondary }]}>{t('plantNew.speciesAndVariety')}</Text>
+          {props.canScan && (
+            <Pressable accessibilityRole="button" onPress={openScan} style={[stitchPlant.identify, { borderColor: colors.primary, backgroundColor: `${colors.primary}12` }]}>
+              <Ionicons name="scan-outline" size={20} color={colors.primary} />
+              <Text style={{ color: colors.primary, fontWeight: '900', flex: 1 }}>{t('plantNew.scanTitle')}</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+            </Pressable>
+          )}
+          <Text style={[stitchPlant.label, { color: colors.textSecondary }]}>{t('plantNew.cropLabel')}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${t('plantNew.selectCrop')}: ${cropButtonLabel}`}
+            accessibilityState={{ expanded: props.showCropPicker }}
+            onPress={props.onOpenCropPicker}
+            style={[stitchPlant.inputButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          >
+            <Ionicons name="leaf-outline" size={18} color={colors.primary} />
+            <Text numberOfLines={1} style={{ color: props.selectedCropLabel ? colors.text : colors.textDisabled, flex: 1 }}>{cropButtonLabel}</Text>
+            <Ionicons name="chevron-down" size={18} color={colors.textSecondary} />
+          </Pressable>
+          <Text style={[stitchPlant.label, { color: colors.textSecondary }]}>{t('plantNew.nameLabel')}</Text>
+          <TextInput
+            accessibilityLabel={t('plantNew.nameLabel')}
+            value={props.plantName}
+            onChangeText={props.onPlantNameChange}
+            placeholder={t('plantNew.namePlaceholder')}
+            placeholderTextColor={colors.textDisabled}
+            style={[stitchPlant.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+          />
+
+          {props.guided && (
+            <View style={[stitchPlant.guidedCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+              <Text style={[stitchPlant.body, { color: colors.text }]}>{t(props.recommendationAction === 'prepare' ? 'guidedPlant.prepareBody' : 'guidedPlant.body')}</Text>
+              {props.gardenLabel ? <Text style={[stitchPlant.body, { color: colors.textSecondary }]}>{props.gardenLabel}</Text> : null}
+              <Pressable
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: props.started }}
+                onPress={() => props.onStartedChange(!props.started)}
+                style={stitchPlant.startedToggle}
+              >
+                <View style={[stitchPlant.checkbox, { borderColor: props.started ? colors.primary : colors.border, backgroundColor: props.started ? colors.primary : 'transparent' }]}>
+                  {props.started && <Ionicons name="checkmark" size={16} color={colors.surface} />}
+                </View>
+                <Text style={{ color: colors.text, flex: 1 }}>{t('guidedPlant.alreadySown')}</Text>
+              </Pressable>
+              <Text style={[stitchPlant.body, { color: colors.textSecondary }]}>{t(props.started ? 'guidedPlant.dateToday' : 'guidedPlant.noDate')}</Text>
+            </View>
+          )}
+
+          {(!props.guided || props.showAllDetails) && (
+            <>
+              <Text style={[stitchPlant.label, { color: colors.textSecondary }]}>{t('plantNew.varietyLabel')}</Text>
+              {props.varieties.length > 0 && (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={stitchPlant.varietyRow}>
+                  <Pressable
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: !selectedVariety }}
+                    onPress={() => props.onSelectVariety(null)}
+                    style={[stitchPlant.choice, { backgroundColor: !selectedVariety ? colors.accent : colors.surface, borderColor: !selectedVariety ? colors.primary : colors.border }]}
+                  >
+                    <Text style={{ color: !selectedVariety ? colors.primary : colors.textSecondary }}>{t('plantNew.varietyGeneric')}</Text>
+                  </Pressable>
+                  {props.varieties.map((item) => {
+                    const active = selectedVariety === item.id;
+                    return (
+                      <Pressable
+                        key={item.id}
+                        accessibilityRole="radio"
+                        accessibilityState={{ checked: active }}
+                        onPress={() => props.onSelectVariety(item)}
+                        style={[stitchPlant.choice, { backgroundColor: active ? colors.accent : colors.surface, borderColor: active ? colors.primary : colors.border }]}
+                      >
+                        <Text style={{ color: active ? colors.primary : colors.text }}>{t(`varieties.${item.id}`, { defaultValue: item.name })}</Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              )}
+              <TextInput
+                accessibilityLabel={t('plantNew.varietyLabel')}
+                value={props.variety}
+                onChangeText={props.onVarietyChange}
+                placeholder={t('plantNew.varietyPlaceholder')}
+                placeholderTextColor={colors.textDisabled}
+                style={[stitchPlant.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+              />
+            </>
+          )}
+
+          {(!props.guided || props.started) && (!props.guided || props.showAllDetails) && (
+            <>
+              <Text style={[stitchPlant.section, { color: colors.textSecondary }]}>{t('plantNew.stageLabel')}</Text>
+              <View style={stitchPlant.stageRow}>
+                {QUICK_STAGES.map((stage) => {
+                  const config = PLANT_STATUS_CONFIG[stage];
+                  const active = props.selectedStatus === stage;
+                  return (
+                    <Pressable
+                      key={stage}
+                      accessibilityRole="radio"
+                      accessibilityState={{ checked: active }}
+                      onPress={() => props.onStatusChange(stage)}
+                      style={[stitchPlant.stageChoice, { backgroundColor: active ? `${config.color}20` : colors.surface, borderColor: active ? config.color : colors.border }]}
+                    >
+                      <Text style={{ fontSize: 23 }} accessible={false}>{config.emoji}</Text>
+                      <Text numberOfLines={1} style={{ color: active ? config.color : colors.textSecondary, fontSize: 11, fontWeight: '700' }}>{t(`plantStatus.${stage}`)}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              <Text style={[stitchPlant.section, { color: colors.textSecondary }]}>{t('plantNew.propagationLabel')}</Text>
+              <View style={stitchPlant.methodRow}>
+                {methods.map((method) => {
+                  const active = props.propagationMethod === method.value;
+                  return (
+                    <Pressable
+                      key={method.value}
+                      accessibilityRole="radio"
+                      accessibilityState={{ checked: active }}
+                      onPress={() => props.onPropagationMethodChange(method.value)}
+                      style={[stitchPlant.methodChoice, { backgroundColor: active ? colors.accent : colors.surface, borderColor: active ? colors.primary : colors.border }]}
+                    >
+                      <Text style={{ fontSize: 16 }} accessible={false}>{method.emoji}</Text>
+                      <Text numberOfLines={1} style={{ color: active ? colors.primary : colors.textSecondary, fontSize: 11, fontWeight: '700' }}>{method.label}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </>
+          )}
+
+          {(!props.guided || props.started) && (
+            <>
+              <Text style={[stitchPlant.section, { color: colors.textSecondary }]}>{t('plantNew.startDate')}</Text>
+              <View style={stitchPlant.dateRow}>
+                {dateChoices.map((choice) => {
+                  const active = props.sowingDate === choice.value;
+                  return (
+                    <Pressable
+                      key={choice.value}
+                      accessibilityRole="radio"
+                      accessibilityState={{ checked: active }}
+                      onPress={() => props.onSowingDateChange(choice.value)}
+                      style={[stitchPlant.dateChoice, { backgroundColor: active ? colors.accent : colors.surfaceAlt, borderColor: active ? colors.primary : colors.border }]}
+                    >
+                      <Text style={{ color: active ? colors.primary : colors.textSecondary, fontWeight: '700' }}>{choice.label}</Text>
+                    </Pressable>
+                  );
+                })}
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('plantNew.otherDate')}
+                  onPress={() => props.onShowDatePicker(true)}
+                  style={[stitchPlant.dateChoice, { backgroundColor: props.sowingDate !== today && props.sowingDate !== yesterday ? colors.accent : colors.surfaceAlt, borderColor: props.sowingDate !== today && props.sowingDate !== yesterday ? colors.primary : colors.border }]}
+                >
+                  <Text numberOfLines={1} style={{ color: colors.textSecondary, fontWeight: '700' }}>{props.sowingDate !== today && props.sowingDate !== yesterday ? props.sowingDate : t('plantNew.otherDate')}</Text>
+                </Pressable>
+              </View>
+              {renderDatePicker()}
+            </>
+          )}
+
+          {props.guided && (
+            <Button
+              title={t(props.showAllDetails ? 'guidedPlant.less' : 'guidedPlant.more')}
+              variant="ghost"
+              onPress={() => props.onShowAllDetailsChange(!props.showAllDetails)}
+              style={{ marginTop: spacing.md, minHeight: 48 }}
+            />
+          )}
+
+          {props.saveError && <Text accessibilityRole="alert" style={{ color: colors.error, marginTop: spacing.md }}>{t('guidedPlant.saveError')}</Text>}
+          <Button
+            title={t(props.guided ? 'guidedPlant.save' : 'plantNew.addPlant')}
+            onPress={props.onSave}
+            disabled={saveDisabled}
+            loading={props.saving}
+            size="lg"
+            style={{ marginTop: spacing.xl }}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      <Modal visible={props.showCropPicker} animationType="slide" presentationStyle="pageSheet" onRequestClose={props.onCloseCropPicker}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
+          <View style={[stitchPlant.modalHeader, { borderBottomColor: colors.border }]}>
+            <Text style={[stitchPlant.modalTitle, { color: colors.text }]}>{t('plantNew.cropPickerTitle')}</Text>
+            <Pressable accessibilityRole="button" onPress={props.onCloseCropPicker} hitSlop={8}>
+              <Text style={{ color: colors.primary, fontSize: fontSize.md, fontWeight: fontWeight.semibold }}>{t('common.close')}</Text>
+            </Pressable>
+          </View>
+          <View style={[stitchPlant.searchBox, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+            <Ionicons name="search" size={16} color={colors.textSecondary} />
+            <TextInput
+              accessibilityLabel={t('plantNew.cropSearch')}
+              value={props.cropSearch}
+              onChangeText={props.onCropSearchChange}
+              placeholder={t('plantNew.cropSearch')}
+              placeholderTextColor={colors.textDisabled}
+              style={{ flex: 1, color: colors.text, fontSize: fontSize.md, minHeight: 44 }}
+              autoFocus
+            />
+          </View>
+          <SectionList
+            sections={props.sections}
+            keyExtractor={(item) => item.id}
+            keyboardShouldPersistTaps="handled"
+            ListEmptyComponent={<Text style={{ color: colors.textSecondary, textAlign: 'center', padding: spacing.xl }}>{t('plantNew.noCropResults')}</Text>}
+            renderSectionHeader={({ section }) => (
+              <View style={[stitchPlant.categoryHeader, { backgroundColor: colors.background }]}>
+                <Text style={[stitchPlant.categoryTitle, { color: colors.textSecondary }]}>
+                  {section.title === '__mycrops__' ? t('customCrop.mycrops').toUpperCase() : `${(CATEGORY_CONFIG as any)[section.title]?.emoji ?? ''} ${t(`cropCategory.${section.title}`).toUpperCase()}`}
+                </Text>
+              </View>
+            )}
+            renderItem={({ item }) => (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: item.id === props.selectedCropId }}
+                onPress={() => props.onSelectCrop(item)}
+                style={({ pressed }) => [stitchPlant.cropRow, { backgroundColor: pressed ? colors.surfaceAlt : colors.surface, borderBottomColor: colors.border }]}
+              >
+                <View style={[stitchPlant.cropEmoji, { backgroundColor: colors.surfaceAlt }]}><Text style={{ fontSize: 23 }}>{item.emoji}</Text></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: colors.text, fontWeight: '700' }}>{item.isCustom ? item.name : t(`crops.${item.id}.name`, { defaultValue: item.name })}</Text>
+                  {!item.isCustom && item.daysToHarvest && <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{item.daysToHarvest[0]}–{item.daysToHarvest[1]}d</Text>}
+                </View>
+                {item.id === props.selectedCropId && <Ionicons name="checkmark-circle" size={20} color={colors.primary} />}
+              </Pressable>
+            )}
+            ListFooterComponent={
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => { props.onCloseCropPicker(); props.router.push('/crop/new' as any); }}
+                style={[stitchPlant.customCropButton, { borderColor: colors.border }]}
+              >
+                <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+                <Text style={{ color: colors.primary, fontWeight: '800' }}>{t('customCrop.create')}</Text>
+              </Pressable>
+            }
+          />
+        </SafeAreaView>
+      </Modal>
+    </SafeAreaView>
+  );
+}
+
+const stitchPlant = StyleSheet.create({
+  container: { flex: 1 },
+  content: { paddingHorizontal: 18, paddingBottom: 36 },
+  header: { minHeight: 54, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth, paddingHorizontal: 18 },
+  headerButton: { minWidth: 76, minHeight: 44, justifyContent: 'center' },
+  headerTitle: { fontSize: 18, fontWeight: '900' },
+  photo: { height: 170, borderRadius: 16, borderWidth: 1, marginTop: 18, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  photoImage: { width: '100%', height: '100%' },
+  photoEmpty: { alignItems: 'center', gap: 8 },
+  removePhoto: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', position: 'absolute', right: 10, top: 10 },
+  photoTitle: { fontSize: 16, fontWeight: '900', marginTop: 14 },
+  body: { fontSize: 13, lineHeight: 19, marginTop: 4 },
+  photoActions: { flexDirection: 'row', gap: 8, marginTop: 13 },
+  outlineButton: { flex: 1, minHeight: 48, borderWidth: 1, borderRadius: 11, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
+  buttonText: { fontWeight: '800' },
+  section: { fontSize: 11, fontWeight: '900', letterSpacing: 0.7, marginTop: 23, marginBottom: 9 },
+  identify: { minHeight: 50, borderWidth: 1, borderRadius: 12, paddingHorizontal: 13, flexDirection: 'row', alignItems: 'center', gap: 9 },
+  label: { fontSize: 12, fontWeight: '800', marginTop: 13 },
+  input: { minHeight: 50, borderWidth: 1, borderRadius: 11, paddingHorizontal: 13, fontSize: 14 },
+  inputButton: { minHeight: 50, borderWidth: 1, borderRadius: 11, paddingHorizontal: 13, flexDirection: 'row', alignItems: 'center', gap: 9 },
+  guidedCard: { borderWidth: 1, borderRadius: 12, padding: 13, gap: 7, marginTop: 18 },
+  startedToggle: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  checkbox: { width: 24, height: 24, borderRadius: 6, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  varietyRow: { gap: 8, paddingVertical: 3 },
+  choice: { minHeight: 44, borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
+  stageRow: { flexDirection: 'row', gap: 7 },
+  stageChoice: { flex: 1, minHeight: 68, borderWidth: 1, borderRadius: 11, alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: 4 },
+  methodRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  methodChoice: { flexGrow: 1, flexBasis: '45%', minHeight: 48, borderWidth: 1, borderRadius: 10, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
+  dateRow: { flexDirection: 'row', gap: 7 },
+  dateChoice: { flex: 1, minWidth: 0, minHeight: 46, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 7 },
+  modalHeader: { minHeight: 58, paddingHorizontal: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth },
+  modalTitle: { fontSize: 18, fontWeight: '900' },
+  searchBox: { minHeight: 48, borderRadius: 11, borderWidth: 1, margin: 14, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  categoryHeader: { paddingHorizontal: 18, paddingVertical: 10 },
+  categoryTitle: { fontSize: 11, fontWeight: '900', letterSpacing: 0.7 },
+  cropRow: { minHeight: 64, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderBottomWidth: StyleSheet.hairlineWidth },
+  cropEmoji: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  customCropButton: { minHeight: 52, borderTopWidth: StyleSheet.hairlineWidth, marginTop: 8, paddingHorizontal: 18, flexDirection: 'row', alignItems: 'center', gap: 9 },
+  dateOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'flex-end' },
+  dateSheet: { borderTopLeftRadius: 22, borderTopRightRadius: 22, paddingTop: 9 },
+  modalHandle: { width: 38, height: 4, borderRadius: 2, alignSelf: 'center', marginBottom: 4 },
+});
 
 export default function NewPlantScreen() {
   const colors = useColors();
@@ -126,28 +595,14 @@ export default function NewPlantScreen() {
     const staticCrop = CROPS_BY_ID[paramCropId];
     return staticCrop ? t('crops.' + paramCropId + '.name', { defaultValue: staticCrop.name }) : '';
   });
+  const autoFilledPlantName = useRef<string | null>(plantName || null);
 
-function StitchNewPlantScreen({ colors, router, onSave, species: initialSpecies, onSpeciesChange }: { colors: ReturnType<typeof useColors>; router: ReturnType<typeof useRouter>; onSave: () => void; species: string; onSpeciesChange: (value: string) => void }) {
-  const [species, setSpecies] = useState(initialSpecies);
-  const [material, setMaterial] = useState('');
-  const [place, setPlace] = useState('');
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const { pickFromCamera, pickFromGallery, picking } = usePickPhoto({ aspect: [4, 3], quality: 0.8 });
-  useEffect(() => { onSpeciesChange(species); }, [onSpeciesChange, species]);
-  async function choosePhoto(fromCamera: boolean) {
-    const result = await (fromCamera ? pickFromCamera() : pickFromGallery());
-    if (result.kind === 'success') setPhotoUri(result.uri);
-  }
-  return <SafeAreaView style={[newPlantStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}><ScrollView contentContainerStyle={newPlantStitch.content} showsVerticalScrollIndicator={false}><View style={[newPlantStitch.header, { borderBottomColor: colors.border }]}><Pressable onPress={() => router.back()} style={newPlantStitch.headerButton}><Text style={{ color: colors.text, fontWeight: '700' }}>Cancelar</Text></Pressable><Text style={[newPlantStitch.headerTitle, { color: colors.text }]}>Nueva Planta</Text><Pressable onPress={onSave} style={newPlantStitch.headerButton}><Text style={{ color: colors.primary, fontWeight: '900' }}>Guardar</Text></Pressable></View><View style={[newPlantStitch.photo, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>{photoUri ? <Image source={{ uri: photoUri }} resizeMode="cover" style={newPlantStitch.photoImage} /> : <Ionicons name="camera-outline" size={34} color={colors.primary} />}<Pressable disabled={picking} onPress={() => void choosePhoto(true)} accessibilityRole="button" accessibilityLabel="Añadir foto de planta" style={[newPlantStitch.photoAdd, { backgroundColor: colors.primary, opacity: picking ? 0.5 : 1 }]}><Ionicons name="add" size={18} color="#fff" /></Pressable></View><Text style={[newPlantStitch.photoTitle, { color: colors.text }]}>Fotografía de la maceta</Text><Text style={[newPlantStitch.body, { color: colors.textSecondary }]}>Sube una foto clara para seguir su crecimiento diario</Text><View style={newPlantStitch.photoActions}><Pressable disabled={picking} onPress={() => void choosePhoto(false)} style={[newPlantStitch.outline, { borderColor: colors.border, opacity: picking ? 0.5 : 1 }]}><Ionicons name="images-outline" size={18} color={colors.primary} /><Text style={{ color: colors.text, fontWeight: '800' }}>Galería</Text></Pressable><Pressable disabled={picking} onPress={() => void choosePhoto(true)} style={[newPlantStitch.outline, { borderColor: colors.border, opacity: picking ? 0.5 : 1 }]}><Ionicons name="camera-outline" size={18} color={colors.primary} /><Text style={{ color: colors.text, fontWeight: '800' }}>Hacer foto</Text></Pressable></View><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>ESPECIE Y VARIEDAD</Text><Pressable style={[newPlantStitch.identify, { borderColor: colors.primary, backgroundColor: colors.primary + '12' }]} onPress={() => router.push('/plant/scan' as any)}><Ionicons name="scan-outline" size={20} color={colors.primary} /><Text style={{ color: colors.primary, fontWeight: '900', flex: 1 }}>Identificar con cámara</Text><Ionicons name="chevron-forward" size={18} color={colors.primary} /></Pressable><View style={[newPlantStitch.input, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="search-outline" size={18} color={colors.textSecondary} /><TextInput value={species} onChangeText={setSpecies} style={{ flex: 1, color: colors.text, fontSize: 14 }} /></View><Text style={[newPlantStitch.suggestions, { color: colors.textSecondary }]}>Comunes en balcones españoles: ✓ Albahaca Limón · Tomate Cherry · Menta Piperita · Romero</Text><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>CONTENEDOR Y ESPACIO</Text><Text style={[newPlantStitch.label, { color: colors.textSecondary }]}>Material de la maceta</Text><View style={newPlantStitch.choiceRow}>{['Barro Cocido', 'Plástico reciclado', 'Geotextil'].map((item) => <Pressable key={item} onPress={() => setMaterial(item)} style={[newPlantStitch.choice, { borderColor: material === item ? colors.primary : colors.border, backgroundColor: material === item ? colors.primary + '14' : colors.surface }]}><Text style={{ color: material === item ? colors.primary : colors.text, fontWeight: '800', fontSize: 12 }}>{item}</Text></Pressable>)}</View><Text style={[newPlantStitch.label, { color: colors.textSecondary }]}>Volumen estimado de sustrato</Text><View style={[newPlantStitch.input, { backgroundColor: colors.surface, borderColor: colors.border }]}><Text style={{ color: colors.text, fontWeight: '800' }}>Maceta 18 cm</Text><Text style={{ color: colors.textSecondary, marginLeft: 'auto' }}>5 L</Text></View><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>UBICACIÓN Y HORAS DE SOL</Text><View style={newPlantStitch.choiceRow}>{['Balcón Sur', 'Terraza Este', 'Repisa Ventana'].map((item) => <Pressable key={item} onPress={() => setPlace(item)} style={[newPlantStitch.choice, { borderColor: place === item ? colors.primary : colors.border, backgroundColor: place === item ? colors.primary + '14' : colors.surface }]}><Text style={{ color: place === item ? colors.primary : colors.text, fontWeight: '800', fontSize: 12 }}>{item}</Text></Pressable>)}</View><View style={[newPlantStitch.sunCard, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}><Ionicons name="sunny-outline" size={22} color={colors.warning} /><View style={{ flex: 1 }}><Text style={[newPlantStitch.cardTitle, { color: colors.text }]}>+6h Sol directo (Pleno sol)</Text><Text style={[newPlantStitch.body, { color: colors.textSecondary }]}>Ideal para albahaca, tomates y pimientos</Text></View><Ionicons name="checkmark-circle" size={20} color={colors.primary} /></View><View style={[newPlantStitch.sunCard, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="partly-sunny-outline" size={22} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[newPlantStitch.cardTitle, { color: colors.text }]}>3–5h Sol suave / Mañana</Text><Text style={[newPlantStitch.body, { color: colors.textSecondary }]}>Adecuado para mentas y aromáticas tiernas</Text></View></View><Text style={[newPlantStitch.section, { color: colors.textSecondary }]}>FECHA DE TRASPLANTE</Text><View style={[newPlantStitch.input, { backgroundColor: colors.surface, borderColor: colors.border }]}><Ionicons name="calendar-outline" size={18} color={colors.primary} /><Text style={{ color: colors.text, fontWeight: '700' }}>Hoy, 15 de Mayo</Text></View><View style={[newPlantStitch.tip, { backgroundColor: colors.accent + '20' }]}><Ionicons name="leaf-outline" size={18} color={colors.primary} /><View style={{ flex: 1 }}><Text style={[newPlantStitch.cardTitle, { color: colors.text }]}>Consejo de Semillita · Vital para novatos</Text><Text style={[newPlantStitch.body, { color: colors.text }]}>No riegues inmediatamente por costumbre. Las plantas trasplantadas necesitan 24h para aclimatarse al balcón.</Text></View></View><Pressable onPress={onSave} style={[newPlantStitch.primary, { backgroundColor: colors.primary }]}><Ionicons name="add-circle-outline" size={18} color="#fff" /><Text style={newPlantStitch.primaryText}>Guardar planta en Mi Huerto</Text></Pressable></ScrollView></SafeAreaView>;
-}
-
-const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { paddingHorizontal: 18, paddingBottom: 34 }, header: { minHeight: 54, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth }, headerButton: { minWidth: 74, minHeight: 44, justifyContent: 'center' }, headerTitle: { fontSize: 18, fontWeight: '900' }, photo: { height: 150, borderRadius: 16, borderWidth: 1, marginTop: 18, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, photoImage: { width: '100%', height: '100%' }, photoAdd: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', position: 'absolute', right: 12, bottom: 12 }, photoTitle: { fontSize: 16, fontWeight: '900', marginTop: 14 }, body: { fontSize: 13, lineHeight: 19, marginTop: 4 }, photoActions: { flexDirection: 'row', gap: 8, marginTop: 13 }, outline: { flex: 1, minHeight: 46, borderWidth: 1, borderRadius: 11, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 }, section: { fontSize: 11, fontWeight: '900', letterSpacing: 0.7, marginTop: 23, marginBottom: 9 }, identify: { minHeight: 50, borderWidth: 1, borderRadius: 12, paddingHorizontal: 13, flexDirection: 'row', alignItems: 'center', gap: 9 }, input: { minHeight: 50, borderWidth: 1, borderRadius: 11, paddingHorizontal: 13, flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 9 }, suggestions: { fontSize: 11, lineHeight: 17, marginTop: 7 }, label: { fontSize: 12, fontWeight: '800', marginTop: 10 }, choiceRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 9 }, choice: { minHeight: 44, borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' }, sunCard: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 13, borderRadius: 12, borderWidth: 1, marginTop: 9 }, cardTitle: { fontSize: 13, fontWeight: '800' }, tip: { flexDirection: 'row', gap: 10, padding: 13, borderRadius: 12, marginTop: 18 }, primary: { minHeight: 54, borderRadius: 14, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, marginTop: 20 }, primaryText: { color: '#fff', fontWeight: '900' }, });
   const [variety, setVariety] = useState('');
   const [varietyId, setVarietyId] = useState<string | null>(null);
   const [sowingDate, setSowingDate] = useState(todayStr());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const { pickFromGallery } = usePickPhoto({ aspect: [1, 1] });
+  const { pickFromGallery, pickFromCamera, picking: pickingPhoto } = usePickPhoto({ aspect: [4, 3], quality: 0.8 });
   const [propagationMethod, setPropagationMethod] = useState<PropagationMethod>('seed');
   // Stage selector — replaces the hidden initialStatus param
   const [selectedStatus, setSelectedStatus] = useState<Plant['status']>(() => {
@@ -160,6 +615,13 @@ const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { pa
   const selectedCrop = selectedCropId
     ? (CROPS_BY_ID[selectedCropId] ?? customCropsById[selectedCropId] ?? null)
     : null;
+
+  useEffect(() => {
+    if (!selectedCrop || plantName.trim()) return;
+    const label = selectedCrop.isCustom ? selectedCrop.name : t(`crops.${selectedCrop.id}.name`, { defaultValue: selectedCrop.name });
+    autoFilledPlantName.current = label;
+    setPlantName(label);
+  }, [selectedCrop, plantName, t]);
 
   const filteredSections = useMemo(() => {
     const q = cropSearch.trim().toLowerCase();
@@ -175,7 +637,7 @@ const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { pa
     })).filter((sec) => sec.data.length > 0);
 
     const customMatches = customCropsCollection.items.filter((cc) =>
-      !q || cc.name.toLowerCase().includes(q)
+      !q || cc.name.toLocaleLowerCase().includes(q)
     );
     const mycropsSection =
       customMatches.length > 0
@@ -189,10 +651,12 @@ const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { pa
 
   function handleSelectCrop(crop: CropInfo) {
     setSelectedCropId(crop.id);
-    if (!plantName) {
-      const label = crop.isCustom ? crop.name : t('crops.' + crop.id + '.name', { defaultValue: crop.name });
-      setPlantName(label);
-    }
+    const label = crop.isCustom ? crop.name : t('crops.' + crop.id + '.name', { defaultValue: crop.name });
+    const currentName = plantName;
+    const isAutoName = !currentName.trim()
+      || (autoFilledPlantName.current !== null && currentName === autoFilledPlantName.current);
+    setPlantName(getPlantNameAfterCropChange(currentName, autoFilledPlantName.current, label));
+    autoFilledPlantName.current = isAutoName ? label : null;
     setShowCropPicker(false);
     setCropSearch('');
     setVarietyId(null);
@@ -210,35 +674,54 @@ const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { pa
     }
   }
 
-  async function pickPhoto() {
-    const result = await pickFromGallery();
+  async function pickPhoto(fromCamera = false) {
+    const result = await (fromCamera ? pickFromCamera() : pickFromGallery());
     if (result.kind === 'success') setPhotoUri(result.uri);
   }
 
+  function handlePlantNameChange(value: string) {
+    autoFilledPlantName.current = null;
+    setPlantName(value);
+  }
+
   async function handleSave() {
-    if (submitting.current || !selectedCropId || !plantName.trim()) return;
+    if (submitting.current) return;
+    if (!selectedCrop || !plantName.trim()) {
+      setSaveError(true);
+      return;
+    }
     if (atLimit && !pendingPlant.current) {
       router.push('/paywall?source=plant_limit' as any);
       return;
     }
     const gardenId = activeGarden?.id;
-    if (!gardenId) return;
+    if (!gardenId) {
+      setSaveError(true);
+      return;
+    }
+    const draft = buildNewPlantDraft({
+      gardenId,
+      cropId: selectedCrop.id,
+      name: plantName,
+      variety,
+      varietyId,
+      sowingDate,
+      status: selectedStatus,
+      propagationMethod,
+      photoUri,
+      guided,
+      started,
+    });
+    if (!draft) {
+      setSaveError(true);
+      return;
+    }
     submitting.current = true;
     setSaving(true);
     setSaveError(false);
     try {
       const wasFirstPlant = plants.items.length === 0;
-      const newPlant = pendingPlant.current ?? await createPlantWithSowing({
-        gardenId,
-        cropId: selectedCropId,
-        name: plantName.trim(),
-        ...(variety.trim() ? { variety: variety.trim() } : {}),
-        ...(varietyId ? { varietyId } : {}),
-        ...(guided && !started ? {} : { sowingDate }),
-        status: guided && !started ? 'seedling' : selectedStatus,
-        propagationMethod: guided && !started ? 'seed' : propagationMethod,
-        ...(photoUri ? { photoUri } : {}),
-      });
+      const newPlant = pendingPlant.current ?? await createPlantWithSowing(draft);
       pendingPlant.current = newPlant;
       track(EVENTS.plantAdded, { cropId: selectedCropId, fromScan: isAiFilled });
       if (fromOnboarding === '1' && wasFirstPlant) {
@@ -281,48 +764,6 @@ const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { pa
   const cropName = selectedCrop
     ? (selectedCrop.isCustom ? selectedCrop.name : t('crops.' + selectedCrop.id + '.name', { defaultValue: selectedCrop.name }))
     : '';
-
-  if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
-    async function handleStitchSave() {
-      if (submitting.current) return;
-      const typedName = plantName.trim();
-      const typedCrop = selectedCropId ?? Object.values(CROPS_BY_ID).find((crop) => crop.name.toLocaleLowerCase() === typedName.toLocaleLowerCase() || crop.id === typedName.toLocaleLowerCase())?.id;
-      if (!typedCrop || !typedName) {
-        setSaveError(true);
-        return;
-      }
-      if (atLimit) {
-        router.push('/paywall?source=plant_limit' as any);
-        return;
-      }
-      const gardenId = activeGarden?.id;
-      if (!gardenId) return;
-      submitting.current = true;
-      setSaving(true);
-      setSaveError(false);
-      try {
-        await createPlantWithSowing({
-          gardenId,
-          cropId: typedCrop,
-          name: typedName,
-          sowingDate: todayStr(),
-          status: 'transplanted',
-          propagationMethod: 'bought',
-        });
-        track(EVENTS.plantAdded, { cropId: typedCrop, fromScan: false, source: 'stitch_new_plant' });
-        successHaptic();
-        if (fromOnboarding === '1') router.replace('/(tabs)');
-        else if (router.canGoBack()) router.back();
-        else router.replace('/(tabs)');
-      } catch {
-        setSaveError(true);
-      } finally {
-        submitting.current = false;
-        setSaving(false);
-      }
-    }
-    return <StitchNewPlantScreen colors={colors} router={{ ...router, back: () => goBackOr(router) }} species={plantName} onSpeciesChange={setPlantName} onSave={() => { void handleStitchSave(); }} />;
-  }
 
   if (createdPlant) return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
@@ -387,6 +828,56 @@ const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { pa
       <SuccessBurst visible={showSuccessBurst} />
     </SafeAreaView>
   );
+
+  if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
+    return (
+      <StitchNewPlantScreen
+        colors={colors}
+        router={router}
+        sections={filteredSections}
+        selectedCropId={selectedCrop?.id ?? null}
+        selectedCropLabel={cropName}
+        cropSearch={cropSearch}
+        showCropPicker={showCropPicker}
+        onCropSearchChange={setCropSearch}
+        onOpenCropPicker={() => setShowCropPicker(true)}
+        onCloseCropPicker={() => { setShowCropPicker(false); setCropSearch(''); setPickerImgErr({}); }}
+        onSelectCrop={handleSelectCrop}
+        plantName={plantName}
+        onPlantNameChange={handlePlantNameChange}
+        variety={variety}
+        varietyId={varietyId}
+        varieties={cropVarieties}
+        onVarietyChange={(value) => { setVariety(value); setVarietyId(null); }}
+        onSelectVariety={handleSelectVariety}
+        photoUri={photoUri}
+        onPickPhoto={(fromCamera) => { void pickPhoto(fromCamera); }}
+        onRemovePhoto={() => setPhotoUri(null)}
+        pickingPhoto={pickingPhoto}
+        sowingDate={sowingDate}
+        onSowingDateChange={setSowingDate}
+        showDatePicker={showDatePicker}
+        onShowDatePicker={setShowDatePicker}
+        propagationMethod={propagationMethod}
+        onPropagationMethodChange={setPropagationMethod}
+        selectedStatus={selectedStatus}
+        onStatusChange={setSelectedStatus}
+        guided={guided}
+        started={started}
+        onStartedChange={setStarted}
+        showAllDetails={showAllDetails}
+        onShowAllDetailsChange={setShowAllDetails}
+        recommendationAction={recommendationAction}
+        gardenLabel={activeGarden?.name}
+        canScan={isPro}
+        canSave={Boolean(selectedCrop && plantName.trim() && activeGarden && !plants.loading)}
+        saving={saving}
+        saveError={saveError}
+        onSave={() => { void handleSave(); }}
+        onBack={goBack}
+      />
+    );
+  }
 
   return (
     <>
@@ -471,7 +962,7 @@ const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { pa
             >
               {/* Photo hero — 180px at top (FIX 2) */}
               {(!guided || showAllDetails) && <Pressable
-                onPress={pickPhoto}
+                onPress={() => { void pickPhoto(false); }}
                 style={[s.photoHero, { backgroundColor: colors.surfaceAlt }]}
               >
                 {photoUri ? (
@@ -558,7 +1049,7 @@ const newPlantStitch = StyleSheet.create({ container: { flex: 1 }, content: { pa
                 <TextInput
                   accessibilityLabel={t('plantNew.nameLabel')}
                   value={plantName}
-                  onChangeText={setPlantName}
+                  onChangeText={handlePlantNameChange}
                   placeholder={t('plantNew.namePlaceholder')}
                   placeholderTextColor={colors.textDisabled}
                   style={[s.input, { backgroundColor: colors.surface, borderColor: plantName ? colors.primary : colors.border, color: colors.text }]}

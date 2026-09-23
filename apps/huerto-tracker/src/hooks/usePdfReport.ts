@@ -6,7 +6,8 @@ import type { CropInfo } from '../data/crops';
 import { PLANT_STATUS_CONFIG } from '../models/plant';
 import type { Plant } from '../models/plant';
 import type { Garden } from '../models/garden';
-import type { DiaryEntry } from '../models/diary-entry';
+import type { DiaryEntry, HarvestData } from '../models/diary-entry';
+import { getHarvestWeightKg } from '../utils/harvestWeight';
 
 function parseNum(val: unknown): number {
   if (typeof val === 'number') return isNaN(val) ? 0 : val;
@@ -22,8 +23,7 @@ function buildHtml(
   customCropsById: Record<string, CropInfo> = {},
 ): string {
   const harvestWeight = (e: DiaryEntry): number => {
-    const d = e.data as any;
-    return parseNum(d?.weightGrams ?? d?.weight);
+    return getHarvestWeightKg(e.data as HarvestData) ?? 0;
   };
   const year = new Date().getFullYear();
   const harvestEntries = entries.filter((e) => e.type === 'harvest');

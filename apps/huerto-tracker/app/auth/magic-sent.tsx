@@ -11,6 +11,7 @@ import {
   Linking,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -18,12 +19,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { goBackOr } from '../../src/utils/navigation';
+import { getMagicSentDisplay } from '../../src/utils/magicSentDisplay';
 
 export default function MagicSentScreen() {
   const colors = useColors();
   const { spacing, fontSize, fontWeight, radii } = useTheme();
   const router = useRouter();
-  const { email } = useLocalSearchParams<{ email: string }>();
+  const { email } = useLocalSearchParams<{ email?: string | string[] }>();
+  const display = getMagicSentDisplay(email);
   const { t } = useTranslation();
   const { completed: onboardingDone } = useOnboarding('huerto');
 
@@ -38,13 +41,14 @@ export default function MagicSentScreen() {
 
   async function handleVerify() {
     const trimmed = code.trim();
+    if (!display.email) return;
     if (trimmed.length !== 6) {
       Alert.alert(t('magicSent.errorCodeTitle'), t('magicSent.errorCodeDesc'));
       return;
     }
     setVerifying(true);
     try {
-      await verifyOtp(email ?? '', trimmed);
+      await verifyOtp(display.email, trimmed);
       router.replace(onboardingDone ? '/(tabs)' : '/onboarding');
     } catch {
       Alert.alert(t('magicSent.errorVerifyTitle'), t('magicSent.errorVerifyDesc'));
@@ -54,7 +58,23 @@ export default function MagicSentScreen() {
   }
 
   if (process.env.EXPO_PUBLIC_STITCH_CLONE !== 'false') {
-    return <StitchMagicSentScreen colors={colors} router={{ ...router, back: () => goBackOr(router, '/auth' as any) }} email={email ?? 'laura.jardin@correo.es'} />;
+    return (
+      <StitchMagicSentScreen
+        colors={colors}
+        email={display.email}
+        messageKey={display.messageKey}
+        code={code}
+        verifying={verifying}
+        onCodeChange={(value) => setCode(value.replace(/\D/g, '').slice(0, 6))}
+        onVerify={() => { void handleVerify(); }}
+        onBack={() => goBackOr(router, '/auth' as any)}
+        onChangeEmail={() => router.replace('/auth' as any)}
+        onContinueGuest={() => router.replace('/onboarding')}
+        onOpenEmail={() => {
+          void Linking.openURL('mailto:').catch(() => Alert.alert(t('common.error'), t('magicSent.mailAppError')));
+        }}
+      />
+    );
   }
 
   return (
@@ -64,10 +84,10 @@ export default function MagicSentScreen() {
           <Text style={s.emoji}>✉️</Text>
           <Text style={[s.title, { color: colors.text }]}>{t('magicSent.title')}</Text>
           <Text style={[s.body, { color: colors.textSecondary }]}>
-            {t('magicSent.message', { email: email ?? 'tu email' })}
+            {t(display.messageKey, display.email ? { email: display.email } : undefined)}
           </Text>
           <Text style={[s.hint, { color: colors.textDisabled }]}>
-            {t('magicSent.note')}
+            {t('magicSent.expiryLimited')} {t('magicSent.note')}
           </Text>
 
           {/* OTP input */}
@@ -99,7 +119,7 @@ export default function MagicSentScreen() {
 
           <Pressable
             onPress={handleVerify}
-            disabled={verifying || code.length !== 6}
+            disabled={!display.email || verifying || code.length !== 6}
             style={({ pressed }) => [
               s.verifyBtn,
               { backgroundColor: colors.accent, opacity: pressed || verifying || code.length !== 6 ? 0.5 : 1 },
@@ -132,14 +152,127 @@ export default function MagicSentScreen() {
   );
 }
 
-function StitchMagicSentScreen({ colors, router, email }: { colors: ReturnType<typeof useColors>; router: ReturnType<typeof useRouter>; email: string }) {
-  const openMail = () => {
-    void Linking.openURL('mailto:').catch(() => Alert.alert('Aplicación de correo', 'No se ha podido abrir una aplicación de correo en este dispositivo.'));
-  };
-  return <SafeAreaView style={[magicStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}><View style={magicStitch.content}><Pressable onPress={() => router.back()} style={magicStitch.back} accessibilityRole="button"><Ionicons name="chevron-back" size={22} color={colors.text} /><Text style={{ color: colors.text, fontWeight: '700' }}>Volver</Text></Pressable><View style={[magicStitch.illustration, { backgroundColor: colors.surfaceAlt }]}><Ionicons name="mail-open-outline" size={62} color={colors.primary} /><Text style={{ fontSize: 30, position: 'absolute', right: 26, top: 12 }}>🌱</Text></View><Text style={[magicStitch.title, { color: colors.text }]}>Enlace mágico enviado</Text><Text style={[magicStitch.body, { color: colors.textSecondary }]}>Hemos enviado un acceso seguro a</Text><Text style={[magicStitch.email, { color: colors.text }]}>{email}</Text><Text style={[magicStitch.body, { color: colors.textSecondary }]}>Abre tu correo y toca el enlace para entrar en tu huerto. El enlace caduca en 43 segundos.</Text><Pressable onPress={openMail} style={[magicStitch.primary, { backgroundColor: colors.primary }]} accessibilityRole="button"><Ionicons name="mail-outline" size={19} color="#fff" /><Text style={magicStitch.primaryText}>Abrir aplicación de correo</Text></Pressable><Pressable onPress={() => router.replace('/auth' as any)} style={magicStitch.link} accessibilityRole="button"><Text style={{ color: colors.primary, fontWeight: '800' }}>¿No es tu correo? Corregir dirección</Text></Pressable><Text style={[magicStitch.note, { color: colors.textSecondary }]}>Si no lo encuentras, revisa la carpeta de spam o promociones.</Text></View></SafeAreaView>;
+
+function StitchMagicSentScreen({
+  colors,
+  email,
+  messageKey,
+  code,
+  verifying,
+  onCodeChange,
+  onVerify,
+  onBack,
+  onChangeEmail,
+  onContinueGuest,
+  onOpenEmail,
+}: {
+  colors: ReturnType<typeof useColors>;
+  email: string | null;
+  messageKey: 'magicSent.message' | 'magicSent.messageWithoutAddress';
+  code: string;
+  verifying: boolean;
+  onCodeChange: (value: string) => void;
+  onVerify: () => void;
+  onBack: () => void;
+  onChangeEmail: () => void;
+  onContinueGuest: () => void;
+  onOpenEmail: () => void;
+}) {
+  const { t } = useTranslation();
+  const inputRef = useRef<TextInput>(null);
+
+  return (
+    <SafeAreaView style={[magicStitch.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+      <View style={magicStitch.header}>
+        <Pressable accessibilityRole="button" accessibilityLabel={t('onboarding.back')} onPress={onBack} style={magicStitch.back}>
+          <Ionicons name="chevron-back" size={22} color={colors.text} />
+          <Text style={{ color: colors.text, fontWeight: '700' }}>{t('onboarding.back')}</Text>
+        </Pressable>
+      </View>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={magicStitch.content}>
+        <View style={[magicStitch.illustration, { backgroundColor: colors.surfaceAlt }]}>
+          <Ionicons name="mail-open-outline" size={62} color={colors.primary} />
+          <Text style={magicStitch.seed} accessible={false}>🌱</Text>
+        </View>
+        <Text accessibilityRole="header" style={[magicStitch.title, { color: colors.text }]}>{t('magicSent.title')}</Text>
+        <Text style={[magicStitch.body, { color: colors.textSecondary }]}>
+          {t(messageKey, email ? { email } : undefined)}
+        </Text>
+        {email ? (
+          <>
+            <Text style={[magicStitch.note, { color: colors.textSecondary }]}>{t('magicSent.expiryLimited')}</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('magicSent.verify')}
+              onPress={() => inputRef.current?.focus()}
+              style={magicStitch.otpRow}
+            >
+              {Array.from({ length: 6 }).map((_, index) => (
+                <View
+                  key={index}
+                  style={[magicStitch.otpBox, { backgroundColor: colors.surface, borderColor: code.length === index ? colors.primary : code[index] ? `${colors.primary}99` : colors.border }]}
+                >
+                  <Text style={[magicStitch.otpDigit, { color: colors.text }]}>{code[index] ?? ''}</Text>
+                </View>
+              ))}
+            </Pressable>
+            <TextInput
+              ref={inputRef}
+              accessibilityLabel={t('magicSent.verify')}
+              value={code}
+              onChangeText={onCodeChange}
+              keyboardType="number-pad"
+              maxLength={6}
+              style={magicStitch.hiddenInput}
+              autoFocus
+            />
+            <Text style={[magicStitch.note, { color: colors.textSecondary }]}>{t('magicSent.note')}</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ disabled: verifying || code.length !== 6, busy: verifying }}
+              disabled={verifying || code.length !== 6}
+              onPress={onVerify}
+              style={[magicStitch.primary, { backgroundColor: colors.primary, opacity: verifying || code.length !== 6 ? 0.5 : 1 }]}
+            >
+              <Text style={magicStitch.primaryText}>{t(verifying ? 'magicSent.verifying' : 'magicSent.verify')}</Text>
+            </Pressable>
+            <Pressable accessibilityRole="button" onPress={onOpenEmail} style={[magicStitch.outline, { borderColor: colors.border }]}>
+              <Ionicons name="mail-outline" size={19} color={colors.primary} />
+              <Text style={{ color: colors.text, fontWeight: '800' }}>{t('magicSent.openEmailApp')}</Text>
+            </Pressable>
+          </>
+        ) : null}
+        <Pressable accessibilityRole="button" onPress={onChangeEmail} style={magicStitch.link}>
+          <Text style={{ color: colors.primary, fontWeight: '800' }}>{t('magicSent.changeEmail')}</Text>
+        </Pressable>
+        <Pressable accessibilityRole="button" onPress={onContinueGuest} style={magicStitch.guestLink}>
+          <Text style={{ color: colors.textSecondary }}>{t('magicSent.continueGuest')}</Text>
+        </Pressable>
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
-const magicStitch = StyleSheet.create({ container: { flex: 1 }, content: { flex: 1, paddingHorizontal: 24 }, back: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: 2 }, illustration: { width: 150, height: 150, borderRadius: 75, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', marginTop: 64, marginBottom: 28 }, title: { textAlign: 'center', fontSize: 25, fontWeight: '900' }, body: { textAlign: 'center', fontSize: 14, lineHeight: 21, marginTop: 13 }, email: { textAlign: 'center', fontSize: 16, fontWeight: '900', marginTop: 5 }, primary: { minHeight: 54, borderRadius: 14, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 9, marginTop: 26 }, primaryText: { color: '#fff', fontWeight: '900' }, link: { alignItems: 'center', paddingVertical: 18 }, note: { textAlign: 'center', fontSize: 12, lineHeight: 18, marginTop: 16 }, });
+const magicStitch = StyleSheet.create({
+  container: { flex: 1 },
+  header: { paddingHorizontal: 20 },
+  back: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 2 },
+  content: { flexGrow: 1, paddingHorizontal: 24, paddingBottom: 28, alignItems: 'center' },
+  illustration: { width: 136, height: 136, borderRadius: 68, alignItems: 'center', justifyContent: 'center', marginTop: 14, marginBottom: 22 },
+  seed: { fontSize: 30, position: 'absolute', right: 18, top: 9 },
+  title: { textAlign: 'center', fontSize: 25, fontWeight: '900' },
+  body: { textAlign: 'center', fontSize: 14, lineHeight: 21, marginTop: 12 },
+  note: { textAlign: 'center', fontSize: 12, lineHeight: 18, marginTop: 10 },
+  otpRow: { flexDirection: 'row', gap: 7, marginTop: 20 },
+  otpBox: { width: 42, height: 52, borderRadius: 10, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  otpDigit: { fontSize: 20, fontWeight: '800' },
+  hiddenInput: { position: 'absolute', opacity: 0, width: 1, height: 1, top: 0, left: 0 },
+  primary: { width: '100%', minHeight: 54, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginTop: 18 },
+  primaryText: { color: '#fff', fontWeight: '900' },
+  outline: { width: '100%', minHeight: 50, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, marginTop: 10 },
+  link: { alignItems: 'center', paddingVertical: 18, minHeight: 48, justifyContent: 'center' },
+  guestLink: { alignItems: 'center', paddingVertical: 9, minHeight: 44, justifyContent: 'center' },
+});
 
 const makeStyles = (
   colors: ReturnType<typeof useColors>,
