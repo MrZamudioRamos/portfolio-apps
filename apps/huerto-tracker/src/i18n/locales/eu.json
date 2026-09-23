@@ -366,6 +366,12 @@
   "diseaseGuide": {
     "title": "Gaixotasun-gida",
     "subtitle": "Izurriak, gaixotasunak eta gabeziak",
+    "referenceCard": "Erreferentzia-fitxa",
+    "referenceNote": "Gida hau orientagarria da; ez du zure landarearen diagnostikorik berresten. Konparatu hainbat seinale tratamendua aplikatu aurretik.",
+    "otherMatches": "Beste fitxa batzuk",
+    "clearSearch": "Garbitu bilaketa",
+    "clearFilters": "Garbitu bilaketa eta iragazkiak",
+    "scanSymptom": "Eskaneatu sintoma kamerarekin",
     "search": "Bilatu izurria, sintoma edo laborea…",
     "filterAll": "Guztiak",
     "filterPest": "🐛 Izurria",

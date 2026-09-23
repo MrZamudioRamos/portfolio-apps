@@ -430,6 +430,12 @@
   "diseaseGuide": {
     "title": "Guía de enfermedades",
     "subtitle": "Plagas, enfermedades y deficiencias",
+    "referenceCard": "Ficha de referencia",
+    "referenceNote": "Esta guía es orientativa; no confirma un diagnóstico en tu planta. Compara varios signos antes de aplicar un tratamiento.",
+    "otherMatches": "Otras fichas",
+    "clearSearch": "Limpiar búsqueda",
+    "clearFilters": "Limpiar búsqueda y filtros",
+    "scanSymptom": "Escanear síntoma con la cámara",
     "search": "Buscar plaga, síntoma o cultivo…",
     "filterAll": "Todas",
     "filterPest": "🐛 Plaga",

@@ -366,6 +366,12 @@
   "diseaseGuide": {
     "title": "Guía de enfermidades",
     "subtitle": "Pragas, enfermidades e deficiencias",
+    "referenceCard": "Ficha de referencia",
+    "referenceNote": "Esta guía é orientativa; non confirma un diagnóstico na túa planta. Compara varios sinais antes de aplicar un tratamento.",
+    "otherMatches": "Outras fichas",
+    "clearSearch": "Limpar busca",
+    "clearFilters": "Limpar busca e filtros",
+    "scanSymptom": "Escanear un síntoma coa cámara",
     "search": "Buscar praga, síntoma ou cultivo…",
     "filterAll": "Todas",
     "filterPest": "🐛 Praga",

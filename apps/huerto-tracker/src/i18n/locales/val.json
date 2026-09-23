@@ -366,6 +366,12 @@
   "diseaseGuide": {
     "title": "Guia de malalties",
     "subtitle": "Plagues, malalties i deficiències",
+    "referenceCard": "Fitxa de referència",
+    "referenceNote": "Aquesta guia és orientativa; no confirma cap diagnòstic de la teua planta. Compara diversos senyals abans d'aplicar un tractament.",
+    "otherMatches": "Altres fitxes",
+    "clearSearch": "Neteja la cerca",
+    "clearFilters": "Neteja la cerca i els filtres",
+    "scanSymptom": "Escaneja un símptoma amb la càmera",
     "search": "Cerca plaga, símptoma o cultiu…",
     "filterAll": "Totes",
     "filterPest": "🐛 Plaga",

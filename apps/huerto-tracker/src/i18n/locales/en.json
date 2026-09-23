@@ -394,6 +394,12 @@
   "diseaseGuide": {
     "title": "Disease Guide",
     "subtitle": "Pests, diseases and deficiencies",
+    "referenceCard": "Reference guide",
+    "referenceNote": "This guide is informational and does not diagnose your plant. Compare several signs before applying a treatment.",
+    "otherMatches": "Other entries",
+    "clearSearch": "Clear search",
+    "clearFilters": "Clear search and filters",
+    "scanSymptom": "Scan a symptom with your camera",
     "search": "Search pest, symptom or crop…",
     "filterAll": "All",
     "filterPest": "🐛 Pest",

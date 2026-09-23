@@ -48,11 +48,11 @@
 
 **Archivos:** `src/utils/diseaseGuide.ts` y test; `app/disease-guide.tsx`.
 
-**Produce:** helper de filtrado sobre `DISEASES` que busca nombre, síntomas, descripción, cultivos y signos traducidos cuando existan, y filtra por tipo. La ruta activa el catálogo existente y su contenido/tratamientos localizados; elimina los cuatro ejemplos y el detalle inventado de oídio que actualmente sustituyen el catálogo. Mantener la jerarquía y las tarjetas de la línea Stitch disponible, sin presentar una plaga concreta como hallada en el huerto del usuario. El escaneo sigue abriendo el flujo real de cámara.
+**Produce:** helper de filtrado sobre `DISEASES` que busca nombre, síntomas, descripción, cultivos y signos traducidos cuando existan, y filtra por tipo. Mantener activa la composición Stitch, pero alimentarla con el catálogo y tratamientos existentes; elimina los cuatro ejemplos y el detalle inventado de oídio que actualmente sustituyen el catálogo. Etiquetar la ficha como referencia editorial, sin presentarla como una plaga hallada en el huerto del usuario. El escaneo sigue abriendo el flujo real de cámara.
 
 1. Añadir tests con varios tipos, búsqueda por síntoma/cultivo y resultado vacío; observar RED.
 2. Implementar helper y conectar query/chips/lista a la misma fuente `DISEASES`.
-3. Eliminar el retorno prematuro a `StitchDiseaseScreen` con arrays y contenido de ejemplo; dejar activa la vista de catálogo traducida y eliminar los componentes de demostración ya muertos.
+3. Eliminar listas/nombres y consejos estáticos de demostración en `StitchDiseaseScreen`; renderizar el catálogo filtrado, los signos y los tratamientos traducidos, añadir vacío con acción de limpiar, y mantener la navegación real de escaneo.
 4. Ejecutar test + typecheck.
 
 **Verificación esperada:** cada filtro reduce la lista canónica; ningún elemento indica que existe una infestación personal sin un registro/diagnóstico del usuario.
