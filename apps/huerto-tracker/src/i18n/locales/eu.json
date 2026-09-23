@@ -1047,6 +1047,10 @@
   },
   "stats": {
     "title": "Estatistikak",
+    "periodFilterTitle": "Iragazi epearen arabera",
+    "periodFilterPrompt": "Aukeratu datuen denbora-tartea.",
+    "periods": { "last30Days": "Azken 30 egunak", "thisYear": "Aurten", "all": "Historia osoa" },
+    "allGardens": "Baratze guztiak",
     "entries": "Sarrerak",
     "harvests": "Uztak",
     "activeDays_one": "egun aktibo",

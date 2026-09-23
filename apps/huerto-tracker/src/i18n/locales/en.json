@@ -1090,6 +1090,10 @@
   },
   "stats": {
     "title": "Statistics",
+    "periodFilterTitle": "Filter by period",
+    "periodFilterPrompt": "Choose the date range for your data.",
+    "periods": { "last30Days": "Last 30 days", "thisYear": "This year", "all": "All time" },
+    "allGardens": "All gardens",
     "entries": "Entries",
     "harvests": "Harvests",
     "activeDays_one": "active day",

@@ -1047,6 +1047,10 @@
   },
   "stats": {
     "title": "Estadístiques",
+    "periodFilterTitle": "Filtra per període",
+    "periodFilterPrompt": "Tria l'interval de les teues dades.",
+    "periods": { "last30Days": "Darrers 30 dies", "thisYear": "Enguany", "all": "Tot l'historial" },
+    "allGardens": "Tots els horts",
     "entries": "Entrades",
     "harvests": "Collites",
     "activeDays_one": "dia actiu",

@@ -1047,6 +1047,10 @@
   },
   "stats": {
     "title": "Estatísticas",
+    "periodFilterTitle": "Filtrar por período",
+    "periodFilterPrompt": "Escolle o intervalo dos teus datos.",
+    "periods": { "last30Days": "Últimos 30 días", "thisYear": "Este ano", "all": "Todo o historial" },
+    "allGardens": "Todas as hortas",
     "entries": "Entradas",
     "harvests": "Colleitas",
     "activeDays_one": "día activo",
