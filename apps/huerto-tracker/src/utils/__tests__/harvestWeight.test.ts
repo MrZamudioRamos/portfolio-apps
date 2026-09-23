@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getHarvestWeightKg, harvestWeightToGrams } from '../harvestWeight';
+import { getHarvestUnitCount, getHarvestWeightKg, harvestWeightToGrams } from '../harvestWeight';
 
 describe('harvest weight units', () => {
   it('reads the explicit kg field and rounds it to grams for storage', () => {
@@ -28,5 +28,11 @@ describe('harvest weight units', () => {
 
   it('prefers the explicit field when migrating a record that has both formats', () => {
     expect(getHarvestWeightKg({ weightKg: 0.3, weightGrams: 300 })).toBe(0.3);
+  });
+
+  it('preserves unit-based harvest counts separately from mass', () => {
+    expect(getHarvestUnitCount({ units: '3' })).toBe('3');
+    expect(getHarvestUnitCount({ weight: '12', unit: 'units' })).toBe('12');
+    expect(getHarvestUnitCount({ weight: '0.25', unit: 'kg' })).toBeNull();
   });
 });

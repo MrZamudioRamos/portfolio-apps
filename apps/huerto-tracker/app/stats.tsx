@@ -17,7 +17,7 @@ import { useCustomCrops } from '../src/hooks/useCustomCrops';
 import { CollectionError } from '../src/components/CollectionError';
 import { goBackOr } from '../src/utils/navigation';
 import { getHarvestWeightKg } from '../src/utils/harvestWeight';
-import { filterEntriesByPeriod, type StatsPeriod } from '../src/utils/statsPeriod';
+import { filterEntriesByPeriod, getEntryCalendarYear, type StatsPeriod } from '../src/utils/statsPeriod';
 
 const BAR_MAX_H = 72;
 
@@ -199,7 +199,8 @@ export default function StatsScreen() {
     // Harvest by year
     const harvestByYear = new Map<number, { count: number; kg: number }>();
     harvestEntries.forEach((e) => {
-      const year = new Date(e.date).getFullYear();
+      const year = getEntryCalendarYear(e.date);
+      if (year === null) return;
       const prev = harvestByYear.get(year) ?? { count: 0, kg: 0 };
       const parsed = getHarvestWeightKg(e.data as HarvestData) ?? 0;
       harvestByYear.set(year, { count: prev.count + 1, kg: prev.kg + (isNaN(parsed) ? 0 : parsed) });

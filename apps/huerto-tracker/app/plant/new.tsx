@@ -42,7 +42,7 @@ import { ScalePress } from '../../src/components/ScalePress';
 import { Mascot } from '../../src/components/Mascot';
 import { SuccessBurst } from '../../src/components/SuccessBurst';
 import { WebDatePicker } from '../../src/components/WebDatePicker';
-import { buildNewPlantDraft } from '../../src/utils/plantDraft';
+import { buildNewPlantDraft, getPlantNameAfterCropChange } from '../../src/utils/plantDraft';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -595,6 +595,7 @@ export default function NewPlantScreen() {
     const staticCrop = CROPS_BY_ID[paramCropId];
     return staticCrop ? t('crops.' + paramCropId + '.name', { defaultValue: staticCrop.name }) : '';
   });
+  const autoFilledPlantName = useRef<string | null>(plantName || null);
 
   const [variety, setVariety] = useState('');
   const [varietyId, setVarietyId] = useState<string | null>(null);
@@ -617,7 +618,9 @@ export default function NewPlantScreen() {
 
   useEffect(() => {
     if (!selectedCrop || plantName.trim()) return;
-    setPlantName(selectedCrop.isCustom ? selectedCrop.name : t(`crops.${selectedCrop.id}.name`, { defaultValue: selectedCrop.name }));
+    const label = selectedCrop.isCustom ? selectedCrop.name : t(`crops.${selectedCrop.id}.name`, { defaultValue: selectedCrop.name });
+    autoFilledPlantName.current = label;
+    setPlantName(label);
   }, [selectedCrop, plantName, t]);
 
   const filteredSections = useMemo(() => {
@@ -648,10 +651,12 @@ export default function NewPlantScreen() {
 
   function handleSelectCrop(crop: CropInfo) {
     setSelectedCropId(crop.id);
-    if (!plantName) {
-      const label = crop.isCustom ? crop.name : t('crops.' + crop.id + '.name', { defaultValue: crop.name });
-      setPlantName(label);
-    }
+    const label = crop.isCustom ? crop.name : t('crops.' + crop.id + '.name', { defaultValue: crop.name });
+    const currentName = plantName;
+    const isAutoName = !currentName.trim()
+      || (autoFilledPlantName.current !== null && currentName === autoFilledPlantName.current);
+    setPlantName(getPlantNameAfterCropChange(currentName, autoFilledPlantName.current, label));
+    autoFilledPlantName.current = isAutoName ? label : null;
     setShowCropPicker(false);
     setCropSearch('');
     setVarietyId(null);
@@ -672,6 +677,11 @@ export default function NewPlantScreen() {
   async function pickPhoto(fromCamera = false) {
     const result = await (fromCamera ? pickFromCamera() : pickFromGallery());
     if (result.kind === 'success') setPhotoUri(result.uri);
+  }
+
+  function handlePlantNameChange(value: string) {
+    autoFilledPlantName.current = null;
+    setPlantName(value);
   }
 
   async function handleSave() {
@@ -834,7 +844,7 @@ export default function NewPlantScreen() {
         onCloseCropPicker={() => { setShowCropPicker(false); setCropSearch(''); setPickerImgErr({}); }}
         onSelectCrop={handleSelectCrop}
         plantName={plantName}
-        onPlantNameChange={setPlantName}
+        onPlantNameChange={handlePlantNameChange}
         variety={variety}
         varietyId={varietyId}
         varieties={cropVarieties}
@@ -1039,7 +1049,7 @@ export default function NewPlantScreen() {
                 <TextInput
                   accessibilityLabel={t('plantNew.nameLabel')}
                   value={plantName}
-                  onChangeText={setPlantName}
+                  onChangeText={handlePlantNameChange}
                   placeholder={t('plantNew.namePlaceholder')}
                   placeholderTextColor={colors.textDisabled}
                   style={[s.input, { backgroundColor: colors.surface, borderColor: plantName ? colors.primary : colors.border, color: colors.text }]}

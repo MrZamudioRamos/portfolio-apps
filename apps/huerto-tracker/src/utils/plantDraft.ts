@@ -16,6 +16,17 @@ export type NewPlantDraftInput = {
 
 export type NewPlantDraft = Omit<Plant, 'id' | 'createdAt' | 'updatedAt'>;
 
+/** Replace only an auto-filled crop label; keep any name the user chose. */
+export function getPlantNameAfterCropChange(
+  currentName: string,
+  previousAutoName: string | null,
+  nextCropName: string,
+): string {
+  return !currentName.trim() || (previousAutoName !== null && currentName === previousAutoName)
+    ? nextCropName
+    : currentName;
+}
+
 /** Build only a complete, catalog-backed plant record from the add-plant form. */
 export function buildNewPlantDraft(input: NewPlantDraftInput): NewPlantDraft | null {
   const gardenId = input.gardenId?.trim();

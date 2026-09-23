@@ -6,7 +6,7 @@ import type { Plant } from '../models/plant';
 import type { CropInfo } from '../data/crops';
 import { CROPS_BY_ID } from '../data/crops';
 import { ENTRY_TYPE_CONFIG } from '../models/diary-entry';
-import { getHarvestWeightKg } from '../utils/harvestWeight';
+import { getHarvestUnitCount, getHarvestWeightKg } from '../utils/harvestWeight';
 
 function escapeCsv(v: unknown): string {
   return `"${String(v ?? '').replace(/"/g, '""')}"`;
@@ -14,7 +14,7 @@ function escapeCsv(v: unknown): string {
 
 const HEADERS = [
   'Fecha', 'Tipo', 'Planta', 'Cultivo', 'Notas',
-  'Litros', 'Peso (kg)', 'Unidad', 'Calidad (1-5)',
+  'Litros', 'Peso (kg)', 'Unidad', 'Cantidad cosechada (unidades)', 'Calidad (1-5)',
   'Producto', 'Cantidad', 'Unidad cantidad', 'Dosis', 'Carencia (días)',
 ];
 
@@ -39,6 +39,7 @@ export function useCsvExport() {
           const d = (e.data ?? {}) as Record<string, unknown>;
           const isHarvest = e.type === 'harvest';
           const isFert = e.type === 'fertilizing';
+          const harvestUnitCount = isHarvest ? getHarvestUnitCount(d) : null;
           return [
             e.date,
             ENTRY_TYPE_CONFIG[e.type]?.label ?? e.type,
@@ -47,7 +48,8 @@ export function useCsvExport() {
             e.notes ?? '',
             d.liters ?? '',
             isHarvest ? getHarvestWeightKg(d) ?? '' : '',
-            isHarvest ? d.unit ?? '' : '',
+            isHarvest ? d.unit ?? (harvestUnitCount !== null ? 'units' : '') : '',
+            harvestUnitCount ?? '',
             d.quality ?? '',
             d.product ?? '',
             d.amount ?? '',

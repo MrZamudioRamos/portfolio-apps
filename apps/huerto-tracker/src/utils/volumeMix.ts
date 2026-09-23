@@ -24,6 +24,10 @@ export const DEFAULT_VOLUME_MIX_RECIPE: VolumeMixRecipe = {
   volumeText: '20',
 };
 
+export function canEditVolumeMix(loading: boolean, saving: boolean): boolean {
+  return !loading && !saving;
+}
+
 export function sanitizeVolumeInput(value: string): string {
   const filtered = value.replace(/[^\d.,]/g, '');
   const separatorIndex = filtered.search(/[.,]/);

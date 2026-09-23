@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { goBackOr } from '../src/utils/navigation';
 import {
+  canEditVolumeMix,
   calculateVolumeMix,
   DEFAULT_VOLUME_MIX_RECIPE,
   sanitizeVolumeInput,
@@ -92,6 +93,7 @@ export default function VolumeCalculatorScreen() {
   const preset = PRESETS.find((item) => item.id === recipe.presetId) ?? PRESETS[2];
   const result = useMemo(() => calculateVolumeMix(recipe.volumeText), [recipe.volumeText]);
   const loading = current.loading || Boolean(gardenId && state.gardenId !== gardenId);
+  const recipeLocked = !canEditVolumeMix(loading, current.saving);
   const saveDisabled = !gardenId || loading || current.saving || !result;
 
   function updateRecipe(patch: Partial<VolumeMixRecipe>) {
@@ -175,10 +177,10 @@ export default function VolumeCalculatorScreen() {
               <Pressable
                 key={item.id}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: active, disabled: loading }}
-                disabled={loading}
+                accessibilityState={{ checked: active, disabled: recipeLocked }}
+                disabled={recipeLocked}
                 onPress={() => choosePreset(item)}
-                style={[styles.preset, { backgroundColor: active ? colors.primary + '14' : colors.surface, borderColor: active ? colors.primary : colors.border, opacity: loading ? 0.55 : 1 }]}
+                style={[styles.preset, { backgroundColor: active ? colors.primary + '14' : colors.surface, borderColor: active ? colors.primary : colors.border, opacity: recipeLocked ? 0.55 : 1 }]}
               >
                 <Ionicons name={item.icon} size={22} color={active ? colors.primary : colors.textSecondary} />
                 <View style={{ flex: 1 }}>
@@ -192,12 +194,12 @@ export default function VolumeCalculatorScreen() {
         </View>
 
         <Text style={[styles.section, { color: colors.textSecondary }]}>{t('volumeCalculator.volumeLabel')}</Text>
-        <View style={[styles.inputRow, { backgroundColor: colors.surface, borderColor: result ? colors.border : colors.error, opacity: loading ? 0.55 : 1 }]}>
+        <View style={[styles.inputRow, { backgroundColor: colors.surface, borderColor: result ? colors.border : colors.error, opacity: recipeLocked ? 0.55 : 1 }]}>
           <Ionicons name="cube-outline" size={20} color={colors.primary} />
           <TextInput
             value={recipe.volumeText}
             onChangeText={(value) => updateRecipe({ volumeText: sanitizeVolumeInput(value) })}
-            editable={!loading}
+            editable={!recipeLocked}
             keyboardType="decimal-pad"
             accessibilityLabel={t('volumeCalculator.volumeLabel')}
             style={[styles.input, { color: colors.text }]}

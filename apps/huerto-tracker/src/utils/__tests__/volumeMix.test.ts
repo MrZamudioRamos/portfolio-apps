@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateVolumeMix, loadVolumeMixRecipe, parseVolumeLiters, sanitizeVolumeInput, saveVolumeMixRecipe, type VolumeMixStorage } from '../volumeMix';
+import { calculateVolumeMix, canEditVolumeMix, loadVolumeMixRecipe, parseVolumeLiters, sanitizeVolumeInput, saveVolumeMixRecipe, type VolumeMixStorage } from '../volumeMix';
 
 function memoryStorage(): VolumeMixStorage {
   const values = new Map<string, string>();
@@ -10,6 +10,12 @@ function memoryStorage(): VolumeMixStorage {
 }
 
 describe('volume mix calculator', () => {
+  it('locks recipe editing while loading or saving', () => {
+    expect(canEditVolumeMix(false, false)).toBe(true);
+    expect(canEditVolumeMix(true, false)).toBe(false);
+    expect(canEditVolumeMix(false, true)).toBe(false);
+  });
+
   it('calculates an 80/20 reference mix from a valid litre amount', () => {
     expect(calculateVolumeMix('20')).toEqual({
       totalLiters: 20,

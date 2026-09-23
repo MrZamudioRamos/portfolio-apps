@@ -1,5 +1,10 @@
 export type StatsPeriod = 'last30Days' | 'thisYear' | 'all';
 
+export function getEntryCalendarYear(date: string): number | null {
+  const year = date.slice(0, 4);
+  return /^\d{4}$/.test(year) ? Number(year) : null;
+}
+
 function localDateKey(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');

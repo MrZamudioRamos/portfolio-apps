@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterEntriesByPeriod, type StatsPeriod } from '../statsPeriod';
+import { filterEntriesByPeriod, getEntryCalendarYear, type StatsPeriod } from '../statsPeriod';
 
 const entries = [
   { id: 'old', date: '2026-08-24T10:00:00.000Z' },
@@ -29,5 +29,13 @@ describe('filterEntriesByPeriod', () => {
   it('returns no entries when none fall within the selected period', () => {
     const result = filterEntriesByPeriod([{ date: '2025-01-01' }], 'last30Days' satisfies StatsPeriod, now);
     expect(result).toEqual([]);
+  });
+});
+
+describe('getEntryCalendarYear', () => {
+  it('uses the date written in the diary instead of converting midnight UTC to local time', () => {
+    expect(getEntryCalendarYear('2026-01-01')).toBe(2026);
+    expect(getEntryCalendarYear('2026-01-01T00:00:00.000Z')).toBe(2026);
+    expect(getEntryCalendarYear('not-a-date')).toBeNull();
   });
 });

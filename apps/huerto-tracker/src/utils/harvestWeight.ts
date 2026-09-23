@@ -4,6 +4,7 @@ type HarvestWeightData = {
   weightGrams?: unknown;
   /** Old text field; values were entered in kilograms. */
   weight?: unknown;
+  units?: unknown;
   unit?: string;
 } | null | undefined;
 
@@ -23,6 +24,15 @@ export function getHarvestWeightKg(data: HarvestWeightData): number | null {
   if (explicit !== null) return explicit;
   if (data.unit === 'units') return null;
   return finiteNonNegative(data.weightGrams ?? data.weight);
+}
+
+/** Returns a separately recorded harvest count without treating it as a mass. */
+export function getHarvestUnitCount(data: HarvestWeightData): string | number | null {
+  if (!data) return null;
+  const value = data.units ?? (data.unit === 'units' ? data.weight : undefined);
+  if (typeof value !== 'number' && typeof value !== 'string') return null;
+  if (finiteNonNegative(value) === null) return null;
+  return typeof value === 'string' ? value.trim() : value;
 }
 
 /** Converts a harvest mass to the integer grams expected by Supabase's harvest_weight_g column. */

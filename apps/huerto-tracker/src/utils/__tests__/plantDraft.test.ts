@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildNewPlantDraft } from '../plantDraft';
+import { buildNewPlantDraft, getPlantNameAfterCropChange } from '../plantDraft';
 
 describe('buildNewPlantDraft', () => {
   it('refuses to create a plant without its garden, catalog crop, and name', () => {
@@ -56,5 +56,14 @@ describe('buildNewPlantDraft', () => {
       status: 'seedling',
       propagationMethod: 'seed',
     });
+  });
+});
+
+describe('getPlantNameAfterCropChange', () => {
+  it('updates an automatically filled crop name but preserves a user-edited name', () => {
+    expect(getPlantNameAfterCropChange('Tomate', 'Tomate', 'Albahaca')).toBe('Albahaca');
+    expect(getPlantNameAfterCropChange('Mi planta favorita', 'Tomate', 'Albahaca')).toBe('Mi planta favorita');
+    expect(getPlantNameAfterCropChange('', null, 'Albahaca')).toBe('Albahaca');
+    expect(getPlantNameAfterCropChange('Nombre antes de elegir', null, 'Albahaca')).toBe('Nombre antes de elegir');
   });
 });
