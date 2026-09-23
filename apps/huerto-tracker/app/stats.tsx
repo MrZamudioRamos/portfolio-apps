@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Animated, Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CROPS_BY_ID } from '../src/data/crops';
-import type { DiaryEntry, EntryType } from '../src/models/diary-entry';
+import type { DiaryEntry, EntryType, HarvestData } from '../src/models/diary-entry';
 import { ENTRY_TYPE_CONFIG } from '../src/models/diary-entry';
 import type { Plant } from '../src/models/plant';
 import { buildGamificationData, evaluateBadges, sortBadges, getUnlockedCount, TIER_COLORS } from '../src/utils/gamification';
@@ -16,6 +16,7 @@ import { useActiveGarden } from '../src/hooks/useActiveGarden';
 import { useCustomCrops } from '../src/hooks/useCustomCrops';
 import { CollectionError } from '../src/components/CollectionError';
 import { goBackOr } from '../src/utils/navigation';
+import { getHarvestWeightKg } from '../src/utils/harvestWeight';
 
 const BAR_MAX_H = 72;
 
@@ -131,12 +132,10 @@ export default function StatsScreen() {
       });
 
     // Harvest weight total (stored as kg, may be string or number)
-    const totalWeight = harvestEntries.reduce((sum, e) => {
-      const d = e.data as any;
-      const w = d?.weightGrams ?? d?.weight;
-      const parsed = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
-      return sum + (isNaN(parsed) ? 0 : parsed);
-    }, 0);
+    const totalWeight = harvestEntries.reduce(
+      (sum, e) => sum + (getHarvestWeightKg(e.data as HarvestData) ?? 0),
+      0,
+    );
 
     // Top crops by harvest (count + kg + avg quality)
     const cropHarvestData = new Map<string, { count: number; kg: number; qualitySum: number; qualityCount: number }>();
@@ -145,12 +144,7 @@ export default function StatsScreen() {
         const plant = allPlants.find((p) => p.id === e.plantId);
         if (plant) {
           const prev = cropHarvestData.get(plant.cropId) ?? { count: 0, kg: 0, qualitySum: 0, qualityCount: 0 };
-          const d = e.data as any;
-          const w = d?.weightGrams ?? d?.weight;
-          const unit = d?.unit;
-          const parsed = unit !== 'units' && typeof w !== 'undefined'
-            ? (typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0)
-            : 0;
+          const parsed = getHarvestWeightKg(e.data as HarvestData) ?? 0;
           const q = Number((e.data as any)?.quality ?? 0);
           cropHarvestData.set(plant.cropId, {
             count: prev.count + 1,
@@ -177,9 +171,7 @@ export default function StatsScreen() {
     harvestEntries.forEach((e) => {
       const year = new Date(e.date).getFullYear();
       const prev = harvestByYear.get(year) ?? { count: 0, kg: 0 };
-      const dt = e.data as any;
-      const w = dt?.weightGrams ?? dt?.weight;
-      const parsed = typeof w === 'string' ? parseFloat(w) : typeof w === 'number' ? w : 0;
+      const parsed = getHarvestWeightKg(e.data as HarvestData) ?? 0;
       harvestByYear.set(year, { count: prev.count + 1, kg: prev.kg + (isNaN(parsed) ? 0 : parsed) });
     });
     const currentYear = new Date().getFullYear();

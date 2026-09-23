@@ -26,6 +26,7 @@ import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType, type WateringData, 
 import { dateToStr, todayStr } from '../../src/utils/dateStr';
 import { tapHaptic } from '../../src/utils/haptics';
 import { goBackOr } from '../../src/utils/navigation';
+import { getHarvestWeightKg } from '../../src/utils/harvestWeight';
 
 const ALL_TYPES: EntryType[] = [
   'watering', 'sowing', 'transplant', 'fertilizing', 'harvest',
@@ -72,7 +73,7 @@ export default function EditEntryScreen() {
   const [waterLiters, setWaterLiters] = useState(String((entry?.data as WateringData)?.liters ?? ''));
   const [waterMethod, setWaterMethod] = useState<'hand'|'drip'|'sprinkler'|'flood'>((entry?.data as WateringData)?.method ?? 'hand');
   // harvest
-  const [harvestWeight, setHarvestWeight] = useState(String((entry?.data as HarvestData)?.weightGrams ?? (entry?.data as HarvestData)?.weight ?? ''));
+  const [harvestWeight, setHarvestWeight] = useState(String(getHarvestWeightKg(entry?.data as HarvestData) ?? ''));
   const [harvestUnits, setHarvestUnits] = useState(String((entry?.data as HarvestData)?.units ?? ''));
   const [harvestQuality, setHarvestQuality] = useState<number>(Number((entry?.data as HarvestData)?.quality ?? 0));
   // fertilizing
@@ -93,7 +94,7 @@ export default function EditEntryScreen() {
     setPhotoUri(entry.photoUri ?? null);
     setWaterLiters(String((entry.data as WateringData)?.liters ?? ''));
     setWaterMethod((entry.data as WateringData)?.method ?? 'hand');
-    setHarvestWeight(String((entry.data as HarvestData)?.weightGrams ?? (entry.data as HarvestData)?.weight ?? ''));
+    setHarvestWeight(String(getHarvestWeightKg(entry.data as HarvestData) ?? ''));
     setHarvestUnits(String((entry.data as HarvestData)?.units ?? ''));
     setHarvestQuality(Number((entry.data as HarvestData)?.quality ?? 0));
     setFertProduct(String((entry.data as FertilizingData)?.product ?? ''));
@@ -159,7 +160,7 @@ export default function EditEntryScreen() {
     let entryData: Record<string, unknown> | undefined;
     if (selectedType === 'harvest' && (harvestWeight || harvestUnits || harvestQuality)) {
       entryData = {
-        ...(harvestWeight ? { weightGrams: parseFloat(harvestWeight) || undefined } : {}),
+        ...(harvestWeight ? { weightKg: parseFloat(harvestWeight.replace(',', '.')) || undefined } : {}),
         ...(harvestUnits ? { units: harvestUnits } : {}),
         ...(harvestQuality ? { quality: harvestQuality } : {}),
       };

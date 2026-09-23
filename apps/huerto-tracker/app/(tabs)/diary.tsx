@@ -20,7 +20,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { formatRelative } from '@portfolio/shared';
-import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType } from '../../src/models/diary-entry';
+import { ENTRY_TYPE_CONFIG, type DiaryEntry, type EntryType, type HarvestData } from '../../src/models/diary-entry';
 import { type Plant } from '../../src/models/plant';
 import { useTranslation } from 'react-i18next';
 import { useCsvExport } from '../../src/hooks/useCsvExport';
@@ -28,6 +28,7 @@ import { useCustomCrops } from '../../src/hooks/useCustomCrops';
 import { usePro } from '../../src/hooks/usePro';
 import { useActiveGarden } from '../../src/hooks/useActiveGarden';
 import { goBackOr } from '../../src/utils/navigation';
+import { getHarvestWeightKg } from '../../src/utils/harvestWeight';
 
 const ALL_TYPES: Array<EntryType | 'all'> = [
   'all', 'watering', 'sowing', 'harvest', 'fertilizing', 'transplant',
@@ -214,9 +215,9 @@ function DiaryInner() {
 
           {item.data && Object.keys(item.data).length > 0 ? (
             <View style={s.harvestData}>
-              {((item.data as any).weightGrams ?? (item.data as any).weight) ? (
+              {getHarvestWeightKg(item.data as HarvestData) !== null ? (
                 <Text style={[s.harvestChip, { color: colors.warning, backgroundColor: colors.warning + '18' }]}>
-                  <Ionicons name="scale-outline" size={13} color={colors.warning} /> {(item.data as any).weightGrams ?? (item.data as any).weight} kg
+                  <Ionicons name="scale-outline" size={13} color={colors.warning} /> {getHarvestWeightKg(item.data as HarvestData)} kg
                 </Text>
               ) : null}
               {(item.data as any).units ? (

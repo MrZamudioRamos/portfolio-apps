@@ -33,6 +33,7 @@ import { Illustration } from '../src/components/Illustration';
 import { CollectionError } from '../src/components/CollectionError';
 import { StitchBottomNav } from '../src/components/StitchBottomNav';
 import { goBackOr } from '../src/utils/navigation';
+import { getHarvestWeightKg } from '../src/utils/harvestWeight';
 
 const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
@@ -148,12 +149,12 @@ export default function CostsScreen() {
     const harvests = yearDiary.filter((e) => e.type === 'harvest' && (e.data as any)?.unit !== 'units');
     const totalKg = harvests.reduce((sum, e) => {
       const d = e.data as any;
-      return sum + (parseFloat((d?.weightGrams ?? d?.weight) ?? '0') || 0);
+      return sum + (getHarvestWeightKg(d) ?? 0);
     }, 0);
     const byPlant: Record<string, number> = {};
     for (const h of harvests) {
       const d = h.data as any;
-      if (h.plantId) byPlant[h.plantId] = (byPlant[h.plantId] ?? 0) + (parseFloat((d?.weightGrams ?? d?.weight) ?? '0') || 0);
+      if (h.plantId) byPlant[h.plantId] = (byPlant[h.plantId] ?? 0) + (getHarvestWeightKg(d) ?? 0);
     }
     return { totalKg, byPlant };
   }, [yearDiary]);
