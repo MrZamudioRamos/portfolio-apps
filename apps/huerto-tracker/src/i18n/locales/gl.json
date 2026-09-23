@@ -261,7 +261,11 @@
   "magicSent": {
     "title": "Comproba o teu correo",
     "message": "Enviámosche un código de 6 díxitos a {{email}}. Introdúceo aquí para entrar.",
-    "note": "O código caduca en 1 hora. Se non o ves, comproba a carpeta de spam.",
+    "note": "Se non o ves, comproba as carpetas de spam ou promocións.",
+    "messageWithoutAddress": "Non atopamos o enderezo asociado. Volve atrás, introdúceo e solicita outro código.",
+    "expiryLimited": "O código ten unha validez limitada. Se caduca, solicita outro.",
+    "openEmailApp": "Abrir a aplicación de correo",
+    "mailAppError": "Non se puido abrir unha aplicación de correo neste dispositivo.",
     "changeEmail": "Cambiar correo",
     "continueGuest": "Continuar sen conta por agora",
     "verify": "Verificar",

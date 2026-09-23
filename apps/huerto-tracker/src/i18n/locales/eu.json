@@ -261,7 +261,11 @@
   "magicSent": {
     "title": "Egiaztatu zure emaila",
     "message": "6 digituko kodea bidali dizugu {{email}} helbidera. Sartu hemen sartzeko.",
-    "note": "Kodea 1 orduz irauten du. Ez baduzu ikusten, egiaztatu spam karpeta.",
+    "note": "Ez baduzu ikusten, egiaztatu spam edo promozioen karpeta.",
+    "messageWithoutAddress": "Ez dugu helbide elkarturik aurkitu. Itzuli, sartu helbidea eta eskatu beste kode bat.",
+    "expiryLimited": "Kodeak balio-epe mugatua du. Iraungitzen bada, eskatu beste bat.",
+    "openEmailApp": "Posta-aplikazioa ireki",
+    "mailAppError": "Ezin izan da posta-aplikaziorik ireki gailu honetan.",
     "changeEmail": "Emaila aldatu",
     "continueGuest": "Konturik gabe jarraitu oraingoz",
     "verify": "Egiaztatu",

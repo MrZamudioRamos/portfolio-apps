@@ -261,7 +261,11 @@
   "magicSent": {
     "title": "Comprova el teu correu",
     "message": "T'hem enviat un codi de 6 dígits a {{email}}. Introdueix-lo ací per a entrar.",
-    "note": "El codi caduca en 1 hora. Si no el veus, comprova la carpeta de correu brossa.",
+    "note": "Si no el veus, comprova la carpeta de correu brossa o promocions.",
+    "messageWithoutAddress": "No hem trobat l'adreça associada. Torna arrere, introduïx-la i sol·licita un codi nou.",
+    "expiryLimited": "El codi és vàlid durant un temps limitat. Si caduca, sol·licita'n un de nou.",
+    "openEmailApp": "Obrir l'aplicació de correu",
+    "mailAppError": "No s'ha pogut obrir cap aplicació de correu en este dispositiu.",
     "changeEmail": "Canviar correu",
     "continueGuest": "Continuar sense compte per ara",
     "verify": "Verificar",

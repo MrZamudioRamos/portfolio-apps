@@ -272,7 +272,11 @@
   "magicSent": {
     "title": "Check your email",
     "message": "We've sent a 6-digit code to {{email}}. Enter it here to sign in.",
-    "note": "The code expires in 1 hour. If you don't see it, check your spam folder.",
+    "note": "If you don't see it, check your spam or promotions folder.",
+    "messageWithoutAddress": "We couldn't find the address for this sign-in. Go back, enter it, and request a new code.",
+    "expiryLimited": "The code is valid for a limited time. If it expires, request a new one.",
+    "openEmailApp": "Open email app",
+    "mailAppError": "No email app could be opened on this device.",
     "changeEmail": "Change email",
     "continueGuest": "Continue without account for now",
     "verify": "Verify",
